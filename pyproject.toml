@@ -36,12 +36,12 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
-# Core dependencies required for basic functionality
+# CORE dependencies - minimum needed to use the library
 dependencies = [
-    "numpy>=1.24.0",
-    "sympy>=1.12.0",
-    "scipy>=1.10.0",
-    "torch>=2.0.0",
+    "numpy>=2.0,<3.0",
+    "sympy>=1.12",
+    "scipy>=1.10",
+    "torch>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -49,51 +49,45 @@ dependencies = [
 jax = [
     "jax>=0.4.30",
     "jaxlib>=0.4.30",
-    "flax>=0.8.0",
-    "optax>=0.1.7",
 ]
 
 # Visualization tools
 viz = [
-    "plotly>=5.0.0",
-    "matplotlib>=3.5.0",
+    "plotly>=5.0",
+    "matplotlib>=3.5",
 ]
 
-# Development tools
+# Development and testing tools
 dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0.0",
-    "pre-commit>=3.0.0",
-]
-
-# Documentation
-docs = [
-    "sphinx>=5.0.0",
-    "sphinx-rtd-theme>=1.0.0",
-    "myst-parser>=0.18.0",
-    "sphinx-autodoc-typehints>=1.19.0",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
 ]
 
 # Jupyter notebook support
 notebooks = [
-    "jupyter>=1.0.0",
-    "ipykernel>=6.0.0",
-    "ipywidgets>=8.0.0",
+    "jupyter>=1.0",
+    "jupyterlab>=4.0",
+    "ipykernel>=6.0",
+    "ipywidgets>=8.0",
 ]
 
-# Install everything
+# Control theory utilities (if you use the 'control' package)
+control = [
+    "control>=0.10",
+]
+
+# Everything for development
 all = [
-    "control-ode-symulation[jax,viz,dev,docs,notebooks]",
+    "control-ode-symulation[jax,viz,dev,notebooks,control]",
 ]
 
 [project.urls]
 Homepage = "https://github.com/gbenezer/ControlODESymulation"
 Repository = "https://github.com/gbenezer/ControlODESymulation"
 Issues = "https://github.com/gbenezer/ControlODESymulation/issues"
-Documentation = "https://control-ode-symulation.readthedocs.io"  # Update when docs are deployed
 
 [tool.setuptools]
 packages = ["src"]
