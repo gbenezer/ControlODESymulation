@@ -6,7 +6,7 @@ NumPy, PyTorch, JAX, and other array libraries.
 """
 
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, List, Optional
+from typing import TypeVar, Generic, List, Optional, Any
 import numpy as np
 
 ArrayType = TypeVar("ArrayType")
@@ -78,30 +78,30 @@ class ArrayBackend(ABC, Generic[ArrayType]):
     def get_device(self) -> Optional[Any]:
         """
         Get device object (backend-specific).
-        
+
         Returns:
             Device object or None if not applicable
         """
         return None
-    
+
     def get_device_str(self) -> str:
         """
         Get device string.
-        
+
         Returns:
             Device string ('cpu', 'cuda', 'gpu', etc.)
         """
-        return 'cpu'  # Default to CPU
+        return "cpu"  # Default to CPU
 
 
 class TorchArrayBackend(ArrayBackend):
     """
     PyTorch array operations with GPU support.
-    
+
     Supports CPU, CUDA GPUs, and Apple Silicon (MPS).
     PyTorch arrays support automatic differentiation and can be
     moved between devices dynamically.
-    
+
     Examples:
         >>> # CPU backend
         >>> backend = TorchArrayBackend(device='cpu')
@@ -161,16 +161,16 @@ class TorchArrayBackend(ArrayBackend):
     def get_device(self):
         """
         Get the PyTorch device object.
-        
+
         Returns:
             torch.device object
         """
         return self.device
-    
+
     def get_device_str(self) -> str:
         """
         Get the device string.
-        
+
         Returns:
             Device string like 'cpu', 'cuda', 'cuda:0', 'mps'
         """
@@ -180,10 +180,10 @@ class TorchArrayBackend(ArrayBackend):
 class NumpyArrayBackend(ArrayBackend):
     """
     NumPy array operations (CPU-only).
-    
+
     NumPy is the foundational array library for Python scientific computing.
     Operations leverage optimized BLAS/LAPACK libraries for linear algebra.
-    
+
     Examples:
         >>> # NumPy backend (always CPU)
         >>> backend = NumpyArrayBackend(dtype=np.float32)
@@ -196,7 +196,7 @@ class NumpyArrayBackend(ArrayBackend):
 
     def __init__(self, dtype=np.float32):
         self.dtype = dtype
-        self.device_str = 'cpu'  # ADD: Always CPU for NumPy
+        self.device_str = "cpu"  # ADD: Always CPU for NumPy
 
     def zeros(self, shape: tuple, dtype=None):
         return np.zeros(shape, dtype=dtype or self.dtype)
@@ -239,28 +239,28 @@ class NumpyArrayBackend(ArrayBackend):
     def get_device(self):
         """
         Get device object (always None for NumPy).
-        
+
         Returns:
             None (NumPy doesn't have device objects)
         """
         return None
-    
+
     def get_device_str(self) -> str:
         """
         Get device string (always 'cpu' for NumPy).
-        
+
         Returns:
             Always 'cpu'
         """
-        return 'cpu'
+        return "cpu"
 
 
 class JAXArrayBackend(ArrayBackend):
     """
     JAX array operations with GPU support.
-    
+
     Supports CPU, single GPU, and multi-GPU configurations.
-    
+
     Examples:
         >>> # CPU backend
         >>> backend = JAXArrayBackend(device='cpu')
@@ -271,15 +271,15 @@ class JAXArrayBackend(ArrayBackend):
         >>> # Specific GPU
         >>> backend = JAXArrayBackend(device='gpu:0')
     """
-    
-    def __init__(self, device: str = 'cpu', dtype=None):
+
+    def __init__(self, device: str = "cpu", dtype=None):
         """
         Initialize JAX array backend.
-        
+
         Args:
             device: Device string - 'cpu', 'gpu', 'gpu:0', 'gpu:1', etc.
             dtype: JAX dtype (default: jnp.float32)
-        
+
         Raises:
             ImportError: If JAX is not installed
             ValueError: If device string is invalid
@@ -288,27 +288,27 @@ class JAXArrayBackend(ArrayBackend):
         try:
             import jax
             import jax.numpy as jnp
-            
+
             # Store jax module reference (CRITICAL for tests!)
             self.jax = jax
             self.jnp = jnp
-            
+
             # Store device string
             self.device_str = device
-            
+
             # Parse and validate device
-            if device == 'cpu':
-                self.device = jax.devices('cpu')[0]
-            elif device == 'gpu':
+            if device == "cpu":
+                self.device = jax.devices("cpu")[0]
+            elif device == "gpu":
                 # Default GPU (first available)
-                gpu_devices = jax.devices('gpu')
+                gpu_devices = jax.devices("gpu")
                 if len(gpu_devices) == 0:
                     raise RuntimeError("No GPU devices available")
                 self.device = gpu_devices[0]
-            elif device.startswith('gpu:'):
+            elif device.startswith("gpu:"):
                 # Specific GPU
-                gpu_id = int(device.split(':')[1])
-                gpu_devices = jax.devices('gpu')
+                gpu_id = int(device.split(":")[1])
+                gpu_devices = jax.devices("gpu")
                 if gpu_id >= len(gpu_devices):
                     raise RuntimeError(
                         f"GPU {gpu_id} requested but only {len(gpu_devices)} available"
@@ -316,96 +316,95 @@ class JAXArrayBackend(ArrayBackend):
                 self.device = gpu_devices[gpu_id]
             else:
                 raise ValueError(
-                    f"Invalid device string: {device}. "
-                    f"Use 'cpu', 'gpu', or 'gpu:N'"
+                    f"Invalid device string: {device}. " f"Use 'cpu', 'gpu', or 'gpu:N'"
                 )
-            
+
             self.dtype = dtype or jnp.float32
-            
+
         except ImportError:
             raise ImportError(
                 "JAX not installed. Install with:\n"
                 "  CPU: pip install jax jaxlib\n"
                 "  GPU: pip install jax[cuda12] (or cuda11)"
             )
-    
+
     def _put_on_device(self, arr):
         """Helper to put array on correct device"""
-        if self.device_str == 'cpu':
+        if self.device_str == "cpu":
             return arr  # Already on CPU
         else:
             return self.jax.device_put(arr, self.device)
-    
+
     def zeros(self, shape: tuple, dtype=None):
         arr = self.jnp.zeros(shape, dtype=dtype or self.dtype)
         return self._put_on_device(arr)
-    
+
     def ones(self, shape: tuple, dtype=None):
         arr = self.jnp.ones(shape, dtype=dtype or self.dtype)
         return self._put_on_device(arr)
-    
+
     def eye(self, n: int, dtype=None):
         arr = self.jnp.eye(n, dtype=dtype or self.dtype)
         return self._put_on_device(arr)
-    
+
     def concatenate(self, arrays, axis: int):
         """
         Concatenate arrays along axis.
-        
+
         Note: JAX raises TypeError for shape mismatches (not ValueError)
         """
         return self.jnp.concatenate(arrays, axis=axis)
-    
+
     def stack(self, arrays, axis: int):
         return self.jnp.stack(arrays, axis=axis)
-    
+
     def expand_dims(self, x, axis: int):
         return self.jnp.expand_dims(x, axis=axis)
-    
+
     def squeeze(self, x, axis=None):
         if axis is None:
             return self.jnp.squeeze(x)
         return self.jnp.squeeze(x, axis=axis)
-    
+
     def reshape(self, x, shape: tuple):
         """
         Reshape array.
-        
+
         Note: JAX raises TypeError for invalid shapes (not ValueError)
         """
         return self.jnp.reshape(x, shape)
-    
+
     def to_numpy(self, x) -> np.ndarray:
         """
         Convert JAX array to NumPy.
-        
+
         Works for both CPU and GPU arrays (automatically transfers from GPU).
         """
         return np.array(x)
-    
+
     def from_numpy(self, x: np.ndarray):
         arr = self.jnp.array(x, dtype=self.dtype)
         return self._put_on_device(arr)
-    
+
     def get_backend_name(self) -> str:
         return "jax"
-    
+
     def get_default_dtype(self):
         return self.dtype
-    
+
     def get_device(self):
         """
         Get the JAX device object.
-        
+
         Returns:
             JAX Device object
         """
         return self.device
-    
+
     def get_device_str(self) -> str:
         """
         Get the device string.
-        
+
         Returns:
             Device string like 'cpu', 'gpu', 'gpu:0'
         """
