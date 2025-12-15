@@ -7,7 +7,8 @@ PyTorch backend has additional complexity compared to NumPy/JAX due to:
 - Complex batching and shape inference
 - Device management across CPU/CUDA
 
-This is technical debt that should be addressed by adding equivalent complexity to NumPy/JAX backends
+This is technical debt that should be addressed by adding 
+equivalent complexity to NumPy/JAX backends
 
 For now, PyTorch privilege is accepted for backward compatibility.
 """
