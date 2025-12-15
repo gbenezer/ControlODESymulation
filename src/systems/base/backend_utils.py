@@ -632,14 +632,19 @@ def quick_test_backend(backend_name: str, device: str = 'cpu') -> bool:
         device: 'cpu' or 'gpu'
     
     Returns:
-        True if backend works, False otherwise
+        True if backend works on specified device, False otherwise
     
     Example:
         >>> assert quick_test_backend('numpy', 'cpu')
         >>> assert quick_test_backend('pytorch', 'gpu')  # If GPU available
+        >>> assert not quick_test_backend('numpy', 'gpu')  # NumPy has no GPU
     """
     try:
         if backend_name == 'numpy':
+            
+            if device != 'cpu':
+                return False  # NumPy doesn't support GPU
+            
             import numpy as np
             arr = np.ones((3, 3))
             result = np.dot(arr, arr)
@@ -648,6 +653,11 @@ def quick_test_backend(backend_name: str, device: str = 'cpu') -> bool:
         elif backend_name == 'pytorch':
             import torch
             device_str = device if device == 'cpu' else 'cuda'
+            
+            # Check if requested device is available
+            if device_str == 'cuda' and not torch.cuda.is_available():
+                return False
+            
             arr = torch.ones(3, 3, device=device_str)
             result = torch.mm(arr, arr)
             return True
@@ -656,14 +666,17 @@ def quick_test_backend(backend_name: str, device: str = 'cpu') -> bool:
             import jax
             import jax.numpy as jnp
             
+            # Explicitly place array on requested device
             if device == 'gpu':
                 gpu_devices = jax.devices('gpu')
                 if len(gpu_devices) == 0:
                     return False
                 jax_device = gpu_devices[0]
             else:
+                # Explicitly use CPU device
                 jax_device = jax.devices('cpu')[0]
             
+            # FIX 3: Use device_put to ensure array is on correct device
             arr = jax.device_put(jnp.ones((3, 3)), jax_device)
             result = jnp.dot(arr, arr)
             return True
@@ -672,6 +685,7 @@ def quick_test_backend(backend_name: str, device: str = 'cpu') -> bool:
             return False
             
     except Exception as e:
+        # Return False on any error (don't print in production)
         print(f"Error testing {backend_name} on {device}: {e}")
         return False
 
