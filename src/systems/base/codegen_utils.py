@@ -7,7 +7,7 @@ PyTorch backend has additional complexity compared to NumPy/JAX due to:
 - Complex batching and shape inference
 - Device management across CPU/CUDA
 
-This is technical debt that should be addressed by adding 
+This is technical debt that should be addressed by adding
 equivalent complexity to NumPy/JAX backends
 
 For now, PyTorch privilege is accepted for backward compatibility.
@@ -32,9 +32,7 @@ def _torch_min(*args):
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.minimum(a_tensor, b_tensor)
     else:
-        tensors = [
-            torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args
-        ]
+        tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
         return torch.min(torch.stack(tensors))
 
 
@@ -48,17 +46,36 @@ def _torch_max(*args):
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.maximum(a_tensor, b_tensor)
     else:
-        tensors = [
-            torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args
-        ]
+        tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
         return torch.max(torch.stack(tensors))
 
 
-def _identity_matrix(data):
+def _numpy_matrix_handler(data):
     """
-    Handle ImmutableDenseMatrix from SymPy's lambdify.
+    Handle SymPy Matrix objects for NumPy backend.
 
-    SymPy passes a nested list like [[x], [y]] and we need to return [x, y]
+    SymPy's lambdify returns ImmutableDenseMatrix as nested lists:
+    [[x], [y]] → Should become [x, y]
+    """
+    if isinstance(data, (list, tuple)):
+        if len(data) > 0 and isinstance(data[0], (list, tuple)):
+            # Flatten one level: [[x], [y]] → [x, y]
+            return [
+                item[0] if isinstance(item, (list, tuple)) and len(item) == 1 else item
+                for item in data
+            ]
+        else:
+            return data
+    else:
+        return data
+
+
+def _torch_matrix_handler(data):
+    """
+    Handle SymPy Matrix objects for PyTorch backend.
+
+    SymPy's lambdify returns ImmutableDenseMatrix as nested lists:
+    [[x], [y]] → Should become [x, y] for torch.stack()
     """
     if isinstance(data, (list, tuple)):
         # Flatten one level: [[x], [y]] -> [x, y]
@@ -76,47 +93,34 @@ def _identity_matrix(data):
         return data
 
 
-# Standard mapping from SymPy functions to PyTorch functions
-SYMPY_TO_TORCH = {
-    # Trigonometric
-    "sin": "torch.sin",
-    "cos": "torch.cos",
-    "tan": "torch.tan",
-    "asin": "torch.asin",
-    "acos": "torch.acos",
-    "atan": "torch.atan",
-    "atan2": "torch.atan2",
-    "sinh": "torch.sinh",
-    "cosh": "torch.cosh",
-    "tanh": "torch.tanh",
-    # Exponential/Logarithmic
-    "exp": "torch.exp",
-    "log": "torch.log",
-    "sqrt": "torch.sqrt",
-    # Absolute value and sign
-    "Abs": "torch.abs",
-    "abs": "torch.abs",
-    "sign": "torch.sign",
-    # Min/Max - use helper functions
-    "Min": "_torch_min",
-    "Max": "_torch_max",
-    # Power
-    "Pow": "torch.pow",
-    # Rounding
-    "floor": "torch.floor",
-    "ceil": "torch.ceil",
-    "round": "torch.round",
-    # Additional
-    "clip": "torch.clamp",
-    "minimum": "torch.minimum",
-    "maximum": "torch.maximum",
-    # Matrix handling
-    "ImmutableDenseMatrix": "_identity_matrix",
-    "MutableDenseMatrix": "_identity_matrix",
-    "Matrix": "_identity_matrix",
+def _jax_matrix_handler(data):
+    """
+    Handle SymPy Matrix objects for JAX backend.
+
+    Converts SymPy Matrix to JAX array format.
+    """
+    import jax.numpy as jnp
+
+    if hasattr(data, "__len__") and hasattr(data, "__getitem__"):
+        try:
+            elements = [data[i] for i in range(len(data))]
+            return jnp.stack([jnp.asarray(e) for e in elements])
+        except:
+            return data
+    else:
+        return data
+
+
+# NumPy mappings (minimal - only matrix handling needed)
+
+SYMPY_TO_NUMPY_LAMBDIFY = {
+    "ImmutableDenseMatrix": _numpy_matrix_handler,
+    "MutableDenseMatrix": _numpy_matrix_handler,
+    "Matrix": _numpy_matrix_handler,
 }
 
-# Mapping for lambdify - actual function objects!
+
+# PyTorch mapping for lambdify!
 SYMPY_TO_TORCH_LAMBDIFY = {
     # Trigonometric
     "sin": torch.sin,
@@ -151,9 +155,22 @@ SYMPY_TO_TORCH_LAMBDIFY = {
     "minimum": torch.minimum,
     "maximum": torch.maximum,
     # # Matrix handling
-    "ImmutableDenseMatrix": _identity_matrix,
-    "MutableDenseMatrix": _identity_matrix,
-    "Matrix": _identity_matrix,
+    "ImmutableDenseMatrix": _torch_matrix_handler,
+    "MutableDenseMatrix": _torch_matrix_handler,
+    "Matrix": _torch_matrix_handler,
+}
+
+# JAX mappings (minimal - only matrix handling needed)
+SYMPY_TO_JAX = {
+    "ImmutableDenseMatrix": "_jax_matrix_handler",
+    "MutableDenseMatrix": "_jax_matrix_handler",
+    "Matrix": "_jax_matrix_handler",
+}
+
+SYMPY_TO_JAX_LAMBDIFY = {
+    "ImmutableDenseMatrix": _jax_matrix_handler,
+    "MutableDenseMatrix": _jax_matrix_handler,
+    "Matrix": _jax_matrix_handler,
 }
 
 
@@ -168,7 +185,7 @@ def generate_numpy_function(
     elif not isinstance(expr, sp.Matrix):
         expr = sp.Matrix([expr])
 
-    func = sp.lambdify(symbols, expr, modules="numpy")
+    func = sp.lambdify(symbols, expr, modules=[SYMPY_TO_NUMPY_LAMBDIFY, "numpy"])
 
     # Wrap to ensure proper array handling
     def wrapped_func(*args):
@@ -294,20 +311,7 @@ def generate_jax_function(
     func = sp.lambdify(
         symbols,
         expr,
-        modules=[
-            {
-                "ImmutableDenseMatrix": lambda x: jnp.stack(
-                    [jnp.asarray(x[i]) for i in range(len(x))]
-                ),
-                "MutableDenseMatrix": lambda x: jnp.stack(
-                    [jnp.asarray(x[i]) for i in range(len(x))]
-                ),
-                "Matrix": lambda x: jnp.stack(
-                    [jnp.asarray(x[i]) for i in range(len(x))]
-                ),
-            },
-            "jax",
-        ],
+        modules=[SYMPY_TO_JAX_LAMBDIFY, "jax"],
     )
 
     # Wrap to ensure proper array handling
