@@ -1,16 +1,19 @@
 """
 Backend-agnostic code generation utilities.
 
-CURRENT IMPLEMENTATION NOTE:
-PyTorch backend has additional complexity compared to NumPy/JAX due to:
-- Gradient tracking requirements (requires_grad preservation)
-- Complex batching and shape inference
-- Device management across CPU/CUDA
+All backends (NumPy, PyTorch, JAX) have equal support for:
+- Matrix handling (ImmutableDenseMatrix conversion)
+- Min/Max functions (variable argument handling)
+- Consistent shape conventions (always return 1D arrays)
 
-This is technical debt that should be addressed by adding
-equivalent complexity to NumPy/JAX backends
+Backend-specific features (not technical debt):
+- PyTorch: Gradient preservation via torch.as_tensor()
+- JAX: JIT compilation support
+- NumPy: Simplest implementation (reference)
 
-For now, PyTorch privilege is accepted for backward compatibility.
+Design Philosophy:
+All backends are equally capable. Differences reflect the backends'
+intrinsic capabilities (gradients, JIT, etc.), not implementation gaps.
 """
 
 from typing import Callable, Literal, Union
