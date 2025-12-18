@@ -384,6 +384,13 @@ def generate_numpy_function(
 
     Returns:
         Compiled Numpy function
+
+    Return Type Convention:
+        All functions return 1D arrays, even for scalar expressions:
+        - Scalar expr: returns shape (1,)
+        - Vector expr: returns shape (n,)
+        
+        Extract scalar: result[0] or result.item()
     """
     # Convert to matrix for consistent handling
     if isinstance(expr, list):
@@ -436,6 +443,13 @@ def generate_torch_function(expr, symbols):
 
     Returns:
         Compiled PyTorch function
+
+    Return Type Convention:
+        All functions return 1D arrays, even for scalar expressions:
+        - Scalar expr: returns shape (1,)
+        - Vector expr: returns shape (n,)
+        
+        Extract scalar: result[0] or result.item()
     """
     if isinstance(expr, list):
         expr = sp.Matrix(expr)
@@ -494,6 +508,13 @@ def generate_jax_function(
 
     Returns:
         Compiled JAX function
+
+    Return Type Convention:
+        All functions return 1D arrays, even for scalar expressions:
+        - Scalar expr: returns shape (1,)
+        - Vector expr: returns shape (n,)
+        
+        Extract scalar: result[0] or result.item()
     """
     import jax
     import jax.numpy as jnp
@@ -572,13 +593,21 @@ def generate_function(
     Returns:
         Compiled function that evaluates the expression
 
+    Return Type Convention:
+        All functions return 1D arrays, even for scalar expressions:
+        - Scalar expr: returns shape (1,)
+        - Vector expr: returns shape (n,)
+        
+        Extract scalar: result[0] or result.item()
+
     Examples:
         >>> x, y = sp.symbols('x y')
         >>>
-        >>> # Scalar expression
+        >>> # Scalar expression (must be extracted)
         >>> expr = x**2 + y**2
         >>> f = generate_function(expr, [x, y], backend='numpy')
-        >>> f(3.0, 4.0)  # Returns 25.0
+        >>> f(3.0, 4.0)  # Returns [25.0]
+        >>> f(3.0, 4.0).item()  # Returns 25.0
         >>>
         >>> # Vector/Matrix expression
         >>> expr = sp.Matrix([x**2, y**2, x*y])
