@@ -21,33 +21,225 @@ import torch
 Backend = Literal["numpy", "torch", "jax"]
 
 
-# Helper functions for PyTorch
+# Helper functions
+
+
+def _numpy_min(*args):
+    """
+    Handle SymPy Min for NumPy backend.
+
+    SymPy's Min can take arbitrary number of arguments: Min(x, y, z)
+    NumPy's np.minimum only takes 2 arguments.
+
+    Args:
+        *args: Variable number of arguments
+
+    Returns:
+        Minimum value (scalar or array)
+
+    Examples:
+        >>> _numpy_min(1, 2, 3)
+        1
+        >>> _numpy_min(np.array([1, 2]), np.array([3, 0]))
+        array([1, 0])
+    """
+    import numpy as np
+
+    if len(args) == 0:
+        raise ValueError("Min requires at least one argument")
+    elif len(args) == 1:
+        return args[0]
+    elif len(args) == 2:
+        return np.minimum(args[0], args[1])
+    else:
+        # More than 2 args: reduce iteratively
+        result = args[0]
+        for arg in args[1:]:
+            result = np.minimum(result, arg)
+        return result
+
+
+def _numpy_max(*args):
+    """
+    Handle SymPy Max for NumPy backend.
+
+    SymPy's Max can take arbitrary number of arguments: Max(x, y, z)
+    NumPy's np.maximum only takes 2 arguments.
+
+    Args:
+        *args: Variable number of arguments
+
+    Returns:
+        Maximum value (scalar or array)
+
+    Examples:
+        >>> _numpy_max(1, 2, 3)
+        3
+        >>> _numpy_max(np.array([1, 2]), np.array([3, 0]))
+        array([3, 2])
+    """
+    import numpy as np
+
+    if len(args) == 0:
+        raise ValueError("Max requires at least one argument")
+    elif len(args) == 1:
+        return args[0]
+    elif len(args) == 2:
+        return np.maximum(args[0], args[1])
+    else:
+        # More than 2 args: reduce iteratively
+        result = args[0]
+        for arg in args[1:]:
+            result = np.maximum(result, arg)
+        return result
+
+
 def _torch_min(*args):
-    """Handle Min for both scalars and tensors"""
+    """
+    Handle SymPy Min for PyTorch backend.
+
+    SymPy's Min can take arbitrary number of arguments: Min(x, y, z)
+    Handles both scalars and tensors, preserving gradients.
+
+    Args:
+        *args: Variable number of arguments (scalars or tensors)
+
+    Returns:
+        Minimum value (scalar or tensor)
+
+    Examples:
+        >>> _torch_min(torch.tensor(1.0), torch.tensor(2.0))
+        tensor(1.0)
+        >>> _torch_min(1.0, 2.0, 3.0)
+        tensor(1.0)
+    """
     import torch
 
-    if len(args) == 2:
+    if len(args) == 0:
+        raise ValueError("Min requires at least one argument")
+    elif len(args) == 1:
+        return torch.as_tensor(args[0]) if not isinstance(args[0], torch.Tensor) else args[0]
+    elif len(args) == 2:
         a, b = args
         a_tensor = torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.minimum(a_tensor, b_tensor)
     else:
+        # More than 2 args: convert all to tensors and reduce
         tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
-        return torch.min(torch.stack(tensors))
+        result = tensors[0]
+        for t in tensors[1:]:
+            result = torch.minimum(result, t)
+        return result
 
 
 def _torch_max(*args):
-    """Handle Max for both scalars and tensors"""
+    """
+    Handle SymPy Max for PyTorch backend.
+
+    SymPy's Max can take arbitrary number of arguments: Max(x, y, z)
+    Handles both scalars and tensors, preserving gradients.
+
+    Args:
+        *args: Variable number of arguments (scalars or tensors)
+
+    Returns:
+        Maximum value (scalar or tensor)
+
+    Examples:
+        >>> _torch_max(torch.tensor(1.0), torch.tensor(2.0))
+        tensor(2.0)
+        >>> _torch_max(1.0, 2.0, 3.0)
+        tensor(3.0)
+    """
     import torch
 
-    if len(args) == 2:
+    if len(args) == 0:
+        raise ValueError("Max requires at least one argument")
+    elif len(args) == 1:
+        return torch.as_tensor(args[0]) if not isinstance(args[0], torch.Tensor) else args[0]
+    elif len(args) == 2:
         a, b = args
         a_tensor = torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.maximum(a_tensor, b_tensor)
     else:
+        # More than 2 args: convert all to tensors and reduce
         tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
-        return torch.max(torch.stack(tensors))
+        result = tensors[0]
+        for t in tensors[1:]:
+            result = torch.maximum(result, t)
+        return result
+
+
+def _jax_min(*args):
+    """
+    Handle SymPy Min for JAX backend.
+
+    SymPy's Min can take arbitrary number of arguments: Min(x, y, z)
+    JAX's jnp.minimum only takes 2 arguments.
+
+    Args:
+        *args: Variable number of arguments
+
+    Returns:
+        Minimum value (scalar or array)
+
+    Examples:
+        >>> _jax_min(1.0, 2.0, 3.0)
+        Array(1.0, dtype=float32)
+        >>> _jax_min(jnp.array([1, 2]), jnp.array([3, 0]))
+        Array([1, 0], dtype=int32)
+    """
+    import jax.numpy as jnp
+
+    if len(args) == 0:
+        raise ValueError("Min requires at least one argument")
+    elif len(args) == 1:
+        return jnp.asarray(args[0])
+    elif len(args) == 2:
+        return jnp.minimum(args[0], args[1])
+    else:
+        # More than 2 args: reduce iteratively
+        result = args[0]
+        for arg in args[1:]:
+            result = jnp.minimum(result, arg)
+        return result
+
+
+def _jax_max(*args):
+    """
+    Handle SymPy Max for JAX backend.
+
+    SymPy's Max can take arbitrary number of arguments: Max(x, y, z)
+    JAX's jnp.maximum only takes 2 arguments.
+
+    Args:
+        *args: Variable number of arguments
+
+    Returns:
+        Maximum value (scalar or array)
+
+    Examples:
+        >>> _jax_max(1.0, 2.0, 3.0)
+        Array(3.0, dtype=float32)
+        >>> _jax_max(jnp.array([1, 2]), jnp.array([3, 0]))
+        Array([3, 2], dtype=int32)
+    """
+    import jax.numpy as jnp
+
+    if len(args) == 0:
+        raise ValueError("Max requires at least one argument")
+    elif len(args) == 1:
+        return jnp.asarray(args[0])
+    elif len(args) == 2:
+        return jnp.maximum(args[0], args[1])
+    else:
+        # More than 2 args: reduce iteratively
+        result = args[0]
+        for arg in args[1:]:
+            result = jnp.maximum(result, arg)
+        return result
 
 
 def _numpy_matrix_handler(data):
@@ -114,6 +306,10 @@ def _jax_matrix_handler(data):
 # NumPy mappings (minimal - only matrix handling needed)
 
 SYMPY_TO_NUMPY_LAMBDIFY = {
+    # Min/Max handling
+    "Min": _numpy_min,
+    "Max": _numpy_max,
+    # Matrix handling
     "ImmutableDenseMatrix": _numpy_matrix_handler,
     "MutableDenseMatrix": _numpy_matrix_handler,
     "Matrix": _numpy_matrix_handler,
@@ -161,13 +357,11 @@ SYMPY_TO_TORCH_LAMBDIFY = {
 }
 
 # JAX mappings (minimal - only matrix handling needed)
-SYMPY_TO_JAX = {
-    "ImmutableDenseMatrix": "_jax_matrix_handler",
-    "MutableDenseMatrix": "_jax_matrix_handler",
-    "Matrix": "_jax_matrix_handler",
-}
-
 SYMPY_TO_JAX_LAMBDIFY = {
+    # Min/Max handling
+    "Min": _jax_min,
+    "Max": _jax_max,
+    # Matrix handling
     "ImmutableDenseMatrix": _jax_matrix_handler,
     "MutableDenseMatrix": _jax_matrix_handler,
     "Matrix": _jax_matrix_handler,
@@ -180,14 +374,14 @@ def generate_numpy_function(
 ) -> Callable:
     """
     Generate a NumPy function from SymPy expression(s).
-    
+
     Converts symbolic expressions to executable NumPy functions.
     Handles scalars, vectors, and matrices.
 
     Args:
         expr: SymPy expression, list, or Matrix
         symbols: Input symbols in order
-    
+
     Returns:
         Compiled Numpy function
     """
@@ -231,7 +425,7 @@ def generate_numpy_function(
 def generate_torch_function(expr, symbols):
     """
     Generate a PyTorch function from SymPy expression(s).
-    
+
     Converts symbolic expressions to executable PyTorch functions.
     Preserves gradient tracking for autodifferentiation.
     Handles scalars, vectors, and matrices.
@@ -239,7 +433,7 @@ def generate_torch_function(expr, symbols):
     Args:
         expr: SymPy expression, list, or Matrix
         symbols: Input symbols in order
-    
+
     Returns:
         Compiled PyTorch function
     """
@@ -247,17 +441,17 @@ def generate_torch_function(expr, symbols):
         expr = sp.Matrix(expr)
     elif not isinstance(expr, sp.Matrix):
         expr = sp.Matrix([expr])
-    
+
     func = sp.lambdify(symbols, expr, modules=[SYMPY_TO_TORCH_LAMBDIFY])
-    
+
     def wrapped_func(*args):
         result = func(*args)
-        
+
         # SIMPLIFIED - match NumPy's behavior
         if isinstance(result, torch.Tensor):
             # Return as-is if already a tensor
             return result.flatten() if result.ndim > 1 else result
-        
+
         elif isinstance(result, (list, tuple)):
             # Convert list to tensor (like NumPy does to array)
             tensors = []
@@ -268,16 +462,16 @@ def generate_torch_function(expr, symbols):
                     t = torch.as_tensor(item, dtype=torch.float32)
                     t = t if t.ndim > 0 else t.reshape(1)
                 tensors.append(t)
-            
+
             if len(tensors) == 1:
                 return tensors[0]
             else:
                 # Stack and flatten (like NumPy)
                 return torch.stack(tensors).flatten()
-        
+
         else:
             return torch.tensor([result], dtype=torch.float32)
-    
+
     return wrapped_func
 
 
@@ -288,16 +482,16 @@ def generate_jax_function(
 ) -> Callable:
     """
     Generate a JAX function from SymPy expression(s).
-    
+
     Converts symbolic expressions to executable JAX functions.
     Supports JIT compilation for improved performance.
     Handles scalars, vectors, and matrices.
-    
+
     Args:
         expr: SymPy expression, list, or Matrix
         symbols: Input symbols in order
         jit: Whether to JIT-compile the function (default: True)
-    
+
     Returns:
         Compiled JAX function
     """
