@@ -1,10 +1,7 @@
 """
 Backend-agnostic diagnostic and helper utilities.
 
-Provides uniform diagnostics and device inspection for ALL backends,
-not just JAX. No backend is privileged.
-
-File: src/systems/base/backend_utils.py
+Provides uniform diagnostics and device inspection for ALL backends. No backend is privileged.
 """
 
 import numpy as np

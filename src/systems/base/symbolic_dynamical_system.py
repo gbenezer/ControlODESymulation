@@ -13,9 +13,16 @@ import torch.nn as nn
 
 class SymbolicDynamicalSystem(ABC, nn.Module):
     """
-    Base class for dynamical systems defined symbolically with SymPy.
-    Provides automatic generation of numerical functions and linearizations.
-    Compatible with the DiscreteTimeSystem interface.
+    (Currently) Torch-based class for dynamical systems defined symbolically with SymPy.
+    
+    **Current Backend Support**:
+    This class inherits from nn.Module (PyTorch) but supports multi-backend
+    computation through automatic dispatch:
+    - forward() accepts torch.Tensor, np.ndarray, or jax.Array
+    - Returns same type as input
+    - Equilibrium points are torch.Tensor (convert if using other backends)
+    
+    TODO: Make class fully backend-agnostic by implementing backend-setting/backend-passing logic
 
     Attributes:
         state_vars: List of symbolic state variables
@@ -23,6 +30,7 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         output_vars: List of symbolic output variables
         parameters: Dict mapping SymPy symbols to numerical values
         order: System order (1=first-order, 2=second-order, etc.)
+        backend: Initial/current backend ("numpy", "jax", or "torch") (TODO)
     """
 
     def __init__(self):
@@ -39,6 +47,9 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
 
         # System order (1 for first-order, 2 for second-order, etc.)
         self.order: int = 1
+
+        # System backend
+        self.backend = "numpy"
 
         # Cached numerical functions
         self._f_numpy: Optional[Callable] = None
@@ -75,6 +86,7 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         - self._f_sym: Symbolic dynamics matrix
         - self._h_sym: Symbolic output matrix (optional)
         - self.order: System order (default: 1)
+        - self.backend: System backend (default: numpy)
 
         CRITICAL: self.parameters must use SymPy Symbol objects as keys!
         Example: {m: 1.0, l: 0.5} NOT {'m': 1.0, 'l': 0.5}
