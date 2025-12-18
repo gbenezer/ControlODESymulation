@@ -178,7 +178,19 @@ def generate_numpy_function(
     expr: Union[sp.Expr, list[sp.Expr], sp.Matrix],
     symbols: list[sp.Symbol],
 ) -> Callable:
-    """Generate a NumPy function from SymPy expression(s)."""
+    """
+    Generate a NumPy function from SymPy expression(s).
+    
+    Converts symbolic expressions to executable NumPy functions.
+    Handles scalars, vectors, and matrices.
+
+    Args:
+        expr: SymPy expression, list, or Matrix
+        symbols: Input symbols in order
+    
+    Returns:
+        Compiled Numpy function
+    """
     # Convert to matrix for consistent handling
     if isinstance(expr, list):
         expr = sp.Matrix(expr)
@@ -216,80 +228,56 @@ def generate_numpy_function(
     return wrapped_func
 
 
-def generate_torch_function(
-    expr: Union[sp.Expr, list[sp.Expr], sp.Matrix], symbols: list[sp.Symbol]
-) -> Callable:
-    """Generate a PyTorch function from SymPy expression(s)."""
+def generate_torch_function(expr, symbols):
+    """
+    Generate a PyTorch function from SymPy expression(s).
+    
+    Converts symbolic expressions to executable PyTorch functions.
+    Preserves gradient tracking for autodifferentiation.
+    Handles scalars, vectors, and matrices.
 
-    # Convert to matrix for consistent handling
+    Args:
+        expr: SymPy expression, list, or Matrix
+        symbols: Input symbols in order
+    
+    Returns:
+        Compiled PyTorch function
+    """
     if isinstance(expr, list):
         expr = sp.Matrix(expr)
     elif not isinstance(expr, sp.Matrix):
         expr = sp.Matrix([expr])
-
-    # Remember the original shape
-    original_shape = expr.shape  # e.g., (2, 1) for Jacobian
-
+    
     func = sp.lambdify(symbols, expr, modules=[SYMPY_TO_TORCH_LAMBDIFY])
-
+    
     def wrapped_func(*args):
         result = func(*args)
-
-        # Handle SymPy Matrix
-        if hasattr(result, "__class__"):
-            class_name = str(result.__class__)
-            if "Matrix" in class_name or "ImmutableDenseMatrix" in class_name:
-                try:
-                    n_rows = len(result)
-                    result = [result[i] for i in range(n_rows)]
-                except:
-                    result = list(result) if hasattr(result, "__iter__") else [result]
-
+        
+        # SIMPLIFIED - match NumPy's behavior
         if isinstance(result, torch.Tensor):
-            if result.ndim == 0:
-                result = result.reshape(1)
-            return result
-
+            # Return as-is if already a tensor
+            return result.flatten() if result.ndim > 1 else result
+        
         elif isinstance(result, (list, tuple)):
-            if len(result) == 0:
-                raise ValueError("Empty result from lambdify")
-
+            # Convert list to tensor (like NumPy does to array)
             tensors = []
             for item in result:
                 if isinstance(item, torch.Tensor):
-                    # Preserve existing tensor (keeps gradients!)
-                    t = item.reshape(1) if item.ndim == 0 else item
-                    tensors.append(t)
+                    t = item if item.ndim > 0 else item.reshape(1)
                 else:
-                    # Convert to tensor - use as_tensor to potentially preserve gradients
                     t = torch.as_tensor(item, dtype=torch.float32)
-                    t = t.reshape(1) if t.ndim == 0 else t
-                    tensors.append(t)
-
+                    t = t if t.ndim > 0 else t.reshape(1)
+                tensors.append(t)
+            
             if len(tensors) == 1:
                 return tensors[0]
             else:
-                result = torch.stack(tensors, dim=0)
-
-                # Preserve original matrix shape if it was 2D column vector
-                if original_shape[1] == 1 and result.ndim == 1:
-                    result = result.unsqueeze(1)  # (2,) -> (2, 1)
-
-                # Transpose for batching
-                elif result.ndim == 2 and len(args) > 0:
-                    if isinstance(args[0], torch.Tensor) and args[0].ndim > 0:
-                        batch_size = args[0].shape[0]
-                        if (
-                            result.shape[1] == batch_size
-                            and result.shape[0] != batch_size
-                            and result.shape[0] < 10
-                        ):
-                            result = result.T
-
-                return result
+                # Stack and flatten (like NumPy)
+                return torch.stack(tensors).flatten()
+        
         else:
             return torch.tensor([result], dtype=torch.float32)
-
+    
     return wrapped_func
 
 
@@ -298,7 +286,21 @@ def generate_jax_function(
     symbols: list[sp.Symbol],
     jit: bool = True,
 ) -> Callable:
-    """Generate a JAX function from SymPy expression(s)."""
+    """
+    Generate a JAX function from SymPy expression(s).
+    
+    Converts symbolic expressions to executable JAX functions.
+    Supports JIT compilation for improved performance.
+    Handles scalars, vectors, and matrices.
+    
+    Args:
+        expr: SymPy expression, list, or Matrix
+        symbols: Input symbols in order
+        jit: Whether to JIT-compile the function (default: True)
+    
+    Returns:
+        Compiled JAX function
+    """
     import jax
     import jax.numpy as jnp
 
@@ -361,7 +363,34 @@ def generate_function(
     backend: Backend = "numpy",
     **kwargs,
 ) -> Callable:
-    """Generate a function from SymPy expression for specified backend."""
+    """
+    Generate a function from SymPy expression for specified backend.
+
+    Supports scalar expressions, vector expressions, and matrix expressions.
+    All backends handle matrix types consistently.
+
+    Args:
+        expr: SymPy expression, list of expressions, or Matrix
+        symbols: Input symbols in order
+        backend: 'numpy', 'torch', or 'jax'
+        **kwargs: Backend-specific options (e.g., jit=True for JAX)
+
+    Returns:
+        Compiled function that evaluates the expression
+
+    Examples:
+        >>> x, y = sp.symbols('x y')
+        >>>
+        >>> # Scalar expression
+        >>> expr = x**2 + y**2
+        >>> f = generate_function(expr, [x, y], backend='numpy')
+        >>> f(3.0, 4.0)  # Returns 25.0
+        >>>
+        >>> # Vector/Matrix expression
+        >>> expr = sp.Matrix([x**2, y**2, x*y])
+        >>> f = generate_function(expr, [x, y], backend='torch')
+        >>> f(torch.tensor(2.0), torch.tensor(3.0))  # Returns tensor([4., 9., 6.])
+    """
     if backend == "numpy":
         return generate_numpy_function(expr, symbols)
     elif backend == "torch":
