@@ -392,7 +392,7 @@ def generate_numpy_function(
         All functions return 1D arrays, even for scalar expressions:
         - Scalar expr: returns shape (1,)
         - Vector expr: returns shape (n,)
-        
+
         Extract scalar: result[0] or result.item()
     """
     # Convert to matrix for consistent handling
@@ -451,7 +451,7 @@ def generate_torch_function(expr, symbols):
         All functions return 1D arrays, even for scalar expressions:
         - Scalar expr: returns shape (1,)
         - Vector expr: returns shape (n,)
-        
+
         Extract scalar: result[0] or result.item()
     """
     if isinstance(expr, list):
@@ -516,7 +516,7 @@ def generate_jax_function(
         All functions return 1D arrays, even for scalar expressions:
         - Scalar expr: returns shape (1,)
         - Vector expr: returns shape (n,)
-        
+
         Extract scalar: result[0] or result.item()
     """
     import jax
@@ -600,7 +600,7 @@ def generate_function(
         All functions return 1D arrays, even for scalar expressions:
         - Scalar expr: returns shape (1,)
         - Vector expr: returns shape (n,)
-        
+
         Extract scalar: result[0] or result.item()
 
     Examples:
