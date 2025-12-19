@@ -46,6 +46,7 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         self._h_sym: Optional[sp.Matrix] = None  # Output: y = h(x)
 
         # System order (1 for first-order, 2 for second-order, etc.)
+        # default order is first-order
         self.order: int = 1
 
         # System backend
@@ -73,6 +74,18 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
             "forward_time": 0.0,
             "linearization_calls": 0,
             "linearization_time": 0.0,
+        }
+
+        # definition of equilibria dictionary
+        # as well as default equilibrium (origin)
+        
+        self._equilibria: Dict[str, Dict[str, np.ndarray]] = {}
+        self._default_equilibrium: str = "origin"  # Default name
+        
+        # Initialize with origin as default
+        self._equilibria["origin"] = {
+            "x": np.zeros(self.nx),
+            "u": np.zeros(self.nu)
         }
 
         self.define_system(*args, **kwargs)
@@ -155,15 +168,166 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         """Number of generalized coordinates (for higher-order systems)"""
         return self.nx // self.order if self.order > 1 else self.nx
 
-    @property
-    def x_equilibrium(self) -> torch.Tensor:
-        """Equilibrium state (override in subclass if needed)"""
-        return torch.zeros(self.nx)
+    def add_equilibrium(self, name: str, x_eq: np.ndarray, u_eq: np.ndarray, 
+                        verify: bool = True, tol: float = 1e-6):
+            """
+            Add a named equilibrium point.
+            
+            Args:
+                name: Descriptive name (e.g., 'inverted', 'hovering', 'cruise')
+                x_eq: Equilibrium state
+                u_eq: Equilibrium control
+                verify: Check that f(x_eq, u_eq) ≈ 0
+                tol: Tolerance for verification
+            
+            Example:
+                >>> pendulum = SymbolicPendulum()
+                >>> # Hanging down (stable)
+                >>> pendulum.add_equilibrium('hanging', 
+                ...                          x_eq=np.array([0.0, 0.0]),
+                ...                          u_eq=np.array([0.0]))
+                >>> # Inverted (unstable)
+                >>> pendulum.add_equilibrium('inverted',
+                ...                          x_eq=np.array([np.pi, 0.0]),
+                ...                          u_eq=np.array([0.0]))
+            """
+            x_eq = np.atleast_1d(np.asarray(x_eq))
+            u_eq = np.atleast_1d(np.asarray(u_eq))
+            
+            if x_eq.shape[0] != self.nx:
+                raise ValueError(f"x_eq must have shape ({self.nx},), got {x_eq.shape}")
+            if u_eq.shape[0] != self.nu:
+                raise ValueError(f"u_eq must have shape ({self.nu},), got {u_eq.shape}")
+            
+            # Verify it's actually an equilibrium
+            if verify:
+                import torch
+                x_torch = torch.tensor(x_eq, dtype=torch.float32)
+                u_torch = torch.tensor(u_eq, dtype=torch.float32)
+                
+                with torch.no_grad():
+                    dx = self.forward(x_torch, u_torch)
+                    max_deriv = torch.abs(dx).max().item()
+                    
+                    if max_deriv > tol:
+                        import warnings
+                        warnings.warn(
+                            f"Equilibrium '{name}' may not be valid: "
+                            f"max|f(x,u)| = {max_deriv:.2e} > {tol:.2e}"
+                        )
+            
+            self._equilibria[name] = {"x": x_eq, "u": u_eq}
 
-    @property
-    def u_equilibrium(self) -> torch.Tensor:
-        """Equilibrium control (override in subclass if needed)"""
-        return torch.zeros(self.nu)
+    def set_default_equilibrium(self, name: str):
+        """Set which equilibrium to use by default"""
+        if name not in self._equilibria:
+            raise ValueError(f"Unknown equilibrium '{name}'. Available: {list(self._equilibria.keys())}")
+        self._default_equilibrium = name
+    
+    def list_equilibria(self) -> List[str]:
+        """List all available equilibrium names"""
+        return list(self._equilibria.keys())
+    
+    def x_equilibrium(self, name: Optional[str] = None, backend: Optional[str] = None):
+        """
+        Get equilibrium state.
+        
+        Args:
+            name: Equilibrium name (uses default if None)
+            backend: Output format ('numpy', 'torch', 'jax')
+        
+        Returns:
+            Equilibrium state in requested format
+        """
+        name = name or self._default_equilibrium
+        backend = backend or self._default_backend
+        
+        if name not in self._equilibria:
+            raise ValueError(f"Unknown equilibrium '{name}'. Available: {list(self._equilibria.keys())}")
+        
+        x_eq = self._equilibria[name]["x"]
+        
+        # Convert to requested backend
+        if backend == "numpy":
+            return x_eq
+        elif backend == "torch":
+            import torch
+            device = self._preferred_device if backend == self._default_backend else "cpu"
+            return torch.tensor(x_eq, dtype=torch.float32, device=device)
+        elif backend == "jax":
+            import jax.numpy as jnp
+            return jnp.array(x_eq)
+        else:
+            raise ValueError(f"Unknown backend: {backend}")
+    
+    def u_equilibrium(self, name: Optional[str] = None, backend: Optional[str] = None):
+        """Get equilibrium control (same pattern as x_equilibrium)"""
+        name = name or self._default_equilibrium
+        backend = backend or self._default_backend
+        
+        if name not in self._equilibria:
+            raise ValueError(f"Unknown equilibrium '{name}'")
+        
+        u_eq = self._equilibria[name]["u"]
+        
+        if backend == "numpy":
+            return u_eq
+        elif backend == "torch":
+            import torch
+            device = self._preferred_device if backend == self._default_backend else "cpu"
+            return torch.tensor(u_eq, dtype=torch.float32, device=device)
+        elif backend == "jax":
+            import jax.numpy as jnp
+            return jnp.array(u_eq)
+    
+    def get_equilibrium_info(self, name: Optional[str] = None) -> Dict:
+        """
+        Get detailed information about an equilibrium.
+        
+        Returns:
+            Dict with x_eq, u_eq, stability, eigenvalues
+        """
+        name = name or self._default_equilibrium
+        
+        if name not in self._equilibria:
+            raise ValueError(f"Unknown equilibrium '{name}'")
+        
+        x_eq = self._equilibria[name]["x"]
+        u_eq = self._equilibria[name]["u"]
+        
+        # Compute linearization
+        import torch
+        x_torch = torch.tensor(x_eq, dtype=torch.float32).unsqueeze(0)
+        u_torch = torch.tensor(u_eq, dtype=torch.float32).unsqueeze(0)
+        
+        A, B = self.linearized_dynamics(x_torch, u_torch)
+        A_np = A.squeeze().detach().cpu().numpy()
+        
+        # Compute eigenvalues
+        eigenvalues = np.linalg.eigvals(A_np)
+        
+        # Check stability
+        is_stable = bool(np.all(np.real(eigenvalues) < 0))
+        
+        return {
+            "name": name,
+            "x_eq": x_eq,
+            "u_eq": u_eq,
+            "A": A_np,
+            "eigenvalues": eigenvalues,
+            "is_stable": is_stable,
+            "spectral_abscissa": float(np.max(np.real(eigenvalues)))
+        }
+    
+    # @property
+    # def x_equilibrium(self) -> torch.Tensor:
+    #     """Equilibrium state (override in subclass if needed)"""
+    #     return torch.zeros(self.nx)
+
+    # @property
+    # def u_equilibrium(self) -> torch.Tensor:
+    #     """Equilibrium control (override in subclass if needed)"""
+    #     return torch.zeros(self.nu)
 
     def substitute_parameters(
         self, expr: Union[sp.Expr, sp.Matrix]
@@ -1917,3 +2081,153 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         A_cl[np.abs(A_cl) <= 1e-6] = 0
 
         return A_cl
+
+# Initial drafts, need to move to their own files (technical debt)
+class EquilibriumManifold:
+    """
+    Represents a continuous family of equilibria parameterized by one or more variables.
+    
+    Example: Aircraft trim conditions as function of airspeed
+    """
+    
+    def __init__(self, system: SymbolicDynamicalSystem, 
+                 parameter_names: List[str]):
+        self.system = system
+        self.parameter_names = parameter_names
+        self._trim_function: Optional[Callable] = None
+    
+    def set_trim_function(self, trim_fn: Callable):
+        """
+        Set function that computes (x_eq, u_eq) from parameters.
+        
+        Args:
+            trim_fn: Function with signature (param1, param2, ...) -> (x_eq, u_eq)
+        
+        Example:
+            >>> def aircraft_trim(airspeed):
+            ...     # Compute trim for given airspeed
+            ...     alpha = compute_alpha(airspeed)  # Angle of attack
+            ...     elevator = compute_elevator(airspeed)
+            ...     x_eq = np.array([0, 0, 0, airspeed, 0, alpha, ...])
+            ...     u_eq = np.array([throttle, elevator, ...])
+            ...     return x_eq, u_eq
+            >>> 
+            >>> manifold = EquilibriumManifold(aircraft, ['airspeed'])
+            >>> manifold.set_trim_function(aircraft_trim)
+        """
+        self._trim_function = trim_fn
+    
+    def get_equilibrium(self, **params) -> Tuple[np.ndarray, np.ndarray]:
+        """Get equilibrium for specific parameter values"""
+        if self._trim_function is None:
+            raise ValueError("Trim function not set")
+        
+        # Extract parameters in correct order
+        param_values = [params[name] for name in self.parameter_names]
+        
+        x_eq, u_eq = self._trim_function(*param_values)
+        return np.asarray(x_eq), np.asarray(u_eq)
+    
+    def add_to_system(self, name: str, **params):
+        """Add equilibrium point to system with given parameters"""
+        x_eq, u_eq = self.get_equilibrium(**params)
+        
+        # Create descriptive name
+        param_str = "_".join(f"{k}_{v}" for k, v in params.items())
+        full_name = f"{name}_{param_str}"
+        
+        self.system.add_equilibrium(full_name, x_eq, u_eq)
+        return full_name
+
+class GainScheduledController:
+    """
+    Gain-scheduled controller that interpolates between controllers
+    designed at different equilibria.
+    """
+    
+    def __init__(self, system: SymbolicDynamicalSystem):
+        self.system = system
+        self.equilibrium_points: List[Tuple[str, np.ndarray]] = []
+        self.controllers: Dict[str, np.ndarray] = {}
+        self.scheduling_variable_fn: Optional[Callable] = None
+    
+    def add_operating_point(self, eq_name: str, 
+                           scheduling_value: float,
+                           K: np.ndarray):
+        """
+        Add controller for specific operating point.
+        
+        Args:
+            eq_name: Name of equilibrium
+            scheduling_value: Value of scheduling variable (e.g., airspeed)
+            K: LQR gain for this operating point
+        """
+        self.equilibrium_points.append((eq_name, scheduling_value))
+        self.controllers[eq_name] = K
+        
+        # Sort by scheduling value
+        self.equilibrium_points.sort(key=lambda x: x[1])
+    
+    def set_scheduling_variable(self, fn: Callable):
+        """
+        Set function that extracts scheduling variable from state.
+        
+        Example:
+            >>> controller.set_scheduling_variable(lambda x: x[3])  # Airspeed
+        """
+        self.scheduling_variable_fn = fn
+    
+    def __call__(self, x):
+        """Compute control with gain interpolation"""
+        if not self.equilibrium_points:
+            raise ValueError("No operating points defined")
+        
+        # Get current scheduling variable value
+        sched_val = self.scheduling_variable_fn(x)
+        
+        # Find bounding operating points
+        points = self.equilibrium_points
+        
+        if sched_val <= points[0][1]:
+            # Below first point - use first controller
+            eq_name = points[0][0]
+            K = self.controllers[eq_name]
+            x_eq = self.system.x_equilibrium(eq_name, backend='torch')
+            u_eq = self.system.u_equilibrium(eq_name, backend='torch')
+        
+        elif sched_val >= points[-1][1]:
+            # Above last point - use last controller
+            eq_name = points[-1][0]
+            K = self.controllers[eq_name]
+            x_eq = self.system.x_equilibrium(eq_name, backend='torch')
+            u_eq = self.system.u_equilibrium(eq_name, backend='torch')
+        
+        else:
+            # Interpolate between two points
+            for i in range(len(points) - 1):
+                eq1_name, val1 = points[i]
+                eq2_name, val2 = points[i + 1]
+                
+                if val1 <= sched_val <= val2:
+                    # Linear interpolation weight
+                    alpha = (sched_val - val1) / (val2 - val1)
+                    
+                    K1 = self.controllers[eq1_name]
+                    K2 = self.controllers[eq2_name]
+                    K = (1 - alpha) * K1 + alpha * K2
+                    
+                    x_eq1 = self.system.x_equilibrium(eq1_name, backend='torch')
+                    x_eq2 = self.system.x_equilibrium(eq2_name, backend='torch')
+                    x_eq = (1 - alpha) * x_eq1 + alpha * x_eq2
+                    
+                    u_eq1 = self.system.u_equilibrium(eq1_name, backend='torch')
+                    u_eq2 = self.system.u_equilibrium(eq2_name, backend='torch')
+                    u_eq = (1 - alpha) * u_eq1 + alpha * u_eq2
+                    break
+        
+        # Compute control
+        import torch
+        K_torch = torch.tensor(K, device=x.device, dtype=x.dtype)
+        u = K_torch @ (x - x_eq) + u_eq
+        
+        return u
