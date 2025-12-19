@@ -1,18 +1,23 @@
 import copy
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Union, Optional, Callable
+from typing import TYPE_CHECKING, Union, Optional, Tuple, List, Dict, Callable
 import json
 import time
 import sympy as sp
 from sympy import pycode
 import numpy as np
 import scipy
+from contextlib import contextmanager
 
 # necessary sub-object import
 from src.systems.base.equilibrium_handler import EquilibriumHandler
 
-# Define type alias for any array type
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jax.Array"]
+if TYPE_CHECKING:
+    import torch
+    import jax.numpy as jnp
+
+# Type alias for backend-agnostic arrays
+ArrayLike = Union[np.ndarray, 'torch.Tensor', 'jnp.ndarray']
 
 
 class SymbolicDynamicalSystem(ABC):
@@ -459,7 +464,7 @@ class SymbolicDynamicalSystem(ABC):
             except ImportError:
                 raise RuntimeError("JAX backend not available. Install with: pip install jax")
 
-    def _convert_to_backend(self, arr, backend: str):
+    def _convert_to_backend(self, arr: ArrayLike, backend: str):
         """Convert array to target backend"""
         # Already correct backend
         current_backend = self._detect_backend(arr)
@@ -493,6 +498,46 @@ class SymbolicDynamicalSystem(ABC):
 
         raise ValueError(f"Unknown backend: {backend}")
 
+    def to_device(self, device: str) -> 'SymbolicDynamicalSystem':
+        """
+        Set preferred device for PyTorch/JAX backends.
+        
+        Args:
+            device: Device string ('cpu', 'cuda', 'cuda:0', 'gpu:0', etc.)
+        
+        Returns:
+            Self for method chaining
+        
+        Example:
+            >>> system.to_device('cuda')
+            >>> system.set_default_backend('torch')
+            >>> # All torch operations now use CUDA
+            >>> dx = system(x, u, backend='default')
+        
+        Note:
+            This only affects backends that support devices (PyTorch, JAX).
+            NumPy always uses CPU.
+        """
+        self._preferred_device = device
+        
+        # Clear cached functions that need recompilation for new device
+        # (Functions are device-agnostic for NumPy but device-specific for torch/jax)
+        if self._default_backend in ['torch', 'jax']:
+            self._clear_backend_cache(self._default_backend)
+        
+        return self
+
+    def _clear_backend_cache(self, backend: str):
+        """Clear cached functions for a backend (needed after device change)"""
+        if backend == 'torch':
+            self._f_torch = None
+            self._h_torch = None
+            # Note: Keep symbolic Jacobian caches (_A_torch_fn, etc.)
+            # They're device-agnostic after generation
+        elif backend == 'jax':
+            self._f_jax = None
+            self._h_jax = None
+
     def _dispatch_to_backend(self, method_prefix: str, backend: Optional[str], *args):
         """
         Generic backend dispatcher.
@@ -522,6 +567,193 @@ class SymbolicDynamicalSystem(ABC):
 
         # Call it
         return method(*args)
+
+    def get_backend_info(self) -> Dict[str, any]:
+        """
+        Get information about current backend configuration and availability.
+        
+        Returns:
+            Dict with backend status, device info, and compiled functions
+        
+        Example:
+            >>> info = system.get_backend_info()
+            >>> print(info)
+            {
+                'default_backend': 'torch',
+                'preferred_device': 'cuda:0',
+                'available_backends': ['numpy', 'torch', 'jax'],
+                'compiled_backends': ['numpy', 'torch'],
+                'torch_available': True,
+                'jax_available': True
+            }
+        """
+        # Check which backends are available
+        available = ['numpy']  # Always available
+        
+        try:
+            import torch
+            available.append('torch')
+            torch_available = True
+        except ImportError:
+            torch_available = False
+        
+        try:
+            import jax
+            available.append('jax')
+            jax_available = True
+        except ImportError:
+            jax_available = False
+        
+        # Check which backends have compiled functions
+        compiled = []
+        if self._f_numpy is not None:
+            compiled.append('numpy')
+        if self._f_torch is not None:
+            compiled.append('torch')
+        if self._f_jax is not None:
+            compiled.append('jax')
+        
+        return {
+            'default_backend': self._default_backend,
+            'preferred_device': self._preferred_device,
+            'available_backends': available,
+            'compiled_backends': compiled,
+            'torch_available': torch_available,
+            'jax_available': jax_available,
+            'initialized': self._initialized,
+        }
+
+    def clone(self, backend: Optional[str] = None, deep: bool = True) -> 'SymbolicDynamicalSystem':
+        """
+        Create a copy of the system, optionally changing backend.
+        
+        Args:
+            backend: New default backend for cloned system (None = keep same)
+            deep: If True, deep copy; if False, shallow copy
+        
+        Returns:
+            Cloned system
+        
+        Example:
+            >>> # Clone with same backend
+            >>> system2 = system.clone()
+            >>> 
+            >>> # Clone and switch to JAX
+            >>> jax_system = system.clone(backend='jax')
+        """
+        if deep:
+            cloned = copy.deepcopy(self)
+        else:
+            cloned = copy.copy(self)
+        
+        if backend is not None:
+            cloned.set_default_backend(backend)
+        
+        return cloned
+
+    def reset_caches(self, backends: Optional[List[str]] = None):
+        """
+        Clear cached compiled functions for specified backends.
+        
+        Useful when:
+        - Changing devices
+        - Freeing memory
+        - Debugging code generation
+        
+        Args:
+            backends: List of backends to reset (None = all)
+        
+        Example:
+            >>> # Clear all caches
+            >>> system.reset_caches()
+            >>> 
+            >>> # Clear only PyTorch cache
+            >>> system.reset_caches(['torch'])
+        """
+        if backends is None:
+            backends = ['numpy', 'torch', 'jax']
+        
+        for backend in backends:
+            # Clear dynamics functions
+            setattr(self, f'_f_{backend}', None)
+            setattr(self, f'_h_{backend}', None)
+            
+            # Optionally clear Jacobian caches too
+            # (Usually don't need to since they're symbolic)
+    
+    def warmup(self, backend: Optional[str] = None, 
+            test_point: Optional[Tuple[ArrayLike, ArrayLike]] = None):
+        """
+        Warm up backend by compiling and optionally running test evaluation.
+        
+        Useful for:
+        - JIT compilation (JAX)
+        - Reducing first-call latency
+        - Validating backend works before production use
+        
+        Args:
+            backend: Backend to warm up (None = default backend)
+            test_point: Optional (x, u) to test with (uses zeros if None)
+        
+        Example:
+            >>> system.set_default_backend('jax', device='gpu:0')
+            >>> system.warmup()  # Compile and warm up JIT
+            >>> # First real call is now fast
+        """
+        backend = backend or self._default_backend
+        
+        # Compile functions
+        print(f"Warming up {backend} backend...")
+        self._generate_dynamics_function(backend)
+        
+        if self._h_sym is not None:
+            self._generate_output_function(backend)
+        
+        # Test evaluation if requested
+        if test_point is not None:
+            x_test, u_test = test_point
+        else:
+            # Use zeros
+            x_test = self.equilibria.get_x(backend=backend)
+            u_test = self.equilibria.get_u(backend=backend)
+        
+        # Run test evaluation
+        try:
+            dx = self.forward(x_test, u_test, backend=backend)
+            print(f"✓ {backend} backend ready (test evaluation successful)")
+            return True
+        except Exception as e:
+            print(f"✗ {backend} backend warmup failed: {e}")
+            return False
+
+    @contextmanager
+    def use_backend(self, backend: str, device: Optional[str] = None):
+        """
+        Temporarily switch backend and device.
+        
+        Example:
+            >>> # Default is NumPy
+            >>> dx1 = system(x, u)  # NumPy
+            >>> 
+            >>> # Temporarily use JAX
+            >>> with system.use_backend('jax', device='gpu:0'):
+            >>>     dx2 = system(x, u, backend='default')  # JAX on GPU
+            >>> 
+            >>> # Back to NumPy
+            >>> dx3 = system(x, u)  # NumPy again
+        """
+        # Save current state
+        old_backend = self._default_backend
+        old_device = self._preferred_device
+        
+        try:
+            # Set new backend/device
+            self.set_default_backend(backend, device)
+            yield self
+        finally:
+            # Restore original state
+            self._default_backend = old_backend
+            self._preferred_device = old_device
 
     # Symbolic methods
     def _cache_jacobians(self, backend="torch"):
@@ -1001,7 +1233,7 @@ class SymbolicDynamicalSystem(ABC):
         return func
 
     # forward methods
-    def forward(self, x, u, backend: Optional[str] = None):
+    def forward(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
         """
         Evaluate continuous-time dynamics: compute state derivative dx/dt = f(x, u) with optional backend override.
 
@@ -1034,7 +1266,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return self._dispatch_to_backend("_forward", backend, x, u)
 
-    def _forward_torch(self, x, u):
+    def _forward_torch(self, x: 'torch.Tensor', u: 'torch.Tensor') -> 'torch.Tensor':
         """PyTorch backend implementation"""
         import torch
 
@@ -1078,7 +1310,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return result
 
-    def _forward_jax(self, x, u):
+    def _forward_jax(self, x: 'jnp.ndarray', u: 'jnp.ndarray') -> 'jnp.ndarray':
         """JAX backend implementation"""
         import jax
         import jax.numpy as jnp
@@ -1158,7 +1390,16 @@ class SymbolicDynamicalSystem(ABC):
                 results.append(np.array(result).flatten())
             return np.stack(results)
 
-    def linearized_dynamics(self, x, u, backend: Optional[str] = None):
+    def __call__(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+        """
+        Make system callable: system(x, u) calls forward(x, u).
+        
+        This is the primary user interface.
+        """
+        return self.forward(x, u, backend)
+
+    # Linearized dynamics methods
+    def linearized_dynamics(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> Tuple[ArrayLike, ArrayLike]:
         """
         Numerical evaluation of linearized dynamics at point (x, u)
 
@@ -1184,7 +1425,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return self._dispatch_to_backend("_linearized_dynamics", backend, x, u)
 
-    def _linearized_dynamics_torch(self, x: torch.Tensor, u: torch.Tensor):
+    def _linearized_dynamics_torch(self, x: 'torch.Tensor', u: 'torch.Tensor') -> 'torch.Tensor':
         """
         PyTorch implementation using cached Jacobian functions or symbolic evaluation
         """
@@ -1256,7 +1497,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return A_batch, B_batch
 
-    def _linearized_dynamics_jax(self, x, u):
+    def _linearized_dynamics_jax(self, x: 'jnp.ndarray', u: 'jnp.ndarray') -> 'jnp.ndarray':
         """
         JAX implementation using automatic differentiation
 
@@ -1300,7 +1541,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return A_batch, B_batch
 
-    def _linearized_dynamics_numpy(self, x: np.ndarray, u: np.ndarray):
+    def _linearized_dynamics_numpy(self, x: np.ndarray, u: np.ndarray) -> np.ndarray:
         """
         NumPy implementation using symbolic evaluation
 
@@ -1378,7 +1619,8 @@ class SymbolicDynamicalSystem(ABC):
 
         return func
 
-    def linearized_observation(self, x, backend: Optional[str] = None):
+    # Linearized observation methods
+    def linearized_observation(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
         """
         Numerical evaluation of output linearization C = dh/dx
 
@@ -1402,7 +1644,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return self._dispatch_to_backend("_linearized_observation", backend, x)
 
-    def _linearized_observation_torch(self, x: torch.Tensor) -> torch.Tensor:
+    def _linearized_observation_torch(self, x: 'torch.Tensor') -> 'torch.Tensor':
         """
         PyTorch implementation using cached Jacobian function or symbolic evaluation
         """
@@ -1464,7 +1706,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return C_batch
 
-    def _linearized_observation_jax(self, x):
+    def _linearized_observation_jax(self, x: 'jnp.ndarray') -> 'jnp.ndarray':
         """JAX implementation using automatic differentiation"""
         import jax
         import jax.numpy as jnp
@@ -1479,10 +1721,7 @@ class SymbolicDynamicalSystem(ABC):
 
         # Ensure observation function is generated
         if not hasattr(self, "_h_jax") or self._h_jax is None:
-            from src.systems.base.codegen_utils import generate_jax_function
-
-            h_with_params = self.substitute_parameters(self._h_sym)
-            self._h_jax = generate_jax_function(h_with_params, self.state_vars, jit=True)
+            self._generate_output_function("jax", jit=True)  # ← Use consolidated method
 
         # Handle batched input
         if x.ndim == 1:
@@ -1557,7 +1796,8 @@ class SymbolicDynamicalSystem(ABC):
 
         return C_batch
 
-    def h(self, x, backend: Optional[str] = None):
+    # Nonlinear output observation methods
+    def h(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
         """
         Evaluate output equation: y = h(x)
 
@@ -1583,7 +1823,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return self._dispatch_to_backend("_h", backend, x)
 
-    def _h_torch_eval(self, x: torch.Tensor) -> torch.Tensor:
+    def _h_torch_eval(self, x: 'torch.Tensor') -> 'torch.Tensor':
         """PyTorch implementation of output equation"""
 
         if self._h_sym is None:
@@ -1656,7 +1896,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return result
 
-    def _h_jax_eval(self, x):
+    def _h_jax_eval(self, x: 'jnp.ndarray') -> 'jnp.ndarray':
         """JAX implementation of output equation"""
         import jax.numpy as jnp
 
