@@ -631,16 +631,17 @@ ControlODESymulation/
 Currently not open to contributions until base functionality is fully built, tested, documented, and example notebooks constructed
 
 Once base functionality is constructed, current plans for added functionality (in order of planned implementation) include
-    - Support for scipy.integrate.solve_ivp, Diffrax, and torchdiffeq to enable better methods for numerical integration
-    - Capability to save/store systems and associated configurations
-    - Uncertainty quantification and Stochastic Differential Equation definition for handling stochasticity
-    - Parameter sensitivity analysis and associated visualizations using Plotly
-    - Allowing definition of Gymnasium environments based on symbolic system dynamics for reproducible online reinforcement learning environment development
-    - Construction and export of simulated trajectory batches for convenient synthetic data generation and facilitation of offline and hybrid online/offline reinforcement learning
-    - Robust control, stochastic control, and model-predictive control capabilities for nonlinear state space controller development
-        - Mainly discrete-time, continuous time systems may follow
-    - Capability to construct and train neural network controllers, observers, and Lyapunov functions according to the techniques in [Lyapunov-stable Neural Control for State and Output Feedback: A Novel Formulation](https://proceedings.mlr.press/v235/yang24f.html) and [Certifying Stability of Reinforcement Learning Policies using Generalized Lyapunov Functions](https://arxiv.org/abs/2505.10947v3)
-    - Capability to connect smaller physical systems through coupling to make composite systems
+
+- Support for scipy.integrate.solve_ivp, Diffrax, and torchdiffeq to enable better methods for numerical integration
+- Capability to save/store systems and associated configurations
+- Uncertainty quantification and Stochastic Differential Equation definition for handling stochasticity
+- Parameter sensitivity analysis and associated visualizations using Plotly
+- Allowing definition of Gymnasium environments based on symbolic system dynamics for reproducible online reinforcement learning environment development
+- Construction and export of simulated trajectory batches for convenient synthetic data generation and facilitation of offline and hybrid online/offline reinforcement learning
+- Robust control, stochastic control, and model-predictive control capabilities for nonlinear state space controller development
+- Mainly discrete-time, continuous time systems may follow
+- Capability to construct and train neural network controllers, observers, and Lyapunov functions according to the techniques in [Lyapunov-stable Neural Control for State and Output Feedback: A Novel Formulation](https://proceedings.mlr.press/v235/yang24f.html) and [Certifying Stability of Reinforcement Learning Policies using Generalized Lyapunov Functions](https://arxiv.org/abs/2505.10947v3)
+- Capability to connect smaller physical systems through coupling to make composite systems
 
 ---
 
