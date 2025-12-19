@@ -33,7 +33,7 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         backend: Initial/current backend ("numpy", "jax", or "torch") (TODO)
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
         # To be defined by subclasses
         self.state_vars: List[sp.Symbol] = []
@@ -74,6 +74,10 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
             "linearization_calls": 0,
             "linearization_time": 0.0,
         }
+
+        self.define_system(*args, **kwargs)
+
+        self._validate_system()
 
     @abstractmethod
     def define_system(self, *args, **kwargs):
