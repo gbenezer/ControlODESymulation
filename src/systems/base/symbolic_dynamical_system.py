@@ -10,6 +10,14 @@ import scipy
 import torch
 import torch.nn as nn
 
+# Define type alias for any array type
+ArrayLike = Union[np.ndarray, 'torch.Tensor', 'jax.Array']
+
+# Current plan (possibly)
+# - create a backend-handling class
+# - create an equilibrium handling class
+# - add those as components of the symbolic dynamical system
+# - integrate them into the current functionality
 
 class SymbolicDynamicalSystem(ABC, nn.Module):
     """
@@ -49,8 +57,12 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         # default order is first-order
         self.order: int = 1
 
-        # System backend
+        # System backend (current)
         self.backend = "numpy"
+
+        # Backend configuration
+        self._default_backend = "numpy"
+        self._preferred_device = "cpu"
 
         # Cached numerical functions
         self._f_numpy: Optional[Callable] = None
@@ -76,6 +88,10 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
             "linearization_time": 0.0,
         }
 
+        self.define_system(*args, **kwargs)
+
+        self._validate_system()
+
         # definition of equilibria dictionary
         # as well as default equilibrium (origin)
         
@@ -87,10 +103,6 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
             "x": np.zeros(self.nx),
             "u": np.zeros(self.nu)
         }
-
-        self.define_system(*args, **kwargs)
-
-        self._validate_system()
 
     @abstractmethod
     def define_system(self, *args, **kwargs):
@@ -169,54 +181,57 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         return self.nx // self.order if self.order > 1 else self.nx
 
     def add_equilibrium(self, name: str, x_eq: np.ndarray, u_eq: np.ndarray, 
-                        verify: bool = True, tol: float = 1e-6):
-            """
-            Add a named equilibrium point.
-            
-            Args:
-                name: Descriptive name (e.g., 'inverted', 'hovering', 'cruise')
-                x_eq: Equilibrium state
-                u_eq: Equilibrium control
-                verify: Check that f(x_eq, u_eq) ≈ 0
-                tol: Tolerance for verification
-            
-            Example:
-                >>> pendulum = SymbolicPendulum()
-                >>> # Hanging down (stable)
-                >>> pendulum.add_equilibrium('hanging', 
-                ...                          x_eq=np.array([0.0, 0.0]),
-                ...                          u_eq=np.array([0.0]))
-                >>> # Inverted (unstable)
-                >>> pendulum.add_equilibrium('inverted',
-                ...                          x_eq=np.array([np.pi, 0.0]),
-                ...                          u_eq=np.array([0.0]))
-            """
-            x_eq = np.atleast_1d(np.asarray(x_eq))
-            u_eq = np.atleast_1d(np.asarray(u_eq))
-            
-            if x_eq.shape[0] != self.nx:
-                raise ValueError(f"x_eq must have shape ({self.nx},), got {x_eq.shape}")
-            if u_eq.shape[0] != self.nu:
-                raise ValueError(f"u_eq must have shape ({self.nu},), got {u_eq.shape}")
-            
-            # Verify it's actually an equilibrium
-            if verify:
+                   verify: bool = True, tol: float = 1e-6,
+                   verify_backend: str = "numpy"):
+        """
+        Add a named equilibrium point.
+        
+        Args:
+            name: Descriptive name
+            x_eq: Equilibrium state (NumPy array)
+            u_eq: Equilibrium control (NumPy array)
+            verify: Check that f(x_eq, u_eq) ≈ 0
+            tol: Tolerance for verification
+            verify_backend: Backend to use for verification ('numpy', 'torch', 'jax')
+        """
+        x_eq = np.atleast_1d(np.asarray(x_eq))
+        u_eq = np.atleast_1d(np.asarray(u_eq))
+        
+        if x_eq.shape[0] != self.nx:
+            raise ValueError(f"x_eq must have shape ({self.nx},), got {x_eq.shape}")
+        if u_eq.shape[0] != self.nu:
+            raise ValueError(f"u_eq must have shape ({self.nu},), got {u_eq.shape}")
+        
+        # Verify it's actually an equilibrium (backend-agnostic)
+        if verify:
+            # Convert to requested backend
+            if verify_backend == "numpy":
+                dx = self.forward(x_eq, u_eq)
+                max_deriv = np.abs(dx).max()
+            elif verify_backend == "torch":
                 import torch
                 x_torch = torch.tensor(x_eq, dtype=torch.float32)
                 u_torch = torch.tensor(u_eq, dtype=torch.float32)
-                
                 with torch.no_grad():
                     dx = self.forward(x_torch, u_torch)
                     max_deriv = torch.abs(dx).max().item()
-                    
-                    if max_deriv > tol:
-                        import warnings
-                        warnings.warn(
-                            f"Equilibrium '{name}' may not be valid: "
-                            f"max|f(x,u)| = {max_deriv:.2e} > {tol:.2e}"
-                        )
+            elif verify_backend == "jax":
+                import jax.numpy as jnp
+                x_jax = jnp.array(x_eq)
+                u_jax = jnp.array(u_eq)
+                dx = self.forward(x_jax, u_jax)
+                max_deriv = jnp.abs(dx).max().item()
+            else:
+                raise ValueError(f"Unknown verify_backend: {verify_backend}")
             
-            self._equilibria[name] = {"x": x_eq, "u": u_eq}
+            if max_deriv > tol:
+                import warnings
+                warnings.warn(
+                    f"Equilibrium '{name}' may not be valid: "
+                    f"max|f(x,u)| = {max_deriv:.2e} > {tol:.2e}"
+                )
+        
+        self._equilibria[name] = {"x": x_eq, "u": u_eq}
 
     def set_default_equilibrium(self, name: str):
         """Set which equilibrium to use by default"""
@@ -318,16 +333,6 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
             "is_stable": is_stable,
             "spectral_abscissa": float(np.max(np.real(eigenvalues)))
         }
-    
-    # @property
-    # def x_equilibrium(self) -> torch.Tensor:
-    #     """Equilibrium state (override in subclass if needed)"""
-    #     return torch.zeros(self.nx)
-
-    # @property
-    # def u_equilibrium(self) -> torch.Tensor:
-    #     """Equilibrium control (override in subclass if needed)"""
-    #     return torch.zeros(self.nu)
 
     def substitute_parameters(
         self, expr: Union[sp.Expr, sp.Matrix]
@@ -1371,26 +1376,35 @@ class SymbolicDynamicalSystem(ABC, nn.Module):
         print("=" * 70)
 
     def check_equilibrium(
-        self, x_eq: torch.Tensor, u_eq: torch.Tensor, tol: float = 1e-6
+        self, 
+        x_eq: Union[ArrayLike],  # Accept any type
+        u_eq: Union[ArrayLike], 
+        tol: float = 1e-6
     ) -> Tuple[bool, float]:
         """
         Check if (x_eq, u_eq) is an equilibrium point
-
+        
         Args:
-            x_eq: Candidate equilibrium state
-            u_eq: Candidate equilibrium control
+            x_eq: Candidate equilibrium state (any backend)
+            u_eq: Candidate equilibrium control (any backend)
             tol: Tolerance for considering derivative as zero
-
+        
         Returns:
-            (is_equilibrium, max_derivative): Boolean and max derivative magnitude
+            (is_equilibrium, max_derivative)
         """
-        with torch.no_grad():
-            dx = self.forward(
-                x_eq.unsqueeze(0) if len(x_eq.shape) == 1 else x_eq,
-                u_eq.unsqueeze(0) if len(u_eq.shape) == 1 else u_eq,
-            )
-            max_deriv = torch.abs(dx).max().item()
-            is_eq = max_deriv < tol
+        # Auto-detect backend and compute
+        dx = self.forward(x_eq, u_eq)
+        
+        # Extract max derivative (backend-agnostic)
+        if isinstance(dx, np.ndarray):
+            max_deriv = np.abs(dx).max()
+        elif hasattr(dx, 'detach'):  # PyTorch
+            with torch.no_grad():
+                max_deriv = torch.abs(dx).max().item()
+        else:  # JAX
+            max_deriv = float(abs(dx).max())
+        
+        is_eq = max_deriv < tol
         return is_eq, max_deriv
 
     def eigenvalues_at_equilibrium(self) -> np.ndarray:
