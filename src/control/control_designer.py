@@ -1,6 +1,8 @@
 from typing import Optional, Tuple, Union
 import numpy as np
 import scipy.linalg
+from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
+from src.systems.base.generic_discrete_time_system import GenericDiscreteTimeSystem
 
 class ControlDesigner:
     """
@@ -21,8 +23,6 @@ class ControlDesigner:
         Args:
             system: Either SymbolicDynamicalSystem or GenericDiscreteTimeSystem
         """
-        from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
-        from src.systems.base.generic_discrete_time_system import GenericDiscreteTimeSystem
         
         self.system = system
         
