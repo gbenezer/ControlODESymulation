@@ -37,9 +37,7 @@ from src.systems.base import SymbolicDynamicalSystem
 
 class Pendulum(SymbolicDynamicalSystem):
     def __init__(self, m=0.15, l=0.5, beta=0.1, g=9.81):
-        super().__init__()
-        self.define_system(m, l, beta, g)
-        self._validate_system()
+        super().__init__(m, l, beta, g)
     
     def define_system(self, m_val, l_val, beta_val, g_val):
         """Define pendulum dynamics symbolically"""
@@ -155,9 +153,7 @@ Define your dynamical system using SymPy:
 class MySystem(SymbolicDynamicalSystem):
 
     def __init__(self, param1 = 1.0, param2 = 0.5):
-        super().__init__()
-        self.define_system(param1, param2)
-        self._validate_system()
+        super().__init__(param1, param2)
 
     def define_system(self, param1_val, param2_val):
         # Define symbolic variables
@@ -357,9 +353,7 @@ The library automatically handles arbitrary-order systems:
 class SecondOrderSystem(SymbolicDynamicalSystem):
 
     def __init__(self, k=10.0, c=0.5):
-        super().__init__()
-        self.define_system(k, c)
-        self._validate_system()
+        super().__init__(k, c)
 
     def define_system(self, k_val, c_val):
         q, q_dot = sp.symbols('q q_dot')
@@ -427,8 +421,6 @@ print_installation_summary()
 class CustomOutputSystem(SymbolicDynamicalSystem):
     def __init__(self):
         super().__init__()
-        self.define_system()
-        self._validate_system()
 
     def define_system(self):
         x1, x2 = sp.symbols('x1 x2', real=True)
