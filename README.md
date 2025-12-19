@@ -648,6 +648,7 @@ Once base functionality is constructed, current plans for added functionality (i
     - Robust control, stochastic control, and model-predictive control capabilities for nonlinear state space controller development
         - Mainly discrete-time, continuous time systems may follow
     - Capability to construct and train neural network controllers, observers, and Lyapunov functions according to the techniques in [Lyapunov-stable Neural Control for State and Output Feedback: A Novel Formulation](https://proceedings.mlr.press/v235/yang24f.html) and [Certifying Stability of Reinforcement Learning Policies using Generalized Lyapunov Functions](https://arxiv.org/abs/2505.10947v3)
+    - Capability to connect smaller physical systems through coupling to make composite systems
 
 ---
 
