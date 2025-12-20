@@ -455,7 +455,7 @@ class LinearizationEngine:
         
         # Compute numerical Jacobians via autograd
         # Need to import dynamics evaluator to get forward function
-        from src.systems.base.dynamics_evaluator import DynamicsEvaluator
+        from src.systems.base.utils.dynamics_evaluator import DynamicsEvaluator
         dynamics_eval = DynamicsEvaluator(self.system, self.code_gen, self.backend_mgr)
         fx = dynamics_eval.evaluate(x_grad, u_grad, backend='torch')
         
