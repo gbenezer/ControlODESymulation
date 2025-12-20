@@ -845,6 +845,154 @@ class SymbolicDynamicalSystem(ABC):
         return info
 
     # ========================================================================
+    # Code Generation and Compilation
+    # ========================================================================
+
+    def compile(
+        self, backends: Optional[List[str]] = None, verbose: bool = False, **kwargs
+    ) -> Dict[str, float]:
+        """
+        Pre-compile dynamics functions for specified backends.
+
+        Compilation happens lazily by default (on first use). This method
+        allows eager compilation to reduce first-call latency and validate
+        that code generation works correctly.
+
+        Parameters
+        ----------
+        backends : Optional[List[str]]
+            List of backends to compile ('numpy', 'torch', 'jax').
+            If None, compiles for all available backends.
+        verbose : bool
+            If True, print compilation progress and timing
+        **kwargs : dict
+            Backend-specific compilation options
+
+        Returns
+        -------
+        Dict[str, float]
+            Dictionary mapping backend → compilation time (seconds)
+            Returns None for backends that failed to compile
+
+        Examples
+        --------
+        >>> # Compile for all available backends
+        >>> timings = system.compile(verbose=True)
+        Compiling numpy... 0.05s
+        Compiling torch... 0.12s
+        Compiling jax... 0.89s
+        
+        >>> # Compile specific backends
+        >>> timings = system.compile(backends=['numpy', 'torch'])
+        >>> print(f"NumPy: {timings['numpy']:.3f}s")
+
+        Notes
+        -----
+        Delegates to CodeGenerator.compile_all() for actual compilation.
+        Returns only dynamics ('f') timing for backward compatibility.
+        """
+        # Extract just the 'f' timings for backward compatibility
+        all_timings = self._code_gen.compile_all(backends=backends, verbose=verbose, **kwargs)
+        return {backend: timings.get("f") for backend, timings in all_timings.items()}
+
+    def reset_caches(self, backends: Optional[List[str]] = None):
+        """
+        Clear cached compiled functions for specified backends.
+
+        Useful when:
+        - Freeing memory (cached functions can be large)
+        - Forcing recompilation (e.g., after parameter changes)
+        - Debugging code generation issues
+
+        Parameters
+        ----------
+        backends : Optional[List[str]]
+            List of backends to reset (None = reset all backends)
+
+        Examples
+        --------
+        >>> # Clear all caches
+        >>> system.reset_caches()
+        
+        >>> # Clear only torch cache
+        >>> system.reset_caches(['torch'])
+
+        Notes
+        -----
+        After clearing caches, functions will be regenerated on next use.
+        This delegates to CodeGenerator.reset_cache().
+        """
+        self._code_gen.reset_cache(backends)
+
+    def warmup(
+        self,
+        backend: Optional[str] = None,
+        test_point: Optional[Tuple[ArrayLike, ArrayLike]] = None,
+    ) -> bool:
+        """
+        Warm up backend by compiling and running test evaluation.
+
+        Useful for:
+        - JIT compilation warmup (especially JAX)
+        - Reducing first-call latency in production
+        - Validating backend works before critical operations
+
+        Parameters
+        ----------
+        backend : Optional[str]
+            Backend to warm up (None = use default backend)
+        test_point : Optional[Tuple[ArrayLike, ArrayLike]]
+            Optional (x, u) test point. If None, uses origin equilibrium.
+
+        Returns
+        -------
+        bool
+            True if warmup successful, False if failed
+
+        Examples
+        --------
+        >>> # Warm up JAX with JIT compilation
+        >>> system.set_default_backend('jax', device='gpu:0')
+        >>> success = system.warmup()
+        Warming up jax backend...
+        ✓ jax backend ready (test evaluation successful)
+        
+        >>> # Warm up with custom test point
+        >>> x_test = np.array([0.1, 0.0])
+        >>> u_test = np.array([0.0])
+        >>> system.warmup(test_point=(x_test, u_test))
+
+        Notes
+        -----
+        For JAX, the first call triggers JIT compilation which can be slow.
+        This method warms up the JIT cache so subsequent calls are fast.
+        """
+        backend = backend or self._default_backend
+
+        print(f"Warming up {backend} backend...")
+        self._code_gen.generate_dynamics(backend)
+
+        if self._h_sym is not None:
+            self._code_gen.generate_output(backend)
+
+        # Test evaluation
+        if test_point is not None:
+            x_test, u_test = test_point
+        else:
+            # Use equilibrium point
+            x_test = self.equilibria.get_x(backend=backend)
+            u_test = self.equilibria.get_u(backend=backend)
+
+        # Run test evaluation
+        try:
+            dx = self.forward(x_test, u_test, backend=backend)
+            print(f"✓ {backend} backend ready (test evaluation successful)")
+            return True
+        except Exception as e:
+            print(f"✗ {backend} backend warmup failed: {e}")
+            return False
+
+    # ========================================================================
     # Copying and Cloning
     # ========================================================================
 
@@ -873,7 +1021,7 @@ class SymbolicDynamicalSystem(ABC):
         >>> # Create independent copy
         >>> system2 = system.clone()
         >>> system2.parameters[m] = 2.0  # Doesn't affect original
-
+        
         >>> # Clone and switch to JAX
         >>> jax_system = system.clone(backend='jax')
         >>> jax_system._default_backend
