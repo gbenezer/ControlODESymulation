@@ -21,6 +21,60 @@ Reuses:
     - BackendManager - type conversions (inherited from parent)
 """
 
+# TODO:
+
+# Phase 1:
+# - Make unit tests for the DiffusionHandler, NoiseCharacterizer,
+#       and SDEValidator sub-object classes
+# - After those pass, make unit test for StochasticDynamicalSystem and ensure it passes
+# - Instantiate/code deterministic DiffEqPyIntegrator and associated unit tests
+# - Modify IntegratorFactory to handle deterministic DiffEqPyIntegrator objects and update unit tests
+# - Instantiate/code SDEIntegratorBase unit tests and debug base class
+# - Instantiate/code DiffraxSDEIntegrator, TorchSDEIntegrator, and DiffEqPySDEIntegrator classes with associated unit tests
+# - Make analogous SDEIntegratorFactory class and unit tests
+# - Look back and assess if any additional refactoring needs to occur (looking for god objects/code smells)
+
+# Phase 2:
+# - Construct SimulationEngine class for simulation of open/closed loop trajectories
+# - Construct DiscretizationEngine class for linearization of discrete-time systems
+# - Construct unified DiscreteTimeSystem class from the above two sub-object classes
+#       - Main responsibility is coordination of numerical integration and simulation
+# - Construct unit tests for deterministic systems interfacing with DiscreteTimeSystem
+# - Construct unit tests for stochastic systems interfacing with DiscreteTimeSystem
+# - Debug/Evaluate
+
+# Phase 3:
+# Construct TrajectoryPlotGenerator class for arrays of 2D Plotly plots of
+#   state variables (with options to plot control and output variables 
+#   and external state estimates from observers)
+# Construct PhasePortraitGenerator class for 2D or 3D Plotly phase portrait generation
+# Construct ControlDesigner class as a wrapper class to either of the core deterministic
+#   classes for interface/access to traditional/classic nonlinear state-space control utilities
+#   (LQR/Kalman/LQG matrices, etc.) with auto-detection of time type
+#   - libraries include control, control-toolbox, pysyscontrol, OpenControl, Kontrol
+
+# Phase 4:
+# At this point, the entire original code base will have been effectively refactored
+# Documentation then needs to be re-done
+# Re-code built-in classes, re-assess utility of each, and add some
+#   systems to demonstrate industrial biochemical engineering control systems
+# Re-code existing Jupyter demos
+# Add built-in stochastic systems and demos
+# Re-do README file
+
+# Phase 5:
+# Add parameter sensitivity analysis or other methods to probe dependencies of dynamical systems
+# Start to address some ultimate goals of the library
+#   - Automatic Gymnasium, PyBullet, and Brax environment construction
+#   - Synthetic data generation and export
+#   - Integration with neural network verification libraries (VNN-Lib, Auto-Lirpa/CROWN, NFL-Veripy)
+#   - Re-introduce capabilities for (generalized) Lyapunov function/controller/observer synthesis, design
+#       and verification
+#   - Look at do-mpc, CasADi, acados, nMPyC, and GEKKO for optimal/MP control; see what should be implemented
+#   - Check to see if there's any interest in robust, adaptive, and/or stochastic control theory technique implementation
+#   - Coupling systems together to make larger composite systems
+
+
 from typing import List, Optional, Dict, Any
 import sympy as sp
 
@@ -38,10 +92,10 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
     All logic is delegated to specialized handlers.
     
     Components:
-    - Parent class: Handles ALL drift logic ✅
-    - DiffusionHandler: Generates diffusion functions ✅
-    - NoiseCharacterizer: Analyzes noise (via handler) ✅
-    - SDEValidator: Validates SDE constraints ✅
+    - Parent class: Handles ALL drift logic
+    - DiffusionHandler: Generates diffusion functions
+    - NoiseCharacterizer: Analyzes noise (via handler)
+    - SDEValidator: Validates SDE constraints
     
     This class is ~200 lines (was 400+) because logic is modularized!
     
@@ -109,7 +163,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
     ):
         """Initialize stochastic system with validation and handler composition."""
         
-        # ✅ VALIDATE: Use SDEValidator before construction
+        # VALIDATE: Use SDEValidator before construction
         if validate:
             validator = SDEValidator(strict=True)
             validator.validate_sde_system(
@@ -122,7 +176,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
                 parameters=kwargs.get('parameters')
             )
         
-        # ✅ REUSE: Parent class handles ALL drift logic
+        # REUSE: Parent class handles ALL drift logic
         super().__init__(
             dynamics_expr=drift_expr,
             state_vars=state_vars,
@@ -134,7 +188,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         self.drift_expr = drift_expr
         self.diffusion_expr = diffusion_expr
         
-        # ✅ COMPOSE: Create DiffusionHandler
+        # COMPOSE: Create DiffusionHandler
         self.diffusion_handler = DiffusionHandler(
             diffusion_expr=diffusion_expr,
             state_vars=state_vars,
@@ -175,17 +229,17 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Evaluate diffusion term g(x, u).
         
-        Delegation: ✅ DiffusionHandler
+        Delegation: DiffusionHandler
         
         Returns
         -------
         ArrayLike
             Diffusion matrix, shape (nx, nw)
         """
-        # ✅ DELEGATE: DiffusionHandler generates and evaluates
+        # DELEGATE: DiffusionHandler generates and evaluates
         func = self.diffusion_handler.generate_function(backend)
         
-        # ✅ REUSE: BackendManager from parent for type conversion
+        # REUSE: BackendManager from parent for type conversion
         # (Parent class has self.backend_mgr if using newer version)
         # Convert inputs to lists for lambdified function
         if backend == 'numpy':
@@ -231,7 +285,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Check if noise is additive (constant).
         
-        Delegation: ✅ NoiseCharacteristics
+        Delegation: NoiseCharacteristics
         """
         return self.noise_characteristics.is_additive
     
@@ -239,7 +293,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Check if noise sources are independent.
         
-        Delegation: ✅ NoiseCharacteristics
+        Delegation: NoiseCharacteristics
         """
         return self.noise_characteristics.is_diagonal
     
@@ -247,7 +301,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Check if single noise source.
         
-        Delegation: ✅ NoiseCharacteristics
+        Delegation: NoiseCharacteristics
         """
         return self.noise_characteristics.is_scalar
     
@@ -255,7 +309,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Recommend efficient solvers for this noise structure.
         
-        Delegation: ✅ NoiseCharacteristics
+        Delegation: NoiseCharacteristics
         
         Examples
         --------
@@ -268,7 +322,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         """
         Get constant noise matrix (additive noise only).
         
-        Delegation: ✅ DiffusionHandler
+        Delegation: DiffusionHandler
         
         Returns
         -------
@@ -316,10 +370,10 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         Dict[str, Any]
             Complete system description
         """
-        # ✅ REUSE: Get base info from parent if available
+        # REUSE: Get base info from parent if available
         base_info = super().get_info() if hasattr(super(), 'get_info') else {}
         
-        # ✅ DELEGATE: Get diffusion info from handler
+        # DELEGATE: Get diffusion info from handler
         diffusion_info = self.diffusion_handler.get_info()
         
         # Merge and add SDE-specific info
