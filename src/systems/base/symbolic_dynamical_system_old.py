@@ -46,9 +46,9 @@ class SymbolicDynamicalSystem(ABC):
         self._f_numpy: Optional[Callable] = None
         self._f_torch: Optional[Callable] = None
         self._f_jax: Optional[Callable] = None
-        self._h_numpy: Optional[Callable] = None
-        self._h_torch: Optional[Callable] = None
-        self._h_jax: Optional[Callable] = None
+        self._h_numpy_func: Optional[Callable] = None
+        self._h_torch_func: Optional[Callable] = None
+        self._h_jax_func: Optional[Callable] = None
 
         # Cached Jacobians
         self._A_sym_cached: Optional[sp.Matrix] = None
@@ -236,7 +236,12 @@ class SymbolicDynamicalSystem(ABC):
         # 4. SYMBOLIC EXPRESSION VALIDATION
         # ================================================================
 
-        if self._f_sym is not None and self.state_vars and self.control_vars and isinstance(self._f_sym, sp.Matrix):
+        if (
+            self._f_sym is not None
+            and self.state_vars
+            and self.control_vars
+            and isinstance(self._f_sym, sp.Matrix)
+        ):
             # Get all symbols that appear in _f_sym
             f_symbols = self._f_sym.free_symbols
 
@@ -597,12 +602,12 @@ class SymbolicDynamicalSystem(ABC):
         """Clear cached functions for a backend (needed after device change)"""
         if backend == "torch":
             self._f_torch = None
-            self._h_torch = None
+            self._h_torch_func = None
             # Note: Keep symbolic Jacobian caches (_A_torch_fn, etc.)
             # They're device-agnostic after generation
         elif backend == "jax":
             self._f_jax = None
-            self._h_jax = None
+            self._h_jax_func = None
 
     def _dispatch_to_backend(self, method_prefix: str, backend: Optional[str], *args):
         """
@@ -744,7 +749,7 @@ class SymbolicDynamicalSystem(ABC):
         for backend in backends:
             # Clear dynamics functions
             setattr(self, f"_f_{backend}", None)
-            setattr(self, f"_h_{backend}", None)
+            setattr(self, f"_h_{backend}_func", None)
 
             # Optionally clear Jacobian caches too
             # (Usually don't need to since they're symbolic)
@@ -1157,8 +1162,14 @@ class SymbolicDynamicalSystem(ABC):
             A_sym = A_sym.unsqueeze(0)
             B_sym = B_sym.unsqueeze(0)
 
-        # Compute numerical Jacobians via autograd
+        ## Compute numerical Jacobians via autograd
         fx = self.forward(x_grad, u_grad, backend="torch")
+
+        # CRITICAL FIX: Ensure fx is 2D for consistent indexing
+        if fx.ndim == 1:
+            fx = fx.unsqueeze(1)  # (n,) → (n, 1)
+        elif fx.ndim == 0:
+            fx = fx.reshape(1, 1)  # scalar → (1, 1)
 
         # Determine output dimension
         if self.order == 1:
@@ -1394,11 +1405,18 @@ class SymbolicDynamicalSystem(ABC):
             >>> dx = system(x_numpy, u_numpy, backend='default')  # Returns JAX
         """
         # Convert inputs if forcing different backend
-        if backend is not None and backend != "default":
+        if backend is not None:
+            # Determine target backend
+            if backend == "default":
+                target_backend = self._default_backend
+            else:
+                target_backend = backend
+
+            # Convert if input type doesn't match target
             input_backend = self._detect_backend(x)
-            if input_backend != backend:
-                x = self._convert_to_backend(x, backend)
-                u = self._convert_to_backend(u, backend)
+            if input_backend != target_backend:
+                x = self._convert_to_backend(x, target_backend)
+                u = self._convert_to_backend(u, target_backend)
 
         return self._dispatch_to_backend("_forward", backend, x, u)
 
@@ -1440,6 +1458,12 @@ class SymbolicDynamicalSystem(ABC):
         if squeeze_output:
             result = result.squeeze(0)
 
+            # Ensure at least 1D
+            if result.ndim == 0:
+                result = result.unsqueeze(0)
+
+        return result
+
         # Update performance stats
         self._perf_stats["forward_calls"] += 1
         self._perf_stats["forward_time"] += time.time() - start_time
@@ -1450,6 +1474,8 @@ class SymbolicDynamicalSystem(ABC):
         """JAX backend implementation"""
         import jax
         import jax.numpy as jnp
+
+        start_time = time.time()
 
         # Input validation
         if x.ndim == 0 or u.ndim == 0:
@@ -1490,12 +1516,22 @@ class SymbolicDynamicalSystem(ABC):
             result = jnp.expand_dims(result, 0)
 
         if squeeze_output:
-            result = jnp.squeeze(result, 0)
+            result = result.squeeze(0)
+
+            # Ensure at least 1D
+            if result.ndim == 0:
+                result = result.unsqueeze(0)
+
+        # Update performance stats
+        self._perf_stats["forward_calls"] += 1
+        self._perf_stats["forward_time"] += time.time() - start_time
 
         return result
 
     def _forward_numpy(self, x: np.ndarray, u: np.ndarray) -> np.ndarray:
         """NumPy backend implementation"""
+
+        start_time = time.time()
 
         # Input validation
         if x.ndim == 0 or u.ndim == 0:
@@ -1515,7 +1551,7 @@ class SymbolicDynamicalSystem(ABC):
             x_list = [x[i] for i in range(self.nx)]
             u_list = [u[i] for i in range(self.nu)]
             result = self._f_numpy(*(x_list + u_list))
-            return np.array(result).flatten()
+            result = np.array(result).flatten()
         else:
             # Batched evaluation
             results = []
@@ -1524,7 +1560,13 @@ class SymbolicDynamicalSystem(ABC):
                 u_list = [u[i, j] for j in range(self.nu)]
                 result = self._f_numpy(*(x_list + u_list))
                 results.append(np.array(result).flatten())
-            return np.stack(results)
+            result = np.stack(results)
+
+        # Update performance stats (ADD THIS)
+        self._perf_stats["forward_calls"] += 1
+        self._perf_stats["forward_time"] += time.time() - start_time
+
+        return result
 
     def __call__(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
         """
@@ -1555,11 +1597,12 @@ class SymbolicDynamicalSystem(ABC):
 
         TODO: needs to be adapted to equilibrium handling
         """
-        if backend is not None and backend != "default":
+        if backend is not None:  # ← Changed
+            target_backend = self._default_backend if backend == "default" else backend
             input_backend = self._detect_backend(x)
-            if input_backend != backend:
-                x = self._convert_to_backend(x, backend)
-                u = self._convert_to_backend(u, backend)
+            if input_backend != target_backend:
+                x = self._convert_to_backend(x, target_backend)
+                u = self._convert_to_backend(u, target_backend)
 
         return self._dispatch_to_backend("_linearized_dynamics", backend, x, u)
 
@@ -1746,7 +1789,7 @@ class SymbolicDynamicalSystem(ABC):
         from src.systems.base.codegen_utils import generate_function
 
         # Check if already cached
-        cache_attr = f"_h_{backend}"
+        cache_attr = f"_h_{backend}_func"
         if getattr(self, cache_attr, None) is not None:
             return getattr(self, cache_attr)
 
@@ -1781,10 +1824,11 @@ class SymbolicDynamicalSystem(ABC):
 
         TODO: needs to be adapted to current equilibrium handling mechanism
         """
-        if backend is not None and backend != "default":
+        if backend is not None:
+            target_backend = self._default_backend if backend == "default" else backend
             input_backend = self._detect_backend(x)
-            if input_backend != backend:
-                x = self._convert_to_backend(x, backend)
+            if input_backend != target_backend:
+                x = self._convert_to_backend(x, target_backend)
 
         return self._dispatch_to_backend("_linearized_observation", backend, x)
 
@@ -1864,8 +1908,8 @@ class SymbolicDynamicalSystem(ABC):
                 return jnp.tile(jnp.eye(self.nx), (batch_size, 1, 1))
 
         # Ensure observation function is generated
-        if not hasattr(self, "_h_jax") or self._h_jax is None:
-            self._generate_output_function("jax", jit=True)  # ← Use consolidated method
+        if not hasattr(self, "_h_jax_func") or self._h_jax_func is None:
+            self._generate_output_function("jax", jit=True)
 
         # Handle batched input
         if x.ndim == 1:
@@ -1877,7 +1921,7 @@ class SymbolicDynamicalSystem(ABC):
         # Define observation function for Jacobian computation
         def observation_fn(x_i):
             x_list = [x_i[j] for j in range(self.nx)]
-            return self._h_jax(*x_list)
+            return self._h_jax_func(*x_list)
 
         # Compute Jacobian using JAX autodiff (vmap for batching)
         @jax.vmap
@@ -1960,21 +2004,38 @@ class SymbolicDynamicalSystem(ABC):
         Returns:
             Output tensor/array (type determined by backend)
         """
-        if backend is not None and backend != "default":
+        if backend is not None:
+            # Determine target
+            target_backend = self._default_backend if backend == "default" else backend
+
+            # Convert if needed
             input_backend = self._detect_backend(x)
-            if input_backend != backend:
-                x = self._convert_to_backend(x, backend)
+            if input_backend != target_backend:
+                x = self._convert_to_backend(x, target_backend)
 
         return self._dispatch_to_backend("_h", backend, x)
 
-    def _h_torch_eval(self, x: "torch.Tensor") -> "torch.Tensor":
+    def _h_torch(self, x: "torch.Tensor") -> "torch.Tensor":
         """PyTorch implementation of output equation"""
 
         if self._h_sym is None:
             return x
 
-        if self._h_torch is None:
-            self._generate_output_function("torch")
+        if self._h_torch_func is None:
+            try:
+                self._generate_output_function("torch")
+            except Exception as e:
+                raise RuntimeError(f"Failed to generate torch output function: {e}") from e
+
+        # Verify function was generated
+        if self._h_torch_func is None:
+            raise RuntimeError("Torch output function is still None after generation")
+
+        # Verify it's callable
+        if not callable(self._h_torch_func):
+            raise TypeError(
+                f"Generated torch output function is not callable: {type(self._h_torch_func)}"
+            )
 
         # Handle batched input
         if len(x.shape) == 1:
@@ -1983,8 +2044,14 @@ class SymbolicDynamicalSystem(ABC):
         else:
             squeeze_output = False
 
+        # Prepare input arguments
         x_list = [x[:, i] for i in range(self.nx)]
-        result = self._h_torch(*x_list)
+
+        # Call function
+        try:
+            result = self._h_torch_func(*x_list)
+        except Exception as e:
+            raise RuntimeError(f"Error evaluating torch output function: {e}") from e
 
         # For single (unbatched) input, squeeze batch dimension but keep output dimension
         if squeeze_output:
@@ -2004,7 +2071,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return result
 
-    def _h_numpy_eval(self, x: np.ndarray) -> np.ndarray:
+    def _h_numpy(self, x: np.ndarray) -> np.ndarray:
         """NumPy implementation of output equation"""
 
         # If no custom output function, return full state
@@ -2012,8 +2079,21 @@ class SymbolicDynamicalSystem(ABC):
             return x
 
         # Generate NumPy function for h if not cached
-        if self._h_numpy is None:
-            self._generate_output_function("numpy")
+        if self._h_numpy_func is None:
+            try:
+                self._generate_output_function("numpy")
+            except Exception as e:
+                raise RuntimeError(f"Failed to generate output function: {e}") from e
+
+        # Verify function was generated
+        if self._h_numpy_func is None:
+            raise RuntimeError("Output function is still None after generation attempt")
+
+        # Verify it's callable
+        if not callable(self._h_numpy_func):
+            raise TypeError(
+                f"Generated output function is not callable: {type(self._h_numpy_func)}"
+            )
 
         # Handle batched input
         if x.ndim == 1:
@@ -2025,13 +2105,16 @@ class SymbolicDynamicalSystem(ABC):
         batch_size = x.shape[0]
         results = []
 
-        for i in range(batch_size):
-            x_list = [x[i, j] for j in range(self.nx)]
-            result = self._h_numpy(*x_list)
+        try:
+            for i in range(batch_size):
+                x_list = [x[i, j] for j in range(self.nx)]
+                result = self._h_numpy_func(*x_list)
 
-            # Convert to array
-            result = np.atleast_1d(np.array(result))
-            results.append(result)
+                # Convert to array
+                result = np.atleast_1d(np.array(result))
+                results.append(result)
+        except Exception as e:
+            raise RuntimeError(f"Error evaluating output function: {e}") from e
 
         result = np.stack(results)
 
@@ -2040,7 +2123,7 @@ class SymbolicDynamicalSystem(ABC):
 
         return result
 
-    def _h_jax_eval(self, x: "jnp.ndarray") -> "jnp.ndarray":
+    def _h_jax(self, x: "jnp.ndarray") -> "jnp.ndarray":
         """JAX implementation of output equation"""
         import jax.numpy as jnp
 
@@ -2049,7 +2132,7 @@ class SymbolicDynamicalSystem(ABC):
             return x
 
         # Generate JAX function for h if not cached
-        if not hasattr(self, "_h_jax") or self._h_jax is None:
+        if self._h_jax_func is None:
             self._generate_output_function("jax", jit=True)
 
         # Handle batched input
@@ -2066,13 +2149,13 @@ class SymbolicDynamicalSystem(ABC):
             @jax.vmap
             def batched_observation(x_i):
                 x_list = [x_i[j] for j in range(self.nx)]
-                return self._h_jax(*x_list)
+                return self._h_jax_func(*x_list)
 
             result = batched_observation(x)
         else:
             # Single evaluation
             x_list = [x[0, i] for i in range(self.nx)]
-            result = self._h_jax(*x_list)
+            result = self._h_jax_func(*x_list)
             result = jnp.expand_dims(result, 0)
 
         if squeeze_output:
