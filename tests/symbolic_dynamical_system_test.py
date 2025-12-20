@@ -1071,17 +1071,19 @@ class TestPerformanceMonitoring:
     def test_forward_call_counting(self):
         """Test that forward calls are counted"""
         system = SimpleFirstOrderSystem()
-
+        
         x = np.array([1.0])
         u = np.array([0.0])
-
-        initial_calls = system._perf_stats["forward_calls"]
-
+        
+        # Get initial calls from dynamics evaluator
+        initial_calls = system._dynamics.get_stats()['calls']
+        
         system(x, u)
         system(x, u)
         system(x, u)
-
-        assert system._perf_stats["forward_calls"] == initial_calls + 3
+        
+        # Check calls from dynamics evaluator
+        assert system._dynamics.get_stats()['calls'] == initial_calls + 3
 
     def test_get_performance_stats(self):
         """Test getting performance statistics"""
@@ -1101,16 +1103,16 @@ class TestPerformanceMonitoring:
     def test_reset_performance_stats(self):
         """Test resetting performance counters"""
         system = SimpleFirstOrderSystem()
-
+        
         x = np.array([1.0])
         u = np.array([0.0])
-
+        
         system(x, u)
-        assert system._perf_stats["forward_calls"] > 0
-
+        assert system._dynamics.get_stats()['calls'] > 0
+        
         system.reset_performance_stats()
-        assert system._perf_stats["forward_calls"] == 0
-        assert system._perf_stats["forward_time"] == 0.0
+        assert system._dynamics.get_stats()['calls'] == 0
+        assert system._dynamics.get_stats()['total_time'] == 0.0
 
 
 # ============================================================================

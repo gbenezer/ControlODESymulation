@@ -1,17 +1,24 @@
 import copy
+from contextlib import contextmanager
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Union, Optional, Tuple, List, Dict, Callable
+from typing import TYPE_CHECKING, Union, Optional, Tuple, List, Dict
 import json
 import time
 import sympy as sp
 import numpy as np
-from contextlib import contextmanager
+
+# TODO:
+# refactor linearization into LinearizationEngine and
+# output/observation into ObservationEngine
+# decide whether to put linearized observation into
+# LinearizationEngine or ObservationEngine
 
 # necessary sub-object import
 from src.systems.base.equilibrium_handler import EquilibriumHandler
 from src.systems.base.backend_manager import BackendManager
 from src.systems.base.symbolic_validator import SymbolicValidator
-from src.systems.base.code_generator import CodeGenerator 
+from src.systems.base.code_generator import CodeGenerator
+from src.systems.base.dynamics_evaluator import DynamicsEvaluator
 
 if TYPE_CHECKING:
     import torch
@@ -42,10 +49,7 @@ class SymbolicDynamicalSystem(ABC):
         self.order: int = 1
 
         # COMPOSITION: Delegate backend management
-        self.backend = BackendManager(
-            default_backend='numpy',
-            default_device='cpu'
-        )
+        self.backend = BackendManager(default_backend="numpy", default_device="cpu")
 
         # Backend configuration (to be deprecated)
         self._default_backend = "numpy"
@@ -63,27 +67,27 @@ class SymbolicDynamicalSystem(ABC):
 
         # Call template method
         self.define_system(*args, **kwargs)
-        
+
         # Validate using validator component
         self._validator.validate(self)
-        
+
         # Mark as initialized AFTER successful validation
         self._initialized = True
 
         # Initialize code generator AFTER validation
         self._code_gen = CodeGenerator(self)
 
+        # COMPOSITION: Delegate dynamics evaluation
+        self._dynamics = DynamicsEvaluator(self, self._code_gen, self.backend)
+
         # COMPOSITION: Delegate equilibrium management
         self.equilibria = EquilibriumHandler(self.nx, self.nu)
 
         # for backward compatibility
         self._perf_stats = {
-            "forward_calls": 0,
-            "forward_time": 0.0,
             "linearization_calls": 0,
             "linearization_time": 0.0,
         }
-
 
     def __repr__(self) -> str:
         """Detailed string representation for debugging"""
@@ -194,7 +198,7 @@ class SymbolicDynamicalSystem(ABC):
     def to_device(self, device: str) -> "SymbolicDynamicalSystem":
         """Set preferred device for PyTorch/JAX backends."""
         self.backend.to_device(device)
-        
+
         # Clear cached functions that need recompilation for new device
         if self.backend.default_backend in ["torch", "jax"]:
             self._clear_backend_cache(self.backend.default_backend)
@@ -238,16 +242,17 @@ class SymbolicDynamicalSystem(ABC):
         """Get information about current backend configuration."""
         # Get base info from backend manager
         info = self.backend.get_info()
-        
+
         # Get compiled status from code generator
         compiled = [
-            backend for backend in ['numpy', 'torch', 'jax']
-            if self._code_gen.is_compiled(backend)['f']
+            backend
+            for backend in ["numpy", "torch", "jax"]
+            if self._code_gen.is_compiled(backend)["f"]
         ]
-        
+
         info["compiled_backends"] = compiled
         info["initialized"] = self._initialized
-        
+
         return info
 
     def clone(self, backend: Optional[str] = None, deep: bool = True) -> "SymbolicDynamicalSystem":
@@ -305,10 +310,10 @@ class SymbolicDynamicalSystem(ABC):
             >>> # First real call is now fast
         """
         backend = backend or self._default_backend
-        
+
         print(f"Warming up {backend} backend...")
         self._code_gen.generate_dynamics(backend)
-        
+
         if self._h_sym is not None:
             self._code_gen.generate_output(backend)
 
@@ -378,25 +383,28 @@ class SymbolicDynamicalSystem(ABC):
         }
 
     def get_performance_stats(self) -> Dict[str, float]:
-        """
-        Get performance statistics.
+        """Get performance statistics."""
+        # Get dynamics stats from evaluator
+        dynamics_stats = self._dynamics.get_stats()
 
-        Returns:
-            Dict with timing and call count statistics
-        """
         return {
-            **self._perf_stats,
-            "avg_forward_time": (
-                self._perf_stats["forward_time"] / max(1, self._perf_stats["forward_calls"])
-            ),
+            "forward_calls": dynamics_stats["calls"],
+            "forward_time": dynamics_stats["total_time"],
+            "avg_forward_time": dynamics_stats["avg_time"],
+            "linearization_calls": self._perf_stats.get("linearization_calls", 0),
+            "linearization_time": self._perf_stats.get("linearization_time", 0.0),
             "avg_linearization_time": (
-                self._perf_stats["linearization_time"]
-                / max(1, self._perf_stats["linearization_calls"])
+                self._perf_stats.get("linearization_time", 0.0)
+                / max(1, self._perf_stats.get("linearization_calls", 1))
             ),
         }
 
     def reset_performance_stats(self):
         """Reset performance counters"""
+        # Reset dynamics evaluator stats
+        self._dynamics.reset_stats()
+
+        # Reset linearization stats (kept in main class for now)
         for key in self._perf_stats:
             self._perf_stats[key] = 0.0 if "time" in key else 0
 
@@ -703,198 +711,17 @@ class SymbolicDynamicalSystem(ABC):
     ) -> Dict[str, float]:
         """
         Pre-compile dynamics functions for specified backends.
-        
+
         Delegates to CodeGenerator for actual compilation.
         """
         # Extract just the 'f' timings for backward compatibility
         all_timings = self._code_gen.compile_all(backends=backends, verbose=verbose, **kwargs)
-        return {backend: timings.get('f') for backend, timings in all_timings.items()}
+        return {backend: timings.get("f") for backend, timings in all_timings.items()}
 
     # forward methods
     def forward(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
-        """
-        Evaluate continuous-time dynamics: compute state derivative dx/dt = f(x, u) with optional backend override.
-
-        Args:
-            x: State (array/tensor)
-            u: Control (array/tensor)
-            backend: Override backend ('numpy', 'torch', 'jax')
-                    If None, auto-detect from input type
-
-        Returns:
-            State derivative (type matches backend, not necessarily input)
-
-        Examples:
-            >>> # Auto-detect
-            >>> dx = system(x_numpy, u_numpy)  # Returns NumPy
-            >>>
-            >>> # Explicit backend (converts input)
-            >>> dx = system(x_numpy, u_numpy, backend='torch')  # Returns PyTorch!
-            >>>
-            >>> # Use configured default
-            >>> system.set_default_backend('jax')
-            >>> dx = system(x_numpy, u_numpy, backend='default')  # Returns JAX
-        """
-        # Convert inputs if forcing different backend
-        if backend is not None:
-            # Determine target backend
-            if backend == "default":
-                target_backend = self.backend.default_backend
-            else:
-                target_backend = backend
-
-            # Convert if input type doesn't match target
-            input_backend = self.backend.detect(x)
-            if input_backend != target_backend:
-                x = self.backend.convert(x, target_backend)
-                u = self.backend.convert(u, target_backend)
-
-        return self._dispatch_to_backend("_forward", backend, x, u)
-
-    def _forward_torch(self, x: "torch.Tensor", u: "torch.Tensor") -> "torch.Tensor":
-        """PyTorch backend implementation"""
-        import torch
-
-        start_time = time.time()
-
-        # Input validation
-        if len(x.shape) == 0 or len(u.shape) == 0:
-            raise ValueError("Input tensors must be at least 1D")
-
-        if len(x.shape) >= 1 and x.shape[-1] != self.nx:
-            raise ValueError(f"Expected state dimension {self.nx}, got {x.shape[-1]}")
-        if len(u.shape) >= 1 and u.shape[-1] != self.nu:
-            raise ValueError(f"Expected control dimension {self.nu}, got {u.shape[-1]}")
-
-        # Generate function if not cached
-        f_torch = self._code_gen.generate_dynamics("torch")
-
-        # Handle batched vs single evaluation
-        if len(x.shape) == 1:
-            x = x.unsqueeze(0)
-            u = u.unsqueeze(0)
-            squeeze_output = True
-        else:
-            squeeze_output = False
-
-        # Prepare arguments
-        x_list = [x[:, i] for i in range(self.nx)]
-        u_list = [u[:, i] for i in range(self.nu)]
-        all_args = x_list + u_list
-
-        # Call generated function
-        result = f_torch(*all_args)
-
-        if squeeze_output:
-            result = result.squeeze(0)
-
-            # Ensure at least 1D
-            if result.ndim == 0:
-                result = result.unsqueeze(0)
-
-        return result
-
-        # Update performance stats
-        self._perf_stats["forward_calls"] += 1
-        self._perf_stats["forward_time"] += time.time() - start_time
-
-        return result
-
-    def _forward_jax(self, x: "jnp.ndarray", u: "jnp.ndarray") -> "jnp.ndarray":
-        """JAX backend implementation"""
-        import jax
-        import jax.numpy as jnp
-
-        start_time = time.time()
-
-        # Input validation
-        if x.ndim == 0 or u.ndim == 0:
-            raise ValueError("Input arrays must be at least 1D")
-
-        if x.ndim >= 1 and x.shape[-1] != self.nx:
-            raise ValueError(f"Expected state dimension {self.nx}, got {x.shape[-1]}")
-        if u.ndim >= 1 and u.shape[-1] != self.nu:
-            raise ValueError(f"Expected control dimension {self.nu}, got {u.shape[-1]}")
-
-        # Generate function if not cached
-        f_jax = self._code_gen.generate_dynamics("jax", jit=True)
-
-        # Handle batched vs single evaluation
-        if x.ndim == 1:
-            x = jnp.expand_dims(x, 0)
-            u = jnp.expand_dims(u, 0)
-            squeeze_output = True
-        else:
-            squeeze_output = False
-
-        # For batched computation, use vmap
-        if x.shape[0] > 1:
-
-            @jax.vmap
-            def batched_dynamics(x_i, u_i):
-                x_list = [x_i[j] for j in range(self.nx)]
-                u_list = [u_i[j] for j in range(self.nu)]
-                return f_jax(*(x_list + u_list))
-
-            result = batched_dynamics(x, u)
-        else:
-            # Single evaluation
-            x_list = [x[0, i] for i in range(self.nx)]
-            u_list = [u[0, i] for i in range(self.nu)]
-            result = f_jax(*(x_list + u_list))
-            result = jnp.expand_dims(result, 0)
-
-        if squeeze_output:
-            result = result.squeeze(0)
-
-            # Ensure at least 1D
-            if result.ndim == 0:
-                result = result.unsqueeze(0)
-
-        # Update performance stats
-        self._perf_stats["forward_calls"] += 1
-        self._perf_stats["forward_time"] += time.time() - start_time
-
-        return result
-
-    def _forward_numpy(self, x: np.ndarray, u: np.ndarray) -> np.ndarray:
-        """NumPy backend implementation"""
-
-        start_time = time.time()
-
-        # Input validation
-        if x.ndim == 0 or u.ndim == 0:
-            raise ValueError("Input arrays must be at least 1D")
-
-        if x.ndim >= 1 and x.shape[-1] != self.nx:
-            raise ValueError(f"Expected state dimension {self.nx}, got {x.shape[-1]}")
-        if u.ndim >= 1 and u.shape[-1] != self.nu:
-            raise ValueError(f"Expected control dimension {self.nu}, got {u.shape[-1]}")
-
-        # Generate function if not cached
-        f_numpy = self._code_gen.generate_dynamics("numpy")
-
-        # Handle batched vs single evaluation
-        if x.ndim == 1:
-            x_list = [x[i] for i in range(self.nx)]
-            u_list = [u[i] for i in range(self.nu)]
-            result = f_numpy(*(x_list + u_list))
-            result = np.array(result).flatten()
-        else:
-            # Batched evaluation
-            results = []
-            for i in range(x.shape[0]):
-                x_list = [x[i, j] for j in range(self.nx)]
-                u_list = [u[i, j] for j in range(self.nu)]
-                result = f_numpy(*(x_list + u_list))
-                results.append(np.array(result).flatten())
-            result = np.stack(results)
-
-        # Update performance stats (ADD THIS)
-        self._perf_stats["forward_calls"] += 1
-        self._perf_stats["forward_time"] += time.time() - start_time
-
-        return result
+        """Evaluate continuous-time dynamics: dx/dt = f(x, u)"""
+        return self._dynamics.evaluate(x, u, backend)
 
     def __call__(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
         """
@@ -959,8 +786,8 @@ class SymbolicDynamicalSystem(ABC):
         B_batch = torch.zeros(batch_size, self.nx, self.nu, dtype=dtype, device=device)
 
         # Try to get cached Jacobian functions from CodeGenerator
-        A_func, B_func, _ = self._code_gen.get_jacobians('torch')
-        
+        A_func, B_func, _ = self._code_gen.get_jacobians("torch")
+
         if A_func is not None and B_func is not None:
             # Use cached functions (faster)
             for i in range(batch_size):
@@ -1065,8 +892,8 @@ class SymbolicDynamicalSystem(ABC):
         B_batch = np.zeros((batch_size, self.nx, self.nu))
 
         # Try to get cached NumPy Jacobian functions from CodeGenerator
-        A_func, B_func, _ = self._code_gen.get_jacobians('numpy')
-        
+        A_func, B_func, _ = self._code_gen.get_jacobians("numpy")
+
         if A_func is not None and B_func is not None:
             # Use cached functions
             for i in range(batch_size):
@@ -1158,8 +985,8 @@ class SymbolicDynamicalSystem(ABC):
         C_batch = torch.zeros(batch_size, self.ny, self.nx, dtype=dtype, device=device)
 
         # Try to get cached Jacobian function from CodeGenerator
-        _, _, C_func = self._code_gen.get_jacobians('torch')
-        
+        _, _, C_func = self._code_gen.get_jacobians("torch")
+
         if C_func is not None:
             # Use cached function (faster)
             for i in range(batch_size):
@@ -1251,8 +1078,8 @@ class SymbolicDynamicalSystem(ABC):
         C_batch = np.zeros((batch_size, self.ny, self.nx))
 
         # Try to get cached NumPy Jacobian function from CodeGenerator
-        _, _, C_func = self._code_gen.get_jacobians('numpy')
-        
+        _, _, C_func = self._code_gen.get_jacobians("numpy")
+
         if C_func is not None:
             # Use cached function
             for i in range(batch_size):
@@ -1328,9 +1155,7 @@ class SymbolicDynamicalSystem(ABC):
 
         # Verify it's callable
         if not callable(h_torch):
-            raise TypeError(
-                f"Generated torch output function is not callable: {type(h_torch)}"
-            )
+            raise TypeError(f"Generated torch output function is not callable: {type(h_torch)}")
 
         # Handle batched input
         if len(x.shape) == 1:
@@ -1387,9 +1212,7 @@ class SymbolicDynamicalSystem(ABC):
 
         # Verify it's callable
         if not callable(h_numpy):
-            raise TypeError(
-                f"Generated output function is not callable: {type(h_numpy)}"
-            )
+            raise TypeError(f"Generated output function is not callable: {type(h_numpy)}")
 
         # Handle batched input
         if x.ndim == 1:
