@@ -1,0 +1,449 @@
+"""
+Observation Engine for SymbolicDynamicalSystem
+
+Handles output/observation function evaluation across multiple backends.
+
+Responsibilities:
+- Output evaluation: y = h(x)
+- Linearized observation: C = ∂h/∂x
+- Backend-specific implementations (NumPy, PyTorch, JAX)
+- Input validation and shape handling
+- Batched vs single evaluation
+
+This class manages all h(x)-related operations including both
+the nonlinear output and its linearization.
+"""
+
+from typing import Optional, TYPE_CHECKING
+import numpy as np
+import sympy as sp
+
+if TYPE_CHECKING:
+    import torch
+    import jax
+    import jax.numpy as jnp
+    from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
+    from src.systems.base.code_generator import CodeGenerator
+    from src.systems.base.backend_manager import BackendManager
+
+# Type alias
+from typing import Union
+ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
+
+
+class ObservationEngine:
+    """
+    Evaluates observation/output functions across backends.
+    
+    Handles the evaluation of y = h(x) and C = ∂h/∂x for all backends
+    with proper shape handling and batching.
+    
+    Example:
+        >>> engine = ObservationEngine(system, code_gen, backend_mgr)
+        >>> y = engine.evaluate(x, backend='numpy')
+        >>> C = engine.compute_jacobian(x, backend='numpy')
+    """
+    
+    def __init__(
+        self,
+        system: 'SymbolicDynamicalSystem',
+        code_gen: 'CodeGenerator',
+        backend_mgr: 'BackendManager'
+    ):
+        """
+        Initialize observation engine.
+        
+        Args:
+            system: The dynamical system
+            code_gen: Code generator for accessing compiled functions
+            backend_mgr: Backend manager for detection/conversion
+        """
+        self.system = system
+        self.code_gen = code_gen
+        self.backend_mgr = backend_mgr
+    
+    # ========================================================================
+    # Output Evaluation: y = h(x)
+    # ========================================================================
+    
+    def evaluate(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+        """
+        Evaluate output equation: y = h(x).
+        
+        If no custom output function is defined, returns the full state (identity).
+        
+        Args:
+            x: State (array/tensor)
+            backend: Backend selection (None = auto-detect)
+                
+        Returns:
+            Output (type matches backend)
+            
+        Example:
+            >>> y = engine.evaluate(x_numpy)  # Auto-detect NumPy
+            >>> y = engine.evaluate(x_numpy, backend='torch')  # Convert to torch
+        """
+        # If no custom output, return identity
+        if self.system._h_sym is None:
+            return x
+        
+        # Determine target backend
+        if backend == 'default':
+            target_backend = self.backend_mgr.default_backend
+        elif backend is None:
+            target_backend = self.backend_mgr.detect(x)
+        else:
+            target_backend = backend
+        
+        # Convert input if needed
+        input_backend = self.backend_mgr.detect(x)
+        if input_backend != target_backend:
+            x = self.backend_mgr.convert(x, target_backend)
+        
+        # Dispatch to backend-specific implementation
+        if target_backend == 'numpy':
+            return self._evaluate_numpy(x)
+        elif target_backend == 'torch':
+            return self._evaluate_torch(x)
+        elif target_backend == 'jax':
+            return self._evaluate_jax(x)
+        else:
+            raise ValueError(f"Unknown backend: {target_backend}")
+    
+    def _evaluate_numpy(self, x: np.ndarray) -> np.ndarray:
+        """NumPy implementation of output evaluation."""
+        
+        # If no custom output, return full state
+        if self.system._h_sym is None:
+            return x
+        
+        # Generate output function
+        h_numpy = self.code_gen.generate_output('numpy')
+        if h_numpy is None:
+            return x
+        
+        # Handle batched input
+        if x.ndim == 1:
+            x = np.expand_dims(x, 0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        batch_size = x.shape[0]
+        results = []
+        
+        for i in range(batch_size):
+            x_list = [x[i, j] for j in range(self.system.nx)]
+            result = h_numpy(*x_list)
+            result = np.atleast_1d(np.array(result))
+            results.append(result)
+        
+        result = np.stack(results)
+        
+        if squeeze_output:
+            result = np.squeeze(result, 0)
+        
+        return result
+    
+    def _evaluate_torch(self, x: "torch.Tensor") -> "torch.Tensor":
+        """PyTorch implementation of output evaluation."""
+        
+        if self.system._h_sym is None:
+            return x
+        
+        # Generate output function
+        h_torch = self.code_gen.generate_output('torch')
+        if h_torch is None:
+            return x
+        
+        # Handle batched input
+        if len(x.shape) == 1:
+            x = x.unsqueeze(0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        # Prepare input arguments
+        x_list = [x[:, i] for i in range(self.system.nx)]
+        
+        # Call function
+        result = h_torch(*x_list)
+        
+        # Handle output shape
+        if squeeze_output:
+            if result.ndim > 1:
+                result = result.squeeze(0)
+            elif result.ndim == 0:
+                result = result.reshape(1)
+        else:
+            # Batched output - ensure shape is (batch, ny)
+            if result.ndim == 1 and self.system.ny == 1:
+                result = result.unsqueeze(1)
+        
+        # Final safety: ensure at least 1D
+        if result.ndim == 0:
+            result = result.reshape(1)
+        
+        return result
+    
+    def _evaluate_jax(self, x: "jnp.ndarray") -> "jnp.ndarray":
+        """JAX implementation of output evaluation."""
+        import jax
+        import jax.numpy as jnp
+        
+        if self.system._h_sym is None:
+            return x
+        
+        # Generate output function
+        h_jax = self.code_gen.generate_output('jax', jit=True)
+        if h_jax is None:
+            return x
+        
+        # Handle batched input
+        if x.ndim == 1:
+            x = jnp.expand_dims(x, 0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        # For batched computation, use vmap
+        if x.shape[0] > 1:
+            @jax.vmap
+            def batched_observation(x_i):
+                x_list = [x_i[j] for j in range(self.system.nx)]
+                return h_jax(*x_list)
+            
+            result = batched_observation(x)
+        else:
+            # Single evaluation
+            x_list = [x[0, i] for i in range(self.system.nx)]
+            result = h_jax(*x_list)
+            result = jnp.expand_dims(result, 0)
+        
+        if squeeze_output:
+            result = jnp.squeeze(result, 0)
+        
+        return result
+    
+    # ========================================================================
+    # Observation Linearization: C = ∂h/∂x
+    # ========================================================================
+    
+    def compute_jacobian(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+        """
+        Compute linearized observation: C = ∂h/∂x.
+        
+        If no custom output function, returns identity matrix.
+        
+        Args:
+            x: State at which to linearize
+            backend: Backend selection (None = auto-detect)
+            
+        Returns:
+            C matrix (type matches backend)
+            
+        Example:
+            >>> C = engine.compute_jacobian(x, backend='numpy')
+        """
+        # If no custom output, return identity
+        if self.system._h_sym is None:
+            # Return identity in appropriate backend
+            if backend is None:
+                backend = self.backend_mgr.detect(x)
+            
+            if backend == 'numpy' or backend is None:
+                batch_size = x.shape[0] if x.ndim > 1 else 1
+                if x.ndim == 1:
+                    return np.eye(self.system.nx)
+                else:
+                    return np.tile(np.eye(self.system.nx), (batch_size, 1, 1))
+            elif backend == 'torch':
+                import torch
+                batch_size = x.shape[0] if len(x.shape) > 1 else 1
+                if len(x.shape) == 1:
+                    return torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
+                else:
+                    return torch.eye(self.system.nx, dtype=x.dtype, device=x.device).unsqueeze(0).expand(batch_size, -1, -1)
+            elif backend == 'jax':
+                import jax.numpy as jnp
+                batch_size = x.shape[0] if x.ndim > 1 else 1
+                if x.ndim == 1:
+                    return jnp.eye(self.system.nx)
+                else:
+                    return jnp.tile(jnp.eye(self.system.nx), (batch_size, 1, 1))
+        
+        # Determine target backend
+        if backend == 'default':
+            target_backend = self.backend_mgr.default_backend
+        elif backend is None:
+            target_backend = self.backend_mgr.detect(x)
+        else:
+            target_backend = backend
+        
+        # Convert input if needed
+        input_backend = self.backend_mgr.detect(x)
+        if input_backend != target_backend:
+            x = self.backend_mgr.convert(x, target_backend)
+        
+        # Dispatch to backend-specific implementation
+        if target_backend == 'numpy':
+            return self._compute_jacobian_numpy(x)
+        elif target_backend == 'torch':
+            return self._compute_jacobian_torch(x)
+        elif target_backend == 'jax':
+            return self._compute_jacobian_jax(x)
+        else:
+            raise ValueError(f"Unknown backend: {target_backend}")
+    
+    def compute_symbolic(self, x_eq: Optional[sp.Matrix] = None) -> sp.Matrix:
+        """
+        Compute symbolic linearization C = ∂h/∂x.
+        
+        Args:
+            x_eq: Equilibrium state (zeros if None)
+            
+        Returns:
+            C: Symbolic Jacobian matrix
+            
+        Example:
+            >>> C_sym = engine.compute_symbolic(x_eq=sp.Matrix([0, 0]))
+        """
+        if self.system._h_sym is None:
+            return sp.eye(self.system.nx)
+        
+        if x_eq is None:
+            x_eq = sp.Matrix([0] * self.system.nx)
+        
+        # Get symbolic Jacobian from CodeGenerator
+        self.code_gen._compute_symbolic_jacobians()
+        C_sym_cached = self.code_gen._C_sym_cache
+        
+        subs_dict = dict(zip(self.system.state_vars, list(x_eq)))
+        C = C_sym_cached.subs(subs_dict)
+        C = self.system.substitute_parameters(C)
+        
+        return C
+    
+    def _compute_jacobian_numpy(self, x: np.ndarray) -> np.ndarray:
+        """NumPy implementation of observation Jacobian."""
+        
+        # Handle batched input
+        if x.ndim == 1:
+            x = np.expand_dims(x, 0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        batch_size = x.shape[0]
+        C_batch = np.zeros((batch_size, self.system.ny, self.system.nx))
+        
+        # Try to get cached Jacobian function
+        _, _, C_func = self.code_gen.get_jacobians('numpy')
+        
+        if C_func is not None:
+            # Use cached function
+            for i in range(batch_size):
+                x_i = x[i]
+                x_list = [x_i[j] for j in range(self.system.nx)]
+                
+                C_result = C_func(*x_list)
+                C_batch[i] = np.array(C_result, dtype=np.float64)
+        else:
+            # Fall back to symbolic evaluation
+            for i in range(batch_size):
+                x_np = np.atleast_1d(x[i])
+                C_sym = self.compute_symbolic(sp.Matrix(x_np))
+                C_batch[i] = np.array(C_sym, dtype=np.float64)
+        
+        if squeeze_output:
+            C_batch = np.squeeze(C_batch, 0)
+        
+        return C_batch
+    
+    def _compute_jacobian_torch(self, x: "torch.Tensor") -> "torch.Tensor":
+        """PyTorch implementation of observation Jacobian."""
+        import torch
+        
+        # Handle batched input
+        if len(x.shape) == 1:
+            x = x.unsqueeze(0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        batch_size = x.shape[0]
+        device = x.device
+        dtype = x.dtype
+        
+        C_batch = torch.zeros(batch_size, self.system.ny, self.system.nx, dtype=dtype, device=device)
+        
+        # Try to get cached Jacobian function
+        _, _, C_func = self.code_gen.get_jacobians('torch')
+        
+        if C_func is not None:
+            # Use cached function
+            for i in range(batch_size):
+                x_i = x[i]
+                x_list = [x_i[j] for j in range(self.system.nx)]
+                C_batch[i] = C_func(*x_list)
+        else:
+            # Fall back to symbolic evaluation
+            for i in range(batch_size):
+                x_i = x[i] if batch_size > 1 else x.squeeze(0)
+                x_np = x_i.detach().cpu().numpy()
+                x_np = np.atleast_1d(x_np)
+                
+                C_sym = self.compute_symbolic(sp.Matrix(x_np))
+                C_batch[i] = torch.tensor(
+                    np.array(C_sym, dtype=np.float64), dtype=dtype, device=device
+                )
+        
+        if squeeze_output:
+            C_batch = C_batch.squeeze(0)
+        
+        return C_batch
+    
+    def _compute_jacobian_jax(self, x: "jnp.ndarray") -> "jnp.ndarray":
+        """JAX implementation using automatic differentiation."""
+        import jax
+        import jax.numpy as jnp
+        
+        # Ensure observation function is generated
+        h_jax = self.code_gen.generate_output('jax', jit=True)
+        
+        # Handle batched input
+        if x.ndim == 1:
+            x = jnp.expand_dims(x, 0)
+            squeeze_output = True
+        else:
+            squeeze_output = False
+        
+        # Define observation function for Jacobian computation
+        def observation_fn(x_i):
+            x_list = [x_i[j] for j in range(self.system.nx)]
+            return h_jax(*x_list)
+        
+        # Compute Jacobian using JAX autodiff (vmap for batching)
+        @jax.vmap
+        def compute_jacobian(x_i):
+            return jax.jacobian(observation_fn)(x_i)
+        
+        C_batch = compute_jacobian(x)
+        
+        if squeeze_output:
+            C_batch = jnp.squeeze(C_batch, 0)
+        
+        return C_batch
+    
+    # ========================================================================
+    # String Representations
+    # ========================================================================
+    
+    def __repr__(self) -> str:
+        """String representation for debugging"""
+        has_custom = self.system._h_sym is not None
+        return f"ObservationEngine(ny={self.system.ny}, custom_output={has_custom})"
+    
+    def __str__(self) -> str:
+        """Human-readable string"""
+        return f"ObservationEngine(ny={self.system.ny})"
