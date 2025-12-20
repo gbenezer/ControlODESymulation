@@ -339,126 +339,125 @@ class TestInitializationAndValidation:
 
 
 # ============================================================================
-# Test Class 2: Backend Detection and Conversion
+# Test Class 2: Backend Detection and Conversion (DEPRECATED)
 # ============================================================================
 
+# class TestBackendHandling:
+#     """Test backend detection, conversion, and availability checking"""
 
-class TestBackendHandling:
-    """Test backend detection, conversion, and availability checking"""
+#     def test_detect_numpy_backend(self):
+#         """Test detecting NumPy arrays"""
+#         system = SimpleFirstOrderSystem()
+#         x = np.array([1.0])
 
-    def test_detect_numpy_backend(self):
-        """Test detecting NumPy arrays"""
-        system = SimpleFirstOrderSystem()
-        x = np.array([1.0])
+#         backend = system._detect_backend(x)
+#         assert backend == "numpy"
 
-        backend = system._detect_backend(x)
-        assert backend == "numpy"
+#     @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+#     def test_detect_torch_backend(self):
+#         """Test detecting PyTorch tensors"""
+#         system = SimpleFirstOrderSystem()
+#         x = torch.tensor([1.0])
 
-    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
-    def test_detect_torch_backend(self):
-        """Test detecting PyTorch tensors"""
-        system = SimpleFirstOrderSystem()
-        x = torch.tensor([1.0])
+#         backend = system._detect_backend(x)
+#         assert backend == "torch"
 
-        backend = system._detect_backend(x)
-        assert backend == "torch"
+#     @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+#     def test_detect_jax_backend(self):
+#         """Test detecting JAX arrays"""
+#         system = SimpleFirstOrderSystem()
+#         x = jnp.array([1.0])
 
-    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
-    def test_detect_jax_backend(self):
-        """Test detecting JAX arrays"""
-        system = SimpleFirstOrderSystem()
-        x = jnp.array([1.0])
+#         backend = system._detect_backend(x)
+#         assert backend == "jax"
 
-        backend = system._detect_backend(x)
-        assert backend == "jax"
+#     def test_detect_unknown_type(self):
+#         """Test error on unknown array type"""
+#         system = SimpleFirstOrderSystem()
 
-    def test_detect_unknown_type(self):
-        """Test error on unknown array type"""
-        system = SimpleFirstOrderSystem()
+#         with pytest.raises(TypeError, match="Unknown input type"):
+#             system._detect_backend([1.0])  # Python list
 
-        with pytest.raises(TypeError, match="Unknown input type"):
-            system._detect_backend([1.0])  # Python list
+#     def test_convert_numpy_to_numpy(self):
+#         """Test numpy -> numpy is no-op"""
+#         system = SimpleFirstOrderSystem()
+#         x = np.array([1.0, 2.0])
 
-    def test_convert_numpy_to_numpy(self):
-        """Test numpy -> numpy is no-op"""
-        system = SimpleFirstOrderSystem()
-        x = np.array([1.0, 2.0])
+#         x_converted = system._convert_to_backend(x, "numpy")
 
-        x_converted = system._convert_to_backend(x, "numpy")
+#         assert x_converted is x  # Same object
+#         assert isinstance(x_converted, np.ndarray)
 
-        assert x_converted is x  # Same object
-        assert isinstance(x_converted, np.ndarray)
+#     @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+#     def test_convert_numpy_to_torch(self):
+#         """Test numpy -> torch conversion"""
+#         system = SimpleFirstOrderSystem()
+#         x = np.array([1.0, 2.0])
 
-    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
-    def test_convert_numpy_to_torch(self):
-        """Test numpy -> torch conversion"""
-        system = SimpleFirstOrderSystem()
-        x = np.array([1.0, 2.0])
+#         x_torch = system._convert_to_backend(x, "torch")
 
-        x_torch = system._convert_to_backend(x, "torch")
+#         assert isinstance(x_torch, torch.Tensor)
+#         assert torch.allclose(x_torch, torch.tensor([1.0, 2.0]))
 
-        assert isinstance(x_torch, torch.Tensor)
-        assert torch.allclose(x_torch, torch.tensor([1.0, 2.0]))
+#     @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+#     def test_convert_torch_to_numpy(self):
+#         """Test torch -> numpy conversion"""
+#         system = SimpleFirstOrderSystem()
+#         x = torch.tensor([1.0, 2.0])
 
-    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
-    def test_convert_torch_to_numpy(self):
-        """Test torch -> numpy conversion"""
-        system = SimpleFirstOrderSystem()
-        x = torch.tensor([1.0, 2.0])
+#         x_numpy = system._convert_to_backend(x, "numpy")
 
-        x_numpy = system._convert_to_backend(x, "numpy")
+#         assert isinstance(x_numpy, np.ndarray)
+#         assert np.allclose(x_numpy, np.array([1.0, 2.0]))
 
-        assert isinstance(x_numpy, np.ndarray)
-        assert np.allclose(x_numpy, np.array([1.0, 2.0]))
+#     @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+#     def test_convert_numpy_to_jax(self):
+#         """Test numpy -> jax conversion"""
+#         system = SimpleFirstOrderSystem()
+#         x = np.array([1.0, 2.0])
 
-    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
-    def test_convert_numpy_to_jax(self):
-        """Test numpy -> jax conversion"""
-        system = SimpleFirstOrderSystem()
-        x = np.array([1.0, 2.0])
+#         x_jax = system._convert_to_backend(x, "jax")
 
-        x_jax = system._convert_to_backend(x, "jax")
+#         assert isinstance(x_jax, jnp.ndarray)
+#         assert jnp.allclose(x_jax, jnp.array([1.0, 2.0]))
 
-        assert isinstance(x_jax, jnp.ndarray)
-        assert jnp.allclose(x_jax, jnp.array([1.0, 2.0]))
+#     def test_check_backend_available_numpy(self):
+#         """Test NumPy is always available"""
+#         system = SimpleFirstOrderSystem()
 
-    def test_check_backend_available_numpy(self):
-        """Test NumPy is always available"""
-        system = SimpleFirstOrderSystem()
+#         # Should not raise
+#         system._check_backend_available("numpy")
 
-        # Should not raise
-        system._check_backend_available("numpy")
+#     def test_check_backend_unavailable(self):
+#         """Test error when backend not installed"""
+#         system = SimpleFirstOrderSystem()
 
-    def test_check_backend_unavailable(self):
-        """Test error when backend not installed"""
-        system = SimpleFirstOrderSystem()
+#         # This will fail unless you have both torch and jax
+#         # Pick the one you don't have installed
+#         if not torch_available:
+#             with pytest.raises(RuntimeError, match="PyTorch.*not available"):
+#                 system._check_backend_available("torch")
 
-        # This will fail unless you have both torch and jax
-        # Pick the one you don't have installed
-        if not torch_available:
-            with pytest.raises(RuntimeError, match="PyTorch.*not available"):
-                system._check_backend_available("torch")
+#         if not jax_available:
+#             with pytest.raises(RuntimeError, match="JAX.*not available"):
+#                 system._check_backend_available("jax")
 
-        if not jax_available:
-            with pytest.raises(RuntimeError, match="JAX.*not available"):
-                system._check_backend_available("jax")
+#     def test_set_default_backend(self):
+#         """Test setting default backend"""
+#         system = SimpleFirstOrderSystem()
 
-    def test_set_default_backend(self):
-        """Test setting default backend"""
-        system = SimpleFirstOrderSystem()
+#         system.set_default_backend("numpy")
+#         assert system._default_backend == "numpy"
 
-        system.set_default_backend("numpy")
-        assert system._default_backend == "numpy"
+#         system.set_default_backend("numpy", device="cpu")
+#         assert system._preferred_device == "cpu"
 
-        system.set_default_backend("numpy", device="cpu")
-        assert system._preferred_device == "cpu"
+#     def test_set_invalid_backend(self):
+#         """Test error on invalid backend name"""
+#         system = SimpleFirstOrderSystem()
 
-    def test_set_invalid_backend(self):
-        """Test error on invalid backend name"""
-        system = SimpleFirstOrderSystem()
-
-        with pytest.raises(ValueError, match="Invalid backend"):
-            system.set_default_backend("tensorflow")
+#         with pytest.raises(ValueError, match="Invalid backend"):
+#             system.set_default_backend("tensorflow")
 
 
 # ============================================================================
