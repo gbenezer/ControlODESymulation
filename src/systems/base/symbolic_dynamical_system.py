@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Union, Optional, Tuple, List, Dict
 import json
 import sympy as sp
-import numpy as NumPy
+import numpy as np
 
 # necessary sub-object import
 from src.systems.base.utils.equilibrium_handler import EquilibriumHandler
@@ -45,10 +45,6 @@ class SymbolicDynamicalSystem(ABC):
 
         # COMPOSITION: Delegate backend management
         self.backend = BackendManager(default_backend="numpy", default_device="cpu")
-
-        # Backend configuration (to be deprecated)
-        self._default_backend = "numpy"
-        self._preferred_device = "cpu"
 
         # COMPOSITION: Delegate validation
         self._validator = SymbolicValidator(strict=True)
@@ -178,17 +174,9 @@ class SymbolicDynamicalSystem(ABC):
         self.backend.set_default(backend, device)
         return self
 
-    def _detect_backend(self, x) -> str:
-        """Detect backend from input type"""
-        return self.backend.detect(x)
-
-    def _check_backend_available(self, backend: str):
-        """Raise error if backend not available"""
-        self.backend.require_backend(backend)
-
-    def _convert_to_backend(self, arr: ArrayLike, backend: str):
-        """Convert array to target backend"""
-        return self.backend.convert(arr, backend)
+    def _clear_backend_cache(self, backend: str):
+        """Clear cached functions for a backend"""
+        self._code_gen.reset_cache([backend])
 
     def to_device(self, device: str) -> "SymbolicDynamicalSystem":
         """Set preferred device for PyTorch/JAX backends."""
@@ -203,35 +191,6 @@ class SymbolicDynamicalSystem(ABC):
     def _clear_backend_cache(self, backend: str):
         """Clear cached functions for a backend"""
         self._code_gen.reset_cache([backend])
-
-    def _dispatch_to_backend(self, method_prefix: str, backend: Optional[str], *args):
-        """
-        Generic backend dispatcher.
-
-        Args:
-            method_prefix: Method name prefix (e.g., '_forward', '_h', '_linearized_dynamics')
-            backend: Backend selection
-            *args: Arguments to pass to backend method
-
-        Returns:
-            Result from backend-specific method
-        """
-        if backend == "default":
-            target_backend = self.backend.default_backend
-        elif backend is None:
-            target_backend = self.backend.detect(args[0])
-        else:
-            target_backend = backend
-
-        # Check availability
-        self.backend.require_backend(target_backend)
-
-        # Get backend-specific method
-        method_name = f"{method_prefix}_{target_backend}"
-        method = getattr(self, method_name)
-
-        # Call it
-        return method(*args)
 
     def get_backend_info(self) -> Dict[str, any]:
         """Get information about current backend configuration."""
