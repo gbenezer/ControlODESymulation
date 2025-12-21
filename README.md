@@ -644,6 +644,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
 - Look back and assess if any additional refactoring needs to occur (looking for god objects/code smells/design flaws)
 
 #### Phase 2:
+- Make control variables truly optional (for autonomous system simulation)
 - Refactoring of DiscreteTimeSystem
     - Construct SimulationEngine class for simulation of open/closed loop trajectories
     - Construct DiscretizationEngine class for linearization of discrete-time systems
