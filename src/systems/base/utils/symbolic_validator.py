@@ -480,15 +480,6 @@ class SymbolicValidator:
                 )
                 continue
             
-            # Check physical parameters are positive
-            physical_params = ['m', 'mass', 'l', 'length', 'I', 'inertia', 'k', 'c']
-            if any(name in param_name for name in physical_params):
-                if value <= 0:
-                    self._errors.append(
-                        f"Physical parameter {symbol} = {value} should be positive. "
-                        f"Negative or zero values are physically invalid."
-                    )
-            
             # Warn about very small or very large values
             if abs(value) < 1e-10:
                 self._warnings.append(
