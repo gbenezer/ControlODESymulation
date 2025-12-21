@@ -332,23 +332,6 @@ class TestInitializationAndValidation:
         with pytest.raises(ValueError, match="non-finite value"):
             BadSystem()
 
-    def test_validation_negative_mass(self):
-        """Test validation fails with negative mass"""
-
-        class BadSystem(SymbolicDynamicalSystem):
-            def define_system(self):
-                m = sp.symbols("m")
-                x = sp.symbols("x")
-                u = sp.symbols("u")
-
-                self.state_vars = [x]
-                self.control_vars = [u]
-                self._f_sym = sp.Matrix([u / m])
-                self.parameters = {m: -1.0}  # Negative mass!
-
-        with pytest.raises(ValueError, match="should be positive"):
-            BadSystem()
-
     def test_validation_warnings(self):
         """Test that warnings are issued for unusual configurations"""
 

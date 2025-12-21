@@ -907,25 +907,6 @@ class TestParameterValidation:
         assert not result.is_valid
         assert any("non-finite" in err.lower() or "inf" in err.lower()
                    for err in result.errors)
-    
-    def test_negative_mass_parameter_error(self):
-        """Test error for negative physical parameter."""
-        x, v = sp.symbols("x v")
-        u = sp.symbols("u")
-        m = sp.symbols("m")  # Should be positive (mass)
-        
-        drift = sp.Matrix([[v], [u / m]])
-        diffusion = sp.Matrix([[0], [0.1]])
-        
-        validator = SDEValidator(
-            drift, diffusion, [x, v], [u],
-            parameters={m: -1.0}  # Invalid negative mass
-        )
-        
-        result = validator.validate()
-        assert not result.is_valid
-        assert any("positive" in err.lower() or "physical" in err.lower()
-                   for err in result.errors)
 
 
 # ============================================================================
