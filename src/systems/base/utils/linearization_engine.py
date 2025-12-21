@@ -9,9 +9,12 @@ Responsibilities:
 - Numerical linearization (all backends)
 - Jacobian verification against autodiff
 - Performance tracking
+- Support for both controlled and autonomous systems
 
 This class focuses ONLY on dynamics linearization (A, B matrices).
 Output linearization (C matrix) is handled by ObservationEngine.
+
+For autonomous systems (nu=0), B matrix has shape (nx, 0).
 """
 
 from typing import Tuple, Optional, Dict, Union, TYPE_CHECKING
@@ -35,11 +38,21 @@ class LinearizationEngine:
     Computes linearized dynamics across backends.
     
     Handles computation of A = ∂f/∂x and B = ∂f/∂u matrices both symbolically
-    and numerically, with support for higher-order systems.
+    and numerically, with support for higher-order systems and autonomous systems.
+    
+    For autonomous systems (nu=0):
+    - B matrix has shape (nx, 0)
+    - u can be None or empty array
+    - Only A matrix contains meaningful information
     
     Example:
+        >>> # Controlled system
         >>> engine = LinearizationEngine(system, code_gen, backend_mgr)
         >>> A, B = engine.compute_dynamics(x, u, backend='numpy')
+        >>> 
+        >>> # Autonomous system
+        >>> A, B = engine.compute_dynamics(x, backend='numpy')  # u=None
+        >>> B.shape  # (nx, 0)
         >>> 
         >>> # Symbolic linearization
         >>> A_sym, B_sym = engine.compute_symbolic(x_eq, u_eq)
@@ -75,27 +88,65 @@ class LinearizationEngine:
     # ========================================================================
     # Main Linearization API
     # ========================================================================
-    
+
     def compute_dynamics(
-        self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None
+        self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None
     ) -> Tuple[ArrayLike, ArrayLike]:
         """
         Compute linearized dynamics: A = ∂f/∂x, B = ∂f/∂u.
         
         Automatically detects backend from input types.
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
         
         Args:
             x: State at which to linearize
-            u: Control at which to linearize
+            u: Control at which to linearize (None for autonomous systems)
             backend: Backend selection (None = auto-detect)
             
         Returns:
-            Tuple of (A, B) matrices (type matches backend)
+            Tuple of (A, B) matrices where:
+            - A: (nx, nx) state Jacobian
+            - B: (nx, nu) control Jacobian, or (nx, 0) if autonomous
+            
+        Raises:
+            ValueError: If u is None for non-autonomous system
             
         Example:
-            >>> A, B = engine.compute_dynamics(x_torch, u_torch)  # Returns torch
-            >>> A, B = engine.compute_dynamics(x_np, u_np, backend='torch')  # Converts to torch
+            >>> # Controlled system
+            >>> A, B = engine.compute_dynamics(x_torch, u_torch)
+            >>> A.shape  # (nx, nx)
+            >>> B.shape  # (nx, nu)
+            >>> 
+            >>> # Autonomous system (nu=0)
+            >>> A, B = engine.compute_dynamics(x_np)  # u=None
+            >>> A.shape  # (nx, nx)
+            >>> B.shape  # (nx, 0) - empty but valid
         """
+        # Handle autonomous systems
+        if u is None:
+            if self.system.nu > 0:
+                raise ValueError(
+                    "Non-autonomous system requires control input u. "
+                    f"System has {self.system.nu} control input(s)."
+                )
+            # Create empty control for autonomous system
+            if backend == 'default':
+                target_backend = self.backend_mgr.default_backend
+            elif backend is None:
+                target_backend = self.backend_mgr.detect(x)
+            else:
+                target_backend = backend
+            
+            # Create empty array in appropriate backend
+            if target_backend == 'numpy':
+                u = np.array([])
+            elif target_backend == 'torch':
+                import torch
+                u = torch.tensor([], dtype=torch.float32)
+            elif target_backend == 'jax':
+                import jax.numpy as jnp
+                u = jnp.array([])
+        
         # Determine target backend
         if backend == 'default':
             target_backend = self.backend_mgr.default_backend
@@ -108,7 +159,8 @@ class LinearizationEngine:
         input_backend = self.backend_mgr.detect(x)
         if input_backend != target_backend:
             x = self.backend_mgr.convert(x, target_backend)
-            u = self.backend_mgr.convert(u, target_backend)
+            if self.system.nu > 0:  # Only convert u if not autonomous
+                u = self.backend_mgr.convert(u, target_backend)
         
         # Dispatch to backend-specific implementation
         if target_backend == 'numpy':
@@ -119,7 +171,8 @@ class LinearizationEngine:
             return self._compute_dynamics_jax(x, u)
         else:
             raise ValueError(f"Unknown backend: {target_backend}")
-    
+
+
     def compute_symbolic(
         self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None
     ) -> Tuple[sp.Matrix, sp.Matrix]:
@@ -127,24 +180,46 @@ class LinearizationEngine:
         Compute symbolic linearization A = ∂f/∂x, B = ∂f/∂u.
         
         For higher-order systems, constructs the full state-space linearization.
+        For autonomous systems (nu=0), B is an empty matrix (nx, 0).
         
         Args:
             x_eq: Equilibrium state (zeros if None)
-            u_eq: Equilibrium control (zeros if None)
+            u_eq: Equilibrium control (zeros if None, empty if autonomous)
             
         Returns:
-            Tuple of (A, B) symbolic matrices
+            Tuple of (A, B) symbolic matrices where:
+            - A: (nx, nx) state Jacobian
+            - B: (nx, nu) control Jacobian, or (nx, 0) if autonomous
             
         Example:
+            >>> # Controlled system
             >>> A_sym, B_sym = engine.compute_symbolic(
             ...     x_eq=sp.Matrix([0, 0]),
             ...     u_eq=sp.Matrix([0])
             ... )
+            >>> 
+            >>> # Autonomous system
+            >>> A_sym, B_sym = engine.compute_symbolic(
+            ...     x_eq=sp.Matrix([0, 0])
+            ... )  # u_eq is None/empty for autonomous
+            >>> B_sym.shape  # (2, 0)
         """
         if x_eq is None:
             x_eq = sp.Matrix([0] * self.system.nx)
+        
+        # Ensure x_eq is a column matrix
+        if x_eq.shape[1] != 1:
+            x_eq = x_eq.reshape(self.system.nx, 1)
+        
         if u_eq is None:
-            u_eq = sp.Matrix([0] * self.system.nu)
+            if self.system.nu > 0:
+                u_eq = sp.Matrix([0] * self.system.nu)
+            else:
+                u_eq = sp.Matrix(0, 1, [])  # Empty column matrix for autonomous systems
+        
+        # Ensure u_eq is a column matrix (if not empty)
+        if self.system.nu > 0 and u_eq.shape[1] != 1:
+            u_eq = u_eq.reshape(self.system.nu, 1)
         
         # Compute symbolic Jacobians (cached in CodeGenerator)
         self.code_gen._compute_symbolic_jacobians()
@@ -173,7 +248,9 @@ class LinearizationEngine:
             A_sym[nq:, :] = A_accel        # dq̇/dt = f(q, q̇, u)
             
             B_sym = sp.zeros(self.system.nx, self.system.nu)
-            B_sym[nq:, :] = B_accel  # Control affects acceleration
+            if self.system.nu > 0:  # Only add B_accel if system has controls
+                B_sym[nq:, :] = B_accel  # Control affects acceleration
+            # else: B_sym remains zeros with shape (nx, 0)
         else:
             # Higher-order systems: x = [q, q', q'', ..., q^(n-1)]
             nq = self.system.nq
@@ -190,13 +267,24 @@ class LinearizationEngine:
             A_sym[(order - 1) * nq :, :] = A_highest
             
             B_sym = sp.zeros(self.system.nx, self.system.nu)
-            B_sym[(order - 1) * nq :, :] = B_highest
+            if self.system.nu > 0:  # Only add B_highest if system has controls
+                B_sym[(order - 1) * nq :, :] = B_highest
+            # else: B_sym remains zeros with shape (nx, 0)
         
         # Substitute equilibrium point
-        subs_dict = dict(zip(
-            self.system.state_vars + self.system.control_vars,
-            list(x_eq) + list(u_eq)
-        ))
+        if self.system.nu > 0:
+            # Controlled system: substitute both state and control
+            subs_dict = {}
+            for i, var in enumerate(self.system.state_vars):
+                subs_dict[var] = x_eq[i, 0]  # Extract scalar from column matrix
+            for i, var in enumerate(self.system.control_vars):
+                subs_dict[var] = u_eq[i, 0]  # Extract scalar from column matrix
+        else:
+            # Autonomous system: only substitute state variables
+            subs_dict = {}
+            for i, var in enumerate(self.system.state_vars):
+                subs_dict[var] = x_eq[i, 0]  # Extract scalar from column matrix
+        
         A = A_sym.subs(subs_dict)
         B = B_sym.subs(subs_dict)
         
@@ -213,13 +301,21 @@ class LinearizationEngine:
     def _compute_dynamics_numpy(
         self, x: np.ndarray, u: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """NumPy implementation using cached functions or symbolic evaluation."""
+        """
+        NumPy implementation using cached functions or symbolic evaluation.
+        
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
+        """
         start_time = time.time()
         
         # Handle batched input
         if x.ndim == 1:
             x = np.expand_dims(x, 0)
-            u = np.expand_dims(u, 0) if self.system.nu > 0 else np.empty((1, 0))
+            if self.system.nu > 0:
+                u = np.expand_dims(u, 0)
+            else:
+                # Autonomous: u should already be empty, ensure shape (1, 0)
+                u = np.empty((1, 0))
             squeeze_output = True
         else:
             squeeze_output = False
@@ -232,31 +328,46 @@ class LinearizationEngine:
         # Try to get cached Jacobian functions
         A_func, B_func, _ = self.code_gen.get_jacobians('numpy')
         
-        if A_func is not None and B_func is not None:
+        if A_func is not None and (B_func is not None or self.system.nu == 0):
             # Use cached functions
             for i in range(batch_size):
                 x_i = x[i]
-                u_i = u[i] if self.system.nu > 0 else np.array([])
                 
                 x_list = [x_i[j] for j in range(self.system.nx)]
-                u_list = [u_i[j] for j in range(self.system.nu)]  # Empty if nu=0
-                all_args = x_list + u_list
                 
-                A_result = A_func(*all_args)
-                A_batch[i] = np.array(A_result, dtype=np.float64)
-                
-                # Only compute B if system has controls
                 if self.system.nu > 0:
+                    u_i = u[i]
+                    u_list = [u_i[j] for j in range(self.system.nu)]
+                    all_args = x_list + u_list
+                    
+                    A_result = A_func(*all_args)
                     B_result = B_func(*all_args)
+                    
+                    A_batch[i] = np.array(A_result, dtype=np.float64)
                     B_batch[i] = np.array(B_result, dtype=np.float64)
-                # else: B_batch[i] remains zeros with shape (nx, 0)
+                else:
+                    # Autonomous: only pass state variables
+                    A_result = A_func(*x_list)
+                    A_batch[i] = np.array(A_result, dtype=np.float64)
+                    # B_batch[i] remains zeros with shape (nx, 0)
         else:
             # Fall back to symbolic evaluation
             for i in range(batch_size):
                 x_np = np.atleast_1d(x[i])
-                u_np = np.atleast_1d(u[i]) if self.system.nu > 0 else np.array([])
                 
-                A_sym, B_sym = self.compute_symbolic(sp.Matrix(x_np), sp.Matrix(u_np))
+                if self.system.nu > 0:
+                    u_np = np.atleast_1d(u[i])
+                    A_sym, B_sym = self.compute_symbolic(
+                        sp.Matrix(x_np.reshape(-1, 1)), 
+                        sp.Matrix(u_np.reshape(-1, 1))
+                    )
+                else:
+                    # Autonomous: pass None for u_eq
+                    A_sym, B_sym = self.compute_symbolic(
+                        sp.Matrix(x_np.reshape(-1, 1)), 
+                        u_eq=None
+                    )
+                
                 A_batch[i] = np.array(A_sym, dtype=np.float64)
                 B_batch[i] = np.array(B_sym, dtype=np.float64)
         
@@ -273,7 +384,11 @@ class LinearizationEngine:
     def _compute_dynamics_torch(
         self, x: "torch.Tensor", u: "torch.Tensor"
     ) -> Tuple["torch.Tensor", "torch.Tensor"]:
-        """PyTorch implementation using cached functions or symbolic evaluation."""
+        """
+        PyTorch implementation using cached functions or symbolic evaluation.
+        
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
+        """
         import torch
         
         start_time = time.time()
@@ -281,7 +396,11 @@ class LinearizationEngine:
         # Handle batched input
         if len(x.shape) == 1:
             x = x.unsqueeze(0)
-            u = u.unsqueeze(0) if self.system.nu > 0 else torch.empty((1, 0))
+            if self.system.nu > 0:
+                u = u.unsqueeze(0)
+            else:
+                # Autonomous: ensure u has shape (1, 0)
+                u = torch.empty((1, 0), dtype=x.dtype, device=x.device)
             squeeze_output = True
         else:
             squeeze_output = False
@@ -296,35 +415,48 @@ class LinearizationEngine:
         # Try to get cached Jacobian functions
         A_func, B_func, _ = self.code_gen.get_jacobians('torch')
         
-        if A_func is not None and B_func is not None:
+        if A_func is not None and (B_func is not None or self.system.nu == 0):
             # Use cached functions
             for i in range(batch_size):
                 x_i = x[i]
-                u_i = u[i] if self.system.nu > 0 else torch.tensor([])
                 
                 x_list = [x_i[j] for j in range(self.system.nx)]
-                u_list = [u_i[j] for j in range(self.system.nu)]  # Empty if nu=0
-                all_args = x_list + u_list
                 
-                A_batch[i] = A_func(*all_args)
-                
-                # Only compute B if system has controls
                 if self.system.nu > 0:
+                    u_i = u[i]
+                    u_list = [u_i[j] for j in range(self.system.nu)]
+                    all_args = x_list + u_list
+                    
+                    A_batch[i] = A_func(*all_args)
                     B_batch[i] = B_func(*all_args)
+                else:
+                    # Autonomous: only pass state variables
+                    A_batch[i] = A_func(*x_list)
+                    # B_batch[i] remains zeros with shape (nx, 0)
         else:
             # Fall back to symbolic evaluation
             for i in range(batch_size):
                 x_i = x[i] if batch_size > 1 else x.squeeze(0)
-                u_i = u[i] if batch_size > 1 else u.squeeze(0)
-                u_i = u_i if self.system.nu > 0 else torch.tensor([])
                 
                 x_np = x_i.detach().cpu().numpy()
-                u_np = u_i.detach().cpu().numpy() if self.system.nu > 0 else np.array([])
-                
                 x_np = np.atleast_1d(x_np)
-                u_np = np.atleast_1d(u_np) if self.system.nu > 0 else np.array([])
                 
-                A_sym, B_sym = self.compute_symbolic(sp.Matrix(x_np), sp.Matrix(u_np))
+                if self.system.nu > 0:
+                    u_i = u[i] if batch_size > 1 else u.squeeze(0)
+                    u_np = u_i.detach().cpu().numpy()
+                    u_np = np.atleast_1d(u_np)
+                    
+                    A_sym, B_sym = self.compute_symbolic(
+                        sp.Matrix(x_np.reshape(-1, 1)), 
+                        sp.Matrix(u_np.reshape(-1, 1))
+                    )
+                else:
+                    # Autonomous: pass None for u_eq
+                    A_sym, B_sym = self.compute_symbolic(
+                        sp.Matrix(x_np.reshape(-1, 1)), 
+                        u_eq=None
+                    )
+                
                 A_batch[i] = torch.tensor(
                     np.array(A_sym, dtype=np.float64), dtype=dtype, device=device
                 )
@@ -345,7 +477,12 @@ class LinearizationEngine:
     def _compute_dynamics_jax(
         self, x: "jnp.ndarray", u: "jnp.ndarray"
     ) -> Tuple["jnp.ndarray", "jnp.ndarray"]:
-        """JAX implementation using automatic differentiation."""
+        """
+        JAX implementation using automatic differentiation.
+        
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
+        For autonomous systems, uses only state variables for differentiation.
+        """
         import jax
         import jax.numpy as jnp
         
@@ -357,7 +494,11 @@ class LinearizationEngine:
         # Handle batched input
         if x.ndim == 1:
             x = jnp.expand_dims(x, 0)
-            u = jnp.expand_dims(u, 0) if self.system.nu > 0 else jnp.empty((1, 0))  # ← CHANGE
+            if self.system.nu > 0:
+                u = jnp.expand_dims(u, 0)
+            else:
+                # Autonomous: ensure u has shape (1, 0)
+                u = jnp.empty((1, 0))
             squeeze_output = True
         else:
             squeeze_output = False
@@ -369,7 +510,8 @@ class LinearizationEngine:
             return f_jax(*(x_list + u_list))
         
         # Compute Jacobians using JAX autodiff (vmap for batching)
-        if self.system.nu > 0:  # ← ADD
+        if self.system.nu > 0:
+            # Non-autonomous: compute both A and B
             @jax.vmap
             def compute_jacobians(x_i, u_i):
                 A = jax.jacobian(lambda x: dynamics_fn(x, u_i))(x_i)
@@ -377,14 +519,15 @@ class LinearizationEngine:
                 return A, B
             
             A_batch, B_batch = compute_jacobians(x, u)
-        else:  # Autonomous system (nu=0)
+        else:
+            # Autonomous: only compute A (B is empty)
             @jax.vmap
             def compute_jacobian_A(x_i, u_i):
                 A = jax.jacobian(lambda x: dynamics_fn(x, u_i))(x_i)
                 return A
             
             A_batch = compute_jacobian_A(x, u)
-            # B is empty matrix (nx, 0)
+            # B is empty matrix (batch, nx, 0)
             B_batch = jnp.empty((x.shape[0], self.system.nx, 0))
         
         if squeeze_output:
@@ -402,7 +545,7 @@ class LinearizationEngine:
     # ========================================================================
     
     def verify_jacobians(
-        self, x: ArrayLike, u: ArrayLike, backend: str = 'torch', tol: float = 1e-4
+        self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: str = 'torch', tol: float = 1e-4
     ) -> Dict[str, Union[bool, float]]:
         """
         Verify symbolic Jacobians against automatic differentiation.
@@ -412,7 +555,7 @@ class LinearizationEngine:
         
         Args:
             x: State at which to verify
-            u: Control at which to verify
+            u: Control at which to verify (None for autonomous systems)
             backend: Backend for autodiff ('torch' or 'jax', not 'numpy')
             tol: Tolerance for considering Jacobians equal
             
@@ -420,18 +563,36 @@ class LinearizationEngine:
             Dict with 'A_match', 'B_match' booleans and error magnitudes
             
         Raises:
-            ValueError: If backend doesn't support autodiff
+            ValueError: If backend doesn't support autodiff or u is None for non-autonomous
             
         Example:
+            >>> # Controlled system
             >>> results = engine.verify_jacobians(x, u, backend='torch', tol=1e-4)
             >>> assert results['A_match'] is True
             >>> assert results['B_match'] is True
+            >>> 
+            >>> # Autonomous system
+            >>> results = engine.verify_jacobians(x, backend='torch')  # u=None
+            >>> assert results['A_match'] is True
+            >>> # B_match will be True trivially for empty matrix
         """
         if backend not in ['torch', 'jax']:
             raise ValueError(
                 f"Jacobian verification requires autodiff backend ('torch' or 'jax'), "
                 f"got '{backend}'. NumPy doesn't support automatic differentiation."
             )
+        
+        # Handle autonomous systems
+        if u is None:
+            if self.system.nu > 0:
+                raise ValueError("Non-autonomous system requires control input u")
+            # Create empty control
+            if backend == 'torch':
+                import torch
+                u = torch.tensor([])
+            else:  # jax
+                import jax.numpy as jnp
+                u = jnp.array([])
         
         # Check backend availability
         self.backend_mgr.require_backend(backend)
@@ -445,7 +606,11 @@ class LinearizationEngine:
     def _verify_jacobians_torch(
         self, x: ArrayLike, u: ArrayLike, tol: float
     ) -> Dict[str, Union[bool, float]]:
-        """PyTorch-based Jacobian verification."""
+        """
+        PyTorch-based Jacobian verification.
+        
+        Supports both controlled and autonomous systems.
+        """
         import torch
         
         # Convert to torch if needed
@@ -456,11 +621,20 @@ class LinearizationEngine:
         
         # Ensure proper 2D shape
         x_2d = x.reshape(1, -1) if len(x.shape) <= 1 else x
-        u_2d = u.reshape(1, -1) if len(u.shape) <= 1 else u
+        
+        if self.system.nu > 0:
+            u_2d = u.reshape(1, -1) if len(u.shape) <= 1 else u
+        else:
+            # Autonomous: u should be empty tensor
+            u_2d = u.reshape(1, 0) if u.numel() == 0 else u
         
         # Clone for autograd
         x_grad = x_2d.clone().requires_grad_(True)
-        u_grad = u_2d.clone().requires_grad_(True)
+        
+        if self.system.nu > 0:
+            u_grad = u_2d.clone().requires_grad_(True)
+        else:
+            u_grad = u_2d  # No gradients needed for empty tensor
         
         # Compute symbolic Jacobians
         A_sym, B_sym = self.compute_dynamics(x_2d.detach(), u_2d.detach(), backend='torch')
@@ -471,7 +645,6 @@ class LinearizationEngine:
             B_sym = B_sym.unsqueeze(0)
         
         # Compute numerical Jacobians via autograd
-        # Need to import dynamics evaluator to get forward function
         from src.systems.base.utils.dynamics_evaluator import DynamicsEvaluator
         dynamics_eval = DynamicsEvaluator(self.system, self.code_gen, self.backend_mgr)
         fx = dynamics_eval.evaluate(x_grad, u_grad, backend='torch')
@@ -496,11 +669,14 @@ class LinearizationEngine:
                     grad_x = torch.autograd.grad(
                         fx[0, i], x_grad, retain_graph=True, create_graph=False
                     )[0]
-                    grad_u = torch.autograd.grad(
-                        fx[0, i], u_grad, retain_graph=True, create_graph=False
-                    )[0]
                     A_num[0, i] = grad_x[0]
-                    B_num[0, i] = grad_u[0]
+                    
+                    # Only compute B gradient for non-autonomous
+                    if self.system.nu > 0:
+                        grad_u = torch.autograd.grad(
+                            fx[0, i], u_grad, retain_graph=True, create_graph=False
+                        )[0]
+                        B_num[0, i] = grad_u[0]
         else:
             # Higher-order: verify acceleration part
             for i in range(n_outputs):
@@ -508,22 +684,31 @@ class LinearizationEngine:
                     grad_x = torch.autograd.grad(
                         fx[0, i], x_grad, retain_graph=True, create_graph=False
                     )[0]
-                    grad_u = torch.autograd.grad(
-                        fx[0, i], u_grad, retain_graph=True, create_graph=False
-                    )[0]
                     
                     row_idx = (self.system.order - 1) * self.system.nq + i
                     A_num[0, row_idx] = grad_x[0]
-                    B_num[0, row_idx] = grad_u[0]
+                    
+                    # Only compute B gradient for non-autonomous
+                    if self.system.nu > 0:
+                        grad_u = torch.autograd.grad(
+                            fx[0, i], u_grad, retain_graph=True, create_graph=False
+                        )[0]
+                        B_num[0, row_idx] = grad_u[0]
             
             # Copy derivative relationships
             for i in range((self.system.order - 1) * self.system.nq):
                 A_num[0, i] = A_sym[0, i]
-                B_num[0, i] = B_sym[0, i]
+                if self.system.nu > 0:
+                    B_num[0, i] = B_sym[0, i]
         
         # Compute errors
         A_error = (A_sym - A_num).abs().max().item()
-        B_error = (B_sym - B_num).abs().max().item()
+        
+        if self.system.nu > 0:
+            B_error = (B_sym - B_num).abs().max().item()
+        else:
+            # Autonomous: B is empty, error is trivially zero
+            B_error = 0.0
         
         return {
             'A_match': bool(A_error < tol),
@@ -535,7 +720,11 @@ class LinearizationEngine:
     def _verify_jacobians_jax(
         self, x: ArrayLike, u: ArrayLike, tol: float
     ) -> Dict[str, Union[bool, float]]:
-        """JAX-based Jacobian verification."""
+        """
+        JAX-based Jacobian verification.
+        
+        Supports both controlled and autonomous systems.
+        """
         import jax.numpy as jnp
         
         # Convert to JAX if needed
@@ -546,15 +735,32 @@ class LinearizationEngine:
         
         # Ensure proper shape
         x_2d = x.reshape(1, -1) if x.ndim <= 1 else x
-        u_2d = u.reshape(1, -1) if u.ndim <= 1 else u
+        
+        if self.system.nu > 0:
+            u_2d = u.reshape(1, -1) if u.ndim <= 1 else u
+        else:
+            # Autonomous: u should be empty
+            u_2d = u.reshape(1, 0) if u.size == 0 else u
         
         # Compute Jacobians using JAX autodiff
         A_jax, B_jax = self.compute_dynamics(x_2d, u_2d, backend='jax')
         
         # Compute symbolic Jacobians as ground truth
         x_np = np.array(x_2d[0])
-        u_np = np.array(u_2d[0])
-        A_sym, B_sym = self.compute_symbolic(sp.Matrix(x_np), sp.Matrix(u_np))
+        
+        if self.system.nu > 0:
+            u_np = np.array(u_2d[0])
+            A_sym, B_sym = self.compute_symbolic(
+                sp.Matrix(x_np.reshape(-1, 1)), 
+                sp.Matrix(u_np.reshape(-1, 1))
+            )
+        else:
+            # Autonomous: pass None for u_eq
+            A_sym, B_sym = self.compute_symbolic(
+                sp.Matrix(x_np.reshape(-1, 1)), 
+                u_eq=None
+            )
+        
         A_sym_np = np.array(A_sym, dtype=np.float64)
         B_sym_np = np.array(B_sym, dtype=np.float64)
         
@@ -564,7 +770,12 @@ class LinearizationEngine:
         
         # Compute errors
         A_error = np.abs(A_sym_np - A_jax_np).max()
-        B_error = np.abs(B_sym_np - B_jax_np).max()
+        
+        if self.system.nu > 0:
+            B_error = np.abs(B_sym_np - B_jax_np).max()
+        else:
+            # Autonomous: B is empty, error is trivially zero
+            B_error = 0.0
         
         return {
             'A_match': bool(A_error < tol),
@@ -601,9 +812,10 @@ class LinearizationEngine:
     
     def __repr__(self) -> str:
         """String representation for debugging"""
+        autonomous_str = " (autonomous)" if self.system.nu == 0 else ""
         return (
             f"LinearizationEngine("
-            f"nx={self.system.nx}, nu={self.system.nu}, "
+            f"nx={self.system.nx}, nu={self.system.nu}{autonomous_str}, "
             f"calls={self._stats['calls']})"
         )
     
