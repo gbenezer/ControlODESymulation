@@ -245,16 +245,46 @@ class DiffEqPyIntegrator(IntegratorBase):
                 "   python -c 'from diffeqpy import install; install()'"
             )
         
-        # Validate algorithm exists (but don't fail for auto-switching algorithms)
-        if 'Auto' not in algorithm and '(' not in algorithm:
-            try:
-                self._get_algorithm()
-            except Exception as e:
-                raise ValueError(
-                    f"Invalid algorithm '{algorithm}'. "
-                    f"Use list_algorithms() to see available options.\n"
-                    f"Error: {e}"
-                )
+        # Validate algorithm
+        self._validate_algorithm()
+    
+    def _validate_algorithm(self):
+        """
+        Validate that the algorithm is supported.
+        
+        Raises
+        ------
+        ValueError
+            If algorithm is not recognized
+        """
+        # Get all known algorithms from list_algorithms()
+        all_algorithms = list_algorithms()
+        known_algorithms = set()
+        for category, algos in all_algorithms.items():
+            known_algorithms.update(algos)
+        
+        # Check if algorithm is in known list
+        if self.algorithm in known_algorithms:
+            # For simple algorithms, validate they exist in Julia
+            if '(' not in self.algorithm:
+                try:
+                    self._get_algorithm()
+                except Exception as e:
+                    raise ValueError(
+                        f"Algorithm '{self.algorithm}' is listed as available but "
+                        f"could not be loaded from Julia. Error: {e}"
+                    )
+        else:
+            # Unknown algorithm - give helpful error
+            raise ValueError(
+                f"Unknown algorithm '{self.algorithm}'. "
+                f"Use list_algorithms() to see supported options.\n\n"
+                f"Supported categories:\n"
+                f"  - nonstiff: {', '.join(all_algorithms['nonstiff'][:5])}...\n"
+                f"  - stiff_rosenbrock: {', '.join(all_algorithms['stiff_rosenbrock'])}\n"
+                f"  - auto_switching: {', '.join(all_algorithms['auto_switching'])}\n"
+                f"  (Run list_algorithms() for complete list)"
+            )
     
     @property
     def name(self) -> str:
