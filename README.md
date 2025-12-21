@@ -20,7 +20,7 @@ A Python library for constructing, analyzing, and simulating nonlinear dynamical
 
 ---
 
-## Why ControlODESymulation?
+## Why ControlDESymulation?
 
 Most control libraries force you to choose: symbolic elegance (MATLAB Symbolic Toolbox) *or* numerical efficiency (SciPy, CasADi). ControlODESymulation gives you **both**:
 
@@ -88,12 +88,12 @@ The **same symbolic definition** works with all three backends automatically.
 
 ```bash
 # Clone the repository
-git clone https://github.com/gbenezer/ControlODESymulation.git
-cd ControlODESymulation
+git clone https://github.com/gbenezer/ControlDESymulation.git
+cd ControlDESymulation
 
 # Create conda environment
 conda create --name control_ode python=3.11
-conda activate control_ode
+conda activate control_de
 
 # Install dependencies
 pip install -r requirements.txt
@@ -757,9 +757,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Links
 
-- **GitHub**: [github.com/gbenezer/ControlODESymulation](https://github.com/gbenezer/ControlODESymulation)
-- **Issues**: [Report bugs or request features](https://github.com/gbenezer/ControlODESymulation/issues)
-- **Examples**: See `example_notebooks/` for Jupyter tutorials
+- **GitHub**: [github.com/gbenezer/ControlDESymulation](https://github.com/gbenezer/ControlDESymulation)
+- **Issues**: [Report bugs or request features](https://github.com/gbenezer/ControlDESymulation/issues)
+- **Examples**: See `example_notebooks/` for Jupyter tutorials (once re-done)
 
 ---
 
