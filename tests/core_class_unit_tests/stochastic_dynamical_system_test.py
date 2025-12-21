@@ -145,6 +145,93 @@ class StratonovichSystem(StochasticDynamicalSystem):
         self.diffusion_expr = sp.Matrix([[0.5]])
         self.sde_type = 'stratonovich'  # String-based API
 
+class AutonomousOrnsteinUhlenbeck(StochasticDynamicalSystem):
+    """Autonomous Ornstein-Uhlenbeck process (no control input)."""
+    
+    def define_system(self, alpha=1.0, sigma=0.5):
+        """
+        Define autonomous O-U: dx = -α*x*dt + σ*dW
+        
+        Parameters
+        ----------
+        alpha : float
+            Mean reversion rate
+        sigma : float
+            Noise intensity
+        """
+        x = sp.symbols('x', real=True)
+        alpha_sym = sp.symbols('alpha', positive=True)
+        sigma_sym = sp.symbols('sigma', positive=True)
+        
+        # Drift (no control)
+        self.state_vars = [x]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([[-alpha_sym * x]])
+        self.parameters = {alpha_sym: alpha, sigma_sym: sigma}
+        self.order = 1
+        
+        # Diffusion (additive)
+        self.diffusion_expr = sp.Matrix([[sigma_sym]])
+        self.sde_type = 'ito'
+
+
+class AutonomousGeometricBrownianMotion(StochasticDynamicalSystem):
+    """Autonomous Geometric Brownian motion (no control)."""
+    
+    def define_system(self, mu=0.1, sigma=0.2):
+        """
+        Define autonomous GBM: dx = μ*x*dt + σ*x*dW
+        
+        Parameters
+        ----------
+        mu : float
+            Drift coefficient
+        sigma : float
+            Volatility
+        """
+        x = sp.symbols('x', positive=True)
+        mu_sym, sigma_sym = sp.symbols('mu sigma', positive=True)
+        
+        # Drift (no control)
+        self.state_vars = [x]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([[mu_sym * x]])
+        self.parameters = {mu_sym: mu, sigma_sym: sigma}
+        self.order = 1
+        
+        # Multiplicative diffusion
+        self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
+        self.sde_type = 'ito'
+
+
+class Autonomous2DBrownianMotion(StochasticDynamicalSystem):
+    """2D autonomous Brownian motion with independent noise."""
+    
+    def define_system(self, sigma1=0.5, sigma2=0.3):
+        """
+        Define 2D Brownian motion: dx = σ*dW
+        
+        Parameters
+        ----------
+        sigma1, sigma2 : float
+            Noise intensities for each dimension
+        """
+        x1, x2 = sp.symbols('x1 x2', real=True)
+        sigma1_sym, sigma2_sym = sp.symbols('sigma1 sigma2', positive=True)
+        
+        # Pure diffusion (no drift)
+        self.state_vars = [x1, x2]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([[0], [0]])
+        self.parameters = {sigma1_sym: sigma1, sigma2_sym: sigma2}
+        self.order = 1
+        
+        # Diagonal diffusion
+        self.diffusion_expr = sp.Matrix([
+            [sigma1_sym, 0],
+            [0, sigma2_sym]
+        ])
+        self.sde_type = 'ito'
 
 # ============================================================================
 # Test Initialization and Validation
@@ -1183,6 +1270,661 @@ class TestInvalidSystems:
         # Valid but not best practice
         system = EmptyParamsSystem()
         assert system.parameters == {}
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Initialization
+# ============================================================================
+
+
+class TestAutonomousInitialization:
+    """Test autonomous SDE initialization and validation."""
+    
+    def test_autonomous_ou_initialization(self):
+        """Test autonomous O-U process initializes successfully."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        assert system._initialized is True
+        assert system.nx == 1
+        assert system.nu == 0  # Autonomous
+        assert system.nw == 1
+        assert len(system.control_vars) == 0
+    
+    def test_autonomous_gbm_initialization(self):
+        """Test autonomous GBM initializes successfully."""
+        system = AutonomousGeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        assert system._initialized is True
+        assert system.nu == 0
+        assert system.is_stochastic is True
+    
+    def test_autonomous_2d_initialization(self):
+        """Test 2D autonomous SDE initialization."""
+        system = Autonomous2DBrownianMotion(sigma1=0.5, sigma2=0.3)
+        
+        assert system.nx == 2
+        assert system.nu == 0
+        assert system.nw == 2
+        assert system.is_diagonal_noise()
+    
+    def test_autonomous_validation_passes(self):
+        """Test that autonomous SDEs pass validation."""
+        # Should not raise any errors
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        assert system._initialized is True
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Drift Evaluation
+# ============================================================================
+
+
+class TestAutonomousDriftEvaluation:
+    """Test drift evaluation for autonomous SDEs."""
+    
+    def test_drift_autonomous_no_u_arg(self):
+        """Test drift evaluation without u argument."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        
+        # Call without u
+        f = system.drift(x)
+        
+        assert isinstance(f, np.ndarray)
+        # f = -2*x = -2.0
+        np.testing.assert_almost_equal(f, np.array([-2.0]))
+    
+    def test_drift_autonomous_u_none(self):
+        """Test drift evaluation with u=None."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        
+        # Explicitly pass u=None
+        f = system.drift(x, u=None)
+        
+        np.testing.assert_almost_equal(f, np.array([-2.0]))
+    
+    def test_drift_autonomous_2d(self):
+        """Test drift for 2D autonomous system."""
+        system = Autonomous2DBrownianMotion(sigma1=0.5, sigma2=0.3)
+        
+        x = np.array([1.0, 2.0])
+        
+        f = system.drift(x)
+        
+        # Pure diffusion - drift is zero
+        assert f.shape == (2,)
+        np.testing.assert_array_almost_equal(f, np.array([0.0, 0.0]))
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_drift_autonomous_torch(self):
+        """Test autonomous drift with PyTorch."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = torch.tensor([1.0])
+        
+        f = system.drift(x)
+        
+        assert isinstance(f, torch.Tensor)
+        torch.testing.assert_close(f, torch.tensor([-2.0]))
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_drift_autonomous_jax(self):
+        """Test autonomous drift with JAX."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = jnp.array([1.0])
+        
+        f = system.drift(x)
+        
+        assert isinstance(f, jnp.ndarray)
+        np.testing.assert_almost_equal(f, np.array([-2.0]))
+    
+    def test_autonomous_callable_interface(self):
+        """Test __call__ works for autonomous systems."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        
+        # Both should work and give same result
+        f1 = system(x)
+        f2 = system.drift(x)
+        
+        np.testing.assert_array_almost_equal(f1, f2)
+    
+    def test_autonomous_rejects_control(self):
+        """Test that autonomous SDE rejects control input."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        u = np.array([0.5])  # Should be rejected
+        
+        with pytest.raises(ValueError, match="does not accept control input|requires control input"):
+            system.drift(x, u)
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Diffusion Evaluation
+# ============================================================================
+
+
+class TestAutonomousDiffusionEvaluation:
+    """Test diffusion evaluation for autonomous SDEs."""
+    
+    def test_diffusion_autonomous_additive(self):
+        """Test diffusion for autonomous additive noise."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        
+        # Call without u
+        g = system.diffusion(x)
+        
+        assert isinstance(g, np.ndarray)
+        assert g.shape == (1, 1)
+        np.testing.assert_almost_equal(g, np.array([[0.3]]))
+    
+    def test_diffusion_autonomous_multiplicative(self):
+        """Test diffusion for autonomous multiplicative noise."""
+        system = AutonomousGeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        x = np.array([2.0])
+        
+        g = system.diffusion(x)
+        
+        # g = sigma*x = 0.2*2.0 = 0.4
+        assert g.shape == (1, 1)
+        np.testing.assert_almost_equal(g, np.array([[0.4]]))
+    
+    def test_diffusion_autonomous_u_none(self):
+        """Test diffusion with explicit u=None."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        
+        g = system.diffusion(x, u=None)
+        
+        np.testing.assert_almost_equal(g, np.array([[0.3]]))
+    
+    def test_diffusion_autonomous_2d(self):
+        """Test diffusion for 2D autonomous system."""
+        system = Autonomous2DBrownianMotion(sigma1=0.5, sigma2=0.3)
+        
+        x = np.array([1.0, 2.0])
+        
+        g = system.diffusion(x)
+        
+        expected = np.array([
+            [0.5, 0],
+            [0, 0.3]
+        ])
+        
+        assert g.shape == (2, 2)
+        np.testing.assert_array_almost_equal(g, expected)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_diffusion_autonomous_torch(self):
+        """Test autonomous diffusion with PyTorch."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = torch.tensor([1.0])
+        
+        g = system.diffusion(x, backend='torch')
+        
+        assert isinstance(g, torch.Tensor)
+        assert g.shape == (1, 1)
+        torch.testing.assert_close(g, torch.tensor([[0.3]]))
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_diffusion_autonomous_jax(self):
+        """Test autonomous diffusion with JAX."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = jnp.array([1.0])
+        
+        g = system.diffusion(x, backend='jax')
+        
+        assert isinstance(g, jnp.ndarray)
+        assert g.shape == (1, 1)
+    
+    def test_autonomous_diffusion_rejects_control(self):
+        """Test that autonomous diffusion rejects control input."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        x = np.array([1.0])
+        u = np.array([0.5])  # Should be rejected
+        
+        # The updated diffusion() method checks nu and raises error
+        with pytest.raises(ValueError, match="Autonomous system cannot take control input"):
+            system.diffusion(x, u)
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Noise Characterization
+# ============================================================================
+
+
+class TestAutonomousNoiseCharacterization:
+    """Test noise characterization for autonomous SDEs."""
+    
+    def test_autonomous_additive_noise(self):
+        """Test autonomous system with additive noise."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        assert system.is_additive_noise()
+        assert not system.is_multiplicative_noise()
+        assert system.get_noise_type() == NoiseType.ADDITIVE
+    
+    def test_autonomous_multiplicative_noise(self):
+        """Test autonomous system with multiplicative noise."""
+        system = AutonomousGeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        assert system.is_multiplicative_noise()
+        assert not system.is_additive_noise()
+        assert system.is_scalar_noise()
+    
+    def test_autonomous_diagonal_noise(self):
+        """Test autonomous system with diagonal noise."""
+        system = Autonomous2DBrownianMotion(sigma1=0.5, sigma2=0.3)
+        
+        assert system.is_diagonal_noise()
+        assert system.get_noise_type() == NoiseType.DIAGONAL
+    
+    def test_autonomous_noise_dependencies(self):
+        """Test noise dependencies for autonomous systems."""
+        system_additive = AutonomousOrnsteinUhlenbeck()
+        system_multiplicative = AutonomousGeometricBrownianMotion()
+        
+        # Additive: no dependencies
+        assert not system_additive.depends_on_state()
+        assert not system_additive.depends_on_control()
+        assert not system_additive.depends_on_time()
+        
+        # Multiplicative: state dependency only
+        assert system_multiplicative.depends_on_state()
+        assert not system_multiplicative.depends_on_control()
+        assert not system_multiplicative.depends_on_time()
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Constant Noise Optimization
+# ============================================================================
+
+
+class TestAutonomousConstantNoise:
+    """Test constant noise optimization for autonomous additive SDEs."""
+    
+    def test_get_constant_noise_autonomous(self):
+        """Test getting constant noise for autonomous system."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=1.0, sigma=0.3)
+        
+        G = system.get_constant_noise('numpy')
+        
+        assert isinstance(G, np.ndarray)
+        assert G.shape == (1, 1)
+        np.testing.assert_almost_equal(G, np.array([[0.3]]))
+    
+    def test_autonomous_constant_noise_matches_evaluation(self):
+        """Test constant noise matches diffusion evaluation for autonomous."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        G = system.get_constant_noise('numpy')
+        
+        # Evaluate at arbitrary points (should all be same for additive)
+        g1 = system.diffusion(np.array([1.0]))
+        g2 = system.diffusion(np.array([10.0]))
+        g3 = system.diffusion(np.array([-5.0]))
+        
+        np.testing.assert_array_almost_equal(g1, G)
+        np.testing.assert_array_almost_equal(g2, G)
+        np.testing.assert_array_almost_equal(g3, G)
+    
+    def test_autonomous_can_optimize_for_additive(self):
+        """Test optimization check for autonomous systems."""
+        system_additive = AutonomousOrnsteinUhlenbeck()
+        system_multiplicative = AutonomousGeometricBrownianMotion()
+        
+        assert system_additive.can_optimize_for_additive()
+        assert not system_multiplicative.can_optimize_for_additive()
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Solver Recommendations
+# ============================================================================
+
+
+class TestAutonomousSolverRecommendations:
+    """Test solver recommendations for autonomous SDEs."""
+    
+    def test_autonomous_additive_recommendations(self):
+        """Test solver recommendations for autonomous additive noise."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        solvers = system.recommend_solvers('jax')
+        
+        assert len(solvers) > 0
+        # Should recommend additive-specialized solvers
+        assert any(s in solvers for s in ['sea', 'shark', 'sra1'])
+    
+    def test_autonomous_multiplicative_recommendations(self):
+        """Test solver recommendations for autonomous multiplicative noise."""
+        system = AutonomousGeometricBrownianMotion()
+        
+        solvers = system.recommend_solvers('jax')
+        
+        assert len(solvers) > 0
+    
+    def test_autonomous_diagonal_recommendations(self):
+        """Test solver recommendations for autonomous diagonal noise."""
+        system = Autonomous2DBrownianMotion()
+        
+        solvers = system.recommend_solvers('jax')
+        
+        assert len(solvers) > 0
+        # Should recommend diagonal-optimized solvers
+        assert 'spark' in solvers or 'euler_heun' in solvers
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Information
+# ============================================================================
+
+
+class TestAutonomousInformation:
+    """Test information retrieval for autonomous SDEs."""
+    
+    def test_get_info_autonomous(self):
+        """Test get_info for autonomous system."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        info = system.get_info()
+        
+        assert info['dimensions']['nu'] == 0
+        assert info['is_stochastic'] is True
+        assert info['noise']['depends_on']['control'] is False
+    
+    def test_print_sde_info_autonomous(self, capsys):
+        """Test formatted info printing for autonomous SDE."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        system.print_sde_info()
+        
+        captured = capsys.readouterr()
+        assert 'AutonomousOrnsteinUhlenbeck' in captured.out
+        assert 'nu=0' in captured.out
+        assert 'additive' in captured.out
+    
+    def test_repr_autonomous(self):
+        """Test __repr__ for autonomous system."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        repr_str = repr(system)
+        
+        assert 'AutonomousOrnsteinUhlenbeck' in repr_str
+        assert 'nu=0' in repr_str
+        assert 'additive' in repr_str
+    
+    def test_str_autonomous(self):
+        """Test __str__ for autonomous system."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        str_repr = str(system)
+        
+        assert 'AutonomousOrnsteinUhlenbeck' in str_repr
+        assert '0 control' in str_repr  # Singular for nu=0
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Integration Workflows
+# ============================================================================
+
+
+class TestAutonomousIntegrationWorkflows:
+    """Integration tests for autonomous SDEs."""
+    
+    def test_full_workflow_autonomous_additive(self):
+        """Test complete workflow for autonomous additive noise."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # 1. Check noise type
+        assert system.is_additive_noise()
+        assert system.get_noise_type() == NoiseType.ADDITIVE
+        
+        # 2. Get recommendations
+        solvers = system.recommend_solvers('jax')
+        assert len(solvers) > 0
+        
+        # 3. Optimize for additive noise
+        assert system.can_optimize_for_additive()
+        G = system.get_constant_noise('numpy')
+        assert G.shape == (1, 1)
+        
+        # 4. Evaluate drift and diffusion (no control)
+        x = np.array([2.0])
+        
+        f = system.drift(x)
+        g = system.diffusion(x)
+        
+        # For additive, diffusion should match constant
+        np.testing.assert_array_almost_equal(g, G)
+        
+        # 5. Get comprehensive info
+        info = system.get_info()
+        assert info['noise']['is_additive']
+        assert info['dimensions']['nu'] == 0
+    
+    def test_full_workflow_autonomous_multiplicative(self):
+        """Test complete workflow for autonomous multiplicative noise."""
+        system = AutonomousGeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        # 1. Check noise type
+        assert system.is_multiplicative_noise()
+        assert system.depends_on_state()
+        
+        # 2. Cannot optimize for additive
+        assert not system.can_optimize_for_additive()
+        
+        # 3. Get recommendations
+        solvers = system.recommend_solvers('jax')
+        assert len(solvers) > 0
+        
+        # 4. Evaluate at different states (no control)
+        x1 = np.array([1.0])
+        x2 = np.array([2.0])
+        
+        g1 = system.diffusion(x1)
+        g2 = system.diffusion(x2)
+        
+        # Should be different (state-dependent)
+        assert not np.allclose(g1, g2)
+        assert g2[0, 0] == 2 * g1[0, 0]  # Linear in x
+        
+        # 5. Get info
+        info = system.get_info()
+        assert info['noise']['is_multiplicative']
+        assert info['dimensions']['nu'] == 0
+    
+    def test_autonomous_simulation_components(self):
+        """Test autonomous system has all simulation components."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        # Should have diffusion handler
+        assert system.diffusion_handler is not None
+        
+        # Should have noise characteristics
+        assert system.noise_characteristics is not None
+        
+        # Should be able to evaluate both terms without control
+        x = np.array([1.0])
+        
+        f = system.drift(x)
+        g = system.diffusion(x)
+        
+        assert f.shape == (1,)
+        assert g.shape == (1, 1)
+        
+        # Simulate one step
+        dt = 0.01
+        dW = np.random.randn(1) * np.sqrt(dt)
+        dx = f * dt + g @ dW
+        
+        assert dx.shape == (1,)
+    
+    def test_autonomous_to_deterministic(self):
+        """Test converting autonomous SDE to deterministic."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        
+        det_system = system.to_deterministic()
+        
+        # Should have same drift, no control
+        assert det_system.nx == system.nx
+        assert det_system.nu == system.nu
+        assert det_system.nu == 0  # Still autonomous
+        
+        # Evaluate at same point
+        x = np.array([2.0])
+        
+        f_stochastic = system.drift(x)
+        f_deterministic = det_system(x)  # No u needed
+        
+        np.testing.assert_array_almost_equal(f_stochastic, f_deterministic)
+
+
+# ============================================================================
+# Test Class: Controlled vs Autonomous SDEs
+# ============================================================================
+
+
+class TestControlledVsAutonomousSDEs:
+    """Test differences between controlled and autonomous SDEs."""
+    
+    def test_controlled_has_control(self):
+        """Test controlled SDE has control variables."""
+        system = OrnsteinUhlenbeck()
+        
+        assert system.nu > 0
+        assert len(system.control_vars) > 0
+    
+    def test_autonomous_has_no_control(self):
+        """Test autonomous SDE has no control variables."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        assert system.nu == 0
+        assert len(system.control_vars) == 0
+    
+    def test_controlled_requires_u_drift(self):
+        """Test controlled system requires u for drift."""
+        system = OrnsteinUhlenbeck()
+        
+        x = np.array([1.0])
+        
+        with pytest.raises(ValueError):
+            system.drift(x)  # Missing u
+    
+    def test_autonomous_does_not_require_u_drift(self):
+        """Test autonomous system doesn't require u for drift."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        x = np.array([1.0])
+        
+        # Should work without u
+        f = system.drift(x)
+        assert isinstance(f, np.ndarray)
+    
+    def test_controlled_requires_u_diffusion(self):
+        """Test controlled system requires u for diffusion."""
+        system = OrnsteinUhlenbeck()
+        
+        x = np.array([1.0])
+        
+        with pytest.raises(ValueError):
+            system.diffusion(x)  # Missing u
+    
+    def test_autonomous_does_not_require_u_diffusion(self):
+        """Test autonomous system doesn't require u for diffusion."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        x = np.array([1.0])
+        
+        # Should work without u
+        g = system.diffusion(x)
+        assert isinstance(g, np.ndarray)
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Best Practices
+# ============================================================================
+
+
+class TestAutonomousBestPractices:
+    """Test that autonomous SDE examples follow best practices."""
+    
+    def test_autonomous_ou_best_practices(self):
+        """Test autonomous O-U follows best practices."""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # ✅ All constructor params used
+        assert len(system.parameters) == 2
+        
+        # ✅ Parameters dict not empty
+        assert system.parameters != {}
+        
+        # ✅ Uses symbolic parameters
+        param_names = {str(k) for k in system.parameters.keys()}
+        assert 'alpha' in param_names
+        assert 'sigma' in param_names
+        
+        # ✅ Both drift and diffusion use parameters
+        drift_symbols = system._f_sym.free_symbols
+        diffusion_symbols = system.diffusion_expr.free_symbols
+        param_symbols = set(system.parameters.keys())
+        
+        assert len(drift_symbols & param_symbols) > 0
+        assert len(diffusion_symbols & param_symbols) > 0
+    
+    def test_autonomous_gbm_best_practices(self):
+        """Test autonomous GBM follows best practices."""
+        system = AutonomousGeometricBrownianMotion(mu=0.15, sigma=0.25)
+        
+        # ✅ All parameters used
+        assert len(system.parameters) == 2
+        
+        # ✅ Both mu and sigma are parameters
+        param_names = {str(k) for k in system.parameters.keys()}
+        assert 'mu' in param_names
+        assert 'sigma' in param_names
+
+
+# ============================================================================
+# Test Class: Autonomous SDE Compilation
+# ============================================================================
+
+
+class TestAutonomousCompilation:
+    """Test compilation for autonomous SDEs."""
+    
+    def test_compile_autonomous_drift_and_diffusion(self):
+        """Test compiling autonomous SDE."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        timings = system.compile_all(backends=['numpy'], verbose=False)
+        
+        assert 'numpy' in timings
+        assert 'drift' in timings['numpy']
+        assert 'diffusion' in timings['numpy']
+        assert timings['numpy']['drift'] is not None
+        assert timings['numpy']['diffusion'] is not None
+    
+    def test_compile_autonomous_diffusion_only(self):
+        """Test compiling only diffusion for autonomous system."""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        timings = system.compile_diffusion(backends=['numpy'], verbose=False)
+        
+        assert 'numpy' in timings
+        assert timings['numpy'] is not None
 
 
 # ============================================================================

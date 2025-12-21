@@ -375,16 +375,17 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
     # Primary Interface - Drift and Diffusion Evaluation
     # ========================================================================
     
-    def drift(self, x, u, backend: Optional[str] = None):
+    def drift(self, x, u=None, backend: Optional[str] = None):
         """
-        Evaluate drift term f(x, u).
+        Evaluate drift term f(x, u) or f(x) for autonomous.
         
         Parameters
         ----------
         x : ArrayLike
             State vector (nx,) or batch (batch, nx)
-        u : ArrayLike
+        u : ArrayLike, optional
             Control vector (nu,) or batch (batch, nu)
+            For autonomous systems (nu=0), u can be None
         backend : str, optional
             Backend selection (None = auto-detect)
         
@@ -396,26 +397,34 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         Notes
         -----
         Delegates to parent class - reuses ALL drift evaluation logic.
+        Supports both controlled and autonomous SDEs.
         
         Examples
         --------
+        Controlled SDE:
         >>> f = system.drift(np.array([1.0]), np.array([0.0]))
         >>> print(f)
         [-1.0]
+        
+        Autonomous SDE:
+        >>> f = system.drift(np.array([1.0]))  # u=None
+        >>> print(f)
+        [-2.0]
         """
-        # ✅ DELEGATE: Parent class handles drift evaluation
+        # ✅ DELEGATE: Parent class handles drift evaluation (including autonomous)
         return super().__call__(x, u, backend=backend)
     
-    def diffusion(self, x, u, backend: Optional[str] = None):
+    def diffusion(self, x, u=None, backend: Optional[str] = None):
         """
-        Evaluate diffusion term g(x, u).
+        Evaluate diffusion term g(x, u) or g(x) for autonomous.
         
         Parameters
         ----------
         x : ArrayLike
             State vector (nx,) or batch (batch, nx)
-        u : ArrayLike
+        u : ArrayLike, optional
             Control vector (nu,) or batch (batch, nu)
+            For autonomous systems (nu=0), u can be None
         backend : str, optional
             Backend selection (None = auto-detect)
         
@@ -428,14 +437,20 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         -----
         Delegates to DiffusionHandler for code generation and evaluation.
         For additive noise, consider using get_constant_noise() for efficiency.
+        Supports both controlled and autonomous SDEs.
         
         Examples
         --------
-        >>> # Evaluate diffusion
+        Controlled SDE:
         >>> g = system.diffusion(np.array([2.0]), np.array([0.0]))
         >>> print(g.shape)
         (1, 1)
-        >>> 
+        
+        Autonomous SDE:
+        >>> g = system.diffusion(np.array([2.0]))  # u=None
+        >>> print(g.shape)
+        (1, 1)
+        
         >>> # For additive noise, this is constant
         >>> if system.is_additive_noise():
         ...     G = system.get_constant_noise()  # Precompute once
@@ -446,20 +461,45 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         # ✅ DELEGATE: DiffusionHandler generates and caches function
         func = self.diffusion_handler.generate_function(backend_to_use)
         
+        # Handle autonomous systems - create empty control if needed
+        # and also reject non-empty control
+        if u is None:
+            if self.nu > 0:
+                raise ValueError(
+                    f"Non-autonomous system requires control input u. "
+                    f"System has {self.nu} control input(s)."
+                )
+            # Create empty control array in appropriate backend
+            if backend_to_use == 'numpy':
+                import numpy as np
+                u = np.array([])
+            elif backend_to_use == 'torch':
+                import torch
+                u = torch.tensor([])
+            elif backend_to_use == 'jax':
+                import jax.numpy as jnp
+                u = jnp.array([])
+        # Assess if the system is capable of taking control input
+        elif u is not None:
+            if self.nu == 0:
+                raise ValueError(
+                    f"Autonomous system cannot take control input"
+                    )
+        
         # Convert inputs to appropriate backend type
         # ✅ REUSE: Use parent's backend manager for conversions if needed
         if backend_to_use == 'numpy':
             import numpy as np
             x_arr = np.atleast_1d(np.asarray(x))
-            u_arr = np.atleast_1d(np.asarray(u))
+            u_arr = np.atleast_1d(np.asarray(u)) if self.nu > 0 else np.array([])
         elif backend_to_use == 'torch':
             import torch
             x_arr = torch.atleast_1d(torch.as_tensor(x))
-            u_arr = torch.atleast_1d(torch.as_tensor(u))
+            u_arr = torch.atleast_1d(torch.as_tensor(u)) if self.nu > 0 else torch.tensor([])
         elif backend_to_use == 'jax':
             import jax.numpy as jnp
             x_arr = jnp.atleast_1d(jnp.asarray(x))
-            u_arr = jnp.atleast_1d(jnp.asarray(u))
+            u_arr = jnp.atleast_1d(jnp.asarray(u)) if self.nu > 0 else jnp.array([])
         else:
             raise ValueError(f"Unknown backend: {backend_to_use}")
         
@@ -468,20 +508,20 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         if x_arr.ndim == 1:
             # Single evaluation
             x_list = [x_arr[i] for i in range(self.nx)]
-            u_list = [u_arr[i] for i in range(self.nu)]
+            u_list = [u_arr[i] for i in range(self.nu)] if self.nu > 0 else []
         else:
             # Batched evaluation
             x_list = [x_arr[:, i] for i in range(self.nx)]
-            u_list = [u_arr[:, i] for i in range(self.nu)]
+            u_list = [u_arr[:, i] for i in range(self.nu)] if self.nu > 0 else []
         
         # Evaluate diffusion function
         result = func(*(x_list + u_list))
         
         return result
     
-    def __call__(self, x, u, backend: Optional[str] = None):
+    def __call__(self, x, u=None, backend: Optional[str] = None):
         """
-        Evaluate drift dynamics: dx/dt = f(x, u).
+        Evaluate drift dynamics: dx/dt = f(x, u) or dx/dt = f(x).
         
         Makes the system callable like the parent class.
         For diffusion, use system.diffusion(x, u).
@@ -490,28 +530,42 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         ----------
         x : ArrayLike
             State vector
-        u : ArrayLike
-            Control vector
+        u : ArrayLike, optional
+            Control vector (None for autonomous systems)
         backend : str, optional
             Backend selection
         
         Returns
         -------
         ArrayLike
-            Drift term f(x, u)
+            Drift term f(x, u) or f(x)
         
         Notes
         -----
         This evaluates ONLY the drift term for consistency with parent class.
         Use system.diffusion(x, u) for the diffusion term.
+        Supports both controlled and autonomous SDEs.
         
         Examples
         --------
+        Controlled SDE:
         >>> # Drift evaluation (deterministic part)
         >>> f = system(x, u)
         >>> 
         >>> # Diffusion evaluation (stochastic part)
         >>> g = system.diffusion(x, u)
+        >>> 
+        >>> # For SDE simulation:
+        >>> dt = 0.01
+        >>> dW = np.random.randn(nw) * np.sqrt(dt)
+        >>> dx = f * dt + g @ dW
+        
+        Autonomous SDE:
+        >>> # Drift evaluation (no control)
+        >>> f = system(x)
+        >>> 
+        >>> # Diffusion evaluation (no control)
+        >>> g = system.diffusion(x)
         >>> 
         >>> # For SDE simulation:
         >>> dt = 0.01
