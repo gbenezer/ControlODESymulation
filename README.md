@@ -766,7 +766,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Contact
 
 **Gil Benezer**
-- Email: gil.benezer@gmail.com
+- Email: gil (dot) benezer (at) gmail (dot) com
 - GitHub: [@gbenezer](https://github.com/gbenezer)
 
 ---
