@@ -631,8 +631,6 @@ ControlODESymulation/
 Currently not open to contributions, though may change after Phase 4 and once I learn how open-source development works
 
 #### Phase 1 (Current):
-- Finish implementation of StochasticDynamicalSystem class
-    - After those pass, make unit test for StochasticDynamicalSystem and ensure it passes
 - Start and finish deterministic DiffEqPyIntegrator class
     - Instantiate/code deterministic DiffEqPyIntegrator and associated unit tests
     - Modify IntegratorFactory to handle deterministic DiffEqPyIntegrator objects and update unit tests
@@ -640,7 +638,11 @@ Currently not open to contributions, though may change after Phase 4 and once I 
     - Instantiate/code SDEIntegratorBase unit tests and debug base class
     - Instantiate/code DiffraxSDEIntegrator, TorchSDEIntegrator, and DiffEqPySDEIntegrator classes with associated unit tests
     - Make analogous SDEIntegratorFactory class and unit tests
-- Look back and assess if any additional refactoring needs to occur (looking for god objects/code smells/design flaws)
+- Look back and assess if any additional refactoring needs to occur
+    - Mainly looking for
+        - God objects
+        - Other code smells/design flaws
+        - Inconsistencies in user-facing API
 
 #### Phase 2:
 - Make control variables truly optional (for autonomous system simulation)
