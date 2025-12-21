@@ -4,12 +4,13 @@ Dynamics Evaluator for SymbolicDynamicalSystem
 Handles forward dynamics evaluation across multiple backends.
 
 Responsibilities:
-- Forward dynamics evaluation: dx/dt = f(x, u)
+- Forward dynamics evaluation: dx/dt = f(x, u) or dx/dt = f(x) for autonomous
 - Backend-specific implementations (NumPy, PyTorch, JAX)
 - Input validation and shape handling
 - Batched vs single evaluation
 - Performance tracking
 - Backend dispatch
+- Support for both controlled and autonomous systems
 
 This class manages the evaluation of the system dynamics using
 generated functions from CodeGenerator.
@@ -35,12 +36,17 @@ class DynamicsEvaluator:
     """
     Evaluates forward dynamics across backends.
     
-    Handles the evaluation of dx/dt = f(x, u) for NumPy, PyTorch, and JAX
+    Handles the evaluation of dx/dt = f(x, u) for controlled systems or
+    dx/dt = f(x) for autonomous systems. Supports NumPy, PyTorch, and JAX
     backends with proper shape handling, batching, and performance tracking.
     
     Example:
+        >>> # Controlled system
         >>> evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
         >>> dx = evaluator.evaluate(x, u, backend='numpy')
+        >>> 
+        >>> # Autonomous system (u=None)
+        >>> dx = evaluator.evaluate(x, backend='numpy')
         >>> 
         >>> # Get performance stats
         >>> stats = evaluator.get_stats()
@@ -75,13 +81,18 @@ class DynamicsEvaluator:
     # Main Evaluation API
     # ========================================================================
     
-    def evaluate(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+    def evaluate(
+        self, 
+        x: ArrayLike, 
+        u: Optional[ArrayLike] = None, 
+        backend: Optional[str] = None
+    ) -> ArrayLike:
         """
-        Evaluate forward dynamics: dx/dt = f(x, u).
+        Evaluate forward dynamics: dx/dt = f(x, u) or dx/dt = f(x).
         
         Args:
             x: State (array/tensor)
-            u: Control (array/tensor)
+            u: Control (array/tensor), None for autonomous systems
             backend: Backend selection:
                 - None: Auto-detect from input type (default)
                 - 'numpy', 'torch', 'jax': Force specific backend
@@ -90,13 +101,44 @@ class DynamicsEvaluator:
         Returns:
             State derivative (type matches backend)
             
+        Raises:
+            ValueError: If u is None for non-autonomous system or provided for autonomous
+            
         Example:
-            >>> # Auto-detect backend
+            >>> # Controlled system - auto-detect backend
             >>> dx = evaluator.evaluate(x_numpy, u_numpy)  # Returns NumPy
+            >>> 
+            >>> # Autonomous system
+            >>> dx = evaluator.evaluate(x_numpy)  # u=None
             >>> 
             >>> # Force specific backend (converts input)
             >>> dx = evaluator.evaluate(x_numpy, u_numpy, backend='torch')  # Returns PyTorch
         """
+        # Handle autonomous systems
+        if u is None:
+            if self.system.nu > 0:
+                raise ValueError(
+                    f"Non-autonomous system requires control input u. "
+                    f"System has {self.system.nu} control input(s)."
+                )
+            # Create empty control array in appropriate backend
+            if backend == 'default':
+                target_backend = self.backend_mgr.default_backend
+            elif backend is None:
+                target_backend = self.backend_mgr.detect(x)
+            else:
+                target_backend = backend
+            
+            # Create empty array in appropriate backend
+            if target_backend == 'numpy':
+                u = np.array([])
+            elif target_backend == 'torch':
+                import torch
+                u = torch.tensor([], dtype=torch.float32)
+            elif target_backend == 'jax':
+                import jax.numpy as jnp
+                u = jnp.array([])
+        
         # Determine target backend
         if backend == 'default':
             target_backend = self.backend_mgr.default_backend
@@ -109,7 +151,8 @@ class DynamicsEvaluator:
         input_backend = self.backend_mgr.detect(x)
         if input_backend != target_backend:
             x = self.backend_mgr.convert(x, target_backend)
-            u = self.backend_mgr.convert(u, target_backend)
+            if self.system.nu > 0:  # Only convert u if not autonomous
+                u = self.backend_mgr.convert(u, target_backend)
         
         # Dispatch to backend-specific implementation
         if target_backend == 'numpy':
@@ -130,21 +173,31 @@ class DynamicsEvaluator:
         NumPy backend implementation.
         
         Handles both single and batched evaluation.
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
         """
         start_time = time.time()
         
         # Input validation
-        if x.ndim == 0 or u.ndim == 0:
-            raise ValueError("Input arrays must be at least 1D")
+        if x.ndim == 0:
+            raise ValueError("State array must be at least 1D")
         
         if x.ndim >= 1 and x.shape[-1] != self.system.nx:
             raise ValueError(
                 f"Expected state dimension {self.system.nx}, got {x.shape[-1]}"
             )
-        if u.ndim >= 1 and u.shape[-1] != self.system.nu:
-            raise ValueError(
-                f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
-            )
+        
+        # For autonomous systems, u should be empty
+        if self.system.nu == 0:
+            if u.size != 0:
+                raise ValueError("Autonomous system does not accept control input")
+        else:
+            # Non-autonomous: validate u
+            if u.ndim == 0:
+                raise ValueError("Control array must be at least 1D")
+            if u.ndim >= 1 and u.shape[-1] != self.system.nu:
+                raise ValueError(
+                    f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
+                )
         
         # Generate function (uses cache if available)
         f_numpy = self.code_gen.generate_dynamics('numpy')
@@ -153,16 +206,28 @@ class DynamicsEvaluator:
         if x.ndim == 1:
             # Single evaluation
             x_list = [x[i] for i in range(self.system.nx)]
-            u_list = [u[i] for i in range(self.system.nu)]
-            result = f_numpy(*(x_list + u_list))
+            
+            if self.system.nu > 0:
+                u_list = [u[i] for i in range(self.system.nu)]
+                result = f_numpy(*(x_list + u_list))
+            else:
+                # Autonomous: no control inputs
+                result = f_numpy(*x_list)
+            
             result = np.array(result).flatten()
         else:
             # Batched evaluation
             results = []
             for i in range(x.shape[0]):
                 x_list = [x[i, j] for j in range(self.system.nx)]
-                u_list = [u[i, j] for j in range(self.system.nu)]
-                result = f_numpy(*(x_list + u_list))
+                
+                if self.system.nu > 0:
+                    u_list = [u[i, j] for j in range(self.system.nu)]
+                    result = f_numpy(*(x_list + u_list))
+                else:
+                    # Autonomous: no control inputs
+                    result = f_numpy(*x_list)
+                
                 results.append(np.array(result).flatten())
             result = np.stack(results)
         
@@ -177,42 +242,55 @@ class DynamicsEvaluator:
         PyTorch backend implementation.
         
         Handles both single and batched evaluation with GPU support.
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
         """
         import torch
         
         start_time = time.time()
         
         # Input validation
-        if len(x.shape) == 0 or len(u.shape) == 0:
-            raise ValueError("Input tensors must be at least 1D")
+        if len(x.shape) == 0:
+            raise ValueError("State tensor must be at least 1D")
         
         if len(x.shape) >= 1 and x.shape[-1] != self.system.nx:
             raise ValueError(
                 f"Expected state dimension {self.system.nx}, got {x.shape[-1]}"
             )
-        if len(u.shape) >= 1 and u.shape[-1] != self.system.nu:
-            raise ValueError(
-                f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
-            )
+        
+        # For autonomous systems, u should be empty
+        if self.system.nu == 0:
+            if u.numel() != 0:
+                raise ValueError("Autonomous system does not accept control input")
+        else:
+            # Non-autonomous: validate u
+            if len(u.shape) == 0:
+                raise ValueError("Control tensor must be at least 1D")
+            if len(u.shape) >= 1 and u.shape[-1] != self.system.nu:
+                raise ValueError(
+                    f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
+                )
         
         # Generate function (uses cache if available)
         f_torch = self.code_gen.generate_dynamics('torch')
         
-        # Track original input shape
-        original_ndim = len(x.shape)
-        
         # Handle batched vs single evaluation
         if len(x.shape) == 1:
             x = x.unsqueeze(0)
-            u = u.unsqueeze(0)
+            if self.system.nu > 0:
+                u = u.unsqueeze(0)
             squeeze_output = True
         else:
             squeeze_output = False
         
         # Prepare arguments
         x_list = [x[:, i] for i in range(self.system.nx)]
-        u_list = [u[:, i] for i in range(self.system.nu)]
-        all_args = x_list + u_list
+        
+        if self.system.nu > 0:
+            u_list = [u[:, i] for i in range(self.system.nu)]
+            all_args = x_list + u_list
+        else:
+            # Autonomous: only state arguments
+            all_args = x_list
         
         # Call generated function
         result = f_torch(*all_args)
@@ -247,6 +325,7 @@ class DynamicsEvaluator:
         JAX backend implementation.
         
         Handles both single and batched evaluation with vmap for efficiency.
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
         """
         import jax
         import jax.numpy as jnp
@@ -254,17 +333,26 @@ class DynamicsEvaluator:
         start_time = time.time()
         
         # Input validation
-        if x.ndim == 0 or u.ndim == 0:
-            raise ValueError("Input arrays must be at least 1D")
+        if x.ndim == 0:
+            raise ValueError("State array must be at least 1D")
         
         if x.ndim >= 1 and x.shape[-1] != self.system.nx:
             raise ValueError(
                 f"Expected state dimension {self.system.nx}, got {x.shape[-1]}"
             )
-        if u.ndim >= 1 and u.shape[-1] != self.system.nu:
-            raise ValueError(
-                f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
-            )
+        
+        # For autonomous systems, u should be empty
+        if self.system.nu == 0:
+            if u.size != 0:
+                raise ValueError("Autonomous system does not accept control input")
+        else:
+            # Non-autonomous: validate u
+            if u.ndim == 0:
+                raise ValueError("Control array must be at least 1D")
+            if u.ndim >= 1 and u.shape[-1] != self.system.nu:
+                raise ValueError(
+                    f"Expected control dimension {self.system.nu}, got {u.shape[-1]}"
+                )
         
         # Generate function (uses cache if available)
         f_jax = self.code_gen.generate_dynamics('jax', jit=True)
@@ -272,25 +360,41 @@ class DynamicsEvaluator:
         # Handle batched vs single evaluation
         if x.ndim == 1:
             x = jnp.expand_dims(x, 0)
-            u = jnp.expand_dims(u, 0)
+            if self.system.nu > 0:
+                u = jnp.expand_dims(u, 0)
             squeeze_output = True
         else:
             squeeze_output = False
         
         # For batched computation, use vmap
         if x.shape[0] > 1:
-            @jax.vmap
-            def batched_dynamics(x_i, u_i):
-                x_list = [x_i[j] for j in range(self.system.nx)]
-                u_list = [u_i[j] for j in range(self.system.nu)]
-                return f_jax(*(x_list + u_list))
-            
-            result = batched_dynamics(x, u)
+            if self.system.nu > 0:
+                @jax.vmap
+                def batched_dynamics(x_i, u_i):
+                    x_list = [x_i[j] for j in range(self.system.nx)]
+                    u_list = [u_i[j] for j in range(self.system.nu)]
+                    return f_jax(*(x_list + u_list))
+                
+                result = batched_dynamics(x, u)
+            else:
+                # Autonomous: no control inputs
+                @jax.vmap
+                def batched_dynamics(x_i):
+                    x_list = [x_i[j] for j in range(self.system.nx)]
+                    return f_jax(*x_list)
+                
+                result = batched_dynamics(x)
         else:
             # Single evaluation
             x_list = [x[0, i] for i in range(self.system.nx)]
-            u_list = [u[0, i] for i in range(self.system.nu)]
-            result = f_jax(*(x_list + u_list))
+            
+            if self.system.nu > 0:
+                u_list = [u[0, i] for i in range(self.system.nu)]
+                result = f_jax(*(x_list + u_list))
+            else:
+                # Autonomous: no control inputs
+                result = f_jax(*x_list)
+            
             result = jnp.expand_dims(result, 0)
         
         # Handle output shape
@@ -351,9 +455,10 @@ class DynamicsEvaluator:
     
     def __repr__(self) -> str:
         """String representation for debugging"""
+        autonomous_str = " (autonomous)" if self.system.nu == 0 else ""
         return (
             f"DynamicsEvaluator("
-            f"nx={self.system.nx}, nu={self.system.nu}, "
+            f"nx={self.system.nx}, nu={self.system.nu}{autonomous_str}, "
             f"calls={self._stats['calls']})"
         )
     

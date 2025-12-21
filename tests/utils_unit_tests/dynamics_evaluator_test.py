@@ -2,14 +2,15 @@
 Comprehensive unit tests for DynamicsEvaluator
 
 Tests cover:
-1. NumPy backend evaluation
-2. PyTorch backend evaluation
-3. JAX backend evaluation
+1. NumPy backend evaluation (controlled and autonomous)
+2. PyTorch backend evaluation (controlled and autonomous)
+3. JAX backend evaluation (controlled and autonomous)
 4. Input validation
 5. Shape handling (batched vs single)
 6. Backend dispatch
 7. Performance tracking
 8. Error handling
+9. Autonomous system support
 """
 
 import pytest
@@ -60,6 +61,44 @@ class MockLinearSystem:
         return expr.subs(self.parameters)
 
 
+class MockAutonomousSystem:
+    """Autonomous system: dx/dt = -a*x (no control)"""
+    
+    def __init__(self, a=2.0):
+        x = sp.symbols('x', real=True)
+        a_sym = sp.symbols('a', real=True, positive=True)
+        
+        self.state_vars = [x]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([-a_sym * x])
+        self.parameters = {a_sym: a}
+        self.nx = 1
+        self.nu = 0  # AUTONOMOUS
+        self.order = 1
+    
+    def substitute_parameters(self, expr):
+        return expr.subs(self.parameters)
+
+
+class MockAutonomous2D:
+    """2D autonomous system: Free oscillator"""
+    
+    def __init__(self, k=10.0):
+        x1, x2 = sp.symbols('x1 x2', real=True)
+        k_sym = sp.symbols('k', real=True, positive=True)
+        
+        self.state_vars = [x1, x2]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([x2, -k_sym * x1])
+        self.parameters = {k_sym: k}
+        self.nx = 2
+        self.nu = 0  # AUTONOMOUS
+        self.order = 1
+    
+    def substitute_parameters(self, expr):
+        return expr.subs(self.parameters)
+
+
 class MockSecondOrderSystem:
     """Harmonic oscillator: q̈ = -k*q - c*q̇ + u"""
     
@@ -101,12 +140,12 @@ class MockMultiInputSystem:
 
 
 # ============================================================================
-# Test Class 1: NumPy Backend Evaluation
+# Test Class 1: NumPy Backend Evaluation (Controlled)
 # ============================================================================
 
 
-class TestNumpyEvaluation:
-    """Test NumPy backend evaluation"""
+class TestNumpyEvaluationControlled:
+    """Test NumPy backend evaluation for controlled systems"""
     
     def test_evaluate_numpy_single(self):
         """Test single point evaluation with NumPy"""
@@ -190,12 +229,107 @@ class TestNumpyEvaluation:
 
 
 # ============================================================================
-# Test Class 2: PyTorch Backend Evaluation
+# Test Class 2: NumPy Backend Evaluation (Autonomous)
 # ============================================================================
 
 
-class TestTorchEvaluation:
-    """Test PyTorch backend evaluation"""
+class TestNumpyEvaluationAutonomous:
+    """Test NumPy backend evaluation for autonomous systems"""
+    
+    def test_evaluate_autonomous_u_none(self):
+        """Test autonomous system with u=None"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([1.0])
+        
+        # u=None for autonomous
+        dx = evaluator.evaluate(x, u=None, backend='numpy')
+        
+        # dx = -2*x = -2
+        assert isinstance(dx, np.ndarray)
+        assert dx.shape == (1,)
+        assert np.allclose(dx, np.array([-2.0]))
+    
+    def test_evaluate_autonomous_no_u_arg(self):
+        """Test autonomous system without passing u"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([1.0])
+        
+        # Don't pass u at all
+        dx = evaluator.evaluate(x, backend='numpy')
+        
+        assert np.allclose(dx, np.array([-2.0]))
+    
+    def test_evaluate_autonomous_2d(self):
+        """Test 2D autonomous system"""
+        system = MockAutonomous2D(k=10.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([0.1, 0.0])
+        
+        dx = evaluator.evaluate(x, backend='numpy')
+        
+        # dx = [x2, -k*x1] = [0.0, -10*0.1] = [0.0, -1.0]
+        assert dx.shape == (2,)
+        assert np.allclose(dx, np.array([0.0, -1.0]))
+    
+    def test_autonomous_batched(self):
+        """Test batched autonomous evaluation"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([[1.0], [2.0], [3.0]])
+        
+        dx = evaluator.evaluate(x, backend='numpy')
+        
+        assert dx.shape == (3, 1)
+        expected = np.array([[-2.0], [-4.0], [-6.0]])
+        assert np.allclose(dx, expected)
+    
+    def test_autonomous_rejects_control(self):
+        """Test that autonomous system rejects control input"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([1.0])
+        u = np.array([0.5])  # Should be rejected
+        
+        with pytest.raises(ValueError, match="does not accept control input"):
+            evaluator.evaluate(x, u, backend='numpy')
+    
+    def test_controlled_requires_u(self):
+        """Test that controlled system requires u"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = np.array([1.0])
+        
+        with pytest.raises(ValueError, match="requires control input"):
+            evaluator.evaluate(x, u=None, backend='numpy')
+
+
+# ============================================================================
+# Test Class 3: PyTorch Backend Evaluation (Controlled)
+# ============================================================================
+
+
+class TestTorchEvaluationControlled:
+    """Test PyTorch backend evaluation for controlled systems"""
     
     @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
     def test_evaluate_torch_single(self):
@@ -267,12 +401,52 @@ class TestTorchEvaluation:
 
 
 # ============================================================================
-# Test Class 3: JAX Backend Evaluation
+# Test Class 4: PyTorch Backend Evaluation (Autonomous)
 # ============================================================================
 
 
-class TestJaxEvaluation:
-    """Test JAX backend evaluation"""
+class TestTorchEvaluationAutonomous:
+    """Test PyTorch backend evaluation for autonomous systems"""
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_evaluate_autonomous_torch(self):
+        """Test autonomous system with PyTorch"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = torch.tensor([1.0])
+        
+        dx = evaluator.evaluate(x, u=None, backend='torch')
+        
+        assert isinstance(dx, torch.Tensor)
+        assert dx.shape == (1,)
+        assert torch.allclose(dx, torch.tensor([-2.0]))
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_autonomous_2d_torch(self):
+        """Test 2D autonomous system with PyTorch"""
+        system = MockAutonomous2D(k=10.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = torch.tensor([0.1, 0.0])
+        
+        dx = evaluator.evaluate(x, backend='torch')
+        
+        assert dx.shape == (2,)
+        assert torch.allclose(dx, torch.tensor([0.0, -1.0]))
+
+
+# ============================================================================
+# Test Class 5: JAX Backend Evaluation (Controlled)
+# ============================================================================
+
+
+class TestJaxEvaluationControlled:
+    """Test JAX backend evaluation for controlled systems"""
     
     @pytest.mark.skipif(not jax_available, reason="JAX not installed")
     def test_evaluate_jax_single(self):
@@ -325,7 +499,46 @@ class TestJaxEvaluation:
 
 
 # ============================================================================
-# Test Class 4: Backend Conversion and Dispatch
+# Test Class 6: JAX Backend Evaluation (Autonomous)
+# ============================================================================
+
+
+class TestJaxEvaluationAutonomous:
+    """Test JAX backend evaluation for autonomous systems"""
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_evaluate_autonomous_jax(self):
+        """Test autonomous system with JAX"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = jnp.array([1.0])
+        
+        dx = evaluator.evaluate(x, backend='jax')
+        
+        assert isinstance(dx, jnp.ndarray)
+        assert jnp.allclose(dx, jnp.array([-2.0]))
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_autonomous_2d_jax(self):
+        """Test 2D autonomous system with JAX"""
+        system = MockAutonomous2D(k=10.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x = jnp.array([0.1, 0.0])
+        
+        dx = evaluator.evaluate(x, backend='jax')
+        
+        assert dx.shape == (2,)
+        assert jnp.allclose(dx, jnp.array([0.0, -1.0]))
+
+
+# ============================================================================
+# Test Class 7: Backend Conversion and Dispatch
 # ============================================================================
 
 
@@ -365,8 +578,8 @@ class TestBackendDispatch:
         
         assert isinstance(dx, np.ndarray)
     
-    def test_multi_backend_consistency(self):
-        """Test that all backends give same numerical result"""
+    def test_multi_backend_consistency_controlled(self):
+        """Test that all backends give same result for controlled systems"""
         system = MockLinearSystem(a=2.0)
         code_gen = CodeGenerator(system)
         backend_mgr = BackendManager()
@@ -390,10 +603,35 @@ class TestBackendDispatch:
             dx_val = np.array(dx) if not isinstance(dx, np.ndarray) else dx
             
             assert np.allclose(dx_val, dx_np), f"{backend} doesn't match NumPy"
+    
+    def test_multi_backend_consistency_autonomous(self):
+        """Test that all backends give same result for autonomous systems"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x_np = np.array([1.0])
+        
+        # Evaluate with NumPy
+        dx_np = evaluator.evaluate(x_np, backend='numpy')
+        
+        backends_to_test = ['numpy']
+        if torch_available:
+            backends_to_test.append('torch')
+        if jax_available:
+            backends_to_test.append('jax')
+        
+        # All backends should give same result
+        for backend in backends_to_test:
+            dx = evaluator.evaluate(x_np, backend=backend)
+            dx_val = np.array(dx) if not isinstance(dx, np.ndarray) else dx
+            
+            assert np.allclose(dx_val, dx_np), f"{backend} doesn't match NumPy"
 
 
 # ============================================================================
-# Test Class 5: Input Validation
+# Test Class 8: Input Validation
 # ============================================================================
 
 
@@ -452,7 +690,7 @@ class TestInputValidation:
 
 
 # ============================================================================
-# Test Class 6: Performance Tracking
+# Test Class 9: Performance Tracking
 # ============================================================================
 
 
@@ -516,7 +754,7 @@ class TestPerformanceTracking:
 
 
 # ============================================================================
-# Test Class 7: Function Caching
+# Test Class 10: Function Caching
 # ============================================================================
 
 
@@ -545,15 +783,15 @@ class TestFunctionCaching:
 
 
 # ============================================================================
-# Test Class 8: String Representations
+# Test Class 11: String Representations
 # ============================================================================
 
 
 class TestStringRepresentations:
     """Test __repr__ and __str__ methods"""
     
-    def test_repr(self):
-        """Test __repr__ output"""
+    def test_repr_controlled(self):
+        """Test __repr__ output for controlled system"""
         system = MockLinearSystem()
         code_gen = CodeGenerator(system)
         backend_mgr = BackendManager()
@@ -564,6 +802,19 @@ class TestStringRepresentations:
         assert 'DynamicsEvaluator' in repr_str
         assert 'nx=1' in repr_str
         assert 'nu=1' in repr_str
+    
+    def test_repr_autonomous(self):
+        """Test __repr__ output for autonomous system"""
+        system = MockAutonomousSystem()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        repr_str = repr(evaluator)
+        
+        assert 'DynamicsEvaluator' in repr_str
+        assert 'nu=0' in repr_str
+        assert '(autonomous)' in repr_str
     
     def test_str(self):
         """Test __str__ output"""
@@ -579,7 +830,7 @@ class TestStringRepresentations:
 
 
 # ============================================================================
-# Test Class 9: Edge Cases
+# Test Class 12: Edge Cases
 # ============================================================================
 
 
@@ -618,15 +869,15 @@ class TestEdgeCases:
 
 
 # ============================================================================
-# Test Class 10: Integration Tests
+# Test Class 13: Integration Tests
 # ============================================================================
 
 
 class TestIntegration:
     """Integration tests combining multiple features"""
     
-    def test_full_workflow(self):
-        """Test complete evaluation workflow"""
+    def test_full_workflow_controlled(self):
+        """Test complete evaluation workflow for controlled systems"""
         system = MockLinearSystem(a=2.0)
         code_gen = CodeGenerator(system)
         backend_mgr = BackendManager()
@@ -637,6 +888,25 @@ class TestIntegration:
             x = np.random.randn(1)
             u = np.random.randn(1)
             dx = evaluator.evaluate(x, u)
+            
+            # Verify result shape
+            assert dx.shape == (1,)
+        
+        # Check stats
+        stats = evaluator.get_stats()
+        assert stats['calls'] == 5
+    
+    def test_full_workflow_autonomous(self):
+        """Test complete evaluation workflow for autonomous systems"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        # Test multiple evaluations
+        for _ in range(5):
+            x = np.random.randn(1)
+            dx = evaluator.evaluate(x)  # No u
             
             # Verify result shape
             assert dx.shape == (1,)
