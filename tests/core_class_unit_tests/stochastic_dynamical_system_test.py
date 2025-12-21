@@ -1,0 +1,1193 @@
+"""
+Unit Tests for StochasticDynamicalSystem
+
+Tests cover:
+1. System initialization and validation (subclassing pattern)
+2. Integration with parent SymbolicDynamicalSystem
+3. Drift evaluation (delegated to parent)
+4. Diffusion evaluation (via DiffusionHandler)
+5. Noise characterization (automatic analysis)
+6. Solver recommendations
+7. Constant noise optimization
+8. Compilation and caching
+9. Backend support (NumPy, PyTorch, JAX)
+10. String-based sde_type API
+11. Information and diagnostics
+12. Best practices validation
+"""
+
+import pytest
+import numpy as np
+import sympy as sp
+from typing import Dict
+
+# Conditional imports for backends
+torch_available = True
+try:
+    import torch
+except ImportError:
+    torch_available = False
+
+jax_available = True
+try:
+    import jax
+    import jax.numpy as jnp
+except ImportError:
+    jax_available = False
+
+from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
+from src.systems.base.utils.stochastic.noise_analysis import NoiseType, SDEType
+from src.systems.base.utils.stochastic.sde_validator import ValidationError
+
+
+# ============================================================================
+# Test System Classes (Following Best Practices)
+# ============================================================================
+
+
+class OrnsteinUhlenbeck(StochasticDynamicalSystem):
+    """Ornstein-Uhlenbeck process with mean reversion (additive noise)."""
+    
+    def define_system(self, alpha=1.0, sigma=0.5):
+        """
+        Define O-U process: dx = -α*x*dt + σ*dW
+        
+        Parameters
+        ----------
+        alpha : float
+            Mean reversion rate
+        sigma : float
+            Noise intensity
+        """
+        x = sp.symbols('x', real=True)
+        u = sp.symbols('u', real=True)
+        alpha_sym = sp.symbols('alpha', positive=True)
+        sigma_sym = sp.symbols('sigma', positive=True)
+        
+        # Drift
+        self.state_vars = [x]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([[-alpha_sym * x + u]])
+        self.parameters = {alpha_sym: alpha, sigma_sym: sigma}
+        self.order = 1
+        
+        # Diffusion (additive)
+        self.diffusion_expr = sp.Matrix([[sigma_sym]])
+        self.sde_type = 'ito'
+
+
+class GeometricBrownianMotion(StochasticDynamicalSystem):
+    """Geometric Brownian motion (multiplicative noise)."""
+    
+    def define_system(self, mu=0.1, sigma=0.2):
+        """
+        Define GBM: dx = μ*x*dt + σ*x*dW
+        
+        Parameters
+        ----------
+        mu : float
+            Drift coefficient
+        sigma : float
+            Volatility
+        """
+        x = sp.symbols('x', positive=True)
+        u = sp.symbols('u', real=True)
+        mu_sym, sigma_sym = sp.symbols('mu sigma', positive=True)
+        
+        # Drift
+        self.state_vars = [x]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([[mu_sym * x + u]])
+        self.parameters = {mu_sym: mu, sigma_sym: sigma}
+        self.order = 1
+        
+        # Multiplicative diffusion
+        self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
+
+
+class DiagonalNoiseSystem(StochasticDynamicalSystem):
+    """3D system with diagonal (independent) noise sources."""
+    
+    def define_system(self):
+        """Define system with independent noise per state."""
+        x1, x2, x3 = sp.symbols('x1 x2 x3', real=True)
+        u = sp.symbols('u', real=True)
+        
+        # Drift
+        self.state_vars = [x1, x2, x3]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([x2, x3, -x1 + u])
+        self.parameters = {}
+        self.order = 1
+        
+        # Diagonal diffusion
+        self.diffusion_expr = sp.Matrix([
+            [0.1 * x1, 0, 0],
+            [0, 0.2 * x2, 0],
+            [0, 0, 0.3 * x3]
+        ])
+
+
+class StratonovichSystem(StochasticDynamicalSystem):
+    """System using Stratonovich interpretation."""
+    
+    def define_system(self):
+        """Define Stratonovich SDE."""
+        x = sp.symbols('x')
+        u = sp.symbols('u')
+        
+        self.state_vars = [x]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([[-x + u]])
+        self.parameters = {}
+        self.order = 1
+        
+        self.diffusion_expr = sp.Matrix([[0.5]])
+        self.sde_type = 'stratonovich'  # String-based API
+
+
+# ============================================================================
+# Test Initialization and Validation
+# ============================================================================
+
+
+class TestInitializationAndValidation:
+    """Test system initialization and validation."""
+    
+    def test_successful_initialization(self):
+        """Test that valid system initializes successfully."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        assert system._initialized is True
+        assert system.nx == 1
+        assert system.nu == 1
+        assert system.nw == 1
+        assert system.is_stochastic is True
+    
+    def test_subclassing_pattern(self):
+        """Test that define_system is called automatically."""
+        system = OrnsteinUhlenbeck()
+        
+        # Should have attributes from define_system
+        assert len(system.state_vars) == 1
+        assert len(system.control_vars) == 1
+        assert system._f_sym is not None
+        assert system.diffusion_expr is not None
+    
+    def test_missing_diffusion_expr_error(self):
+        """Test error when diffusion_expr not set in define_system."""
+        
+        class BadSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x, u = sp.symbols('x u')
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-x + u]])
+                self.parameters = {}
+                self.order = 1
+                # Forgot to set self.diffusion_expr!
+        
+        with pytest.raises(ValueError, match="must set self.diffusion_expr"):
+            BadSystem()
+    
+    def test_sde_type_default_ito(self):
+        """Test default SDE type is Itô."""
+        system = OrnsteinUhlenbeck()
+        
+        assert system.sde_type == SDEType.ITO
+    
+    def test_sde_type_string_ito(self):
+        """Test sde_type accepts 'ito' string."""
+        system = OrnsteinUhlenbeck()
+        
+        # System uses 'ito' string in define_system
+        assert system.sde_type == SDEType.ITO
+    
+    def test_sde_type_string_stratonovich(self):
+        """Test sde_type accepts 'stratonovich' string."""
+        system = StratonovichSystem()
+        
+        # System uses 'stratonovich' string
+        assert system.sde_type == SDEType.STRATONOVICH
+    
+    def test_sde_type_enum_still_works(self):
+        """Test sde_type still accepts SDEType enum."""
+        
+        class EnumSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x, u = sp.symbols('x u')
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-x]])
+                self.parameters = {}
+                self.order = 1
+                self.diffusion_expr = sp.Matrix([[0.5]])
+                self.sde_type = SDEType.STRATONOVICH  # Enum
+        
+        system = EnumSystem()
+        assert system.sde_type == SDEType.STRATONOVICH
+    
+    def test_sde_type_invalid_string(self):
+        """Test error on invalid sde_type string."""
+        
+        class BadTypeSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x, u = sp.symbols('x u')
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-x]])
+                self.parameters = {}
+                self.order = 1
+                self.diffusion_expr = sp.Matrix([[0.5]])
+                self.sde_type = 'invalid'  # Bad value
+        
+        with pytest.raises(ValueError, match="Invalid sde_type"):
+            BadTypeSystem()
+    
+    def test_validation_dimension_mismatch(self):
+        """Test validation fails with dimension mismatch."""
+        
+        class BadDimSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x1, x2 = sp.symbols('x1 x2')
+                u = sp.symbols('u')
+                
+                self.state_vars = [x1, x2]  # 2 states
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[x2], [-x1]])
+                self.parameters = {}
+                self.order = 1
+                
+                # 3D diffusion for 2D system - MISMATCH!
+                self.diffusion_expr = sp.Matrix([[0.1], [0.2], [0.3]])
+        
+        with pytest.raises(ValidationError):
+            BadDimSystem()
+    
+    def test_validation_undefined_symbol_diffusion(self):
+        """Test validation fails with undefined symbol in diffusion."""
+        
+        class UndefinedSymbolSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x, u = sp.symbols('x u')
+                mystery = sp.symbols('mystery')  # Not in parameters!
+                
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-x + u]])
+                self.parameters = {}
+                self.order = 1
+                
+                self.diffusion_expr = sp.Matrix([[mystery * x]])  # Undefined!
+        
+        with pytest.raises(ValidationError):
+            UndefinedSymbolSystem()
+
+
+# ============================================================================
+# Test Noise Characterization
+# ============================================================================
+
+
+class TestNoiseCharacterization:
+    """Test automatic noise structure analysis."""
+    
+    def test_additive_noise_detection(self):
+        """Test detection of additive noise."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        assert system.is_additive_noise()
+        assert not system.is_multiplicative_noise()
+        assert system.get_noise_type() == NoiseType.ADDITIVE
+    
+    def test_multiplicative_noise_detection(self):
+        """Test detection of multiplicative noise."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        assert not system.is_additive_noise()
+        assert system.is_multiplicative_noise()
+        assert system.is_scalar_noise()  # nw=1, scalar takes priority
+    
+    def test_diagonal_noise_detection(self):
+        """Test detection of diagonal noise."""
+        system = DiagonalNoiseSystem()
+        
+        assert system.is_diagonal_noise()
+        assert system.get_noise_type() == NoiseType.DIAGONAL
+    
+    def test_scalar_noise_detection(self):
+        """Test detection of scalar noise."""
+        system = OrnsteinUhlenbeck()
+        
+        assert system.is_scalar_noise()
+        assert system.nw == 1
+    
+    def test_noise_dependencies(self):
+        """Test detection of noise dependencies."""
+        system = GeometricBrownianMotion()
+        
+        assert system.depends_on_state()
+        assert not system.depends_on_control()
+        assert not system.depends_on_time()
+
+
+# ============================================================================
+# Test Drift Evaluation (Delegated to Parent)
+# ============================================================================
+
+
+class TestDriftEvaluation:
+    """Test drift evaluation (reuses parent class)."""
+    
+    def test_drift_numpy(self):
+        """Test drift evaluation with NumPy."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = np.array([2.0])
+        u = np.array([0.5])
+        
+        f = system.drift(x, u, backend='numpy')
+        
+        assert isinstance(f, np.ndarray)
+        # f = -alpha*x + u = -1.0*2.0 + 0.5 = -1.5
+        np.testing.assert_almost_equal(f, np.array([-1.5]))
+    
+    def test_drift_callable_interface(self):
+        """Test that __call__ evaluates drift."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = np.array([2.0])
+        u = np.array([0.5])
+        
+        # __call__ should evaluate drift
+        f1 = system(x, u)
+        f2 = system.drift(x, u)
+        
+        np.testing.assert_array_almost_equal(f1, f2)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_drift_torch(self):
+        """Test drift evaluation with PyTorch."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = torch.tensor([2.0])
+        u = torch.tensor([0.5])
+        
+        f = system.drift(x, u, backend='torch')
+        
+        assert isinstance(f, torch.Tensor)
+        torch.testing.assert_close(f, torch.tensor([-1.5]))
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_drift_jax(self):
+        """Test drift evaluation with JAX."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = jnp.array([2.0])
+        u = jnp.array([0.5])
+        
+        f = system.drift(x, u, backend='jax')
+        
+        assert isinstance(f, jnp.ndarray)
+        np.testing.assert_almost_equal(f, np.array([-1.5]))
+
+
+# ============================================================================
+# Test Diffusion Evaluation
+# ============================================================================
+
+
+class TestDiffusionEvaluation:
+    """Test diffusion evaluation via DiffusionHandler."""
+    
+    def test_diffusion_additive_numpy(self):
+        """Test diffusion evaluation for additive noise."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = np.array([2.0])
+        u = np.array([0.5])
+        
+        g = system.diffusion(x, u, backend='numpy')
+        
+        assert isinstance(g, np.ndarray)
+        assert g.shape == (1, 1)
+        np.testing.assert_almost_equal(g, np.array([[0.5]]))
+    
+    def test_diffusion_multiplicative_numpy(self):
+        """Test diffusion evaluation for multiplicative noise."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        x = np.array([2.0])
+        u = np.array([0.0])
+        
+        g = system.diffusion(x, u, backend='numpy')
+        
+        assert g.shape == (1, 1)
+        # g = sigma*x = 0.2*2.0 = 0.4
+        np.testing.assert_almost_equal(g, np.array([[0.4]]))
+    
+    def test_diffusion_different_states(self):
+        """Test that multiplicative diffusion varies with state."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        x1 = np.array([1.0])
+        x2 = np.array([2.0])
+        u = np.array([0.0])
+        
+        g1 = system.diffusion(x1, u)
+        g2 = system.diffusion(x2, u)
+        
+        # Should be different (state-dependent)
+        assert not np.allclose(g1, g2)
+        assert g2[0, 0] == 2 * g1[0, 0]  # Linear in x
+    
+    def test_diffusion_diagonal_numpy(self):
+        """Test diffusion evaluation for diagonal noise."""
+        system = DiagonalNoiseSystem()
+        
+        x = np.array([1.0, 2.0, 3.0])
+        u = np.array([0.0])
+        
+        g = system.diffusion(x, u, backend='numpy')
+        
+        expected = np.array([
+            [0.1, 0, 0],
+            [0, 0.4, 0],
+            [0, 0, 0.9]
+        ])
+        
+        assert g.shape == (3, 3)
+        np.testing.assert_almost_equal(g, expected)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_diffusion_torch(self):
+        """Test diffusion evaluation with PyTorch."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = torch.tensor([2.0])
+        u = torch.tensor([0.5])
+        
+        g = system.diffusion(x, u, backend='torch')
+        
+        assert isinstance(g, torch.Tensor)
+        assert g.shape == (1, 1)
+        torch.testing.assert_close(g, torch.tensor([[0.5]]))
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_diffusion_jax(self):
+        """Test diffusion evaluation with JAX."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = jnp.array([2.0])
+        u = jnp.array([0.5])
+        
+        g = system.diffusion(x, u, backend='jax')
+        
+        assert isinstance(g, jnp.ndarray)
+        assert g.shape == (1, 1)
+
+
+# ============================================================================
+# Test Constant Noise Optimization
+# ============================================================================
+
+
+class TestConstantNoiseOptimization:
+    """Test constant noise optimization for additive noise."""
+    
+    def test_get_constant_noise_additive(self):
+        """Test getting constant noise matrix."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.3)
+        
+        G = system.get_constant_noise('numpy')
+        
+        assert isinstance(G, np.ndarray)
+        assert G.shape == (1, 1)
+        np.testing.assert_almost_equal(G, np.array([[0.3]]))
+    
+    def test_constant_noise_matches_evaluation(self):
+        """Test that constant noise matches diffusion evaluation."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        G = system.get_constant_noise('numpy')
+        
+        # Evaluate at arbitrary point
+        g = system.diffusion(np.array([100.0]), np.array([50.0]))
+        
+        # Should be identical (additive)
+        np.testing.assert_array_almost_equal(g, G)
+    
+    def test_get_constant_noise_error_multiplicative(self):
+        """Test error when requesting constant noise for multiplicative noise."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        with pytest.raises(ValueError, match="only valid for additive noise"):
+            system.get_constant_noise('numpy')
+    
+    def test_can_optimize_for_additive(self):
+        """Test checking optimization availability."""
+        system_additive = OrnsteinUhlenbeck()
+        system_multiplicative = GeometricBrownianMotion()
+        
+        assert system_additive.can_optimize_for_additive()
+        assert not system_multiplicative.can_optimize_for_additive()
+
+
+# ============================================================================
+# Test Solver Recommendations
+# ============================================================================
+
+
+class TestSolverRecommendations:
+    """Test automatic solver recommendations."""
+    
+    def test_recommend_solvers_additive_jax(self):
+        """Test solver recommendations for additive noise (JAX)."""
+        system = OrnsteinUhlenbeck()
+        
+        solvers = system.recommend_solvers('jax')
+        
+        assert len(solvers) > 0
+        assert 'sea' in solvers or 'shark' in solvers or 'sra1' in solvers
+    
+    def test_recommend_solvers_multiplicative_torch(self):
+        """Test solver recommendations for multiplicative noise (PyTorch)."""
+        system = GeometricBrownianMotion()
+        
+        solvers = system.recommend_solvers('torch')
+        
+        assert len(solvers) > 0
+    
+    def test_recommend_solvers_diagonal_jax(self):
+        """Test solver recommendations for diagonal noise."""
+        system = DiagonalNoiseSystem()
+        
+        solvers = system.recommend_solvers('jax')
+        
+        assert len(solvers) > 0
+        assert 'spark' in solvers or 'euler_heun' in solvers
+    
+    def test_recommend_solvers_all_backends(self):
+        """Test solver recommendations for all backends."""
+        system = OrnsteinUhlenbeck()
+        
+        jax_solvers = system.recommend_solvers('jax')
+        torch_solvers = system.recommend_solvers('torch')
+        julia_solvers = system.recommend_solvers('numpy')
+        
+        assert len(jax_solvers) > 0
+        assert len(torch_solvers) > 0
+        assert len(julia_solvers) > 0
+
+
+# ============================================================================
+# Test Optimization Opportunities
+# ============================================================================
+
+
+class TestOptimizationOpportunities:
+    """Test optimization opportunity detection."""
+    
+    def test_optimization_flags_additive(self):
+        """Test optimization flags for additive noise."""
+        system = OrnsteinUhlenbeck()
+        
+        opts = system.get_optimization_opportunities()
+        
+        assert opts['precompute_diffusion']
+        assert opts['cache_diffusion']
+        assert opts['vectorize_easily']
+    
+    def test_optimization_flags_multiplicative(self):
+        """Test optimization flags for multiplicative noise."""
+        system = GeometricBrownianMotion()
+        
+        opts = system.get_optimization_opportunities()
+        
+        assert not opts['precompute_diffusion']
+        assert not opts['cache_diffusion']
+    
+    def test_optimization_flags_diagonal(self):
+        """Test optimization flags for diagonal noise."""
+        system = DiagonalNoiseSystem()
+        
+        opts = system.get_optimization_opportunities()
+        
+        assert opts['use_diagonal_solver']
+        assert opts['vectorize_easily']
+
+
+# ============================================================================
+# Test Compilation
+# ============================================================================
+
+
+class TestCompilation:
+    """Test code generation and compilation."""
+    
+    def test_compile_diffusion_numpy(self):
+        """Test compiling diffusion for NumPy."""
+        system = OrnsteinUhlenbeck()
+        
+        timings = system.compile_diffusion(backends=['numpy'], verbose=False)
+        
+        assert 'numpy' in timings
+        assert timings['numpy'] is not None
+        assert isinstance(timings['numpy'], float)
+        assert timings['numpy'] > 0
+    
+    def test_compile_all_backends(self):
+        """Test compiling both drift and diffusion."""
+        system = OrnsteinUhlenbeck()
+        
+        timings = system.compile_all(backends=['numpy'], verbose=False)
+        
+        assert 'numpy' in timings
+        assert 'drift' in timings['numpy']
+        assert 'diffusion' in timings['numpy']
+        assert timings['numpy']['drift'] is not None
+        assert timings['numpy']['diffusion'] is not None
+    
+    def test_reset_diffusion_cache(self):
+        """Test resetting diffusion cache."""
+        system = OrnsteinUhlenbeck()
+        
+        # Compile
+        system.compile_diffusion(backends=['numpy'])
+        assert system.diffusion_handler.is_compiled('numpy')
+        
+        # Reset
+        system.reset_diffusion_cache(['numpy'])
+        assert not system.diffusion_handler.is_compiled('numpy')
+    
+    def test_reset_all_caches(self):
+        """Test resetting both drift and diffusion caches."""
+        system = OrnsteinUhlenbeck()
+        
+        # Compile both
+        system.compile_all(backends=['numpy'])
+        
+        # Reset all
+        system.reset_all_caches(['numpy'])
+        
+        # Both should be cleared
+        assert not system.diffusion_handler.is_compiled('numpy')
+
+
+# ============================================================================
+# Test Information and Diagnostics
+# ============================================================================
+
+
+class TestInformation:
+    """Test information retrieval and diagnostics."""
+    
+    def test_get_info_structure(self):
+        """Test structure of info dictionary."""
+        system = OrnsteinUhlenbeck()
+        
+        info = system.get_info()
+        
+        assert 'system_type' in info
+        assert 'is_stochastic' in info
+        assert 'sde_type' in info
+        assert 'dimensions' in info
+        assert 'noise' in info
+        assert 'recommended_solvers' in info
+        assert 'optimization_opportunities' in info
+    
+    def test_get_info_dimensions(self):
+        """Test dimension information."""
+        system = DiagonalNoiseSystem()
+        
+        info = system.get_info()
+        
+        assert info['dimensions']['nx'] == 3
+        assert info['dimensions']['nu'] == 1
+        assert info['dimensions']['nw'] == 3
+    
+    def test_get_info_noise_characteristics(self):
+        """Test noise characteristics in info."""
+        system = OrnsteinUhlenbeck()
+        
+        info = system.get_info()
+        
+        assert info['noise']['type'] == 'additive'
+        assert info['noise']['is_additive'] is True
+        assert info['noise']['depends_on']['state'] is False
+    
+    def test_get_info_recommended_solvers(self):
+        """Test solver recommendations in info."""
+        system = OrnsteinUhlenbeck()
+        
+        info = system.get_info()
+        
+        assert 'jax' in info['recommended_solvers']
+        assert 'torch' in info['recommended_solvers']
+        assert 'julia' in info['recommended_solvers']
+        assert len(info['recommended_solvers']['jax']) > 0
+    
+    def test_print_sde_info(self, capsys):
+        """Test formatted SDE info printing."""
+        system = OrnsteinUhlenbeck()
+        
+        system.print_sde_info()
+        
+        captured = capsys.readouterr()
+        assert 'Stochastic Dynamical System' in captured.out
+        assert 'OrnsteinUhlenbeck' in captured.out
+        assert 'Noise Type:' in captured.out
+        assert 'Recommended Solvers' in captured.out
+        assert 'Optimization Opportunities' in captured.out
+
+
+# ============================================================================
+# Test String Representations
+# ============================================================================
+
+
+class TestStringRepresentations:
+    """Test __repr__ and __str__ methods."""
+    
+    def test_repr(self):
+        """Test __repr__ output."""
+        system = OrnsteinUhlenbeck()
+        
+        repr_str = repr(system)
+        
+        assert 'OrnsteinUhlenbeck' in repr_str
+        assert 'nx=1' in repr_str
+        assert 'nw=1' in repr_str
+        assert 'additive' in repr_str
+        assert 'ito' in repr_str
+    
+    def test_str(self):
+        """Test __str__ output."""
+        system = DiagonalNoiseSystem()
+        
+        str_repr = str(system)
+        
+        assert 'DiagonalNoiseSystem' in str_repr
+        assert '3 states' in str_repr
+        assert '3 noise sources' in str_repr
+        assert 'diagonal' in str_repr
+    
+    def test_str_singular_vs_plural(self):
+        """Test proper singular/plural in __str__."""
+        system_1d = OrnsteinUhlenbeck()
+        system_3d = DiagonalNoiseSystem()
+        
+        str_1d = str(system_1d)
+        str_3d = str(system_3d)
+        
+        assert '1 state,' in str_1d  # Singular
+        assert '3 states' in str_3d  # Plural
+
+
+# ============================================================================
+# Test Conversion Utilities
+# ============================================================================
+
+
+class TestConversionUtilities:
+    """Test conversion to deterministic system."""
+    
+    def test_to_deterministic(self):
+        """Test extracting deterministic (drift-only) system."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        
+        det_system = system.to_deterministic()
+        
+        # Should have same drift
+        assert det_system.nx == system.nx
+        assert det_system.nu == system.nu
+        
+        # Evaluate at same point
+        x = np.array([2.0])
+        u = np.array([0.5])
+        
+        f_stochastic = system.drift(x, u)
+        f_deterministic = det_system(x, u)
+        
+        np.testing.assert_array_almost_equal(f_stochastic, f_deterministic)
+
+
+# ============================================================================
+# Test Integration with Parent Class
+# ============================================================================
+
+
+class TestParentIntegration:
+    """Test integration with SymbolicDynamicalSystem parent."""
+    
+    def test_inherits_backend_methods(self):
+        """Test that backend methods are inherited."""
+        system = OrnsteinUhlenbeck()
+        
+        # Should have parent's backend methods
+        assert hasattr(system, 'set_default_backend')
+        assert hasattr(system, 'to_device')
+        assert hasattr(system, 'get_backend_info')
+        assert hasattr(system, 'compile')
+    
+    def test_set_default_backend(self):
+        """Test setting default backend (inherited)."""
+        system = OrnsteinUhlenbeck()
+        
+        system.set_default_backend('numpy')
+        assert system._default_backend == 'numpy'
+    
+    def test_equilibrium_management(self):
+        """Test equilibrium management (inherited from parent)."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        # Should have equilibria handler
+        assert hasattr(system, 'equilibria')
+        
+        # Add equilibrium (x=0, u=0 is equilibrium for O-U)
+        system.add_equilibrium(
+            'origin',
+            x_eq=np.array([0.0]),
+            u_eq=np.array([0.0]),
+            verify=True
+        )
+        
+        x_eq = system.equilibria.get_x('origin')
+        assert x_eq is not None
+        np.testing.assert_almost_equal(x_eq, np.array([0.0]))
+    
+    def test_parent_forward_method_works(self):
+        """Test that parent's forward() method still works."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        x = np.array([1.0])
+        u = np.array([0.0])
+        
+        # Parent's forward method
+        f1 = system.forward(x, u)
+        
+        # Our drift method
+        f2 = system.drift(x, u)
+        
+        np.testing.assert_array_almost_equal(f1, f2)
+
+
+# ============================================================================
+# Test Parameter Usage Best Practices
+# ============================================================================
+
+
+class TestParameterBestPractices:
+    """Test that systems follow parameter best practices."""
+    
+    def test_all_constructor_params_used(self):
+        """Test that all constructor parameters are used in dynamics."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # Check that parameters are in the symbolic expressions
+        drift_symbols = system._f_sym.free_symbols
+        diffusion_symbols = system.diffusion_expr.free_symbols
+        
+        param_symbols = set(system.parameters.keys())
+        used_symbols = drift_symbols | diffusion_symbols
+        
+        # All parameters should be used
+        assert param_symbols.issubset(used_symbols)
+    
+    def test_no_hardcoded_values_in_drift(self):
+        """Test that drift uses symbolic parameters, not hardcoded values."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # Parameters dict should not be empty
+        assert len(system.parameters) > 0
+        
+        # Check that alpha_sym and sigma_sym are in parameters
+        param_names = {str(k) for k in system.parameters.keys()}
+        assert 'alpha' in param_names
+        assert 'sigma' in param_names
+    
+    def test_no_hardcoded_values_in_diffusion(self):
+        """Test that diffusion uses symbolic parameters."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        # sigma should be a parameter symbol
+        diffusion_symbols = system.diffusion_expr.free_symbols
+        param_symbols = set(system.parameters.keys())
+        
+        # At least one parameter should appear in diffusion
+        assert len(diffusion_symbols & param_symbols) > 0
+
+
+# ============================================================================
+# Test Edge Cases
+# ============================================================================
+
+
+class TestEdgeCases:
+    """Test edge cases and special scenarios."""
+    
+    def test_single_state_single_noise(self):
+        """Test minimal 1D system."""
+        system = OrnsteinUhlenbeck()
+        
+        assert system.nx == 1
+        assert system.nw == 1
+        
+        # Evaluate
+        f = system.drift(np.array([1.0]), np.array([0.0]))
+        g = system.diffusion(np.array([1.0]), np.array([0.0]))
+        
+        assert f is not None
+        assert g is not None
+    
+    def test_rectangular_diffusion(self):
+        """Test system with more states than noise sources."""
+        
+        class RectangularSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x1, x2, x3 = sp.symbols('x1 x2 x3')
+                u = sp.symbols('u')
+                
+                self.state_vars = [x1, x2, x3]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[x2], [x3], [-x1 + u]])
+                self.parameters = {}
+                self.order = 1
+                
+                # (3, 2) diffusion matrix
+                self.diffusion_expr = sp.Matrix([
+                    [0.1, 0.0],
+                    [0.0, 0.2],
+                    [0.1, 0.1]
+                ])
+        
+        system = RectangularSystem()
+        
+        assert system.nx == 3
+        assert system.nw == 2
+        
+        g = system.diffusion(np.array([1.0, 2.0, 3.0]), np.array([0.0]))
+        assert g.shape == (3, 2)
+    
+    def test_parameter_variation(self):
+        """Test creating systems with different parameter values."""
+        system1 = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        system2 = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # Different parameter values
+        assert system1.parameters != system2.parameters
+        
+        # Different numerical behavior
+        x = np.array([1.0])
+        u = np.array([0.0])
+        
+        f1 = system1.drift(x, u)
+        f2 = system2.drift(x, u)
+        
+        assert not np.allclose(f1, f2)
+
+
+# ============================================================================
+# Test Integration Workflows
+# ============================================================================
+
+
+class TestIntegrationWorkflows:
+    """Integration tests combining multiple features."""
+    
+    def test_full_workflow_additive(self):
+        """Test complete workflow for additive noise system."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # 1. Check noise type
+        assert system.is_additive_noise()
+        assert system.get_noise_type() == NoiseType.ADDITIVE
+        
+        # 2. Get recommendations
+        solvers = system.recommend_solvers('jax')
+        assert len(solvers) > 0
+        
+        # 3. Optimize for additive noise
+        assert system.can_optimize_for_additive()
+        G = system.get_constant_noise('numpy')
+        assert G.shape == (1, 1)
+        
+        # 4. Evaluate drift and diffusion
+        x = np.array([2.0])
+        u = np.array([0.5])
+        
+        f = system.drift(x, u)
+        g = system.diffusion(x, u)
+        
+        # For additive, diffusion should match constant
+        np.testing.assert_array_almost_equal(g, G)
+        
+        # 5. Get comprehensive info
+        info = system.get_info()
+        assert info['noise']['is_additive']
+        assert info['system_type'] == 'StochasticDynamicalSystem'
+        
+        # 6. Compile for performance
+        timings = system.compile_all(backends=['numpy'], verbose=False)
+        assert timings['numpy']['drift'] is not None
+        assert timings['numpy']['diffusion'] is not None
+    
+    def test_full_workflow_multiplicative(self):
+        """Test complete workflow for multiplicative noise system."""
+        system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
+        
+        # 1. Check noise type
+        assert system.is_multiplicative_noise()
+        assert system.depends_on_state()
+        
+        # 2. Cannot optimize for additive
+        assert not system.can_optimize_for_additive()
+        
+        with pytest.raises(ValueError):
+            system.get_constant_noise('numpy')
+        
+        # 3. Get recommendations
+        solvers = system.recommend_solvers('torch')
+        assert len(solvers) > 0
+        
+        # 4. Evaluate at different states
+        x1 = np.array([1.0])
+        x2 = np.array([2.0])
+        u = np.array([0.0])
+        
+        g1 = system.diffusion(x1, u)
+        g2 = system.diffusion(x2, u)
+        
+        # Should be different (state-dependent)
+        assert not np.allclose(g1, g2)
+        
+        # 5. Compile and check
+        timings = system.compile_all(backends=['numpy'], verbose=False)
+        assert timings['numpy']['diffusion'] is not None
+        
+        # 6. Get info
+        info = system.get_info()
+        assert info['noise']['is_multiplicative']
+        assert len(info['optimization_opportunities']) > 0
+    
+    def test_simulation_components(self):
+        """Test that system has components needed for simulation."""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        # Should have diffusion handler
+        assert system.diffusion_handler is not None
+        
+        # Should have noise characteristics
+        assert system.noise_characteristics is not None
+        
+        # Should be able to evaluate both terms
+        x = np.array([1.0])
+        u = np.array([0.0])
+        
+        f = system.drift(x, u)
+        g = system.diffusion(x, u)
+        
+        assert f.shape == (1,)
+        assert g.shape == (1, 1)
+
+
+# ============================================================================
+# Test Best Practices Examples
+# ============================================================================
+
+
+class TestBestPracticesExamples:
+    """Test that example systems follow best practices."""
+    
+    def test_ornstein_uhlenbeck_best_practices(self):
+        """Test O-U example follows all best practices."""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # ✅ All constructor params used
+        assert len(system.parameters) == 2
+        
+        # ✅ Parameters dict not empty
+        assert system.parameters != {}
+        
+        # ✅ Uses symbolic parameters (not hardcoded)
+        param_names = {str(k) for k in system.parameters.keys()}
+        assert 'alpha' in param_names
+        assert 'sigma' in param_names
+        
+        # ✅ Diffusion uses symbolic parameter
+        diffusion_symbols = system.diffusion_expr.free_symbols
+        assert len(diffusion_symbols & set(system.parameters.keys())) > 0
+    
+    def test_gbm_best_practices(self):
+        """Test GBM example follows best practices."""
+        system = GeometricBrownianMotion(mu=0.15, sigma=0.25)
+        
+        # ✅ All parameters used
+        assert len(system.parameters) == 2
+        
+        # ✅ Both drift and diffusion use parameters
+        drift_symbols = system._f_sym.free_symbols
+        diffusion_symbols = system.diffusion_expr.free_symbols
+        param_symbols = set(system.parameters.keys())
+        
+        # mu used in drift
+        assert len(drift_symbols & param_symbols) > 0
+        # sigma used in diffusion
+        assert len(diffusion_symbols & param_symbols) > 0
+
+
+# ============================================================================
+# Test Invalid Systems (Anti-Patterns)
+# ============================================================================
+
+
+class TestInvalidSystems:
+    """Test that anti-patterns are caught."""
+    
+    def test_unused_parameter_warning(self):
+        """Test warning for unused parameters in constructor."""
+        
+        class UnusedParamSystem(StochasticDynamicalSystem):
+            def define_system(self, alpha=1.0, unused=99.0):  # unused not used!
+                x, u = sp.symbols('x u')
+                alpha_sym = sp.symbols('alpha', positive=True)
+                
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-alpha_sym * x + u]])
+                self.parameters = {alpha_sym: alpha}  # unused not in dict!
+                self.order = 1
+                
+                self.diffusion_expr = sp.Matrix([[0.5]])  # Hardcoded!
+        
+        # This should create a warning (if we add that check)
+        # For now, it just works but is bad practice
+        system = UnusedParamSystem(alpha=1.0, unused=999.0)
+        assert system is not None  # Works but not ideal
+    
+    def test_empty_parameters_dict(self):
+        """Test system with empty parameters (anti-pattern but valid)."""
+        
+        class EmptyParamsSystem(StochasticDynamicalSystem):
+            def define_system(self):
+                x, u = sp.symbols('x u')
+                
+                self.state_vars = [x]
+                self.control_vars = [u]
+                self._f_sym = sp.Matrix([[-x + u]])  # Implicit -1 coefficient
+                self.parameters = {}  # Empty!
+                self.order = 1
+                
+                self.diffusion_expr = sp.Matrix([[0.5]])  # Hardcoded!
+        
+        # Valid but not best practice
+        system = EmptyParamsSystem()
+        assert system.parameters == {}
+
+
+# ============================================================================
+# Run Tests
+# ============================================================================
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])
