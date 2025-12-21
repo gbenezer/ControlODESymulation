@@ -114,42 +114,70 @@ class GeometricBrownianMotion(StochasticDynamicalSystem):
 class DiagonalNoiseSystem(StochasticDynamicalSystem):
     """3D system with diagonal (independent) noise sources."""
     
-    def define_system(self, param1_val = -1.0):
-        """Define system with independent noise per state."""
+    def define_system(self, param1_val=-1.0, sigma1=0.1, sigma2=0.2, sigma3=0.3):
+        """
+        Define system with independent noise per state.
+        
+        Parameters
+        ----------
+        param1_val : float
+            Drift parameter
+        sigma1, sigma2, sigma3 : float
+            Noise intensities for each state (multiplicative coefficients)
+        """
         x1, x2, x3 = sp.symbols('x1 x2 x3', real=True)
         u = sp.symbols('u', real=True)
         param1_sym = sp.symbols('param1', real=True)
+        sigma1_sym, sigma2_sym, sigma3_sym = sp.symbols('sigma1 sigma2 sigma3', positive=True)
         
         # Drift
         self.state_vars = [x1, x2, x3]
         self.control_vars = [u]
         self._f_sym = sp.Matrix([x2, x3, param1_sym * x1 + u])
-        self.parameters = {param1_sym: param1_val}
+        
+        # CRITICAL: Include ALL symbolic parameters (drift + diffusion)
+        self.parameters = {
+            param1_sym: param1_val,
+            sigma1_sym: sigma1,
+            sigma2_sym: sigma2,
+            sigma3_sym: sigma3
+        }
         self.order = 1
         
-        # Diagonal diffusion
+        # Diagonal diffusion using symbolic parameters
         self.diffusion_expr = sp.Matrix([
-            [0.1 * x1, 0, 0],
-            [0, 0.2 * x2, 0],
-            [0, 0, 0.3 * x3]
+            [sigma1_sym * x1, 0, 0],
+            [0, sigma2_sym * x2, 0],
+            [0, 0, sigma3_sym * x3]
         ])
+        self.sde_type = 'ito'
 
 
 class StratonovichSystem(StochasticDynamicalSystem):
     """System using Stratonovich interpretation."""
     
-    def define_system(self, sigma_val = 0.5):
-        """Define Stratonovich SDE."""
+    def define_system(self, sigma_val=0.5):
+        """
+        Define Stratonovich SDE.
+        
+        Parameters
+        ----------
+        sigma_val : float
+            Noise intensity
+        """
         x = sp.symbols('x')
         u = sp.symbols('u')
-        sigma_sym = sp.symbols("sigma")
+        sigma_sym = sp.symbols('sigma', positive=True)  # Add positive assumption
         
         self.state_vars = [x]
         self.control_vars = [u]
         self._f_sym = sp.Matrix([[-x + u]])
+        
+        # Use symbolic parameter, not hardcoded
         self.parameters = {sigma_sym: sigma_val}
         self.order = 1
         
+        # Use symbolic parameter in diffusion
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self.sde_type = 'stratonovich'  # String-based API
 
