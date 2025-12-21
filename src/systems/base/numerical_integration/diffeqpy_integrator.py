@@ -245,15 +245,16 @@ class DiffEqPyIntegrator(IntegratorBase):
                 "   python -c 'from diffeqpy import install; install()'"
             )
         
-        # Validate algorithm exists
-        try:
-            self._get_algorithm()
-        except Exception as e:
-            raise ValueError(
-                f"Invalid algorithm '{algorithm}'. "
-                f"Use list_algorithms() to see available options.\n"
-                f"Error: {e}"
-            )
+        # Validate algorithm exists (but don't fail for auto-switching algorithms)
+        if 'Auto' not in algorithm and '(' not in algorithm:
+            try:
+                self._get_algorithm()
+            except Exception as e:
+                raise ValueError(
+                    f"Invalid algorithm '{algorithm}'. "
+                    f"Use list_algorithms() to see available options.\n"
+                    f"Error: {e}"
+                )
     
     @property
     def name(self) -> str:
@@ -358,10 +359,8 @@ class DiffEqPyIntegrator(IntegratorBase):
             x0=x,
             u_func=lambda t, x_cur: u,
             t_span=(0.0, step_size),
-            t_eval=np.array([step_size])
+            t_eval=np.array([0.0, step_size])
         )
-        
-        self._stats['total_steps'] += 1
         
         return result.x[-1]
     
@@ -441,6 +440,9 @@ class DiffEqPyIntegrator(IntegratorBase):
                 nsteps=0,
             )
         
+        # Track function evaluations for this integration
+        fev_count = [0]
+        
         # Define ODE function for Julia
         # Julia signature: du = f(u, p, t)
         def ode_func(u_val, p, t):
@@ -472,7 +474,7 @@ class DiffEqPyIntegrator(IntegratorBase):
             dx = self.system(x_np, u_np, backend='numpy')
             
             # Track function evaluations
-            self._stats['total_fev'] += 1
+            fev_count[0] += 1
             
             return dx
         
@@ -551,7 +553,10 @@ class DiffEqPyIntegrator(IntegratorBase):
             
             # Update statistics
             nsteps = len(t_out) - 1
+            nfev = fev_count[0]
+            
             self._stats['total_steps'] += nsteps
+            self._stats['total_fev'] += nfev
             
             elapsed = time.time() - start_time
             self._stats['total_time'] += elapsed
@@ -561,7 +566,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 x=x_out,
                 success=success,
                 message=message,
-                nfev=self._stats['total_fev'],
+                nfev=nfev,
                 nsteps=nsteps,
                 integration_time=elapsed,
                 algorithm=self.algorithm,
@@ -577,7 +582,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 x=x0[None, :] if x0.ndim == 1 else x0,
                 success=False,
                 message=f"Integration failed: {str(e)}",
-                nfev=self._stats['total_fev'],
+                nfev=fev_count[0],
                 nsteps=0,
                 integration_time=elapsed,
             )
