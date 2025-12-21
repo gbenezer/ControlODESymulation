@@ -705,7 +705,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
 
 #### Phase 5:
 - Start to address some ultimate goals of the library
-    - Automatic Gymnasium, PyBullet, and Brax environment construction
+    - Automatic Gymnasium, PyBullet, and/or Brax environment construction
     - Synthetic data generation and export
     - Integration with neural network verification libraries (VNN-Lib, Auto-Lirpa/CROWN, NFL-Veripy)
     - Re-introduce capabilities for (generalized) Lyapunov function/controller/observer synthesis, design and verification based on [Lyapunov-stable Neural Control for State and Output Feedback: A Novel Formulation](https://proceedings.mlr.press/v235/yang24f.html) and [Certifying Stability of Reinforcement Learning Policies using Generalized Lyapunov Functions](https://arxiv.org/abs/2505.10947v3)
@@ -736,8 +736,12 @@ If you use this library in your research, please cite:
 This library builds on:
 - **SymPy**: Symbolic mathematics
 - **NumPy/SciPy**: Numerical computing
+    - **DiffEqPy** for advanced ODE/SDE integration with NumPy
 - **PyTorch**: Automatic differentiation and GPU acceleration
+    - **torchdiffeq** for PyTorch compatible ODE integration
+    - **TorchSDE** for PyTorch compatible SDE integration
 - **JAX**: JIT compilation and functional programming
+    - **Diffrax** for Jax compatible ODE/SDE integration
 - **Plotly**: Interactive visualization
 - **python-control**: Control theory algorithms
 
