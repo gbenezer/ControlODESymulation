@@ -11,6 +11,7 @@ Tests cover all validation checks:
 7. Naming conventions
 8. Usage patterns
 9. ValidationResult integration
+10. Autonomous system validation
 """
 
 import pytest
@@ -30,7 +31,7 @@ from src.systems.base.utils.symbolic_validator import (
 
 
 class MockValidSystem:
-    """Valid system for testing"""
+    """Valid controlled system for testing"""
     
     def __init__(self):
         x = sp.symbols('x', real=True)
@@ -46,8 +47,40 @@ class MockValidSystem:
         self.order = 1
 
 
+class MockAutonomousSystem:
+    """Valid autonomous system for testing"""
+    
+    def __init__(self):
+        x = sp.symbols('x', real=True)
+        a = sp.symbols('a', real=True, positive=True)
+        
+        self.state_vars = [x]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([-a * x])
+        self._h_sym = None
+        self.parameters = {a: 2.0}
+        self.output_vars = []
+        self.order = 1
+
+
+class MockAutonomous2D:
+    """Valid 2D autonomous system"""
+    
+    def __init__(self):
+        x1, x2 = sp.symbols('x1 x2', real=True)
+        k = sp.symbols('k', real=True, positive=True)
+        
+        self.state_vars = [x1, x2]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([x2, -k * x1])
+        self._h_sym = None
+        self.parameters = {k: 10.0}
+        self.output_vars = []
+        self.order = 1
+
+
 class MockSecondOrderSystem:
-    """Valid second-order system"""
+    """Valid second-order controlled system"""
     
     def __init__(self):
         q, q_dot = sp.symbols('q q_dot', real=True)
@@ -100,12 +133,12 @@ class TestValidationResult:
 
 
 # ============================================================================
-# Test Class 1: Required Attributes
+# Test Class 1: Required Attributes (Controlled Systems)
 # ============================================================================
 
 
-class TestRequiredAttributes:
-    """Test validation of required attributes"""
+class TestRequiredAttributesControlled:
+    """Test validation of required attributes for controlled systems"""
     
     def test_valid_system_passes(self):
         """Test that valid system passes validation"""
@@ -164,16 +197,6 @@ class TestRequiredAttributes:
         with pytest.raises(ValidationError, match="Missing required attribute 'control_vars'"):
             validator.validate(raise_on_error=True)
     
-    def test_empty_control_vars(self):
-        """Test error when control_vars is empty"""
-        system = MockValidSystem()
-        system.control_vars = []
-        
-        validator = SymbolicValidator(system)
-        
-        with pytest.raises(ValidationError, match="control_vars is empty"):
-            validator.validate(raise_on_error=True)
-    
     def test_missing_f_sym(self):
         """Test error when _f_sym is missing"""
         system = MockValidSystem()
@@ -216,7 +239,47 @@ class TestRequiredAttributes:
 
 
 # ============================================================================
-# Test Class 2: Type Validation
+# Test Class 2: Required Attributes (Autonomous Systems)
+# ============================================================================
+
+
+class TestRequiredAttributesAutonomous:
+    """Test validation of required attributes for autonomous systems"""
+    
+    def test_valid_autonomous_system_passes(self):
+        """Test that valid autonomous system passes validation"""
+        system = MockAutonomousSystem()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        assert result.is_valid
+    
+    def test_empty_control_vars_allowed(self):
+        """Test that empty control_vars is allowed for autonomous systems"""
+        system = MockAutonomousSystem()
+        # control_vars is already []
+        
+        validator = SymbolicValidator(system)
+        result = validator.validate(raise_on_error=False)
+        
+        assert result.is_valid
+        assert result.info['nu'] == 0
+        assert result.info.get('is_autonomous', False)
+    
+    def test_autonomous_2d_system_passes(self):
+        """Test that 2D autonomous system passes validation"""
+        system = MockAutonomous2D()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        
+        assert result.is_valid
+        assert result.info['nx'] == 2
+        assert result.info['nu'] == 0
+
+
+# ============================================================================
+# Test Class 3: Type Validation
 # ============================================================================
 
 
@@ -319,7 +382,7 @@ class TestTypeValidation:
 
 
 # ============================================================================
-# Test Class 3: Dimension Validation
+# Test Class 4: Dimension Validation
 # ============================================================================
 
 
@@ -427,12 +490,12 @@ class TestDimensionValidation:
 
 
 # ============================================================================
-# Test Class 4: Symbol Validation
+# Test Class 5: Symbol Validation (Controlled Systems)
 # ============================================================================
 
 
-class TestSymbolValidation:
-    """Test symbolic expression validation"""
+class TestSymbolValidationControlled:
+    """Test symbolic expression validation for controlled systems"""
     
     def test_undefined_symbol_in_f_sym(self):
         """Test error when _f_sym contains undefined symbol"""
@@ -494,7 +557,46 @@ class TestSymbolValidation:
 
 
 # ============================================================================
-# Test Class 5: Parameter Validation
+# Test Class 6: Symbol Validation (Autonomous Systems)
+# ============================================================================
+
+
+class TestSymbolValidationAutonomous:
+    """Test symbolic expression validation for autonomous systems"""
+    
+    def test_autonomous_no_control_dependency(self):
+        """Test that autonomous system dynamics don't depend on control"""
+        system = MockAutonomousSystem()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        
+        # Should pass - no control variables to depend on
+        assert result.is_valid
+    
+    def test_autonomous_undefined_symbol_error(self):
+        """Test error when autonomous system has undefined symbol"""
+        system = MockAutonomousSystem()
+        mystery = sp.symbols('mystery')
+        x = sp.symbols('x')
+        system._f_sym = sp.Matrix([x + mystery])
+        
+        validator = SymbolicValidator(system)
+        
+        with pytest.raises(ValidationError, match="undefined symbols"):
+            validator.validate(raise_on_error=True)
+    
+    def test_autonomous_2d_valid(self):
+        """Test that 2D autonomous system is symbolically valid"""
+        system = MockAutonomous2D()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        assert result.is_valid
+
+
+# ============================================================================
+# Test Class 7: Parameter Validation
 # ============================================================================
 
 
@@ -534,7 +636,7 @@ class TestParameterValidation:
 
 
 # ============================================================================
-# Test Class 6: Physical Constraints
+# Test Class 8: Physical Constraints
 # ============================================================================
 
 
@@ -612,7 +714,7 @@ class TestPhysicalConstraints:
 
 
 # ============================================================================
-# Test Class 7: Naming Conventions
+# Test Class 9: Naming Conventions
 # ============================================================================
 
 
@@ -666,7 +768,7 @@ class TestNamingConventions:
 
 
 # ============================================================================
-# Test Class 8: ValidationResult Return
+# Test Class 10: ValidationResult Return
 # ============================================================================
 
 
@@ -711,6 +813,17 @@ class TestValidationResultReturn:
         assert result.info['nx'] == 1
         assert result.info['nu'] == 1
     
+    def test_result_info_autonomous_flag(self):
+        """Test that info contains autonomous flag for autonomous systems"""
+        system = MockAutonomousSystem()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        
+        assert 'is_autonomous' in result.info
+        assert result.info['is_autonomous'] is True
+        assert result.info['nu'] == 0
+    
     def test_result_info_contains_order(self):
         """Test that info contains order"""
         system = MockSecondOrderSystem()
@@ -750,7 +863,7 @@ class TestValidationResultReturn:
 
 
 # ============================================================================
-# Test Class 9: Static Method
+# Test Class 11: Static Method
 # ============================================================================
 
 
@@ -786,10 +899,18 @@ class TestStaticMethod:
         
         result = SymbolicValidator.validate_system(system, raise_on_error=False)
         assert not result.is_valid
+    
+    def test_static_validate_autonomous(self):
+        """Test static method on autonomous system"""
+        system = MockAutonomousSystem()
+        
+        result = SymbolicValidator.validate_system(system, raise_on_error=False)
+        assert result.is_valid
+        assert result.info['is_autonomous']
 
 
 # ============================================================================
-# Test Class 10: String Representations
+# Test Class 12: String Representations
 # ============================================================================
 
 
@@ -817,7 +938,7 @@ class TestStringRepresentations:
 
 
 # ============================================================================
-# Test Class 11: Integration Tests
+# Test Class 13: Integration Tests
 # ============================================================================
 
 
@@ -900,10 +1021,23 @@ class TestIntegration:
         assert result.is_valid
         assert result.info['has_output']
         assert result.info['ny'] == 1
+    
+    def test_autonomous_system_integration(self):
+        """Test autonomous system full validation"""
+        system = MockAutonomous2D()
+        validator = SymbolicValidator(system)
+        
+        result = validator.validate(raise_on_error=False)
+        
+        assert result.is_valid
+        assert result.info['is_autonomous']
+        assert result.info['nu'] == 0
+        assert result.info['nx'] == 2
+        assert len(result.errors) == 0
 
 
 # ============================================================================
-# Test Class 12: Error Message Formatting
+# Test Class 14: Error Message Formatting
 # ============================================================================
 
 

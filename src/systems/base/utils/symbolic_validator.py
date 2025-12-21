@@ -359,17 +359,20 @@ class SymbolicValidator:
                 and hasattr(system, '_f_sym') and hasattr(system, 'parameters')):
             return
         
-        if not (system.state_vars and system.control_vars 
+        # Allow control_vars to be empty (autonomous systems)
+        if not (system.state_vars and system.control_vars is not None
                 and system._f_sym is not None 
                 and isinstance(system._f_sym, sp.Matrix)):
             return
         
-        # Verify state_vars and control_vars are actually Symbols before using them
-        # (If not, type validation will catch it, don't fail here too)
+        # Verify state_vars are actually Symbols before using them
         if not all(isinstance(v, sp.Symbol) for v in system.state_vars):
             return
-        if not all(isinstance(v, sp.Symbol) for v in system.control_vars):
+        
+        # Verify control_vars are Symbols (if not empty)
+        if system.control_vars and not all(isinstance(v, sp.Symbol) for v in system.control_vars):
             return
+        
         if system.parameters and not all(isinstance(k, sp.Symbol) for k in system.parameters.keys()):
             return
         
@@ -384,7 +387,7 @@ class SymbolicValidator:
         # Expected symbols: state + control + parameters
         expected_symbols = set(
             system.state_vars + 
-            system.control_vars + 
+            system.control_vars +  # Empty list is fine for autonomous systems
             list(system.parameters.keys())
         )
         
@@ -414,13 +417,14 @@ class SymbolicValidator:
                 
                 state_and_params = set(system.state_vars + list(system.parameters.keys()))
                 
-                # Output should NOT depend on control
-                control_symbols = set(system.control_vars)
-                if h_symbols & control_symbols:
-                    self._errors.append(
-                        f"_h_sym contains control variables {h_symbols & control_symbols}. "
-                        f"Output h(x) should only depend on states, not controls."
-                    )
+                # Output should NOT depend on control (only check if control_vars is not empty)
+                if system.control_vars:
+                    control_symbols = set(system.control_vars)
+                    if h_symbols & control_symbols:
+                        self._errors.append(
+                            f"_h_sym contains control variables {h_symbols & control_symbols}. "
+                            f"Output h(x) should only depend on states, not controls."
+                        )
                 
                 # Check for undefined symbols in output
                 undefined = h_symbols - state_and_params
@@ -590,11 +594,14 @@ class SymbolicValidator:
         
         # Basic dimensions - ALWAYS include these (safe operations)
         try:
-            if hasattr(system, 'state_vars') and system.state_vars:
+            if hasattr(system, 'state_vars') and system.state_vars is not None:
                 info['nx'] = len(system.state_vars)
             
-            if hasattr(system, 'control_vars') and system.control_vars:
+            # ALWAYS include nu, even if control_vars is empty (autonomous systems)
+            if hasattr(system, 'control_vars') and system.control_vars is not None:
                 info['nu'] = len(system.control_vars)
+                # Add autonomous flag
+                info['is_autonomous'] = (len(system.control_vars) == 0)
             
             if hasattr(system, 'output_vars') and system.output_vars:
                 info['ny'] = len(system.output_vars)
