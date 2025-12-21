@@ -199,8 +199,8 @@ class SymbolicValidator:
         # Check control_vars exists and is not empty
         if not hasattr(system, 'control_vars'):
             self._errors.append("Missing required attribute 'control_vars'")
-        elif not system.control_vars:
-            self._errors.append("control_vars is empty - at least one control variable required")
+        elif system.control_vars is None:
+            self._errors.append("control_vars must be a list (can be empty: [])")
         
         # Check _f_sym exists and is defined
         if not hasattr(system, '_f_sym'):
