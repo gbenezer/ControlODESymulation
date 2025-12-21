@@ -747,7 +747,7 @@ This library builds on:
 - **Plotly**: Interactive visualization
 - **python-control**: Control theory algorithms
 
-This library was inspired by and built from a class project for CS 7268, Verifiable Machine Learning, taught by Professor Michael Everett at Northeastern University in Fall 2025 (found [here](https://github.com/gbenezer/Lyapunov_Stable_NN_Controllers_Custom_Dynamics))
+This library was inspired by and built from a class project for CS 7268, Verifiable Machine Learning, taught by Professor [Michael Everett](https://mfe7.github.io/) at Northeastern University in Fall 2025 (found [here](https://github.com/gbenezer/Lyapunov_Stable_NN_Controllers_Custom_Dynamics))
 
 ---
 
