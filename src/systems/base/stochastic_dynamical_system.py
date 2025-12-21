@@ -76,6 +76,47 @@ specify both drift and diffusion:
 
 This pattern is consistent with SymbolicDynamicalSystem!
 
+Pure Diffusion Processes
+------------------------
+Systems with zero drift (f = 0) are fully supported. These are useful for:
+- Brownian motion (pure random walk)
+- Diffusion-only processes in physics
+- Noise models for stochastic control
+
+To define a pure diffusion process, set the drift to zero:
+
+    class PureBrownianMotion(StochasticDynamicalSystem):
+        '''2D Brownian motion with no drift.'''
+        
+        def define_system(self, sigma1=0.5, sigma2=0.3):
+            x1, x2 = sp.symbols('x1 x2', real=True)
+            sigma1_sym = sp.symbols('sigma1', positive=True)
+            sigma2_sym = sp.symbols('sigma2', positive=True)
+            
+            # Zero drift
+            self.state_vars = [x1, x2]
+            self.control_vars = []  # Autonomous
+            self._f_sym = sp.Matrix([[0], [0]])  # Zero drift!
+            self.parameters = {sigma1_sym: sigma1, sigma2_sym: sigma2}
+            self.order = 1
+            
+            # Diffusion only
+            self.diffusion_expr = sp.Matrix([
+                [sigma1_sym, 0],
+                [0, sigma2_sym]
+            ])
+            self.sde_type = 'ito'
+    
+    system = PureBrownianMotion(sigma1=0.5, sigma2=0.3)
+    
+    # Evaluate
+    x = np.array([1.0, 2.0])
+    f = system.drift(x)  # Returns [0, 0]
+    g = system.diffusion(x)  # Returns diffusion matrix
+
+Note: Pure diffusion processes are typically autonomous (no control). The drift
+being zero means the system has no deterministic evolution - only stochastic motion.
+
 Examples
 --------
 >>> # Ornstein-Uhlenbeck process (additive noise)
@@ -118,6 +159,30 @@ True
 True
 >>> gbm.recommend_solvers('jax')
 ['euler_heun', 'heun', 'reversible_heun']
+>>> 
+>>> # Pure Brownian motion (no drift, autonomous)
+>>> class BrownianMotion(StochasticDynamicalSystem):
+...     def define_system(self, sigma=1.0):
+...         x = sp.symbols('x')
+...         sigma_sym = sp.symbols('sigma', positive=True)
+...         
+...         self.state_vars = [x]
+...         self.control_vars = []  # No control
+...         self._f_sym = sp.Matrix([[0]])  # No drift!
+...         self.parameters = {sigma_sym: sigma}
+...         self.order = 1
+...         
+...         self.diffusion_expr = sp.Matrix([[sigma_sym]])
+>>> 
+>>> bm = BrownianMotion(sigma=0.5)
+>>> bm.is_additive_noise()
+True
+>>> # Drift is zero
+>>> f = bm.drift(np.array([1.0]))
+>>> print(f)  # [0.0]
+>>> # Only diffusion matters
+>>> g = bm.diffusion(np.array([1.0]))
+>>> print(g)  # [[0.5]]
 """
 
 from typing import List, Optional, Dict, Any, Union
@@ -161,6 +226,18 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         Number of independent Wiener processes
     is_stochastic : bool
         Always True for this class
+    
+    Pure Diffusion Processes
+    ------------------------
+    Systems with zero drift (f = 0) are fully supported. To define a pure
+    diffusion process, set _f_sym to a zero matrix:
+    
+        self._f_sym = sp.Matrix([[0], [0], ...])  # Zero drift for each state
+    
+    This is valid for:
+    - Brownian motion (pure random walk)
+    - Diffusion-only physical processes
+    - Noise models for stochastic control
     
     Examples
     --------
