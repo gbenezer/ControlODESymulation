@@ -89,6 +89,34 @@ class CustomOutputSystem(SymbolicDynamicalSystem):
         self.parameters = {}
         self.order = 1
 
+class SimpleAutonomousSystem(SymbolicDynamicalSystem):
+    """Simple autonomous system: dx/dt = -a*x"""
+
+    def define_system(self, a=2.0):
+        a_sym = sp.symbols("a", real=True, positive=True)
+        x = sp.symbols("x", real=True)
+
+        dx = -a_sym * x
+
+        self.state_vars = [x]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([dx])
+        self.parameters = {a_sym: a}
+        self.order = 1
+
+
+class Autonomous2DSystem(SymbolicDynamicalSystem):
+    """2D autonomous system: Free oscillator"""
+
+    def define_system(self, k=10.0):
+        k_sym = sp.symbols("k", real=True, positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+
+        self.state_vars = [x1, x2]
+        self.control_vars = []  # AUTONOMOUS
+        self._f_sym = sp.Matrix([x2, -k_sym * x1])
+        self.parameters = {k_sym: k}
+        self.order = 1
 
 # ============================================================================
 # Test Class 1: Initialization and Validation
@@ -130,18 +158,19 @@ class TestInitializationAndValidation:
         with pytest.raises(ValueError, match="state_vars is empty"):
             BadSystem()
 
-    def test_validation_empty_control_vars(self):
-        """Test validation fails with empty control_vars"""
+    # This is allowed behavior for autonomous systems
+    # def test_validation_empty_control_vars(self):
+    #     """Test validation fails with empty control_vars"""
 
-        class BadSystem(SymbolicDynamicalSystem):
-            def define_system(self):
-                self.state_vars = [sp.symbols("x")]
-                self.control_vars = []  # Empty!
-                self._f_sym = sp.Matrix([sp.symbols("x")])
-                self.parameters = {}
+    #     class BadSystem(SymbolicDynamicalSystem):
+    #         def define_system(self):
+    #             self.state_vars = [sp.symbols("x")]
+    #             self.control_vars = []  # Empty!
+    #             self._f_sym = sp.Matrix([sp.symbols("x")])
+    #             self.parameters = {}
 
-        with pytest.raises(ValueError, match="control_vars is empty"):
-            BadSystem()
+    #     with pytest.raises(ValueError, match="control_vars is empty"):
+    #         BadSystem()
 
     def test_validation_missing_f_sym(self):
         """Test validation fails with missing _f_sym"""
@@ -1428,6 +1457,467 @@ class TestProperties:
         system = SimpleSecondOrderSystem()
         assert system.nq == 1  # nx=2, order=2, so nq=1
 
+# ============================================================================
+# Test Class 16: Autonomous Systems - Initialization
+# ============================================================================
+
+
+class TestAutonomousInitialization:
+    """Test autonomous system initialization and validation"""
+
+    def test_autonomous_initialization(self):
+        """Test that autonomous system initializes successfully"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        assert system._initialized is True
+        assert system.nx == 1
+        assert system.nu == 0  # No control
+        assert system.order == 1
+        assert len(system.control_vars) == 0
+
+    def test_autonomous_2d_initialization(self):
+        """Test 2D autonomous system initialization"""
+        system = Autonomous2DSystem(k=10.0)
+
+        assert system.nx == 2
+        assert system.nu == 0
+        assert len(system.control_vars) == 0
+
+    def test_autonomous_validation_passes(self):
+        """Test that autonomous systems pass validation"""
+        # Should not raise any errors
+        system = SimpleAutonomousSystem(a=2.0)
+        assert system._initialized is True
+
+    def test_empty_control_vars_allowed(self):
+        """Test that empty control_vars is explicitly allowed"""
+        system = SimpleAutonomousSystem()
+        
+        # Verify the system has empty control_vars
+        assert len(system.control_vars) == 0
+        assert system.nu == 0
+        
+        # Should initialize without errors
+        assert system._initialized is True
+
+
+# ============================================================================
+# Test Class 17: Autonomous Systems - Forward Dynamics
+# ============================================================================
+
+
+class TestAutonomousForwardDynamics:
+    """Test forward dynamics for autonomous systems"""
+
+    def test_forward_autonomous_numpy_no_u(self):
+        """Test autonomous system with no u argument"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = np.array([1.0])
+        
+        # Call without u argument
+        dx = system(x)
+
+        assert isinstance(dx, np.ndarray)
+        assert dx.shape == (1,)
+        # dx = -2*x = -2
+        assert np.allclose(dx, np.array([-2.0]))
+
+    def test_forward_autonomous_numpy_u_none(self):
+        """Test autonomous system with u=None"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = np.array([1.0])
+        
+        # Explicitly pass u=None
+        dx = system(x, u=None)
+
+        assert isinstance(dx, np.ndarray)
+        assert np.allclose(dx, np.array([-2.0]))
+
+    def test_forward_autonomous_2d(self):
+        """Test 2D autonomous system"""
+        system = Autonomous2DSystem(k=10.0)
+
+        x = np.array([0.1, 0.0])
+        
+        dx = system(x)
+
+        # dx = [x2, -k*x1] = [0.0, -1.0]
+        assert dx.shape == (2,)
+        assert np.allclose(dx, np.array([0.0, -1.0]))
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_forward_autonomous_torch(self):
+        """Test autonomous system with PyTorch"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = torch.tensor([1.0])
+        
+        dx = system(x)
+
+        assert isinstance(dx, torch.Tensor)
+        assert dx.shape == (1,)
+        assert torch.allclose(dx, torch.tensor([-2.0]))
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_forward_autonomous_jax(self):
+        """Test autonomous system with JAX"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = jnp.array([1.0])
+        
+        dx = system(x)
+
+        assert isinstance(dx, jnp.ndarray)
+        assert jnp.allclose(dx, jnp.array([-2.0]))
+
+    def test_forward_autonomous_batched(self):
+        """Test batched evaluation of autonomous system"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = np.array([[1.0], [2.0], [3.0]])
+        
+        dx = system(x)
+
+        assert dx.shape == (3, 1)
+        expected = np.array([[-2.0], [-4.0], [-6.0]])
+        assert np.allclose(dx, expected)
+
+    def test_autonomous_rejects_control(self):
+        """Test that autonomous system rejects control input"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = np.array([1.0])
+        u = np.array([0.5])  # Should be rejected
+        
+        with pytest.raises(ValueError, match="does not accept control input"):
+            system(x, u)
+
+    def test_controlled_requires_u(self):
+        """Test that controlled system requires u"""
+        system = SimpleFirstOrderSystem(a=2.0)
+
+        x = np.array([1.0])
+        
+        with pytest.raises(ValueError, match="requires control input"):
+            system(x)  # Missing u
+
+
+# ============================================================================
+# Test Class 18: Autonomous Systems - Linearization
+# ============================================================================
+
+
+class TestAutonomousLinearization:
+    """Test linearization for autonomous systems"""
+
+    def test_linearized_dynamics_autonomous_numpy(self):
+        """Test linearization of autonomous system"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = np.array([1.0])
+        
+        # For autonomous systems, u can be None or omitted
+        A, B = system.linearized_dynamics(x, u=None)
+
+        assert isinstance(A, np.ndarray)
+        assert isinstance(B, np.ndarray)
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)  # Empty B matrix
+
+        # df/dx = -a = -2
+        assert np.allclose(A, np.array([[-2.0]]))
+
+    def test_linearized_dynamics_autonomous_2d(self):
+        """Test linearization of 2D autonomous system"""
+        system = Autonomous2DSystem(k=10.0)
+
+        x = np.array([0.1, 0.0])
+        
+        A, B = system.linearized_dynamics(x)
+
+        assert A.shape == (2, 2)
+        assert B.shape == (2, 0)  # Empty B matrix
+
+        expected_A = np.array([[0, 1], [-10, 0]])
+        assert np.allclose(A, expected_A)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_linearized_dynamics_autonomous_torch(self):
+        """Test autonomous linearization with PyTorch"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = torch.tensor([1.0])
+        
+        A, B = system.linearized_dynamics(x)
+
+        assert isinstance(A, torch.Tensor)
+        assert isinstance(B, torch.Tensor)
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)
+        assert torch.allclose(A, torch.tensor([[-2.0]]))
+
+    def test_linearized_dynamics_symbolic_autonomous(self):
+        """Test symbolic linearization of autonomous system"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x_eq = sp.Matrix([0])
+        
+        A_sym, B_sym = system.linearized_dynamics_symbolic(x_eq, u_eq=None)
+
+        assert isinstance(A_sym, sp.Matrix)
+        assert isinstance(B_sym, sp.Matrix)
+        assert A_sym.shape == (1, 1)
+        assert B_sym.shape == (1, 0)  # Empty B
+
+        A_np = np.array(A_sym, dtype=float)
+        assert np.allclose(A_np, np.array([[-2.0]]))
+
+
+# ============================================================================
+# Test Class 19: Autonomous Systems - Jacobian Verification
+# ============================================================================
+
+
+class TestAutonomousJacobianVerification:
+    """Test Jacobian verification for autonomous systems"""
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_verify_jacobians_autonomous_torch(self):
+        """Test Jacobian verification for autonomous system with PyTorch"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = torch.tensor([1.0])
+        
+        results = system.verify_jacobians(x, u=None, backend="torch", tol=1e-4)
+
+        assert results["A_match"] is True
+        assert results["B_match"] is True  # Trivially true for empty B
+        assert results["A_error"] < 1e-4
+        assert results["B_error"] == 0.0  # Zero for empty matrix
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_verify_jacobians_autonomous_jax(self):
+        """Test Jacobian verification for autonomous system with JAX"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = jnp.array([1.0])
+        
+        results = system.verify_jacobians(x, backend="jax", tol=1e-4)
+
+        assert results["A_match"] is True
+        assert results["B_match"] is True
+
+
+# ============================================================================
+# Test Class 20: Autonomous Systems - Equilibrium Handling
+# ============================================================================
+
+
+class TestAutonomousEquilibrium:
+    """Test equilibrium handling for autonomous systems"""
+
+    def test_add_autonomous_equilibrium(self):
+        """Test adding equilibrium to autonomous system"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        # For dx = -2x, equilibrium is at x=0 (with no control)
+        system.add_equilibrium(
+            "zero",
+            x_eq=np.array([0.0]),
+            u_eq=np.array([]),  # Empty control for autonomous
+            verify=True,
+            tol=1e-10
+        )
+
+        x_eq = system.equilibria.get_x("zero")
+        u_eq = system.equilibria.get_u("zero")
+        
+        assert np.allclose(x_eq, np.array([0.0]))
+        assert u_eq.shape == (0,)  # Empty array
+
+    def test_autonomous_equilibrium_verification(self):
+        """Test that equilibrium verification works for autonomous systems"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        # x=0 is valid equilibrium: -2*0 = 0
+        system.add_equilibrium(
+            "valid",
+            x_eq=np.array([0.0]),
+            u_eq=np.array([]),
+            verify=True,
+            tol=1e-10
+        )
+
+        assert "valid" in system.equilibria.list_names()
+
+    def test_autonomous_invalid_equilibrium_warns(self):
+        """Test warning for invalid autonomous equilibrium"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        # x=1 is NOT equilibrium: -2*1 = -2 ≠ 0
+        with pytest.warns(UserWarning, match="may not be valid"):
+            system.add_equilibrium(
+                "invalid",
+                x_eq=np.array([1.0]),
+                u_eq=np.array([]),
+                verify=True
+            )
+
+
+# ============================================================================
+# Test Class 21: Autonomous Systems - Integration Tests
+# ============================================================================
+
+
+class TestAutonomousIntegration:
+    """Integration tests for autonomous systems"""
+
+    def test_autonomous_full_workflow(self):
+        """Test complete workflow with autonomous system"""
+        # Create autonomous system
+        system = SimpleAutonomousSystem(a=2.0)
+
+        # Add equilibrium
+        system.add_equilibrium(
+            "zero",
+            x_eq=np.array([0.0]),
+            u_eq=np.array([]),
+            verify=True
+        )
+
+        # Evaluate at equilibrium
+        x_eq = system.equilibria.get_x("zero")
+        dx = system(x_eq)
+
+        # Should be zero at equilibrium
+        assert np.abs(dx).max() < 1e-10
+
+        # Linearize at equilibrium
+        A, B = system.linearized_dynamics(x_eq)
+
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)
+
+    def test_autonomous_multi_backend_consistency(self):
+        """Test that all backends give same results for autonomous system"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x_np = np.array([1.0])
+
+        # NumPy result
+        dx_np = system(x_np)
+
+        backends_to_test = ["numpy"]
+        if torch_available:
+            backends_to_test.append("torch")
+        if jax_available:
+            backends_to_test.append("jax")
+
+        # All backends should give same numerical result
+        for backend in backends_to_test:
+            dx = system(x_np, backend=backend)
+            dx_val = np.array(dx) if not isinstance(dx, np.ndarray) else dx
+
+            assert np.allclose(dx_val, dx_np), f"{backend} doesn't match NumPy"
+
+    def test_autonomous_2d_complete_workflow(self):
+        """Test 2D autonomous system end-to-end"""
+        system = Autonomous2DSystem(k=10.0)
+
+        # State: [position, velocity]
+        x = np.array([0.1, 0.0])
+
+        # Dynamics
+        dx = system(x)
+        assert dx.shape == (2,)
+
+        # Linearization
+        A, B = system.linearized_dynamics(x)
+        assert A.shape == (2, 2)
+        assert B.shape == (2, 0)  # Empty B for autonomous
+
+        # Verify oscillator structure
+        assert np.allclose(A[0, 1], 1.0)  # dx1/dt = x2
+        assert np.allclose(A[1, 0], -10.0)  # dx2/dt = -k*x1
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_autonomous_torch_gradients(self):
+        """Test that PyTorch gradients work for autonomous systems"""
+        system = SimpleAutonomousSystem(a=2.0)
+
+        x = torch.tensor([1.0], requires_grad=True)
+        
+        dx = system(x)
+        dx.backward()
+
+        # df/dx = -a = -2
+        assert x.grad is not None
+        assert torch.allclose(x.grad, torch.tensor([-2.0]))
+
+
+# ============================================================================
+# Test Class 22: Mixed Testing - Controlled vs Autonomous
+# ============================================================================
+
+
+class TestControlledVsAutonomous:
+    """Test differences between controlled and autonomous systems"""
+
+    def test_controlled_has_control_input(self):
+        """Test that controlled system has control variables"""
+        system = SimpleFirstOrderSystem()
+        
+        assert system.nu > 0
+        assert len(system.control_vars) > 0
+
+    def test_autonomous_has_no_control_input(self):
+        """Test that autonomous system has no control variables"""
+        system = SimpleAutonomousSystem()
+        
+        assert system.nu == 0
+        assert len(system.control_vars) == 0
+
+    def test_controlled_linearization_has_B(self):
+        """Test that controlled system linearization has non-empty B"""
+        system = SimpleFirstOrderSystem()
+        
+        x = np.array([0.0])
+        u = np.array([0.0])
+        
+        A, B = system.linearized_dynamics(x, u)
+        
+        assert B.shape == (1, 1)  # Non-empty
+
+    def test_autonomous_linearization_has_empty_B(self):
+        """Test that autonomous system linearization has empty B"""
+        system = SimpleAutonomousSystem()
+        
+        x = np.array([0.0])
+        
+        A, B = system.linearized_dynamics(x)
+        
+        assert B.shape == (1, 0)  # Empty
+
+    def test_controlled_requires_u_argument(self):
+        """Test that controlled system requires u"""
+        system = SimpleFirstOrderSystem()
+        
+        x = np.array([0.0])
+        
+        with pytest.raises(ValueError):
+            system(x)  # Missing u
+
+    def test_autonomous_does_not_require_u_argument(self):
+        """Test that autonomous system doesn't require u"""
+        system = SimpleAutonomousSystem()
+        
+        x = np.array([0.0])
+        
+        # Should work without u
+        dx = system(x)
+        assert isinstance(dx, np.ndarray)
 
 # ============================================================================
 # Run Tests

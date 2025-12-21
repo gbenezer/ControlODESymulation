@@ -1324,17 +1324,19 @@ class SymbolicDynamicalSystem(ABC):
 
     def forward(self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None) -> ArrayLike:
         """
-        Evaluate continuous-time dynamics: dx/dt = f(x, u).
+        Evaluate continuous-time dynamics: dx/dt = f(x, u) or dx/dt = f(x) for autonomous.
 
         Computes the state derivative at the given state and control.
         Automatically detects backend from input types or uses specified backend.
+        Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
 
         Parameters
         ----------
         x : ArrayLike
             State vector (nx,) or batched states (batch, nx)
-        u : ArrayLike
+        u : Optional[ArrayLike]
             Control vector (nu,) or batched controls (batch, nu)
+            For autonomous systems (nu=0), u can be None or omitted
         backend : Optional[str]
             Backend selection:
             - None: Auto-detect from input type (default)
@@ -1351,19 +1353,26 @@ class SymbolicDynamicalSystem(ABC):
         Raises
         ------
         ValueError
-            If input dimensions don't match system dimensions
+            If input dimensions don't match system dimensions, or if u is None
+            for a non-autonomous system
 
         Examples
         --------
-        >>> # Auto-detect backend
+        Controlled system:
         >>> x = np.array([1.0, 0.0])
         >>> u = np.array([0.5])
         >>> dx = system.forward(x, u)  # Returns NumPy array
 
-        >>> # Force PyTorch backend (converts input)
+        Autonomous system:
+        >>> x = np.array([1.0, 0.0])
+        >>> dx = system.forward(x)  # u=None for autonomous
+        >>> # or explicitly:
+        >>> dx = system.forward(x, u=None)
+
+        Force PyTorch backend (converts input):
         >>> dx = system.forward(x, u, backend='torch')  # Returns torch.Tensor
 
-        >>> # Batched evaluation
+        Batched evaluation:
         >>> x_batch = np.array([[1.0, 0.0], [2.0, 0.0], [3.0, 0.0]])
         >>> u_batch = np.array([[0.5], [0.5], [0.5]])
         >>> dx_batch = system.forward(x_batch, u_batch)  # Shape: (3, nx)
@@ -1372,26 +1381,13 @@ class SymbolicDynamicalSystem(ABC):
         -----
         This method delegates to DynamicsEvaluator.evaluate() for actual computation.
         Backend conversion happens automatically if input type doesn't match target backend.
+        For autonomous systems, passing u=None is allowed and recommended.
         """
-        # Handle None control for autonomous systems
-        if u is None:
-            if self.nu > 0:
-                raise ValueError("Non-autonomous system requires control input u")
-            # Create empty control array
-            if backend == 'numpy' or backend is None:
-                u = np.array([])
-            elif backend == 'torch':
-                import torch
-                u = torch.tensor([])
-            elif backend == 'jax':
-                import jax.numpy as jnp
-                u = jnp.array([])
-        
         return self._dynamics.evaluate(x, u, backend)
 
-    def __call__(self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+    def __call__(self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None) -> ArrayLike:
         """
-        Make system callable: system(x, u) evaluates dynamics.
+        Make system callable: system(x, u) or system(x) for autonomous evaluates dynamics.
 
         This is the primary user interface for forward dynamics evaluation.
         Equivalent to calling system.forward(x, u, backend).
@@ -1400,8 +1396,8 @@ class SymbolicDynamicalSystem(ABC):
         ----------
         x : ArrayLike
             State vector
-        u : ArrayLike
-            Control vector
+        u : Optional[ArrayLike]
+            Control vector (None for autonomous systems)
         backend : Optional[str]
             Backend selection (None = auto-detect)
 
@@ -1412,15 +1408,20 @@ class SymbolicDynamicalSystem(ABC):
 
         Examples
         --------
+        Controlled system:
         >>> dx = system(x, u)  # Pythonic interface
-        >>> # Equivalent to:
+        
+        Autonomous system:
+        >>> dx = system(x)  # No control input
+        
+        # Equivalent to:
         >>> dx = system.forward(x, u)
 
         Notes
         -----
         This makes the system object behave like a function, which is
         intuitive for users familiar with functional programming or
-        mathematical notation.
+        mathematical notation. Supports both controlled and autonomous systems.
         """
         return self.forward(x, u, backend)
 
@@ -1429,20 +1430,22 @@ class SymbolicDynamicalSystem(ABC):
     # ========================================================================
 
     def linearized_dynamics(
-        self, x: ArrayLike, u: ArrayLike, backend: Optional[str] = None
+        self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None
     ) -> Tuple[ArrayLike, ArrayLike]:
         """
         Compute numerical linearization of dynamics: A = ∂f/∂x, B = ∂f/∂u.
 
         Evaluates the Jacobian matrices at the given state and control point.
         For higher-order systems, returns the full state-space representation.
+        For autonomous systems (nu=0), u can be None and B will be empty (nx, 0).
 
         Parameters
         ----------
         x : ArrayLike
             State at which to linearize (nx,) or (batch, nx)
-        u : ArrayLike
+        u : Optional[ArrayLike]
             Control at which to linearize (nu,) or (batch, nu)
+            For autonomous systems, u can be None
         backend : Optional[str]
             Backend selection (None = auto-detect)
 
@@ -1452,9 +1455,11 @@ class SymbolicDynamicalSystem(ABC):
             (A, B) matrices where:
             - A: State Jacobian ∂f/∂x, shape (nx, nx) or (batch, nx, nx)
             - B: Control Jacobian ∂f/∂u, shape (nx, nu) or (batch, nx, nu)
+            For autonomous systems: B has shape (nx, 0) - empty matrix
 
         Examples
         --------
+        Controlled system:
         >>> x = np.array([0.1, 0.0])
         >>> u = np.array([0.0])
         >>> A, B = system.linearized_dynamics(x, u)
@@ -1462,6 +1467,14 @@ class SymbolicDynamicalSystem(ABC):
         (2, 2)
         >>> B.shape
         (2, 1)
+
+        Autonomous system:
+        >>> x = np.array([0.1, 0.0])
+        >>> A, B = system.linearized_dynamics(x)  # u=None
+        >>> A.shape
+        (2, 2)
+        >>> B.shape
+        (2, 0)  # Empty B matrix
 
         Batched linearization:
         >>> x_batch = np.array([[0.1, 0.0], [0.2, 0.0]])
@@ -1525,7 +1538,7 @@ class SymbolicDynamicalSystem(ABC):
         return self._linearization.compute_symbolic(x_eq, u_eq)
 
     def verify_jacobians(
-        self, x: ArrayLike, u: ArrayLike, tol: float = 1e-3, backend: str = "torch"
+        self, x: ArrayLike, u: Optional[ArrayLike] = None, tol: float = 1e-3, backend: str = "torch"
     ) -> Dict[str, Union[bool, float]]:
         """
         Verify symbolic Jacobians against automatic differentiation.
@@ -1538,8 +1551,8 @@ class SymbolicDynamicalSystem(ABC):
         ----------
         x : ArrayLike
             State at which to verify
-        u : ArrayLike
-            Control at which to verify
+        u : Optional[ArrayLike]
+            Control at which to verify (None for autonomous systems)
         tol : float
             Tolerance for considering Jacobians equal (default: 1e-3)
         backend : str
@@ -1563,6 +1576,7 @@ class SymbolicDynamicalSystem(ABC):
 
         Examples
         --------
+        Controlled system:
         >>> x = torch.tensor([0.1, 0.0])
         >>> u = torch.tensor([0.0])
         >>> results = system.verify_jacobians(x, u, backend='torch', tol=1e-6)
@@ -1572,6 +1586,11 @@ class SymbolicDynamicalSystem(ABC):
         ... else:
         ...     print(f"✗ A error: {results['A_error']:.2e}")
         ...     print(f"✗ B error: {results['B_error']:.2e}")
+
+        Autonomous system:
+        >>> x = torch.tensor([0.1, 0.0])
+        >>> results = system.verify_jacobians(x, backend='torch')  # u=None
+        >>> # B_match will be True trivially (empty matrix comparison)
 
         Notes
         -----
