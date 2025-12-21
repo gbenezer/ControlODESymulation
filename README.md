@@ -632,7 +632,6 @@ Currently not open to contributions, though may change after Phase 4 and once I 
 
 #### Phase 1 (Current):
 - DiffEqPyIntegrator class
-    - Instantiate/code deterministic DiffEqPyIntegrator and associated unit tests (and ensure they pass)
     - Modify IntegratorFactory to handle deterministic DiffEqPyIntegrator objects and update unit tests
 - Finish implementation of SDE Integration utilities
     - Instantiate/code SDEIntegratorBase unit tests and debug base class
@@ -643,6 +642,13 @@ Currently not open to contributions, though may change after Phase 4 and once I 
         - God objects
         - Other code smells/design flaws
         - Inconsistencies in user-facing API
+    - Will be trying to integrate the following tools for assistance
+        - Pylint
+        - Flake8
+        - Coverage.py and/or Pytest-cov
+        - Mutmut
+        - PyDeps
+        - Radon
 
 #### Phase 2:
 - Refactoring of DiscreteTimeSystem
