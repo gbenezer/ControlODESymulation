@@ -252,6 +252,83 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         self.save_everystep = options.get('save_everystep', True)
         self.dense = options.get('dense', False)
     
+    def validate_julia_setup(self):
+        """
+        Validate that Julia and DifferentialEquations.jl are properly set up.
+        
+        Returns
+        -------
+        bool
+            True if setup is valid
+            
+        Raises
+        ------
+        RuntimeError
+            If validation fails with details
+            
+        Examples
+        --------
+        >>> integrator = DiffEqPySDEIntegrator(sde_system, algorithm='EM')
+        >>> integrator.validate_julia_setup()  # Raises if problems
+        True
+        """
+        try:
+            # Test basic Julia call
+            result = self.de.eval("1 + 1")
+            assert result == 2, "Basic Julia eval failed"
+            
+            # Check that SDEProblem exists
+            assert hasattr(self.de, 'SDEProblem'), "SDEProblem not found in Julia"
+            
+            # Check that algorithm exists
+            assert hasattr(self.de, self.algorithm), \
+                f"Algorithm {self.algorithm} not found in DifferentialEquations.jl"
+            
+            # Try creating and solving a simple SDE problem
+            def simple_drift(u, p, t):
+                return np.array([-u[0]], dtype=np.float64)
+            
+            def simple_diffusion(u, p, t):
+                return np.array([[0.1]], dtype=np.float64)
+            
+            test_problem = self.de.SDEProblem(
+                simple_drift,
+                simple_diffusion,
+                np.array([1.0], dtype=np.float64),
+                (0.0, 0.1),
+                noise_rate_prototype=np.array([[0.1]], dtype=np.float64)
+            )
+            
+            # Try solving
+            test_alg = getattr(self.de, self.algorithm)()
+            test_sol = self.de.solve(test_problem, test_alg, dt=0.01)
+            
+            assert hasattr(test_sol, 't'), "Solution missing time points"
+            assert hasattr(test_sol, 'u'), "Solution missing states"
+            assert len(test_sol.t) > 1, f"Solution has only {len(test_sol.t)} time point(s)"
+            assert len(test_sol.u) > 1, f"Solution has only {len(test_sol.u)} state(s)"
+            
+            return True
+            
+        except Exception as e:
+            import traceback
+            raise RuntimeError(
+                f"Julia/DiffEqPy validation failed:\n{str(e)}\n"
+                f"{traceback.format_exc()}\n\n"
+                f"Possible solutions:\n"
+                f"1. Ensure Julia is installed and in PATH\n"
+                f"2. Reinstall DifferentialEquations.jl:\n"
+                f"   julia> using Pkg; Pkg.add('DifferentialEquations')\n"
+                f"3. Reinstall diffeqpy:\n"
+                f"   pip uninstall diffeqpy && pip install diffeqpy\n"
+                f"4. Run setup:\n"
+                f"   from diffeqpy import install; install()\n"
+                f"5. Test Julia directly:\n"
+                f"   julia> using DifferentialEquations\n"
+                f"   julia> prob = SDEProblem(...)\n"
+                f"   julia> solve(prob, EM())"
+            ) from e
+    
     @property
     def name(self) -> str:
         """Return integrator name."""
@@ -487,7 +564,6 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         solve_kwargs = {
             'dt': self.dt,
             'adaptive': self.step_mode == StepMode.ADAPTIVE,
-            'save_everystep': self.save_everystep,
         }
         
         # Add tolerance for adaptive methods
@@ -497,31 +573,52 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         
         # Add save points if specified
         if t_eval is not None:
-            solve_kwargs['saveat'] = np.asarray(t_eval)
+            solve_kwargs['saveat'] = list(np.asarray(t_eval))
+        elif not self.save_everystep:
+            # If not saving every step and no t_eval, just save endpoints
+            solve_kwargs['saveat'] = [float(t0), float(tf)]
+        # else: save_everystep=True is default, no saveat needed
         
         # Dense output
         if dense_output:
             solve_kwargs['dense'] = True
         
-        # Set random seed if specified
+        # IMPORTANT: Don't set seed through solve options
+        # Julia random seed must be set globally before calling solve
         if self.seed is not None:
-            solve_kwargs['seed'] = self.seed
+            # Set Julia's random seed before solving
+            self.de.eval(f"using Random; Random.seed!({self.seed})")
         
         # Solve SDE
         try:
             sol = self.de.solve(problem, alg, **solve_kwargs)
             
-            # Extract solution
-            # Julia returns arrays as: sol.t (times), sol.u (states)
+            # Extract solution - Julia returns arrays
             t_out = np.array(sol.t)
             
             # Convert list of arrays to 2D array (T, nx)
-            x_out = np.array([np.array(u) for u in sol.u])
+            if hasattr(sol, 'u') and len(sol.u) > 0:
+                x_out = np.array([np.array(u) for u in sol.u])
+            else:
+                # Integration failed - no solution
+                return SDEIntegrationResult(
+                    t=np.array([t0]),
+                    x=x0.reshape(1, -1),
+                    success=False,
+                    message="Julia SDE integration produced no output",
+                    nfev=0,
+                    nsteps=0,
+                    diffusion_evals=0,
+                    n_paths=1,
+                    convergence_type=self.convergence_type,
+                    solver=self.algorithm,
+                    sde_type=self.sde_type
+                )
             
             # Check success
-            success = len(t_out) > 0 and np.all(np.isfinite(x_out))
+            success = len(t_out) > 1 and np.all(np.isfinite(x_out))
             
-            # Estimate function evaluations (Julia doesn't expose this directly)
+            # Estimate function evaluations
             nsteps = len(t_out) - 1
             nfev = self._stats['total_fev']
             
@@ -529,7 +626,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 t=t_out,
                 x=x_out,
                 success=success,
-                message="Julia SDE integration successful" if success else "Integration failed",
+                message="Julia SDE integration successful" if success else "Integration failed (NaN/Inf detected)",
                 nfev=nfev,
                 nsteps=nsteps,
                 diffusion_evals=self._stats['diffusion_evals'],
@@ -542,11 +639,12 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             )
             
         except Exception as e:
+            import traceback
             return SDEIntegrationResult(
                 t=np.array([t0]),
                 x=x0.reshape(1, -1),
                 success=False,
-                message=f"Julia SDE integration failed: {str(e)}",
+                message=f"Julia SDE integration failed: {str(e)}\n{traceback.format_exc()}",
                 nfev=0,
                 nsteps=0,
                 diffusion_evals=0,
