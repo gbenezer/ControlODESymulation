@@ -704,6 +704,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
     - Add parameter sensitivity analysis or other methods to probe dependencies of dynamical systems
     - Check to see if there's any interest in robust, adaptive, and/or stochastic control theory technique implementation
     - Coupling systems together to make larger composite systems
+    - Consider supporting stochastic observation dynamics (diffusion + drift for output variables) if not available in framework
 
 ---
 
