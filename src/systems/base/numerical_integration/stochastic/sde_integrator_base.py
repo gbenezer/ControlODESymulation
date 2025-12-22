@@ -1,112 +1,124 @@
 """
-SDE Integrator Base - Abstract Interface for Stochastic Integration
+SDE Integrator Base - Abstract Interface for Stochastic Differential Equation Integration
 
-Provides a unified interface for numerical integration of stochastic differential
-equations (SDEs) across different backends (NumPy, PyTorch, JAX) with support
-for both pseudo-random and quasi-random Monte Carlo methods.
+Provides a unified interface for numerical integration of SDEs across different
+backends (NumPy, PyTorch, JAX) with both fixed and adaptive time stepping.
 
-This module defines the abstract base class for SDE integrators, handling:
-- Brownian motion generation (pseudo-random and quasi-random)
-- Multiple trajectory simulation
-- Strong vs weak convergence modes
-- Backend-specific noise handling
+This module extends the integrator framework to handle stochastic systems,
+supporting both ItΓ΄ and Stratonovich interpretations.
 
 Mathematical Form
 -----------------
-Itô SDE: dx = f(x, u, t)dt + g(x, u, t)dW
-Stratonovich SDE: dx = f(x, u, t)dt + g(x, u, t)∘dW
+Stochastic differential equations:
+
+    dx = f(x, u, t)dt + g(x, u, t)dW
 
 where:
-    f: Drift function (deterministic dynamics)
-    g: Diffusion matrix (nx × nw)
-    dW: Wiener process increments (nw independent)
+    - f(x, u, t): Drift vector (nx Γ— 1) - deterministic dynamics
+    - g(x, u, t): Diffusion matrix (nx Γ— nw) - stochastic intensity
+    - dW: Brownian motion increments (nw independent Wiener processes)
+
+Key Differences from ODE Integration
+------------------------------------
+1. **Random Noise**: Each step requires Brownian motion increments
+2. **Weak vs Strong Convergence**: Different accuracy measures
+3. **Noise Structure**: Additive, multiplicative, diagonal, scalar
+4. **Multiple Trajectories**: Monte Carlo simulation support
+5. **SDE Type**: ItΓ΄ vs Stratonovich interpretation
+
+Architecture Consistency
+-----------------------
+- Inherits from IntegratorBase for consistency
+- Adds SDE-specific methods (drift, diffusion, noise handling)
+- Maintains same backend-agnostic interface
+- Compatible with StochasticDynamicalSystem
 """
 
-from abc import ABC, abstractmethod
-from typing import Optional, Tuple, Callable, Dict, Any, List, Literal, TYPE_CHECKING
+from abc import abstractmethod
+from typing import Optional, Tuple, Callable, Dict, Any, List, TYPE_CHECKING
 from enum import Enum
-import warnings
 import numpy as np
+
+from src.systems.base.numerical_integration.integrator_base import (
+    IntegratorBase,
+    StepMode,
+    ArrayLike
+)
 
 if TYPE_CHECKING:
     from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
     import torch
     import jax.numpy as jnp
 
-# Type alias for backend-agnostic arrays
-from typing import Union
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
 
-
-class ConvergenceMode(Enum):
+class SDEType(Enum):
     """
-    SDE convergence mode.
+    SDE interpretation type.
+    
+    Attributes
+    ----------
+    ITO : str
+        Ito interpretation - standard stochastic calculus
+    STRATONOVICH : str
+        Stratonovich interpretation - preserves chain rule
+    """
+    ITO = "ito"
+    STRATONOVICH = "stratonovich"
+
+
+class ConvergenceType(Enum):
+    """
+    Convergence criterion for SDE solvers.
     
     Attributes
     ----------
     STRONG : str
-        Strong convergence - paths converge
-        E[|X_T - X̂_T|] → 0 as dt → 0
-        Use for: Path-dependent problems, neural SDEs, control
+        Strong convergence - pathwise accuracy
+        Error: E[|X(T) - X_h(T)|] = O(h^p)
+        Best for: Single trajectory accuracy, control applications
         
     WEAK : str
-        Weak convergence - distributions converge
-        E[f(X_T)] - E[f(X̂_T)] → 0 as dt → 0
-        Use for: Expectation computation, statistical sampling, option pricing
+        Weak convergence - moment accuracy
+        Error: |E[f(X(T))] - E[f(X_h(T))]| = O(h^p)
+        Best for: Statistical properties, Monte Carlo estimation
     """
     STRONG = "strong"
     WEAK = "weak"
-
-
-class NoiseType(Enum):
-    """
-    Type of noise generation for Monte Carlo.
-    
-    Attributes
-    ----------
-    PSEUDO : str
-        Pseudo-random numbers (standard Monte Carlo)
-        - Convergence: O(1/√N)
-        - Works with adaptive stepping
-        - Standard approach for most applications
-        
-    QUASI : str
-        Quasi-random low-discrepancy sequences (QMC)
-        - Convergence: O(1/N) or O((log N)^d/N)
-        - Requires fixed time grid (incompatible with adaptive stepping)
-        - Better for variance reduction in expectation problems
-        - Effectiveness decreases in high dimensions
-    """
-    PSEUDO = "pseudo"
-    QUASI = "quasi"
 
 
 class SDEIntegrationResult:
     """
     Container for SDE integration results.
     
-    Stores time points, trajectory ensemble, and statistics.
+    Extends IntegrationResult with SDE-specific information like
+    multiple trajectories, noise samples, and convergence statistics.
     
     Attributes
     ----------
     t : ArrayLike
         Time points (T,)
     x : ArrayLike
-        State trajectories (num_trajectories, T, nx)
-    mean : ArrayLike
-        Ensemble mean trajectory (T, nx)
-    std : ArrayLike
-        Ensemble standard deviation (T, nx)
+        State trajectory (T, nx) or (n_paths, T, nx) for multiple paths
     success : bool
         Whether integration succeeded
     message : str
         Status message
     nfev : int
-        Number of function evaluations
+        Number of drift function evaluations
     nsteps : int
-        Number of integration steps per trajectory
-    num_trajectories : int
-        Number of sample paths
+        Number of integration steps taken
+    diffusion_evals : int
+        Number of diffusion function evaluations
+    noise_samples : Optional[ArrayLike]
+        Brownian motion samples used (T, nw) or (n_paths, T, nw)
+    n_paths : int
+        Number of trajectories computed
+    convergence_type : ConvergenceType
+        Type of convergence (strong or weak)
+    solver : str
+        Solver method used
+    sde_type : SDEType
+        SDE interpretation (Ito or Stratonovich)
     """
     
     def __init__(
@@ -114,101 +126,147 @@ class SDEIntegrationResult:
         t: ArrayLike,
         x: ArrayLike,
         success: bool = True,
-        message: str = "Integration successful",
+        message: str = "SDE integration successful",
         nfev: int = 0,
         nsteps: int = 0,
+        diffusion_evals: int = 0,
+        noise_samples: Optional[ArrayLike] = None,
+        n_paths: int = 1,
+        convergence_type: ConvergenceType = ConvergenceType.STRONG,
+        solver: Optional[str] = None,
+        sde_type: SDEType = SDEType.ITO,
         **metadata
     ):
         self.t = t
-        self.x = x  # (num_trajectories, T, nx)
-        self.num_trajectories = x.shape[0] if len(x.shape) > 2 else 1
-        
-        # Compute statistics
-        if len(x.shape) == 3 and x.shape[0] > 1:
-            # Multiple trajectories - compute ensemble statistics
-            if isinstance(x, np.ndarray):
-                self.mean = np.mean(x, axis=0)
-                self.std = np.std(x, axis=0)
-            else:
-                # Will be computed by backend-specific code
-                self.mean = None
-                self.std = None
-        else:
-            # Single trajectory
-            self.mean = x[0] if len(x.shape) == 3 else x
-            self.std = None
-        
+        self.x = x
         self.success = success
         self.message = message
         self.nfev = nfev
         self.nsteps = nsteps
+        self.diffusion_evals = diffusion_evals
+        self.noise_samples = noise_samples
+        self.n_paths = n_paths
+        self.convergence_type = convergence_type
+        self.solver = solver
+        self.sde_type = sde_type
         self.metadata = metadata
     
     def __repr__(self) -> str:
         return (
-            f"SDEIntegrationResult(success={self.success}, "
-            f"trajectories={self.num_trajectories}, "
-            f"nsteps={self.nsteps}, nfev={self.nfev})"
+            f"SDEIntegrationResult("
+            f"success={self.success}, "
+            f"nsteps={self.nsteps}, "
+            f"nfev={self.nfev}, "
+            f"diffusion_evals={self.diffusion_evals}, "
+            f"n_paths={self.n_paths})"
         )
-
-
-class SDEIntegratorBase(ABC):
-    """
-    Abstract base class for SDE numerical integrators.
     
-    Provides a unified interface for integrating stochastic differential equations
-    with multiple backends, noise generation strategies, and convergence modes.
+    def get_statistics(self) -> Dict[str, Any]:
+        """
+        Compute trajectory statistics for Monte Carlo analysis.
+        
+        Returns
+        -------
+        Dict[str, Any]
+            Statistics including mean, std, quantiles across paths
+        """
+        if self.n_paths == 1:
+            return {
+                "mean": self.x,
+                "std": None,
+                "n_paths": 1,
+                "note": "Single trajectory - no statistics available"
+            }
+        
+        # Multiple paths: compute statistics
+        # x has shape (n_paths, T, nx)
+        return {
+            "mean": np.mean(self.x, axis=0),  # (T, nx)
+            "std": np.std(self.x, axis=0),    # (T, nx)
+            "min": np.min(self.x, axis=0),
+            "max": np.max(self.x, axis=0),
+            "median": np.median(self.x, axis=0),
+            "q25": np.quantile(self.x, 0.25, axis=0),
+            "q75": np.quantile(self.x, 0.75, axis=0),
+            "n_paths": self.n_paths
+        }
+
+
+class SDEIntegratorBase(IntegratorBase):
+    """
+    Abstract base class for SDE integrators.
+    
+    Extends IntegratorBase to handle stochastic differential equations with
+    drift and diffusion terms. Provides unified interface for both Ito and
+    Stratonovich SDEs across multiple backends.
     
     All SDE integrators must implement:
-    - step(): Single integration step with Brownian increment
-    - integrate(): Multi-step integration over interval with trajectory ensemble
-    - name: Integrator name for display
+    - step(): Single integration step with noise
+    - integrate(): Multi-step integration with trajectories
+    - name: Integrator name
     
-    Subclasses handle backend-specific implementations for NumPy, PyTorch, JAX.
+    Additional SDE-specific capabilities:
+    - Multiple trajectory simulation (Monte Carlo)
+    - Noise structure exploitation (additive, diagonal, etc.)
+    - Weak and strong convergence schemes
+    - Stratonovich correction terms
     
-    Key Features
-    -----------
-    - Pseudo-random and quasi-random (QMC) noise generation
-    - Multiple trajectory simulation for Monte Carlo estimation
-    - Strong vs weak convergence modes
-    - Reproducible noise with seeding
-    - Automatic statistics computation (mean, std)
-    - Support for additive and multiplicative noise
+    Attributes
+    ----------
+    sde_system : StochasticDynamicalSystem
+        SDE system to integrate
+    sde_type : SDEType
+        SDE interpretation (Ito or Stratonovich)
+    convergence_type : ConvergenceType
+        Convergence criterion (strong or weak)
+    seed : Optional[int]
+        Random seed for reproducibility
     
     Examples
     --------
     >>> # Create SDE integrator
     >>> integrator = EulerMaruyamaIntegrator(
-    ...     system,
+    ...     sde_system,
     ...     dt=0.01,
-    ...     noise_type=NoiseType.PSEUDO,
-    ...     backend='numpy'
+    ...     backend='numpy',
+    ...     seed=42
     ... )
     >>> 
-    >>> # Single step with provided noise
-    >>> dW = np.random.randn(system.nw) * np.sqrt(0.01)
-    >>> x_next = integrator.step(x, u, dt=0.01, dW=dW)
-    >>> 
-    >>> # Multi-trajectory Monte Carlo simulation
+    >>> # Single trajectory
     >>> result = integrator.integrate(
     ...     x0=np.array([1.0, 0.0]),
     ...     u_func=lambda t, x: np.zeros(1),
-    ...     t_span=(0.0, 10.0),
-    ...     num_trajectories=1000,
-    ...     seed=42
+    ...     t_span=(0.0, 10.0)
     ... )
-    >>> print(f"Mean at t=10: {result.mean[-1]}")
-    >>> print(f"Std at t=10: {result.std[-1]}")
+    >>> 
+    >>> # Multiple trajectories (Monte Carlo)
+    >>> result = integrator.integrate_monte_carlo(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: np.zeros(1),
+    ...     t_span=(0.0, 10.0),
+    ...     n_paths=1000
+    ... )
+    >>> stats = result.get_statistics()
+    >>> print(f"Mean trajectory: {stats['mean']}")
+    >>> print(f"Standard deviation: {stats['std']}")
+    >>> 
+    >>> # Autonomous system
+    >>> result = integrator.integrate(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: None,
+    ...     t_span=(0.0, 10.0)
+    ... )
     """
     
     def __init__(
         self,
-        system: 'StochasticDynamicalSystem',
-        dt: float,
-        noise_type: Union[NoiseType, str] = NoiseType.PSEUDO,
-        convergence_mode: Union[ConvergenceMode, str] = ConvergenceMode.STRONG,
+        sde_system: 'StochasticDynamicalSystem',
+        dt: Optional[float] = None,
+        step_mode: StepMode = StepMode.FIXED,
         backend: str = 'numpy',
-        qmc_sequence: Literal["sobol", "halton"] = "sobol",
+        sde_type: Optional[SDEType] = None,
+        convergence_type: ConvergenceType = ConvergenceType.STRONG,
+        seed: Optional[int] = None,
         **options
     ):
         """
@@ -216,181 +274,329 @@ class SDEIntegratorBase(ABC):
         
         Parameters
         ----------
-        system : StochasticDynamicalSystem
-            Stochastic system to integrate
-        dt : float
-            Time step (must be > 0)
-        noise_type : NoiseType or str
-            'pseudo' for pseudo-random (standard MC)
-            'quasi' for quasi-random (QMC with low-discrepancy sequences)
-        convergence_mode : ConvergenceMode or str
-            'strong' for path convergence (default)
-            'weak' for distributional convergence
+        sde_system : StochasticDynamicalSystem
+            SDE system to integrate (must have drift and diffusion)
+        dt : Optional[float]
+            Time step:
+            - FIXED mode: Required, constant step size
+            - ADAPTIVE mode: Initial guess (if supported)
+        step_mode : StepMode
+            FIXED or ADAPTIVE stepping (most SDE solvers are FIXED)
         backend : str
             Backend to use ('numpy', 'torch', 'jax')
-        qmc_sequence : str
-            Low-discrepancy sequence type ('sobol' or 'halton')
-            Only used when noise_type='quasi'
+        sde_type : Optional[SDEType]
+            SDE interpretation (None = use system's type)
+        convergence_type : ConvergenceType
+            Strong (pathwise) or weak (moment) convergence
+        seed : Optional[int]
+            Random seed for reproducibility
         **options : dict
-            Integrator-specific options:
-            - rtol : float
-                Relative tolerance (for adaptive schemes)
-            - atol : float
-                Absolute tolerance (for adaptive schemes)
-            - max_steps : int
-                Maximum number of steps (default: 100000)
+            Additional options:
+            - cache_noise : bool
+                Cache noise samples for efficiency (default: True for additive)
+            - noise_generator : Callable
+                Custom noise generator (advanced)
         
         Raises
         ------
         ValueError
-            If dt <= 0
-            If backend is invalid
-            If system is not StochasticDynamicalSystem
-        RuntimeError
-            If backend is not available
-        
-        Examples
-        --------
-        >>> # Standard pseudo-random integration
-        >>> integrator = EulerMaruyamaIntegrator(
-        ...     system,
-        ...     dt=0.01,
-        ...     noise_type='pseudo',
-        ...     backend='numpy'
-        ... )
-        >>> 
-        >>> # QMC for variance reduction
-        >>> integrator = EulerMaruyamaIntegrator(
-        ...     system,
-        ...     dt=0.01,
-        ...     noise_type='quasi',
-        ...     qmc_sequence='sobol',
-        ...     backend='jax'
-        ... )
+            If system is not stochastic
+            If FIXED mode specified without dt
+        TypeError
+            If sde_system is not StochasticDynamicalSystem
         """
         # Validate system type
         from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
-        if not isinstance(system, StochasticDynamicalSystem):
-            raise ValueError(
-                f"System must be StochasticDynamicalSystem, got {type(system).__name__}. "
-                f"Use IntegratorBase for deterministic systems."
+        
+        if not isinstance(sde_system, StochasticDynamicalSystem):
+            raise TypeError(
+                f"sde_system must be StochasticDynamicalSystem, "
+                f"got {type(sde_system).__name__}"
             )
         
-        self.system = system
+        # Initialize parent (handles ODE functionality)
+        super().__init__(sde_system, dt, step_mode, backend, **options)
         
-        # Validate time step
-        if dt <= 0:
-            raise ValueError(f"Time step dt must be positive, got {dt}")
-        self.dt = dt
+        # SDE-specific attributes
+        self.sde_system = sde_system
+        self.nw = sde_system.nw  # Number of Wiener processes
         
-        # Parse enums from strings if needed
-        if isinstance(noise_type, str):
-            noise_type = NoiseType(noise_type.lower())
-        if isinstance(convergence_mode, str):
-            convergence_mode = ConvergenceMode(convergence_mode.lower())
+        # SDE type (use system's if not specified)
+        if sde_type is None:
+            self.sde_type = sde_system.sde_type
+        else:
+            self.sde_type = sde_type
         
-        self.noise_type = noise_type
-        self.convergence_mode = convergence_mode
-        self.qmc_sequence = qmc_sequence
+        self.convergence_type = convergence_type
+        self.seed = seed
         
-        # Backend validation
-        valid_backends = ['numpy', 'torch', 'jax']
-        if backend not in valid_backends:
-            raise ValueError(
-                f"Invalid backend '{backend}'. Must be one of {valid_backends}"
+        # Initialize random state
+        self._rng = self._initialize_rng(backend, seed)
+        
+        # SDE-specific statistics
+        self._stats['diffusion_evals'] = 0
+        self._stats['noise_samples'] = 0
+        
+        # Noise optimization flags
+        self._is_additive = sde_system.is_additive_noise()
+        self._is_multiplicative = sde_system.is_multiplicative_noise()
+        self._is_diagonal = sde_system.is_diagonal_noise()
+        self._is_scalar = sde_system.is_scalar_noise()
+        
+        # Cache for additive noise (computed once)
+        self._cached_diffusion = None
+        if self._is_additive and options.get('cache_noise', True):
+            self._cache_constant_diffusion()
+    
+    def _initialize_rng(self, backend: str, seed: Optional[int]):
+        """
+        Initialize random number generator for specified backend.
+        
+        Parameters
+        ----------
+        backend : str
+            Backend name
+        seed : Optional[int]
+            Random seed
+            
+        Returns
+        -------
+        RNG object appropriate for backend
+        """
+        if backend == 'numpy':
+            # Create a new RandomState instance for reproducibility
+            if seed is not None:
+                return np.random.RandomState(seed)
+            return np.random.RandomState()
+        elif backend == 'torch':
+            import torch
+            if seed is not None:
+                torch.manual_seed(seed)
+            # Return the torch module itself (has randn method)
+            return torch
+        elif backend == 'jax':
+            import jax
+            if seed is not None:
+                return jax.random.PRNGKey(seed)
+            return jax.random.PRNGKey(0)
+        else:
+            raise ValueError(f"Unknown backend: {backend}")
+    
+    def _cache_constant_diffusion(self):
+        """
+        Cache constant diffusion matrix for additive noise systems.
+        
+        For additive noise, g(x,u,t) is constant, so we compute once
+        and reuse for significant performance gains.
+        """
+        if self._is_additive:
+            # Evaluate at arbitrary point (result is constant)
+            x_dummy = np.zeros(self.sde_system.nx)
+            u_dummy = np.zeros(self.sde_system.nu) if self.sde_system.nu > 0 else None
+            
+            self._cached_diffusion = self.sde_system.get_constant_noise(
+                backend=self.backend
             )
-        self.backend = backend
-        
-        # System properties
-        self.nx = system.nx  # State dimension
-        self.nu = system.nu  # Control dimension
-        self.nw = system.nw  # Noise dimension (number of Wiener processes)
-        
-        # Validate QMC compatibility
-        if noise_type == NoiseType.QUASI:
-            if hasattr(self, 'step_mode') and self.step_mode == 'adaptive':
-                warnings.warn(
-                    "Quasi-random (QMC) noise with adaptive stepping may lose "
-                    "low-discrepancy properties. Consider using fixed time grid.",
-                    UserWarning
-                )
-        
-        # Options
-        self.options = options
-        self.rtol = options.get('rtol', 1e-6)
-        self.atol = options.get('atol', 1e-8)
-        self.max_steps = options.get('max_steps', 100000)
-        
-        # QMC state (initialized on first use)
-        self._qmc_generator = None
-        self._qmc_dimension_index = 0  # Track which dimension we're on
-        
-        # Statistics
-        self._stats = {
-            'total_steps': 0,
-            'total_fev': 0,  # Function evaluations
-            'total_gev': 0,  # Diffusion evaluations
-            'total_trajectories': 0,
-            'total_time': 0.0,
-        }
     
     # ========================================================================
-    # Abstract Methods - Must be Implemented by Subclasses
+    # SDE-Specific Evaluation Methods
+    # ========================================================================
+    
+    def _evaluate_drift(
+        self,
+        x: ArrayLike,
+        u: Optional[ArrayLike] = None
+    ) -> ArrayLike:
+        """
+        Evaluate drift term with statistics tracking.
+        
+        Parameters
+        ----------
+        x : ArrayLike
+            State
+        u : Optional[ArrayLike]
+            Control (None for autonomous)
+            
+        Returns
+        -------
+        ArrayLike
+            Drift vector f(x, u)
+        """
+        self._stats['total_fev'] += 1
+        return self.sde_system.drift(x, u, backend=self.backend)
+    
+    def _evaluate_diffusion(
+        self,
+        x: ArrayLike,
+        u: Optional[ArrayLike] = None
+    ) -> ArrayLike:
+        """
+        Evaluate diffusion term with statistics tracking and caching.
+        
+        For additive noise, returns cached constant matrix.
+        For multiplicative noise, evaluates g(x, u).
+        
+        Parameters
+        ----------
+        x : ArrayLike
+            State
+        u : Optional[ArrayLike]
+            Control (None for autonomous)
+            
+        Returns
+        -------
+        ArrayLike
+            Diffusion matrix g(x, u), shape (nx, nw)
+        """
+        if self._is_additive and self._cached_diffusion is not None:
+            # Return cached constant diffusion
+            return self._cached_diffusion
+        
+        # Evaluate diffusion (not constant or not cached)
+        self._stats['diffusion_evals'] += 1
+        return self.sde_system.diffusion(x, u, backend=self.backend)
+    
+    def _generate_noise(
+        self,
+        shape: Tuple[int, ...],
+        dt: float
+    ) -> ArrayLike:
+        """
+        Generate Brownian motion increments: dW ~ N(0, dt).
+        
+        Parameters
+        ----------
+        shape : Tuple[int, ...]
+            Shape of noise array (typically (nw,) or (batch, nw))
+        dt : float
+            Time step (variance = dt)
+            
+        Returns
+        -------
+        ArrayLike
+            Brownian increments with correct backend type
+        """
+        self._stats['noise_samples'] += 1
+        sqrt_dt = np.sqrt(dt)
+        
+        if self.backend == 'numpy':
+            return self._rng.randn(*shape) * sqrt_dt
+        elif self.backend == 'torch':
+            import torch
+            return torch.randn(*shape) * sqrt_dt
+        elif self.backend == 'jax':
+            import jax
+            # JAX requires explicit key management
+            key, subkey = jax.random.split(self._rng)
+            self._rng = key  # Update stored key
+            return jax.random.normal(subkey, shape) * sqrt_dt
+    
+    def _apply_stratonovich_correction(
+        self,
+        x: ArrayLike,
+        u: Optional[ArrayLike],
+        g: ArrayLike,
+        dt: float
+    ) -> ArrayLike:
+        """
+        Apply Stratonovich correction term if using Stratonovich interpretation.
+        
+        The Stratonovich-to-Ito conversion adds a correction term:
+            f_strat(x) = f_ito(x) + 0.5 * sum_j g_j * dg_j/dx
+        
+        Parameters
+        ----------
+        x : ArrayLike
+            State
+        u : Optional[ArrayLike]
+            Control
+        g : ArrayLike
+            Diffusion matrix (nx, nw)
+        dt : float
+            Time step
+            
+        Returns
+        -------
+        ArrayLike
+            Correction term to add to drift
+            
+        Notes
+        -----
+        This is only needed for Stratonovich SDEs. For Ito SDEs, returns zero.
+        The correction requires computing dg/dx, which can be expensive.
+        """
+        if self.sde_type == SDEType.ITO:
+            # No correction for Ito
+            if self.backend == 'numpy':
+                return np.zeros_like(x)
+            elif self.backend == 'torch':
+                import torch
+                return torch.zeros_like(x)
+            elif self.backend == 'jax':
+                import jax.numpy as jnp
+                return jnp.zeros_like(x)
+        
+        # Stratonovich correction: 0.5 * sum_j g_j * dg_j/dx
+        # This requires computing Jacobian of diffusion w.r.t. state
+        # For now, return zero and document that Stratonovich requires
+        # specialized implementation or automatic differentiation
+        
+        # TODO: Implement Stratonovich correction using autodiff
+        # This requires:
+        # 1. Compute dg/dx for each noise dimension
+        # 2. Sum: 0.5 * sum_j g_j * (dg_j/dx)
+        
+        raise NotImplementedError(
+            "Stratonovich correction not yet implemented. "
+            "Use sde_type=SDEType.ITO or implement correction in subclass."
+        )
+    
+    # ========================================================================
+    # Abstract Methods (Must be Implemented by Subclasses)
     # ========================================================================
     
     @abstractmethod
     def step(
         self,
         x: ArrayLike,
-        u: ArrayLike,
+        u: Optional[ArrayLike] = None,
         dt: Optional[float] = None,
         dW: Optional[ArrayLike] = None
     ) -> ArrayLike:
         """
-        Take one SDE integration step: x(t) → x(t + dt).
-        
-        Implements the numerical scheme for advancing the SDE by one time step
-        using the provided (or generated) Brownian increment.
+        Take one SDE integration step: x(t) β†' x(t + dt).
         
         Parameters
         ----------
         x : ArrayLike
             Current state (nx,) or (batch, nx)
-        u : ArrayLike
-            Control input (nu,) or (batch, nu)
+        u : Optional[ArrayLike]
+            Control input (nu,) or (batch, nu), or None for autonomous
         dt : Optional[float]
             Step size (uses self.dt if None)
         dW : Optional[ArrayLike]
-            Brownian increment (nw,) or (batch, nw)
-            If None, generated internally using noise_type strategy
+            Brownian increments (nw,) or (batch, nw)
+            If None, generated automatically
             
         Returns
         -------
         ArrayLike
-            Next state x(t + dt), same shape and type as input
+            Next state x(t + dt)
             
         Notes
         -----
-        The Brownian increment dW should satisfy:
-        - E[dW] = 0
-        - E[dW dW^T] = dt * I  (for independent Wiener processes)
-        - For strong schemes: dW ~ N(0, dt * I)
-        - For weak schemes: simplified distributions may be used
+        Subclasses implement specific SDE schemes:
+        - Euler-Maruyama (order 0.5 strong, 1.0 weak)
+        - Milstein (order 1.0 strong)
+        - Runge-Kutta SDE methods
+        - etc.
         
         Examples
         --------
-        >>> # Automatic noise generation
-        >>> x_next = integrator.step(x, u)
-        >>> 
-        >>> # Provide specific noise (e.g., for reproducibility)
-        >>> rng = np.random.RandomState(42)
-        >>> dW = rng.randn(system.nw) * np.sqrt(dt)
-        >>> x_next = integrator.step(x, u, dW=dW)
-        >>> 
-        >>> # Batched stepping
-        >>> x_batch = np.array([[1.0, 0.0], [2.0, 0.0]])
-        >>> dW_batch = rng.randn(2, system.nw) * np.sqrt(dt)
-        >>> x_next_batch = integrator.step(x_batch, u_batch, dW=dW_batch)
+        >>> x_next = integrator.step(x, u, dt=0.01)
+        >>> # With custom noise
+        >>> dW = np.random.randn(nw) * np.sqrt(0.01)
+        >>> x_next = integrator.step(x, u, dt=0.01, dW=dW)
         """
         pass
     
@@ -398,449 +604,239 @@ class SDEIntegratorBase(ABC):
     def integrate(
         self,
         x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], ArrayLike],
+        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
         t_span: Tuple[float, float],
         t_eval: Optional[ArrayLike] = None,
-        num_trajectories: int = 1,
-        seed: Optional[int] = None,
-        return_full_ensemble: bool = True
+        dense_output: bool = False
     ) -> SDEIntegrationResult:
         """
-        Integrate SDE over time interval with multiple trajectories.
-        
-        Simulates an ensemble of sample paths for Monte Carlo estimation
-        of expectations, variances, and probability distributions.
+        Integrate SDE over time interval.
         
         Parameters
         ----------
         x0 : ArrayLike
             Initial state (nx,)
-            Same initial condition used for all trajectories
-        u_func : Callable[[float, ArrayLike], ArrayLike]
-            Control policy: (t, x) → u
-            Can be:
-            - Constant control: lambda t, x: u_const
-            - State feedback: lambda t, x: -K @ x  
-            - Time-varying: lambda t, x: u(t)
+        u_func : Callable[[float, ArrayLike], Optional[ArrayLike]]
+            Control policy: (t, x) β†' u (or None for autonomous)
         t_span : Tuple[float, float]
             Integration interval (t_start, t_end)
         t_eval : Optional[ArrayLike]
             Specific times at which to store solution
-            If None, uses t = t_start + k*dt for k=0,1,2,...
-        num_trajectories : int
-            Number of sample paths to simulate (default: 1)
-            For Monte Carlo: typically 100-10000
-            For QMC: can use fewer (10-1000) due to better convergence
-        seed : Optional[int]
-            Random seed for reproducibility
-            For pseudo-random: standard numpy/torch/jax seed
-            For quasi-random: starting point in low-discrepancy sequence
-        return_full_ensemble : bool
-            If True, return all trajectories (default)
-            If False, return only statistics (mean, std)
-            Set False for memory efficiency with large num_trajectories
+        dense_output : bool
+            If True, return dense interpolated solution (if supported)
             
         Returns
         -------
         SDEIntegrationResult
-            Object containing:
-            - t: Time points (T,)
-            - x: Trajectories (num_trajectories, T, nx) if return_full_ensemble
-                 else only mean trajectory
-            - mean: Ensemble mean (T, nx)
-            - std: Ensemble std (T, nx)
-            - success: Whether integration succeeded
-            - nfev: Number of drift function evaluations
-            - nsteps: Number of steps per trajectory
+            Integration result with trajectory and noise samples
             
-        Raises
-        ------
-        RuntimeError
-            If integration fails (e.g., max steps exceeded, numerical instability)
-        
         Examples
         --------
-        >>> # Monte Carlo with 1000 paths
         >>> result = integrator.integrate(
         ...     x0=np.array([1.0, 0.0]),
         ...     u_func=lambda t, x: np.zeros(1),
-        ...     t_span=(0.0, 10.0),
-        ...     num_trajectories=1000,
-        ...     seed=42
-        ... )
-        >>> print(f"Mean endpoint: {result.mean[-1]}")
-        >>> print(f"Std endpoint: {result.std[-1]}")
-        >>> 
-        >>> # Quasi-Monte Carlo for variance reduction
-        >>> qmc_integrator = EulerMaruyamaIntegrator(
-        ...     system, dt=0.01, noise_type='quasi'
-        ... )
-        >>> result = qmc_integrator.integrate(
-        ...     x0=x0,
-        ...     u_func=u_func,
-        ...     t_span=(0.0, 10.0),
-        ...     num_trajectories=100,  # Fewer trajectories needed
-        ...     seed=0
+        ...     t_span=(0.0, 10.0)
         ... )
         >>> 
-        >>> # State feedback control with single trajectory
-        >>> K = np.array([[1.0, 2.0]])
+        >>> # Autonomous system
         >>> result = integrator.integrate(
-        ...     x0=x0,
-        ...     u_func=lambda t, x: -K @ x,
-        ...     t_span=(0.0, 10.0),
-        ...     num_trajectories=1
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: None,
+        ...     t_span=(0.0, 10.0)
         ... )
         """
         pass
     
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """
-        Get integrator name for display and logging.
-        
-        Returns
-        -------
-        str
-            Human-readable integrator name
-            
-        Examples
-        --------
-        >>> integrator.name
-        'Euler-Maruyama (Strong, Pseudo-random)'
-        >>> qmc_integrator.name
-        'Euler-Maruyama (Strong, QMC-Sobol)'
-        """
-        pass
-    
     # ========================================================================
-    # Noise Generation - Pseudo-random and Quasi-random
+    # Monte Carlo Simulation
     # ========================================================================
     
-    def _generate_noise(
+    def integrate_monte_carlo(
         self,
-        dt: float,
-        shape: Tuple[int, ...],
-        seed: Optional[int] = None
-    ) -> ArrayLike:
+        x0: ArrayLike,
+        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
+        t_span: Tuple[float, float],
+        n_paths: int,
+        t_eval: Optional[ArrayLike] = None,
+        store_paths: bool = True,
+        parallel: bool = False
+    ) -> SDEIntegrationResult:
         """
-        Generate Brownian increments using configured noise type.
+        Integrate multiple SDE trajectories for Monte Carlo analysis.
         
-        Dispatches to pseudo-random or quasi-random generation based on
-        self.noise_type setting.
+        Simulates n_paths independent realizations of the SDE to estimate
+        statistical properties (mean, variance, probability distributions).
         
         Parameters
         ----------
-        dt : float
-            Time step (for scaling: dW ~ N(0, dt))
-        shape : Tuple[int, ...]
-            Shape of noise array
-            - (nw,) for single step
-            - (num_steps, nw) for trajectory
-            - (num_trajectories, num_steps, nw) for ensemble
-        seed : Optional[int]
+        x0 : ArrayLike
+            Initial state (nx,)
+        u_func : Callable
+            Control policy (or None for autonomous)
+        t_span : Tuple[float, float]
+            Time interval
+        n_paths : int
+            Number of trajectories to simulate
+        t_eval : Optional[ArrayLike]
+            Evaluation times
+        store_paths : bool
+            If True, store all trajectories (memory intensive)
+            If False, only compute statistics online
+        parallel : bool
+            If True, use parallel execution (if backend supports)
+            
+        Returns
+        -------
+        SDEIntegrationResult
+            Result with shape (n_paths, T, nx) if store_paths=True
+            Result with statistics only if store_paths=False
+            
+        Examples
+        --------
+        >>> # Monte Carlo with 1000 paths
+        >>> result = integrator.integrate_monte_carlo(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: np.zeros(1),
+        ...     t_span=(0.0, 10.0),
+        ...     n_paths=1000
+        ... )
+        >>> 
+        >>> # Get statistics
+        >>> stats = result.get_statistics()
+        >>> print(f"Mean at t=10: {stats['mean'][-1]}")
+        >>> print(f"Std at t=10: {stats['std'][-1]}")
+        >>> 
+        >>> # Confidence intervals
+        >>> lower = stats['mean'] - 1.96 * stats['std']
+        >>> upper = stats['mean'] + 1.96 * stats['std']
+        """
+        if store_paths:
+            # Store all trajectories
+            all_paths = []
+            
+            for i in range(n_paths):
+                # Integrate single path
+                result = self.integrate(x0, u_func, t_span, t_eval)
+                all_paths.append(result.x)
+            
+            # Stack trajectories
+            if self.backend == 'numpy':
+                x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
+            elif self.backend == 'torch':
+                import torch
+                x_all = torch.stack(all_paths, dim=0)
+            elif self.backend == 'jax':
+                import jax.numpy as jnp
+                x_all = jnp.stack(all_paths, axis=0)
+            
+            return SDEIntegrationResult(
+                t=result.t,
+                x=x_all,
+                success=True,
+                message=f"Monte Carlo with {n_paths} paths completed",
+                nfev=self._stats['total_fev'],
+                nsteps=self._stats['total_steps'],
+                diffusion_evals=self._stats['diffusion_evals'],
+                n_paths=n_paths,
+                convergence_type=self.convergence_type,
+                solver=self.name,
+                sde_type=self.sde_type
+            )
+        else:
+            # Online statistics (memory efficient)
+            raise NotImplementedError(
+                "Online statistics not yet implemented. Use store_paths=True."
+            )
+    
+    # ========================================================================
+    # SDE-Specific Utilities
+    # ========================================================================
+    
+    def set_seed(self, seed: int):
+        """
+        Set random seed for reproducibility.
+        
+        Parameters
+        ----------
+        seed : int
             Random seed
             
-        Returns
-        -------
-        ArrayLike
-            Brownian increments, scaled by sqrt(dt)
-        """
-        if self.noise_type == NoiseType.PSEUDO:
-            return self._generate_pseudo_noise(dt, shape, seed)
-        elif self.noise_type == NoiseType.QUASI:
-            return self._generate_quasi_noise(dt, shape, seed)
-        else:
-            raise ValueError(f"Unknown noise type: {self.noise_type}")
-    
-    def _generate_pseudo_noise(
-        self,
-        dt: float,
-        shape: Tuple[int, ...],
-        seed: Optional[int] = None
-    ) -> ArrayLike:
-        """
-        Generate pseudo-random Brownian increments.
-        
-        Uses backend-specific random number generation:
-        - NumPy: numpy.random.randn
-        - PyTorch: torch.randn
-        - JAX: jax.random.normal
-        
-        Parameters
-        ----------
-        dt : float
-            Time step
-        shape : Tuple[int, ...]
-            Output shape
-        seed : Optional[int]
-            Random seed for reproducibility
-            
-        Returns
-        -------
-        ArrayLike
-            dW ~ N(0, dt * I)
-        """
-        sqrt_dt = np.sqrt(dt)
-        
-        if self.backend == 'numpy':
-            if seed is not None:
-                np.random.seed(seed)
-            return np.random.randn(*shape) * sqrt_dt
-            
-        elif self.backend == 'torch':
-            import torch
-            if seed is not None:
-                torch.manual_seed(seed)
-            return torch.randn(*shape) * sqrt_dt
-            
-        elif self.backend == 'jax':
-            import jax
-            import jax.numpy as jnp
-            if seed is None:
-                seed = 0
-            key = jax.random.PRNGKey(seed)
-            return jax.random.normal(key, shape) * sqrt_dt
-            
-        else:
-            raise ValueError(f"Unsupported backend: {self.backend}")
-    
-    def _generate_quasi_noise(
-        self,
-        dt: float,
-        shape: Tuple[int, ...],
-        seed: Optional[int] = None
-    ) -> ArrayLike:
-        """
-        Generate quasi-random Brownian increments using low-discrepancy sequences.
-        
-        Uses Sobol or Halton sequences for better space-filling properties.
-        Applies inverse normal CDF to map uniform [0,1] samples to Gaussian.
-        
-        Parameters
-        ----------
-        dt : float
-            Time step
-        shape : Tuple[int, ...]
-            Output shape
-        seed : Optional[int]
-            Starting index in sequence (not a random seed!)
-            
-        Returns
-        -------
-        ArrayLike
-            dW with low-discrepancy structure, scaled by sqrt(dt)
-            
-        Notes
-        -----
-        - QMC effectiveness decreases in high dimensions (d > 20-30)
-        - Total dimensions = nw * num_steps, so keep time horizons reasonable
-        - For very long integrations, consider randomized QMC (RQMC)
-        
-        Warnings
-        --------
-        - QMC requires fixed time grid (incompatible with adaptive stepping)
-        - Samples are negatively correlated (not independent like pseudo-random)
-        """
-        sqrt_dt = np.sqrt(dt)
-        
-        # Initialize QMC generator on first use
-        if self._qmc_generator is None:
-            self._initialize_qmc_generator(seed)
-        
-        # Total number of samples needed
-        total_samples = int(np.prod(shape))
-        
-        # Generate uniform [0,1] samples from low-discrepancy sequence
-        if self.backend == 'numpy':
-            from scipy.stats import qmc
-            uniform_samples = self._qmc_generator.random(total_samples)
-            
-            # Box-Muller transform: U[0,1] → N(0,1)
-            # For QMC, use inverse CDF (more stable)
-            from scipy.special import ndtri  # Inverse normal CDF
-            gaussian_samples = ndtri(uniform_samples)
-            
-            # Reshape and scale
-            noise = gaussian_samples.reshape(shape) * sqrt_dt
-            return noise
-            
-        elif self.backend == 'jax':
-            import jax.numpy as jnp
-            # JAX has native Sobol support
-            # (Implementation would go here - placeholder for now)
-            warnings.warn(
-                "JAX QMC implementation pending. Falling back to pseudo-random.",
-                UserWarning
-            )
-            return self._generate_pseudo_noise(dt, shape, seed)
-            
-        elif self.backend == 'torch':
-            import torch
-            # PyTorch doesn't have native QMC - use NumPy then convert
-            noise_np = self._generate_quasi_noise(dt, shape, seed)
-            return torch.from_numpy(noise_np).float()
-            
-        else:
-            raise ValueError(f"Unsupported backend: {self.backend}")
-    
-    def _initialize_qmc_generator(self, seed: Optional[int] = None):
-        """
-        Initialize quasi-Monte Carlo generator.
-        
-        Parameters
-        ----------
-        seed : Optional[int]
-            Starting index in sequence
-        """
-        if self.backend in ['numpy', 'torch']:
-            from scipy.stats import qmc
-            
-            # Dimension is number of Wiener processes
-            # (Will be used repeatedly for each time step)
-            d = self.nw
-            
-            if self.qmc_sequence == 'sobol':
-                self._qmc_generator = qmc.Sobol(d=d, scramble=True, seed=seed)
-            elif self.qmc_sequence == 'halton':
-                self._qmc_generator = qmc.Halton(d=d, scramble=True, seed=seed)
-            else:
-                raise ValueError(
-                    f"Unknown QMC sequence: {self.qmc_sequence}. "
-                    f"Use 'sobol' or 'halton'."
-                )
-                
-            # Skip to seed position if provided
-            if seed is not None and seed > 0:
-                self._qmc_generator.fast_forward(seed)
-                
-        elif self.backend == 'jax':
-            # JAX QMC would be initialized here
-            pass
-    
-    # ========================================================================
-    # Common Utilities
-    # ========================================================================
-    
-    def _evaluate_drift(self, x: ArrayLike, u: ArrayLike) -> ArrayLike:
-        """
-        Evaluate drift function with statistics tracking.
-        
-        Parameters
-        ----------
-        x : ArrayLike
-            State
-        u : ArrayLike
-            Control
-            
-        Returns
-        -------
-        ArrayLike
-            Drift f(x, u, t)
-        """
-        self._stats['total_fev'] += 1
-        return self.system.drift(x, u, backend=self.backend)
-    
-    def _evaluate_diffusion(self, x: ArrayLike, u: ArrayLike) -> ArrayLike:
-        """
-        Evaluate diffusion matrix with statistics tracking.
-        
-        Parameters
-        ----------
-        x : ArrayLike
-            State
-        u : ArrayLike
-            Control
-            
-        Returns
-        -------
-        ArrayLike
-            Diffusion g(x, u, t), shape (nx, nw)
-        """
-        self._stats['total_gev'] += 1
-        return self.system.diffusion(x, u, backend=self.backend)
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """
-        Get integration statistics.
-        
-        Returns
-        -------
-        dict
-            Statistics with keys:
-            - 'total_steps': Total integration steps taken
-            - 'total_fev': Total drift function evaluations
-            - 'total_gev': Total diffusion evaluations
-            - 'total_trajectories': Total trajectories simulated
-            - 'total_time': Total integration time
-            - 'avg_fev_per_step': Average drift evals per step
-            - 'avg_gev_per_step': Average diffusion evals per step
-            
         Examples
         --------
-        >>> result = integrator.integrate(x0, u_func, (0, 10), num_trajectories=100)
-        >>> stats = integrator.get_stats()
-        >>> print(f"Trajectories: {stats['total_trajectories']}")
-        >>> print(f"Steps per trajectory: {stats['total_steps'] / 100}")
-        >>> print(f"Drift evals: {stats['total_fev']}")
+        >>> integrator.set_seed(42)
+        >>> result1 = integrator.integrate(x0, u_func, t_span)
+        >>> integrator.set_seed(42)
+        >>> result2 = integrator.integrate(x0, u_func, t_span)
+        >>> # result1 and result2 are identical
         """
-        avg_fev = self._stats['total_fev'] / max(1, self._stats['total_steps'])
-        avg_gev = self._stats['total_gev'] / max(1, self._stats['total_steps'])
+        self.seed = seed
+        self._rng = self._initialize_rng(self.backend, seed)
         
+        # Also set global seed for backend consistency
+        if self.backend == 'numpy':
+            np.random.seed(seed)
+        elif self.backend == 'torch':
+            import torch
+            torch.manual_seed(seed)
+        # JAX uses explicit keys, handled in _initialize_rng
+    
+    def get_noise_info(self) -> Dict[str, Any]:
+        """
+        Get information about noise structure and optimizations.
+        
+        Returns
+        -------
+        Dict[str, Any]
+            Noise structure information
+        """
         return {
-            **self._stats,
-            'avg_fev_per_step': avg_fev,
-            'avg_gev_per_step': avg_gev,
+            'nw': self.nw,
+            'is_additive': self._is_additive,
+            'is_multiplicative': self._is_multiplicative,
+            'is_diagonal': self._is_diagonal,
+            'is_scalar': self._is_scalar,
+            'cached_diffusion': self._cached_diffusion is not None,
+            'noise_type': self.sde_system.get_noise_type().value,
         }
+    
+    def get_sde_stats(self) -> Dict[str, Any]:
+        """
+        Get SDE-specific integration statistics.
+        
+        Returns
+        -------
+        Dict[str, Any]
+            Statistics including drift/diffusion evaluations
+        """
+        base_stats = self.get_stats()
+        sde_stats = {
+            'diffusion_evals': self._stats['diffusion_evals'],
+            'noise_samples': self._stats['noise_samples'],
+            'avg_diffusion_per_step': (
+                self._stats['diffusion_evals'] / max(1, self._stats['total_steps'])
+            ),
+        }
+        return {**base_stats, **sde_stats}
     
     def reset_stats(self):
-        """
-        Reset integration statistics to zero.
-        
-        Examples
-        --------
-        >>> integrator.reset_stats()
-        >>> integrator.get_stats()['total_steps']
-        0
-        """
-        self._stats['total_steps'] = 0
-        self._stats['total_fev'] = 0
-        self._stats['total_gev'] = 0
-        self._stats['total_trajectories'] = 0
-        self._stats['total_time'] = 0.0
-    
-    def _check_noise_characteristics(self) -> Dict[str, bool]:
-        """
-        Check system noise characteristics for optimization hints.
-        
-        Returns
-        -------
-        dict
-            Noise properties that can enable faster integration:
-            - 'is_additive': Constant diffusion (no state/control dependence)
-            - 'is_diagonal': Independent noise sources
-            - 'is_scalar': Single noise source
-        """
-        return {
-            'is_additive': self.system.is_additive_noise(),
-            'is_diagonal': self.system.is_diagonal_noise(),
-            'is_scalar': self.system.is_scalar_noise(),
-        }
+        """Reset all statistics including SDE-specific counters."""
+        super().reset_stats()
+        self._stats['diffusion_evals'] = 0
+        self._stats['noise_samples'] = 0
     
     def __repr__(self) -> str:
         """String representation for debugging."""
         return (
             f"{self.__class__.__name__}("
-            f"dt={self.dt}, noise={self.noise_type.value}, "
-            f"mode={self.convergence_mode.value}, backend={self.backend})"
+            f"dt={self.dt}, mode={self.step_mode.value}, "
+            f"backend={self.backend}, sde_type={self.sde_type.value}, "
+            f"convergence={self.convergence_type.value})"
         )
     
     def __str__(self) -> str:
         """Human-readable string."""
-        noise_str = (
-            f"QMC-{self.qmc_sequence}" 
-            if self.noise_type == NoiseType.QUASI 
-            else "Pseudo"
+        noise_str = " (additive)" if self._is_additive else " (multiplicative)"
+        return (
+            f"{self.name} (dt={self.dt:.4f}, {self.backend}, "
+            f"{self.sde_type.value}{noise_str})"
         )
-        return f"{self.name} (dt={self.dt:.4f}, {noise_str}, {self.backend})"
