@@ -34,19 +34,35 @@ from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSyst
 # ============================================================================
 
 class MockSDESystem(StochasticDynamicalSystem):
-    """Mock stochastic dynamical system for testing."""
+    """Mock stochastic dynamical system for testing.
+    
+    Uses object.__setattr__() to bypass read-only properties.
+    """
     
     def __init__(self, nx=2, nu=1, nw=2, noise_type='general'):
-        # Don't call super().__init__() to avoid full initialization
-        # Just set the required attributes
-        self.nx = nx
-        self.nu = nu
-        self.nw = nw
-        self.sde_type = SDEType.ITO
-        self._noise_type = noise_type
+        # Don't call super().__init__() to avoid complex initialization
+        # Instead, set attributes directly using object.__setattr__() to bypass properties
+        object.__setattr__(self, '_nx', nx)
+        object.__setattr__(self, '_nu', nu)
+        object.__setattr__(self, '_nw', nw)
+        object.__setattr__(self, 'sde_type', SDEType.ITO)
+        object.__setattr__(self, '_noise_type', noise_type)
+        object.__setattr__(self, '_system_name', 'MockSDESystem')
         
-        # Mock the system name
-        self._system_name = "MockSDESystem"
+        # Initialize required internal state
+        object.__setattr__(self, '_backend', 'numpy')
+    
+    @property
+    def nx(self):
+        return self._nx
+    
+    @property
+    def nu(self):
+        return self._nu
+    
+    @property
+    def nw(self):
+        return self._nw
     
     def define_system(self):
         """Required abstract method - mock implementation."""
@@ -256,9 +272,10 @@ class TestBackendDefaults:
     
     def test_numpy_default(self, controlled_sde_system):
         """Test NumPy backend defaults to Julia EM."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffEqPySDEIntegrator', mock_class):
+        # Patch the actual class, not the module
+        with patch('src.systems.base.numerical_integration.stochastic.diffeqpy_sde_integrator.DiffEqPySDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='numpy'
@@ -272,9 +289,9 @@ class TestBackendDefaults:
     
     def test_torch_default(self, controlled_sde_system):
         """Test PyTorch backend defaults to euler."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.TorchSDEIntegrator', mock_class):
+        with patch('src.systems.base.numerical_integration.stochastic.torchsde_integrator.TorchSDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='torch'
@@ -287,9 +304,9 @@ class TestBackendDefaults:
     
     def test_jax_default(self, controlled_sde_system):
         """Test JAX backend defaults to Euler."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffraxSDEIntegrator', mock_class):
+        with patch('src.systems.base.numerical_integration.stochastic.diffrax_sde_integrator.DiffraxSDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='jax'
@@ -306,9 +323,9 @@ class TestMethodRouting:
     
     def test_julia_method_routes_to_numpy(self, controlled_sde_system):
         """Julia methods should route to NumPy backend."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffEqPySDEIntegrator', mock_class):
+        with patch('src.systems.base.numerical_integration.stochastic.diffeqpy_sde_integrator.DiffEqPySDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='numpy',
@@ -320,9 +337,9 @@ class TestMethodRouting:
     
     def test_torchsde_method_routes_to_torch(self, controlled_sde_system):
         """TorchSDE methods should route to PyTorch backend."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.TorchSDEIntegrator', mock_class):
+        with patch('src.systems.base.numerical_integration.stochastic.torchsde_integrator.TorchSDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='torch',
@@ -334,9 +351,9 @@ class TestMethodRouting:
     
     def test_diffrax_method_routes_to_jax(self, controlled_sde_system):
         """Diffrax methods should route to JAX backend."""
-        mock_class = Mock(return_value=MockSDEIntegrator(controlled_sde_system))
+        mock_integrator = MockSDEIntegrator(controlled_sde_system)
         
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffraxSDEIntegrator', mock_class):
+        with patch('src.systems.base.numerical_integration.stochastic.diffrax_sde_integrator.DiffraxSDEIntegrator', return_value=mock_integrator) as mock_class:
             integrator = SDEIntegratorFactory.create(
                 controlled_sde_system,
                 backend='jax',
