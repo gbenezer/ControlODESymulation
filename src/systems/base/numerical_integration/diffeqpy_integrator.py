@@ -305,28 +305,19 @@ class DiffEqPyIntegrator(IntegratorBase):
     
     @property
     def name(self) -> str:
-        """Return integrator name."""
+        """Return integrator name (uses list_algorithms for categorization)."""
         mode_str = "Fixed" if self.step_mode == StepMode.FIXED else "Adaptive"
         
-        # Identify solver type
-        stiff_algorithms = [
-            'Rosenbrock23', 'Rosenbrock32', 'Rodas4', 'Rodas4P', 'Rodas5',
-            'TRBDF2', 'KenCarp3', 'KenCarp4', 'KenCarp5',
-            'RadauIIA5', 'QNDF', 'FBDF'
-        ]
-        stabilized_algorithms = ['ROCK2', 'ROCK4', 'ESERK4', 'ESERK5']
-        geometric_algorithms = [
-            'SymplecticEuler', 'VelocityVerlet', 
-            'McAte2', 'McAte4', 'McAte5'
-        ]
+        # Dynamically determine type from algorithm categories
+        all_algos = list_algorithms()
         
         if 'Auto' in self.algorithm:
             type_str = " (Auto-Stiffness)"
-        elif self.algorithm in stiff_algorithms:
+        elif any(self.algorithm in all_algos[cat] for cat in ['stiff_rosenbrock', 'stiff_esdirk', 'stiff_implicit']):
             type_str = " (Stiff)"
-        elif self.algorithm in stabilized_algorithms:
+        elif self.algorithm in all_algos.get('stabilized', []):
             type_str = " (Stabilized)"
-        elif self.algorithm in geometric_algorithms:
+        elif self.algorithm in all_algos.get('geometric', []):
             type_str = " (Geometric)"
         else:
             type_str = ""
