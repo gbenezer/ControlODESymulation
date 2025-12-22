@@ -591,17 +591,35 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
             # Check success
             success = jnp.all(jnp.isfinite(solution.ys))
             
+            # Check if solution is valid
+            if len(solution.ys) == 0:
+                return SDEIntegrationResult(
+                    t=jnp.array([t0]),
+                    x=x0[jnp.newaxis, :] if x0.ndim == 1 else x0,
+                    success=False,
+                    message=f"Diffrax SDE solver '{self.solver_name}' produced no output",
+                    nfev=0,
+                    nsteps=0,
+                    diffusion_evals=0,
+                    n_paths=1,
+                    convergence_type=self.convergence_type,
+                    solver=self.solver_name,
+                    sde_type=self.sde_type,
+                )
+            
             # Update statistics
-            nsteps = int(solution.stats.get("num_steps", 0))
-            nfev = self._stats['total_fev']
+            nsteps = int(solution.stats.get("num_steps", len(solution.ts) - 1))
+            nfev = nsteps  # Estimate
             self._stats['total_steps'] += nsteps
+            self._stats['total_fev'] += nfev
+            self._stats['diffusion_evals'] += nsteps
             
             return SDEIntegrationResult(
                 t=solution.ts,
                 x=solution.ys,
                 success=bool(success),
-                message="Diffrax SDE integration successful" if success else "Integration failed",
-                nfev=nfev,
+                message="Diffrax SDE integration successful" if success else "Integration failed (NaN/Inf detected)",
+                nfev=self._stats['total_fev'],
                 nsteps=nsteps,
                 diffusion_evals=self._stats['diffusion_evals'],
                 noise_samples=None,  # Diffrax doesn't expose noise samples
@@ -612,11 +630,12 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
             )
             
         except Exception as e:
+            import traceback
             return SDEIntegrationResult(
                 t=jnp.array([t0]),
                 x=x0[jnp.newaxis, :] if x0.ndim == 1 else x0,
                 success=False,
-                message=f"Diffrax SDE integration failed: {str(e)}",
+                message=f"Diffrax SDE integration failed: {str(e)}\n{traceback.format_exc()}",
                 nfev=0,
                 nsteps=0,
                 diffusion_evals=0,
