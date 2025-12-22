@@ -119,7 +119,9 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
     dt : Optional[float]
         Time step (initial guess for adaptive, fixed for non-adaptive)
     step_mode : StepMode
-        FIXED or ADAPTIVE stepping (most Julia SDE solvers are adaptive)
+        FIXED or ADAPTIVE stepping (default: FIXED)
+        Note: Many Julia SDE solvers (like EM) only support fixed stepping
+        Use adaptive algorithms like 'LambaEM' for adaptive stepping
     backend : str
         Must be 'numpy' (Julia returns NumPy arrays via diffeqpy)
     algorithm : str
@@ -185,7 +187,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         self,
         sde_system,
         dt: Optional[float] = 0.01,
-        step_mode: StepMode = StepMode.ADAPTIVE,
+        step_mode: StepMode = StepMode.FIXED,  # Changed default to FIXED
         backend: str = 'numpy',
         algorithm: str = 'EM',
         sde_type: Optional[SDEType] = None,

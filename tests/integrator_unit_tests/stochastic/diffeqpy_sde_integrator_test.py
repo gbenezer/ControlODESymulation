@@ -258,15 +258,15 @@ class TestDiffEqPySDEInitialization:
             )
             assert integrator.algorithm == alg
     
-    def test_step_mode_defaults_to_adaptive(self, ou_system):
-        """Test that default step mode is ADAPTIVE."""
+    def test_step_mode_defaults_to_fixed(self, ou_system):
+        """Test that default step mode is FIXED (EM doesn't support adaptive)."""
         integrator = DiffEqPySDEIntegrator(
             ou_system,
             dt=0.01,
             algorithm='EM'
         )
         
-        assert integrator.step_mode == StepMode.ADAPTIVE
+        assert integrator.step_mode == StepMode.FIXED
     
     def test_custom_tolerances(self, ou_system):
         """Test custom tolerance settings."""
