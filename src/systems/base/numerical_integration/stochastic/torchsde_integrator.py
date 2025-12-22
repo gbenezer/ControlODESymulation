@@ -251,12 +251,12 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         
         # Auto-detect noise type if not specified
         if noise_type is None:
-            if self.sde_system.is_additive_noise():
+            if self.sde_system.is_scalar_noise():
+                self.noise_type = 'scalar'
+            elif self.sde_system.is_additive_noise():
                 self.noise_type = 'additive'
             elif self.sde_system.is_diagonal_noise():
                 self.noise_type = 'diagonal'
-            elif self.sde_system.is_scalar_noise():
-                self.noise_type = 'scalar'
             else:
                 self.noise_type = 'general'
         else:
@@ -276,7 +276,8 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         """
         Create torchsde-compatible SDE wrapper.
         
-        torchsde expects an SDE class with f() and g() methods.
+        torchsde expects an SDE class with f() and g() methods that handle
+        batched inputs: y has shape (batch, nx).
         """
         sde_system = self.sde_system
         backend = self.backend
@@ -292,36 +293,90 @@ class TorchSDEIntegrator(SDEIntegratorBase):
                 self.sde_type = 'ito' if sde_type == SDEType.ITO else 'stratonovich'
             
             def f(self, t, y):
-                """Drift function: f(t, y) -> dy/dt"""
-                # Get control
-                u = u_func(float(t), y)
+                """
+                Drift function: f(t, y) -> dy/dt
                 
-                # Evaluate drift
-                drift = sde_system.drift(y, u, backend=backend)
+                Parameters
+                ----------
+                t : float or Tensor
+                    Time
+                y : Tensor
+                    State with shape (batch, nx)
+                    
+                Returns
+                -------
+                Tensor
+                    Drift with shape (batch, nx)
+                """
+                # Handle batched input
+                if y.ndim == 1:
+                    y = y.unsqueeze(0)  # Add batch dimension
                 
-                return drift
+                batch_size = y.shape[0]
+                
+                # Process each batch element
+                drifts = []
+                for i in range(batch_size):
+                    y_i = y[i]
+                    u = u_func(float(t), y_i)
+                    drift_i = sde_system.drift(y_i, u, backend=backend)
+                    drifts.append(drift_i)
+                
+                # Stack results
+                result = torch.stack(drifts, dim=0)
+                
+                return result
             
             def g(self, t, y):
-                """Diffusion function: g(t, y) -> diffusion matrix"""
-                # Get control
-                u = u_func(float(t), y)
+                """
+                Diffusion function: g(t, y) -> diffusion matrix
                 
-                # Evaluate diffusion
-                diffusion = sde_system.diffusion(y, u, backend=backend)
+                Parameters
+                ----------
+                t : float or Tensor
+                    Time
+                y : Tensor
+                    State with shape (batch, nx)
+                    
+                Returns
+                -------
+                Tensor
+                    Diffusion with shape (batch, nx, nw) for general noise
+                    Or (batch, nx) for diagonal/scalar noise
+                """
+                # Handle batched input
+                if y.ndim == 1:
+                    y = y.unsqueeze(0)
                 
-                # torchsde expects specific shapes based on noise_type
-                if noise_type == 'scalar':
-                    # Squeeze to 1D if scalar noise
-                    if diffusion.ndim == 2 and diffusion.shape[1] == 1:
-                        diffusion = diffusion.squeeze(-1)
+                batch_size = y.shape[0]
+                
+                # Process each batch element
+                diffusions = []
+                for i in range(batch_size):
+                    y_i = y[i]
+                    u = u_func(float(t), y_i)
+                    g_i = sde_system.diffusion(y_i, u, backend=backend)
+                    
+                    # Ensure proper shape
+                    if g_i.ndim == 1:
+                        g_i = g_i.unsqueeze(-1)  # (nx,) -> (nx, 1)
+                    
+                    diffusions.append(g_i)
+                
+                # Stack: (batch, nx, nw)
+                result = torch.stack(diffusions, dim=0)
+                
+                # Handle noise type specific formats
+                if noise_type == 'scalar' and result.shape[2] == 1:
+                    # Scalar noise: squeeze to (batch, nx)
+                    result = result.squeeze(-1)
                 elif noise_type == 'diagonal':
-                    # For diagonal, might need to return just the diagonal
-                    if diffusion.ndim == 2:
-                        # Check if it's actually diagonal
-                        if torch.allclose(diffusion, torch.diag(torch.diag(diffusion))):
-                            diffusion = torch.diag(diffusion)
+                    # Diagonal noise: torchsde might expect (batch, nx)
+                    if result.shape[1] == result.shape[2]:  # Square matrix
+                        # Extract diagonal
+                        result = torch.stack([torch.diag(result[i]) for i in range(batch_size)])
                 
-                return diffusion
+                return result
         
         return SDEWrapper()
     
