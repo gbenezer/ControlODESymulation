@@ -662,6 +662,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
         - God objects
         - Other code smells/design flaws
         - Inconsistencies in user-facing API
+- Address the warnings being raised by StochasticDynamicalSystems when parameters are used in the diffusion term but not _f_sym or _h_sym
 
 #### Phase 3:
 - Re-implement plotting utilities
