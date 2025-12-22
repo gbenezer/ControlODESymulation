@@ -631,8 +631,6 @@ ControlODESymulation/
 Currently not open to contributions, though may change after Phase 4 and once I learn how open-source development works
 
 #### Phase 1 (Current):
-- DiffEqPyIntegrator class
-    - Modify IntegratorFactory to handle deterministic DiffEqPyIntegrator objects and update unit tests
 - Assess if any IntegratorBase subclasses need to be modified for compatibility with autonomous systems
     - If so, modify subclasses and unit tests for compatibility
 - Finish implementation of SDE Integration utilities
