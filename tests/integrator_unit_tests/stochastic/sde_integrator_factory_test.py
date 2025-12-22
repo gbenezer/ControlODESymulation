@@ -48,6 +48,10 @@ class MockSDESystem(StochasticDynamicalSystem):
         # Mock the system name
         self._system_name = "MockSDESystem"
     
+    def define_system(self):
+        """Required abstract method - mock implementation."""
+        pass
+    
     def drift(self, x, u, backend='numpy'):
         """Mock drift function: f(x, u) = -x + u"""
         if u is None:
@@ -844,8 +848,9 @@ class TestUtilityFunctions:
     
     def test_get_info_julia_method(self):
         """Test get_info() for Julia method."""
-        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffEqPySDEIntegrator') as mock_class:
-            mock_class.get_algorithm_info = Mock(return_value={
+        # Mock the import and the method
+        with patch('src.systems.base.numerical_integration.stochastic.sde_integrator_factory.DiffEqPySDEIntegrator') as mock_module:
+            mock_module.get_algorithm_info = Mock(return_value={
                 'name': 'SRIW1',
                 'description': 'High accuracy'
             })
