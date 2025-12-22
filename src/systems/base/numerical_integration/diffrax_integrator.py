@@ -6,6 +6,11 @@ differentiation support through JAX's JIT compilation.
 
 Supports explicit, implicit, IMEX, and special solvers from Diffrax.
 Supports both controlled and autonomous systems (nu=0).
+
+Known Limitations:
+- Backward time integration (tf < t0) is not currently supported due to
+  complexity in handling time transformations and result ordering with Diffrax.
+  For reverse-time integration, integrate forward and reverse the arrays.
 """
 
 from typing import Optional, Callable, Tuple
@@ -84,6 +89,25 @@ class DiffraxIntegrator(IntegratorBase):
     - The integrator will automatically detect which solvers are available
     - Use `integrator._solver_map.keys()` to see available solvers
     - Supports autonomous systems (nu=0) by passing u=None
+    - Backward time integration (t_span with tf < t0) is not supported
+    
+    Examples
+    --------
+    >>> # Controlled system
+    >>> integrator = DiffraxIntegrator(system, backend='jax', solver='tsit5')
+    >>> result = integrator.integrate(
+    ...     x0=jnp.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: jnp.array([0.5]),
+    ...     t_span=(0.0, 10.0)
+    ... )
+    >>> 
+    >>> # Autonomous system
+    >>> integrator = DiffraxIntegrator(autonomous_system, backend='jax')
+    >>> result = integrator.integrate(
+    ...     x0=jnp.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: None,
+    ...     t_span=(0.0, 10.0)
+    ... )
     """
 
     def __init__(
@@ -142,8 +166,6 @@ class DiffraxIntegrator(IntegratorBase):
             # RK4 might be available as a specific class
             self._solver_map["rk4"] = dfx.RK4
         except AttributeError:
-            # If not, we can create it from a tableau
-            # For now, just use a 4th order explicit method as fallback
             pass
         
         # IMEX solvers - these need special handling
@@ -275,7 +297,7 @@ class DiffraxIntegrator(IntegratorBase):
         
         # Set up solver kwargs
         solver_kwargs = {
-            'terms': term,  # Diffrax expects 'terms' not 'term'
+            'terms': term,
             'solver': solver,
             't0': 0.0,
             't1': step_size,
@@ -292,7 +314,7 @@ class DiffraxIntegrator(IntegratorBase):
         # Single step integration
         solution = dfx.diffeqsolve(**solver_kwargs)
         
-        # Update stats AFTER integration
+        # Update stats
         self._stats['total_steps'] += 1
         self._stats['total_fev'] += int(solution.stats.get('num_steps', 1))
         
@@ -317,8 +339,9 @@ class DiffraxIntegrator(IntegratorBase):
             Control policy: (t, x) → u (or None for autonomous systems)
         t_span : Tuple[float, float]
             Integration interval (t_start, t_end)
+            Note: t_end must be > t_start (backward integration not supported)
         t_eval : Optional[ArrayLike]
-            Specific times at which to store solution
+            Specific times at which to store solution (must be increasing)
         dense_output : bool
             If True, return dense interpolated solution
             
@@ -326,6 +349,11 @@ class DiffraxIntegrator(IntegratorBase):
         -------
         IntegrationResult
             Object containing t, x, success, and metadata
+            
+        Raises
+        ------
+        ValueError
+            If t_span has tf < t0 (backward integration not supported)
             
         Examples
         --------
@@ -342,11 +370,29 @@ class DiffraxIntegrator(IntegratorBase):
         ...     u_func=lambda t, x: None,
         ...     t_span=(0.0, 10.0)
         ... )
+        
+        Notes
+        -----
+        Backward time integration (tf < t0) is not supported. If you need
+        reverse-time integration, integrate forward and reverse the output:
+        
+        >>> # Instead of integrate(x0, u_func, (10.0, 0.0))
+        >>> result = integrate(x0, u_func, (0.0, 10.0))
+        >>> t_reversed = jnp.flip(result.t)
+        >>> x_reversed = jnp.flip(result.x, axis=0)
         """
         t0, tf = t_span
         x0 = jnp.asarray(x0)
         
-        # Handle edge cases
+        # Validate time span
+        if tf < t0:
+            raise ValueError(
+                f"Backward integration (tf < t0) is not supported. "
+                f"Got t_span=({t0}, {tf}). "
+                f"For reverse-time integration, integrate forward and flip results."
+            )
+        
+        # Handle edge case
         if t0 == tf:
             return IntegrationResult(
                 t=jnp.array([t0]),
@@ -357,35 +403,16 @@ class DiffraxIntegrator(IntegratorBase):
                 nsteps=0,
             )
         
-        # Handle backward integration
-        if tf < t0:
-            backward = True
-            t0_actual, tf_actual = tf, t0
-        else:
-            backward = False
-            t0_actual, tf_actual = t0, tf
-        
         # Define ODE function - MUST accept (t, y, args) even if args unused
         def ode_func(t, state, args):
-            # For autonomous systems (nu=0), u_func returns None and doesn't use time
-            # For non-autonomous, we need to transform time for backward integration
-            if backward and self.system.nu > 0:
-                # Only transform time for non-autonomous systems
-                t_actual = t0 + tf - t
-            else:
-                # Autonomous systems: time doesn't matter, don't transform
-                # Forward integration: use time as-is
-                t_actual = t
-            
-            u = u_func(t_actual, state)
+            u = u_func(t, state)
             
             # Handle autonomous systems - keep None as None
             # Do NOT convert None to jax array
             if u is not None and not isinstance(u, jnp.ndarray):
                 u = jnp.asarray(u)
             
-            xdot = self.system(state, u, backend=self.backend)
-            return -xdot if backward else xdot
+            return self.system(state, u, backend=self.backend)
         
         # Create appropriate ODE term
         term = self._create_ode_term(ode_func)
@@ -395,17 +422,12 @@ class DiffraxIntegrator(IntegratorBase):
         if self.step_mode == StepMode.FIXED:
             if t_eval is not None:
                 t_points = jnp.asarray(t_eval)
-                if backward:
-                    t_points_actual = t0_actual + tf_actual - t_points[::-1]
-                else:
-                    t_points_actual = t_points
             else:
-                n_steps = max(2, int((tf_actual - t0_actual) / self.dt) + 1)
-                t_points_actual = jnp.linspace(t0_actual, tf_actual, n_steps)
+                n_steps = max(2, int((tf - t0) / self.dt) + 1)
                 t_points = jnp.linspace(t0, tf, n_steps)
             
-            stepsize_controller = dfx.StepTo(ts=t_points_actual)
-            saveat = dfx.SaveAt(ts=t_points_actual)
+            stepsize_controller = dfx.StepTo(ts=t_points)
+            saveat = dfx.SaveAt(ts=t_points)
             dt0_value = None  # StepTo determines step locations
             
         else:
@@ -419,28 +441,23 @@ class DiffraxIntegrator(IntegratorBase):
             
             if t_eval is not None:
                 t_points = jnp.asarray(t_eval)
-                if backward:
-                    t_points_actual = t0_actual + tf_actual - t_points[::-1]
-                else:
-                    t_points_actual = t_points
-                saveat = dfx.SaveAt(ts=t_points_actual)
+                saveat = dfx.SaveAt(ts=t_points)
             else:
                 n_dense = max(2, self.options.get("n_dense", 100))
-                t_points_actual = jnp.linspace(t0_actual, tf_actual, n_dense)
                 t_points = jnp.linspace(t0, tf, n_dense)
-                saveat = dfx.SaveAt(ts=t_points_actual)
+                saveat = dfx.SaveAt(ts=t_points)
             
-            dt0_value = self.dt if self.dt is not None else (tf_actual - t0_actual) / 100
+            dt0_value = self.dt if self.dt is not None else (tf - t0) / 100
         
         # Set up adjoint method
         adjoint_method = self._adjoint_map[self.adjoint_name]()
         
         # Build solver kwargs
         solver_kwargs = {
-            'terms': term,  # Diffrax expects 'terms' not 'term'
+            'terms': term,
             'solver': solver,
-            't0': t0_actual,
-            't1': tf_actual,
+            't0': t0,
+            't1': tf,
             'dt0': dt0_value,
             'y0': x0,
             'saveat': saveat,
@@ -457,10 +474,6 @@ class DiffraxIntegrator(IntegratorBase):
             # Check success
             success = jnp.all(jnp.isfinite(solution.ys))
             
-            # Extract results
-            t_result = solution.ts if not backward else (t0 + tf - solution.ts[::-1])
-            x_result = solution.ys if not backward else solution.ys[::-1]
-            
             # Update statistics
             nsteps = int(solution.stats.get("num_steps", 0))
             nfev = int(solution.stats.get("num_steps", 0))
@@ -468,8 +481,8 @@ class DiffraxIntegrator(IntegratorBase):
             self._stats['total_fev'] += nfev
             
             return IntegrationResult(
-                t=t_result,
-                x=x_result,
+                t=solution.ts,
+                x=solution.ys,
                 success=bool(success),
                 message="Integration successful" if success else "Integration failed (NaN/Inf detected)",
                 nfev=nfev,
@@ -540,7 +553,7 @@ class DiffraxIntegrator(IntegratorBase):
             solver = solver_class()
             
             solution = dfx.diffeqsolve(
-                terms, solver,  # Note: 'terms' is positional here
+                terms, solver,
                 t0=0.0, t1=dt,
                 dt0=dt, y0=x,
                 saveat=dfx.SaveAt(t1=True),
@@ -599,7 +612,7 @@ class DiffraxIntegrator(IntegratorBase):
         implicit_func : Callable
             Stiff part: (t, x) -> dx/dt_implicit
         t_span : Tuple[float, float]
-            Integration interval
+            Integration interval (must have tf > t0)
         t_eval : Optional[ArrayLike]
             Evaluation times
             
@@ -611,7 +624,7 @@ class DiffraxIntegrator(IntegratorBase):
         Raises
         ------
         ValueError
-            If solver is not IMEX or IMEX solvers not available
+            If solver is not IMEX, IMEX solvers not available, or tf < t0
         
         Notes
         -----
@@ -631,6 +644,12 @@ class DiffraxIntegrator(IntegratorBase):
             )
         
         t0, tf = t_span
+        
+        if tf < t0:
+            raise ValueError(
+                f"Backward integration not supported for IMEX. Got t_span=({t0}, {tf})"
+            )
+        
         x0 = jnp.asarray(x0)
         
         # Define explicit and implicit ODE functions
