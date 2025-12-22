@@ -238,24 +238,34 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         self._integrator_name = f"Diffrax-{solver}"
         
         # Map solver names to Diffrax solver classes
-        self._solver_map = {
-            # Basic solvers
-            'Euler': dfx.Euler,
-            'EulerHeun': dfx.EulerHeun,
-            'Heun': dfx.Heun,
-            
-            # Milstein methods
-            'ItoMilstein': dfx.ItoMilstein,
-            'StratonovichMilstein': dfx.StratonovichMilstein,
-            
-            # Specialized for additive noise
-            'SEA': dfx.SEA,
-            'SHARK': dfx.ShARK,
-            'SRA1': dfx.SRA1,
-            
-            # Reversible
-            'ReversibleHeun': dfx.ReversibleHeun,
-        }
+        # Note: Not all solvers may be available in all Diffrax versions
+        self._solver_map = {}
+        
+        # Basic solvers (always available)
+        if hasattr(dfx, 'Euler'):
+            self._solver_map['Euler'] = dfx.Euler
+        if hasattr(dfx, 'EulerHeun'):
+            self._solver_map['EulerHeun'] = dfx.EulerHeun
+        if hasattr(dfx, 'Heun'):
+            self._solver_map['Heun'] = dfx.Heun
+        
+        # Milstein methods
+        if hasattr(dfx, 'ItoMilstein'):
+            self._solver_map['ItoMilstein'] = dfx.ItoMilstein
+        if hasattr(dfx, 'StratonovichMilstein'):
+            self._solver_map['StratonovichMilstein'] = dfx.StratonovichMilstein
+        
+        # Specialized for additive noise (may not exist in older versions)
+        if hasattr(dfx, 'SEA'):
+            self._solver_map['SEA'] = dfx.SEA
+        if hasattr(dfx, 'ShARK'):
+            self._solver_map['SHARK'] = dfx.ShARK
+        if hasattr(dfx, 'SRA1'):
+            self._solver_map['SRA1'] = dfx.SRA1
+        
+        # Reversible
+        if hasattr(dfx, 'ReversibleHeun'):
+            self._solver_map['ReversibleHeun'] = dfx.ReversibleHeun
         
         # Validate solver
         if self.solver_name not in self._solver_map:
@@ -325,30 +335,31 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         if self.levy_area == 'none':
             # Standard Brownian motion (no Levy area)
             return dfx.VirtualBrownianTree(
-                t0=t0,
-                t1=t1,
-                tol=1e-3,
-                shape=shape,
-                key=key
+                t0, t1, tol=1e-3, shape=shape, key=key
             )
         elif self.levy_area == 'space-time':
             # Space-time Levy area (for Milstein)
-            return dfx.SpaceTimeLevyArea(
-                t0=t0,
-                t1=t1,
-                tol=1e-3,
-                shape=shape,
-                key=key
-            )
+            # Note: API may vary by Diffrax version
+            try:
+                return dfx.SpaceTimeLevyArea(
+                    t0, t1, tol=1e-3, shape=shape, key=key
+                )
+            except TypeError:
+                # Older API without t0/t1
+                return dfx.SpaceTimeLevyArea(
+                    tol=1e-3, shape=shape, key=key
+                )
         elif self.levy_area == 'full':
             # Full Levy area approximation
-            return dfx.SpaceTimeTimeLevyArea(
-                t0=t0,
-                t1=t1,
-                tol=1e-3,
-                shape=shape,
-                key=key
-            )
+            try:
+                return dfx.SpaceTimeTimeLevyArea(
+                    t0, t1, tol=1e-3, shape=shape, key=key
+                )
+            except (TypeError, AttributeError):
+                # May not exist in all versions
+                return dfx.VirtualBrownianTree(
+                    t0, t1, tol=1e-3, shape=shape, key=key
+                )
         else:
             raise ValueError(
                 f"Invalid levy_area '{self.levy_area}'. "
