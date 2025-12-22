@@ -5,6 +5,8 @@ Provides a convenient factory class for creating the appropriate integrator
 based on backend, method, and requirements. Simplifies integrator selection
 and configuration.
 
+Now includes support for Julia's DifferentialEquations.jl via DiffEqPy!
+
 Examples
 --------
 >>> # Automatic selection
@@ -1062,32 +1064,37 @@ class IntegratorFactory:
         --------
         >>> info = IntegratorFactory.get_info('jax', 'tsit5')
         >>> print(info['description'])
-        'Tsitouras 5(4) - Excellent general purpose solver'
+        'Excellent general purpose, JAX-optimized'
         >>>
         >>> info = IntegratorFactory.get_info('numpy', 'Tsit5')
         >>> print(info['description'])
         'Excellent general-purpose solver with good efficiency'
+        >>>
+        >>> info = IntegratorFactory.get_info('numpy', 'Vern7')
+        >>> print(info['description'])  # Works even if not in hardcoded list!
         """
-        # Try to get info from Julia algorithms if it's a Julia method
-        if backend == 'numpy':
+        # For Julia methods, delegate to get_algorithm_info()
+        if backend == 'numpy' and IntegratorFactory._is_julia_method(method):
             try:
                 from src.systems.base.numerical_integration.diffeqpy_integrator import (
                     get_algorithm_info
                 )
-                from src.systems.base.numerical_integration.integrator_factory import (
-                    IntegratorFactory
-                )
                 
-                if IntegratorFactory._is_julia_method(method):
-                    julia_info = get_algorithm_info(method)
-                    # Add backend info
-                    julia_info['backend'] = 'numpy'
-                    julia_info['library'] = 'Julia DifferentialEquations.jl'
-                    return julia_info
+                julia_info = get_algorithm_info(method)
+                # Add backend/library metadata
+                julia_info['backend'] = 'numpy'
+                julia_info['library'] = 'Julia DifferentialEquations.jl'
+                return julia_info
             except ImportError:
-                pass  # diffeqpy not installed, fall through to defaults
+                # diffeqpy not installed - return generic info
+                return {
+                    'name': f'Julia: {method}',
+                    'backend': 'numpy',
+                    'library': 'Julia DifferentialEquations.jl (not installed)',
+                    'description': f'Julia algorithm {method} (diffeqpy not available for details)'
+                }
         
-        # Default method info for scipy, diffrax, torchdiffeq
+        # Hardcoded info for scipy, diffrax, torchdiffeq
         method_info = {
             # Scipy
             "LSODA": {
@@ -1126,6 +1133,15 @@ class IntegratorFactory:
                 "best_for": "Chemistry, circuits",
                 "function_evals_per_step": "1 + Jacobian",
             },
+            "Radau": {
+                "name": "Radau IIA",
+                "order": 5,
+                "type": "Implicit",
+                "library": "scipy",
+                "description": "Implicit Runge-Kutta for stiff systems",
+                "best_for": "Stiff DAEs",
+                "function_evals_per_step": "Variable + Jacobian",
+            },
             
             # Diffrax (JAX)
             "tsit5": {
@@ -1142,7 +1158,7 @@ class IntegratorFactory:
                 "order": 5,
                 "type": "Adaptive",
                 "library": "Diffrax/TorchDiffEq",
-                "description": "Classic robust solver (torch & jax)",
+                "description": "Classic robust solver",
                 "best_for": "General purpose",
                 "function_evals_per_step": "6",
             },
@@ -1151,7 +1167,7 @@ class IntegratorFactory:
                 "order": 8,
                 "type": "Adaptive",
                 "library": "Diffrax/TorchDiffEq",
-                "description": "High accuracy (torch & jax)",
+                "description": "High accuracy",
                 "best_for": "Precision requirements",
                 "function_evals_per_step": "12",
             },
@@ -1160,7 +1176,7 @@ class IntegratorFactory:
                 "order": 3,
                 "type": "Adaptive",
                 "library": "Diffrax/TorchDiffEq",
-                "description": "Lower order adaptive (torch & jax)",
+                "description": "Lower order adaptive",
                 "best_for": "Fast simulations",
                 "function_evals_per_step": "4",
             },
