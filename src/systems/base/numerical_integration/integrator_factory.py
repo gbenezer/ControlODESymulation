@@ -992,7 +992,7 @@ class IntegratorFactory:
                 "backend": "torch",
                 "method": "dopri5",
                 "step_mode": StepMode.ADAPTIVE,
-                "adjoint": True,  # Note: This is an option, not integrator attribute
+                "adjoint": True,
                 "reason": "Memory-efficient backprop through ODE",
             },
             "julia": {
@@ -1000,6 +1000,13 @@ class IntegratorFactory:
                 "method": "Tsit5",
                 "step_mode": StepMode.ADAPTIVE,
                 "reason": "Access to Julia's powerful solver ecosystem",
+            },
+            "simple": {
+                "backend": "numpy",
+                "method": "rk4",
+                "step_mode": StepMode.FIXED,
+                "dt": 0.01,
+                "reason": "Simple, fast, easy to debug",
             },
             "prototype": {
                 "backend": "numpy",
