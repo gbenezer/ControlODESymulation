@@ -45,25 +45,12 @@ from src.systems.base.numerical_integration.integrator_base import (
     ArrayLike
 )
 
+from src.systems.base.utils.stochastic.noise_analysis import SDEType
+
 if TYPE_CHECKING:
     from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
     import torch
     import jax.numpy as jnp
-
-
-class SDEType(Enum):
-    """
-    SDE interpretation type.
-    
-    Attributes
-    ----------
-    ITO : str
-        Ito interpretation - standard stochastic calculus
-    STRATONOVICH : str
-        Stratonovich interpretation - preserves chain rule
-    """
-    ITO = "ito"
-    STRATONOVICH = "stratonovich"
 
 
 class ConvergenceType(Enum):

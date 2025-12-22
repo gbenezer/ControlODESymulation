@@ -281,6 +281,9 @@ class ConcreteSDEIntegrator(SDEIntegratorBase):
             x = self.step(x, u, dt_step, dW)
             trajectory.append(x)
             noise_samples.append(dW)
+            
+            # Update step counter
+            self._stats['total_steps'] += 1
         
         # Stack results
         if self.backend == 'numpy':
@@ -300,7 +303,7 @@ class ConcreteSDEIntegrator(SDEIntegratorBase):
             x=x_traj,
             success=True,
             nfev=self._stats['total_fev'],
-            nsteps=len(t_eval) - 1,
+            nsteps=self._stats['total_steps'],
             diffusion_evals=self._stats['diffusion_evals'],
             noise_samples=noise_traj,
             n_paths=1,
@@ -458,8 +461,14 @@ class TestSDEIntegratorInitialization:
             backend='numpy'
         )
         
+        # Check that integrator is ITO type
         assert integrator.sde_type == SDEType.ITO
-        assert integrator.sde_type == mock_sde_system.sde_type
+        
+        # Check that system is also ITO type
+        assert mock_sde_system.sde_type.value == 'ito'
+        
+        # Verify the integrator inherited the correct type (compare values)
+        assert integrator.sde_type.value == mock_sde_system.sde_type.value
     
     def test_sde_type_override(self, mock_sde_system):
         """Test that SDE type can be overridden."""
@@ -1023,6 +1032,9 @@ class TestIntegrationEndToEnd:
         u_func = lambda t, x: None
         t_span = (0.0, 1.0)
         
+        # Reset stats before test
+        integrator_numpy.reset_stats()
+        
         # Integrate single trajectory
         result = integrator_numpy.integrate(x0, u_func, t_span)
         
@@ -1032,8 +1044,8 @@ class TestIntegrationEndToEnd:
         
         # Check statistics were tracked
         stats = integrator_numpy.get_sde_stats()
-        assert stats['total_steps'] > 0
-        assert stats['total_fev'] > 0
+        assert stats['total_steps'] > 0, f"Expected total_steps > 0, got {stats['total_steps']}"
+        assert stats['total_fev'] > 0, f"Expected total_fev > 0, got {stats['total_fev']}"
     
     def test_reproducibility_with_seed(self, mock_sde_system):
         """Test that same seed gives reproducible results."""
