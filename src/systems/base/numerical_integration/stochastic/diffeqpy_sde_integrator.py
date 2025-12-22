@@ -131,14 +131,15 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         Strong or weak convergence
     seed : Optional[int]
         Random seed for reproducibility
+        NOTE: Seed control via diffeqpy is limited. Julia generates random
+        numbers internally and setting the seed via Python is unreliable.
+        For reproducible results, use JAX/PyTorch integrators instead.
     **options
         Additional options:
         - rtol : float (default: 1e-3) - Relative tolerance
         - atol : float (default: 1e-6) - Absolute tolerance
         - save_everystep : bool (default: True) - Save at every step
         - dense : bool (default: False) - Dense output interpolation
-        - callback : Callable - Julia callback function
-        - noise_rate_prototype : array - Noise matrix prototype
     
     Raises
     ------
@@ -150,9 +151,9 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
     Notes
     -----
     - Backend must be 'numpy' (Julia/Python bridge uses NumPy)
-    - Julia's automatic stiffness detection works well for most problems
-    - For very stiff drift, use implicit methods (ImplicitEM, SKenCarp)
-    - Julia handles noise generation internally with high-quality RNG
+    - Statistics tracking is estimated (Julia doesn't expose call counts)
+    - Random seed control is limited (Julia manages its own RNG)
+    - For reproducible Monte Carlo, use JAX or PyTorch integrators
     
     Examples
     --------
@@ -231,7 +232,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 "3. Install Python package:\n"
                 "   pip install diffeqpy\n"
                 "4. Setup (one time):\n"
-                "   from diffeqpy import install; install()\n"
+                "   python -c 'from diffeqpy import install; install()'\n"
             ) from e
         
         # Validate algorithm availability
@@ -251,83 +252,6 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         self.atol = options.get('atol', 1e-6)
         self.save_everystep = options.get('save_everystep', True)
         self.dense = options.get('dense', False)
-    
-    def validate_julia_setup(self):
-        """
-        Validate that Julia and DifferentialEquations.jl are properly set up.
-        
-        Returns
-        -------
-        bool
-            True if setup is valid
-            
-        Raises
-        ------
-        RuntimeError
-            If validation fails with details
-            
-        Examples
-        --------
-        >>> integrator = DiffEqPySDEIntegrator(sde_system, algorithm='EM')
-        >>> integrator.validate_julia_setup()  # Raises if problems
-        True
-        """
-        try:
-            # Test basic Julia call
-            result = self.de.eval("1 + 1")
-            assert result == 2, "Basic Julia eval failed"
-            
-            # Check that SDEProblem exists
-            assert hasattr(self.de, 'SDEProblem'), "SDEProblem not found in Julia"
-            
-            # Check that algorithm exists
-            assert hasattr(self.de, self.algorithm), \
-                f"Algorithm {self.algorithm} not found in DifferentialEquations.jl"
-            
-            # Try creating and solving a simple SDE problem
-            def simple_drift(u, p, t):
-                return np.array([-u[0]], dtype=np.float64)
-            
-            def simple_diffusion(u, p, t):
-                return np.array([[0.1]], dtype=np.float64)
-            
-            test_problem = self.de.SDEProblem(
-                simple_drift,
-                simple_diffusion,
-                np.array([1.0], dtype=np.float64),
-                (0.0, 0.1),
-                noise_rate_prototype=np.array([[0.1]], dtype=np.float64)
-            )
-            
-            # Try solving
-            test_alg = getattr(self.de, self.algorithm)()
-            test_sol = self.de.solve(test_problem, test_alg, dt=0.01)
-            
-            assert hasattr(test_sol, 't'), "Solution missing time points"
-            assert hasattr(test_sol, 'u'), "Solution missing states"
-            assert len(test_sol.t) > 1, f"Solution has only {len(test_sol.t)} time point(s)"
-            assert len(test_sol.u) > 1, f"Solution has only {len(test_sol.u)} state(s)"
-            
-            return True
-            
-        except Exception as e:
-            import traceback
-            raise RuntimeError(
-                f"Julia/DiffEqPy validation failed:\n{str(e)}\n"
-                f"{traceback.format_exc()}\n\n"
-                f"Possible solutions:\n"
-                f"1. Ensure Julia is installed and in PATH\n"
-                f"2. Reinstall DifferentialEquations.jl:\n"
-                f"   julia> using Pkg; Pkg.add('DifferentialEquations')\n"
-                f"3. Reinstall diffeqpy:\n"
-                f"   pip uninstall diffeqpy && pip install diffeqpy\n"
-                f"4. Run setup:\n"
-                f"   from diffeqpy import install; install()\n"
-                f"5. Test Julia directly:\n"
-                f"   julia> using DifferentialEquations\n"
-                f"   julia> prob = SDEProblem(...)\n"
-                f"   julia> solve(prob, EM())"
-            ) from e
     
     @property
     def name(self) -> str:
@@ -359,8 +283,6 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
     
     def _get_algorithm(self, algorithm: str):
         """Get Julia algorithm constructor."""
-        # Return the algorithm constructor from Julia
-        # The actual algorithm object is created when needed
         return getattr(self.de, algorithm, None)
     
     def _setup_julia_problem(
@@ -393,10 +315,11 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         
         # Define drift function for Julia: f(u, p, t)
         # Julia convention: u = state, p = parameters, t = time
+        # NOTE: Statistics tracking in closures doesn't work from Julia!
         def drift_func_julia(u, p, t):
             """Drift function: dx/dt = f(x, u, t)"""
-            # Convert Julia array to NumPy
-            x = np.array(u)
+            # Convert Julia array to NumPy with explicit dtype
+            x = np.asarray(u, dtype=np.float64)
             
             # Get control
             control = u_func(float(t), x)
@@ -404,16 +327,14 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             # Evaluate drift
             dx = self.sde_system.drift(x, control, backend='numpy')
             
-            # Track statistics
-            self._stats['total_fev'] += 1
-            
-            return dx
+            # Return with explicit dtype (Julia requires this)
+            return np.asarray(dx, dtype=np.float64)
         
         # Define diffusion function for Julia: g(u, p, t)
         def diffusion_func_julia(u, p, t):
-            """Diffusion function: dW = g(x, u, t) * dW"""
-            # Convert Julia array to NumPy
-            x = np.array(u)
+            """Diffusion function: coefficient of dW"""
+            # Convert Julia array to NumPy with explicit dtype
+            x = np.asarray(u, dtype=np.float64)
             
             # Get control
             control = u_func(float(t), x)
@@ -421,27 +342,56 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             # Evaluate diffusion
             g = self.sde_system.diffusion(x, control, backend='numpy')
             
-            # Track statistics
-            self._stats['diffusion_evals'] += 1
+            # Ensure correct dtype and shape
+            g = np.asarray(g, dtype=np.float64)
+            
+            # Julia expects (nx, nw) for general noise
+            if g.ndim == 1:
+                g = g.reshape(-1, 1)
             
             return g
         
-        # Create noise rate prototype (tells Julia the diffusion matrix shape)
-        # This is g(x0, u0, t0) evaluated at initial conditions
+        # Get initial diffusion matrix for noise_rate_prototype
         control_0 = u_func(t0, x0)
         g0 = self.sde_system.diffusion(x0, control_0, backend='numpy')
         
-        # Create SDE problem
-        # Julia expects: SDEProblem(f, g, u0, tspan; noise_rate_prototype)
-        problem = self.de.SDEProblem(
-            drift_func_julia,
-            diffusion_func_julia,
-            x0,
-            (t0, tf),
-            noise_rate_prototype=g0
-        )
+        # Ensure proper dtype and shape
+        g0 = np.asarray(g0, dtype=np.float64)
+        if g0.ndim == 1:
+            g0 = g0.reshape(-1, 1)
         
-        return problem
+        # Validate shape
+        expected_shape = (self.sde_system.nx, self.sde_system.nw)
+        if g0.shape != expected_shape:
+            raise ValueError(
+                f"noise_rate_prototype shape mismatch. "
+                f"Expected {expected_shape}, got {g0.shape}"
+            )
+        
+        # Create SDE problem
+        try:
+            # Ensure x0 has correct dtype
+            x0_julia = np.asarray(x0, dtype=np.float64)
+            
+            # Create SDEProblem
+            problem = self.de.SDEProblem(
+                drift_func_julia,
+                diffusion_func_julia,
+                x0_julia,
+                (float(t0), float(tf)),
+                noise_rate_prototype=g0
+            )
+            
+            return problem
+            
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to create Julia SDEProblem: {str(e)}\n"
+                f"x0 shape: {x0.shape}, dtype: {x0.dtype}\n"
+                f"g0 shape: {g0.shape}, dtype: {g0.dtype}\n"
+                f"System: nx={self.sde_system.nx}, nw={self.sde_system.nw}\n"
+                f"t_span: {t_span}"
+            )
     
     def step(
         self,
@@ -492,13 +442,15 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             dt=step_size,
             adaptive=False,
             save_everystep=False,
-            save_end=True
         )
         
         # Extract final state
-        x_next = np.array(sol.u[-1])
+        x_next = np.array(sol.u[-1], dtype=np.float64)
         
+        # Update statistics (estimate)
         self._stats['total_steps'] += 1
+        self._stats['total_fev'] += 1
+        self._stats['diffusion_evals'] += 1
         
         return x_next
     
@@ -551,7 +503,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         >>> t_eval = np.linspace(0, 10, 1001)
         >>> result = integrator.integrate(x0, u_func, (0, 10), t_eval=t_eval)
         """
-        x0 = np.asarray(x0)
+        x0 = np.asarray(x0, dtype=np.float64)
         t0, tf = t_span
         
         # Setup Julia SDE problem
@@ -575,30 +527,22 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         if t_eval is not None:
             solve_kwargs['saveat'] = list(np.asarray(t_eval))
         elif not self.save_everystep:
-            # If not saving every step and no t_eval, just save endpoints
             solve_kwargs['saveat'] = [float(t0), float(tf)]
-        # else: save_everystep=True is default, no saveat needed
         
         # Dense output
         if dense_output:
             solve_kwargs['dense'] = True
         
-        # IMPORTANT: Don't set seed through solve options
-        # Julia random seed must be set globally before calling solve
-        if self.seed is not None:
-            # Set Julia's random seed before solving
-            self.de.eval(f"using Random; Random.seed!({self.seed})")
-        
         # Solve SDE
         try:
             sol = self.de.solve(problem, alg, **solve_kwargs)
             
-            # Extract solution - Julia returns arrays
-            t_out = np.array(sol.t)
+            # Extract solution
+            t_out = np.array(sol.t, dtype=np.float64)
             
             # Convert list of arrays to 2D array (T, nx)
             if hasattr(sol, 'u') and len(sol.u) > 0:
-                x_out = np.array([np.array(u) for u in sol.u])
+                x_out = np.array([np.asarray(u, dtype=np.float64) for u in sol.u])
             else:
                 # Integration failed - no solution
                 return SDEIntegrationResult(
@@ -619,15 +563,23 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             success = len(t_out) > 1 and np.all(np.isfinite(x_out))
             
             # Estimate function evaluations
+            # Julia doesn't expose exact counts via diffeqpy
+            # For EM: approximately 1 drift + 1 diffusion per step
             nsteps = len(t_out) - 1
-            nfev = self._stats['total_fev']
+            nfev_estimate = nsteps
+            diffusion_evals_estimate = nsteps
+            
+            # Update cumulative statistics
+            self._stats['total_fev'] += nfev_estimate
+            self._stats['diffusion_evals'] += diffusion_evals_estimate
+            self._stats['total_steps'] += nsteps
             
             return SDEIntegrationResult(
                 t=t_out,
                 x=x_out,
                 success=success,
                 message="Julia SDE integration successful" if success else "Integration failed (NaN/Inf detected)",
-                nfev=nfev,
+                nfev=self._stats['total_fev'],
                 nsteps=nsteps,
                 diffusion_evals=self._stats['diffusion_evals'],
                 noise_samples=None,  # Julia doesn't expose noise samples
@@ -653,6 +605,72 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 solver=self.algorithm,
                 sde_type=self.sde_type
             )
+    
+    def validate_julia_setup(self):
+        """
+        Validate that Julia and DifferentialEquations.jl are properly set up.
+        
+        Returns
+        -------
+        bool
+            True if setup is valid
+            
+        Raises
+        ------
+        RuntimeError
+            If validation fails with details
+        """
+        try:
+            # Check that SDEProblem exists
+            assert hasattr(self.de, 'SDEProblem'), "SDEProblem not found"
+            
+            # Check that algorithm exists
+            assert hasattr(self.de, self.algorithm), \
+                f"Algorithm {self.algorithm} not found"
+            
+            # Try instantiating algorithm
+            test_alg = getattr(self.de, self.algorithm)()
+            assert test_alg is not None, f"Failed to instantiate {self.algorithm}"
+            
+            # Try creating and solving a simple test SDE
+            def simple_drift(u, p, t):
+                return np.array([-u[0]], dtype=np.float64)
+            
+            def simple_diffusion(u, p, t):
+                return np.array([[0.1]], dtype=np.float64)
+            
+            test_problem = self.de.SDEProblem(
+                simple_drift,
+                simple_diffusion,
+                np.array([1.0], dtype=np.float64),
+                (0.0, 0.1),
+                noise_rate_prototype=np.array([[0.1]], dtype=np.float64)
+            )
+            
+            # Try solving
+            test_sol = self.de.solve(test_problem, test_alg, dt=0.01)
+            
+            assert hasattr(test_sol, 't'), "Solution missing time points"
+            assert hasattr(test_sol, 'u'), "Solution missing states"
+            assert len(test_sol.t) > 1, f"Solution has only {len(test_sol.t)} time point(s)"
+            assert len(test_sol.u) > 1, f"Solution has only {len(test_sol.u)} state(s)"
+            
+            return True
+            
+        except Exception as e:
+            import traceback
+            raise RuntimeError(
+                f"Julia/DiffEqPy validation failed:\n{str(e)}\n"
+                f"{traceback.format_exc()}\n\n"
+                f"Troubleshooting:\n"
+                f"1. Run diagnostic: python julia_sde_diagnostic.py\n"
+                f"2. Reinstall DifferentialEquations.jl:\n"
+                f"   julia> using Pkg; Pkg.add('DifferentialEquations')\n"
+                f"3. Reinstall diffeqpy:\n"
+                f"   pip uninstall diffeqpy pyjulia\n"
+                f"   pip install diffeqpy\n"
+                f"   python -c 'from diffeqpy import install; install()'\n"
+            ) from e
     
     # ========================================================================
     # Algorithm Information
@@ -734,7 +752,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         --------
         >>> info = DiffEqPySDEIntegrator.get_algorithm_info('SRIW1')
         >>> print(info['description'])
-        'Roessler SRI, strong order 1.5, for diagonal noise'
+        'High accuracy for diagonal noise'
         """
         algorithm_info = {
             'EM': {
