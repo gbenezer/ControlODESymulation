@@ -632,6 +632,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
 
 #### Phase 2 (Current):
 - Refactoring of DiscreteTimeSystem
+    - Assess what additional tests to add to StochasticDiscretizer unit test suite and debug if necessary
     - Construct DiscreteSimulator that uses Discretizer to handle trajectory simulation
         - Make sure this can support both autonomous and controlled systems
     - Construct StochasticDiscreteSimulator
@@ -741,7 +742,13 @@ This library was inspired by and built from a class project for CS 7268, Verifia
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0
+(or later). The licence file in the repository ([LICENSE](LICENSE)) takes
+precedence
+
+If you run a modified version of this software on a network, you must
+provide the complete corresponding source code to users of that service,
+as required by the AGPL.
 
 ---
 
