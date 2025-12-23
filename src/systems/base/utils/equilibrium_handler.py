@@ -34,8 +34,8 @@ class EquilibriumHandler:
             nx: Number of states
             nu: Number of controls
         """
-        self.nx = nx
-        self.nu = nu
+        self._nx = nx
+        self._nu = nu
 
         self._equilibria: Dict[str, Dict[str, np.ndarray]] = {}
         self._default: str = "origin"
@@ -46,6 +46,41 @@ class EquilibriumHandler:
             "u": np.zeros(nu),
             "metadata": {},  # For storing stability info, etc.
         }
+
+    @property
+    def nx(self) -> int:
+        """Number of states"""
+        return self._nx
+
+    @nx.setter
+    def nx(self, value: int):
+        """Update state dimension and validate existing equilibria"""
+        if self._nx != 0 and value != self._nx:
+            # Validate all existing equilibria still have correct dimensions
+            for name, eq in self._equilibria.items():
+                if eq["x"].shape[0] != value:
+                    raise ValueError(
+                        f"Cannot change nx from {self._nx} to {value}: "
+                        f"equilibrium '{name}' has wrong dimension"
+                    )
+        self._nx = value
+
+    @property
+    def nu(self) -> int:
+        """Number of controls"""
+        return self._nu
+
+    @nu.setter  
+    def nu(self, value: int):
+        """Update control dimension and validate existing equilibria"""
+        if self._nu != 0 and value != self._nu:
+            for name, eq in self._equilibria.items():
+                if eq["u"].shape[0] != value:
+                    raise ValueError(
+                        f"Cannot change nu from {self._nu} to {value}: "
+                        f"equilibrium '{name}' has wrong dimension"
+                    )
+        self._nu = value
 
     def add(
         self,
@@ -70,10 +105,10 @@ class EquilibriumHandler:
         x_eq = np.atleast_1d(np.asarray(x_eq))
         u_eq = np.atleast_1d(np.asarray(u_eq))
 
-        if x_eq.shape[0] != self.nx:
-            raise ValueError(f"x_eq must have shape ({self.nx},), got {x_eq.shape}")
-        if u_eq.shape[0] != self.nu:
-            raise ValueError(f"u_eq must have shape ({self.nu},), got {u_eq.shape}")
+        if x_eq.shape[0] != self._nx:
+            raise ValueError(f"x_eq must have shape ({self._nx},), got {x_eq.shape}")
+        if u_eq.shape[0] != self._nu:
+            raise ValueError(f"u_eq must have shape ({self._nu},), got {u_eq.shape}")
 
         # Verify if function provided
         if verify_fn is not None:
