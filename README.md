@@ -741,17 +741,30 @@ This library was inspired by and built from a class project for CS 7268, Verifia
 ---
 
 ## License
-This project is licensed under the GNU Affero General Public License v3.0
-(or later). The licence file is in the repository here: [LICENSE](LICENSE)
+This project is licensed under the GNU Affero General Public License v3.0 (or later). The licence file is in the repository here: [LICENSE](LICENSE)
 
-If you run a modified version of this software on a network, you must
-provide the complete corresponding source code to users of that service,
-as required by the AGPL.
+If you run a modified version of this software on a network, you must provide the complete corresponding source code to users of that service, as required by the AGPL.
 
-Using this software internally or as an unmodified dependency does not
-require you to release your own source code. Only modifications to this
-software that are made available over a network must be shared, as
-required by the AGPL.
+Using this software internally or as an unmodified dependency does not require you to release your own source code. Only modifications to this software that are made available over a network must be shared, as required by the AGPL.
+
+### License Rationale
+Why this project uses the AGPL
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL) by design.
+
+My primary goal is wide adoption by researchers, academic institutions, and non-SaaS organizations, while ensuring that improvements made for public-facing use remain available to the community.
+
+The AGPL helps achieve this balance by:
+
+- Allowing anyone to use the software freely, including for internal, commercial, and academic purposes
+- Encouraging collaboration and reproducibility, especially in research and applied settings
+- Preventing the software from being used in public services without contributing improvements back
+
+In practice, this means:
+- If you use the software as-is, there are no additional obligations
+- If you modify the software and run it as a public or networked service, those modifications must be shared under the same license
+
+This ensures that advances made using this project, especially in publicly accessible systems, remain available for others to learn from, build upon, and verify.
 
 ---
 
