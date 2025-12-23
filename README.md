@@ -631,13 +631,7 @@ ControlODESymulation/
 Currently not open to contributions, though may change after Phase 4 and once I learn how open-source development works
 
 #### Phase 2 (Current):
-- Resolve uncovered issues regarding setting custom noise with SDE Integrators
-    - Create unit test for CustomBrownianPath class used for interfacing with Diffrax and debug
-    - Fix DiffraxSDEIntegrator after new unit tests uncovered problems
-    - Fix DiffEqPySDEIntegrator as good as possible, update unit tests, and debug
-    - If possible, fix TorchSDE to support custom noise as best as possible (given atypical support)
 - Refactoring of DiscreteTimeSystem
-    - Finish debugging StochasticDiscretizer
     - Construct DiscreteSimulator that uses Discretizer to handle trajectory simulation
         - Make sure this can support both autonomous and controlled systems
     - Construct StochasticDiscreteSimulator
@@ -660,7 +654,7 @@ Currently not open to contributions, though may change after Phase 4 and once I 
     - Construct PhasePortraitGenerator class for 2D or 3D Plotly phase portrait generation
 - Re-implement classical control theory capabilities
     - Construct ControlDesigner class
-        - Wrapper class to either SymbolicDynamicalSystem (continuous) or SymbolicDynamicalSystem/DiscreteTimeSystem combination
+        - Wrapper class to either SymbolicDynamicalSystem (continuous) or DiscreteTimeSystem
             - Interface/access to traditional/classic nonlinear state-space control utilities (LQR/Kalman/LQG matrices, etc.)
             - Auto-detect time type (continuous vs. discrete)
     - libraries under consideration for backend implementation include control, control-toolbox, pysyscontrol, OpenControl, Kontrol
