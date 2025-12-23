@@ -129,7 +129,15 @@ class EquilibriumHandler:
             dx = verify_fn(x_eq, u_eq)
             max_deriv = np.abs(dx).max() if isinstance(dx, np.ndarray) else abs(dx).max()
 
-            if max_deriv > tol:
+            # CHECK FOR NaN/Inf BEFORE COMPARISON
+            if not np.isfinite(max_deriv):
+                warnings.warn(
+                    f"Equilibrium '{name}' is invalid: "
+                    f"max|f(x,u)| = {max_deriv} (not finite)"
+                )
+                metadata["verified"] = False
+                metadata["max_residual"] = float(max_deriv)
+            elif max_deriv > tol:
                 warnings.warn(
                     f"Equilibrium '{name}' may not be valid: "
                     f"max|f(x,u)| = {max_deriv:.2e} > {tol:.2e}"
