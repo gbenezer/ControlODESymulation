@@ -63,14 +63,20 @@ class SymbolicPendulum(SymbolicDynamicalSystem):
         self.parameters = {m: m_val, l: l_val, beta: beta_val, g: g_val}
         self.state_vars = [theta, theta_dot]
         self.control_vars = [u]
-        self.output_vars = [theta]
+        # self.output_vars = [theta]  # ❌ REMOVE THIS LINE
+        # validation does not allow the same symbol to be used
+        # as a state and output variable
+        # if creating a system with partial state feedback, put symbols
+        # in _h_sym only
+        # use output_variables only for truly unique symbolic variables
         self.order = 1
 
         ml2 = m * l * l
-        self._f_sym = sp.Matrix(
-            [theta_dot, (-beta / ml2) * theta_dot + (g / l) * sp.sin(theta) + u / ml2]
-        )
-        self._h_sym = sp.Matrix([theta])
+        self._f_sym = sp.Matrix([
+            theta_dot,
+            (-beta / ml2) * theta_dot + (g / l) * sp.sin(theta) + u / ml2
+        ])
+        self._h_sym = sp.Matrix([theta])  # Output is theta (no duplicate needed)
 
 
 class SymbolicPendulum2ndOrder(SymbolicDynamicalSystem):
@@ -131,10 +137,7 @@ class SymbolicPendulum2ndOrder(SymbolicDynamicalSystem):
     SymbolicQuadrotor2D : Another second-order system (3 accelerations)
     """
 
-    def __init__(self, m=1.0, l=1.0, beta=1.0, g=9.81):
-        super().__init__(m, l, beta, g)
-
-    def define_system(self, m_val, l_val, beta_val, g_val):
+    def define_system(self, m_val=1.0, l_val=1.0, beta_val=1.0, g_val=9.81):
 
         # State: [theta, theta_dot]
         theta, theta_dot = sp.symbols("theta theta_dot", real=True)
@@ -226,18 +229,15 @@ class FifthOrderMechanicalSystem(SymbolicDynamicalSystem):
     CoupledOscillatorSystem : More realistic multi-DOF system
     """
 
-    def __init__(
+    def define_system(
         self,
-        m: float = 1.0,
-        k: float = 1.0,
-        c1: float = 0.1,
-        c2: float = 0.05,
-        c3: float = 0.01,
-        g: float = 9.81,
+        m_val: float = 1.0,
+        k_val: float = 1.0,
+        c1_val: float = 0.1,
+        c2_val: float = 0.05,
+        c3_val: float = 0.01,
+        g_val: float = 9.81,
     ):
-        super().__init__(m, k, c1, c2, c3, g)
-
-    def define_system(self, m_val, k_val, c1_val, c2_val, c3_val, g_val):
         q, q1, q2, q3, q4 = sp.symbols("q q1 q2 q3 q4", real=True)
         u = sp.symbols("u", real=True)
         m, k, c1, c2, c3, g = sp.symbols("m k c1 c2 c3 g", real=True, positive=True)
