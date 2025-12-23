@@ -115,6 +115,252 @@ def dt():
 
 
 # ============================================================================
+# Test: SymbolicPendulum Initialization
+# ============================================================================
+
+
+class TestPendulumInitialization:
+    """Test SymbolicPendulum initialization."""
+
+    def test_pendulum_creation_diagnostic():
+        """Diagnostic test to see why SymbolicPendulum fails validation."""
+        
+        print("\n" + "="*70)
+        print("DIAGNOSTIC: Creating SymbolicPendulum")
+        print("="*70)
+        
+        try:
+            system = SymbolicPendulum(
+                m_val=1.0,
+                l_val=0.5,
+                beta_val=0.1,
+                g_val=9.81
+            )
+            print("✓ System created successfully!")
+            print(f"  nx = {system.nx}")
+            print(f"  nu = {system.nu}")
+            print(f"  ny = {system.ny}")
+            print(f"  order = {system.order}")
+            
+        except Exception as e:
+            print(f"✗ System creation FAILED!")
+            print(f"  Error type: {type(e).__name__}")
+            print(f"  Error message: {str(e)}")
+            
+            # Print full traceback
+            import traceback
+            print("\nFull traceback:")
+            traceback.print_exc()
+            
+            # Re-raise to see in pytest output
+            raise
+
+    def test_pendulum_attributes_diagnostic():
+        """Check if pendulum has all required attributes."""
+        import sympy as sp
+        
+        print("\n" + "="*70)
+        print("DIAGNOSTIC: Checking SymbolicPendulum Attributes")
+        print("="*70)
+        
+        try:
+            system = SymbolicPendulum(
+                m_val=1.0,
+                l_val=0.5,
+                beta_val=0.1,
+                g_val=9.81
+            )
+            
+            # Check state_vars
+            print(f"\nstate_vars: {system.state_vars}")
+            print(f"  Type: {type(system.state_vars)}")
+            print(f"  Length: {len(system.state_vars)}")
+            
+            # Check control_vars
+            print(f"\ncontrol_vars: {system.control_vars}")
+            print(f"  Type: {type(system.control_vars)}")
+            print(f"  Length: {len(system.control_vars)}")
+            
+            # Check _f_sym
+            print(f"\n_f_sym:")
+            print(f"  Type: {type(system._f_sym)}")
+            print(f"  Shape: {system._f_sym.shape}")
+            print(f"  Content:\n{system._f_sym}")
+            
+            # Check _h_sym
+            print(f"\n_h_sym:")
+            print(f"  Type: {type(system._h_sym)}")
+            if system._h_sym is not None:
+                print(f"  Shape: {system._h_sym.shape}")
+                print(f"  Content:\n{system._h_sym}")
+            
+            # Check parameters
+            print(f"\nparameters: {system.parameters}")
+            
+            # Check order
+            print(f"\norder: {system.order}")
+            
+            # Check output_vars
+            print(f"\noutput_vars: {system.output_vars}")
+            
+            print("\n✓ All attributes present!")
+            
+        except Exception as e:
+            print(f"\n✗ Attribute check FAILED!")
+            import traceback
+            traceback.print_exc()
+            raise
+
+    def test_pendulum_manual_validation():
+        """Manually validate the pendulum system."""
+        from src.systems.base.utils.symbolic_validator import SymbolicValidator
+        import sympy as sp
+        
+        print("\n" + "="*70)
+        print("DIAGNOSTIC: Manual Validation of SymbolicPendulum")
+        print("="*70)
+        
+        # Create system (bypass validation temporarily)
+        system = SymbolicPendulum.__new__(SymbolicPendulum)
+        
+        # Initialize containers manually
+        system.state_vars = []
+        system.control_vars = []
+        system.output_vars = []
+        system.parameters = {}
+        system._f_sym = None
+        system._h_sym = None
+        system.order = 1
+        system._initialized = False
+        
+        # Call define_system
+        print("\nCalling define_system()...")
+        system.define_system(m_val=1.0, l_val=0.5, beta_val=0.1, g_val=9.81)
+        
+        # Check what was set
+        print(f"\nAfter define_system():")
+        print(f"  state_vars: {system.state_vars}")
+        print(f"  control_vars: {system.control_vars}")
+        print(f"  output_vars: {system.output_vars}")
+        print(f"  _f_sym.shape: {system._f_sym.shape if system._f_sym else None}")
+        print(f"  _h_sym.shape: {system._h_sym.shape if system._h_sym else None}")
+        print(f"  order: {system.order}")
+        print(f"  parameters: {list(system.parameters.keys())}")
+        
+        # Now try validation
+        print("\n" + "-"*70)
+        print("Running SymbolicValidator...")
+        print("-"*70)
+        
+        validator = SymbolicValidator(system)
+        
+        try:
+            result = validator.validate(raise_on_error=True)
+            print("✓ Validation PASSED!")
+            print(f"  Result: {result}")
+        except Exception as e:
+            print(f"✗ Validation FAILED!")
+            print(f"  Error: {e}")
+            
+            # Try to get more details
+            try:
+                result = validator.validate(raise_on_error=False)
+                print(f"\nValidation result (non-raising):")
+                print(f"  is_valid: {result.is_valid}")
+                print(f"  errors: {result.errors}")
+                print(f"  warnings: {result.warnings}")
+            except:
+                pass
+            
+            raise
+
+    def test_pendulum_validation_rules():
+        """Check specific validation rules that might be failing."""
+        from src.systems.builtin.mechanical_systems import SymbolicPendulum
+        import sympy as sp
+        
+        system = SymbolicPendulum.__new__(SymbolicPendulum)
+        system.state_vars = []
+        system.control_vars = []
+        system.output_vars = []
+        system.parameters = {}
+        system._f_sym = None
+        system._h_sym = None
+        system.order = 1
+        
+        system.define_system(m_val=1.0, l_val=0.5, beta_val=0.1, g_val=9.81)
+        
+        print("\n" + "="*70)
+        print("DIAGNOSTIC: Checking Validation Rules")
+        print("="*70)
+        
+        # Rule 1: state_vars should be list of Symbols
+        print("\n1. Checking state_vars...")
+        print(f"   type(state_vars) = {type(system.state_vars)}")
+        print(f"   len(state_vars) = {len(system.state_vars)}")
+        for i, var in enumerate(system.state_vars):
+            print(f"   state_vars[{i}] = {var}, type = {type(var)}")
+            assert isinstance(var, sp.Symbol), f"state_vars[{i}] is not a Symbol!"
+        
+        # Rule 2: control_vars should be list of Symbols
+        print("\n2. Checking control_vars...")
+        print(f"   type(control_vars) = {type(system.control_vars)}")
+        print(f"   len(control_vars) = {len(system.control_vars)}")
+        for i, var in enumerate(system.control_vars):
+            print(f"   control_vars[{i}] = {var}, type = {type(var)}")
+            assert isinstance(var, sp.Symbol), f"control_vars[{i}] is not a Symbol!"
+        
+        # Rule 3: _f_sym should be Matrix
+        print("\n3. Checking _f_sym...")
+        print(f"   type(_f_sym) = {type(system._f_sym)}")
+        print(f"   _f_sym.shape = {system._f_sym.shape}")
+        assert isinstance(system._f_sym, sp.Matrix), "_f_sym is not a Matrix!"
+        
+        # Rule 4: Dimension consistency
+        print("\n4. Checking dimension consistency...")
+        nx = len(system.state_vars)
+        nu = len(system.control_vars)
+        print(f"   nx = {nx}")
+        print(f"   nu = {nu}")
+        print(f"   _f_sym rows = {system._f_sym.shape[0]}")
+        print(f"   order = {system.order}")
+        
+        if system.order == 1:
+            assert system._f_sym.shape[0] == nx, \
+                f"For order=1, _f_sym must have {nx} rows, got {system._f_sym.shape[0]}"
+        else:
+            nq = nx // system.order
+            assert system._f_sym.shape[0] == nq, \
+                f"For order={system.order}, _f_sym must have {nq} rows, got {system._f_sym.shape[0]}"
+        
+        # Rule 5: Parameters should use Symbol keys
+        print("\n5. Checking parameters...")
+        print(f"   Number of parameters: {len(system.parameters)}")
+        for key, val in system.parameters.items():
+            print(f"   {key} = {val}, key type = {type(key)}")
+            assert isinstance(key, sp.Symbol), f"Parameter key {key} is not a Symbol!"
+        
+        # Rule 6: Check _h_sym if present
+        if system._h_sym is not None:
+            print("\n6. Checking _h_sym...")
+            print(f"   type(_h_sym) = {type(system._h_sym)}")
+            print(f"   _h_sym.shape = {system._h_sym.shape}")
+            print(f"   _h_sym:\n{system._h_sym}")
+            
+            # Check if _h_sym depends on control (it shouldn't)
+            control_syms = set(system.control_vars)
+            h_free_symbols = system._h_sym.free_symbols
+            control_in_h = control_syms & h_free_symbols
+            
+            if control_in_h:
+                print(f"   WARNING: _h_sym depends on control: {control_in_h}")
+        
+        print("\n" + "="*70)
+        print("All validation rules passed!")
+        print("="*70)
+
+
+# ============================================================================
 # Test: Initialization
 # ============================================================================
 
