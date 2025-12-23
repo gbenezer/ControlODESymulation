@@ -56,14 +56,9 @@ class LinearSystem(SymbolicDynamicalSystem):
         self.parameters = {a_sym: a, b_sym: b}
         self.order = 1
         
-        # Equilibrium at origin
-        self.add_equilibrium(
-            'origin',
-            x_eq=np.array([0.0]),
-            u_eq=np.array([0.0]),
-            verify=True,
-            stability='stable' if a > 0 else 'unstable'
-        )
+        # NOTE: Don't add equilibrium in define_system()!
+        # The EquilibriumHandler is not initialized yet during define_system()
+        # Users should add equilibria AFTER system creation if needed
 
 
 class AutonomousLinearSystem(SymbolicDynamicalSystem):
@@ -97,15 +92,6 @@ class AutonomousLinearSystem(SymbolicDynamicalSystem):
         self._f_sym = sp.Matrix([[-a_sym * x]])
         self.parameters = {a_sym: a}
         self.order = 1
-        
-        # Equilibrium at origin
-        self.add_equilibrium(
-            'origin',
-            x_eq=np.array([0.0]),
-            u_eq=np.array([]),  # ← Empty control
-            verify=True,
-            stability='stable' if a > 0 else 'unstable'
-        )
 
 
 class LinearSystem2D(SymbolicDynamicalSystem):
@@ -170,14 +156,6 @@ class LinearSystem2D(SymbolicDynamicalSystem):
             b1_sym: b1, b2_sym: b2
         }
         self.order = 1
-        
-        # Equilibrium at origin
-        self.add_equilibrium(
-            'origin',
-            x_eq=np.array([0.0, 0.0]),
-            u_eq=np.array([0.0]),
-            verify=True
-        )
 
 
 # ============================================================================

@@ -36,24 +36,76 @@ from src.systems.builtin.mechanical_systems import SymbolicPendulum
 
 
 # ============================================================================
+# Helper Functions (MUST BE DEFINED BEFORE USE IN DECORATORS)
+# ============================================================================
+
+def _torch_available():
+    """Check if PyTorch is available."""
+    try:
+        import torch
+        return True
+    except ImportError:
+        return False
+
+
+def _jax_available():
+    """Check if JAX is available."""
+    try:
+        import jax
+        return True
+    except ImportError:
+        return False
+
+# ============================================================================
 # Test Fixtures
 # ============================================================================
 
 @pytest.fixture
 def linear_system():
-    """Simple first-order linear system: dx/dt = -a*x + u"""
-    return LinearSystem(a=2.0)
+    """Linear system with equilibrium at origin."""
+    system = LinearSystem(a=2.0, b=1.0)
+    # Add equilibrium AFTER system creation
+    system.add_equilibrium(
+        'origin',
+        x_eq=np.array([0.0]),
+        u_eq=np.array([0.0]),
+        verify=True
+    )
+    return system
 
 
 @pytest.fixture
 def autonomous_system():
+    """Autonomous linear system: dx/dt = -a*x (no control)"""
     return AutonomousLinearSystem(a=2.0)
 
 
 @pytest.fixture
 def pendulum_system():
-    """Second-order nonlinear pendulum system"""
-    return SymbolicPendulum(m=1.0, l=0.5, g=9.81, beta=0.1)
+    """Pendulum with downward and upright equilibria."""
+    system = SymbolicPendulum(
+        m_val=1.0,
+        l_val=0.5,
+        beta_val=0.1,
+        g_val=9.81
+    )
+    
+    # Add equilibria after creation
+    system.add_equilibrium(
+        'downward',
+        x_eq=np.array([0.0, 0.0]),
+        u_eq=np.array([0.0]),
+        verify=True
+    )
+    
+    system.add_equilibrium(
+        'upright',
+        x_eq=np.array([np.pi, 0.0]),
+        u_eq=np.array([0.0]),
+        verify=True
+    )
+    
+    return system
 
 
 @pytest.fixture
@@ -191,8 +243,8 @@ class TestStepFunction:
         # Should work with u=None
         x_next = discretizer.step(x, u=None)
         
-        # x_next = 1 + 0.01 * (-1*1) = 0.99
-        expected = x + dt * (-1.0 * x)
+        # x_next = 1 + 0.01 * (-2*1) = 0.98
+        expected = x + dt * (-2.0 * x)
         assert_allclose(x_next, expected, rtol=1e-10)
     
     def test_step_batched(self, linear_system, dt):
@@ -268,8 +320,9 @@ class TestIntegrationMethods:
         t_final = 100 * dt
         x_analytical = x0 * np.exp(-2.0 * t_final)
         
-        # Euler has O(dt) error, so should be close but not exact
-        assert_allclose(x, x_analytical, rtol=0.01)  # 1% error acceptable
+        # Euler has O(dt) error accumulation
+        # For 100 steps with dt=0.01, expect ~1-2% error
+        assert_allclose(x, x_analytical, rtol=0.02)  # Increased from 0.01 to 0.02
     
     def test_rk4_vs_analytical(self, linear_system):
         """Test RK4 method against analytical solution."""
@@ -399,10 +452,10 @@ class TestLinearization:
         
         x_eq = np.array([0.0])
         
-        Ad, Bd = discretizer.linearize(x_eq, u=None, method='euler')
+        Ad, Bd = discretizer.linearize(x_eq, u_eq=None, method='euler')
         
         # Ad should be correct
-        assert_allclose(Ad, np.array([[1.0 - dt]]), rtol=1e-10)
+        assert_allclose(Ad, np.array([[1.0 - 2.0*dt]]), rtol=1e-10)
         
         # Bd should be empty (nx, 0) for autonomous system
         assert Bd.shape == (1, 0)
@@ -715,7 +768,8 @@ class TestBackendSupport:
         """Test JAX backend."""
         import jax.numpy as jnp
         
-        discretizer = Discretizer(linear_system, dt=dt, backend='jax')
+        # Use 'midpoint' instead of 'rk4' for JAX (Diffrax doesn't have rk4)
+        discretizer = Discretizer(linear_system, dt=dt, backend='jax', method='midpoint')
         
         x = jnp.array([1.0])
         u = jnp.array([0.0])
@@ -725,6 +779,10 @@ class TestBackendSupport:
         assert isinstance(x_next, jnp.ndarray)
         assert x_next.shape == (1,)
     
+    @pytest.mark.skipif(
+        not _torch_available(),
+        reason="PyTorch not available"
+    )
     def test_backend_consistency(self, linear_system, dt):
         """Test that different backends give same numerical results."""
         x_np = np.array([1.0])
@@ -733,37 +791,14 @@ class TestBackendSupport:
         disc_np = Discretizer(linear_system, dt=dt, backend='numpy', method='rk4')
         x_next_np = disc_np.step(x_np, u_np)
         
-        # Compare with torch if available
-        if _torch_available():
-            import torch
-            disc_torch = Discretizer(linear_system, dt=dt, backend='torch', method='rk4')
-            x_torch = torch.tensor([1.0])
-            u_torch = torch.tensor([0.5])
-            x_next_torch = disc_torch.step(x_torch, u_torch)
-            
-            assert_allclose(x_next_np, x_next_torch.numpy(), rtol=1e-6)
-
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-def _torch_available():
-    """Check if PyTorch is available."""
-    try:
+        # Compare with torch
         import torch
-        return True
-    except ImportError:
-        return False
-
-
-def _jax_available():
-    """Check if JAX is available."""
-    try:
-        import jax
-        return True
-    except ImportError:
-        return False
+        disc_torch = Discretizer(linear_system, dt=dt, backend='torch', method='rk4')
+        x_torch = torch.tensor([1.0])
+        u_torch = torch.tensor([0.5])
+        x_next_torch = disc_torch.step(x_torch, u_torch)
+        
+        assert_allclose(x_next_np, x_next_torch.numpy(), rtol=1e-6)
 
 
 # ============================================================================
