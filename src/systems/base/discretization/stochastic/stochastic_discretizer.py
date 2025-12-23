@@ -126,13 +126,20 @@ class StochasticDiscretizer:
     >>> # Linearize (includes noise gain)
     >>> Ad, Bd, Gd = discretizer.linearize(x_eq, u_eq)
     """
+
+    # Add class-level defaults for each backend
+    _BACKEND_DEFAULTS = {
+        'numpy': 'EM',      # Julia Euler-Maruyama
+        'torch': 'euler',   # TorchSDE euler
+        'jax': 'Euler',     # Diffrax Euler (capital E)
+    }
     
     def __init__(
         self,
         continuous_system: 'StochasticDynamicalSystem',
         dt: float,
         integrator: Optional[SDEIntegratorBase] = None,
-        method: str = 'euler',
+        method: Optional[str] = None,
         backend: Optional[str] = None,
         seed: Optional[int] = None,
         convergence_type: ConvergenceType = ConvergenceType.STRONG,
@@ -221,6 +228,11 @@ class StochasticDiscretizer:
         if backend is None:
             backend = continuous_system._default_backend
         self.backend = backend
+        
+        # Determine method (use backend-appropriate default if not specified)
+        if method is None:
+            method = self._BACKEND_DEFAULTS.get(backend, 'EM')
+        self.method = method
         
         # Create or store integrator
         if integrator is not None:
@@ -861,11 +873,13 @@ class StochasticDiscretizer:
 def create_stochastic_discretizer(
     sde_system: 'StochasticDynamicalSystem',
     dt: float,
-    method: str = 'euler',
+    method: Optional[str] = None,
     **kwargs
 ) -> StochasticDiscretizer:
     """
     Convenience function for creating stochastic discretizers.
+
+    If method is None, uses backend-appropriate default.
     
     Examples
     --------
