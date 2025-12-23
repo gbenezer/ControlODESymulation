@@ -155,8 +155,14 @@ def ou_system():
 
 @pytest.fixture
 def brownian_system():
-    """Create pure Brownian motion."""
-    return BrownianMotion(sigma=1.0)
+    """
+    Pure Brownian motion: dx = sigma * dW (zero drift)
+    
+    Uses sigma=0.5 for testing to get nice round numbers:
+    - Var[B(1)] = 0.25
+    - Std[B(1)] = 0.5
+    """
+    return BrownianMotion(sigma=0.5)  # ← SPECIFY sigma=0.5
 
 
 @pytest.fixture
@@ -481,6 +487,53 @@ class TestPureDiffusionSystems:
         mean_diff = torch.abs(result1.x[-1] - result2.x[-1]).mean()
         assert mean_diff < 2.0, "Results too different"
 
+
+    @pytest.mark.slow
+    def test_brownian_motion_variance_buildup(self, brownian_system):
+        """
+        Test variance accumulation over time for Brownian motion.
+        
+        This helps diagnose if variance is accumulating correctly.
+        """
+        x0 = torch.tensor([0.0])
+        u_func = lambda t, x: None
+        dt = 0.01
+        
+        # Test at multiple time points
+        test_times = [0.1, 0.5, 1.0, 2.0]
+        
+        for t_final in test_times:
+            n_paths = 200  # More paths for better statistics
+            final_states = []
+            
+            for seed in range(n_paths):
+                torch.manual_seed(seed)
+                integrator = TorchSDEIntegrator(
+                    brownian_system, dt=dt, method='euler', seed=seed
+                )
+                result = integrator.integrate(x0, u_func, (0.0, t_final))
+                final_states.append(result.x[-1].item())
+            
+            final_states = torch.tensor(final_states)
+            empirical_var = final_states.var().item()
+            
+            # Expected: Var[B(t)] = σ² * t = 0.25 * t
+            expected_var = 0.25 * t_final
+            
+            # commented out debug info
+            # print(f"\nt = {t_final:.1f}:")
+            # print(f"  Expected variance: {expected_var:.4f}")
+            # print(f"  Empirical variance: {empirical_var:.4f}")
+            # print(f"  Ratio (empirical/expected): {empirical_var/expected_var:.4f}")
+            
+            # Should be roughly linear in time
+            # Allow 50% tolerance due to finite samples
+            assert 0.5 * expected_var < empirical_var < 1.5 * expected_var, (
+                f"At t={t_final}: variance {empirical_var:.4f} "
+                f"should be near {expected_var:.4f}"
+            )
+
+    @pytest.mark.slow
     @pytest.mark.flaky(reruns=3, reruns_delay=1)  # Retry up to 3 times
     def test_pure_diffusion_statistical_properties(self, brownian_system):
         """
@@ -523,9 +576,8 @@ class TestPureDiffusionSystems:
         # Test 2: Variance should be close to σ²t = 0.25
         empirical_var = final_states.var()
         expected_var = 0.25  # σ²t = 0.5² * 1.0
-        # Allow 40% tolerance for finite sample variance (was 30%, increase to reduce flakiness)
-        var_lower = 0.6 * expected_var
-        var_upper = 1.4 * expected_var
+        var_lower = 0.7 * expected_var
+        var_upper = 1.3 * expected_var
         assert var_lower < empirical_var < var_upper, (
             f"Variance {empirical_var:.4f} should be near {expected_var:.4f} "
             f"(range: [{var_lower:.3f}, {var_upper:.3f}])"
