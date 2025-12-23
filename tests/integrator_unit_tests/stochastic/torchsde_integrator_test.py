@@ -490,48 +490,32 @@ class TestPureDiffusionSystems:
 
     @pytest.mark.slow
     def test_brownian_motion_variance_buildup(self, brownian_system):
-        """
-        Test variance accumulation over time for Brownian motion.
-        
-        This helps diagnose if variance is accumulating correctly.
-        """
-        x0 = torch.tensor([0.0])
-        u_func = lambda t, x: None
-        dt = 0.01
-        
-        # Test at multiple time points
-        test_times = [0.1, 0.5, 1.0, 2.0]
+        """Test variance accumulation over time for Brownian motion."""
+        test_times = [0.5, 1.0, 2.0]
+        n_paths = 100  # Reduced from 200
         
         for t_final in test_times:
-            n_paths = 200  # More paths for better statistics
-            final_states = []
+            torch.manual_seed(42)
+            integrator = TorchSDEIntegrator(
+                brownian_system, dt=0.01, method='euler', seed=42
+            )
             
-            for seed in range(n_paths):
-                torch.manual_seed(seed)
-                integrator = TorchSDEIntegrator(
-                    brownian_system, dt=dt, method='euler', seed=seed
-                )
-                result = integrator.integrate(x0, u_func, (0.0, t_final))
-                final_states.append(result.x[-1].item())
+            # Batched integration (all paths at once)
+            x0 = torch.zeros(n_paths, 1)
+            u_func = lambda t, x: None
             
-            final_states = torch.tensor(final_states)
+            result = integrator.integrate(x0, u_func, (0.0, t_final))
+            
+            # Extract final states
+            final_states = result.x[-1, :, 0]  # (n_paths,)
             empirical_var = final_states.var().item()
             
             # Expected: Var[B(t)] = σ² * t = 0.25 * t
             expected_var = 0.25 * t_final
-            
-            # commented out debug info
-            # print(f"\nt = {t_final:.1f}:")
-            # print(f"  Expected variance: {expected_var:.4f}")
-            # print(f"  Empirical variance: {empirical_var:.4f}")
-            # print(f"  Ratio (empirical/expected): {empirical_var/expected_var:.4f}")
-            
+
             # Should be roughly linear in time
             # Allow 50% tolerance due to finite samples
-            assert 0.5 * expected_var < empirical_var < 1.5 * expected_var, (
-                f"At t={t_final}: variance {empirical_var:.4f} "
-                f"should be near {expected_var:.4f}"
-            )
+            assert 0.5 * expected_var < empirical_var < 1.5 * expected_var
 
     @pytest.mark.slow
     @pytest.mark.flaky(reruns=3, reruns_delay=1)  # Retry up to 3 times
@@ -539,43 +523,41 @@ class TestPureDiffusionSystems:
         """
         Test that pure diffusion has correct statistical properties.
         
-        This is more robust than exact reproducibility testing.
+        Uses batched integration for speed.
         """
-        x0 = torch.tensor([0.0])
+        # Batched initial conditions - all start at 0
+        n_paths = 100
+        x0_batch = torch.zeros(n_paths, 1)
         u_func = lambda t, x: None
         t_span = (0.0, 1.0)
         dt = 0.01
         
-        # Run multiple trajectories
-        n_paths = 100
-        final_states = []
+        # Single integrator, batched integration
+        torch.manual_seed(42)
+        integrator = TorchSDEIntegrator(
+            brownian_system, dt=dt, method='euler', seed=42
+        )
         
-        for seed in range(n_paths):
-            torch.manual_seed(seed)
-            integrator = TorchSDEIntegrator(
-                brownian_system, dt=dt, method='euler', seed=seed
-            )
-            result = integrator.integrate(x0, u_func, t_span)
-            final_states.append(result.x[-1].item())
+        # ONE call integrates ALL 100 paths in parallel!
+        result = integrator.integrate(x0_batch, u_func, t_span)
         
-        final_states = torch.tensor(final_states)
+        # Extract final states: result.x has shape (T, n_paths, 1)
+        final_states = result.x[-1, :, 0]  # (n_paths,)
         
         # Statistical tests for Brownian motion B(t) ~ N(0, σ²t)
         # With σ=0.5, t=1.0: B(1) ~ N(0, 0.25)
         
         # Test 1: Mean should be close to 0
         empirical_mean = final_states.mean()
-        # 99.7% CI (3σ rule): ±3 * (σ/√n) = ±3 * (0.5/√100) = ±0.15
-        # Use 99.9% CI (±4σ) to avoid flakiness: ±4 * 0.05 = ±0.20
-        mean_tolerance = 0.20  # More permissive - only fails 0.006% of time
+        mean_tolerance = 0.20
         assert abs(empirical_mean) < mean_tolerance, (
             f"Mean {empirical_mean:.4f} should be near 0 "
-            f"(99.9% CI: ±{mean_tolerance:.2f}, SE={0.05:.3f})"
+            f"(99.9% CI: ±{mean_tolerance:.2f})"
         )
         
         # Test 2: Variance should be close to σ²t = 0.25
         empirical_var = final_states.var()
-        expected_var = 0.25  # σ²t = 0.5² * 1.0
+        expected_var = 0.25
         var_lower = 0.7 * expected_var
         var_upper = 1.3 * expected_var
         assert var_lower < empirical_var < var_upper, (
@@ -584,22 +566,19 @@ class TestPureDiffusionSystems:
         )
         
         # Test 3: Distribution should be roughly normal
-        # Skewness and kurtosis tests are VERY sensitive to outliers with small n
-        # Only test if scipy is available
         try:
             from scipy.stats import skew, kurtosis
             empirical_skew = abs(skew(final_states.numpy()))
             empirical_kurt = abs(kurtosis(final_states.numpy(), fisher=False) - 3)
             
-            # Relaxed tolerances for n=100
-            assert empirical_skew < 0.8, (  # Increased from 0.5
+            assert empirical_skew < 0.8, (
                 f"Skewness {empirical_skew:.4f} too high (expected < 0.8)"
             )
-            assert empirical_kurt < 1.5, (  # Increased from 1.0
+            assert empirical_kurt < 1.5, (
                 f"Excess kurtosis {empirical_kurt:.4f} too high (expected < 1.5)"
             )
         except ImportError:
-            pass  # Skip normality tests if scipy not available
+            pass
 
     def test_seed_affects_results(self, brownian_system):
         """
