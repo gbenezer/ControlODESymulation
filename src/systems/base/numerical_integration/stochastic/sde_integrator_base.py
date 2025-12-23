@@ -345,10 +345,17 @@ class SDEIntegratorBase(IntegratorBase):
         self._is_diagonal = sde_system.is_diagonal_noise()
         self._is_scalar = sde_system.is_scalar_noise()
         
-        # Cache for additive noise (computed once)
+        # Cache constant diffusion for additive noise
         self._cached_diffusion = None
-        if self._is_additive and options.get('cache_noise', True):
-            self._cache_constant_diffusion()
+        if self._is_additive:
+            try:
+                # CRITICAL: Get constant noise in correct backend
+                self._cached_diffusion = self.sde_system.get_constant_noise(
+                    backend=self.backend  # Pass backend
+                )
+            except Exception as e:
+                # If caching fails, will evaluate each time
+                pass
     
     def _initialize_rng(self, backend: str, seed: Optional[int]):
         """
@@ -396,6 +403,7 @@ class SDEIntegratorBase(IntegratorBase):
             x_dummy = np.zeros(self.sde_system.nx)
             u_dummy = np.zeros(self.sde_system.nu) if self.sde_system.nu > 0 else None
             
+            # CRITICAL: Pass backend parameter
             self._cached_diffusion = self.sde_system.get_constant_noise(
                 backend=self.backend
             )
