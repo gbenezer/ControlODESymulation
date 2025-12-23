@@ -27,8 +27,12 @@ from src.systems.base.numerical_integration.integrator_factory import Integrator
 from src.systems.base.numerical_integration.integrator_base import StepMode
 
 # Import test systems
-from src.systems.examples.linear_system import LinearSystem
-from src.systems.examples.pendulum import SimplePendulum
+from src.systems.builtin.linear_systems import (
+    LinearSystem,
+    AutonomousLinearSystem,
+    LinearSystem2D
+)
+from src.systems.builtin.mechanical_systems import SymbolicPendulum
 
 
 # ============================================================================
@@ -43,19 +47,13 @@ def linear_system():
 
 @pytest.fixture
 def autonomous_system():
-    """Autonomous linear system: dx/dt = -a*x (no control)"""
-    system = LinearSystem(a=1.0)
-    # Manually set nu=0 to make it autonomous
-    system.control_vars = []
-    system._initialized = False
-    system._initialized = True  # Re-validate
-    return system
+    return AutonomousLinearSystem(a=2.0)
 
 
 @pytest.fixture
 def pendulum_system():
     """Second-order nonlinear pendulum system"""
-    return SimplePendulum(m=1.0, l=0.5, g=9.81, beta=0.1)
+    return SymbolicPendulum(m=1.0, l=0.5, g=9.81, beta=0.1)
 
 
 @pytest.fixture
