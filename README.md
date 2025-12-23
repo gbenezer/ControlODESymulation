@@ -748,6 +748,11 @@ If you run a modified version of this software on a network, you must
 provide the complete corresponding source code to users of that service,
 as required by the AGPL.
 
+Using this software internally or as an unmodified dependency does not
+require you to release your own source code. Only modifications to this
+software that are made available over a network must be shared, as
+required by the AGPL.
+
 ---
 
 ## Links
