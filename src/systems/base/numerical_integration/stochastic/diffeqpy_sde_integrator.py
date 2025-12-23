@@ -15,6 +15,19 @@ Supports both Ito and Stratonovich interpretations, controlled and autonomous sy
 via NoiseGrid and NoiseFunction, but implementation through diffeqpy for single-step
 integration is complex. For reliable custom noise, use JAX/Diffrax instead.
 
+**ALGORITHM COMPATIBILITY**: Not all Julia SDE algorithms work reliably through
+diffeqpy due to Python-Julia bridging complexity. Tested and verified to work:
+- EM (Euler-Maruyama) - General purpose
+- SRA3 - Additive noise optimization
+- LambaEM - Adaptive stepping
+
+Algorithms that may not work through diffeqpy:
+- SRIW1, SRIW2 - Diagonal noise (use JAX/Diffrax instead)
+- Advanced Milstein variants - May have bridging issues
+- Some implicit methods - Solver-specific compatibility
+
+For maximum compatibility, use EM. For high accuracy, consider JAX/Diffrax.
+
 Mathematical Form
 -----------------
 Stochastic differential equations:
@@ -24,15 +37,15 @@ Stochastic differential equations:
 Available Algorithms
 -------------------
 **Recommended General Purpose:**
-- EM (Euler-Maruyama): Order 0.5 strong, 1.0 weak - fast and robust
+- EM (Euler-Maruyama): Order 0.5 strong, 1.0 weak - fast and robust (VERIFIED)
 - LambaEM: Euler-Maruyama with lambda step size control
-- SRIW1: Order 1.5 strong, 2.0 weak - better accuracy
+- EulerHeun: Euler-Heun predictor-corrector
 
 **High Accuracy (Stochastic Runge-Kutta):**
+- SRA3: Order 2.0 weak for additive noise (VERIFIED)
 - SRA1: Order 2.0 weak for diagonal noise
-- SRA3: Order 2.0 weak for additive noise
+- SRIW1: Order 1.5 strong for diagonal noise (May not work via diffeqpy)
 - SOSRA: Order 2.0 weak for scalar noise
-- SRI: Roessler SRI algorithms (various orders)
 
 **Adaptive Methods:**
 - RKMil: Runge-Kutta Milstein with adaptivity
