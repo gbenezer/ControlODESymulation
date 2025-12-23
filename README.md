@@ -632,20 +632,26 @@ Currently not open to contributions, though may change after Phase 4 and once I 
 
 #### Phase 2 (Current):
 - Refactoring of DiscreteTimeSystem
-    - Construct Discretizer that handles continuous to discrete conversion using numerical integration
-        - Make sure it can be used for stochastic (pure diffusion and diffusion + drift) and deterministic systems
-        - Evaluate if support is needed for autonomous systems here as well as simulator somewhere else
+    - Finish debugging StochasticDiscretizer
+        - Switch batching test and reproducibility tests away from Julia DiffEqPy backend
+        - Other failing tests
+            - test_step_callable_interface
+            - test_zero_noise_matches_deterministic (both versions)
+            - test_set_seed_changes_results
     - Construct DiscreteSimulator that uses Discretizer to handle trajectory simulation
         - Make sure it can be used for stochastic (pure diffusion and diffusion + drift) and deterministic systems
         - Make sure this can support both autonomous and controlled systems
+    - Construct StochasticDiscreteSimulator
     - Construct DiscreteLinearization that caches numerical linearization
         - Assess whether this is needed/can be implemented for stochastic systems
+    - Construct StochasticDiscreteLinearization
     - Construct unified DiscreteTimeSystem class from the above sub-object classes
         - Should
-            - Take in a SymbolicDynamicalSystem, StochasticDynamicalSystem, or subclass thereof
-            - Use that system along with the IntegratorFactory or SDEIntegratorFactory classes to instantiate and store an appropriate numerical integrator
+            - Take in a SymbolicDynamicalSystem or subclass thereof
+            - Use that system along with the IntegratorFactory class to instantiate and store an appropriate numerical integrator
             - Use that numerical integrator to instantiate Discretizer, DiscreteSimulator, and DiscreteLinearization classes
             - Facilitate numerical simulation of the system
+    - Construct analogous StochasticDiscreteTimeSystem class
 
 #### Phase 3:
 - Re-implement plotting utilities
