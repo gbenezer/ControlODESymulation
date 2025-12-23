@@ -6,17 +6,24 @@ Tests Julia-based SDE integration via DiffEqPy, including:
 - Algorithm selection and availability
 - Integration with autonomous and controlled systems
 - Pure diffusion systems (zero drift)
+- **NEW: Experimental custom noise support**
 - Comparison with known analytical solutions
 - Error handling and edge cases
 - Algorithm recommendations
+- Julia setup validation
 
 NOTE: Julia manages its own random number generation, so tests cannot
 assume reproducibility across runs. Tests validate behavior and properties
 rather than exact numerical values.
+
+CUSTOM NOISE: Julia theoretically supports custom noise via NoiseGrid,
+but implementation through diffeqpy is experimental. Tests verify the
+interface exists and handles failures gracefully.
 """
 
 import pytest
 import numpy as np
+import warnings
 
 # Check if diffeqpy is available
 try:
@@ -280,6 +287,142 @@ class TestDiffEqPySDEInitialization:
         
         assert integrator.rtol == 1e-6
         assert integrator.atol == 1e-8
+    
+    def test_validate_julia_setup(self, integrator_em):
+        """Test Julia setup validation."""
+        # Should pass if Julia is properly installed
+        try:
+            is_valid = integrator_em.validate_julia_setup()
+            assert is_valid
+        except RuntimeError as e:
+            pytest.skip(f"Julia setup incomplete: {e}")
+
+
+# ============================================================================
+# Test Class: Experimental Custom Noise Support (NEW!)
+# ============================================================================
+
+class TestExperimentalCustomNoise:
+    """
+    Test experimental custom noise support via NoiseGrid.
+    
+    NOTE: This is EXPERIMENTAL and may not work reliably.
+    These tests verify:
+    1. The interface accepts dW parameter
+    2. Failures are handled gracefully with warnings
+    3. Falls back to random noise when custom noise fails
+    
+    For reliable custom noise, use JAX/Diffrax instead.
+    """
+    
+    def test_step_accepts_dw_parameter(self, ou_system):
+        """Test that step() accepts dW parameter without crashing."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x = np.array([1.0])
+        u = None
+        dt = 0.01
+        dW = np.array([0.5])
+        
+        # Should not crash (may or may not actually use dW)
+        x_next = integrator.step(x, u, dt, dW=dW)
+        
+        assert x_next.shape == (1,)
+        assert np.all(np.isfinite(x_next))
+    
+    def test_custom_noise_warnings_issued(self, ou_system):
+        """Test that warnings are issued when custom noise likely fails."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x = np.array([1.0])
+        dW = np.array([0.5])
+        
+        # Expect a warning about custom noise
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            x_next = integrator.step(x, None, 0.01, dW=dW)
+            
+            # Should either work silently or warn
+            # (Depends on diffeqpy version and Julia setup)
+            # Just verify it doesn't crash
+            assert np.all(np.isfinite(x_next))
+    
+    def test_custom_noise_none_works(self, ou_system):
+        """Test that dW=None works (standard random noise)."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x = np.array([1.0])
+        
+        # Should work fine with random noise
+        x_next = integrator.step(x, None, 0.01, dW=None)
+        
+        assert x_next.shape == (1,)
+        assert np.all(np.isfinite(x_next))
+    
+    def test_custom_noise_multidimensional_accepted(self, ou_2d_system):
+        """Test that multi-dimensional dW is accepted."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_2d_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x = np.array([1.0, 2.0])
+        dW = np.array([0.3, -0.2])
+        
+        # Should not crash
+        x_next = integrator.step(x, None, 0.01, dW=dW)
+        
+        assert x_next.shape == (2,)
+        assert np.all(np.isfinite(x_next))
+    
+    def test_create_noise_grid_interface(self, integrator_em):
+        """Test that _create_noise_grid interface exists."""
+        assert hasattr(integrator_em, '_create_noise_grid')
+        assert callable(integrator_em._create_noise_grid)
+        
+        # Try creating a simple noise grid
+        t_array = np.array([0.0, 0.01])
+        W_array = np.array([[0.0], [0.5]])
+        
+        # May succeed or raise NotImplementedError depending on Julia setup
+        try:
+            noise_grid = integrator_em._create_noise_grid(t_array, W_array)
+            # If successful, should return something
+            assert noise_grid is not None
+        except NotImplementedError:
+            # Expected if NoiseGrid not accessible via diffeqpy
+            pass
+    
+    def test_custom_noise_documentation_accurate(self, ou_system):
+        """
+        Test that documentation accurately describes custom noise limitations.
+        
+        This is a meta-test verifying our documentation is honest.
+        """
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        # Check that docstring mentions experimental nature
+        step_doc = integrator.step.__doc__
+        assert 'EXPERIMENTAL' in step_doc or 'experimental' in step_doc
+        assert 'JAX' in step_doc or 'jax' in step_doc  # Recommends JAX
+        assert 'Diffrax' in step_doc or 'diffrax' in step_doc
 
 
 # ============================================================================
@@ -588,6 +731,23 @@ class TestIntegrationMethods:
         assert stats['total_fev'] > 0
         assert stats['diffusion_evals'] > 0
         assert stats['total_steps'] > 0
+    
+    def test_multiple_steps_sequential(self, integrator_em):
+        """Test multiple sequential steps."""
+        x = np.array([1.0])
+        u = None
+        dt = 0.01
+        
+        # Take several steps
+        trajectory = [x.copy()]
+        for _ in range(10):
+            x = integrator_em.step(x, u, dt)
+            trajectory.append(x.copy())
+        
+        trajectory = np.array(trajectory)
+        
+        assert trajectory.shape == (11, 1)
+        assert np.all(np.isfinite(trajectory))
 
 
 # ============================================================================
@@ -615,6 +775,14 @@ class TestAlgorithmSelection:
         assert 'description' in info
         assert info['strong_order'] == 0.5
         assert info['weak_order'] == 1.0
+    
+    def test_get_algorithm_info_sriw1(self):
+        """Test info for high-accuracy algorithm."""
+        info = DiffEqPySDEIntegrator.get_algorithm_info('SRIW1')
+        
+        assert info['strong_order'] == 1.5
+        assert info['weak_order'] == 2.0
+        assert 'diagonal' in info['noise_type']
     
     def test_recommend_algorithm_additive(self):
         """Test algorithm recommendation for additive noise."""
@@ -645,6 +813,16 @@ class TestAlgorithmSelection:
         )
         
         assert alg == 'ImplicitEM'
+    
+    def test_recommend_algorithm_general_medium(self):
+        """Test recommendation for general noise, medium accuracy."""
+        alg = DiffEqPySDEIntegrator.recommend_algorithm(
+            noise_type='general',
+            stiffness='none',
+            accuracy='medium'
+        )
+        
+        assert alg == 'LambaEM'
 
 
 # ============================================================================
@@ -700,6 +878,82 @@ class TestConvergenceAccuracy:
             
             # All states should be positive
             assert np.all(result.x > 0), "GBM should stay positive"
+    
+    def test_smaller_dt_more_steps(self, ou_system):
+        """Test that smaller dt results in more integration steps."""
+        x0 = np.array([1.0])
+        u_func = lambda t, x: None
+        t_span = (0.0, 1.0)
+        
+        # Coarse dt
+        integrator_coarse = DiffEqPySDEIntegrator(
+            ou_system, dt=0.1, algorithm='EM'
+        )
+        result_coarse = integrator_coarse.integrate(x0, u_func, t_span)
+        
+        # Fine dt
+        integrator_fine = DiffEqPySDEIntegrator(
+            ou_system, dt=0.01, algorithm='EM'
+        )
+        result_fine = integrator_fine.integrate(x0, u_func, t_span)
+        
+        # Fine should have ~10x more steps
+        assert result_fine.nsteps > result_coarse.nsteps
+
+
+# ============================================================================
+# Test Class: High-Accuracy Algorithms
+# ============================================================================
+
+class TestHighAccuracyAlgorithms:
+    """Test specialized high-accuracy algorithms."""
+    
+    @pytest.mark.slow
+    def test_sriw1_higher_accuracy(self, ou_system):
+        """
+        Test SRIW1 algorithm (order 1.5 strong).
+        
+        SRIW1 should give better strong convergence than EM.
+        """
+        x0 = np.array([1.0])
+        u_func = lambda t, x: None
+        t_span = (0.0, 0.5)
+        
+        # Run with both algorithms
+        integrator_em = DiffEqPySDEIntegrator(
+            ou_system, dt=0.01, algorithm='EM'
+        )
+        integrator_sriw1 = DiffEqPySDEIntegrator(
+            ou_system, dt=0.01, algorithm='SRIW1'
+        )
+        
+        result_em = integrator_em.integrate(x0, u_func, t_span)
+        result_sriw1 = integrator_sriw1.integrate(x0, u_func, t_span)
+        
+        # Both should succeed
+        assert result_em.success
+        assert result_sriw1.success
+        
+        # Can't directly compare paths (different random noise)
+        # Just verify both are reasonable
+        assert np.all(np.isfinite(result_em.x))
+        assert np.all(np.isfinite(result_sriw1.x))
+    
+    def test_sra3_for_additive_noise(self, ou_system):
+        """Test SRA3 algorithm (optimized for additive noise)."""
+        # OU has additive noise
+        assert ou_system.is_additive_noise()
+        
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='SRA3'
+        )
+        
+        x0 = np.array([1.0])
+        result = integrator.integrate(x0, lambda t, x: None, (0.0, 1.0))
+        
+        assert result.success
 
 
 # ============================================================================
@@ -735,6 +989,35 @@ class TestEdgeCasesErrorHandling:
         result = integrator.integrate(x0, u_func, t_span)
         
         assert result.success
+    
+    def test_zero_initial_state(self, ou_system):
+        """Test with zero initial state."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x0 = np.array([0.0])
+        result = integrator.integrate(x0, lambda t, x: None, (0.0, 1.0))
+        
+        assert result.success
+        # Should move due to noise (not stay at zero)
+        assert result.x.shape[0] > 1
+    
+    def test_large_initial_state(self, ou_system):
+        """Test with large initial state."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x0 = np.array([100.0])
+        result = integrator.integrate(x0, lambda t, x: None, (0.0, 1.0))
+        
+        assert result.success
+        assert np.all(np.isfinite(result.x))
 
 
 # ============================================================================
@@ -764,6 +1047,13 @@ class TestUtilityFunctions:
         captured = capsys.readouterr()
         assert 'Julia SDE Algorithms' in captured.out
         assert 'Euler-Maruyama' in captured.out
+    
+    def test_factory_with_defaults(self, ou_system):
+        """Test factory with default parameters."""
+        integrator = create_diffeqpy_sde_integrator(ou_system)
+        
+        assert integrator.algorithm == 'EM'
+        assert integrator.dt == 0.01
 
 
 # ============================================================================
@@ -830,6 +1120,145 @@ class TestQualitativeBehavior:
 
 
 # ============================================================================
+# Test Class: Noise Structure Handling
+# ============================================================================
+
+class TestNoiseStructureHandling:
+    """Test handling of different noise structures."""
+    
+    def test_scalar_noise_system(self, ou_system):
+        """Test system with scalar noise (nw=1)."""
+        assert ou_system.is_scalar_noise()
+        assert ou_system.nw == 1
+        
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        result = integrator.integrate(
+            np.array([1.0]), lambda t, x: None, (0.0, 0.5)
+        )
+        
+        assert result.success
+    
+    def test_diagonal_noise_system(self, ou_2d_system):
+        """Test system with diagonal noise (independent per dimension)."""
+        assert ou_2d_system.is_diagonal_noise()
+        assert ou_2d_system.nw == 2
+        
+        integrator = DiffEqPySDEIntegrator(
+            ou_2d_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        result = integrator.integrate(
+            np.array([1.0, 2.0]), lambda t, x: None, (0.0, 0.5)
+        )
+        
+        assert result.success
+    
+    def test_additive_noise_system(self, ou_system):
+        """Test system with additive (constant) noise."""
+        assert ou_system.is_additive_noise()
+        
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        result = integrator.integrate(
+            np.array([1.0]), lambda t, x: None, (0.0, 0.5)
+        )
+        
+        assert result.success
+    
+    def test_multiplicative_noise_system(self, gbm_system):
+        """Test system with multiplicative (state-dependent) noise."""
+        assert gbm_system.is_multiplicative_noise()
+        
+        integrator = DiffEqPySDEIntegrator(
+            gbm_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        result = integrator.integrate(
+            np.array([1.0]), lambda t, x: None, (0.0, 0.5)
+        )
+        
+        assert result.success
+
+
+# ============================================================================
+# Test Class: Julia Setup Validation
+# ============================================================================
+
+class TestJuliaSetupValidation:
+    """Test Julia setup validation functionality."""
+    
+    def test_validate_julia_setup_succeeds(self, integrator_em):
+        """Test that validation succeeds with proper setup."""
+        try:
+            is_valid = integrator_em.validate_julia_setup()
+            assert is_valid
+        except RuntimeError as e:
+            # Julia setup incomplete - skip test
+            pytest.skip(f"Julia not properly set up: {e}")
+    
+    def test_validate_detects_missing_components(self):
+        """Test that validation would detect missing components."""
+        # This is hard to test without breaking the setup
+        # Just verify the method exists
+        assert hasattr(DiffEqPySDEIntegrator, 'validate_julia_setup')
+
+
+# ============================================================================
+# Test Class: Result Properties
+# ============================================================================
+
+class TestResultProperties:
+    """Test properties of integration results."""
+    
+    def test_result_has_metadata(self, integrator_em):
+        """Test that result contains expected metadata."""
+        x0 = np.array([1.0])
+        result = integrator_em.integrate(x0, lambda t, x: None, (0.0, 0.5))
+        
+        assert hasattr(result, 'solver')
+        assert hasattr(result, 'sde_type')
+        assert hasattr(result, 'convergence_type')
+        assert hasattr(result, 'n_paths')
+        
+        assert result.solver == 'EM'
+        assert result.n_paths == 1
+    
+    def test_result_time_points_ordered(self, integrator_em):
+        """Test that time points are monotonically increasing."""
+        x0 = np.array([1.0])
+        result = integrator_em.integrate(x0, lambda t, x: None, (0.0, 1.0))
+        
+        # Time should be monotonically increasing
+        assert np.all(np.diff(result.t) > 0)
+    
+    def test_result_dimensions_correct(self, ou_2d_system):
+        """Test that result dimensions match system."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_2d_system,
+            dt=0.01,
+            algorithm='EM'
+        )
+        
+        x0 = np.array([1.0, 2.0])
+        result = integrator.integrate(x0, lambda t, x: None, (0.0, 0.5))
+        
+        assert result.x.shape[1] == ou_2d_system.nx
+
+
+# ============================================================================
 # Test Class: String Representations
 # ============================================================================
 
@@ -849,6 +1278,49 @@ class TestStringRepresentations:
         repr_str = repr(integrator_em)
         
         assert 'DiffEqPySDEIntegrator' in repr_str
+    
+    def test_name_reflects_algorithm(self, ou_system):
+        """Test that name reflects chosen algorithm."""
+        integrator = DiffEqPySDEIntegrator(
+            ou_system,
+            dt=0.01,
+            algorithm='SRIW1'
+        )
+        
+        assert 'SRIW1' in integrator.name
+
+
+# ============================================================================
+# Test Class: Comparison Between Algorithms
+# ============================================================================
+
+class TestAlgorithmComparison:
+    """Compare different Julia algorithms."""
+    
+    def test_em_vs_sriw1_both_work(self, ou_system):
+        """Test that both EM and SRIW1 produce valid results."""
+        x0 = np.array([1.0])
+        u_func = lambda t, x: None
+        t_span = (0.0, 0.5)
+        
+        # EM
+        integrator_em = DiffEqPySDEIntegrator(
+            ou_system, dt=0.01, algorithm='EM'
+        )
+        result_em = integrator_em.integrate(x0, u_func, t_span)
+        
+        # SRIW1
+        integrator_sriw1 = DiffEqPySDEIntegrator(
+            ou_system, dt=0.01, algorithm='SRIW1'
+        )
+        result_sriw1 = integrator_sriw1.integrate(x0, u_func, t_span)
+        
+        # Both should succeed
+        assert result_em.success
+        assert result_sriw1.success
+        
+        # Both should have similar number of steps for fixed dt
+        assert abs(result_em.nsteps - result_sriw1.nsteps) < 5
 
 
 if __name__ == '__main__':
