@@ -122,7 +122,7 @@ def dt():
 class TestPendulumInitialization:
     """Test SymbolicPendulum initialization."""
 
-    def test_pendulum_creation_diagnostic():
+    def test_pendulum_creation_diagnostic(self):
         """Diagnostic test to see why SymbolicPendulum fails validation."""
         
         print("\n" + "="*70)
@@ -155,7 +155,7 @@ class TestPendulumInitialization:
             # Re-raise to see in pytest output
             raise
 
-    def test_pendulum_attributes_diagnostic():
+    def test_pendulum_attributes_diagnostic(self):
         """Check if pendulum has all required attributes."""
         import sympy as sp
         
@@ -211,7 +211,7 @@ class TestPendulumInitialization:
             traceback.print_exc()
             raise
 
-    def test_pendulum_manual_validation():
+    def test_pendulum_manual_validation(self):
         """Manually validate the pendulum system."""
         from src.systems.base.utils.symbolic_validator import SymbolicValidator
         import sympy as sp
@@ -274,7 +274,7 @@ class TestPendulumInitialization:
             
             raise
 
-    def test_pendulum_validation_rules():
+    def test_pendulum_validation_rules(self):
         """Check specific validation rules that might be failing."""
         from src.systems.builtin.mechanical_systems import SymbolicPendulum
         import sympy as sp
