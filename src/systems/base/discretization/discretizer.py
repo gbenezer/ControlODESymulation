@@ -12,19 +12,69 @@ Discrete system:   x[k+1] = f_d(x[k], u[k])
 
 where f_d is computed via numerical integration over time step dt.
 
+Backend-Specific Capabilities
+------------------------------
+**NumPy (Scipy):**
+- Adaptive stepping (LSODA, RK45, etc.)
+- Stiffness detection
+- Production-ready
+- Limited batched evaluation
+
+**NumPy (Julia DiffEqPy):**
+- Extensive algorithm library (Tsit5, Vern9, etc.)
+- Highest accuracy
+- Specialized solvers (Rosenbrock, symplectic, etc.)
+- No batched evaluation (loop required)
+- Example methods: 'Tsit5', 'Vern9', 'Rosenbrock23'
+
+**PyTorch (TorchDiffEq):**
+- Native batched evaluation
+- GPU acceleration
+- Automatic differentiation
+- Neural ODE support
+
+**JAX (Diffrax):**
+- JIT compilation
+- Batched evaluation
+- Functional programming
+- Gradient computation
+
+Recommendations
+---------------
+- **High Accuracy**: Use Julia backend (method='Tsit5')
+- **Batched Simulations**: Use PyTorch or JAX backend
+- **Neural ODEs**: Use PyTorch backend
+- **Optimization**: Use JAX backend
+- **General Purpose**: Use Scipy (method='LSODA')
+
+Batching Guide
+--------------
+**PyTorch and JAX** support native batching:
+    >>> disc = Discretizer(system, dt=0.01, backend='torch')
+    >>> x_batch = torch.randn(1000, nx)
+    >>> x_next = disc.step(x_batch, u_batch)  # 1000 in parallel
+
+**Scipy** has limited batching (vectorizes internally):
+    >>> disc = Discretizer(system, dt=0.01, method='RK45')
+    >>> # May work for some methods, not guaranteed
+
+**Julia (DiffEqPy)** does NOT support batching:
+    >>> disc = Discretizer(system, dt=0.01, method='Tsit5')
+    >>> # Must loop:
+    >>> results = [disc.step(x[i], u[i]) for i in range(n)]
+
 Examples
 --------
->>> # Create discretizer
->>> pendulum_ct = SymbolicPendulum(m=1.0, l=0.5, g=9.81)
->>> discretizer = Discretizer(pendulum_ct, dt=0.01, method='rk4')
->>> 
->>> # Single step
+>>> # Single trajectory (all backends)
+>>> discretizer = Discretizer(system, dt=0.01)
 >>> x_next = discretizer.step(x, u)
 >>> 
->>> # Linearize
->>> Ad, Bd = discretizer.linearize(x_eq, u_eq)
+>>> # Batched (PyTorch)
+>>> discretizer_torch = Discretizer(system, dt=0.01, backend='torch')
+>>> x_batch = torch.randn(100, nx)
+>>> x_next = discretizer_torch.step(x_batch, u_batch)
 """
-
+import warnings
 from typing import Optional, Tuple, Union, Dict, Any, TYPE_CHECKING
 import numpy as np
 
@@ -285,7 +335,27 @@ class Discretizer:
         -----
         For autonomous systems (nu=0), passing u=None is required.
         The integrator will handle the autonomous case internally.
+
+        # TODO: Refactor backend detection logic to shared utility module
+        # Currently using IntegratorFactory._is_julia_method() directly
+        # Future: Create src/systems/base/utils/backend_utils.py with:
+        #   - is_julia_method(method) -> bool
+        #   - supports_batching(backend, method) -> bool
+        #   - get_backend_capabilities(backend, method) -> dict
         """
+
+        # Warn if batched input detected with Julia backend
+        if self.backend == 'numpy' and IntegratorFactory._is_julia_method(self.method):
+            if hasattr(x, 'shape') and x.ndim > 1 and x.shape[0] > 1:
+                warnings.warn(
+                    f"Batched input detected (shape={x.shape}) with Julia backend "
+                    f"(method='{self.method}'). Julia does not support batched ODE "
+                    f"evaluation. For batched simulations, use backend='torch' or 'jax', "
+                    f"or loop over trajectories.",
+                    UserWarning,
+                    stacklevel=2
+                )
+
         # Use default dt if not specified
         if dt is None:
             dt = self.dt

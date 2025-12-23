@@ -509,6 +509,29 @@ class TestStepFunction:
         for i in range(3):
             expected = x_batch[i] + dt * (-2.0 * x_batch[i] + u_batch[i])
             assert_allclose(x_next_batch[i], expected, rtol=1e-10)
+
+    @pytest.mark.skip(reason="this is known to be a limitation of the backend")
+    def test_diffeqpy_batching_diagnostic(self):
+        """Check if DiffEqPy supports batched ODE integration."""
+        from src.systems.builtin.linear_systems import LinearSystem
+        from src.systems.base.discretization.discretizer import Discretizer
+        
+        system = LinearSystem(a=2.0, b=1.0)
+        
+        # Create discretizer with Julia backend
+        discretizer = Discretizer(system, dt=0.01, method='Tsit5', backend='numpy')
+        
+        # Try batched evaluation
+        x_batch = np.array([[1.0], [2.0], [3.0]])  # (3, 1)
+        u_batch = np.array([[0.0], [0.5], [1.0]])  # (3, 1)
+        
+        try:
+            x_next = discretizer.step(x_batch, u_batch)
+            print("✅ Batching works!")
+            print(f"Result shape: {x_next.shape}")
+        except Exception as e:
+            print(f"❌ Batching failed: {type(e).__name__}")
+            print(f"Error: {e}")
     
     def test_step_with_custom_dt(self, linear_system):
         """Test step with custom dt parameter."""
@@ -1078,6 +1101,61 @@ class TestBackendSupport:
         x_next_torch = disc_torch.step(x_torch, u_torch)
         
         assert_allclose(x_next_np, x_next_torch.numpy(), rtol=1e-6)
+
+    @pytest.mark.skipif(
+        not _torch_available(),
+        reason="PyTorch required for batched test"
+    )
+    def test_batched_evaluation_torch(self, linear_system, dt):
+        """Test batched evaluation with PyTorch backend."""
+        import torch
+        
+        linear_system.set_default_backend('torch')
+        
+        discretizer = Discretizer(
+            linear_system, dt=dt, backend='torch', method='euler'
+        )
+        
+        x_batch = torch.tensor([[1.0], [2.0], [3.0]])
+        u_batch = torch.tensor([[0.0], [0.5], [1.0]])
+        
+        x_next_batch = discretizer.step(x_batch, u_batch)
+        
+        # Should handle batching
+        assert x_next_batch.shape == (3, 1)
+        
+        # Verify each individually
+        for i in range(3):
+            x_i = torch.tensor([x_batch[i, 0].item()])
+            u_i = torch.tensor([u_batch[i, 0].item()])
+            x_next_i = discretizer.step(x_i, u_i)
+            assert_allclose(
+                x_next_batch[i].numpy(),
+                x_next_i.numpy(),
+                rtol=1e-6
+            )
+    
+    def test_julia_batching_not_supported(self, linear_system, dt):
+        """Document that Julia backend doesn't support batching."""
+        discretizer = Discretizer(
+            linear_system, dt=dt, method='Tsit5', backend='numpy'
+        )
+        
+        x_batch = np.array([[1.0], [2.0], [3.0]])
+        u_batch = np.array([[0.0], [0.5], [1.0]])
+        
+        # This will likely fail - document the workaround
+        with pytest.raises((Exception, ValueError)):
+            x_next = discretizer.step(x_batch, u_batch)
+        
+        # Workaround: Loop manually
+        results = []
+        for i in range(3):
+            x_next = discretizer.step(x_batch[i], u_batch[i])
+            results.append(x_next)
+        
+        x_next_batch = np.stack(results, axis=0)
+        assert x_next_batch.shape == (3, 1)
 
 
 # ============================================================================
