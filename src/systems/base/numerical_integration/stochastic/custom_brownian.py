@@ -8,6 +8,7 @@ import jax.numpy as jnp
 from jax import Array
 import diffrax as dfx
 from typing import Optional, Tuple
+import equinox as eqx
 
 
 class CustomBrownianPath(dfx.AbstractPath):
@@ -17,7 +18,9 @@ class CustomBrownianPath(dfx.AbstractPath):
     This implements Diffrax's AbstractPath interface to allow
     user-specified noise instead of generating random noise.
     
-    Parameters
+    Uses Equinox Module for proper JAX/Diffrax integration.
+    
+    Attributes
     ----------
     t0 : float
         Start time
@@ -38,30 +41,25 @@ class CustomBrownianPath(dfx.AbstractPath):
     >>> brownian = CustomBrownianPath(0.0, 0.01, dW)
     """
     
+    t0: float
+    t1: float
+    dW: Array
+    
     def __init__(self, t0: float, t1: float, dW: Array):
-        self.t0 = t0
-        self.t1 = t1
-        self.dW = dW
-        self.dt = t1 - t0
-        self._shape = dW.shape
+        # Use object.__setattr__ for frozen dataclass
+        object.__setattr__(self, 't0', t0)
+        object.__setattr__(self, 't1', t1)
+        object.__setattr__(self, 'dW', dW)
     
     @property
-    def t0(self) -> float:
-        """Start time of the interval."""
-        return self._t0
-    
-    @t0.setter
-    def t0(self, value: float):
-        self._t0 = value
+    def dt(self) -> float:
+        """Time interval length."""
+        return self.t1 - self.t0
     
     @property
-    def t1(self) -> float:
-        """End time of the interval."""
-        return self._t1
-    
-    @t1.setter
-    def t1(self, value: float):
-        self._t1 = value
+    def shape(self) -> Tuple[int, ...]:
+        """Shape of the noise."""
+        return self.dW.shape
     
     def evaluate(
         self, 
@@ -74,6 +72,9 @@ class CustomBrownianPath(dfx.AbstractPath):
         
         For custom noise, we provide the exact increment for our interval.
         Diffrax will call this to get dW values.
+        
+        This method must be JIT-compatible, so we use jnp.where() instead
+        of Python if statements to avoid tracer boolean conversion errors.
         
         Parameters
         ----------
@@ -91,29 +92,31 @@ class CustomBrownianPath(dfx.AbstractPath):
         """
         if t1 is None:
             # Query for B(t0) - return cumulative value
-            # For simplicity, linear interpolation
-            if jnp.abs(t0 - self._t0) < 1e-10:
-                return jnp.zeros_like(self.dW)
-            elif jnp.abs(t0 - self._t1) < 1e-10:
-                return self.dW
-            else:
-                # Linear interpolation
-                alpha = (t0 - self._t0) / self.dt
-                return self.dW * alpha
+            # Use linear interpolation: B(t) = dW * (t - t0) / (t1 - t0)
+            dt = self.t1 - self.t0
+            
+            # Avoid division by zero
+            alpha = jnp.where(
+                dt != 0,
+                (t0 - self.t0) / dt,
+                0.0
+            )
+            
+            return self.dW * alpha
         else:
             # Query for B(t1) - B(t0) = increment
-            # Check if this is our full interval
-            if (jnp.abs(t0 - self._t0) < 1e-10 and 
-                jnp.abs(t1 - self._t1) < 1e-10):
-                return self.dW
-            else:
-                # Sub-interval: scale proportionally by sqrt(time)
-                dt_query = t1 - t0
-                if self.dt > 0:
-                    scale = jnp.sqrt(dt_query / self.dt)
-                    return self.dW * scale
-                else:
-                    return jnp.zeros_like(self.dW)
+            # Scale by sqrt(dt_query / dt_total) for sub-intervals
+            dt_total = self.t1 - self.t0
+            dt_query = t1 - t0
+            
+            # Avoid division by zero
+            scale = jnp.where(
+                dt_total > 0,
+                jnp.sqrt(dt_query / dt_total),
+                0.0
+            )
+            
+            return self.dW * scale
 
 
 def create_custom_or_random_brownian(
