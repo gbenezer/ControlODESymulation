@@ -312,8 +312,8 @@ class SymbolicDynamicalSystem(ABC):
             ) from e
 
         # Step 3: Update equilibrium handler dimensions (now that we know nx, nu)
-        self.equilibria._nx = self.nx
-        self.equilibria._nu = self.nu
+        self.equilibria.nx = self.nx  # Property setter
+        self.equilibria.nu = self.nu  # Property setter
 
         # Step 3: Mark as initialized (validation passed)
         self._initialized = True
@@ -330,10 +330,6 @@ class SymbolicDynamicalSystem(ABC):
 
         self._observation = ObservationEngine(self, self._code_gen, self.backend)
         """Observation engine evaluates output functions and C matrix"""
-
-        # COMPOSITION: Delegate equilibrium management
-        self.equilibria = EquilibriumHandler(self.nx, self.nu)
-        """Equilibrium handler manages multiple equilibrium points"""
 
     def __repr__(self) -> str:
         """
@@ -1171,6 +1167,8 @@ class SymbolicDynamicalSystem(ABC):
             "ny": self.ny,
             "default_backend": self._default_backend,
             "preferred_device": self._preferred_device,
+            "equilibria": self.equilibria.list_names(),  # Add this!
+            "default_equilibrium": self.equilibria._default,  # Add this!
         }
 
     # ========================================================================
@@ -1445,7 +1443,10 @@ class SymbolicDynamicalSystem(ABC):
     # ========================================================================
 
     def linearized_dynamics(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None
+        self, 
+        x: Union[ArrayLike, str], 
+        u: Optional[ArrayLike] = None,  # Only ArrayLike, not string
+        backend: Optional[str] = None
     ) -> Tuple[ArrayLike, ArrayLike]:
         """
         Compute numerical linearization of dynamics: A = ∂f/∂x, B = ∂f/∂u.
@@ -1456,13 +1457,13 @@ class SymbolicDynamicalSystem(ABC):
 
         Parameters
         ----------
-        x : ArrayLike
-            State at which to linearize (nx,) or (batch, nx)
+        x : Union[ArrayLike, str]
+            State to linearize at, OR equilibrium name
         u : Optional[ArrayLike]
-            Control at which to linearize (nu,) or (batch, nu)
-            For autonomous systems, u can be None
+            Control to linearize at
+            Ignored if x is string (equilibrium name)
         backend : Optional[str]
-            Backend selection (None = auto-detect)
+            Backend selection
 
         Returns
         -------
@@ -1498,6 +1499,13 @@ class SymbolicDynamicalSystem(ABC):
         >>> A.shape
         (2, 2, 2)  # (batch, nx, nx)
 
+        >>> # Direct state/control
+        >>> A, B = system.linearized_dynamics(x, u)
+        
+        >>> # Named equilibrium
+        >>> A, B = system.linearized_dynamics('inverted')
+        >>> A, B = system.linearized_dynamics('inverted', backend='torch')
+
         Notes
         -----
         For second-order systems with state x = [q, q̇]:
@@ -1507,10 +1515,18 @@ class SymbolicDynamicalSystem(ABC):
         Uses cached Jacobian functions if available, otherwise computes
         symbolically. Delegates to LinearizationEngine.compute_dynamics().
         """
+        # If x is a string, treat as equilibrium name
+        if isinstance(x, str):
+            equilibrium_name = x
+            backend = backend or self._default_backend
+            x, u = self.equilibria.get_both(equilibrium_name, backend)
+        
         return self._linearization.compute_dynamics(x, u, backend)
 
     def linearized_dynamics_symbolic(
-        self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None
+        self, 
+        x_eq: Optional[Union[sp.Matrix, str]] = None, 
+        u_eq: Optional[sp.Matrix] = None  # Only sp.Matrix, not string
     ) -> Tuple[sp.Matrix, sp.Matrix]:
         """
         Compute symbolic linearization: A = ∂f/∂x, B = ∂f/∂u.
@@ -1520,10 +1536,13 @@ class SymbolicDynamicalSystem(ABC):
 
         Parameters
         ----------
-        x_eq : Optional[sp.Matrix]
-            Equilibrium state (symbolic). If None, uses origin (zeros).
+        x_eq : Optional[Union[sp.Matrix, str]]
+            Equilibrium state (symbolic matrix), OR equilibrium name (string).
+            If None, uses origin (zeros).
+            If string, retrieves equilibrium from handler (u_eq is ignored).
         u_eq : Optional[sp.Matrix]
-            Equilibrium control (symbolic). If None, uses zeros.
+            Equilibrium control (symbolic matrix). If None, uses zeros.
+            Ignored if x_eq is a string (equilibrium name).
 
         Returns
         -------
@@ -1537,10 +1556,13 @@ class SymbolicDynamicalSystem(ABC):
         >>> print(A_sym)
         Matrix([[0, 1], [-10.0, -0.5]])
 
-        >>> # Linearize at custom point
+        >>> # Linearize at custom symbolic point
         >>> x_eq = sp.Matrix([sp.pi, 0])  # Upright pendulum
         >>> u_eq = sp.Matrix([0])
         >>> A_sym, B_sym = system.linearized_dynamics_symbolic(x_eq, u_eq)
+        
+        >>> # Linearize at named equilibrium (u_eq ignored)
+        >>> A_sym, B_sym = system.linearized_dynamics_symbolic('inverted')
 
         Convert to NumPy:
         >>> A_np = np.array(A_sym, dtype=float)
@@ -1550,6 +1572,14 @@ class SymbolicDynamicalSystem(ABC):
         For higher-order systems, automatically constructs the full
         state-space representation. Delegates to LinearizationEngine.compute_symbolic().
         """
+        # If x_eq is a string, get equilibrium from handler
+        if isinstance(x_eq, str):
+            equilibrium_name = x_eq
+            x_np, u_np = self.equilibria.get_both(equilibrium_name, backend='numpy')
+            # Convert NumPy arrays to SymPy matrices
+            x_eq = sp.Matrix(x_np.tolist())
+            u_eq = sp.Matrix(u_np.tolist())
+        
         return self._linearization.compute_symbolic(x_eq, u_eq)
 
     def verify_jacobians(
@@ -1839,6 +1869,127 @@ class SymbolicDynamicalSystem(ABC):
         """
         verify_fn = self._verify_equilibrium_numpy if verify else None
         self.equilibria.add(name, x_eq, u_eq, verify_fn=verify_fn, tol=tol, **metadata)
+
+    def set_default_equilibrium(self, name: str) -> "SymbolicDynamicalSystem":
+        """
+        Set default equilibrium for get operations without name.
+        
+        Parameters
+        ----------
+        name : str
+            Name of equilibrium to use as default
+        
+        Returns
+        -------
+        SymbolicDynamicalSystem
+            Self for method chaining
+        
+        Examples
+        --------
+        >>> system.set_default_equilibrium('inverted')
+        >>> x_eq = system.equilibria.get_x()  # Gets 'inverted' by default
+        
+        Method chaining:
+        >>> system.set_default_equilibrium('upright').compile()
+        """
+        self.equilibria.set_default(name)
+        return self
+        
+    def get_equilibrium(
+        self, 
+        name: Optional[str] = None, 
+        backend: Optional[str] = None
+    ) -> Tuple[ArrayLike, ArrayLike]:
+        """
+        Get equilibrium state and control in specified backend,
+        or default backend if not specified
+        
+        Parameters
+        ----------
+        name : Optional[str]
+            Equilibrium name (None = default)
+        backend : Optional[str]
+            Backend for arrays (None = system default)
+        
+        Returns
+        -------
+        Tuple[ArrayLike, ArrayLike]
+            (x_eq, u_eq) in requested backend
+        
+        Examples
+        --------
+        >>> x_eq, u_eq = system.get_equilibrium('inverted', backend='torch')
+        """
+        backend = backend or self._default_backend
+        return self.equilibria.get_both(name, backend)
+
+    def list_equilibria(self) -> List[str]:
+        """
+        List all equilibrium names.
+        
+        Returns
+        -------
+        List[str]
+            Names of all defined equilibria
+        
+        Examples
+        --------
+        >>> system.list_equilibria()
+        ['origin', 'downward', 'inverted']
+        """
+        return self.equilibria.list_names()
+
+    def get_equilibrium_metadata(self, name: Optional[str] = None) -> Dict:
+        """
+        Get metadata for equilibrium.
+        
+        Parameters
+        ----------
+        name : Optional[str]
+            Equilibrium name (None = default)
+        
+        Returns
+        -------
+        Dict
+            Metadata dictionary
+        
+        Examples
+        --------
+        >>> meta = system.get_equilibrium_metadata('inverted')
+        >>> print(meta['stability'])
+        'unstable'
+        """
+        return self.equilibria.get_metadata(name)
+
+    def remove_equilibrium(self, name: str):
+        """
+        Remove an equilibrium point.
+        
+        Parameters
+        ----------
+        name : str
+            Equilibrium name to remove
+        
+        Raises
+        ------
+        ValueError
+            If trying to remove 'origin' or nonexistent equilibrium
+        
+        Examples
+        --------
+        >>> system.remove_equilibrium('test_point')
+        """
+        if name == 'origin':
+            raise ValueError("Cannot remove origin equilibrium")
+        
+        if name not in self.equilibria._equilibria:
+            raise ValueError(f"Unknown equilibrium '{name}'")
+        
+        del self.equilibria._equilibria[name]
+        
+        # Reset default if we removed it
+        if self.equilibria._default == name:
+            self.equilibria._default = 'origin'
 
     # Convenience: Quick access to control design
     @property

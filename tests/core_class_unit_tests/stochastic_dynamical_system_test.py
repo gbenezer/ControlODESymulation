@@ -2136,6 +2136,428 @@ class TestDiagonalNoiseClassification:
         assert opts['use_diagonal_solver']
 
 # ============================================================================
+# Test Class: New Equilibrium API Methods for SDEs
+# ============================================================================
+
+class TestSDEEquilibriumAPIMethods:
+    """Test equilibrium convenience methods on StochasticDynamicalSystem"""
+
+    def test_set_default_equilibrium_sde(self):
+        """Test set_default_equilibrium for SDE systems"""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        # For O-U, equilibrium at x=0, u=0
+        system.add_equilibrium("zero", np.array([0.0]), np.array([0.0]), verify=True)
+        
+        result = system.set_default_equilibrium("zero")
+        
+        assert system.equilibria._default == "zero"
+        assert result is system  # Returns self for chaining
+
+    def test_set_default_equilibrium_autonomous_sde(self):
+        """Test set_default_equilibrium for autonomous SDE"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        system.add_equilibrium("zero", np.array([0.0]), np.array([]), verify=True)
+        
+        result = system.set_default_equilibrium("zero")
+        
+        assert system.equilibria._default == "zero"
+        assert result is system
+
+    def test_get_equilibrium_sde_default_backend(self):
+        """Test get_equilibrium uses system default backend for SDE"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium("test", np.array([0.0]), np.array([0.0]), verify=False)
+        
+        x_eq, u_eq = system.get_equilibrium("test")
+        
+        assert isinstance(x_eq, np.ndarray)
+        assert isinstance(u_eq, np.ndarray)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_get_equilibrium_sde_explicit_backend(self):
+        """Test get_equilibrium with explicit backend for SDE"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium("test", np.array([0.0]), np.array([0.0]), verify=False)
+        
+        x_eq, u_eq = system.get_equilibrium("test", backend="torch")
+        
+        assert isinstance(x_eq, torch.Tensor)
+        assert isinstance(u_eq, torch.Tensor)
+
+    def test_list_equilibria_sde(self):
+        """Test list_equilibria convenience method for SDE"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium("eq1", np.array([0.0]), np.array([0.0]), verify=False)
+        system.add_equilibrium("eq2", np.array([0.5]), np.array([0.5]), verify=False)
+        
+        names = system.list_equilibria()
+        
+        assert len(names) == 3  # origin + eq1 + eq2
+        assert all(name in names for name in ["origin", "eq1", "eq2"])
+
+    def test_remove_equilibrium_sde(self):
+        """Test remove_equilibrium for SDE"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium("temp", np.array([0.0]), np.array([0.0]), verify=False)
+        
+        system.remove_equilibrium("temp")
+        
+        assert "temp" not in system.list_equilibria()
+
+    def test_cannot_remove_origin_sde(self):
+        """Test that origin cannot be removed from SDE"""
+        system = OrnsteinUhlenbeck()
+        
+        with pytest.raises(ValueError, match="Cannot remove origin"):
+            system.remove_equilibrium("origin")
+
+    def test_get_equilibrium_metadata_sde(self):
+        """Test get_equilibrium_metadata for SDE"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium(
+            "test",
+            np.array([0.0]),
+            np.array([0.0]),
+            verify=False,
+            stability="stable",
+            description="Zero equilibrium"
+        )
+        
+        meta = system.get_equilibrium_metadata("test")
+        
+        assert meta["stability"] == "stable"
+        assert meta["description"] == "Zero equilibrium"
+
+    def test_autonomous_sde_equilibrium_empty_control(self):
+        """Test equilibrium with empty control for autonomous SDE"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        system.add_equilibrium(
+            "zero",
+            np.array([0.0]),
+            np.array([]),  # Empty control
+            verify=True
+        )
+        
+        x_eq, u_eq = system.get_equilibrium("zero")
+        assert x_eq.shape == (1,)
+        assert u_eq.shape == (0,)
+
+
+# ============================================================================
+# Test Class: Linearization with Equilibrium Names for SDEs
+# ============================================================================
+
+
+class TestSDELinearizationWithEquilibriumNames:
+    """Test linearization methods accepting equilibrium names for SDEs"""
+
+    def test_linearized_dynamics_with_name_sde(self):
+        """Test linearized_dynamics accepts equilibrium name for SDE"""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        
+        # For O-U: equilibrium at origin
+        system.add_equilibrium("zero", np.array([0.0]), np.array([0.0]), verify=True)
+        
+        A, B = system.linearized_dynamics("zero")
+        
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 1)
+        # A = -alpha = -2.0, B = 1.0
+        np.testing.assert_almost_equal(A, np.array([[-2.0]]))
+        np.testing.assert_almost_equal(B, np.array([[1.0]]))
+
+    def test_linearized_dynamics_symbolic_with_name_sde(self):
+        """Test linearized_dynamics_symbolic accepts equilibrium name for SDE"""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        system.add_equilibrium("zero", np.array([0.0]), np.array([0.0]), verify=True)
+        
+        A_sym, B_sym = system.linearized_dynamics_symbolic("zero")
+        
+        assert isinstance(A_sym, sp.Matrix)
+        assert isinstance(B_sym, sp.Matrix)
+        
+        # Convert and check
+        A_np = np.array(A_sym, dtype=float)
+        np.testing.assert_almost_equal(A_np, np.array([[-2.0]]))
+
+    def test_linearized_dynamics_autonomous_sde_with_name(self):
+        """Test linearization with name for autonomous SDE"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        system.add_equilibrium("zero", np.array([0.0]), np.array([]), verify=True)
+        
+        A, B = system.linearized_dynamics("zero")
+        
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)  # Empty B for autonomous
+
+
+# ============================================================================
+# Test Class: SDE Config Dict Updates
+# ============================================================================
+
+
+class TestSDEConfigDictUpdates:
+    """Test get_config_dict includes equilibria information for SDEs"""
+
+    def test_sde_config_dict_includes_equilibria_list(self):
+        """Test that SDE config dict includes list of equilibria names"""
+        system = OrnsteinUhlenbeck()
+        system.add_equilibrium("eq1", np.array([0.0]), np.array([0.0]), verify=False)
+        
+        config = system.get_config_dict()
+        
+        assert "equilibria" in config
+        assert "eq1" in config["equilibria"]
+        assert "origin" in config["equilibria"]
+
+    def test_sde_config_dict_includes_default_equilibrium(self):
+        """Test that SDE config dict includes default equilibrium name"""
+        system = OrnsteinUhlenbeck()
+        
+        config = system.get_config_dict()
+        
+        assert "default_equilibrium" in config
+        assert config["default_equilibrium"] == "origin"
+
+    def test_sde_config_dict_includes_sde_info(self):
+        """Test that SDE config dict includes stochastic-specific info"""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        
+        config = system.get_config_dict()
+        
+        # Should have base info
+        assert "class_name" in config
+        assert "nx" in config
+        assert "nu" in config
+        
+        # Should be marked as stochastic
+        assert config["class_name"] == "OrnsteinUhlenbeck"
+
+
+# ============================================================================
+# Test Class: SDE Equilibrium Handler Dimension Updates
+# ============================================================================
+
+
+class TestSDEEquilibriumHandlerDimensionUpdates:
+    """Test that equilibrium handler dimensions update correctly for SDEs"""
+
+    def test_sde_equilibrium_handler_dimensions_updated(self):
+        """Test equilibrium handler gets correct dimensions after SDE init"""
+        system = OrnsteinUhlenbeck()
+        
+        assert system.equilibria.nx == 1
+        assert system.equilibria.nu == 1
+
+    def test_autonomous_sde_equilibrium_handler_dimensions(self):
+        """Test equilibrium handler dimensions for autonomous SDE"""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        assert system.equilibria.nx == 1
+        assert system.equilibria.nu == 0
+
+    def test_sde_equilibrium_handler_origin_correct_shape(self):
+        """Test that origin has correct shape after SDE dimension update"""
+        system = OrnsteinUhlenbeck()
+        
+        x_eq = system.equilibria.get_x("origin")
+        u_eq = system.equilibria.get_u("origin")
+        
+        assert x_eq.shape == (1,)
+        assert u_eq.shape == (1,)
+        np.testing.assert_array_almost_equal(x_eq, np.zeros(1))
+        np.testing.assert_array_almost_equal(u_eq, np.zeros(1))
+
+    def test_autonomous_sde_origin_empty_control(self):
+        """Test that autonomous SDE origin has empty control"""
+        system = AutonomousOrnsteinUhlenbeck()
+        
+        u_eq = system.equilibria.get_u("origin")
+        
+        assert u_eq.shape == (0,)
+
+    def test_diagonal_sde_equilibrium_dimensions(self):
+        """Test equilibrium handler dimensions for multi-dimensional SDE"""
+        system = DiagonalNoiseSystem()
+        
+        assert system.equilibria.nx == 3
+        assert system.equilibria.nu == 1
+        
+        x_eq = system.equilibria.get_x("origin")
+        u_eq = system.equilibria.get_u("origin")
+        
+        assert x_eq.shape == (3,)
+        assert u_eq.shape == (1,)
+
+
+# ============================================================================
+# Test Class: SDE Equilibrium Verification Integration
+# ============================================================================
+
+
+class TestSDEEquilibriumVerification:
+    """Test equilibrium verification for stochastic systems"""
+
+    def test_sde_equilibrium_verification_considers_drift_only(self):
+        """Test that equilibrium verification uses drift only (not diffusion)"""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
+        
+        # x=0, u=0 is equilibrium for drift (diffusion doesn't affect this)
+        system.add_equilibrium(
+            "zero",
+            np.array([0.0]),
+            np.array([0.0]),
+            verify=True,
+            tol=1e-10
+        )
+        
+        assert "zero" in system.list_equilibria()
+        meta = system.get_equilibrium_metadata("zero")
+        assert meta.get("verified") is True
+
+    def test_sde_invalid_equilibrium_warns(self):
+        """Test warning for invalid equilibrium in SDE"""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        
+        # x=1, u=0 is NOT equilibrium: -2*1 + 0 = -2 ≠ 0
+        with pytest.warns(UserWarning, match="may not be valid"):
+            system.add_equilibrium(
+                "invalid",
+                np.array([1.0]),
+                np.array([0.0]),
+                verify=True
+            )
+
+    def test_autonomous_sde_equilibrium_verification(self):
+        """Test equilibrium verification for autonomous SDE"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # x=0 is equilibrium: -2*0 = 0
+        system.add_equilibrium(
+            "zero",
+            np.array([0.0]),
+            np.array([]),
+            verify=True,
+            tol=1e-10
+        )
+        
+        meta = system.get_equilibrium_metadata("zero")
+        assert meta.get("verified") is True
+
+
+# ============================================================================
+# Test Class: SDE Linearization at Equilibria
+# ============================================================================
+
+
+class TestSDELinearizationAtEquilibria:
+    """Test linearizing SDEs at stored equilibria"""
+
+    def test_linearize_at_stored_equilibrium(self):
+        """Test linearizing SDE at a stored equilibrium point"""
+        system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.5)
+        system.add_equilibrium("zero", np.array([0.0]), np.array([0.0]), verify=True)
+        
+        # Linearize using equilibrium name
+        A, B = system.linearized_dynamics("zero")
+        
+        # Linearize using values directly
+        x_eq, u_eq = system.get_equilibrium("zero")
+        A_direct, B_direct = system.linearized_dynamics(x_eq, u_eq)
+        
+        # Should be identical
+        np.testing.assert_array_almost_equal(A, A_direct)
+        np.testing.assert_array_almost_equal(B, B_direct)
+
+    def test_linearize_gbm_at_equilibrium(self):
+        """Test linearizing GBM (multiplicative noise) at equilibrium"""
+        system = GeometricBrownianMotion(mu=0.0, sigma=0.2)
+        
+        # For GBM with mu=0, x=0 is technically an equilibrium (though unstable)
+        system.add_equilibrium("unstable", np.array([0.0]), np.array([0.0]), verify=False)
+        
+        A, B = system.linearized_dynamics("unstable")
+        
+        # Should get valid Jacobians
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 1)
+
+    def test_autonomous_sde_linearize_at_equilibrium(self):
+        """Test linearizing autonomous SDE at equilibrium"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        system.add_equilibrium("zero", np.array([0.0]), np.array([]), verify=True)
+        
+        A, B = system.linearized_dynamics("zero")
+        
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)
+        np.testing.assert_almost_equal(A, np.array([[-2.0]]))
+
+
+# ============================================================================
+# Test Class: SDE Integration with Equilibria
+# ============================================================================
+
+
+class TestSDEIntegrationWithEquilibria:
+    """Test complete workflows combining SDEs and equilibria"""
+
+    def test_sde_full_workflow_with_equilibrium(self):
+        """Test complete SDE workflow using equilibrium"""
+        system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.3)
+        
+        # 1. Add and verify equilibrium
+        system.add_equilibrium("zero", np.array([0.0]), np.array([0.0]), verify=True)
+        
+        # 2. Set as default
+        system.set_default_equilibrium("zero")
+        
+        # 3. Get equilibrium in different backends
+        x_eq_np, u_eq_np = system.get_equilibrium("zero", backend="numpy")
+        assert isinstance(x_eq_np, np.ndarray)
+        
+        # 4. Evaluate drift at equilibrium (should be ~0)
+        f = system.drift(x_eq_np, u_eq_np)
+        assert np.abs(f).max() < 1e-10
+        
+        # 5. Evaluate diffusion at equilibrium (state-independent for O-U)
+        g = system.diffusion(x_eq_np, u_eq_np)
+        assert g.shape == (1, 1)
+        
+        # 6. Linearize at equilibrium
+        A, B = system.linearized_dynamics("zero")
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 1)
+        
+        # 7. Check it's additive noise
+        assert system.can_optimize_for_additive()
+        G = system.get_constant_noise("numpy")
+        np.testing.assert_array_almost_equal(g, G)
+
+    def test_autonomous_sde_full_workflow_with_equilibrium(self):
+        """Test complete autonomous SDE workflow with equilibrium"""
+        system = AutonomousOrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
+        
+        # 1. Add equilibrium (no control)
+        system.add_equilibrium("zero", np.array([0.0]), np.array([]), verify=True)
+        
+        # 2. Evaluate at equilibrium
+        x_eq = system.equilibria.get_x("zero")
+        f = system.drift(x_eq)
+        assert np.abs(f).max() < 1e-10
+        
+        # 3. Diffusion at equilibrium
+        g = system.diffusion(x_eq)
+        assert g.shape == (1, 1)
+        
+        # 4. Linearize using name
+        A, B = system.linearized_dynamics("zero")
+        assert B.shape == (1, 0)  # Empty for autonomous
+
+# ============================================================================
 # Run Tests
 # ============================================================================
 

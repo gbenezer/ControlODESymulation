@@ -1903,6 +1903,167 @@ class TestControlledVsAutonomous:
         assert isinstance(dx, np.ndarray)
 
 # ============================================================================
+# Test Class 23: New Equilibrium API Methods
+# ============================================================================
+
+
+class TestEquilibriumAPIMethods:
+    """Test new equilibrium convenience methods on SymbolicDynamicalSystem"""
+
+    def test_set_default_equilibrium(self):
+        """Test set_default_equilibrium convenience method"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("custom", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        result = system.set_default_equilibrium("custom")
+        
+        assert system.equilibria._default == "custom"
+        assert result is system  # Returns self for chaining
+
+    def test_set_default_equilibrium_chaining(self):
+        """Test method chaining with set_default_equilibrium"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("custom", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        # Should be chainable
+        result = system.set_default_equilibrium("custom").compile(backends=["numpy"])
+        
+        assert system.equilibria._default == "custom"
+        assert system._code_gen.get_dynamics("numpy") is not None
+
+    def test_get_equilibrium_default_backend(self):
+        """Test get_equilibrium uses system default backend"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("test", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        x_eq, u_eq = system.get_equilibrium("test")
+        
+        # Should return NumPy (system default)
+        assert isinstance(x_eq, np.ndarray)
+        assert isinstance(u_eq, np.ndarray)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_get_equilibrium_explicit_backend(self):
+        """Test get_equilibrium with explicit backend"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("test", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        x_eq, u_eq = system.get_equilibrium("test", backend="torch")
+        
+        assert isinstance(x_eq, torch.Tensor)
+        assert isinstance(u_eq, torch.Tensor)
+
+    def test_list_equilibria(self):
+        """Test list_equilibria convenience method"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("eq1", np.array([1.0]), np.array([0.0]), verify=False)
+        system.add_equilibrium("eq2", np.array([2.0]), np.array([0.0]), verify=False)
+        
+        names = system.list_equilibria()
+        
+        assert len(names) == 3
+        assert all(name in names for name in ["origin", "eq1", "eq2"])
+
+    def test_remove_equilibrium(self):
+        """Test remove_equilibrium convenience method"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("temp", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        system.remove_equilibrium("temp")
+        
+        assert "temp" not in system.list_equilibria()
+
+    def test_cannot_remove_origin(self):
+        """Test that origin cannot be removed"""
+        system = SimpleFirstOrderSystem()
+        
+        with pytest.raises(ValueError, match="Cannot remove origin"):
+            system.remove_equilibrium("origin")
+
+
+# ============================================================================
+# Test Class 24: Linearization with Equilibrium Names  
+# ============================================================================
+
+
+class TestLinearizationWithEquilibriumNames:
+    """Test linearization methods accepting equilibrium names"""
+
+    def test_linearized_dynamics_with_name(self):
+        """Test linearized_dynamics accepts equilibrium name"""
+        system = SimpleFirstOrderSystem(a=2.0)
+        system.add_equilibrium("custom", np.array([1.0]), np.array([2.0]), verify=True)
+        
+        A, B = system.linearized_dynamics("custom")
+        
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 1)
+
+    def test_linearized_dynamics_symbolic_with_name(self):
+        """Test linearized_dynamics_symbolic accepts equilibrium name"""
+        system = SimpleFirstOrderSystem(a=2.0)
+        system.add_equilibrium("custom", np.array([1.0]), np.array([2.0]), verify=True)
+        
+        A_sym, B_sym = system.linearized_dynamics_symbolic("custom")
+        
+        assert isinstance(A_sym, sp.Matrix)
+        assert isinstance(B_sym, sp.Matrix)
+
+
+# ============================================================================
+# Test Class 25: Config Dict Updates
+# ============================================================================
+
+
+class TestConfigDictUpdates:
+    """Test get_config_dict includes equilibria information"""
+
+    def test_config_dict_includes_equilibria_list(self):
+        """Test that config dict includes list of equilibria names"""
+        system = SimpleFirstOrderSystem()
+        system.add_equilibrium("eq1", np.array([1.0]), np.array([0.5]), verify=False)
+        
+        config = system.get_config_dict()
+        
+        assert "equilibria" in config
+        assert "eq1" in config["equilibria"]
+
+    def test_config_dict_includes_default_equilibrium(self):
+        """Test that config dict includes default equilibrium name"""
+        system = SimpleFirstOrderSystem()
+        
+        config = system.get_config_dict()
+        
+        assert "default_equilibrium" in config
+        assert config["default_equilibrium"] == "origin"
+
+
+# ============================================================================
+# Test Class 26: Equilibrium Handler Dimension Updates
+# ============================================================================
+
+
+class TestEquilibriumHandlerDimensionUpdates:
+    """Test that equilibrium handler dimensions update correctly"""
+
+    def test_equilibrium_handler_dimensions_updated(self):
+        """Test equilibrium handler gets correct dimensions after init"""
+        system = SimpleFirstOrderSystem()
+        
+        assert system.equilibria.nx == 1
+        assert system.equilibria.nu == 1
+
+    def test_equilibrium_handler_origin_correct_shape(self):
+        """Test that origin has correct shape after dimension update"""
+        system = SimpleFirstOrderSystem()
+        
+        x_eq = system.equilibria.get_x("origin")
+        u_eq = system.equilibria.get_u("origin")
+        
+        assert x_eq.shape == (1,)
+        assert u_eq.shape == (1,)
+
+# ============================================================================
 # Run Tests
 # ============================================================================
 

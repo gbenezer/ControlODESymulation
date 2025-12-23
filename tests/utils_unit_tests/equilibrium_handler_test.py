@@ -366,6 +366,89 @@ class TestRepr:
         assert "eq2" in repr_str
 
 
+class TestDimensionUpdates:
+    """Test dimension property setters"""
+
+    def test_update_nx_from_zero(self):
+        """Updating nx from 0 should recreate origin with correct dimensions"""
+        handler = EquilibriumHandler(nx=0, nu=0)
+        
+        # Origin starts with shape (0,)
+        assert handler.get_x("origin").shape == (0,)
+        
+        # Update dimensions
+        handler.nx = 3
+        
+        # Origin should be recreated with correct shape
+        x_eq = handler.get_x("origin")
+        assert x_eq.shape == (3,)
+        assert np.allclose(x_eq, np.zeros(3))
+
+    def test_update_nu_from_zero(self):
+        """Updating nu from 0 should recreate origin with correct dimensions"""
+        handler = EquilibriumHandler(nx=0, nu=0)
+        
+        # Origin starts with shape (0,)
+        assert handler.get_u("origin").shape == (0,)
+        
+        # Update dimensions
+        handler.nu = 2
+        
+        # Origin should be recreated with correct shape
+        u_eq = handler.get_u("origin")
+        assert u_eq.shape == (2,)
+        assert np.allclose(u_eq, np.zeros(2))
+
+    def test_update_both_dimensions_from_zero(self):
+        """Updating both dimensions should work correctly"""
+        handler = EquilibriumHandler(nx=0, nu=0)
+        
+        handler.nx = 4
+        handler.nu = 2
+        
+        x_eq, u_eq = handler.get_both("origin")
+        assert x_eq.shape == (4,)
+        assert u_eq.shape == (2,)
+        assert np.allclose(x_eq, np.zeros(4))
+        assert np.allclose(u_eq, np.zeros(2))
+
+    def test_cannot_change_nx_with_wrong_equilibria(self):
+        """Changing nx should fail if existing equilibria have wrong dimensions"""
+        handler = EquilibriumHandler(nx=2, nu=1)
+        handler.add("test", np.array([1.0, 2.0]), np.array([0.5]))
+        
+        with pytest.raises(ValueError, match="Cannot change nx"):
+            handler.nx = 3
+
+    def test_cannot_change_nu_with_wrong_equilibria(self):
+        """Changing nu should fail if existing equilibria have wrong dimensions"""
+        handler = EquilibriumHandler(nx=2, nu=1)
+        handler.add("test", np.array([1.0, 2.0]), np.array([0.5]))
+        
+        with pytest.raises(ValueError, match="Cannot change nu"):
+            handler.nu = 2
+
+    def test_can_set_same_dimensions(self):
+        """Setting same dimensions should not raise error"""
+        handler = EquilibriumHandler(nx=2, nu=1)
+        handler.add("test", np.array([1.0, 2.0]), np.array([0.5]))
+        
+        # Should not raise
+        handler.nx = 2
+        handler.nu = 1
+        
+        # Equilibria should still be accessible
+        x_eq = handler.get_x("test")
+        assert np.allclose(x_eq, np.array([1.0, 2.0]))
+
+    def test_dimension_properties_readable(self):
+        """Dimension properties should be readable"""
+        handler = EquilibriumHandler(nx=5, nu=3)
+        
+        assert handler.nx == 5
+        assert handler.nu == 3
+
+
 class TestEdgeCases:
     """Test edge cases and boundary conditions"""
 
@@ -425,6 +508,7 @@ class TestEdgeCases:
         # torch should preserve float64 from numpy
         assert torch.allclose(x_torch, torch.tensor(x_ref, dtype=torch.float64))
         assert np.allclose(np.array(x_jax), x_ref)
+
 
 if __name__ == "__main__":
     # Run tests with pytest when executed directly

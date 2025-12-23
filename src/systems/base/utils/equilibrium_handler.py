@@ -63,7 +63,14 @@ class EquilibriumHandler:
                         f"Cannot change nx from {self._nx} to {value}: "
                         f"equilibrium '{name}' has wrong dimension"
                     )
+        
+        # Update dimension
+        old_nx = self._nx
         self._nx = value
+        
+        # Recreate origin if dimensions changed from initialization
+        if old_nx == 0 and value > 0:
+            self._equilibria["origin"]["x"] = np.zeros(value)
 
     @property
     def nu(self) -> int:
@@ -80,7 +87,14 @@ class EquilibriumHandler:
                         f"Cannot change nu from {self._nu} to {value}: "
                         f"equilibrium '{name}' has wrong dimension"
                     )
+        
+        # Update dimension
+        old_nu = self._nu
         self._nu = value
+        
+        # Recreate origin if dimensions changed from initialization
+        if old_nu == 0 and value > 0:
+            self._equilibria["origin"]["u"] = np.zeros(value)
 
     def add(
         self,
