@@ -141,12 +141,12 @@ class EquilibriumHandler:
             return arr
         elif backend == "torch":
             import torch
-
-            return torch.tensor(arr, dtype=torch.float32)
+            # Preserve dtype: float64 -> float64, float32 -> float32
+            dtype = torch.float64 if arr.dtype == np.float64 else torch.float32
+            return torch.tensor(arr, dtype=dtype)
         elif backend == "jax":
             import jax.numpy as jnp
-
-            return jnp.array(arr)
+            return jnp.array(arr)  # JAX preserves dtype by default
         else:
             raise ValueError(f"Unknown backend: {backend}")
 
