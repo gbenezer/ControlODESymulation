@@ -439,6 +439,18 @@ class DiscreteStochasticSystem(StochasticDynamicalSystem):
             return len(x.shape) > 1
         return False
     
+    def _get_ndim(self, arr) -> int:
+        """Get number of dimensions of array."""
+        if isinstance(arr, np.ndarray):
+            return arr.ndim
+        elif hasattr(arr, 'ndim'):
+            return arr.ndim
+        elif hasattr(arr, 'shape'):
+            return len(arr.shape)
+        else:
+            # Scalar
+            return 0
+    
     def _generate_noise(self, shape, backend):
         """Generate standard normal noise."""
         if backend == 'numpy':
