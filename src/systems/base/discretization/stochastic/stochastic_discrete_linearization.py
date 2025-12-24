@@ -289,7 +289,11 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
             Ad, Bd = self.system.linearized_dynamics(x_eq, u_eq, backend=self.backend)
         
         # Compute diffusion linearization (Gd)
-        Gd = self._compute_diffusion_linearization(x_eq, u_eq, method)
+        # Handle autonomous systems (nu=0) by passing u_eq=None
+        if self.system.nu == 0:
+            Gd = self._compute_diffusion_linearization(x_eq, None, method)
+        else:
+            Gd = self._compute_diffusion_linearization(x_eq, u_eq, method)
         
         # Cache it
         self._cache[cache_key] = (Ad, Bd, Gd)
@@ -300,21 +304,21 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
     def _compute_diffusion_linearization(
         self,
         x_eq: ArrayLike,
-        u_eq: ArrayLike,
+        u_eq: Optional[ArrayLike],
         method: str = 'euler'
     ) -> ArrayLike:
         """
         Compute diffusion matrix linearization.
         
-        For discrete systems: Gd = G(x_eq)
+        For discrete systems: Gd = G(x_eq, u_eq) or G(x_eq) for autonomous
         For continuous SDEs: depends on discretization method
         
         Parameters
         ----------
         x_eq : ArrayLike
             Equilibrium state
-        u_eq : ArrayLike
-            Equilibrium control
+        u_eq : Optional[ArrayLike]
+            Equilibrium control (None for autonomous systems with nu=0)
         method : str
             Discretization method
         
@@ -322,17 +326,28 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
         -------
         Gd : ArrayLike
             Discrete-time diffusion matrix (nx, nw)
+        
+        Notes
+        -----
+        For autonomous systems (nu=0), u_eq should be None and will be handled
+        correctly by the underlying system.diffusion() method.
         """
         if self.discretizer is not None:
             # Discretized continuous SDE
-            # TODO: Implement proper diffusion discretization in Discretizer class
-            # For now, use Euler-Maruyama approximation: Gd ≈ sqrt(dt) * G(x_eq)
+            # Get continuous-time diffusion matrix
+            # Pass u_eq=None for autonomous systems (nu=0)
+            G_continuous = self.system.diffusion(x_eq, u_eq, backend=self.backend)
+            
             dt = self.discretizer.dt
-            G_continuous = self.system.evaluate_diffusion(x_eq, backend=self.backend)
             
             if method in ['euler', 'euler-maruyama']:
                 # Euler-Maruyama: x[k+1] = x[k] + f*dt + G*sqrt(dt)*w
-                Gd = G_continuous * np.sqrt(dt)
+                if TORCH_AVAILABLE and isinstance(G_continuous, torch.Tensor):
+                    Gd = G_continuous * torch.sqrt(torch.tensor(dt, dtype=G_continuous.dtype))
+                elif JAX_AVAILABLE and isinstance(G_continuous, jnp.ndarray):
+                    Gd = G_continuous * jnp.sqrt(dt)
+                else:
+                    Gd = G_continuous * np.sqrt(dt)
             else:
                 # For other methods, use sqrt(dt) scaling as approximation
                 warnings.warn(
@@ -340,10 +355,17 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
                     f"Using Euler-Maruyama approximation.",
                     UserWarning
                 )
-                Gd = G_continuous * np.sqrt(dt)
+                if TORCH_AVAILABLE and isinstance(G_continuous, torch.Tensor):
+                    Gd = G_continuous * torch.sqrt(torch.tensor(dt, dtype=G_continuous.dtype))
+                elif JAX_AVAILABLE and isinstance(G_continuous, jnp.ndarray):
+                    Gd = G_continuous * jnp.sqrt(dt)
+                else:
+                    Gd = G_continuous * np.sqrt(dt)
         else:
             # Pure discrete stochastic system
-            Gd = self.system.evaluate_diffusion(x_eq, backend=self.backend)
+            # Diffusion is already in discrete-time form
+            # Pass u_eq=None for autonomous systems (nu=0)
+            Gd = self.system.diffusion(x_eq, u_eq, backend=self.backend)
         
         return Gd
     
