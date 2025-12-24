@@ -226,43 +226,185 @@ class DiffusionHandler:
 
     def _wrap_to_ensure_2d(self, func: Callable, backend: str) -> Callable:
         """
-        Wrap function to ensure output is always 2D with shape (nx, nw).
+        Wrap function to ensure output has correct shape.
         
-        The underlying generate_function() may return 1D arrays for matrices,
-        so we reshape to ensure consistent 2D output.
+        Handles both single and batched evaluation:
+        - Single input (x is 1D): Returns (nx, nw)
+        - Batched input (x is 2D): Returns (batch, nx, nw) for multiplicative
+                                        or (nx, nw) for additive
+        
+        The underlying generate_function() may return various shapes depending
+        on input, so we intelligently reshape based on input characteristics.
+        
+        Parameters
+        ----------
+        func : Callable
+            Base lambdified function from codegen_utils
+        backend : str
+            Backend name ('numpy', 'torch', 'jax')
+        
+        Returns
+        -------
+        Callable
+            Wrapped function with proper output shape
+        
+        Notes
+        -----
+        For multiplicative noise with batched input:
+            Input: x is (batch_size,) per state variable
+            Output: Should be (batch_size, nx, nw)
+        
+        For additive noise with batched input:
+            Input: x is (batch_size,) per state variable  
+            Output: (nx, nw) - constant, not batched
         """
         if backend == "numpy":
             def wrapped(*args):
                 result = func(*args)
                 result = np.atleast_2d(result)
-                # Ensure correct shape (nx, nw)
-                if result.shape != (self.nx, self.nw):
-                    result = result.reshape(self.nx, self.nw)
-                return result
+                
+                # Detect if batched input (first arg is array with len > 1)
+                is_batched = False
+                batch_size = 1
+                
+                if len(args) > 0:
+                    first_arg = args[0]
+                    if hasattr(first_arg, 'shape') and len(first_arg.shape) > 0:
+                        arg_size = len(first_arg)
+                        if arg_size > 1:
+                            is_batched = True
+                            batch_size = arg_size
+                
+                # For additive noise, result is constant regardless of batch
+                if self.characteristics.is_additive:
+                    # Force to (nx, nw) even if batched input
+                    if result.shape != (self.nx, self.nw):
+                        result = result.reshape(self.nx, self.nw)
+                    return result
+                
+                # For multiplicative noise with batched input
+                if is_batched:
+                    # Result from lambdify might be:
+                    # - (batch_size,) for scalar output
+                    # - (batch_size, nx*nw) flattened
+                    # - Already correct shape
+                    
+                    target_shape = (batch_size, self.nx, self.nw)
+                    
+                    if result.shape == target_shape:
+                        # Already correct
+                        return result
+                    elif result.size == batch_size * self.nx * self.nw:
+                        # Reshape to target
+                        return result.reshape(target_shape)
+                    elif result.shape == (self.nx, self.nw):
+                        # Constant result despite batched input (edge case)
+                        return result
+                    else:
+                        # Try to reshape
+                        return result.reshape(target_shape)
+                else:
+                    # Single input: ensure (nx, nw)
+                    if result.shape != (self.nx, self.nw):
+                        result = result.reshape(self.nx, self.nw)
+                    return result
+            
             return wrapped
         
         elif backend == "torch":
             def wrapped(*args):
                 import torch
                 result = func(*args)
-                # Ensure 2D
-                if result.dim() == 1:
-                    result = result.reshape(self.nx, self.nw)
-                elif result.dim() == 0:
-                    result = result.reshape(1, 1)
-                return result
+                
+                # Detect if batched
+                is_batched = False
+                batch_size = 1
+                
+                if len(args) > 0:
+                    first_arg = args[0]
+                    if hasattr(first_arg, 'shape') and len(first_arg.shape) > 0:
+                        if first_arg.shape[0] > 1:
+                            is_batched = True
+                            batch_size = first_arg.shape[0]
+                
+                # For additive noise, return (nx, nw) regardless
+                if self.characteristics.is_additive:
+                    if result.dim() == 1:
+                        result = result.reshape(self.nx, self.nw)
+                    elif result.dim() == 0:
+                        result = result.reshape(1, 1)
+                    elif result.shape != torch.Size([self.nx, self.nw]):
+                        result = result.reshape(self.nx, self.nw)
+                    return result
+                
+                # For multiplicative noise with batched input
+                if is_batched:
+                    target_shape = (batch_size, self.nx, self.nw)
+                    
+                    if result.shape == target_shape:
+                        return result
+                    elif result.numel() == batch_size * self.nx * self.nw:
+                        return result.reshape(target_shape)
+                    elif result.shape == torch.Size([self.nx, self.nw]):
+                        return result
+                    else:
+                        return result.reshape(target_shape)
+                else:
+                    # Single input
+                    if result.dim() == 1:
+                        result = result.reshape(self.nx, self.nw)
+                    elif result.dim() == 0:
+                        result = result.reshape(1, 1)
+                    return result
+            
             return wrapped
         
         elif backend == "jax":
             def wrapped(*args):
                 import jax.numpy as jnp
                 result = func(*args)
-                # Ensure 2D
-                if result.ndim == 1:
-                    result = result.reshape(self.nx, self.nw)
-                elif result.ndim == 0:
-                    result = result.reshape(1, 1)
-                return result
+                
+                # Detect if batched
+                is_batched = False
+                batch_size = 1
+                
+                if len(args) > 0:
+                    first_arg = args[0]
+                    if hasattr(first_arg, 'shape') and len(first_arg.shape) > 0:
+                        if first_arg.shape[0] > 1:
+                            is_batched = True
+                            batch_size = first_arg.shape[0]
+                
+                # For additive noise, return (nx, nw) regardless
+                if self.characteristics.is_additive:
+                    if result.ndim == 1:
+                        result = result.reshape(self.nx, self.nw)
+                    elif result.ndim == 0:
+                        result = result.reshape(1, 1)
+                    elif result.shape != (self.nx, self.nw):
+                        result = result.reshape(self.nx, self.nw)
+                    return result
+                
+                # For multiplicative noise with batched input
+                if is_batched:
+                    target_shape = (batch_size, self.nx, self.nw)
+                    
+                    if result.shape == target_shape:
+                        return result
+                    elif result.size == batch_size * self.nx * self.nw:
+                        return result.reshape(target_shape)
+                    elif result.shape == (self.nx, self.nw):
+                        return result
+                    else:
+                        return result.reshape(target_shape)
+                else:
+                    # Single input
+                    if result.ndim == 1:
+                        result = result.reshape(self.nx, self.nw)
+                    elif result.ndim == 0:
+                        result = result.reshape(1, 1)
+                    return result
+            
             return wrapped
         
         else:

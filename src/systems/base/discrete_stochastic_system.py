@@ -358,6 +358,12 @@ class DiscreteStochasticSystem(StochasticDynamicalSystem):
             → x_next: (batch, nx)
         
         If w_k is None, noise is generated per sample in batch.
+        
+        With updated DiffusionHandler batching support:
+        - Additive noise: g returns (nx, nw) - constant
+        - Multiplicative noise: g returns (batch, nx, nw) - state-dependent
+        
+        The function automatically handles both cases efficiently.
         """
         backend = backend or self._default_backend
         
@@ -379,47 +385,44 @@ class DiscreteStochasticSystem(StochasticDynamicalSystem):
             w_k = self._generate_noise(noise_shape, backend)
         
         # Full stochastic step: x[k+1] = f + g*w
-        # Need to handle different g shapes:
-        # - Single: g is (nx, nw)
-        # - Batched additive: g is (nx, nw) (constant, not batched)
-        # - Batched multiplicative: g is (batch, nx, nw)
+        # Handle different diffusion shapes based on noise type and batching
         
         is_batched = self._is_batched(x_k)
-        g_is_batched = (self._get_ndim(g) == 3)
+        g_ndim = self._get_ndim(g)
         
-        if is_batched and not g_is_batched:
-            # Batched input but constant diffusion (additive noise)
-            # g: (nx, nw), w: (batch, nw) → need to broadcast
-            if backend == 'numpy':
-                # Expand g to (1, nx, nw) then broadcast multiply
-                # w: (batch, nw) → (batch, nw, 1)
-                # Result: (batch, nx)
-                stochastic_term = (g @ w_k.T).T  # (nx,nw)@(nw,batch) = (nx,batch) → T → (batch,nx)
-            elif backend == 'torch':
-                import torch
-                # g: (nx, nw), w: (batch, nw)
-                stochastic_term = (g @ w_k.T).T
-            elif backend == 'jax':
-                import jax.numpy as jnp
-                stochastic_term = (g @ w_k.T).T
-        
-        elif is_batched and g_is_batched:
-            # Both batched (multiplicative noise)
-            # g: (batch, nx, nw), w: (batch, nw)
-            if backend == 'numpy':
-                # Use einsum for batched matmul: (batch,nx,nw) @ (batch,nw) → (batch,nx)
-                stochastic_term = np.einsum('ijk,ik->ij', g, w_k)
-            elif backend == 'torch':
-                import torch
-                # g: (batch, nx, nw), w: (batch, nw, 1) → (batch, nx, 1) → (batch, nx)
-                stochastic_term = torch.bmm(g, w_k.unsqueeze(-1)).squeeze(-1)
-            elif backend == 'jax':
-                import jax.numpy as jnp
-                stochastic_term = jnp.einsum('ijk,ik->ij', g, w_k)
+        if is_batched:
+            # Batched input
+            if g_ndim == 3:
+                # Multiplicative: g is (batch, nx, nw), w is (batch, nw)
+                if backend == 'numpy':
+                    stochastic_term = np.einsum('ijk,ik->ij', g, w_k)
+                elif backend == 'torch':
+                    import torch
+                    stochastic_term = torch.bmm(g, w_k.unsqueeze(-1)).squeeze(-1)
+                elif backend == 'jax':
+                    import jax.numpy as jnp
+                    stochastic_term = jnp.einsum('ijk,ik->ij', g, w_k)
+            
+            elif g_ndim == 2:
+                # Additive: g is (nx, nw) constant, w is (batch, nw)
+                # Need to broadcast: (nx, nw) @ (batch, nw).T → (nx, batch) → T → (batch, nx)
+                if backend == 'numpy':
+                    stochastic_term = (g @ w_k.T).T  # (nx,nw) @ (nw,batch) = (nx,batch) → T
+                elif backend == 'torch':
+                    import torch
+                    stochastic_term = (g @ w_k.T).T
+                elif backend == 'jax':
+                    import jax.numpy as jnp
+                    stochastic_term = (g @ w_k.T).T
+            
+            else:
+                raise ValueError(
+                    f"Unexpected diffusion shape for batched input: g.shape={g.shape}. "
+                    f"Expected (batch, nx, nw) for multiplicative or (nx, nw) for additive."
+                )
         
         else:
-            # Single trajectory (not batched)
-            # f: (nx,), g: (nx, nw), w: (nw,)
+            # Single trajectory: g is (nx, nw), w is (nw,)
             if backend == 'numpy':
                 stochastic_term = g @ w_k
             elif backend == 'torch':

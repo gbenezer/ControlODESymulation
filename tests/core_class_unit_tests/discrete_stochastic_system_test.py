@@ -187,6 +187,57 @@ class TestInitialization:
         
         assert config['is_discrete'] is True
         assert config['is_stochastic'] is True
+    
+    def test_get_config_dict_comprehensive(self):
+        """Test complete configuration dictionary structure and content."""
+        system = DiscreteAR1(phi=0.85, sigma=0.3)
+        
+        # Add equilibrium to test completeness
+        system.add_equilibrium('origin', np.array([0.0]), np.array([0.0]), verify=False)
+        
+        config = system.get_config_dict()
+        
+        # Core attributes
+        assert 'class_name' in config
+        assert config['class_name'] == 'DiscreteAR1'
+        
+        # Dimensions
+        assert 'nx' in config
+        assert config['nx'] == 1
+        assert 'nu' in config
+        assert config['nu'] == 1
+        assert 'ny' in config
+        assert config['ny'] == 1
+        
+        # System properties
+        assert 'order' in config
+        assert config['order'] == 1
+        
+        # Parameters
+        assert 'parameters' in config
+        assert isinstance(config['parameters'], dict)
+        # Parameters should have 'phi' and 'sigma' as strings
+        param_keys = set(config['parameters'].keys())
+        assert 'phi' in param_keys
+        assert 'sigma' in param_keys
+        
+        # Backend configuration
+        assert 'default_backend' in config
+        assert config['default_backend'] in ['numpy', 'torch', 'jax']
+        assert 'preferred_device' in config
+        
+        # Equilibria
+        assert 'equilibria' in config
+        assert 'origin' in config['equilibria']
+        assert 'default_equilibrium' in config
+        
+        # Discrete-specific flag
+        assert 'is_discrete' in config
+        assert config['is_discrete'] is True
+        
+        # Stochastic-specific flag
+        assert 'is_stochastic' in config
+        assert config['is_stochastic'] is True
 
 
 # ============================================================================
@@ -1071,9 +1122,14 @@ class TestInformation:
         
         assert info['system_type'] == 'StochasticDynamicalSystem'
         assert info['is_stochastic'] is True
-        assert info['is_discrete'] is True
+        # Note: is_discrete comes from get_config_dict(), not get_info()
+        # get_info() is for runtime info, config_dict is for serialization
         assert info['dimensions']['nw'] == 1
         assert 'noise' in info
+        
+        # Check config dict separately
+        config = system.get_config_dict()
+        assert config['is_discrete'] is True
     
     def test_print_sde_info(self, capsys):
         """Test SDE info printing."""
