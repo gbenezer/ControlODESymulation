@@ -291,16 +291,20 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
             self._stats['cache_hits'] += 1
             return self._cache[cache_key]
         
-        # Compute drift linearization (Ad, Bd)
+        # Compute drift and diffusion linearization
         if self.discretizer is not None:
-            # Discretized continuous SDE
-            Ad, Bd = self.discretizer.linearize(x_eq, u_eq, method=method)
+            # Discretized continuous SDE - delegate to StochasticDiscretizer
+            # which properly handles both drift and diffusion discretization
+            Ad, Bd, Gd = self.discretizer.linearize(x_eq, u_eq, method=method)
         else:
             # Pure discrete stochastic system
+            # Compute drift linearization
             Ad, Bd = self.system.linearized_dynamics(x_eq, u_eq, backend=self.backend)
-        
-        # Compute diffusion linearization (Gd)
-        Gd = self._compute_diffusion_linearization(x_eq, u_eq, method)
+            
+            # Compute diffusion linearization
+            # For autonomous systems (nu=0), pass u_eq=None to diffusion method
+            u_for_diffusion = None if self.system.nu == 0 else u_eq
+            Gd = self.system.diffusion(x_eq, u_for_diffusion, backend=self.backend)
         
         # Cache it
         self._cache[cache_key] = (Ad, Bd, Gd)

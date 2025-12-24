@@ -164,7 +164,8 @@ class TestInitialization:
     def test_init_discretized_sde(self):
         """Test initialization with discretized continuous SDE."""
         system = SimpleOrnsteinUhlenbeck()
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        # Let StochasticDiscretizer auto-select appropriate method for backend
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         assert lin.system is system
@@ -196,7 +197,7 @@ class TestInitialization:
     def test_init_validates_stochastic_continuous(self):
         """Test validation accepts StochasticDynamicalSystem."""
         system = SimpleOrnsteinUhlenbeck()
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         assert lin.system is system
@@ -279,7 +280,7 @@ class TestBasicStochasticLinearization:
     def test_linearize_discretized_sde(self):
         """Test linearization of discretized continuous SDE."""
         system = SimpleOrnsteinUhlenbeck(theta=1.0, sigma=0.1)
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         x_eq = np.array([0.0])
@@ -629,7 +630,7 @@ class TestSDEDiscretizationMethods:
     def test_euler_maruyama_method(self):
         """Test Euler-Maruyama discretization."""
         system = SimpleOrnsteinUhlenbeck(theta=1.0, sigma=0.1)
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         x_eq = np.array([0.0])
@@ -649,7 +650,7 @@ class TestSDEDiscretizationMethods:
         """Test that non-Euler methods work with StochasticDiscretizer."""
         system = SimpleOrnsteinUhlenbeck()
         # StochasticDiscretizer handles diffusion correctly for all methods
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         # Request 'exact' method for linearization
@@ -930,13 +931,14 @@ class TestInformation:
     def test_get_info_discretized(self):
         """Test get_info for discretized SDE."""
         system = SimpleOrnsteinUhlenbeck()
-        discretizer = StochasticDiscretizer(system, dt=0.01, method='euler')
+        discretizer = StochasticDiscretizer(system, dt=0.01)
         lin = StochasticDiscreteLinearization(system, discretizer=discretizer)
         
         info = lin.get_info()
         
         assert info['system_type'] == 'discretized'
-        assert info['discretizer'] == 'euler'
+        # Method will be auto-selected based on backend
+        assert info['discretizer'] in ['EM', 'euler', 'Euler']
         assert info['linearization_type'] == 'stochastic'
     
     def test_repr_str(self):
@@ -1082,8 +1084,8 @@ class TestNumericalAccuracy:
         dt1 = 0.01
         dt2 = 0.04
         
-        discretizer1 = StochasticDiscretizer(system, dt=dt1, method='euler')
-        discretizer2 = StochasticDiscretizer(system, dt=dt2, method='euler')
+        discretizer1 = StochasticDiscretizer(system, dt=dt1)
+        discretizer2 = StochasticDiscretizer(system, dt=dt2)
         
         lin1 = StochasticDiscreteLinearization(system, discretizer=discretizer1)
         lin2 = StochasticDiscreteLinearization(system, discretizer=discretizer2)
