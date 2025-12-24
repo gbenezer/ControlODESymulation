@@ -393,6 +393,10 @@ class LinearizationEngine:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct return type
+        A_batch = self.backend_mgr.ensure_type(A_batch, 'numpy')
+        B_batch = self.backend_mgr.ensure_type(B_batch, 'numpy')
         
         return A_batch, B_batch
     
@@ -486,6 +490,10 @@ class LinearizationEngine:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct return type
+        A_batch = self.backend_mgr.ensure_type(A_batch, 'torch')
+        B_batch = self.backend_mgr.ensure_type(B_batch, 'torch')
         
         return A_batch, B_batch
     
@@ -552,6 +560,10 @@ class LinearizationEngine:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct return type
+        A_batch = self.backend_mgr.ensure_type(A_batch, 'jax')
+        B_batch = self.backend_mgr.ensure_type(B_batch, 'jax')
         
         return A_batch, B_batch
     

@@ -249,6 +249,9 @@ class DynamicsEvaluator:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct backend type
+        result = self.backend_mgr.ensure_type(result, 'numpy')
         
         return result
     
@@ -332,6 +335,9 @@ class DynamicsEvaluator:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct backend type
+        result = self.backend_mgr.ensure_type(result, 'torch')
         
         return result
     
@@ -428,6 +434,9 @@ class DynamicsEvaluator:
         # Update performance stats
         self._stats['calls'] += 1
         self._stats['time'] += time.time() - start_time
+
+        # Ensure correct backend type
+        result = self.backend_mgr.ensure_type(result, 'jax')
         
         return result
     

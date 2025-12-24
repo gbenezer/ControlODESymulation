@@ -157,6 +157,9 @@ class ObservationEngine:
         
         if squeeze_output:
             result = np.squeeze(result, 0)
+
+        # Ensure correct return type
+        result = self.backend_mgr.ensure_type(result, 'numpy')
         
         return result
     
@@ -198,6 +201,9 @@ class ObservationEngine:
         # Final safety: ensure at least 1D
         if result.ndim == 0:
             result = result.reshape(1)
+
+        # Ensure correct return type
+        result = self.backend_mgr.ensure_type(result, 'torch')
         
         return result
     
@@ -237,6 +243,9 @@ class ObservationEngine:
         
         if squeeze_output:
             result = jnp.squeeze(result, 0)
+
+        # Ensure correct return type
+        result = self.backend_mgr.ensure_type(result, 'jax')
         
         return result
     
@@ -372,6 +381,9 @@ class ObservationEngine:
         
         if squeeze_output:
             C_batch = np.squeeze(C_batch, 0)
+
+        # Ensure correct return type
+        C_batch = self.backend_mgr.ensure_type(C_batch, 'numpy')
         
         return C_batch
     
@@ -416,6 +428,9 @@ class ObservationEngine:
         if squeeze_output:
             C_batch = C_batch.squeeze(0)
         
+        # Ensure correct return type
+        C_batch = self.backend_mgr.ensure_type(C_batch, 'torch')
+
         return C_batch
     
     def _compute_jacobian_jax(self, x: "jnp.ndarray") -> "jnp.ndarray":
@@ -447,6 +462,9 @@ class ObservationEngine:
         
         if squeeze_output:
             C_batch = jnp.squeeze(C_batch, 0)
+
+        # Ensure correct return type
+        C_batch = self.backend_mgr.ensure_type(C_batch, 'jax')
         
         return C_batch
     

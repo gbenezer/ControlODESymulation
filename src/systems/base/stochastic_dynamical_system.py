@@ -374,7 +374,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         # Parent Class Initialization
         # ====================================================================
         
-        # ✅ REUSE: Parent class handles drift logic and calls define_system()
+        # REUSE: Parent class handles drift logic and calls define_system()
         super().__init__(*args, **kwargs)
         
         # ====================================================================
@@ -556,7 +556,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         # Determine backend
         backend_to_use = backend if backend else self._default_backend
         
-        # ✅ DELEGATE: DiffusionHandler generates and caches function
+        # DELEGATE: DiffusionHandler generates and caches function
         func = self.diffusion_handler.generate_function(backend_to_use)
         
         # Handle autonomous systems - create empty control if needed
@@ -585,7 +585,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
                     )
         
         # Convert inputs to appropriate backend type
-        # ✅ REUSE: Use parent's backend manager for conversions if needed
+        # REUSE: Use parent's backend manager for conversions if needed
         if backend_to_use == 'numpy':
             import numpy as np
             x_arr = np.atleast_1d(np.asarray(x))
@@ -614,6 +614,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
         
         # Evaluate diffusion function
         result = func(*(x_list + u_list))
+        result = self.backend.ensure_type(result, backend_to_use)
         
         return result
     

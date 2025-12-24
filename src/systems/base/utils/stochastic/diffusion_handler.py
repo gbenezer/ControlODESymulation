@@ -134,7 +134,7 @@ class DiffusionHandler:
         self.nx = diffusion_expr.shape[0]
         self.nw = diffusion_expr.shape[1]
 
-        # ✅ COMPOSE: Automatic noise analysis via NoiseCharacterizer
+        # COMPOSE: Automatic noise analysis via NoiseCharacterizer
         self.characterizer = NoiseCharacterizer(
             diffusion_expr=diffusion_expr,
             state_vars=state_vars,
@@ -202,7 +202,7 @@ class DiffusionHandler:
         if self.time_var is not None:
             all_vars = [self.time_var] + all_vars
 
-        # ✅ REUSE: Use codegen_utils.generate_function()
+        # REUSE: Use codegen_utils.generate_function()
         base_func = generate_function(
             expr=diffusion_with_params, symbols=all_vars, backend=backend, **kwargs
         )
@@ -339,7 +339,9 @@ class DiffusionHandler:
         # Check cache
         cache_key = f"{backend}_constant"
         if cache_key in self._constant_noise_cache:
-            return self._constant_noise_cache[cache_key]
+            cached = self._constant_noise_cache[cache_key]
+            # Convert cached NumPy to requested backend before returning
+            return self._convert_to_backend(cached, backend)
 
         # Generate function (will use cache if available)
         func = self.generate_function(backend)
@@ -351,12 +353,10 @@ class DiffusionHandler:
             u_dummy = [0.0] * len(self.control_vars)
         elif backend == "torch":
             import torch
-
             x_dummy = [torch.tensor(0.0)] * self.nx
             u_dummy = [torch.tensor(0.0)] * len(self.control_vars)
         elif backend == "jax":
             import jax.numpy as jnp
-
             x_dummy = [jnp.array(0.0)] * self.nx
             u_dummy = [jnp.array(0.0)] * len(self.control_vars)
         else:
@@ -376,10 +376,39 @@ class DiffusionHandler:
         if constant_noise.shape[0] == 1 and self.nx > 1:
             constant_noise = constant_noise.T
 
-        # Cache it
+        # Cache it (as NumPy)
         self._constant_noise_cache[cache_key] = constant_noise
 
-        return constant_noise
+        # Convert to requested backend before returning
+        return self._convert_to_backend(constant_noise, backend)
+
+    def _convert_to_backend(self, arr: np.ndarray, backend: str):
+        """
+        Convert NumPy array to target backend.
+        
+        Parameters
+        ----------
+        arr : np.ndarray
+            NumPy array to convert
+        backend : str
+            Target backend ('numpy', 'torch', 'jax')
+        
+        Returns
+        -------
+        ArrayLike
+            Array in target backend format
+        """
+        if backend == "numpy":
+            return arr
+        elif backend == "torch":
+            import torch
+            dtype = torch.float64 if arr.dtype == np.float64 else torch.float32
+            return torch.tensor(arr, dtype=dtype)
+        elif backend == "jax":
+            import jax.numpy as jnp
+            return jnp.array(arr)
+        else:
+            raise ValueError(f"Unknown backend: {backend}")
 
     def has_constant_noise(self) -> bool:
         """
