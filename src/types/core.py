@@ -290,27 +290,64 @@ Examples
 >>> Q: StateMatrix = np.diag([10, 1])
 """
 
-ControlMatrix = ArrayLike
+InputMatrix = ArrayLike
 """
-Control matrix (nx, nu).
+Input matrix B (nx, nu).
 
-Represents control-to-state coupling in linear(ized) systems.
+Maps control/input vector to state derivatives in state-space models:
+    Continuous: ẋ = Ax + Bu
+    Discrete:   x[k+1] = Ax[k] + Bu[k]
 
-Uses:
-- Continuous: Bc (control Jacobian ∂f/∂u)
-- Discrete: Bd (control gain matrix)
-- Cost: R (control cost weight, nu×nu)
+Standard terminology in control theory literature. Also called:
+- B matrix (state-space notation)
+- Input gain matrix
+- Control-to-state matrix
+
+The B matrix structure reveals actuation architecture:
+- Row i: how all inputs affect state i
+- Column j: how input j affects all states
+- Rank deficiency: underactuated system
+
+Common structures:
+- Full rank: all states directly actuated
+- Partial: only some states directly affected
+- Sparse: localized actuation (e.g., torque only on joints)
 
 Examples
 --------
->>> # Continuous linearization
->>> Bc: ControlMatrix = np.array([[0], [1]])
+>>> # Simple integrator: ẋ = u
+>>> B: InputMatrix = np.array([[1.0]])
 >>> 
->>> # Discrete transition
->>> Bd: ControlMatrix = dt * Bc
+>>> # Double integrator (position-velocity)
+>>> # Only velocity is directly actuated
+>>> B: InputMatrix = np.array([[0.0],   # position
+...                            [1.0]])  # velocity
 >>> 
->>> # LQR control cost (nu×nu)
->>> R: ControlMatrix = 0.1 * np.eye(nu)
+>>> # Quadrotor (multi-input)
+>>> # 4 motors, 6 states (x, y, z, roll, pitch, yaw)
+>>> B: InputMatrix = np.zeros((6, 4))
+>>> B[2, :] = [1, 1, 1, 1]      # z affected by all motors
+>>> B[3, :] = [1, -1, -1, 1]    # roll differential
+>>> B[4, :] = [1, 1, -1, -1]    # pitch differential
+>>> B[5, :] = [1, -1, 1, -1]    # yaw differential
+>>> 
+>>> # Linearized from Jacobian
+>>> # B = ∂f/∂u|_(x_eq, u_eq)
+>>> def dynamics(x, u):
+...     return np.array([x[1], -np.sin(x[0]) + u[0]])
+>>> 
+>>> # Jacobian at equilibrium
+>>> B_lin: InputMatrix = np.array([[0.0],    # ∂f₁/∂u = 0
+...                                [1.0]])   # ∂f₂/∂u = 1
+"""
+
+# Backward compatibility (deprecated in favor of InputMatrix)
+ControlMatrix = InputMatrix
+"""
+Deprecated: Use InputMatrix instead.
+
+This alias is maintained for backward compatibility with existing code.
+New code should use InputMatrix to match standard control theory terminology.
 """
 
 OutputMatrix = ArrayLike
@@ -1034,7 +1071,7 @@ Examples
 ...     return system.integrate(x0, t_span=t_span)
 """
 
-MatrixT = TypeVar('MatrixT', StateMatrix, ControlMatrix, DiffusionMatrix)
+MatrixT = TypeVar('MatrixT', StateMatrix, InputMatrix, DiffusionMatrix)
 """
 Generic matrix type variable.
 
@@ -1071,7 +1108,7 @@ __all__ = [
     
     # Matrices
     'StateMatrix',
-    'ControlMatrix',
+    'InputMatrix',
     'OutputMatrix',
     'DiffusionMatrix',
     'FeedthroughMatrix',
