@@ -1386,3 +1386,7 @@ class StochasticDynamicalSystem(SymbolicDynamicalSystem):
             f"{self.nw} noise source{'s' if self.nw != 1 else ''} "
             f"({self.noise_characteristics.noise_type.value})"
         )
+
+
+# New name (preferred)
+ContinuousStochasticSystem = StochasticDynamicalSystem

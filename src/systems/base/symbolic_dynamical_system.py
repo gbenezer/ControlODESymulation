@@ -2024,3 +2024,7 @@ class SymbolicDynamicalSystem(ABC):
 
             self._control_designer = ControlDesigner(self)
         return self._control_designer
+
+
+# New name (preferred)
+ContinuousSymbolicSystem = SymbolicDynamicalSystem
