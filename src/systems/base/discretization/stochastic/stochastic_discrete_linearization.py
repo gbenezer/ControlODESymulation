@@ -368,6 +368,75 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
     # Stochastic-Specific Analysis
     # ========================================================================
     
+    def check_stability(
+        self,
+        x_eq: Union[ArrayLike, str],
+        u_eq: Optional[ArrayLike] = None,
+        method: str = 'euler'
+    ) -> Dict[str, Any]:
+        """
+        Check stability of linearized stochastic system (drift only).
+        
+        Overrides parent to handle 3-tuple return from compute().
+        Only analyzes drift dynamics (Ad) for stability - same as deterministic.
+        
+        Parameters
+        ----------
+        x_eq : Union[ArrayLike, str]
+            Equilibrium state or name
+        u_eq : Optional[ArrayLike]
+            Equilibrium control
+        method : str
+            Discretization method
+        
+        Returns
+        -------
+        dict
+            Stability analysis (same as parent class)
+        
+        Notes
+        -----
+        This only checks drift stability. For full stochastic stability
+        analysis including noise effects, use check_mean_square_stability().
+        
+        Examples
+        --------
+        >>> # Drift stability only
+        >>> stability = lin.check_stability('origin')
+        >>> 
+        >>> # Full stochastic stability (includes noise)
+        >>> ms_stability = lin.check_mean_square_stability('origin')
+        """
+        Ad, Bd, Gd = self.compute(x_eq, u_eq, method)
+        
+        # Convert to numpy for eigenvalue computation
+        if TORCH_AVAILABLE and isinstance(Ad, torch.Tensor):
+            Ad_np = Ad.detach().cpu().numpy()
+        elif JAX_AVAILABLE and isinstance(Ad, jnp.ndarray):
+            Ad_np = np.array(Ad)
+        else:
+            Ad_np = Ad
+        
+        # Compute eigenvalues
+        eigenvalues = np.linalg.eigvals(Ad_np)
+        magnitudes = np.abs(eigenvalues)
+        max_magnitude = np.max(magnitudes)
+        
+        # Stability determination
+        is_stable = bool(max_magnitude < 1.0)
+        is_marginally_stable = bool(np.abs(max_magnitude - 1.0) < 1e-6)
+        is_unstable = bool(max_magnitude > 1.0)
+        
+        return {
+            'eigenvalues': eigenvalues,
+            'magnitudes': magnitudes,
+            'max_magnitude': float(max_magnitude),
+            'is_stable': is_stable,
+            'is_marginally_stable': is_marginally_stable,
+            'is_unstable': is_unstable,
+            'spectral_radius': float(max_magnitude),
+        }
+    
     def compute_process_noise_covariance(
         self,
         x_eq: Union[ArrayLike, str],
@@ -486,7 +555,8 @@ class StochasticDiscreteLinearization(DiscreteLinearization):
         ...     print(f"Steady-state variance: {np.trace(P_ss):.3f}")
         """
         # Get drift linearization for stability check
-        stability_info = super().check_stability(x_eq, u_eq, method)
+        # Use self.check_stability() instead of super() to use overridden version
+        stability_info = self.check_stability(x_eq, u_eq, method)
         
         # Rename for clarity
         stability_info['is_ms_stable'] = stability_info['is_stable']
