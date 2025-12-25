@@ -77,7 +77,7 @@
     
 #     # Matrices
 #     StateMatrix,
-#     ControlMatrix,
+#     InputMatrix,
 #     OutputMatrix,
 #     DiffusionMatrix,
 #     FeedthroughMatrix,
@@ -442,7 +442,7 @@
     
 #     # Matrices
 #     'StateMatrix',
-#     'ControlMatrix',
+#     'InputMatrix',
 #     'OutputMatrix',
 #     'DiffusionMatrix',
 #     'FeedthroughMatrix',
@@ -732,7 +732,7 @@
 # # Most commonly used types (for quick reference)
 # COMMON_TYPES = {
 #     'arrays': (ArrayLike, StateVector, ControlVector),
-#     'matrices': (StateMatrix, ControlMatrix, GainMatrix),
+#     'matrices': (StateMatrix, InputMatrix, GainMatrix),
 #     'results': (LQRResult, MPCResult, KalmanFilterResult),
 #     'analysis': (StabilityInfo, LinearizationResult),
 # }
@@ -779,7 +779,7 @@
 #             'NoiseVector', 'ParameterVector',
 #         ],
 #         'Matrices': [
-#             'StateMatrix', 'ControlMatrix', 'GainMatrix', 'CovarianceMatrix',
+#             'StateMatrix', 'InputMatrix', 'GainMatrix', 'CovarianceMatrix',
 #             'DiffusionMatrix', 'OutputMatrix',
 #         ],
 #         'Control': [
@@ -858,7 +858,7 @@
 
 # MOST COMMON TYPES:
 #   Arrays:      ArrayLike, StateVector, ControlVector
-#   Matrices:    StateMatrix, ControlMatrix, GainMatrix
+#   Matrices:    StateMatrix, InputMatrix, GainMatrix
 #   Results:     LQRResult, MPCResult, LinearizationResult
 #   Backend:     Backend ('numpy'|'torch'|'jax')
 
