@@ -420,6 +420,16 @@ pytest --cov=src tests/
 
 Currently not open to contributions, though may change after Phase 4 and once I learn how open-source development works
 
+#### Phase 1 (Current):
+- Extensive class hierarchy refactoring
+    - DiscreteSystemBase (current)
+    - ContinuousSystemBase
+    - DiscreteSymbolicSystem(DiscreteSystemBase)
+    - ContinuousSymbolicSystem(ContinuousSystemBase)
+    - DiscreteStochasticSystem(DiscreteSymbolicSystem)
+    - ContinuousStochasticSystem(ContinuousSymbolicSystem)
+    - DiscretizationWrapper (wraps either type of continuous system)
+
 #### Phase 2 (Current):
 - Refactoring of DiscreteTimeSystem
     - Construct DiscreteLinearization that caches numerical linearization
