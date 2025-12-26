@@ -26,7 +26,7 @@ This module should be placed at:
 from abc import ABC, abstractmethod
 from typing import Callable, Optional, Union
 
-from src.types.core import ArrayLike, ControlVector, StateVector
+from src.types.core import ControlVector, StateVector
 from src.types.linearization import LinearizationResult
 from src.types.trajectories import IntegrationResult, SimulationResult
 
