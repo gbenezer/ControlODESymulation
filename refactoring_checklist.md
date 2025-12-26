@@ -18,7 +18,7 @@ This checklist provides a step-by-step implementation plan for refactoring the s
 
 ### 0.1 Repository Backup & Branching
 - [ ] Create full repository backup
-- [ ] Create feature branch: `feature/unified-discrete-interface`
+- [ ] Create feature branch: `refactor/unified-discrete-interface`
 - [ ] Document current API for backward compatibility reference
 - [ ] Set up CI/CD to run on feature branch
 
