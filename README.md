@@ -23,7 +23,7 @@ Most control and dynamics libraries force you to choose between **symbolic elega
 4. **Type-Safe**: Comprehensive type hints for better IDE support and fewer bugs
 5. **Research to Production**: Prototype in NumPy, scale with JAX, integrate with PyTorch models
 
-### 🎓 Built For
+### Built For
 
 - **Control theorists**: LQR, MPC, nonlinear control design
 - **ML researchers**: Synthetic data generation, RL environments, neural ODEs
@@ -500,7 +500,7 @@ This library builds on outstanding open-source tools:
 
 ### Inspiration
 
-This library was inspired by a class project for **CS 7268: Verifiable Machine Learning** taught by Professor [Michael Everett](https://mfe7.github.io/) at Northeastern University in Fall 2024.
+This library was inspired by a class project for **CS 7268: Verifiable Machine Learning** taught by Professor [Michael Everett](https://mfe7.github.io/) at Northeastern University in Fall 2025.
 
 Original project: [Lyapunov-Stable Neural Controllers](https://github.com/gbenezer/Lyapunov_Stable_NN_Controllers_Custom_Dynamics)
 
