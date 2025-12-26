@@ -464,6 +464,69 @@ class SimulationResult(TypedDict, total=False):
     time: Optional[ArrayLike]
     info: Dict[str, Any]
 
+class DiscreteSimulationResult(TypedDict, total=False):
+    """
+    Result from discrete-time system simulation.
+
+    Contains state trajectory, control sequence, and metadata for
+    discrete-time systems (difference equations).
+
+    Attributes
+    ----------
+    states : StateTrajectory
+        State trajectory (n_steps+1, nx) - includes initial state x[0]
+    controls : Optional[ControlSequence]
+        Control sequence applied (n_steps, nu)
+    outputs : Optional[OutputSequence]
+        Output sequence (n_steps+1, ny) if computed
+    noise : Optional[NoiseSequence]
+        Noise sequence (n_steps, nw) for stochastic discrete systems
+    time_steps : ArrayLike
+        Time step indices [0, 1, 2, ..., n_steps]
+    dt : float
+        Time step / sampling period
+    metadata : Dict[str, Any]
+        Additional information (method, success, closed_loop, etc.)
+
+    Notes
+    -----
+    The discrete result differs from continuous integration results:
+    - Uses integer time_steps instead of continuous time points
+    - Includes dt (sampling period) as a scalar
+    - State trajectory has n_steps+1 points (includes x[0])
+    - Control sequence has n_steps points (u[0] through u[n_steps-1])
+
+    Examples
+    --------
+    >>> # Discrete simulation
+    >>> result: DiscreteSimulationResult = discrete_system.simulate(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_sequence=np.zeros((100, 1)),
+    ...     n_steps=100
+    ... )
+    >>>
+    >>> states = result['states']          # (101, 2) - includes x[0]
+    >>> controls = result['controls']      # (100, 1)
+    >>> time_steps = result['time_steps']  # [0, 1, ..., 100]
+    >>> dt = result['dt']                  # 0.01
+    >>>
+    >>> # Convert to continuous time if needed
+    >>> time_continuous = result['time_steps'] * result['dt']
+    >>>
+    >>> # Plot discrete trajectory
+    >>> import matplotlib.pyplot as plt
+    >>> plt.step(time_steps, states[:, 0], where='post', label='x1')
+    >>> plt.xlabel('Time Step k')
+    >>> plt.ylabel('State')
+    """
+
+    states: ArrayLike
+    controls: Optional[ArrayLike]
+    outputs: Optional[ArrayLike]
+    noise: Optional[ArrayLike]
+    time_steps: ArrayLike
+    dt: float
+    metadata: Dict[str, Any]
 
 # ============================================================================
 # Trajectory Analysis Types
