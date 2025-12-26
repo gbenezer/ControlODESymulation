@@ -188,7 +188,7 @@ class TestInitialization:
 
     def test_init_deterministic_system_fails(self):
         """Test that deterministic system raises ValueError."""
-        from tests.discretization_unit_tests.discrete_linearization_test import DiscreteLinearSystem
+        from tests.unit.discretization_unit_tests.discrete_linearization_test import DiscreteLinearSystem
 
         system = DiscreteLinearSystem()
 
