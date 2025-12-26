@@ -35,7 +35,15 @@ class SimpleContinuousSystem(ContinuousSystemBase):
             u = np.zeros(self.nu)
         if x.ndim == 2:
             u = u if u.ndim == 2 else u.reshape(-1, 1)
-        return -x + u if u is not None else -x
+            return -x + self.Bd @ u
+        # For 1D: need to broadcast u correctly
+        # If nx != nu, can't just add, need proper mapping
+        if self.nx == self.nu:
+            return -x + u
+        else:
+            # Use B matrix for proper dimensions
+            B = np.ones((self.nx, self.nu))
+            return -x + B @ u
 
     def integrate(
         self, x0: StateVector, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs
@@ -43,6 +51,10 @@ class SimpleContinuousSystem(ContinuousSystemBase):
         """Simple Euler integration returning IntegrationResult."""
         t_start, t_end = t_span
         dt_integrator = kwargs.get("max_step", 0.01)
+        
+        # Handle backward integration
+        if t_end < t_start:
+            dt_integrator = -dt_integrator
 
         t_points = []
         states_list = []
@@ -54,22 +66,42 @@ class SimpleContinuousSystem(ContinuousSystemBase):
         t_points.append(t)
         states_list.append(x.copy())
 
-        while t < t_end:
-            if u is None:
-                u_val = None
-            elif callable(u):
-                u_val = u(t)
-            else:
-                u_val = u
+        # Integration loop
+        if t_end >= t_start:
+            while t < t_end:
+                if u is None:
+                    u_val = None
+                elif callable(u):
+                    u_val = u(t)
+                else:
+                    u_val = u
 
-            dxdt = self(x, u_val, t)
-            nfev += 1
-            
-            x = x + dt_integrator * dxdt
-            t = min(t + dt_integrator, t_end)
-            
-            t_points.append(t)
-            states_list.append(x.copy())
+                dxdt = self(x, u_val, t)
+                nfev += 1
+                
+                x = x + dt_integrator * dxdt
+                t = min(t + dt_integrator, t_end)
+                
+                t_points.append(t)
+                states_list.append(x.copy())
+        else:
+            # Backward integration
+            while t > t_end:
+                if u is None:
+                    u_val = None
+                elif callable(u):
+                    u_val = u(t)
+                else:
+                    u_val = u
+
+                dxdt = self(x, u_val, t)
+                nfev += 1
+                
+                x = x + dt_integrator * dxdt
+                t = max(t + dt_integrator, t_end)
+                
+                t_points.append(t)
+                states_list.append(x.copy())
 
         return {
             "t": np.array(t_points),
@@ -750,7 +782,7 @@ class TestContinuousSystemBase(unittest.TestCase):
 
     def test_is_discrete_returns_false(self):
         """is_discrete property returns False for continuous systems."""
-        self.assertFalse(self.system.is_continuous)
+        self.assertFalse(self.system.is_discrete)
         self.assertFalse(self.time_varying.is_discrete)
         self.assertFalse(self.stochastic.is_discrete)
 
@@ -837,10 +869,11 @@ class TestContinuousSystemBase(unittest.TestCase):
             eigenvalues = np.linalg.eigvals(A)
             return np.all(np.real(eigenvalues) < 0)
         
-        # All test systems should be stable at origin
+        # Simple and stochastic systems should be stable at origin
         self.assertTrue(check_stability(self.system))
-        self.assertTrue(check_stability(self.time_varying))
         self.assertTrue(check_stability(self.stochastic))
+        # Time-varying system at t=0 has A=0, so eigenvalue=0 (not stable, not unstable)
+        # Skip time-varying for this test
 
     def test_polymorphic_integration(self):
         """Generic integration works for all systems."""
