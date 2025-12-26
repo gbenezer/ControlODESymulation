@@ -371,7 +371,7 @@ Full API documentation coming soon. For now, see docstrings and type hints in so
 - 🔮 **Composite Systems**: Connect multiple systems together
 - 🔮 **Stochastic Observations**: Noisy measurement models
 
-See [Phase 17 in refactoring plan](refactoring_checklist.md#phase-17-future-extensions-post-refactoring-roadmap) for details.
+See [Phase 17 in refactoring plan](docs/refactoring_checklist.md#phase-17-future-extensions-post-refactoring-roadmap) for details.
 
 ---
 
@@ -392,7 +392,7 @@ See [Phase 17 in refactoring plan](refactoring_checklist.md#phase-17-future-exte
 - ✅ Visualization
 
 ### In Progress
-- 🚧 Architecture refactoring (see [refactoring plan](refactoring_checklist.md))
+- 🚧 Architecture refactoring (see [refactoring plan](docs/refactoring_checklist.md))
 - 🚧 Complete type coverage
 - 🚧 Extended documentation
 - 🚧 More examples
