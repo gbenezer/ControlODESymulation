@@ -195,6 +195,7 @@ roman-numerals-py==4.1.0
 rpds-py==0.30.0
 ruamel.yaml==0.18.17
 ruamel.yaml.clib==0.2.15
+ruff==0.14.10
 safety==3.7.0
 safety-schemas==0.0.16
 scipy==1.16.3
