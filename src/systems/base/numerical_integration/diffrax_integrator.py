@@ -36,12 +36,12 @@ import jax.numpy as jnp
 from jax import Array
 
 from src.systems.base.numerical_integration.integrator_base import (
-    ArrayLike,
     IntegrationResult,
     IntegratorBase,
     StepMode,
 )
 
+from src.types import ArrayLike
 
 class DiffraxIntegrator(IntegratorBase):
     """

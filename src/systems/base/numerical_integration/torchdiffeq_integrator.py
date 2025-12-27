@@ -29,12 +29,12 @@ import torchdiffeq
 from torch import Tensor
 
 from src.systems.base.numerical_integration.integrator_base import (
-    ArrayLike,
     IntegrationResult,
     IntegratorBase,
     StepMode,
 )
 
+from src.types import ArrayLike
 
 class TorchDiffEqIntegrator(IntegratorBase):
     """

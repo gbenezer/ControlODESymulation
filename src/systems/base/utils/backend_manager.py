@@ -32,6 +32,8 @@ from contextlib import contextmanager
 # Type checking imports
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
+from src.types import ArrayLike
+
 import numpy as np
 
 if TYPE_CHECKING:
@@ -39,7 +41,6 @@ if TYPE_CHECKING:
     import torch
 
 # Type alias for backend-agnostic arrays
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
 
 
 class BackendManager:

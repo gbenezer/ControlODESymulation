@@ -128,11 +128,12 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 from src.systems.base.numerical_integration.integrator_base import (
-    ArrayLike,
     IntegrationResult,
     IntegratorBase,
     StepMode,
 )
+
+from src.types import ArrayLike
 
 if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem

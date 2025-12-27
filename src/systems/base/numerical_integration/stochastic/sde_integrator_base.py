@@ -56,11 +56,12 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 from src.systems.base.numerical_integration.integrator_base import (
-    ArrayLike,
     IntegratorBase,
     StepMode,
 )
 from src.systems.base.utils.stochastic.noise_analysis import SDEType
+
+from src.types import ArrayLike
 
 if TYPE_CHECKING:
     import jax.numpy as jnp

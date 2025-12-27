@@ -44,9 +44,7 @@ if TYPE_CHECKING:
     from src.systems.base.utils.code_generator import CodeGenerator
 
 # Type alias
-from typing import Union
-
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
+from src.types import ArrayLike
 
 
 class ObservationEngine:

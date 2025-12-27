@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 # Type alias
 from typing import Union
 
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
+from src.types import ArrayLike
 
 
 class DynamicsEvaluator:

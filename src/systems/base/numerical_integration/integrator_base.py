@@ -37,9 +37,8 @@ if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
 
 # Type alias for backend-agnostic arrays
-from typing import Union
 
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
+from src.types import ArrayLike
 
 
 class StepMode(Enum):

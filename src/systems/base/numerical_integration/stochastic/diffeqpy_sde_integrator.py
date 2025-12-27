@@ -130,13 +130,14 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
-    ArrayLike,
     ConvergenceType,
     SDEIntegrationResult,
     SDEIntegratorBase,
     SDEType,
     StepMode,
 )
+
+from src.types import ArrayLike
 
 
 class DiffEqPySDEIntegrator(SDEIntegratorBase):

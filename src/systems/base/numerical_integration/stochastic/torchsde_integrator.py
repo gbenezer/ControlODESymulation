@@ -126,7 +126,6 @@ import torch
 from torch import Tensor
 
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
-    ArrayLike,
     ConvergenceType,
     SDEIntegrationResult,
     SDEIntegratorBase,
@@ -134,6 +133,7 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
     StepMode,
 )
 
+from src.types import ArrayLike
 
 class TorchSDEIntegrator(SDEIntegratorBase):
     """

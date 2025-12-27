@@ -117,7 +117,6 @@ import jax.numpy as jnp
 from jax import Array
 
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
-    ArrayLike,
     ConvergenceType,
     SDEIntegrationResult,
     SDEIntegratorBase,
@@ -125,6 +124,7 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
     StepMode,
 )
 
+from src.types import ArrayLike
 
 class DiffraxSDEIntegrator(SDEIntegratorBase):
     """
