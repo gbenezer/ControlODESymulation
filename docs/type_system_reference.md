@@ -1837,14 +1837,3 @@ elif is_torch(x):
 elif is_jax(x):
     # JAX operations
 ```
-
----
-
-## Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | Dec 2025  | Initial type system |
-| 1.1 | Dec 2025  | Added SDE types, estimation |
-| 1.2 | Dec 2025  | Added learning, reachability |
-| 1.3 | Dec 2025 | Complete documentation: Added detailed sections for contraction, conformal, flatness, model_reduction |
