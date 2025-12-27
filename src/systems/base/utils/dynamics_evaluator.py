@@ -41,6 +41,7 @@ from typing_extensions import TypedDict
 from src.types.backends import Backend
 from src.types.core import ArrayLike, ControlVector, StateVector
 from src.types.utilities import get_batch_size, is_batched
+from src.types.utilities import ExecutionStats
 
 if TYPE_CHECKING:
     import jax.numpy as jnp
@@ -49,36 +50,6 @@ if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
     from src.systems.base.utils.backend_manager import BackendManager
     from src.systems.base.utils.code_generator import CodeGenerator
-
-
-# ============================================================================
-# Performance Statistics Types
-# ============================================================================
-
-
-class EvaluationStats(TypedDict):
-    """
-    Performance statistics from dynamics evaluation.
-
-    Attributes
-    ----------
-    calls : int
-        Total number of evaluate() calls
-    total_time : float
-        Total computation time in seconds
-    avg_time : float
-        Average time per evaluation call in seconds
-
-    Examples
-    --------
-    >>> stats: EvaluationStats = evaluator.get_stats()
-    >>> print(f"Calls: {stats['calls']}")
-    >>> print(f"Average time: {stats['avg_time']:.6f}s")
-    """
-
-    calls: int
-    total_time: float
-    avg_time: float
 
 
 class DynamicsEvaluator:
@@ -93,7 +64,7 @@ class DynamicsEvaluator:
         - StateVector: Input state and output derivative
         - ControlVector: Input control (Optional for autonomous)
         - Backend: Type-safe backend selection
-        - EvaluationStats: Structured performance metrics
+        - ExecutionStats: Structured performance metrics
 
     Batching:
         Supports both single and batched evaluation using centralized
@@ -108,7 +79,7 @@ class DynamicsEvaluator:
         >>> dx: StateVector = evaluator.evaluate(x, backend='numpy')
         >>>
         >>> # Get performance stats
-        >>> stats: EvaluationStats = evaluator.get_stats()
+        >>> stats: ExecutionStats = evaluator.get_stats()
         >>> print(f"Average time: {stats['avg_time']:.6f}s")
     """
 
@@ -567,16 +538,16 @@ class DynamicsEvaluator:
     # Performance Tracking
     # ========================================================================
 
-    def get_stats(self) -> EvaluationStats:
+    def get_stats(self) -> ExecutionStats:
         """
         Get performance statistics.
 
         Returns:
-            EvaluationStats
+            ExecutionStats
                 Structured performance metrics with call count and timing
 
         Example:
-            >>> stats: EvaluationStats = evaluator.get_stats()
+            >>> stats: ExecutionStats = evaluator.get_stats()
             >>> print(f"Calls: {stats['calls']}")
             >>> print(f"Avg time: {stats['avg_time']:.6f}s")
         """
