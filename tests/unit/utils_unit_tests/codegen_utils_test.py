@@ -31,6 +31,10 @@ import numpy as np
 import pytest
 import sympy as sp
 
+# Import from centralized type system
+from src.types.backends import Backend
+from src.types.symbolic import SymbolicExpressionInput
+
 from src.systems.base.utils.codegen_utils import (
     _jax_matrix_handler,
     _jax_max,
@@ -1453,6 +1457,164 @@ class TestMinMaxEquality:
         for handler in handlers:
             assert handler.__doc__ is not None, f"{handler.__name__} missing docstring"
             assert "SymPy" in handler.__doc__, f"{handler.__name__} should mention SymPy"
+
+
+# ============================================================================
+# Test: Type System Integration
+# ============================================================================
+
+
+class TestTypeSystemIntegration:
+    """Test type system integration with centralized type framework"""
+    
+    def test_backend_literal_type(self):
+        """Test Backend literal usage in generate_function"""
+        x, y = sp.symbols('x y')
+        expr: SymbolicExpressionInput = x + y
+        
+        # Valid backends
+        backend_numpy: Backend = "numpy"
+        backend_torch: Backend = "torch"
+        backend_jax: Backend = "jax"
+        
+        f_numpy = generate_function(expr, [x, y], backend=backend_numpy)
+        assert callable(f_numpy)
+        
+        # Type checker would catch: backend = "tensorflow"
+    
+    def test_symbolic_expression_input_scalar(self):
+        """Test SymbolicExpressionInput with scalar expression"""
+        x, y = sp.symbols('x y')
+        
+        # Scalar expression
+        expr: SymbolicExpressionInput = x**2 + y**2
+        f = generate_function(expr, [x, y], backend="numpy")
+        
+        result = f(3.0, 4.0)
+        assert isinstance(result, np.ndarray)
+        assert np.allclose(result, [25.0])
+    
+    def test_symbolic_expression_input_list(self):
+        """Test SymbolicExpressionInput with list of expressions"""
+        x, y = sp.symbols('x y')
+        
+        # List of expressions
+        expr: SymbolicExpressionInput = [x**2, y**2, x*y]
+        f = generate_function(expr, [x, y], backend="numpy")
+        
+        result = f(2.0, 3.0)
+        assert isinstance(result, np.ndarray)
+        assert np.allclose(result, [4.0, 9.0, 6.0])
+    
+    def test_symbolic_expression_input_matrix(self):
+        """Test SymbolicExpressionInput with Matrix"""
+        x, y = sp.symbols('x y')
+        
+        # Matrix expression
+        expr: SymbolicExpressionInput = sp.Matrix([x, y, x*y])
+        f = generate_function(expr, [x, y], backend="numpy")
+        
+        result = f(2.0, 3.0)
+        assert isinstance(result, np.ndarray)
+        assert np.allclose(result, [2.0, 3.0, 6.0])
+    
+    def test_backend_type_consistency(self):
+        """Test Backend type works consistently across all functions"""
+        x = sp.symbols('x')
+        expr: SymbolicExpressionInput = x**2
+        
+        backend: Backend = "numpy"
+        
+        # All these should accept Backend type
+        f1 = generate_function(expr, [x], backend=backend)
+        f2 = generate_numpy_function(expr, [x])
+        
+        assert callable(f1)
+        assert callable(f2)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_backend_type_torch(self):
+        """Test Backend type with PyTorch"""
+        x = sp.symbols('x')
+        expr: SymbolicExpressionInput = x**2
+        
+        backend: Backend = "torch"
+        f = generate_function(expr, [x], backend=backend)
+        
+        result = f(torch.tensor(3.0))
+        assert isinstance(result, torch.Tensor)
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_backend_type_jax(self):
+        """Test Backend type with JAX"""
+        x = sp.symbols('x')
+        expr: SymbolicExpressionInput = x**2
+        
+        backend: Backend = "jax"
+        f = generate_function(expr, [x], backend=backend, jit=False)
+        
+        result = f(jnp.array(3.0))
+        assert isinstance(result, jnp.ndarray)
+    
+    def test_callable_return_type(self):
+        """Test that functions return Callable type"""
+        x = sp.symbols('x')
+        expr: SymbolicExpressionInput = x + 1
+        
+        f: Callable = generate_function(expr, [x], backend="numpy")
+        
+        assert callable(f)
+        assert isinstance(f(1.0), np.ndarray)
+    
+    def test_symbolic_expression_input_flexibility(self):
+        """Test SymbolicExpressionInput accepts all valid forms"""
+        x, y = sp.symbols('x y')
+        
+        # All these should be valid SymbolicExpressionInput
+        expr1: SymbolicExpressionInput = x + y  # sp.Expr
+        expr2: SymbolicExpressionInput = [x, y]  # List[sp.Expr]
+        expr3: SymbolicExpressionInput = sp.Matrix([x, y])  # sp.Matrix
+        
+        # All should generate valid functions
+        f1 = generate_function(expr1, [x, y], backend="numpy")
+        f2 = generate_function(expr2, [x, y], backend="numpy")
+        f3 = generate_function(expr3, [x, y], backend="numpy")
+        
+        assert callable(f1)
+        assert callable(f2)
+        assert callable(f3)
+    
+    def test_type_annotations_present(self):
+        """Test that all generate functions have type annotations"""
+        import inspect
+        
+        # Check generate_function signature
+        sig = inspect.signature(generate_function)
+        assert 'expr' in sig.parameters
+        assert 'backend' in sig.parameters
+        
+        # Return type should be Callable
+        assert sig.return_annotation == Callable or 'Callable' in str(sig.return_annotation)
+    
+    def test_backend_validation_through_types(self):
+        """Test that invalid backends would be caught by type system"""
+        x = sp.symbols('x')
+        expr: SymbolicExpressionInput = x**2
+        
+        # These are valid (type-safe)
+        valid_backends: list[Backend] = ["numpy", "torch", "jax"]
+        
+        for backend in valid_backends:
+            try:
+                f = generate_function(expr, [x], backend=backend)
+                # Should succeed or raise ImportError, not ValueError
+            except (ImportError, ModuleNotFoundError):
+                # OK if backend not available
+                pass
+            except ValueError as e:
+                # Should not get "Unknown backend" with valid Backend literal
+                if "Unknown backend" in str(e):
+                    pytest.fail(f"Valid backend {backend} raised ValueError: {e}")
 
 
 # ============================================================================

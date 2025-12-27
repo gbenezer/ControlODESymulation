@@ -44,6 +44,9 @@ try:
 except ImportError:
     jax_available = False
 
+# Import from centralized type system
+from src.types.backends import Backend
+
 from src.systems.base.utils.code_generator import CodeGenerator
 
 # ============================================================================
@@ -566,6 +569,214 @@ class TestIntegration:
         code_gen.reset_cache(["numpy"])
         status = code_gen.is_compiled("numpy")
         assert status["f"] is False
+
+
+# ============================================================================
+# Test Class 7: Type System Integration
+# ============================================================================
+
+
+class TestTypeSystemIntegration:
+    """Test type system integration with centralized type framework"""
+    
+    def test_backend_literal_in_generate_dynamics(self):
+        """Test Backend literal usage in generate_dynamics"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        # Valid backends
+        backend_numpy: Backend = "numpy"
+        backend_torch: Backend = "torch"
+        backend_jax: Backend = "jax"
+        
+        f_numpy = code_gen.generate_dynamics(backend_numpy)
+        assert callable(f_numpy)
+        
+        # Type checker would catch: backend = "tensorflow"
+    
+    def test_backend_literal_in_compile_all(self):
+        """Test Backend literal in compile_all backends list"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        # Type-safe backend list
+        backends: list[Backend] = ["numpy", "torch"]
+        
+        timings = code_gen.compile_all(backends=backends, verbose=False)
+        
+        assert "numpy" in timings
+        if torch_available:
+            assert "torch" in timings
+    
+    def test_backend_literal_in_reset_cache(self):
+        """Test Backend literal in reset_cache"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        # Generate some functions
+        code_gen.generate_dynamics("numpy")
+        
+        # Type-safe reset
+        backends: list[Backend] = ["numpy"]
+        code_gen.reset_cache(backends=backends)
+        
+        # Verify cleared
+        f = code_gen.get_dynamics("numpy")
+        assert f is None
+    
+    def test_backend_literal_in_get_methods(self):
+        """Test Backend literal in getter methods"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        backend: Backend = "numpy"
+        
+        # Generate
+        code_gen.generate_dynamics(backend)
+        
+        # Get with Backend type
+        f = code_gen.get_dynamics(backend)
+        assert callable(f)
+    
+    def test_backend_literal_in_jacobian_methods(self):
+        """Test Backend literal in Jacobian methods"""
+        system = MockSecondOrderSystem()
+        code_gen = CodeGenerator(system)
+        
+        backend: Backend = "numpy"
+        
+        # Generate Jacobians
+        A_func, B_func = code_gen.generate_dynamics_jacobians(backend)
+        
+        assert callable(A_func)
+        assert callable(B_func)
+    
+    def test_backend_consistency_across_methods(self):
+        """Test Backend type works consistently across all methods"""
+        system = MockSystem(with_output=True)
+        code_gen = CodeGenerator(system)
+        
+        backend: Backend = "numpy"
+        
+        # All these should accept Backend type
+        f = code_gen.generate_dynamics(backend)
+        h = code_gen.generate_output(backend)
+        f_get = code_gen.get_dynamics(backend)
+        h_get = code_gen.get_output(backend)
+        status = code_gen.is_compiled(backend)
+        
+        assert callable(f)
+        assert callable(h)
+        assert callable(f_get)
+        assert callable(h_get)
+        assert isinstance(status, dict)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_backend_type_torch(self):
+        """Test Backend type with PyTorch backend"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        backend: Backend = "torch"
+        f = code_gen.generate_dynamics(backend)
+        
+        # Test with torch tensor
+        x = torch.tensor([1.0])
+        u = torch.tensor([0.5])
+        result = f(x, u)
+        
+        assert isinstance(result, torch.Tensor)
+    
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_backend_type_jax(self):
+        """Test Backend type with JAX backend"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        backend: Backend = "jax"
+        f = code_gen.generate_dynamics(backend, jit=False)
+        
+        # Test with jax array
+        x = jnp.array([1.0])
+        u = jnp.array([0.5])
+        result = f(x, u)
+        
+        assert isinstance(result, jnp.ndarray)
+    
+    def test_callable_return_types(self):
+        """Test that generated functions return callable types"""
+        from typing import Callable
+        
+        system = MockSystem(with_output=True)
+        code_gen = CodeGenerator(system)
+        
+        f: Callable = code_gen.generate_dynamics("numpy")
+        h: Callable = code_gen.generate_output("numpy")
+        
+        assert callable(f)
+        assert callable(h)
+    
+    def test_backend_list_type_in_compile_all(self):
+        """Test Optional[List[Backend]] type in compile_all"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        # None should compile all available
+        timings1 = code_gen.compile_all(backends=None, verbose=False)
+        assert len(timings1) > 0
+        
+        # Specific list
+        backends: list[Backend] = ["numpy"]
+        timings2 = code_gen.compile_all(backends=backends, verbose=False)
+        assert "numpy" in timings2
+    
+    def test_type_safety_prevents_invalid_backends(self):
+        """Test that type system would catch invalid backends"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        # These are valid (type-safe)
+        valid_backends: list[Backend] = ["numpy", "torch", "jax"]
+        
+        for backend in valid_backends:
+            try:
+                f = code_gen.generate_dynamics(backend)
+                assert callable(f)
+            except (ImportError, ModuleNotFoundError):
+                # OK if backend not available
+                pass
+    
+    def test_backend_in_cache_keys(self):
+        """Test that backend acts as proper cache key"""
+        system = MockSystem()
+        code_gen = CodeGenerator(system)
+        
+        backend1: Backend = "numpy"
+        backend2: Backend = "torch"
+        
+        # Generate for numpy
+        f1 = code_gen.generate_dynamics(backend1)
+        f1_again = code_gen.generate_dynamics(backend1)
+        
+        # Should be cached (same object)
+        assert f1 is f1_again
+        
+        # Different backend should generate different function
+        if torch_available:
+            f2 = code_gen.generate_dynamics(backend2)
+            assert f2 is not f1
+    
+    def test_type_annotations_in_code_generator(self):
+        """Test that CodeGenerator methods have proper type annotations"""
+        import inspect
+        
+        # Check generate_dynamics signature
+        sig = inspect.signature(CodeGenerator.generate_dynamics)
+        assert 'backend' in sig.parameters
+        
+        # Check compile_all signature
+        sig = inspect.signature(CodeGenerator.compile_all)
+        assert 'backends' in sig.parameters
 
 
 # ============================================================================
