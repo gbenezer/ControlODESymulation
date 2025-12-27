@@ -26,11 +26,18 @@ Tests cover:
 7. Performance tracking
 8. Error handling
 9. Autonomous system support
+10. Type system integration
 """
 
 import numpy as np
 import pytest
 import sympy as sp
+from typing import Optional
+
+# Type system imports
+from src.types import ArrayLike
+from src.types.backends import Backend
+from src.types.core import ControlVector, StateVector
 
 # Conditional imports
 torch_available = True
@@ -154,6 +161,147 @@ class MockMultiInputSystem:
 
 
 # ============================================================================
+# Test Class 0: Type System Integration
+# ============================================================================
+
+
+class TestTypeSystemIntegration:
+    """Test integration with centralized type system"""
+
+    def test_state_vector_type_annotation(self):
+        """Test that StateVector type annotation works correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # Type annotation should work
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
+        
+        dx: StateVector = evaluator.evaluate(x, u, backend="numpy")
+        
+        assert isinstance(dx, np.ndarray)
+        assert dx.shape == (1,)
+
+    def test_control_vector_type_annotation(self):
+        """Test that ControlVector type annotation works correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # Type annotations
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
+        
+        # Should accept typed parameters
+        dx = evaluator.evaluate(x, u)
+        assert isinstance(dx, np.ndarray)
+
+    def test_backend_literal_type(self):
+        """Test that Backend literal type is used correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
+
+        # Valid backends should work
+        backend: Backend = "numpy"
+        dx = evaluator.evaluate(x, u, backend=backend)
+        assert isinstance(dx, np.ndarray)
+
+        backend = "torch"  # Type checker allows this
+        backend = "jax"    # Type checker allows this
+
+    def test_optional_control_vector(self):
+        """Test that Optional[ControlVector] works for autonomous systems"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # Type annotation with Optional
+        x: StateVector = np.array([1.0])
+        u: Optional[ControlVector] = None  # Autonomous system
+        
+        dx: StateVector = evaluator.evaluate(x, u)
+        assert isinstance(dx, np.ndarray)
+
+    def test_return_type_is_state_vector(self):
+        """Test that return type is StateVector"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
+        
+        # Return type should be StateVector
+        result: StateVector = evaluator.evaluate(x, u)
+        
+        # Verify it's actually a state derivative
+        assert isinstance(result, np.ndarray)
+        assert result.shape == (1,)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_type_consistency_across_backends(self):
+        """Test that types are consistent across backends"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # NumPy arrays are StateVector/ControlVector
+        x_np: StateVector = np.array([1.0])
+        u_np: ControlVector = np.array([0.5])
+        dx_np: StateVector = evaluator.evaluate(x_np, u_np, backend="numpy")
+        
+        # PyTorch tensors are also StateVector/ControlVector
+        x_torch: StateVector = torch.tensor([1.0])
+        u_torch: ControlVector = torch.tensor([0.5])
+        dx_torch: StateVector = evaluator.evaluate(x_torch, u_torch, backend="torch")
+        
+        # Both should work
+        assert isinstance(dx_np, np.ndarray)
+        assert isinstance(dx_torch, torch.Tensor)
+
+    def test_type_annotations_in_batched_case(self):
+        """Test that type annotations work for batched inputs"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # Batched inputs are still StateVector/ControlVector
+        x: StateVector = np.array([[1.0], [2.0], [3.0]])
+        u: ControlVector = np.array([[0.5], [0.5], [0.5]])
+        
+        dx: StateVector = evaluator.evaluate(x, u)
+        
+        assert dx.shape == (3, 1)
+
+    def test_arraylike_is_compatible(self):
+        """Test that ArrayLike is compatible with semantic types"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+
+        # ArrayLike can be used as well
+        x: ArrayLike = np.array([1.0])
+        u: ArrayLike = np.array([0.5])
+        
+        # Should work with ArrayLike (less semantic but still valid)
+        dx = evaluator.evaluate(x, u)
+        assert isinstance(dx, np.ndarray)
+
+
+# ============================================================================
 # Test Class 1: NumPy Backend Evaluation (Controlled)
 # ============================================================================
 
@@ -168,10 +316,11 @@ class TestNumpyEvaluationControlled:
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        u = np.array([0.5])
+        # Type annotations show intent
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
 
-        dx = evaluator.evaluate(x, u, backend="numpy")
+        dx: StateVector = evaluator.evaluate(x, u, backend="numpy")
 
         # dx = -2*x + u = -2*1 + 0.5 = -1.5
         assert isinstance(dx, np.ndarray)
@@ -257,10 +406,11 @@ class TestNumpyEvaluationAutonomous:
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
+        # Type annotations for autonomous system
+        x: StateVector = np.array([1.0])
+        u: Optional[ControlVector] = None  # Explicit None for autonomous
 
-        # u=None for autonomous
-        dx = evaluator.evaluate(x, u=None, backend="numpy")
+        dx: StateVector = evaluator.evaluate(x, u=u, backend="numpy")
 
         # dx = -2*x = -2
         assert isinstance(dx, np.ndarray)

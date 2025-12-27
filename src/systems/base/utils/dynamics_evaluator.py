@@ -36,6 +36,11 @@ from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
+# Import from centralized type system
+from src.types import ArrayLike
+from src.types.backends import Backend
+from src.types.core import ControlVector, StateVector
+
 if TYPE_CHECKING:
     import jax.numpy as jnp
     import torch
@@ -43,11 +48,6 @@ if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
     from src.systems.base.utils.backend_manager import BackendManager
     from src.systems.base.utils.code_generator import CodeGenerator
-
-# Type alias
-from typing import Union
-
-from src.types import ArrayLike
 
 
 class DynamicsEvaluator:
@@ -61,10 +61,10 @@ class DynamicsEvaluator:
     Example:
         >>> # Controlled system
         >>> evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
-        >>> dx = evaluator.evaluate(x, u, backend='numpy')
+        >>> dx: StateVector = evaluator.evaluate(x, u, backend='numpy')
         >>>
         >>> # Autonomous system (u=None)
-        >>> dx = evaluator.evaluate(x, backend='numpy')
+        >>> dx: StateVector = evaluator.evaluate(x, backend='numpy')
         >>>
         >>> # Get performance stats
         >>> stats = evaluator.get_stats()
@@ -100,24 +100,27 @@ class DynamicsEvaluator:
     # ========================================================================
 
     def evaluate(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, backend: Optional[str] = None
-    ) -> ArrayLike:
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        backend: Optional[Backend] = None,
+    ) -> StateVector:
         """
         Evaluate forward dynamics: dx/dt = f(x, u) or dx/dt = f(x).
 
         Args:
-            x: State (array/tensor)
-            u: Control (array/tensor), None for autonomous systems
+            x: State vector
+            u: Control vector (None for autonomous systems)
             backend: Backend selection:
                 - None: Auto-detect from input type (default)
                 - 'numpy', 'torch', 'jax': Force specific backend
                 - 'default': Use system's default backend
 
         Returns:
-            State derivative (type matches backend)
+            State derivative vector (type matches backend)
 
         Raises:
-            ValueError: If u is None for non-autonomous system or provided for autonomous
+            ValueError: If u is None for non-autonomous system
 
         Example:
             >>> # Controlled system - auto-detect backend
