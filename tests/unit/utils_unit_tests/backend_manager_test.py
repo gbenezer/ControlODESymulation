@@ -1021,6 +1021,284 @@ class TestBackwardCompatibility:
         backend_value = config["backend"]
         assert backend_value in VALID_BACKENDS
 
+# ============================================================================
+# Test Class 11: ensure_type() Method
+# ============================================================================
+
+
+class TestEnsureType:
+    """Test ensure_type() method for type checking and minimal conversion"""
+
+    def test_ensure_type_numpy_already_numpy(self):
+        """Test that NumPy arrays are returned as-is (no conversion)"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_original = np.array([1.0, 2.0, 3.0])
+        x_ensured = mgr.ensure_type(x_original, backend="numpy")
+        
+        # Should be the exact same object (no copy)
+        assert x_ensured is x_original
+        assert isinstance(x_ensured, np.ndarray)
+        np.testing.assert_array_equal(x_ensured, [1.0, 2.0, 3.0])
+
+    def test_ensure_type_numpy_from_list(self):
+        """Test converting list to NumPy array"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list, backend="numpy")
+        
+        assert isinstance(x_ensured, np.ndarray)
+        np.testing.assert_array_equal(x_ensured, [1.0, 2.0, 3.0])
+
+    def test_ensure_type_numpy_uses_default_backend(self):
+        """Test that backend=None uses default_backend"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list)  # No backend specified
+        
+        assert isinstance(x_ensured, np.ndarray)
+        np.testing.assert_array_equal(x_ensured, [1.0, 2.0, 3.0])
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_torch_already_torch(self):
+        """Test that PyTorch tensors are returned as-is (no conversion)"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_original = torch.tensor([1.0, 2.0, 3.0])
+        x_ensured = mgr.ensure_type(x_original, backend="torch")
+        
+        # Should be the same tensor (possibly moved to device)
+        assert isinstance(x_ensured, torch.Tensor)
+        assert torch.allclose(x_ensured, torch.tensor([1.0, 2.0, 3.0]))
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_torch_from_numpy(self):
+        """Test converting NumPy array to PyTorch tensor"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_np = np.array([1.0, 2.0, 3.0])
+        x_ensured = mgr.ensure_type(x_np, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert torch.allclose(x_ensured, torch.tensor([1.0, 2.0, 3.0]))
+        assert x_ensured.device.type == "cpu"
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_torch_preserves_dtype_float64(self):
+        """Test that float64 NumPy arrays become float64 tensors"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_np = np.array([1.0, 2.0, 3.0], dtype=np.float64)
+        x_ensured = mgr.ensure_type(x_np, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert x_ensured.dtype == torch.float64
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_torch_preserves_dtype_float32(self):
+        """Test that float32 NumPy arrays become float32 tensors"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_np = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+        x_ensured = mgr.ensure_type(x_np, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert x_ensured.dtype == torch.float32
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_torch_from_list(self):
+        """Test converting list to PyTorch tensor"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert torch.allclose(x_ensured, torch.tensor([1.0, 2.0, 3.0]))
+        assert x_ensured.dtype == torch.float64  # Default for non-numpy input
+
+    @pytest.mark.skipif(not torch_available or not torch.cuda.is_available(), 
+                        reason="CUDA not available")
+    def test_ensure_type_torch_device_placement(self):
+        """Test that tensors are moved to preferred device"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cuda")
+        
+        # Create CPU tensor
+        x_cpu = torch.tensor([1.0, 2.0, 3.0], device="cpu")
+        x_ensured = mgr.ensure_type(x_cpu, backend="torch")
+        
+        # Should be moved to CUDA
+        assert x_ensured.device.type == "cuda"
+        assert torch.allclose(x_ensured.cpu(), x_cpu)
+
+    @pytest.mark.skipif(not torch_available or not torch.cuda.is_available(),
+                        reason="CUDA not available")
+    def test_ensure_type_torch_already_on_correct_device(self):
+        """Test that tensors already on correct device are returned as-is"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cuda")
+        
+        # Create tensor on CUDA
+        x_cuda = torch.tensor([1.0, 2.0, 3.0], device="cuda")
+        x_ensured = mgr.ensure_type(x_cuda, backend="torch")
+        
+        # Should be returned as-is (same object)
+        assert x_ensured.device.type == "cuda"
+        assert torch.allclose(x_ensured, x_cuda)
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_ensure_type_jax_already_jax(self):
+        """Test that JAX arrays are returned as-is (no conversion)"""
+        import jax.numpy as jnp
+        
+        mgr = BackendManager(default_backend="jax")
+        
+        x_original = jnp.array([1.0, 2.0, 3.0])
+        x_ensured = mgr.ensure_type(x_original, backend="jax")
+        
+        # Should be the same array
+        assert isinstance(x_ensured, jnp.ndarray)
+        assert jnp.allclose(x_ensured, jnp.array([1.0, 2.0, 3.0]))
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_ensure_type_jax_from_numpy(self):
+        """Test converting NumPy array to JAX array"""
+        import jax.numpy as jnp
+        
+        mgr = BackendManager(default_backend="jax")
+        
+        x_np = np.array([1.0, 2.0, 3.0])
+        x_ensured = mgr.ensure_type(x_np, backend="jax")
+        
+        assert isinstance(x_ensured, jnp.ndarray)
+        assert jnp.allclose(x_ensured, jnp.array([1.0, 2.0, 3.0]))
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_ensure_type_jax_from_list(self):
+        """Test converting list to JAX array"""
+        import jax.numpy as jnp
+        
+        mgr = BackendManager(default_backend="jax")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list, backend="jax")
+        
+        assert isinstance(x_ensured, jnp.ndarray)
+        assert jnp.allclose(x_ensured, jnp.array([1.0, 2.0, 3.0]))
+
+    def test_ensure_type_default_backend_numpy(self):
+        """Test using default_backend when backend=None"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list)  # Uses default_backend
+        
+        assert isinstance(x_ensured, np.ndarray)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_default_backend_torch(self):
+        """Test using default_backend=torch when backend=None"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list)  # Uses default_backend
+        
+        assert isinstance(x_ensured, torch.Tensor)
+
+    @pytest.mark.skipif(not jax_available, reason="JAX not installed")
+    def test_ensure_type_default_backend_jax(self):
+        """Test using default_backend=jax when backend=None"""
+        import jax.numpy as jnp
+        
+        mgr = BackendManager(default_backend="jax")
+        
+        x_list = [1.0, 2.0, 3.0]
+        x_ensured = mgr.ensure_type(x_list)  # Uses default_backend
+        
+        assert isinstance(x_ensured, jnp.ndarray)
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_numpy_to_torch_to_numpy(self):
+        """Test conversion chain: NumPy -> ensure as torch -> ensure as numpy"""
+        import torch
+        
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_np = np.array([1.0, 2.0, 3.0])
+        
+        # Convert to torch
+        x_torch = mgr.ensure_type(x_np, backend="torch")
+        assert isinstance(x_torch, torch.Tensor)
+        
+        # Convert back to numpy
+        x_np_back = mgr.ensure_type(x_torch, backend="numpy")
+        assert isinstance(x_np_back, np.ndarray)
+        np.testing.assert_array_equal(x_np_back, x_np)
+
+    def test_ensure_type_scalar_to_numpy(self):
+        """Test that scalar values are converted to arrays"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_scalar = 5.0
+        x_ensured = mgr.ensure_type(x_scalar, backend="numpy")
+        
+        assert isinstance(x_ensured, np.ndarray)
+        assert x_ensured.shape == ()  # Scalar array
+        assert x_ensured.item() == 5.0
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_scalar_to_torch(self):
+        """Test that scalar values are converted to tensors"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_scalar = 5.0
+        x_ensured = mgr.ensure_type(x_scalar, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert x_ensured.item() == 5.0
+
+    def test_ensure_type_2d_array_numpy(self):
+        """Test ensure_type works with 2D arrays"""
+        mgr = BackendManager(default_backend="numpy")
+        
+        x_2d = [[1.0, 2.0], [3.0, 4.0]]
+        x_ensured = mgr.ensure_type(x_2d, backend="numpy")
+        
+        assert isinstance(x_ensured, np.ndarray)
+        assert x_ensured.shape == (2, 2)
+        np.testing.assert_array_equal(x_ensured, [[1.0, 2.0], [3.0, 4.0]])
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_ensure_type_2d_array_torch(self):
+        """Test ensure_type works with 2D arrays for PyTorch"""
+        import torch
+        
+        mgr = BackendManager(default_backend="torch", default_device="cpu")
+        
+        x_2d = [[1.0, 2.0], [3.0, 4.0]]
+        x_ensured = mgr.ensure_type(x_2d, backend="torch")
+        
+        assert isinstance(x_ensured, torch.Tensor)
+        assert x_ensured.shape == (2, 2)
 
 # ============================================================================
 # Run Tests
