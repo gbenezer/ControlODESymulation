@@ -64,7 +64,20 @@ class StepMode(Enum):
 class IntegrationResult:
     """
     Container for integration results.
-
+    
+    .. warning::
+        TECHNICAL DEBT (TD-001): This class should be replaced with
+        the TypedDict from src.types.trajectories. See TECHNICAL_DEBT.md
+        for refactoring plan.
+    
+    .. deprecated::
+        This class-based approach violates the project design principle:
+        "Result types are TypedDict". Will be refactored in Phase 2.5.
+    
+    TODO(TD-001): Replace with TypedDict
+    Target: Phase 2.5
+    See: TECHNICAL_DEBT.md#TD-001
+    
     Stores time points, states, and metadata from integration.
 
     Attributes

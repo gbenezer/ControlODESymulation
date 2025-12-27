@@ -334,15 +334,24 @@ Examples
 class IntegrationResult(TypedDict, total=False):
     """
     Result from continuous-time integration (ODE/SDE solver).
-
+    
     Contains trajectory, time points, and solver diagnostics.
-
+    
+    .. note::
+        TECHNICAL DEBT (TD-001): There is currently a class with the same
+        name in integrator_base.py. The integrator infrastructure returns
+        the class; ContinuousSystemBase interface expects this TypedDict.
+        An adapter converts between them.
+        
+        Target: Phase 2.5 - Refactor integrators to return this TypedDict directly.
+        See: TECHNICAL_DEBT.md#TD-001
+    
     Attributes
     ----------
     t : TimePoints
         Time points at which solution was computed (n_points,)
     y : StateTrajectory
-        State trajectory (n_points, nx)
+        State trajectory (nx, n_points) - NOTE: scipy convention
     success : bool
         Whether integration completed successfully
     message : str
