@@ -34,6 +34,18 @@ from typing import TYPE_CHECKING, Optional
 import numpy as np
 import sympy as sp
 
+# Import from centralized type system
+from src.types.backends import Backend
+from src.types.core import (
+    ArrayLike,
+    FeedthroughMatrix,
+    OutputMatrix,
+    OutputVector,
+    StateVector,
+)
+from src.types.linearization import ObservationLinearization
+from src.types.utilities import get_batch_size, is_batched
+
 if TYPE_CHECKING:
     import jax
     import jax.numpy as jnp
@@ -43,9 +55,6 @@ if TYPE_CHECKING:
     from src.systems.base.utils.backend_manager import BackendManager
     from src.systems.base.utils.code_generator import CodeGenerator
 
-# Type alias
-from src.types import ArrayLike
-
 
 class ObservationEngine:
     """
@@ -54,10 +63,21 @@ class ObservationEngine:
     Handles the evaluation of y = h(x) and C = ∂h/∂x for all backends
     with proper shape handling and batching.
 
+    Type System Integration:
+        - StateVector: Input state
+        - OutputVector: Evaluated output y = h(x)
+        - OutputMatrix: Linearized observation C = ∂h/∂x
+        - ObservationLinearization: (C, D) tuple for full output linearization
+        - Backend: Type-safe backend selection
+
+    Batching:
+        Supports both single and batched evaluation using centralized
+        utilities from the type framework (is_batched, get_batch_size).
+
     Example:
         >>> engine = ObservationEngine(system, code_gen, backend_mgr)
-        >>> y = engine.evaluate(x, backend='numpy')
-        >>> C = engine.compute_jacobian(x, backend='numpy')
+        >>> y: OutputVector = engine.evaluate(x, backend='numpy')
+        >>> C: OutputMatrix = engine.compute_jacobian(x, backend='numpy')
     """
 
     def __init__(
@@ -82,22 +102,27 @@ class ObservationEngine:
     # Output Evaluation: y = h(x)
     # ========================================================================
 
-    def evaluate(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+    def evaluate(
+        self, x: StateVector, backend: Optional[Backend] = None
+    ) -> OutputVector:
         """
         Evaluate output equation: y = h(x).
 
         If no custom output function is defined, returns the full state (identity).
 
         Args:
-            x: State (array/tensor)
-            backend: Backend selection (None = auto-detect)
+            x: State vector
+            backend: Backend selection:
+                - None: Auto-detect from input type (default)
+                - 'numpy', 'torch', 'jax': Force specific backend
+                - 'default': Use system's default backend
 
         Returns:
-            Output (type matches backend)
+            Output vector (type matches backend)
 
         Example:
-            >>> y = engine.evaluate(x_numpy)  # Auto-detect NumPy
-            >>> y = engine.evaluate(x_numpy, backend='torch')  # Convert to torch
+            >>> y: OutputVector = engine.evaluate(x_numpy)  # Auto-detect NumPy
+            >>> y: OutputVector = engine.evaluate(x_numpy, backend='torch')  # Convert to torch
         """
         # If no custom output, return identity
         if self.system._h_sym is None:
@@ -130,6 +155,8 @@ class ObservationEngine:
         """
         NumPy implementation of output evaluation.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
@@ -143,14 +170,14 @@ class ObservationEngine:
         if h_numpy is None:
             return x
 
-        # Handle batched input
-        if x.ndim == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = np.expand_dims(x, 0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:
@@ -191,6 +218,8 @@ class ObservationEngine:
         """
         PyTorch implementation of output evaluation.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
@@ -203,14 +232,14 @@ class ObservationEngine:
         if h_torch is None:
             return x
 
-        # Handle batched input
-        if len(x.shape) == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = x.unsqueeze(0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:
@@ -252,6 +281,8 @@ class ObservationEngine:
         """
         JAX implementation of output evaluation.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
@@ -266,14 +297,14 @@ class ObservationEngine:
         if h_jax is None:
             return x
 
-        # Handle batched input
-        if x.ndim == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = jnp.expand_dims(x, 0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:
@@ -286,7 +317,7 @@ class ObservationEngine:
             )
 
         # For batched computation, use vmap
-        if x.shape[0] > 1:
+        if batch_size > 1:
 
             @jax.vmap
             def batched_observation(x_i):
@@ -312,7 +343,9 @@ class ObservationEngine:
     # Observation Linearization: C = ∂h/∂x
     # ========================================================================
 
-    def compute_jacobian(self, x: ArrayLike, backend: Optional[str] = None) -> ArrayLike:
+    def compute_jacobian(
+        self, x: StateVector, backend: Optional[Backend] = None
+    ) -> OutputMatrix:
         """
         Compute linearized observation: C = ∂h/∂x.
 
@@ -320,13 +353,18 @@ class ObservationEngine:
 
         Args:
             x: State at which to linearize
-            backend: Backend selection (None = auto-detect)
+            backend: Backend selection:
+                - None: Auto-detect from input type (default)
+                - 'numpy', 'torch', 'jax': Force specific backend
+                - 'default': Use system's default backend
 
         Returns:
-            C matrix (type matches backend)
+            OutputMatrix
+                C matrix (ny, nx) - output Jacobian (type matches backend)
 
         Example:
-            >>> C = engine.compute_jacobian(x, backend='numpy')
+            >>> C: OutputMatrix = engine.compute_jacobian(x, backend='numpy')
+            >>> print(C.shape)  # (ny, nx)
         """
         # If no custom output, return identity
         if self.system._h_sym is None:
@@ -335,18 +373,18 @@ class ObservationEngine:
                 backend = self.backend_mgr.detect(x)
 
             if backend == "numpy" or backend is None:
-                batch_size = x.shape[0] if x.ndim > 1 else 1
-                if x.ndim == 1:
+                if not is_batched(x):
                     return np.eye(self.system.nx)
                 else:
+                    batch_size = get_batch_size(x)
                     return np.tile(np.eye(self.system.nx), (batch_size, 1, 1))
             elif backend == "torch":
                 import torch
 
-                batch_size = x.shape[0] if len(x.shape) > 1 else 1
-                if len(x.shape) == 1:
+                if not is_batched(x):
                     return torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
                 else:
+                    batch_size = get_batch_size(x)
                     return (
                         torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
                         .unsqueeze(0)
@@ -355,10 +393,10 @@ class ObservationEngine:
             elif backend == "jax":
                 import jax.numpy as jnp
 
-                batch_size = x.shape[0] if x.ndim > 1 else 1
-                if x.ndim == 1:
+                if not is_batched(x):
                     return jnp.eye(self.system.nx)
                 else:
+                    batch_size = get_batch_size(x)
                     return jnp.tile(jnp.eye(self.system.nx), (batch_size, 1, 1))
 
         # Determine target backend
@@ -417,18 +455,20 @@ class ObservationEngine:
         """
         NumPy implementation of observation Jacobian.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
 
-        # Handle batched input
-        if x.ndim == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = np.expand_dims(x, 0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:
@@ -472,19 +512,21 @@ class ObservationEngine:
         """
         PyTorch implementation of observation Jacobian.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
         import torch
 
-        # Handle batched input
-        if len(x.shape) == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = x.unsqueeze(0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:
@@ -536,6 +578,8 @@ class ObservationEngine:
         """
         JAX implementation using automatic differentiation.
 
+        Uses centralized batching utilities for consistent shape handling.
+
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
@@ -545,14 +589,14 @@ class ObservationEngine:
         # Ensure observation function is generated
         h_jax = self.code_gen.generate_output("jax", jit=True)
 
-        # Handle batched input
-        if x.ndim == 1:
+        # Handle batched input using batching utilities
+        if not is_batched(x):
             x = jnp.expand_dims(x, 0)
             squeeze_output = True
         else:
             squeeze_output = False
 
-        batch_size = x.shape[0]
+        batch_size = get_batch_size(x)
 
         # Check for empty batch BEFORE processing
         if batch_size == 0:

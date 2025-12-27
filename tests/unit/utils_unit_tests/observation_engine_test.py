@@ -43,7 +43,9 @@ try:
     import jax.numpy as jnp
 except ImportError:
     jax_available = False
-
+    
+from src.types.core import StateVector, OutputVector, OutputMatrix
+from src.types.backends import Backend
 from src.systems.base.utils.backend_manager import BackendManager
 from src.systems.base.utils.code_generator import CodeGenerator
 from src.systems.base.utils.observation_engine import ObservationEngine
@@ -110,8 +112,8 @@ class TestDefaultOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        y = engine.evaluate(x, backend="numpy")
+        x: StateVector = np.array([1.0])
+        y: OutputVector = engine.evaluate(x, backend="numpy")
 
         assert isinstance(y, np.ndarray)
         assert np.allclose(y, x)
@@ -124,8 +126,8 @@ class TestDefaultOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = torch.tensor([1.0])
-        y = engine.evaluate(x, backend="torch")
+        x: StateVector = torch.tensor([1.0])
+        y: OutputVector = engine.evaluate(x, backend="torch")
 
         assert isinstance(y, torch.Tensor)
         assert torch.allclose(y, x)
@@ -137,8 +139,8 @@ class TestDefaultOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        C = engine.compute_jacobian(x, backend="numpy")
+        x: StateVector = np.array([1.0])
+        C: OutputMatrix = engine.compute_jacobian(x, backend="numpy")
 
         assert C.shape == (1, 1)
         assert np.allclose(C, np.eye(1))
@@ -159,9 +161,9 @@ class TestCustomOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0, 2.0])
-        y = engine.evaluate(x, backend="numpy")
-
+        x: StateVector = np.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x, backend="numpy")
+        
         # y = [x1, x1^2 + x2^2] = [1, 1 + 4] = [1, 5]
         assert y.shape == (2,)
         assert np.allclose(y, np.array([1.0, 5.0]))
@@ -174,8 +176,8 @@ class TestCustomOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = torch.tensor([1.0, 2.0])
-        y = engine.evaluate(x, backend="torch")
+        x: StateVector = torch.tensor([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x, backend="torch")
 
         assert isinstance(y, torch.Tensor)
         assert torch.allclose(y, torch.tensor([1.0, 5.0]))
@@ -188,8 +190,8 @@ class TestCustomOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = jnp.array([1.0, 2.0])
-        y = engine.evaluate(x, backend="jax")
+        x: StateVector = jnp.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x, backend="jax")
 
         assert isinstance(y, jnp.ndarray)
         assert jnp.allclose(y, jnp.array([1.0, 5.0]))
@@ -201,8 +203,8 @@ class TestCustomOutput:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0, 2.0])
-        y = engine.evaluate(x)  # No backend specified
+        x: StateVector = np.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x)  # No backend specified
 
         assert isinstance(y, np.ndarray)
 
@@ -222,8 +224,8 @@ class TestObservationJacobian:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0, 2.0])
-        C = engine.compute_jacobian(x, backend="numpy")
+        x: StateVector = np.array([1.0, 2.0])
+        C: OutputMatrix = engine.compute_jacobian(x, backend="numpy")
 
         # C = ∂h/∂x = [[1, 0], [2*x1, 2*x2]] = [[1, 0], [2, 4]]
         expected_C = np.array([[1.0, 0.0], [2.0, 4.0]])
@@ -239,8 +241,8 @@ class TestObservationJacobian:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = torch.tensor([1.0, 2.0])
-        C = engine.compute_jacobian(x, backend="torch")
+        x: StateVector = torch.tensor([1.0, 2.0])
+        C: OutputMatrix = engine.compute_jacobian(x, backend="torch")
 
         expected_C = torch.tensor([[1.0, 0.0], [2.0, 4.0]])
 
@@ -255,8 +257,8 @@ class TestObservationJacobian:
         backend_mgr = BackendManager()
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
-        x = jnp.array([1.0, 2.0])
-        C = engine.compute_jacobian(x, backend="jax")
+        x: StateVector = jnp.array([1.0, 2.0])
+        C: OutputMatrix = engine.compute_jacobian(x, backend="jax")
 
         expected_C = jnp.array([[1.0, 0.0], [2.0, 4.0]])
 
@@ -298,13 +300,178 @@ class TestBackendConversion:
         engine = ObservationEngine(system, code_gen, backend_mgr)
 
         # NumPy input, force torch backend
-        x = np.array([1.0, 2.0])
-        y = engine.evaluate(x, backend="torch")
+        x: StateVector = np.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x, backend="torch")
 
         # Should return torch tensor
         assert isinstance(y, torch.Tensor)
         assert torch.allclose(y, torch.tensor([1.0, 5.0]))
 
+
+# ============================================================================
+# Test Class 5: Type System Integration
+# ============================================================================
+
+
+class TestTypeSystemIntegration:
+    """Test type system integration and semantic types"""
+    
+    def test_state_vector_type_annotation(self):
+        """Test StateVector type annotation works"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        
+        # StateVector is just ArrayLike, but semantically meaningful
+        assert isinstance(x, np.ndarray)
+    
+    def test_output_vector_type_annotation(self):
+        """Test OutputVector type annotation works"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x, backend="numpy")
+        
+        assert isinstance(y, np.ndarray)
+        assert y.shape == (2,)
+    
+    def test_output_matrix_type_annotation(self):
+        """Test OutputMatrix type annotation works"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        C: OutputMatrix = engine.compute_jacobian(x, backend="numpy")
+        
+        assert isinstance(C, np.ndarray)
+        assert C.shape == (2, 2)  # (ny, nx)
+    
+    def test_backend_literal_type(self):
+        """Test Backend literal usage"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        backend: Backend = "numpy"
+        y: OutputVector = engine.evaluate(x, backend=backend)
+        
+        # Type checker validates only 'numpy', 'torch', 'jax'
+        assert isinstance(y, np.ndarray)
+    
+    def test_state_to_output_flow(self):
+        """Test semantic type flow: StateVector -> OutputVector"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        y: OutputVector = engine.evaluate(x)
+        
+        # Types show intent: state -> output mapping
+        assert isinstance(y, np.ndarray)
+        assert y.shape == (2,)
+    
+    def test_state_to_output_matrix_flow(self):
+        """Test semantic type flow: StateVector -> OutputMatrix"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])
+        C: OutputMatrix = engine.compute_jacobian(x)
+        
+        # Types show intent: state -> Jacobian matrix
+        assert isinstance(C, np.ndarray)
+        assert C.shape == (2, 2)  # (ny, nx)
+    
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_type_consistency_across_backends(self):
+        """Test types work consistently across NumPy/PyTorch"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        # NumPy
+        x_np: StateVector = np.array([1.0, 2.0])
+        y_np: OutputVector = engine.evaluate(x_np, backend="numpy")
+        C_np: OutputMatrix = engine.compute_jacobian(x_np, backend="numpy")
+        
+        # PyTorch
+        x_torch: StateVector = torch.tensor([1.0, 2.0])
+        y_torch: OutputVector = engine.evaluate(x_torch, backend="torch")
+        C_torch: OutputMatrix = engine.compute_jacobian(x_torch, backend="torch")
+        
+        # Same semantic types, different backends
+        assert isinstance(y_np, np.ndarray)
+        assert isinstance(y_torch, torch.Tensor)
+        assert isinstance(C_np, np.ndarray)
+        assert isinstance(C_torch, torch.Tensor)
+    
+    def test_semantic_clarity_over_generic(self):
+        """Test semantic types provide clarity over generic ArrayLike"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        # Generic type (old style) - unclear purpose
+        x_generic: np.ndarray = np.array([1.0, 2.0])
+        
+        # Semantic type (new style) - clear purpose
+        x_semantic: StateVector = np.array([1.0, 2.0])
+        
+        # Both work, but semantic is clearer about intent
+        y_generic = engine.evaluate(x_generic)
+        y_semantic: OutputVector = engine.evaluate(x_semantic)
+        
+        assert np.allclose(y_generic, y_semantic)
+    
+    def test_output_shape_validation(self):
+        """Test OutputVector and OutputMatrix have correct shapes"""
+        system = MockSystemCustomOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0, 2.0])  # (nx,) = (2,)
+        
+        # OutputVector should be (ny,) = (2,)
+        y: OutputVector = engine.evaluate(x)
+        assert y.shape == (system.ny,)
+        
+        # OutputMatrix should be (ny, nx) = (2, 2)
+        C: OutputMatrix = engine.compute_jacobian(x)
+        assert C.shape == (system.ny, system.nx)
+    
+    def test_identity_observation_types(self):
+        """Test types work for identity observation (no custom output)"""
+        system = MockSystemNoOutput()
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = ObservationEngine(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0])
+        
+        # Identity: y = x
+        y: OutputVector = engine.evaluate(x)
+        assert np.allclose(y, x)
+        
+        # Identity: C = I
+        C: OutputMatrix = engine.compute_jacobian(x)
+        assert np.allclose(C, np.eye(1))
 
 # ============================================================================
 # Run Tests
