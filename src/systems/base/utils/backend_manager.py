@@ -44,6 +44,7 @@ from src.types.backends import (
     validate_backend,
     validate_device,
 )
+from src.types.utilities import is_jax, is_numpy, is_torch
 
 if TYPE_CHECKING:
     import jax.numpy as jnp
@@ -152,11 +153,14 @@ class BackendManager:
         """
         Detect backend from array type.
 
+        Uses centralized type guards from utilities module for consistent
+        backend detection across the framework.
+
         Args:
             array: Input array/tensor
 
         Returns:
-            Backend identifier
+            Backend identifier ('numpy', 'torch', or 'jax')
 
         Raises:
             TypeError: If array type is not recognized
@@ -165,32 +169,22 @@ class BackendManager:
             >>> mgr = BackendManager()
             >>> x = np.array([1.0])
             >>> mgr.detect(x)  # Returns 'numpy'
+            >>> 
+            >>> import torch
+            >>> x_torch = torch.tensor([1.0])
+            >>> mgr.detect(x_torch)  # Returns 'torch'
         """
-        # Check PyTorch
-        try:
-            import torch
-            if isinstance(array, torch.Tensor):
-                return "torch"
-        except ImportError:
-            pass
-
-        # Check JAX
-        try:
-            import jax.numpy as jnp
-            if isinstance(array, jnp.ndarray):
-                return "jax"
-        except ImportError:
-            pass
-
-        # Check NumPy
-        if isinstance(array, np.ndarray):
+        if is_torch(array):
+            return "torch"
+        elif is_jax(array):
+            return "jax"
+        elif is_numpy(array):
             return "numpy"
-
-        # Unknown type
-        raise TypeError(
-            f"Unknown input type: {type(array)}. "
-            f"Expected np.ndarray, torch.Tensor, or jax.numpy.ndarray"
-        )
+        else:
+            raise TypeError(
+                f"Unknown input type: {type(array)}. "
+                f"Expected np.ndarray, torch.Tensor, or jax.numpy.ndarray"
+            )
 
     def check_available(self, backend: Backend) -> bool:
         """
