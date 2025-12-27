@@ -25,11 +25,18 @@ Tests cover:
 6. Jacobian verification (controlled and autonomous)
 7. Performance tracking
 8. Autonomous system edge cases
+9. Type system integration
 """
 
 import numpy as np
 import pytest
 import sympy as sp
+from typing import Optional, Tuple
+
+# Type system imports
+from src.types import ArrayLike
+from src.types.backends import Backend
+from src.types.core import ControlVector, InputMatrix, StateMatrix, StateVector
 
 # Conditional imports
 torch_available = True
@@ -145,6 +152,191 @@ class MockAutonomous2D:
 
 
 # ============================================================================
+# Test Class 0: Type System Integration
+# ============================================================================
+
+
+class TestTypeSystemIntegration:
+    """Test integration with centralized type system"""
+
+    def test_state_matrix_type_annotation(self):
+        """Test that StateMatrix type annotation works correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        # Type annotations
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
+        
+        A: StateMatrix
+        B: InputMatrix
+        A, B = engine.compute_dynamics(x, u, backend="numpy")
+        
+        # Verify types and shapes
+        assert isinstance(A, np.ndarray)
+        assert isinstance(B, np.ndarray)
+        assert A.shape == (1, 1)  # StateMatrix is (nx, nx)
+        assert B.shape == (1, 1)  # InputMatrix is (nx, nu)
+
+    def test_input_matrix_type_annotation(self):
+        """Test that InputMatrix type annotation works correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
+        
+        # Clear semantic meaning
+        A: StateMatrix  # State Jacobian ∂f/∂x
+        B: InputMatrix  # Input Jacobian ∂f/∂u
+        A, B = engine.compute_dynamics(x, u)
+        
+        assert isinstance(A, np.ndarray)
+        assert isinstance(B, np.ndarray)
+
+    def test_backend_literal_type(self):
+        """Test that Backend literal type is used correctly"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
+
+        # Valid backends should work
+        backend: Backend = "numpy"
+        A, B = engine.compute_dynamics(x, u, backend=backend)
+        assert isinstance(A, np.ndarray)
+
+    def test_tuple_return_type(self):
+        """Test that return type is Tuple[StateMatrix, InputMatrix]"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
+        
+        # Return type is explicit tuple
+        result: Tuple[StateMatrix, InputMatrix] = engine.compute_dynamics(x, u)
+        A, B = result
+        
+        # First element is StateMatrix
+        assert isinstance(A, np.ndarray)
+        assert A.shape == (1, 1)
+        
+        # Second element is InputMatrix
+        assert isinstance(B, np.ndarray)
+        assert B.shape == (1, 1)
+
+    def test_optional_control_vector_autonomous(self):
+        """Test Optional[ControlVector] for autonomous systems"""
+        system = MockAutonomousSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: Optional[ControlVector] = None  # Autonomous system
+        
+        A: StateMatrix
+        B: InputMatrix
+        A, B = engine.compute_dynamics(x, u)
+        
+        assert A.shape == (1, 1)
+        assert B.shape == (1, 0)  # Empty InputMatrix for autonomous
+
+    @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
+    def test_type_consistency_across_backends(self):
+        """Test that types are consistent across backends"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        # NumPy arrays are StateVector/ControlVector
+        x_np: StateVector = np.array([1.0])
+        u_np: ControlVector = np.array([0.0])
+        A_np: StateMatrix
+        B_np: InputMatrix
+        A_np, B_np = engine.compute_dynamics(x_np, u_np, backend="numpy")
+        
+        # PyTorch tensors are also StateVector/ControlVector
+        x_torch: StateVector = torch.tensor([1.0])
+        u_torch: ControlVector = torch.tensor([0.0])
+        A_torch: StateMatrix
+        B_torch: InputMatrix
+        A_torch, B_torch = engine.compute_dynamics(x_torch, u_torch, backend="torch")
+        
+        # Both backends work with semantic types
+        assert isinstance(A_np, np.ndarray)
+        assert isinstance(B_np, np.ndarray)
+        assert isinstance(A_torch, torch.Tensor)
+        assert isinstance(B_torch, torch.Tensor)
+
+    def test_semantic_clarity_over_generic(self):
+        """Test that semantic types provide clarity over generic ArrayLike"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
+        
+        # Clear semantic meaning - no ambiguity
+        A: StateMatrix  # Obviously the state Jacobian
+        B: InputMatrix  # Obviously the input Jacobian
+        A, B = engine.compute_dynamics(x, u)
+        
+        # vs generic (ambiguous):
+        # result1, result2 = engine.compute_dynamics(x, u)  # Which is which?
+        
+        # Verify correct values
+        assert np.allclose(A, np.array([[-2.0]]))  # ∂f/∂x
+        assert np.allclose(B, np.array([[1.0]]))   # ∂f/∂u
+
+    def test_second_order_system_types(self):
+        """Test type annotations with second-order systems"""
+        system = MockSecondOrderSystem(k=10.0, c=0.5)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        x: StateVector = np.array([0.1, 0.0])  # [q, q_dot]
+        u: ControlVector = np.array([0.0])
+        
+        A: StateMatrix  # (2, 2) for state-space form
+        B: InputMatrix  # (2, 1) for state-space form
+        A, B = engine.compute_dynamics(x, u)
+        
+        # Second-order system has state-space linearization
+        assert A.shape == (2, 2)
+        assert B.shape == (2, 1)
+
+    def test_arraylike_compatibility(self):
+        """Test that ArrayLike is still compatible (less semantic but valid)"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        engine = LinearizationEngine(system, code_gen, backend_mgr)
+
+        # Can still use ArrayLike (less semantic)
+        x: ArrayLike = np.array([1.0])
+        u: ArrayLike = np.array([0.0])
+        
+        A, B = engine.compute_dynamics(x, u)
+        assert isinstance(A, np.ndarray)
+        assert isinstance(B, np.ndarray)
+
+
+# ============================================================================
 # Test Class 1: NumPy Linearization (Controlled)
 # ============================================================================
 
@@ -159,9 +351,12 @@ class TestNumpyLinearizationControlled:
         backend_mgr = BackendManager()
         engine = LinearizationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        u = np.array([0.0])
+        # Type annotations show intent
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
 
+        A: StateMatrix
+        B: InputMatrix
         A, B = engine.compute_dynamics(x, u, backend="numpy")
 
         assert isinstance(A, np.ndarray)
@@ -231,10 +426,13 @@ class TestNumpyLinearizationAutonomous:
         backend_mgr = BackendManager()
         engine = LinearizationEngine(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
+        # Type annotations for autonomous system
+        x: StateVector = np.array([1.0])
+        u: Optional[ControlVector] = None  # Explicit None for autonomous
 
-        # u=None for autonomous
-        A, B = engine.compute_dynamics(x, u=None, backend="numpy")
+        A: StateMatrix
+        B: InputMatrix
+        A, B = engine.compute_dynamics(x, u=u, backend="numpy")
 
         assert isinstance(A, np.ndarray)
         assert isinstance(B, np.ndarray)
