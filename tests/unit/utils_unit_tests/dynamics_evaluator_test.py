@@ -38,6 +38,7 @@ from typing import Optional
 from src.types import ArrayLike
 from src.types.backends import Backend
 from src.types.core import ControlVector, StateVector
+from src.types.utilities import ExecutionStats
 
 # Conditional imports
 torch_available = True
@@ -299,6 +300,37 @@ class TestTypeSystemIntegration:
         # Should work with ArrayLike (less semantic but still valid)
         dx = evaluator.evaluate(x, u)
         assert isinstance(dx, np.ndarray)
+    
+    def test_execution_stats_type(self):
+        """Test that get_stats returns ExecutionStats TypedDict"""
+        system = MockLinearSystem(a=2.0)
+        code_gen = CodeGenerator(system)
+        backend_mgr = BackendManager()
+        evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+        
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.5])
+        
+        # Make a call
+        evaluator.evaluate(x, u)
+        
+        # get_stats should return ExecutionStats
+        stats: ExecutionStats = evaluator.get_stats()
+        
+        # Verify structure
+        assert "calls" in stats
+        assert "total_time" in stats
+        assert "avg_time" in stats
+        
+        # Verify types
+        assert isinstance(stats["calls"], int)
+        assert isinstance(stats["total_time"], float)
+        assert isinstance(stats["avg_time"], float)
+        
+        # Verify values
+        assert stats["calls"] == 1
+        assert stats["total_time"] > 0
+        assert stats["avg_time"] > 0
 
 
 # ============================================================================
@@ -868,7 +900,7 @@ class TestPerformanceTracking:
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
 
-        stats = evaluator.get_stats()
+        stats: ExecutionStats = evaluator.get_stats()
 
         assert stats["calls"] == 0
         assert stats["total_time"] == 0.0
@@ -881,15 +913,15 @@ class TestPerformanceTracking:
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        u = np.array([0.0])
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
 
         # Make several calls
         evaluator.evaluate(x, u)
         evaluator.evaluate(x, u)
         evaluator.evaluate(x, u)
 
-        stats = evaluator.get_stats()
+        stats: ExecutionStats = evaluator.get_stats()
 
         assert stats["calls"] == 3
         assert stats["total_time"] > 0
@@ -902,8 +934,8 @@ class TestPerformanceTracking:
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
 
-        x = np.array([1.0])
-        u = np.array([0.0])
+        x: StateVector = np.array([1.0])
+        u: ControlVector = np.array([0.0])
 
         # Make some calls
         evaluator.evaluate(x, u)
@@ -911,7 +943,7 @@ class TestPerformanceTracking:
 
         # Reset
         evaluator.reset_stats()
-        stats = evaluator.get_stats()
+        stats: ExecutionStats = evaluator.get_stats()
 
         assert stats["calls"] == 0
         assert stats["total_time"] == 0.0
