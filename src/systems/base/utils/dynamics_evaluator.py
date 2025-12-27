@@ -37,9 +37,8 @@ from typing import TYPE_CHECKING, Optional
 import numpy as np
 
 # Import from centralized type system
-from src.types import ArrayLike
 from src.types.backends import Backend
-from src.types.core import ControlVector, StateVector
+from src.types.core import ArrayLike, ControlVector, StateVector
 
 if TYPE_CHECKING:
     import jax.numpy as jnp

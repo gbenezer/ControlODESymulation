@@ -34,7 +34,7 @@ from typing import TYPE_CHECKING, List, Optional
 import numpy as np
 
 # Import from centralized type system
-from src.types import ArrayLike
+from src.types.core import ArrayLike
 from src.types.backends import (
     Backend,
     Device,
