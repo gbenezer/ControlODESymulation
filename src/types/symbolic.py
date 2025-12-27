@@ -203,6 +203,37 @@ Examples
 >>> m = params['mass']
 """
 
+SymbolicExpressionInput = Union[sp.Expr, List[sp.Expr], sp.Matrix]
+"""
+Flexible symbolic expression input.
+
+Accepts any of:
+- Single expression (sp.Expr)
+- List of expressions (list[sp.Expr]) 
+- Matrix of expressions (sp.Matrix)
+
+This is the typical input type for code generation and compilation
+functions that need to handle various symbolic forms.
+
+Examples
+--------
+>>> import sympy as sp
+>>> 
+>>> # Scalar
+>>> expr1: SymbolicExpressionInput = x**2 + y
+>>> 
+>>> # Vector (list)
+>>> expr2: SymbolicExpressionInput = [x, y, x*y]
+>>> 
+>>> # Vector (matrix)
+>>> expr3: SymbolicExpressionInput = sp.Matrix([x, y, x*y])
+>>> 
+>>> # All three can be passed to code generation
+>>> from codegen_utils import generate_function
+>>> f1 = generate_function(expr1, [x, y])
+>>> f2 = generate_function(expr2, [x, y])
+>>> f3 = generate_function(expr3, [x, y])
+"""
 
 # ============================================================================
 # System Equation Types
@@ -600,6 +631,7 @@ __all__ = [
     "SymbolicMatrix",
     "SymbolicSymbol",
     "SymbolDict",
+    "SymbolicExpressionInput",
     # System equations
     "SymbolicStateEquations",
     "SymbolicOutputEquations",
