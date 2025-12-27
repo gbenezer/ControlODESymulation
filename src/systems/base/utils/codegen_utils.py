@@ -31,13 +31,15 @@ All backends are equally capable. Differences reflect the backends'
 intrinsic capabilities (gradients, JIT, etc.), not implementation gaps.
 """
 
-from typing import Callable, Literal, Union
+from typing import Callable
 
 import numpy as np
 import sympy as sp
 import torch
 
-Backend = Literal["numpy", "torch", "jax"]
+# Import from centralized type system
+from src.types.backends import Backend
+from src.types.symbolic import SymbolicExpressionInput
 
 
 # Helper functions
@@ -388,7 +390,7 @@ SYMPY_TO_JAX_LAMBDIFY = {
 
 
 def generate_numpy_function(
-    expr: Union[sp.Expr, list[sp.Expr], sp.Matrix],
+    expr: SymbolicExpressionInput,
     symbols: list[sp.Symbol],
 ) -> Callable:
     """
@@ -448,7 +450,10 @@ def generate_numpy_function(
     return wrapped_func
 
 
-def generate_torch_function(expr, symbols):
+def generate_torch_function(
+    expr: SymbolicExpressionInput,
+    symbols: list[sp.Symbol],
+) -> Callable:
     """
     Generate a PyTorch function from SymPy expression(s).
 
@@ -509,7 +514,7 @@ def generate_torch_function(expr, symbols):
 
 
 def generate_jax_function(
-    expr: Union[sp.Expr, list[sp.Expr], sp.Matrix],
+    expr: SymbolicExpressionInput,
     symbols: list[sp.Symbol],
     jit: bool = True,
 ) -> Callable:
@@ -592,7 +597,7 @@ def generate_jax_function(
 
 
 def generate_function(
-    expr: Union[sp.Expr, list[sp.Expr], sp.Matrix],
+    expr: SymbolicExpressionInput,
     symbols: list[sp.Symbol],
     backend: Backend = "numpy",
     **kwargs,
@@ -644,7 +649,7 @@ def generate_function(
 
 
 def generate_jacobian_function(
-    expr: Union[sp.Expr, list[sp.Expr], sp.Matrix],
+    expr: SymbolicExpressionInput,
     symbols: list[sp.Symbol],
     wrt_symbols: list[sp.Symbol],
     backend: Backend = "numpy",
