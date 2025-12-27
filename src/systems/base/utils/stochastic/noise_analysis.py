@@ -37,6 +37,8 @@ from typing import Dict, List, Optional, Set
 
 import sympy as sp
 
+from src.types.backends import Backend
+
 # ============================================================================
 # Enumerations
 # ============================================================================
@@ -123,13 +125,13 @@ class NoiseCharacteristics:
     state_dependencies: Set[sp.Symbol]
     control_dependencies: Set[sp.Symbol]
 
-    def recommended_solvers(self, backend: str) -> List[str]:
+    def recommended_solvers(self, backend: Backend) -> List[str]:
         """
         Recommend efficient solvers based on noise structure.
 
         Parameters
         ----------
-        backend : str
+        backend : Backend
             Integration backend ('jax', 'torch', 'numpy')
 
         Returns
