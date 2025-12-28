@@ -40,6 +40,9 @@ from typing import Callable, Dict, List, Optional
 import numpy as np
 import sympy as sp
 
+from src.types.backends import Backend
+from src.types.core import DiffusionFunction, DiffusionMatrix
+from src.types.symbolic import ParameterDict, SymbolicDiffusionMatrix
 from src.systems.base.utils.codegen_utils import generate_function
 from src.systems.base.utils.stochastic.noise_analysis import (
     NoiseCharacteristics,
@@ -93,18 +96,18 @@ class DiffusionHandler:
 
     def __init__(
         self,
-        diffusion_expr: sp.Matrix,
+        diffusion_expr: SymbolicDiffusionMatrix,
         state_vars: List[sp.Symbol],
         control_vars: List[sp.Symbol],
         time_var: Optional[sp.Symbol] = None,
-        parameters: Optional[Dict[sp.Symbol, float]] = None,
+        parameters: Optional[ParameterDict] = None,
     ):
         """
         Initialize diffusion handler.
 
         Parameters
         ----------
-        diffusion_expr : sp.Matrix
+        diffusion_expr : SymbolicDiffusionMatrix
             Symbolic diffusion matrix g(x, u, t), shape (nx, nw)
         state_vars : List[sp.Symbol]
             State variable symbols
@@ -112,7 +115,7 @@ class DiffusionHandler:
             Control variable symbols
         time_var : sp.Symbol, optional
             Time variable symbol (if time-varying diffusion)
-        parameters : Dict[sp.Symbol, float], optional
+        parameters : ParameterDict, optional
             Parameter values to substitute before code generation
 
         Examples
@@ -144,7 +147,7 @@ class DiffusionHandler:
         )
 
         # Cache for generated functions (mirrors CodeGenerator pattern)
-        self._diffusion_funcs: Dict[str, Optional[Callable]] = {
+        self._diffusion_funcs: Dict[str, Optional[DiffusionFunction]] = {
             "numpy": None,
             "torch": None,
             "jax": None,
@@ -178,10 +181,21 @@ class DiffusionHandler:
     # Code Generation (Mirrors CodeGenerator.generate_dynamics)
     # ========================================================================
 
-    def generate_function(self, backend: str, **kwargs) -> Callable:
+    def generate_function(self, backend: Backend, **kwargs) -> DiffusionFunction:
         """
         Generate g(x, u) function for specified backend.
-        ...
+        
+        Parameters
+        ----------
+        backend : Backend
+            Target backend ('numpy', 'torch', 'jax')
+        **kwargs
+            Additional arguments for generate_function
+            
+        Returns
+        -------
+        DiffusionFunction
+            Callable g(x, u) → diffusion matrix
         """
         start_time = time.time()
 
@@ -225,7 +239,7 @@ class DiffusionHandler:
 
         return func
 
-    def _wrap_to_ensure_2d(self, func: Callable, backend: str) -> Callable:
+    def _wrap_to_ensure_2d(self, func: Callable, backend: Backend) -> DiffusionFunction:
         """
         Wrap function to ensure output has correct shape.
 
@@ -416,7 +430,7 @@ class DiffusionHandler:
         else:
             raise ValueError(f"Unknown backend: {backend}")
 
-    def get_function(self, backend: str) -> Optional[Callable]:
+    def get_function(self, backend: Backend) -> Optional[DiffusionFunction]:
         """
         Get cached diffusion function without generating.
 
@@ -424,12 +438,12 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        backend : str
+        backend : Backend
             Target backend
 
         Returns
         -------
-        Callable or None
+        Optional[DiffusionFunction]
             Cached function or None if not yet generated
 
         Examples
@@ -444,7 +458,7 @@ class DiffusionHandler:
     # Constant Noise Optimization (Additive Noise)
     # ========================================================================
 
-    def get_constant_noise(self, backend: str = "numpy") -> np.ndarray:
+    def get_constant_noise(self, backend: Backend = "numpy") -> DiffusionMatrix:
         """
         Get constant noise matrix for additive noise.
 
@@ -454,12 +468,12 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        backend : str
+        backend : Backend
             Backend for array type
 
         Returns
         -------
-        np.ndarray
+        DiffusionMatrix
             Constant diffusion matrix, shape (nx, nw)
 
         Raises
@@ -532,7 +546,7 @@ class DiffusionHandler:
         # Convert to requested backend before returning
         return self._convert_to_backend(constant_noise, backend)
 
-    def _convert_to_backend(self, arr: np.ndarray, backend: str):
+    def _convert_to_backend(self, arr: np.ndarray, backend: Backend) -> DiffusionMatrix:
         """
         Convert NumPy array to target backend.
 
@@ -540,12 +554,12 @@ class DiffusionHandler:
         ----------
         arr : np.ndarray
             NumPy array to convert
-        backend : str
+        backend : Backend
             Target backend ('numpy', 'torch', 'jax')
 
         Returns
         -------
-        ArrayLike
+        DiffusionMatrix
             Array in target backend format
         """
         if backend == "numpy":
@@ -577,7 +591,7 @@ class DiffusionHandler:
     # Parameter Substitution (Mirrors CodeGenerator)
     # ========================================================================
 
-    def _substitute_parameters(self, expr: sp.Matrix) -> sp.Matrix:
+    def _substitute_parameters(self, expr: SymbolicDiffusionMatrix) -> SymbolicDiffusionMatrix:
         """
         Substitute parameter values into symbolic expression.
 
@@ -585,12 +599,12 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        expr : sp.Matrix
+        expr : SymbolicDiffusionMatrix
             Expression containing parameter symbols
 
         Returns
         -------
-        sp.Matrix
+        SymbolicDiffusionMatrix
             Expression with parameters substituted with numeric values
 
         Examples
@@ -613,7 +627,7 @@ class DiffusionHandler:
     # ========================================================================
 
     def compile_all(
-        self, backends: Optional[List[str]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[str, float]:
         """
         Pre-compile diffusion functions for multiple backends.
@@ -622,7 +636,7 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        backends : List[str], optional
+        backends : List[Backend], optional
             Backends to compile (None = all available)
         verbose : bool
             Print compilation progress
@@ -669,13 +683,13 @@ class DiffusionHandler:
 
         return timings
 
-    def warmup(self, backend: str, **kwargs):
+    def warmup(self, backend: Backend, **kwargs):
         """
         Warm up function compilation (especially useful for JAX JIT).
 
         Parameters
         ----------
-        backend : str
+        backend : Backend
             Backend to warm up
         **kwargs
             Test inputs for warmup call
@@ -707,7 +721,7 @@ class DiffusionHandler:
     # Cache Management (Mirrors CodeGenerator)
     # ========================================================================
 
-    def reset_cache(self, backends: Optional[List[str]] = None):
+    def reset_cache(self, backends: Optional[List[Backend]] = None):
         """
         Clear cached functions for specified backends.
 
@@ -715,7 +729,7 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        backends : List[str], optional
+        backends : List[Backend], optional
             Backends to reset (None = all)
 
         Examples
@@ -737,7 +751,7 @@ class DiffusionHandler:
             if cache_key in self._constant_noise_cache:
                 del self._constant_noise_cache[cache_key]
 
-    def is_compiled(self, backend: str) -> bool:
+    def is_compiled(self, backend: Backend) -> bool:
         """
         Check if diffusion function is compiled for backend.
 
@@ -745,7 +759,7 @@ class DiffusionHandler:
 
         Parameters
         ----------
-        backend : str
+        backend : Backend
             Backend to check
 
         Returns
@@ -930,14 +944,14 @@ class DiffusionHandler:
 
 
 def create_diffusion_handler(
-    diffusion_expr: sp.Matrix, state_vars: List[sp.Symbol], control_vars: List[sp.Symbol], **kwargs
+    diffusion_expr: SymbolicDiffusionMatrix, state_vars: List[sp.Symbol], control_vars: List[sp.Symbol], **kwargs
 ) -> DiffusionHandler:
     """
     Convenience function for creating diffusion handlers.
 
     Parameters
     ----------
-    diffusion_expr : sp.Matrix
+    diffusion_expr : SymbolicDiffusionMatrix
         Symbolic diffusion matrix
     state_vars : List[sp.Symbol]
         State variables
