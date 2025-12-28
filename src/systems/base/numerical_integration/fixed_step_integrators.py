@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Fixed-Step Integrators
+Fixed-Step Integrators - REFACTORED FOR TypedDict
 
 Implements classic fixed time-step integration methods:
 - Explicit Euler (1st order)
@@ -25,6 +25,17 @@ These are manual implementations that work across all backends
 (NumPy, PyTorch, JAX) using the system's multi-backend interface.
 
 Supports both controlled and autonomous systems (nu=0).
+
+Design Note
+-----------
+This is the refactored version using TypedDict-based IntegrationResult.
+All functionality from the original version is preserved, with the key change
+being the result type.
+
+Changes from original:
+- IntegrationResult imported from src.types.trajectories (not integrator_base)
+- Results created as TypedDict with type annotation
+- All other functionality preserved (backends, autonomous systems, etc.)
 """
 
 import time
@@ -33,12 +44,20 @@ from typing import TYPE_CHECKING, Callable, Optional, Tuple
 import numpy as np
 
 from src.systems.base.numerical_integration.integrator_base import (
-    IntegrationResult,
     IntegratorBase,
     StepMode,
 )
-
-from src.types import ArrayLike
+from src.types.core import (
+    ArrayLike,
+    ControlVector,
+    ScalarLike,
+    StateVector,
+)
+from src.types.trajectories import (
+    IntegrationResult,
+    TimePoints,
+    TimeSpan,
+)
 
 if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
@@ -76,16 +95,19 @@ class ExplicitEulerIntegrator(IntegratorBase):
     >>> integrator = ExplicitEulerIntegrator(autonomous_system, dt=0.01)
     >>> x_next = integrator.step(x, u=None)
     >>>
-    >>> # Integrate trajectory
+    >>> # Integrate trajectory (TypedDict result)
     >>> result = integrator.integrate(
     ...     x0=np.array([1.0, 0.0]),
     ...     u_func=lambda t, x: np.zeros(1),  # or None for autonomous
     ...     t_span=(0.0, 10.0)
     ... )
+    >>> print(f"Success: {result['success']}")
+    >>> print(f"Final state: {result['x'][-1]}")
+    >>> print(f"Steps: {result['nsteps']}")
     """
 
     def __init__(
-        self, system: "SymbolicDynamicalSystem", dt: float, backend: str = "numpy", **options
+        self, system: "SymbolicDynamicalSystem", dt: ScalarLike, backend: str = "numpy", **options
     ):
         """
         Initialize Explicit Euler integrator.
@@ -102,8 +124,8 @@ class ExplicitEulerIntegrator(IntegratorBase):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, dt: Optional[float] = None
-    ) -> ArrayLike:
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+    ) -> StateVector:
         """
         Take one Euler step: x_{k+1} = x_k + dt * f(x_k, u_k).
 
@@ -135,10 +157,10 @@ class ExplicitEulerIntegrator(IntegratorBase):
 
     def integrate(
         self,
-        x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
-        t_span: Tuple[float, float],
-        t_eval: Optional[ArrayLike] = None,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
     ) -> IntegrationResult:
         """
@@ -160,7 +182,32 @@ class ExplicitEulerIntegrator(IntegratorBase):
         Returns
         -------
         IntegrationResult
-            Integration results
+            TypedDict containing:
+            - t: Time points (T,)
+            - x: State trajectory (T, nx)
+            - success: Integration succeeded
+            - nfev: Function evaluations
+            - nsteps: Number of steps
+            - integration_time: Computation time
+            - solver: Integrator name
+
+        Examples
+        --------
+        >>> # Controlled system
+        >>> result = integrator.integrate(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: np.array([0.5]),
+        ...     t_span=(0.0, 10.0)
+        ... )
+        >>> print(f"Final: {result['x'][-1]}")
+        >>>
+        >>> # Autonomous system  
+        >>> result = integrator.integrate(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: None,
+        ...     t_span=(0.0, 10.0)
+        ... )
+        >>> print(f"Steps: {result['nsteps']}")
         """
         start_time = time.time()
 
@@ -183,7 +230,7 @@ class ExplicitEulerIntegrator(IntegratorBase):
 
             t_points = jnp.asarray(t_eval)
 
-        # Initialize trajectory storage
+        # Initialize trajectory storage (use list for backend flexibility)
         trajectory = [x0]
         x = x0
 
@@ -199,7 +246,7 @@ class ExplicitEulerIntegrator(IntegratorBase):
             x = self.step(x, u, dt=dt_step)
             trajectory.append(x)
 
-        # Stack trajectory
+        # Stack trajectory using appropriate backend
         if self.backend == "numpy":
             x_traj = np.stack(trajectory)
         elif self.backend == "torch":
@@ -214,13 +261,19 @@ class ExplicitEulerIntegrator(IntegratorBase):
         elapsed = time.time() - start_time
         self._stats["total_time"] += elapsed
 
-        return IntegrationResult(
-            t=t_points,
-            x=x_traj,
-            success=True,
-            nfev=self._stats["total_fev"],
-            nsteps=len(t_points) - 1,
-        )
+        # Create TypedDict result
+        result: IntegrationResult = {
+            "t": t_points,
+            "x": x_traj,
+            "success": True,
+            "message": "Euler integration completed",
+            "nfev": self._stats["total_fev"],
+            "nsteps": len(t_points) - 1,
+            "integration_time": elapsed,
+            "solver": self.name,
+        }
+
+        return result
 
     @property
     def name(self) -> str:
@@ -258,16 +311,20 @@ class MidpointIntegrator(IntegratorBase):
     >>> # Autonomous system
     >>> integrator = MidpointIntegrator(autonomous_system, dt=0.01)
     >>> x_next = integrator.step(x, u=None)
+    >>>
+    >>> # Full integration returns TypedDict
+    >>> result = integrator.integrate(x0, u_func, (0, 10))
+    >>> print(f"Midpoint used {result['nfev']} evaluations")
     """
 
     def __init__(
-        self, system: "SymbolicDynamicalSystem", dt: float, backend: str = "numpy", **options
+        self, system: "SymbolicDynamicalSystem", dt: ScalarLike, backend: str = "numpy", **options
     ):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, dt: Optional[float] = None
-    ) -> ArrayLike:
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+    ) -> StateVector:
         """
         Take one midpoint step.
 
@@ -278,7 +335,7 @@ class MidpointIntegrator(IntegratorBase):
         x : ArrayLike
             Current state
         u : Optional[ArrayLike]
-            Control input (None for autonomous systems)
+            Control input (None for autonomous systems, assumed constant)
         dt : Optional[float]
             Time step (uses self.dt if None)
 
@@ -286,6 +343,11 @@ class MidpointIntegrator(IntegratorBase):
         -------
         ArrayLike
             Next state
+
+        Notes
+        -----
+        Control is assumed constant over the time step. For time-varying
+        control, use integrate() with appropriate u(t, x).
         """
         dt = dt if dt is not None else self.dt
 
@@ -305,13 +367,43 @@ class MidpointIntegrator(IntegratorBase):
 
     def integrate(
         self,
-        x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
-        t_span: Tuple[float, float],
-        t_eval: Optional[ArrayLike] = None,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
     ) -> IntegrationResult:
-        """Integrate using fixed midpoint steps."""
+        """
+        Integrate using fixed midpoint steps.
+
+        Parameters
+        ----------
+        x0 : ArrayLike
+            Initial state
+        u_func : Callable
+            Control policy (t, x) → u (or None for autonomous)
+        t_span : Tuple[float, float]
+            (t_start, t_end)
+        t_eval : Optional[ArrayLike]
+            Times to evaluate (if None, uses uniform grid)
+        dense_output : bool
+            Ignored for fixed-step methods
+
+        Returns
+        -------
+        IntegrationResult
+            TypedDict with trajectory and diagnostics
+
+        Examples
+        --------
+        >>> result = integrator.integrate(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: np.zeros(1),
+        ...     t_span=(0.0, 10.0)
+        ... )
+        >>> assert result["success"]
+        >>> assert result["nsteps"] > 0
+        """
         start_time = time.time()
 
         t0, tf = t_span
@@ -333,23 +425,23 @@ class MidpointIntegrator(IntegratorBase):
 
             t_points = jnp.asarray(t_eval)
 
-        # Initialize
+        # Initialize trajectory
         trajectory = [x0]
         x = x0
 
-        # Integrate
+        # Integration loop
         for i in range(len(t_points) - 1):
-            t = t_points[i]
+            t = float(t_points[i])
             dt_step = float(t_points[i + 1] - t_points[i])
 
-            # Get control (may be None for autonomous systems)
-            u = u_func(float(t), x)
+            # Get control
+            u = u_func(t, x)
 
-            # Take step (handles u=None)
+            # Midpoint step
             x = self.step(x, u, dt=dt_step)
             trajectory.append(x)
 
-        # Stack
+        # Stack trajectory
         if self.backend == "numpy":
             x_traj = np.stack(trajectory)
         elif self.backend == "torch":
@@ -364,13 +456,19 @@ class MidpointIntegrator(IntegratorBase):
         elapsed = time.time() - start_time
         self._stats["total_time"] += elapsed
 
-        return IntegrationResult(
-            t=t_points,
-            x=x_traj,
-            success=True,
-            nfev=self._stats["total_fev"],
-            nsteps=len(t_points) - 1,
-        )
+        # Create TypedDict result
+        result: IntegrationResult = {
+            "t": t_points,
+            "x": x_traj,
+            "success": True,
+            "message": "Midpoint integration completed",
+            "nfev": self._stats["total_fev"],
+            "nsteps": len(t_points) - 1,
+            "integration_time": elapsed,
+            "solver": self.name,
+        }
+
+        return result
 
     @property
     def name(self) -> str:
@@ -418,13 +516,18 @@ class RK4Integrator(IntegratorBase):
     >>> u_torch = torch.tensor([0.0], device='cuda')
     >>> x_next = integrator.step(x_torch, u_torch)
     >>>
-    >>> # Autonomous system
+    >>> # Autonomous system with TypedDict result
     >>> integrator = RK4Integrator(autonomous_system, dt=0.01)
-    >>> x_next = integrator.step(x, u=None)
+    >>> result = integrator.integrate(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: None,
+    ...     t_span=(0.0, 10.0)
+    ... )
+    >>> print(f"RK4: {result['nfev']} evaluations for {result['nsteps']} steps")
     """
 
     def __init__(
-        self, system: "SymbolicDynamicalSystem", dt: float, backend: str = "numpy", **options
+        self, system: "SymbolicDynamicalSystem", dt: ScalarLike, backend: str = "numpy", **options
     ):
         """
         Initialize RK4 integrator.
@@ -441,8 +544,8 @@ class RK4Integrator(IntegratorBase):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, dt: Optional[float] = None
-    ) -> ArrayLike:
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+    ) -> StateVector:
         """
         Take one RK4 step using four function evaluations.
 
@@ -483,10 +586,10 @@ class RK4Integrator(IntegratorBase):
 
     def integrate(
         self,
-        x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
-        t_span: Tuple[float, float],
-        t_eval: Optional[ArrayLike] = None,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
     ) -> IntegrationResult:
         """
@@ -508,7 +611,7 @@ class RK4Integrator(IntegratorBase):
         Returns
         -------
         IntegrationResult
-            Contains time points, trajectory, and statistics
+            TypedDict containing trajectory and diagnostics
 
         Examples
         --------
@@ -518,6 +621,7 @@ class RK4Integrator(IntegratorBase):
         ...     u_func=lambda t, x: np.array([0.5]),
         ...     t_span=(0.0, 10.0)
         ... )
+        >>> print(f"Final: {result['x'][-1]}")
         >>>
         >>> # Integrate autonomous system
         >>> result = integrator.integrate(
@@ -525,6 +629,7 @@ class RK4Integrator(IntegratorBase):
         ...     u_func=lambda t, x: None,
         ...     t_span=(0.0, 10.0)
         ... )
+        >>> print(f"Success: {result['success']}")
         """
         start_time = time.time()
 
@@ -578,15 +683,19 @@ class RK4Integrator(IntegratorBase):
         elapsed = time.time() - start_time
         self._stats["total_time"] += elapsed
 
-        return IntegrationResult(
-            t=t_points,
-            x=x_traj,
-            success=True,
-            message="RK4 integration completed",
-            nfev=self._stats["total_fev"],
-            nsteps=len(t_points) - 1,
-            integration_time=elapsed,
-        )
+        # Create TypedDict result
+        result: IntegrationResult = {
+            "t": t_points,
+            "x": x_traj,
+            "success": True,
+            "message": "RK4 integration completed",
+            "nfev": self._stats["total_fev"],
+            "nsteps": len(t_points) - 1,
+            "integration_time": elapsed,
+            "solver": self.name,
+        }
+
+        return result
 
     @property
     def name(self) -> str:
@@ -622,7 +731,18 @@ def create_fixed_step_integrator(
 
     Examples
     --------
+    >>> # Quick RK4 creation
     >>> integrator = create_fixed_step_integrator('rk4', system, dt=0.01)
+    >>> result = integrator.integrate(x0, u_func, (0, 10))
+    >>> print(f"Result type: {type(result)}")  # dict
+    >>>
+    >>> # Euler for prototyping
+    >>> integrator = create_fixed_step_integrator('euler', system, dt=0.001)
+    >>>
+    >>> # Midpoint with PyTorch backend
+    >>> integrator = create_fixed_step_integrator(
+    ...     'midpoint', system, dt=0.01, backend='torch'
+    ... )
     """
     method_map = {
         "euler": ExplicitEulerIntegrator,
@@ -635,3 +755,15 @@ def create_fixed_step_integrator(
 
     integrator_class = method_map[method]
     return integrator_class(system, dt, backend)
+
+
+# ============================================================================
+# Module Exports
+# ============================================================================
+
+__all__ = [
+    "ExplicitEulerIntegrator",
+    "MidpointIntegrator",
+    "RK4Integrator",
+    "create_fixed_step_integrator",
+]

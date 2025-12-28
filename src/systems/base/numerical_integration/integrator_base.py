@@ -22,6 +22,13 @@ time stepping.
 
 This module defines the abstract base class that all integrators must implement,
 along with the StepMode enum for specifying integration behavior.
+
+Design Note
+-----------
+This module now uses TypedDict-based result types from src.types.trajectories,
+following the project design principle: "Result types are TypedDict".
+This enables better type safety, IDE autocomplete, and consistency across
+the codebase.
 """
 
 from abc import ABC, abstractmethod
@@ -36,9 +43,10 @@ if TYPE_CHECKING:
 
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
 
-# Type alias for backend-agnostic arrays
-
+# Import types from centralized type system
 from src.types import ArrayLike
+from src.types.core import ScalarLike, StateVector, ControlVector
+from src.types.trajectories import TimePoints, TimeSpan, IntegrationResult
 
 
 class StepMode(Enum):
@@ -60,65 +68,6 @@ class StepMode(Enum):
     ADAPTIVE = "adaptive"
 
 
-class IntegrationResult:
-    """
-    Container for integration results.
-    
-    .. warning::
-        TECHNICAL DEBT (TD-001): This class should be replaced with
-        the TypedDict from src.types.trajectories. See TECHNICAL_DEBT.md
-        for refactoring plan.
-    
-    .. deprecated::
-        This class-based approach violates the project design principle:
-        "Result types are TypedDict". Will be refactored in Phase 2.5.
-    
-    TODO(TD-001): Replace with TypedDict
-    Target: Phase 2.5
-    See: TECHNICAL_DEBT.md#TD-001
-    
-    Stores time points, states, and metadata from integration.
-
-    Attributes
-    ----------
-    t : ArrayLike
-        Time points (T,)
-    x : ArrayLike
-        State trajectory (T, nx)
-    success : bool
-        Whether integration succeeded
-    message : str
-        Status message
-    nfev : int
-        Number of function evaluations
-    nsteps : int
-        Number of integration steps taken
-    """
-
-    def __init__(
-        self,
-        t: ArrayLike,
-        x: ArrayLike,
-        success: bool = True,
-        message: str = "Integration successful",
-        nfev: int = 0,
-        nsteps: int = 0,
-        **metadata,
-    ):
-        self.t = t
-        self.x = x
-        self.success = success
-        self.message = message
-        self.nfev = nfev
-        self.nsteps = nsteps
-        self.metadata = metadata
-
-    def __repr__(self) -> str:
-        return (
-            f"IntegrationResult(success={self.success}, " f"nsteps={self.nsteps}, nfev={self.nfev})"
-        )
-
-
 class IntegratorBase(ABC):
     """
     Abstract base class for numerical integrators.
@@ -132,6 +81,18 @@ class IntegratorBase(ABC):
     - name: Integrator name for display
 
     Subclasses handle backend-specific implementations for NumPy, PyTorch, JAX.
+
+    Result Types
+    ------------
+    All integrators return IntegrationResult TypedDict with:
+    - t: Time points (T,)
+    - x: State trajectory (T, nx)
+    - success: Integration succeeded
+    - message: Status message
+    - nfev: Number of function evaluations
+    - nsteps: Number of steps taken
+    - integration_time: Computation time
+    - solver: Integrator name
 
     Examples
     --------
@@ -147,13 +108,15 @@ class IntegratorBase(ABC):
     ...     u_func=lambda t, x: np.zeros(1),
     ...     t_span=(0.0, 10.0)
     ... )
-    >>> t, x_traj = result.t, result.x
+    >>> t, x_traj = result["t"], result["x"]
+    >>> print(f"Integration {'succeeded' if result['success'] else 'failed'}")
+    >>> print(f"Steps: {result['nsteps']}, Function evals: {result['nfev']}")
     """
 
     def __init__(
         self,
         system: "SymbolicDynamicalSystem",
-        dt: Optional[float] = None,
+        dt: Optional[ScalarLike] = None,
         step_mode: StepMode = StepMode.FIXED,
         backend: str = "numpy",
         **options,
@@ -243,7 +206,7 @@ class IntegratorBase(ABC):
         }
 
     @abstractmethod
-    def step(self, x: ArrayLike, u: ArrayLike, dt: Optional[float] = None) -> ArrayLike:
+    def step(self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None) -> StateVector:
         """
         Take one integration step: x(t) → x(t + dt).
 
@@ -279,10 +242,10 @@ class IntegratorBase(ABC):
     @abstractmethod
     def integrate(
         self,
-        x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], ArrayLike],
-        t_span: Tuple[float, float],
-        t_eval: Optional[ArrayLike] = None,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
     ) -> IntegrationResult:
         """
@@ -311,12 +274,16 @@ class IntegratorBase(ABC):
         Returns
         -------
         IntegrationResult
-            Object containing:
+            TypedDict containing:
             - t: Time points (T,)
             - x: State trajectory (T, nx)
             - success: Whether integration succeeded
+            - message: Status message
             - nfev: Number of function evaluations
             - nsteps: Number of steps taken
+            - integration_time: Computation time (seconds)
+            - solver: Integrator name
+            - sol: Dense output object (if dense_output=True)
 
         Raises
         ------
@@ -331,6 +298,8 @@ class IntegratorBase(ABC):
         ...     u_func=lambda t, x: np.zeros(1),
         ...     t_span=(0.0, 10.0)
         ... )
+        >>> print(f"Final state: {result['x'][-1]}")
+        >>> print(f"Success: {result['success']}")
         >>>
         >>> # State feedback controller
         >>> K = np.array([[1.0, 2.0]])
@@ -339,10 +308,12 @@ class IntegratorBase(ABC):
         ...     u_func=lambda t, x: -K @ x,
         ...     t_span=(0.0, 10.0)
         ... )
+        >>> print(f"Function evaluations: {result['nfev']}")
         >>>
         >>> # Evaluate at specific times
         >>> t_eval = np.linspace(0, 10, 1001)
         >>> result = integrator.integrate(x0, u_func, (0, 10), t_eval=t_eval)
+        >>> assert len(result["t"]) == 1001
         """
         pass
 
@@ -370,7 +341,7 @@ class IntegratorBase(ABC):
     # Common Utilities (Shared by All Integrators)
     # ========================================================================
 
-    def _evaluate_dynamics(self, x: ArrayLike, u: ArrayLike) -> ArrayLike:
+    def _evaluate_dynamics(self, x: StateVector, u: Optional[ControlVector]) -> ArrayLike:
         """
         Evaluate system dynamics with statistics tracking.
 

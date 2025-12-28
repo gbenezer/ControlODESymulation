@@ -51,7 +51,7 @@ from src.systems.base.numerical_integration.diffeqpy_integrator import (
     list_algorithms,
     print_algorithm_recommendations,
 )
-from src.systems.base.numerical_integration.integrator_base import IntegrationResult, StepMode
+from src.systems.base.numerical_integration.integrator_base import StepMode
 
 # Skip all tests if diffeqpy not available
 pytestmark = pytest.mark.skipif(
@@ -249,16 +249,16 @@ class TestAdaptiveIntegration:
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 5.0))
 
         # Debug output if failed
-        if not result.success:
-            print(f"\n[DEBUG] Integration failed: {result.message}")
-            print(f"[DEBUG] nfev: {result.nfev}, nsteps: {result.nsteps}")
+        if not result["success"]:
+            print(f"\n[DEBUG] Integration failed: {result["message"]}")
+            print(f"[DEBUG] nfev: {result["nfev"]}, nsteps: {result["nsteps"]}")
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert len(result.t) > 0
-        assert result.x.shape[0] == len(result.t)
-        assert result.x.shape[1] == 2
-        assert result.nsteps > 0
-        assert result.nfev > 0
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert len(result["t"]) > 0
+        assert result["x"].shape[0] == len(result["t"])
+        assert result["x"].shape[1] == 2
+        assert result["nsteps"] > 0
+        assert result["nfev"] > 0
 
     def test_zero_control_integration(self, simple_system):
         """Test integration with zero control"""
@@ -269,9 +269,9 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 10.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # System should decay to zero (stable)
-        assert np.linalg.norm(result.x[-1]) < np.linalg.norm(x0)
+        assert np.linalg.norm(result["x"][-1]) < np.linalg.norm(x0)
 
     def test_constant_control(self, simple_system):
         """Test integration with constant control"""
@@ -283,9 +283,9 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 5.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # System should respond to constant input
-        assert np.linalg.norm(result.x[-1]) > 0.01
+        assert np.linalg.norm(result["x"][-1]) > 0.01
 
     def test_time_varying_control(self, simple_system):
         """Test integration with time-varying control"""
@@ -296,8 +296,8 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 2 * np.pi))
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert len(result.t) > 0
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert len(result["t"]) > 0
 
     def test_state_feedback_control(self, simple_system):
         """Test integration with state feedback"""
@@ -309,9 +309,9 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 10.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # Feedback should stabilize system
-        assert np.linalg.norm(result.x[-1]) < 0.1
+        assert np.linalg.norm(result["x"][-1]) < 0.1
 
     def test_custom_evaluation_times(self, simple_system):
         """Test integration with specific evaluation times"""
@@ -323,9 +323,9 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0, 5), t_eval=t_eval)
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert len(result.t) == len(t_eval)
-        np.testing.assert_allclose(result.t, t_eval, rtol=1e-10)
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert len(result["t"]) == len(t_eval)
+        np.testing.assert_allclose(result["t"], t_eval, rtol=1e-10)
 
     def test_zero_time_span(self, simple_system):
         """Test handling of zero time span"""
@@ -336,9 +336,9 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 0.0))
 
-        assert result.success
-        assert len(result.t) == 1
-        np.testing.assert_allclose(result.x[0], x0)
+        assert result["success"]
+        assert len(result["t"]) == 1
+        np.testing.assert_allclose(result["x"][0], x0)
 
     @pytest.mark.slow
     def test_long_integration(self, simple_system):
@@ -354,8 +354,8 @@ class TestAdaptiveIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 100.0), t_eval=t_eval)
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert len(result.t) >= 10  # Should have at least 10 points
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert len(result["t"]) >= 10  # Should have at least 10 points
 
 
 # ============================================================================
@@ -378,10 +378,10 @@ class TestFixedStepIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 1.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # Check approximate number of steps
         expected_steps = int(1.0 / dt) + 1
-        assert len(result.t) >= expected_steps - 2  # Allow some tolerance
+        assert len(result["t"]) >= expected_steps - 2  # Allow some tolerance
 
     def test_fixed_step_with_t_eval(self, simple_system):
         """Test fixed-step with custom evaluation times"""
@@ -395,8 +395,8 @@ class TestFixedStepIntegration:
 
         result = integrator.integrate(x0, u_func, (0.0, 1.0), t_eval=t_eval)
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert len(result.t) == len(t_eval)
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert len(result["t"]) == len(t_eval)
 
     def test_fixed_step_dt_required(self, simple_system):
         """Test that dt is required for fixed-step mode"""
@@ -485,7 +485,7 @@ class TestAlgorithms:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         assert "Tsit5" in integrator.name
 
     def test_vern7_high_accuracy(self, simple_system):
@@ -497,7 +497,7 @@ class TestAlgorithms:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         assert "Vern7" in integrator.name
 
     @pytest.mark.slow
@@ -512,10 +512,10 @@ class TestAlgorithms:
 
         # Note: Rosenbrock may fail with automatic differentiation for in-place
         # This is a known limitation - either skip or expect potential failure
-        if not result.success and "Jacobian" in result.message:
-            pytest.skip(f"Rosenbrock AD issue with in-place: {result.message}")
+        if not result["success"] and "Jacobian" in result["message"]:
+            pytest.skip(f"Rosenbrock AD issue with in-place: {result["message"]}")
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         assert "Stiff" in integrator.name
 
     def test_auto_switching_algorithm(self, simple_system):
@@ -527,7 +527,7 @@ class TestAlgorithms:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         assert "Auto" in integrator.name
 
 
@@ -549,9 +549,9 @@ class TestNonlinearSystems:
 
         result = integrator.integrate(x0, u_func, (0.0, 5.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # Check oscillatory behavior
-        assert np.max(np.abs(result.x[:, 0])) > 0.05
+        assert np.max(np.abs(result["x"][:, 0])) > 0.05
 
     def test_pendulum_with_control(self, pendulum_system):
         """Test pendulum with control input"""
@@ -563,9 +563,9 @@ class TestNonlinearSystems:
 
         result = integrator.integrate(x0, u_func, (0.0, 10.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
         # Should stabilize near zero
-        assert np.abs(result.x[-1, 0]) < 0.1
+        assert np.abs(result["x"][-1, 0]) < 0.1
 
     def test_pendulum_large_angle(self, pendulum_system):
         """Test pendulum with large initial angle"""
@@ -576,7 +576,7 @@ class TestNonlinearSystems:
 
         result = integrator.integrate(x0, u_func, (0.0, 5.0))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
 
 
 # ============================================================================
@@ -594,8 +594,9 @@ class TestDenseOutput:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert result.metadata.get("sol") is not None
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert "sol" in result, "Dense output enabled but 'sol' not in result"
+        assert result.get("dense_output", False), "dense_output flag not set"
 
     def test_dense_output_parameter(self, simple_system):
         """Test dense output via integrate parameter"""
@@ -604,8 +605,21 @@ class TestDenseOutput:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5), dense_output=True)
 
-        assert result.success, f"Integration failed: {result.message}"
-        assert result.metadata.get("sol") is not None
+        assert result["success"], f"Integration failed: {result["message"]}"
+        assert "sol" in result, "Dense output requested but 'sol' not in result"
+        assert result.get("dense_output", False), "dense_output flag not set"
+
+    def test_no_dense_output(self, simple_system):
+        """Test that optional fields are absent when not requested"""
+        integrator = DiffEqPyIntegrator(simple_system, backend="numpy", dense=False)
+
+        x0 = np.array([1.0, 0.0])
+        result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
+
+        assert result["success"]
+        # Optional fields should not be present
+        assert "sol" not in result
+        assert "dense_output" not in result
 
 
 # ============================================================================
@@ -625,7 +639,7 @@ class TestStatistics:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
 
         stats = integrator.get_stats()
 
@@ -776,7 +790,7 @@ class TestErrorHandling:
 
         result = integrator.integrate(x0, u_func, (0, 1))
         # Should fail gracefully
-        assert not result.success or not np.all(np.isfinite(result.x))
+        assert not result["success"] or not np.all(np.isfinite(result["x"]))
 
     def test_backward_time_integration(self, simple_system):
         """Test backward time integration (t1 < t0)"""
@@ -786,7 +800,7 @@ class TestErrorHandling:
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (5.0, 0.0))
 
         # Julia should handle backward integration
-        assert len(result.t) > 0
+        assert len(result["t"]) > 0
 
 
 # ============================================================================
@@ -795,22 +809,30 @@ class TestErrorHandling:
 
 
 class TestIntegrationResult:
-    """Test IntegrationResult properties"""
+    """Test IntegrationResult TypedDict structure"""
 
-    def test_result_attributes(self, simple_system):
-        """Test that result has all expected attributes"""
+    def test_result_is_dict(self, simple_system):
+        """Test that result is a dict (TypedDict)"""
         integrator = DiffEqPyIntegrator(simple_system, backend="numpy")
 
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
 
-        assert hasattr(result, "t")
-        assert hasattr(result, "x")
-        assert hasattr(result, "success")
-        assert hasattr(result, "message")
-        assert hasattr(result, "nfev")
-        assert hasattr(result, "nsteps")
-        assert hasattr(result, "metadata")
+        # Verify it's a dict
+        assert isinstance(result, dict)
+
+    def test_result_required_fields(self, simple_system):
+        """Test that result has all required fields"""
+        integrator = DiffEqPyIntegrator(simple_system, backend="numpy")
+
+        x0 = np.array([1.0, 0.0])
+        result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
+
+        # Check all required fields
+        required_fields = ["t", "x", "success", "message", "nfev", "nsteps", 
+                          "integration_time", "solver"]
+        for field in required_fields:
+            assert field in result, f"Missing required field: {field}"
 
     def test_result_shapes(self, simple_system):
         """Test result array shapes"""
@@ -819,21 +841,38 @@ class TestIntegrationResult:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 5))
 
-        assert result.t.ndim == 1
-        assert result.x.ndim == 2
-        assert result.x.shape[0] == len(result.t)
-        assert result.x.shape[1] == 2
+        assert result["t"].ndim == 1
+        assert result["x"].ndim == 2
+        assert result["x"].shape[0] == len(result["t"])
+        assert result["x"].shape[1] == 2
 
-    def test_result_repr(self, simple_system):
-        """Test IntegrationResult string representation"""
+    def test_result_field_types(self, simple_system):
+        """Test result field types"""
         integrator = DiffEqPyIntegrator(simple_system, backend="numpy")
 
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
 
-        repr_str = repr(result)
-        assert "IntegrationResult" in repr_str
-        assert "success" in repr_str
+        # Check types
+        assert isinstance(result["t"], np.ndarray)
+        assert isinstance(result["x"], np.ndarray)
+        assert isinstance(result["success"], bool)
+        assert isinstance(result["message"], str)
+        assert isinstance(result["nfev"], (int, np.integer))
+        assert isinstance(result["nsteps"], (int, np.integer))
+        assert isinstance(result["integration_time"], (float, np.floating))
+        assert isinstance(result["solver"], str)
+
+    def test_no_none_values_in_result(self, simple_system):
+        """Test that result contains no None values"""
+        integrator = DiffEqPyIntegrator(simple_system, backend="numpy")
+
+        x0 = np.array([1.0, 0.0])
+        result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
+
+        # Verify no None values in result
+        for key, value in result.items():
+            assert value is not None, f"Field '{key}' should not be None"
 
 
 # ============================================================================
@@ -901,13 +940,13 @@ class TestCorrectness:
 
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 2), t_eval=t_eval)
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
 
         # Analytical solution: x(t) = x0 * exp(-λt)
         x_analytical = x0 * np.exp(-2.0 * t_eval)
 
         # Should be very accurate with Vern9
-        np.testing.assert_allclose(result.x.flatten(), x_analytical, rtol=1e-8, atol=1e-10)
+        np.testing.assert_allclose(result["x"].flatten(), x_analytical, rtol=1e-8, atol=1e-10)
 
     def test_harmonic_oscillator(self):
         """Test harmonic oscillator: x'' + ω²x = 0"""
@@ -934,14 +973,14 @@ class TestCorrectness:
             x0, lambda t, x: np.zeros(1), (0, 2 * np.pi / omega), t_eval=t_eval
         )
 
-        assert result.success, f"Integration failed: {result.message}"
+        assert result["success"], f"Integration failed: {result["message"]}"
 
         # Analytical: x(t) = cos(ωt), v(t) = -ω*sin(ωt)
         x_analytical = np.cos(omega * t_eval)
         v_analytical = -omega * np.sin(omega * t_eval)
 
-        np.testing.assert_allclose(result.x[:, 0], x_analytical, rtol=1e-6, atol=1e-8)
-        np.testing.assert_allclose(result.x[:, 1], v_analytical, rtol=1e-6, atol=1e-8)
+        np.testing.assert_allclose(result["x"][:, 0], x_analytical, rtol=1e-6, atol=1e-8)
+        np.testing.assert_allclose(result["x"][:, 1], v_analytical, rtol=1e-6, atol=1e-8)
 
 
 # ============================================================================

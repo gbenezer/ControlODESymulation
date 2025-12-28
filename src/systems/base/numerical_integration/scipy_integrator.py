@@ -14,12 +14,26 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Scipy Integrator - Adaptive Integration using scipy.integrate.solve_ivp
+Scipy Integrator - REFACTORED FOR TypedDict
+
+Adaptive Integration using scipy.integrate.solve_ivp
 
 Wraps scipy's professional-grade ODE solvers with adaptive time stepping,
 error control, and automatic stiffness detection.
 
 Supports both controlled and autonomous systems (nu=0).
+
+Design Note
+-----------
+Refactored to use TypedDict-based IntegrationResult.
+All functionality from the original version is preserved, with the key change
+being the result type.
+
+Changes from original:
+- IntegrationResult imported from src.types.trajectories (not integrator_base)
+- Results created as TypedDict with type annotation
+- Optional fields added conditionally
+- All other functionality preserved (events, autonomous systems, etc.)
 
 Supported Methods:
 - RK45: Explicit Runge-Kutta 5(4) - general purpose
@@ -36,12 +50,21 @@ from typing import TYPE_CHECKING, Callable, Optional, Tuple
 import numpy as np
 
 from src.systems.base.numerical_integration.integrator_base import (
-    IntegrationResult,
     IntegratorBase,
     StepMode,
 )
 
-from src.types import ArrayLike
+from src.types.core import (
+    ArrayLike,
+    ControlVector,
+    ScalarLike,
+    StateVector,
+)
+from src.types.trajectories import (
+    IntegrationResult,
+    TimePoints,
+    TimeSpan,
+)
 
 if TYPE_CHECKING:
     from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
@@ -111,7 +134,8 @@ class ScipyIntegrator(IntegratorBase):
     ...     u_func=lambda t, x: -K @ x,
     ...     t_span=(0.0, 10.0)
     ... )
-    >>> print(f"Adaptive steps: {result.nsteps}")
+    >>> print(f"Adaptive steps: {result['nsteps']}")
+    >>> print(f"Success: {result['success']}")
     >>>
     >>> # Autonomous system
     >>> integrator = ScipyIntegrator(autonomous_system, method='RK45')
@@ -140,7 +164,7 @@ class ScipyIntegrator(IntegratorBase):
     def __init__(
         self,
         system: "SymbolicDynamicalSystem",
-        dt: Optional[float] = 0.01,
+        dt: Optional[ScalarLike] = 0.01,
         method: str = "RK45",
         backend: str = "numpy",
         **options,
@@ -200,8 +224,8 @@ class ScipyIntegrator(IntegratorBase):
             )
 
     def step(
-        self, x: ArrayLike, u: Optional[ArrayLike] = None, dt: Optional[float] = None
-    ) -> ArrayLike:
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+    ) -> StateVector:
         """
         Take one integration step (uses integrate() internally).
 
@@ -238,14 +262,14 @@ class ScipyIntegrator(IntegratorBase):
         )
 
         # Return final state
-        return result.x[-1]
+        return result["x"][-1]
 
     def integrate(
         self,
-        x0: ArrayLike,
-        u_func: Callable[[float, ArrayLike], Optional[ArrayLike]],
-        t_span: Tuple[float, float],
-        t_eval: Optional[ArrayLike] = None,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
         events: Optional[Callable] = None,
     ) -> IntegrationResult:
@@ -271,7 +295,20 @@ class ScipyIntegrator(IntegratorBase):
         Returns
         -------
         IntegrationResult
-            Integration result with adaptive time points
+            TypedDict containing:
+            - t: Time points (T,)
+            - x: State trajectory (T, nx) - time-major ordering
+            - success: Whether integration succeeded
+            - message: Status message
+            - nfev: Number of function evaluations
+            - nsteps: Number of steps taken
+            - integration_time: Computation time
+            - solver: Integrator name
+            - njev: Number of Jacobian evaluations (if available)
+            - nlu: Number of LU decompositions (if available)
+            - status: Solver status code (if available)
+            - sol: Dense output object (if dense_output=True)
+            - dense_output: True (if dense_output=True)
 
         Examples
         --------
@@ -281,7 +318,8 @@ class ScipyIntegrator(IntegratorBase):
         ...     u_func=lambda t, x: -K @ x,
         ...     t_span=(0.0, 10.0)
         ... )
-        >>> # result.t has variable spacing (adaptive!)
+        >>> # result["t"] has variable spacing (adaptive!)
+        >>> print(f"Used {result['nsteps']} adaptive steps")
         >>>
         >>> # Autonomous system
         >>> result = integrator.integrate(
@@ -289,6 +327,7 @@ class ScipyIntegrator(IntegratorBase):
         ...     u_func=lambda t, x: None,
         ...     t_span=(0.0, 10.0)
         ... )
+        >>> print(f"Autonomous: {result['success']}")
         >>>
         >>> # Evaluate at specific times
         >>> t_eval = np.linspace(0, 10, 1001)
@@ -296,14 +335,23 @@ class ScipyIntegrator(IntegratorBase):
         ...     x0, u_func, (0, 10),
         ...     t_eval=t_eval
         ... )
-        >>> # result.t matches t_eval
+        >>> # result["t"] matches t_eval
         >>>
         >>> # Dense output for interpolation
         >>> result = integrator.integrate(
         ...     x0, u_func, (0, 10),
         ...     dense_output=True
         ... )
-        >>> x_at_5_5 = result.sol(5.5)  # Interpolate at t=5.5
+        >>> x_at_5_5 = result["sol"](5.5)  # Interpolate at t=5.5
+        >>>
+        >>> # Event detection
+        >>> def impact_event(t, x):
+        ...     return x[1]  # Detect when velocity crosses zero
+        >>> impact_event.terminal = True
+        >>> result = integrator.integrate(
+        ...     x0, u_func, (0, 10),
+        ...     events=impact_event
+        ... )
         """
         start_time = time.time()
 
@@ -349,17 +397,32 @@ class ScipyIntegrator(IntegratorBase):
         self._stats["total_time"] += elapsed
         self._stats["total_steps"] += sol.nfev  # Approximate
 
-        # Create result
-        result = IntegrationResult(
-            t=sol.t,
-            x=sol.y.T,  # scipy returns (nx, T), we want (T, nx)
-            success=sol.success,
-            message=sol.message,
-            nfev=sol.nfev,
-            nsteps=sol.nfev,  # scipy doesn't track steps separately
-            integration_time=elapsed,
-            sol=sol if dense_output else None,  # Store for interpolation
-        )
+        # Create TypedDict result
+        result: IntegrationResult = {
+            "t": sol.t,
+            "x": sol.y.T,  # scipy returns (nx, T), we want (T, nx)
+            "success": sol.success,
+            "message": sol.message,
+            "nfev": sol.nfev,
+            "nsteps": sol.nfev,  # scipy doesn't track steps separately
+            "integration_time": elapsed,
+            "solver": self.name,
+        }
+
+        # Add optional fields (only if available)
+        if hasattr(sol, "njev"):
+            result["njev"] = sol.njev
+
+        if hasattr(sol, "nlu"):
+            result["nlu"] = sol.nlu
+
+        if hasattr(sol, "status"):
+            result["status"] = sol.status
+
+        # Add dense output if requested
+        if dense_output and hasattr(sol, "sol") and sol.sol is not None:
+            result["sol"] = sol.sol
+            result["dense_output"] = True
 
         return result
 

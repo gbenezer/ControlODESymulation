@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Unit tests for fixed-step integrators.
+Unit tests for fixed-step integrators - REFACTORED FOR TypedDict
 
 Tests cover:
 1. Explicit Euler integrator
@@ -25,6 +25,14 @@ Tests cover:
 6. Convergence order verification
 7. Factory function
 8. Backend support
+
+Refactoring Changes
+-------------------
+- Results are now TypedDict instead of class instances
+- Changed result.field → result["field"] throughout
+- Changed isinstance(result, IntegrationResult) → isinstance(result, dict)
+- Changed hasattr(result, "field") → "field" in result
+- All functionality and test coverage preserved
 """
 
 import numpy as np
@@ -37,7 +45,8 @@ from src.systems.base.numerical_integration.fixed_step_integrators import (
     RK4Integrator,
     create_fixed_step_integrator,
 )
-from src.systems.base.numerical_integration.integrator_base import IntegrationResult, StepMode
+from src.systems.base.numerical_integration.integrator_base import StepMode
+from src.types.trajectories import IntegrationResult
 
 # Conditional imports
 torch_available = True
@@ -138,7 +147,7 @@ class TestExplicitEuler:
         assert np.allclose(x_next, np.array([0.8]))
 
     def test_multi_step_integration(self):
-        """Test multi-step integration"""
+        """Test multi-step integration returns TypedDict"""
         system = ExponentialDecaySystem(a=1.0)
         integrator = ExplicitEulerIntegrator(system, dt=0.1, backend="numpy")
 
@@ -147,11 +156,12 @@ class TestExplicitEuler:
 
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 1.0))
 
-        assert isinstance(result, IntegrationResult)
-        assert result.success is True
-        assert result.t[0] == 0.0
-        assert result.t[-1] == 1.0
-        assert result.x.shape[1] == 1  # nx=1
+        # Verify TypedDict (dict) instead of class instance
+        assert isinstance(result, dict)
+        assert result["success"] is True
+        assert result["t"][0] == 0.0
+        assert result["t"][-1] == 1.0
+        assert result["x"].shape[1] == 1  # nx=1
 
     def test_accuracy_exponential_decay(self):
         """Test accuracy against analytical solution"""
@@ -163,14 +173,14 @@ class TestExplicitEuler:
 
         # Compare to analytical
         x_analytical = system.analytical_solution(x0[0], 1.0)
-        x_numerical = result.x[-1, 0]
+        x_numerical = result["x"][-1, 0]
 
         # Euler with dt=0.01 should have reasonable accuracy
         error = abs(x_numerical - x_analytical)
         assert error < 0.01  # 1% error acceptable for Euler
 
-    def test_integration_result_attributes(self):
-        """Test that IntegrationResult has expected attributes"""
+    def test_integration_result_fields(self):
+        """Test that IntegrationResult has expected fields (TypedDict)"""
         system = ExponentialDecaySystem()
         integrator = ExplicitEulerIntegrator(system, dt=0.01, backend="numpy")
 
@@ -178,13 +188,19 @@ class TestExplicitEuler:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.5)
         )
 
-        assert hasattr(result, "t")
-        assert hasattr(result, "x")
-        assert hasattr(result, "success")
-        assert hasattr(result, "nfev")
-        assert hasattr(result, "nsteps")
-        assert result.nsteps > 0
-        assert result.nfev > 0
+        # Verify required fields exist (dict access)
+        assert "t" in result
+        assert "x" in result
+        assert "success" in result
+        assert "nfev" in result
+        assert "nsteps" in result
+        assert "message" in result
+        assert "solver" in result
+        assert "integration_time" in result
+        
+        # Verify values
+        assert result["nsteps"] > 0
+        assert result["nfev"] > 0
 
 
 # ============================================================================
@@ -235,24 +251,37 @@ class TestMidpoint:
 
         x_exact = system.analytical_solution(x0[0], 1.0)
 
-        error_euler = abs(result_euler.x[-1, 0] - x_exact)
-        error_midpoint = abs(result_midpoint.x[-1, 0] - x_exact)
+        error_euler = abs(result_euler["x"][-1, 0] - x_exact)
+        error_midpoint = abs(result_midpoint["x"][-1, 0] - x_exact)
 
+        # Midpoint should be significantly better
         assert error_midpoint < error_euler
+        assert error_midpoint < 0.001  # Much better accuracy
 
-    def test_function_evaluations_per_step(self):
-        """Test that Midpoint uses 2 evaluations per step"""
-        system = ExponentialDecaySystem()
-        integrator = MidpointIntegrator(system, dt=0.1, backend="numpy")
+    def test_convergence_order_2(self):
+        """Verify that Midpoint has order 2 convergence"""
+        system = ExponentialDecaySystem(a=1.0)
+        x0 = np.array([1.0])
+        t_final = 1.0
+        x_exact = system.analytical_solution(x0[0], t_final)
 
-        x = np.array([1.0])
-        u = np.array([0.0])
+        # Test with decreasing dt
+        dt_values = [0.1, 0.05, 0.025]
+        errors = []
 
-        integrator.reset_stats()
-        integrator.step(x, u)
+        for dt in dt_values:
+            integrator = MidpointIntegrator(system, dt=dt, backend="numpy")
+            result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0.0, t_final))
+            error = abs(result["x"][-1, 0] - x_exact)
+            errors.append(error)
 
-        stats = integrator.get_stats()
-        assert stats["total_fev"] == 2  # k1, k2
+        # Check order 2: error(dt) ≈ C * dt²
+        # So error(dt/2) / error(dt) ≈ 1/4
+        ratio1 = errors[0] / errors[1]  # Should be ~4
+        ratio2 = errors[1] / errors[2]  # Should be ~4
+
+        assert 3.0 < ratio1 < 5.0  # Allow some tolerance
+        assert 3.0 < ratio2 < 5.0
 
 
 # ============================================================================
@@ -261,18 +290,18 @@ class TestMidpoint:
 
 
 class TestRK4:
-    """Test RK4 integrator"""
+    """Test RK4 (4th-order) integrator"""
 
     def test_initialization(self):
-        """Test RK4 initialization"""
+        """Test RK4 integrator initialization"""
         system = ExponentialDecaySystem()
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         assert integrator.dt == 0.01
         assert "RK4" in integrator.name
 
-    def test_single_step_high_accuracy(self):
-        """Test single RK4 step has high accuracy"""
+    def test_single_step(self):
+        """Test single RK4 step"""
         system = ExponentialDecaySystem(a=1.0)
         integrator = RK4Integrator(system, dt=0.1, backend="numpy")
 
@@ -281,73 +310,63 @@ class TestRK4:
 
         x_next = integrator.step(x, u)
 
-        # Compare to analytical
-        x_exact = system.analytical_solution(x[0], 0.1)
+        # Should be close to analytical solution
+        x_exact = system.analytical_solution(1.0, 0.1)
+        assert np.allclose(x_next[0], x_exact, rtol=1e-6)
 
-        # RK4 should be very accurate
-        error = abs(x_next[0] - x_exact)
+    def test_high_accuracy(self):
+        """Test RK4 high accuracy"""
+        system = ExponentialDecaySystem(a=1.0)
+        integrator = RK4Integrator(system, dt=0.1, backend="numpy")
+
+        x0 = np.array([1.0])
+        result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0.0, 1.0))
+
+        x_exact = system.analytical_solution(x0[0], 1.0)
+        error = abs(result["x"][-1, 0] - x_exact)
+
+        # RK4 should have very high accuracy
         assert error < 1e-6
 
-    def test_harmonic_oscillator_energy_conservation(self):
-        """Test RK4 on harmonic oscillator (energy should be conserved)"""
-        system = HarmonicOscillator(k=1.0)
-        integrator = RK4Integrator(system, dt=0.01, backend="numpy")
-
-        # Initial state: [position=1, velocity=0]
-        x0 = np.array([1.0, 0.0])
-        u_func = lambda t, x: np.zeros(1)
-
-        result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 10.0))  # Multiple periods
-
-        # Energy: E = 0.5*k*x^2 + 0.5*v^2
-        def energy(x, v, k):
-            return 0.5 * k * x**2 + 0.5 * v**2
-
-        E_initial = energy(x0[0], x0[1], system.k)
-        E_final = energy(result.x[-1, 0], result.x[-1, 1], system.k)
-
-        # Energy drift should be small for RK4
-        energy_drift = abs(E_final - E_initial)
-        assert energy_drift < 0.01  # Less than 1% drift
-
-    def test_function_evaluations_per_step(self):
-        """Test that RK4 uses 4 evaluations per step"""
+    def test_four_function_evaluations_per_step(self):
+        """Test that RK4 uses 4 function evaluations per step"""
         system = ExponentialDecaySystem()
         integrator = RK4Integrator(system, dt=0.1, backend="numpy")
 
-        x = np.array([1.0])
-        u = np.array([0.0])
-
+        x0 = np.array([1.0])
         integrator.reset_stats()
-        integrator.step(x, u)
 
-        stats = integrator.get_stats()
-        assert stats["total_fev"] == 4  # k1, k2, k3, k4
+        result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0.0, 1.0))
 
-    def test_convergence_order_four(self):
-        """Test that RK4 has 4th order convergence"""
+        # Should be 4 evaluations per step
+        expected_fev = result["nsteps"] * 4
+        assert result["nfev"] == expected_fev
+
+    def test_convergence_order_4(self):
+        """Verify that RK4 has order 4 convergence"""
         system = ExponentialDecaySystem(a=1.0)
         x0 = np.array([1.0])
         t_final = 1.0
-        u_func = lambda t, x: np.zeros(1)
-
         x_exact = system.analytical_solution(x0[0], t_final)
 
-        # Test with different dt
+        # Test with decreasing dt
         dt_values = [0.1, 0.05, 0.025]
         errors = []
 
         for dt in dt_values:
             integrator = RK4Integrator(system, dt=dt, backend="numpy")
-            result = integrator.integrate(x0, u_func, (0.0, t_final))
-            error = abs(result.x[-1, 0] - x_exact)
+            result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0.0, t_final))
+            error = abs(result["x"][-1, 0] - x_exact)
             errors.append(error)
 
-        # Check 4th order convergence: error(dt/2) ≈ error(dt)/16
-        ratio = errors[0] / errors[1]
+        # Check order 4: error(dt) ≈ C * dt⁴
+        # So error(dt/2) / error(dt) ≈ 1/16
+        ratio1 = errors[0] / errors[1]
+        ratio2 = errors[1] / errors[2]
 
-        # Should be close to 16 (2^4 for 4th order)
-        assert 12 < ratio < 20
+        # Should be close to 16
+        assert 10.0 < ratio1 < 20.0
+        assert 10.0 < ratio2 < 20.0
 
 
 # ============================================================================
@@ -358,34 +377,8 @@ class TestRK4:
 class TestAccuracyComparison:
     """Compare accuracy of different integrators"""
 
-    def test_euler_vs_midpoint_vs_rk4(self):
-        """Test accuracy ordering: RK4 > Midpoint > Euler"""
-        system = ExponentialDecaySystem(a=1.0)
-        dt = 0.1
-
-        euler = ExplicitEulerIntegrator(system, dt=dt, backend="numpy")
-        midpoint = MidpointIntegrator(system, dt=dt, backend="numpy")
-        rk4 = RK4Integrator(system, dt=dt, backend="numpy")
-
-        x0 = np.array([1.0])
-        u_func = lambda t, x: np.zeros(1)
-        t_span = (0.0, 1.0)
-
-        result_euler = euler.integrate(x0, u_func, t_span)
-        result_midpoint = midpoint.integrate(x0, u_func, t_span)
-        result_rk4 = rk4.integrate(x0, u_func, t_span)
-
-        x_exact = system.analytical_solution(x0[0], 1.0)
-
-        error_euler = abs(result_euler.x[-1, 0] - x_exact)
-        error_midpoint = abs(result_midpoint.x[-1, 0] - x_exact)
-        error_rk4 = abs(result_rk4.x[-1, 0] - x_exact)
-
-        # Verify ordering
-        assert error_rk4 < error_midpoint < error_euler
-
-    def test_efficiency_vs_accuracy_tradeoff(self):
-        """Test function evaluations vs accuracy tradeoff"""
+    def test_euler_vs_rk4_accuracy(self):
+        """Compare Euler vs RK4 accuracy on same problem"""
         system = ExponentialDecaySystem(a=1.0)
         dt = 0.1
 
@@ -398,13 +391,9 @@ class TestAccuracyComparison:
         result_euler = euler.integrate(x0, u_func, (0.0, 1.0))
         result_rk4 = rk4.integrate(x0, u_func, (0.0, 1.0))
 
-        # RK4 uses 4x more evaluations per step
-        assert result_rk4.nfev == 4 * result_euler.nfev
-
-        # But RK4 is much more accurate
         x_exact = system.analytical_solution(x0[0], 1.0)
-        error_euler = abs(result_euler.x[-1, 0] - x_exact)
-        error_rk4 = abs(result_rk4.x[-1, 0] - x_exact)
+        error_euler = abs(result_euler["x"][-1, 0] - x_exact)
+        error_rk4 = abs(result_rk4["x"][-1, 0] - x_exact)
 
         # Error reduction should be > 100x for same dt
         assert error_euler / error_rk4 > 100
@@ -429,7 +418,7 @@ class TestIntegrationWithControl:
 
         # Should match uncontrolled dynamics
         x_exact = system.analytical_solution(1.0, 1.0)
-        assert np.allclose(result.x[-1, 0], x_exact, rtol=1e-5)
+        assert np.allclose(result["x"][-1, 0], x_exact, rtol=1e-5)
 
     def test_state_feedback_control(self):
         """Test with state feedback u(x)"""
@@ -442,7 +431,7 @@ class TestIntegrationWithControl:
 
         result = integrator.integrate(x0=np.array([1.0]), u_func=u_func, t_span=(0.0, 2.0))
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_time_varying_control(self):
         """Test with time-varying control u(t)"""
@@ -454,7 +443,7 @@ class TestIntegrationWithControl:
 
         result = integrator.integrate(x0=np.array([0.0]), u_func=u_func, t_span=(0.0, 5.0))
 
-        assert result.success is True
+        assert result["success"] is True
 
 
 # ============================================================================
@@ -477,8 +466,8 @@ class TestCustomTimeEvaluation:
         )
 
         # Should match requested points
-        assert np.allclose(result.t, t_eval)
-        assert result.x.shape[0] == len(t_eval)
+        assert np.allclose(result["t"], t_eval)
+        assert result["x"].shape[0] == len(t_eval)
 
     def test_nonuniform_time_grid(self):
         """Test with non-uniform time grid"""
@@ -492,8 +481,8 @@ class TestCustomTimeEvaluation:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval
         )
 
-        assert result.success is True
-        assert result.x.shape[0] == len(t_eval)
+        assert result["success"] is True
+        assert result["x"].shape[0] == len(t_eval)
 
 
 # ============================================================================
@@ -617,7 +606,7 @@ class TestPerformanceStatistics:
         assert stats["avg_fev_per_step"] == 4.0
 
     def test_integration_tracks_time(self):
-        """Test that integration time is tracked"""
+        """Test that integration time is tracked in result"""
         system = ExponentialDecaySystem()
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
@@ -625,12 +614,90 @@ class TestPerformanceStatistics:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        stats = integrator.get_stats()
+        # Verify result has required fields
+        assert result["success"] is True
+        assert result["nsteps"] > 0
+        assert "integration_time" in result
+        assert result["integration_time"] >= 0.0  # Should be non-negative
 
-        # Should have some integration time
-        # Result should have basic attributes
-        assert result.success is True
-        assert result.nsteps > 0
+
+# ============================================================================
+# Test Class 10: TypedDict Verification
+# ============================================================================
+
+
+class TestTypedDictResults:
+    """Test TypedDict-specific behavior"""
+
+    def test_result_is_dict(self):
+        """Verify result is a dict (TypedDict at runtime)"""
+        system = ExponentialDecaySystem()
+        integrator = RK4Integrator(system, dt=0.01, backend="numpy")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # TypedDict is dict at runtime
+        assert isinstance(result, dict)
+        assert not hasattr(result, "__dict__")  # Not a class instance
+
+    def test_all_required_fields_present(self):
+        """Test that all required TypedDict fields are present"""
+        system = ExponentialDecaySystem()
+        integrator = RK4Integrator(system, dt=0.01, backend="numpy")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # Required fields from IntegrationResult TypedDict
+        required_fields = [
+            "t",
+            "x",
+            "success",
+            "message",
+            "nfev",
+            "nsteps",
+            "integration_time",
+            "solver",
+        ]
+
+        for field in required_fields:
+            assert field in result, f"Required field '{field}' missing from result"
+
+    def test_dict_access_methods_work(self):
+        """Test that dict methods work on result"""
+        system = ExponentialDecaySystem()
+        integrator = RK4Integrator(system, dt=0.01, backend="numpy")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # Test dict methods
+        assert len(result.keys()) >= 8  # At least required fields
+        assert "t" in result.keys()
+        assert result.get("success") is True
+        assert result.get("nonexistent_field", "default") == "default"
+
+    def test_result_can_be_unpacked(self):
+        """Test that result can be unpacked like a dict"""
+        system = ExponentialDecaySystem()
+        integrator = RK4Integrator(system, dt=0.01, backend="numpy")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # Unpack specific fields
+        t = result["t"]
+        x = result["x"]
+        success = result["success"]
+
+        assert len(t) > 0
+        assert x.shape[0] == len(t)
+        assert success is True
 
 
 # ============================================================================

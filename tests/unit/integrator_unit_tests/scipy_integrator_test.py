@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Unit tests for ScipyIntegrator (adaptive integration).
+Unit tests for ScipyIntegrator (adaptive integration) - REFACTORED FOR TypedDict
 
 Tests cover:
 1. Initialization and configuration
@@ -25,14 +25,26 @@ Tests cover:
 6. Efficiency vs fixed-step methods
 7. Dense output
 8. Event detection
+9. Autonomous systems
+
+Refactoring Changes
+-------------------
+- Results are now TypedDict instead of class instances
+- Changed result.field → result["field"] throughout
+- Changed isinstance(result, IntegrationResult) → isinstance(result, dict)
+- Changed hasattr(result, "field") → "field" in result
+- Added TypedDict-specific tests
+- Added tests for events and dense output
+- All functionality and test coverage preserved
 """
 
 import numpy as np
 import pytest
 
 from src.systems.base.numerical_integration.fixed_step_integrators import RK4Integrator
-from src.systems.base.numerical_integration.integrator_base import IntegrationResult, StepMode
+from src.systems.base.numerical_integration.integrator_base import StepMode
 from src.systems.base.numerical_integration.scipy_integrator import ScipyIntegrator
+from src.types.trajectories import IntegrationResult
 
 # Check if scipy is available
 scipy_available = True
@@ -62,6 +74,25 @@ class SimpleDecaySystem:
 
     def analytical_solution(self, x0, t):
         return x0 * np.exp(-self.a * t)
+
+
+class AutonomousSystem:
+    """Autonomous system: dx/dt = -x (no control)"""
+
+    def __init__(self):
+        self.nx = 1
+        self.nu = 0  # No control
+        self._initialized = True
+        self._default_backend = "numpy"
+
+    def __call__(self, x, u, backend="numpy"):
+        """u should be None for autonomous"""
+        if u is not None:
+            raise ValueError("Autonomous system should receive u=None")
+        return -x
+
+    def analytical_solution(self, x0, t):
+        return x0 * np.exp(-t)
 
 
 class StiffVanDerPolSystem:
@@ -137,12 +168,6 @@ class TestScipyInitialization:
         with pytest.raises(ValueError, match="only supports NumPy"):
             ScipyIntegrator(system, backend="torch")
 
-    def test_scipy_not_installed_raises_error(self):
-        """Test error if scipy not available"""
-        # This test only meaningful if scipy is not installed
-        # Just verify the error message would be helpful
-        pass
-
 
 # ============================================================================
 # Test Class 2: Adaptive Step Size Control
@@ -163,8 +188,7 @@ class TestAdaptiveStepSize:
         )
 
         # For smooth exponential decay, steps should vary
-        # (larger steps where solution is smooth, smaller where needed)
-        dt_steps = np.diff(result.t)
+        dt_steps = np.diff(result["t"])
 
         # Should have some variation in step sizes
         assert dt_steps.std() > 0
@@ -186,19 +210,19 @@ class TestAdaptiveStepSize:
         )
 
         # Tighter tolerance should use more steps/evaluations
-        assert result_tight.nfev > result_loose.nfev
+        assert result_tight["nfev"] > result_loose["nfev"]
 
     def test_high_accuracy_achievable(self):
         """Test that very high accuracy can be achieved"""
         system = SimpleDecaySystem(a=1.0)
-        integrator = ScipyIntegrator(system, method="DOP853", rtol=1e-12, atol=1e-14)  # 8th order
+        integrator = ScipyIntegrator(system, method="DOP853", rtol=1e-12, atol=1e-14)
 
         result = integrator.integrate(
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
         x_exact = system.analytical_solution(1.0, 1.0)
-        error = abs(result.x[-1, 0] - x_exact)
+        error = abs(result["x"][-1, 0] - x_exact)
 
         # Should achieve very high accuracy
         assert error < 1e-10
@@ -222,7 +246,7 @@ class TestSolverMethods:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
         assert "RK45" in integrator.name
 
     def test_rk23_low_accuracy(self):
@@ -234,7 +258,7 @@ class TestSolverMethods:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_dop853_high_accuracy(self):
         """Test DOP853 (high accuracy)"""
@@ -247,7 +271,7 @@ class TestSolverMethods:
 
         # Should be very accurate
         x_exact = system.analytical_solution(1.0, 1.0)
-        error = abs(result.x[-1, 0] - x_exact)
+        error = abs(result["x"][-1, 0] - x_exact)
         assert error < 1e-9
 
 
@@ -265,13 +289,13 @@ class TestStiffSystems:
         # Very stiff decay (a=1000)
         system = SimpleDecaySystem(a=1000.0)
 
-        integrator = ScipyIntegrator(system, method="BDF", rtol=1e-6, atol=1e-8)  # Good for stiff
+        integrator = ScipyIntegrator(system, method="BDF", rtol=1e-6, atol=1e-8)
 
         result = integrator.integrate(
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1)
         )
 
-        assert result.success is True
+        assert result["success"] is True
         assert "Stiff" in integrator.name
 
     def test_radau_stiff_solver(self):
@@ -284,7 +308,7 @@ class TestStiffSystems:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1)
         )
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_lsoda_auto_stiffness_detection(self):
         """Test LSODA automatic stiffness detection"""
@@ -297,7 +321,7 @@ class TestStiffSystems:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
         assert "Auto-Stiffness" in integrator.name
 
     def test_van_der_pol_stiff(self):
@@ -312,7 +336,7 @@ class TestStiffSystems:
         )
 
         # Should complete (explicit methods would fail or be extremely slow)
-        assert result.success is True
+        assert result["success"] is True
 
 
 # ============================================================================
@@ -342,18 +366,18 @@ class TestEfficiencyComparison:
 
         # Verify similar accuracy
         x_exact = system.analytical_solution(1.0, 10.0)
-        error_fixed = abs(result_fixed.x[-1, 0] - x_exact)
-        error_adaptive = abs(result_adaptive.x[-1, 0] - x_exact)
+        error_fixed = abs(result_fixed["x"][-1, 0] - x_exact)
+        error_adaptive = abs(result_adaptive["x"][-1, 0] - x_exact)
 
         assert error_fixed < 1e-5
         assert error_adaptive < 1e-5
 
         # Adaptive should use fewer function evaluations
-        print(f"Fixed FEV: {result_fixed.nfev}")
-        print(f"Adaptive FEV: {result_adaptive.nfev}")
+        print(f"Fixed FEV: {result_fixed['nfev']}")
+        print(f"Adaptive FEV: {result_adaptive['nfev']}")
 
         # For smooth exponential, adaptive should be more efficient
-        assert result_adaptive.nfev < result_fixed.nfev
+        assert result_adaptive["nfev"] < result_fixed["nfev"]
 
     def test_adaptive_more_efficient_for_stiff(self):
         """Test adaptive is much more efficient for stiff systems"""
@@ -369,8 +393,8 @@ class TestEfficiencyComparison:
         # which would require ~100,000 steps!
         # Adaptive should use far fewer
 
-        assert result_adaptive.success is True
-        assert result_adaptive.nsteps < 1000  # Much fewer than fixed-step
+        assert result_adaptive["success"] is True
+        assert result_adaptive["nsteps"] < 1000  # Much fewer than fixed-step
 
 
 # ============================================================================
@@ -392,7 +416,7 @@ class TestAccuracyVerification:
         )
 
         x_exact = system.analytical_solution(1.0, 2.0)
-        error = abs(result.x[-1, 0] - x_exact)
+        error = abs(result["x"][-1, 0] - x_exact)
 
         # Should achieve very high accuracy
         assert error < 1e-8
@@ -415,8 +439,8 @@ class TestAccuracyVerification:
 
         x_exact = system.analytical_solution(1.0, 1.0)
 
-        error_loose = abs(result_loose.x[-1, 0] - x_exact)
-        error_tight = abs(result_tight.x[-1, 0] - x_exact)
+        error_loose = abs(result_loose["x"][-1, 0] - x_exact)
+        error_tight = abs(result_tight["x"][-1, 0] - x_exact)
 
         # Tight tolerance should be more accurate
         assert error_tight < error_loose
@@ -432,7 +456,7 @@ class TestIntegrationResult:
     """Test IntegrationResult from scipy"""
 
     def test_result_structure(self):
-        """Test that result has expected structure"""
+        """Test that result has expected structure (TypedDict)"""
         system = SimpleDecaySystem()
         integrator = ScipyIntegrator(system, method="RK45")
 
@@ -440,13 +464,14 @@ class TestIntegrationResult:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        assert isinstance(result, IntegrationResult)
-        assert hasattr(result, "t")
-        assert hasattr(result, "x")
-        assert hasattr(result, "success")
-        assert hasattr(result, "message")
-        assert hasattr(result, "nfev")
-        assert hasattr(result, "nsteps")
+        # TypedDict is dict at runtime
+        assert isinstance(result, dict)
+        assert "t" in result
+        assert "x" in result
+        assert "success" in result
+        assert "message" in result
+        assert "nfev" in result
+        assert "nsteps" in result
 
     def test_success_flag(self):
         """Test that success flag is True for successful integration"""
@@ -457,7 +482,7 @@ class TestIntegrationResult:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_time_and_state_shapes_consistent(self):
         """Test that time and state arrays have consistent shapes"""
@@ -468,9 +493,9 @@ class TestIntegrationResult:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
         )
 
-        # result.x should be (T, nx)
-        assert result.x.shape[0] == result.t.shape[0]
-        assert result.x.shape[1] == system.nx
+        # result["x"] should be (T, nx)
+        assert result["x"].shape[0] == result["t"].shape[0]
+        assert result["x"].shape[1] == system.nx
 
 
 # ============================================================================
@@ -495,8 +520,8 @@ class TestCustomTimeEvaluation:
         )
 
         # Should match requested times
-        assert np.allclose(result.t, t_eval)
-        assert result.x.shape[0] == len(t_eval)
+        assert np.allclose(result["t"], t_eval)
+        assert result["x"].shape[0] == len(t_eval)
 
     def test_dense_time_sampling(self):
         """Test with dense time sampling"""
@@ -510,8 +535,8 @@ class TestCustomTimeEvaluation:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval
         )
 
-        assert result.success is True
-        assert result.x.shape[0] == 1001
+        assert result["success"] is True
+        assert result["x"].shape[0] == 1001
 
 
 # ============================================================================
@@ -534,10 +559,10 @@ class TestControlIntegration:
             x0=np.array([0.0]), u_func=lambda t, x: u_const, t_span=(0.0, 5.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
         # With constant input to decay system, should reach steady state
         # dx/dt = -a*x + u → x_ss = u/a = 0.5/1.0 = 0.5
-        assert abs(result.x[-1, 0] - 0.5) < 0.01
+        assert abs(result["x"][-1, 0] - 0.5) < 0.01
 
     def test_state_feedback_control(self):
         """Test with state feedback u = K*x"""
@@ -549,7 +574,7 @@ class TestControlIntegration:
 
         result = integrator.integrate(x0=np.array([1.0]), u_func=u_func, t_span=(0.0, 3.0))
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_time_varying_control(self):
         """Test with time-varying control"""
@@ -561,11 +586,174 @@ class TestControlIntegration:
 
         result = integrator.integrate(x0=np.array([1.0]), u_func=u_func, t_span=(0.0, 10.0))
 
-        assert result.success is True
+        assert result["success"] is True
 
 
 # ============================================================================
-# Test Class 10: Single Step Method
+# Test Class 10: Autonomous Systems
+# ============================================================================
+
+
+@pytest.mark.skipif(not scipy_available, reason="scipy not installed")
+class TestAutonomousSystems:
+    """Test autonomous systems (u=None)"""
+
+    def test_autonomous_system_with_none_control(self):
+        """Test autonomous system with u=None"""
+        system = AutonomousSystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        # u_func returns None for autonomous
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0)
+        )
+
+        assert result["success"] is True
+
+        # Check accuracy against analytical
+        x_exact = system.analytical_solution(1.0, 1.0)
+        error = abs(result["x"][-1, 0] - x_exact)
+        assert error < 1e-6
+
+    def test_step_with_none_control(self):
+        """Test single step with u=None"""
+        system = AutonomousSystem()
+        integrator = ScipyIntegrator(system, method="RK45", dt=0.1)
+
+        x = np.array([1.0])
+        x_next = integrator.step(x, u=None)
+
+        assert isinstance(x_next, np.ndarray)
+        assert x_next.shape == x.shape
+
+
+# ============================================================================
+# Test Class 11: Dense Output
+# ============================================================================
+
+
+@pytest.mark.skipif(not scipy_available, reason="scipy not installed")
+class TestDenseOutput:
+    """Test dense output (continuous solution)"""
+
+    def test_dense_output_enabled(self):
+        """Test that dense output can be enabled"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            dense_output=True,
+        )
+
+        # Should have dense output fields
+        assert "sol" in result
+        assert "dense_output" in result
+        assert result["dense_output"] is True
+
+    def test_dense_output_interpolation(self):
+        """Test interpolation with dense output"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            dense_output=True,
+        )
+
+        # Interpolate at arbitrary time
+        t_interp = 0.5
+        x_interp = result["sol"](t_interp)
+
+        # Should be close to analytical
+        x_exact = system.analytical_solution(1.0, t_interp)
+        error = abs(x_interp[0] - x_exact)
+        assert error < 1e-6
+
+    def test_dense_output_fine_grid(self):
+        """Test dense output on very fine grid"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            dense_output=True,
+        )
+
+        # Generate very fine grid
+        t_fine = np.linspace(0, 1, 10000)
+        x_fine = result["sol"](t_fine)
+
+        # Should have correct shape
+        assert x_fine.shape == (system.nx, 10000)
+
+
+# ============================================================================
+# Test Class 12: Event Detection
+# ============================================================================
+
+
+@pytest.mark.skipif(not scipy_available, reason="scipy not installed")
+class TestEventDetection:
+    """Test event detection during integration"""
+
+    def test_event_detection_terminates(self):
+        """Test that event detection can terminate integration"""
+        system = SimpleDecaySystem(a=1.0)
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        # Define event: stop when x crosses 0.5
+        def threshold_event(t, x):
+            return x[0] - 0.5
+
+        threshold_event.terminal = True
+        threshold_event.direction = -1  # Crossing downward
+
+        result = integrator.integrate(
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 10.0),
+            events=threshold_event,
+        )
+
+        # Should stop early
+        assert result["success"] is True
+        assert result["t"][-1] < 10.0
+
+        # Should stop near threshold
+        assert abs(result["x"][-1, 0] - 0.5) < 1e-6
+
+    def test_event_detection_no_termination(self):
+        """Test event detection without termination"""
+        system = SimpleDecaySystem(a=1.0)
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        # Define event: detect when x crosses 0.5 (but don't stop)
+        def threshold_event(t, x):
+            return x[0] - 0.5
+
+        threshold_event.terminal = False
+
+        result = integrator.integrate(
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 2.0),
+            events=threshold_event,
+        )
+
+        # Should complete full integration
+        assert result["success"] is True
+        assert result["t"][-1] >= 2.0
+
+
+# ============================================================================
+# Test Class 13: Single Step Method
 # ============================================================================
 
 
@@ -604,11 +792,11 @@ class TestSingleStep:
         )
 
         # Should be similar (not exact due to adaptive vs fixed)
-        assert np.allclose(x_step, result.x[-1], rtol=1e-3)
+        assert np.allclose(x_step, result["x"][-1], rtol=1e-3)
 
 
 # ============================================================================
-# Test Class 11: Edge Cases
+# Test Class 14: Edge Cases
 # ============================================================================
 
 
@@ -626,8 +814,8 @@ class TestEdgeCases:
         )
 
         # Should return just initial state
-        assert result.t.shape[0] >= 1  # scipy returns 2 points for zero span
-        assert np.allclose(result.x[0], np.array([1.0]))
+        assert result["t"].shape[0] >= 1
+        assert np.allclose(result["x"][0], np.array([1.0]))
 
     def test_very_short_integration(self):
         """Test very short integration time"""
@@ -638,7 +826,7 @@ class TestEdgeCases:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1e-6)
         )
 
-        assert result.success is True
+        assert result["success"] is True
 
     def test_very_long_integration(self):
         """Test very long integration time"""
@@ -649,13 +837,13 @@ class TestEdgeCases:
             x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 100.0)
         )
 
-        assert result.success is True
+        assert result["success"] is True
         # Should decay to near zero
-        assert result.x[-1, 0] < 1e-8  # Realistic with numerical error accumulation
+        assert result["x"][-1, 0] < 1e-8
 
 
 # ============================================================================
-# Test Class 12: String Representations
+# Test Class 15: String Representations
 # ============================================================================
 
 
@@ -688,6 +876,87 @@ class TestStringRepresentations:
         lsoda = ScipyIntegrator(system, method="LSODA")
         assert "scipy.LSODA" in lsoda.name
         assert "Auto-Stiffness" in lsoda.name
+
+
+# ============================================================================
+# Test Class 16: TypedDict Verification
+# ============================================================================
+
+
+@pytest.mark.skipif(not scipy_available, reason="scipy not installed")
+class TestTypedDictResults:
+    """Test TypedDict-specific behavior"""
+
+    def test_result_is_dict(self):
+        """Verify result is a dict (TypedDict at runtime)"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # TypedDict is dict at runtime
+        assert isinstance(result, dict)
+        assert not hasattr(result, "__dict__")  # Not a class instance
+
+    def test_required_fields_present(self):
+        """Test that all required TypedDict fields are present"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # Required fields
+        required_fields = [
+            "t",
+            "x",
+            "success",
+            "message",
+            "nfev",
+            "nsteps",
+            "integration_time",
+            "solver",
+        ]
+
+        for field in required_fields:
+            assert field in result, f"Required field '{field}' missing"
+
+    def test_optional_fields_conditional(self):
+        """Test that optional fields are added conditionally"""
+        system = SimpleDecaySystem()
+
+        # BDF/Radau may have njev, nlu
+        integrator = ScipyIntegrator(system, method="BDF")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1)
+        )
+
+        # Optional fields may or may not be present
+        # Just verify we can check for them
+        has_njev = "njev" in result
+        has_nlu = "nlu" in result
+
+        # At least one should be present for BDF
+        # (or neither - scipy behavior varies)
+
+    def test_dict_methods_work(self):
+        """Test that dict methods work on result"""
+        system = SimpleDecaySystem()
+        integrator = ScipyIntegrator(system, method="RK45")
+
+        result = integrator.integrate(
+            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0)
+        )
+
+        # Test dict methods
+        assert len(result.keys()) >= 8  # At least required fields
+        assert "t" in result.keys()
+        assert result.get("success") is True
+        assert result.get("nonexistent", "default") == "default"
 
 
 # ============================================================================
