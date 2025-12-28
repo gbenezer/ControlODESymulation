@@ -337,73 +337,84 @@ class IntegrationResult(TypedDict, total=False):
     
     Contains trajectory, time points, and solver diagnostics.
     
-    .. note::
-        TECHNICAL DEBT (TD-001): There is currently a class with the same
-        name in integrator_base.py. The integrator infrastructure returns
-        the class; ContinuousSystemBase interface expects this TypedDict.
-        An adapter converts between them.
-        
-        Target: Phase 2.5 - Refactor integrators to return this TypedDict directly.
-        See: TECHNICAL_DEBT.md#TD-001
+    Shape Convention
+    ----------------
+    Time-major ordering for easy analysis and plotting:
+    - t: (T,) - Time points
+    - x: (T, nx) - State at each time point
+    
+    This differs from scipy's (nx, T) convention but is more natural
+    for analysis: x[:, i] gives i-th component over time.
     
     Attributes
     ----------
-    t : TimePoints
-        Time points at which solution was computed (n_points,)
-    y : StateTrajectory
-        State trajectory (nx, n_points) - NOTE: scipy convention
+    t : ArrayLike
+        Time points (T,)
+    x : ArrayLike
+        State trajectory (T, nx) - time-major ordering
     success : bool
-        Whether integration completed successfully
+        Whether integration succeeded
     message : str
-        Status message from solver
+        Status message
     nfev : int
-        Number of function evaluations (computational cost)
+        Number of function evaluations
+    nsteps : int
+        Number of integration steps
+    integration_time : float
+        Computation time in seconds
+    solver : str
+        Name of solver used
+    
+    Optional Fields
+    ---------------
     njev : int
-        Number of Jacobian evaluations (if applicable)
+        Number of Jacobian evaluations
     nlu : int
-        Number of LU decompositions (implicit methods)
+        Number of LU decompositions
     status : int
-        Termination status code
-
+        Solver-specific status code
+    sol : Any
+        Dense output object (solver-specific)
+    dense_output : bool
+        Whether dense output is available
+    
     Examples
     --------
-    >>> # Integrate continuous system
-    >>> result: IntegrationResult = integrator.solve(
+    >>> # Integrate system
+    >>> result: IntegrationResult = integrator.integrate(
     ...     x0=np.array([1.0, 0.0]),
-    ...     u=lambda t: np.array([0.0]),
-    ...     t_span=(0.0, 10.0),
-    ...     method='RK45'
+    ...     u_func=lambda t, x: np.zeros(1),
+    ...     t_span=(0.0, 10.0)
     ... )
     >>>
-    >>> if result['success']:
-    ...     t = result['t']
-    ...     trajectory = result['y']
-    ...     print(f"Integrated from t={t[0]} to t={t[-1]}")
-    ...     print(f"Function evaluations: {result['nfev']}")
-    ... else:
-    ...     print(f"Integration failed: {result['message']}")
-    >>>
-    >>> # Plot results
+    >>> # Access results
+    >>> t = result["t"]        # Time points (T,)
+    >>> x = result["x"]        # States (T, nx)
+    >>> 
+    >>> # Plot first state component
     >>> import matplotlib.pyplot as plt
-    >>> plt.plot(result['t'], result['y'][:, 0], label='x1')
-    >>> plt.plot(result['t'], result['y'][:, 1], label='x2')
-    >>> plt.xlabel('Time')
-    >>> plt.ylabel('State')
-    >>> plt.legend()
+    >>> plt.plot(t, x[:, 0], label='x1')
+    >>> plt.plot(t, x[:, 1], label='x2')
     >>>
-    >>> # Check computational cost
-    >>> if result['nfev'] > 10000:
-    ...     print("Warning: Many function evaluations - consider stiff solver")
+    >>> # Check success
+    >>> if result["success"]:
+    ...     print(f"Completed in {result['integration_time']:.3f}s")
+    ...     print(f"Function evals: {result['nfev']}")
     """
-
     t: ArrayLike
-    y: ArrayLike
+    x: ArrayLike
     success: bool
     message: str
     nfev: int
+    nsteps: int
+    integration_time: float
+    solver: str
+    # Optional fields
     njev: int
     nlu: int
     status: int
+    sol: Any
+    dense_output: bool
 
 
 class SimulationResult(TypedDict, total=False):
