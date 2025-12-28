@@ -547,6 +547,99 @@ class DiscreteSimulationResult(TypedDict, total=False):
     time_steps: ArrayLike
     dt: float
     metadata: Dict[str, Any]
+    
+class SDEIntegrationResult(TypedDict, total=False):
+    """
+    Result from SDE integration.
+    
+    TypedDict containing trajectory, noise samples, and SDE-specific diagnostics.
+    
+    Shape Conventions
+    -----------------
+    Single trajectory:
+    - t: (T,)
+    - x: (T, nx)
+    - noise_samples: (T-1, nw) or (T, nw)
+    
+    Multiple paths (Monte Carlo):
+    - t: (T,)
+    - x: (n_paths, T, nx)
+    - noise_samples: (n_paths, T-1, nw) or (n_paths, T, nw)
+    
+    Attributes
+    ----------
+    t : ArrayLike
+        Time points (T,)
+    x : ArrayLike
+        State trajectory:
+        - Single: (T, nx)
+        - Multiple paths: (n_paths, T, nx)
+    success : bool
+        Whether integration succeeded
+    message : str
+        Status message
+    nfev : int
+        Number of drift function evaluations
+    nsteps : int
+        Number of integration steps taken
+    solver : str
+        Solver method used
+    integration_time : float
+        Computation time in seconds
+    
+    SDE-Specific Fields
+    -------------------
+    diffusion_evals : int
+        Number of diffusion function evaluations
+    noise_samples : ArrayLike
+        Brownian motion samples used
+    n_paths : int
+        Number of trajectories (1 for single, >1 for Monte Carlo)
+    convergence_type : str
+        'strong' or 'weak' convergence
+    sde_type : str
+        'ito' or 'stratonovich' interpretation
+    
+    Examples
+    --------
+    >>> # Single trajectory
+    >>> result: SDEIntegrationResult = integrator.integrate(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: np.zeros(1),
+    ...     t_span=(0.0, 10.0)
+    ... )
+    >>> print(f"State shape: {result['x'].shape}")  # (T, nx)
+    >>> print(f"Diffusion evals: {result['diffusion_evals']}")
+    >>>
+    >>> # Monte Carlo with multiple paths
+    >>> mc_result: SDEIntegrationResult = integrator.integrate_monte_carlo(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: np.zeros(1),
+    ...     t_span=(0.0, 10.0),
+    ...     n_paths=1000
+    ... )
+    >>> print(f"Shape: {mc_result['x'].shape}")  # (1000, T, nx)
+    >>> print(f"Number of paths: {mc_result['n_paths']}")
+    """
+    
+    # Required fields (from IntegrationResult)
+    t: ArrayLike
+    x: ArrayLike
+    success: bool
+    nfev: int
+    nsteps: int
+    solver: str
+    
+    # Optional fields
+    message: str
+    integration_time: float
+    
+    # SDE-specific fields
+    diffusion_evals: int
+    noise_samples: ArrayLike
+    n_paths: int
+    convergence_type: str
+    sde_type: str
 
 # ============================================================================
 # Trajectory Analysis Types
