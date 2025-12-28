@@ -216,13 +216,6 @@ VALID_DEVICES = ("cpu", "cuda", "mps", "tpu")
 DEFAULT_BACKEND = "numpy"
 DEFAULT_DEVICE = "cpu"
 DEFAULT_DTYPE = np.float64
-
-# Method groupings
-ADAPTIVE_ODE_METHODS = ("RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA")
-FIXED_STEP_ODE_METHODS = ("euler", "rk2", "rk4", "midpoint")
-STIFF_ODE_METHODS = ("Radau", "BDF", "LSODA")
-ADDITIVE_NOISE_SDE_METHODS = ("SEA", "SHARK", "SRA1", "SRA3", "SOSRA")
-GENERAL_SDE_METHODS = ("euler", "EM", "milstein", "ItoMilstein", "srk")
 ```
 
 ### Configuration TypedDicts
@@ -258,45 +251,13 @@ class SDEIntegratorConfig(TypedDict, total=False):
     # Stochastic integration settings
 ```
 
-### Integration Methods
+### Integration, Discretization, and Optimization Methods
 
 ```python
-IntegrationMethod = Literal[
-    # Adaptive step-size methods
-    "RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA",
-    # Fixed step-size methods
-    "euler", "rk2", "rk4", "midpoint"
-]
-```
-
-### Discretization Methods
-
-```python
-DiscretizationMethod = Literal[
-    "euler",    # Forward Euler: Ad = I + A*dt, Bd = B*dt
-    "exact",    # Matrix exponential: Ad = exp(A*dt)
-    "tustin",   # Bilinear transform (Tustin's method)
-    "matched",  # Matched pole-zero
-    "zoh"       # Zero-order hold
-]
-```
-
-### SDE Integration Methods
-
-```python
-SDEIntegrationMethod = Literal[
-    # Basic methods
-    "euler", "EM",           # Euler-Maruyama
-    "milstein",              # Milstein scheme
-    "ItoMilstein",           # Ito-Milstein
-    "srk",                   # Stochastic Runge-Kutta
-    # Advanced high-order methods
-    "SRIW1",                 # Stochastic Runge-Kutta
-    "SEA",                   # Stochastic Exponential Additive
-    "SHARK",                 # Stochastic High-order Adaptive RK
-    "SRA1", "SRA3",          # Strong order 1.5 Runge-Kutta
-    "SOSRA"                  # Stability-optimized SRA
-]
+IntegrationMethod = str
+DiscretizationMethod = str
+SDEIntegrationMethod = str
+OptimizationMethod = str
 ```
 
 ### Stochastic Types
@@ -314,31 +275,9 @@ SDEType = Literal["ito", "stratonovich"]
 ConvergenceType = Literal["strong", "weak"]
 ```
 
-### Optimization Methods
-
-```python
-OptimizationMethod = Literal[
-    # Gradient-based (smooth, constrained)
-    "SLSQP", "L-BFGS-B", "trust-constr", "Newton-CG",
-    # Gradient-free (non-smooth, no derivatives)
-    "Nelder-Mead", "Powell", "COBYLA",
-    # Global optimization
-    "differential_evolution", "basinhopping", "shgo"
-]
-```
-
 ### Utility Functions
 
 ```python
-def is_adaptive_method(method: IntegrationMethod) -> bool:
-    """Check if method uses adaptive step size."""
-
-def is_stiff_method(method: IntegrationMethod) -> bool:
-    """Check if method is suitable for stiff ODEs."""
-
-def requires_additive_noise(method: SDEIntegrationMethod) -> bool:
-    """Check if SDE method requires additive noise."""
-
 def get_backend_default_method(backend: Backend) -> IntegrationMethod:
     """Get default integration method for backend."""
 

@@ -149,137 +149,22 @@ class BackendConfig(TypedDict, total=False):
 IntegrationMethod = str
 """
 Integration method for continuous-time systems (ODEs).
-
-Adaptive Methods (Recommended):
-- 'RK45': Runge-Kutta 4(5), adaptive step (default for most cases)
-- 'RK23': Runge-Kutta 2(3), adaptive (faster, less accurate)
-- 'DOP853': Dormand-Prince 8(5,3), high accuracy
-- 'Radau': Implicit, for stiff systems
-- 'BDF': Backward Differentiation Formulas, for stiff
-- 'LSODA': Automatic stiff/non-stiff switching
-
-Fixed-Step Methods:
-- 'euler': Forward Euler (first-order, simple)
-- 'rk2': Runge-Kutta 2nd order (Heun's method)
-- 'rk4': Classical Runge-Kutta 4th order
-- 'midpoint': Explicit midpoint method
-
-Selection Guide:
-- General use: 'RK45'
-- High accuracy: 'DOP853'
-- Stiff systems: 'Radau' or 'BDF'
-- Simple/educational: 'euler' or 'rk4'
-
-Examples
---------
->>> method: IntegrationMethod = 'RK45'
->>> integrator = Integrator(system, method='DOP853')
->>> 
->>> # For stiff systems (chemical kinetics, etc.)
->>> method_stiff: IntegrationMethod = 'Radau'
 """
 
 DiscretizationMethod = str
 """
 Discretization method for continuous → discrete transformation.
-
-Common methods:
-- 'euler': Forward Euler (Ad = I + dt*Ac, simple, first-order)
-- 'exact': Matrix exponential (Ad = expm(Ac*dt), accurate for linear)
-- 'tustin': Bilinear/Tustin (Ad = (I + dt*Ac/2)/(I - dt*Ac/2), preserves frequency)
-- 'matched': Pole-zero matched (preserves poles/zeros)
-- 'zoh': Zero-order hold (for piecewise constant control)
-
-Selection Guide:
-- Linear systems: 'exact' (best accuracy)
-- Nonlinear systems: 'euler' (simple, adequate for small dt)
-- Frequency response critical: 'tustin'
-- Control design: 'zoh' or 'exact'
-
-Examples
---------
->>> method: DiscretizationMethod = 'exact'
->>> discretizer = Discretizer(system, dt=0.01, method='tustin')
->>> 
->>> # For digital controller design
->>> method_control: DiscretizationMethod = 'zoh'
 """
 
 SDEIntegrationMethod = str
 """
 SDE integration method for stochastic differential equations.
-
-Basic Methods:
-- 'euler': Euler-Maruyama (order 0.5 strong, simplest)
-- 'EM': Same as 'euler' (Julia notation)
-- 'milstein': Milstein scheme (order 1.0 strong, needs derivatives)
-- 'ItoMilstein': JAX Milstein implementation
-
-Stochastic Runge-Kutta:
-- 'srk': Stochastic Runge-Kutta (PyTorch)
-- 'SRIW1': SRI-W1 scheme (Julia, order 1.5 strong for diagonal noise)
-
-Additive Noise Optimized:
-- 'SEA': Scalar exponential additive (JAX, order 1.5 weak)
-- 'SHARK': Stochastic Heun adaptive RK (JAX, order 2.0 weak)
-- 'SRA1': Stochastic Rosenbrock-A1 (Julia/JAX, order 2.0 weak)
-
-Advanced Julia Methods:
-- 'SRA3': Order 3.0 weak for additive
-- 'SOSRA': Second-order SRA
-- 'SKenCarp': Stabilized Kennedy-Carpenter
-
-Selection Guide:
-- Additive noise: 'SEA', 'SHARK', 'SRA1' (faster, more accurate)
-- Multiplicative noise: 'milstein', 'srk'
-- Simple/educational: 'euler'
-- High accuracy: 'SRIW1', 'SRA3'
-
-Backend Compatibility:
-- NumPy (Julia): All Julia methods (EM, SRIW1, SRA1, etc.)
-- PyTorch: euler, milstein, srk
-- JAX: Euler, ItoMilstein, SEA, SHARK
-
-Examples
---------
->>> method: SDEIntegrationMethod = 'milstein'
->>> sde_integrator = SDEIntegrator(sde_system, method='SRIW1')
->>> 
->>> # For additive noise (faster)
->>> method_additive: SDEIntegrationMethod = 'SEA'
 """
 
 OptimizationMethod = str
 """
 Optimization method for control/estimation problems.
 
-Gradient-Based:
-- 'SLSQP': Sequential Least Squares Programming
-- 'L-BFGS-B': Limited-memory BFGS with bounds
-- 'trust-constr': Trust-region constrained
-- 'Newton-CG': Newton Conjugate Gradient
-- 'CG': Conjugate Gradient
-
-Gradient-Free:
-- 'Nelder-Mead': Simplex method
-- 'Powell': Powell's method
-- 'COBYLA': Constrained Optimization BY Linear Approximation
-
-Global:
-- 'differential_evolution': Genetic algorithm
-- 'basinhopping': Basin hopping
-- 'shgo': Simplicial homology global optimization
-
-Selection Guide:
-- Smooth with gradients: 'L-BFGS-B'
-- Constrained: 'SLSQP' or 'trust-constr'
-- No gradients: 'Nelder-Mead'
-- Global minimum: 'differential_evolution'
-
-Examples
---------
->>> method: OptimizationMethod = 'SLSQP'
->>> result = scipy.optimize.minimize(cost, x0, method='L-BFGS-B')
 """
 
 
@@ -707,101 +592,9 @@ Examples
 ...     dtype = torch.float32
 """
 
-# Common method groupings
-ADAPTIVE_ODE_METHODS = ("RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA")
-"""Adaptive step-size ODE methods."""
-
-FIXED_STEP_ODE_METHODS = ("euler", "rk2", "rk4", "midpoint")
-"""Fixed step-size ODE methods."""
-
-STIFF_ODE_METHODS = ("Radau", "BDF", "LSODA")
-"""Methods suitable for stiff ODEs."""
-
-ADDITIVE_NOISE_SDE_METHODS = ("SEA", "SHARK", "SRA1", "SRA3", "SOSRA")
-"""SDE methods optimized for additive noise."""
-
-GENERAL_SDE_METHODS = ("euler", "EM", "milstein", "ItoMilstein", "srk")
-"""SDE methods for general (multiplicative) noise."""
-
-
 # ============================================================================
 # Method Selection Utilities
 # ============================================================================
-
-
-def is_adaptive_method(method: IntegrationMethod) -> bool:
-    """
-    Check if integration method is adaptive.
-
-    Parameters
-    ----------
-    method : IntegrationMethod
-        Method to check
-
-    Returns
-    -------
-    bool
-        True if adaptive step-size method
-
-    Examples
-    --------
-    >>> is_adaptive_method('RK45')
-    True
-    >>> is_adaptive_method('euler')
-    False
-    """
-    return method in ADAPTIVE_ODE_METHODS
-
-
-def is_stiff_method(method: IntegrationMethod) -> bool:
-    """
-    Check if method is suitable for stiff systems.
-
-    Parameters
-    ----------
-    method : IntegrationMethod
-        Method to check
-
-    Returns
-    -------
-    bool
-        True if suitable for stiff ODEs
-
-    Examples
-    --------
-    >>> is_stiff_method('Radau')
-    True
-    >>> is_stiff_method('RK45')
-    False
-    """
-    return method in STIFF_ODE_METHODS
-
-
-def requires_additive_noise(method: SDEIntegrationMethod) -> bool:
-    """
-    Check if SDE method requires additive noise.
-
-    Some specialized SDE solvers only work with additive noise.
-
-    Parameters
-    ----------
-    method : SDEIntegrationMethod
-        SDE method to check
-
-    Returns
-    -------
-    bool
-        True if method requires additive noise
-
-    Examples
-    --------
-    >>> requires_additive_noise('SEA')
-    True
-    >>> requires_additive_noise('milstein')
-    False
-    """
-    return method in ADDITIVE_NOISE_SDE_METHODS
-
 
 def get_backend_default_method(backend: Backend, is_stochastic: bool = False) -> str:
     """
@@ -948,15 +741,7 @@ __all__ = [
     "DEFAULT_BACKEND",
     "DEFAULT_DEVICE",
     "DEFAULT_DTYPE",
-    "ADAPTIVE_ODE_METHODS",
-    "FIXED_STEP_ODE_METHODS",
-    "STIFF_ODE_METHODS",
-    "ADDITIVE_NOISE_SDE_METHODS",
-    "GENERAL_SDE_METHODS",
     # Utilities
-    "is_adaptive_method",
-    "is_stiff_method",
-    "requires_additive_noise",
     "get_backend_default_method",
     "validate_backend",
     "validate_device",
