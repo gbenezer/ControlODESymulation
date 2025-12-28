@@ -10,10 +10,11 @@
 
 The `src/types` directory contains a comprehensive, modular type system with:
 
-- **218+ type definitions** for arrays, vectors, matrices, and functions
-- **53+ TypedDict result types** for structured return values
+- **225+ type definitions** for arrays, vectors, matrices, and functions
+- **55+ TypedDict result types** for structured return values
 - **15+ utility functions** for type guards, converters, and validators
 - **8+ Protocol definitions** for structural subtyping
+- **5 constant tuples** for method groupings
 - **19 Python modules** organized by domain-specific functionality
 
 **Complete Documentation**: All 19 modules fully documented with examples and mathematical background.
@@ -150,6 +151,24 @@ DiffusionFunction = Callable[[StateVector, ControlVector], DiffusionMatrix]
 ControlPolicy = Callable[[StateVector], ControlVector]
 # pi(x) -> u (feedback control law)
 
+TimeVaryingControl = Callable[[float], ControlVector]
+# u(t) -> time-varying control (continuous)
+
+FeedbackController = Callable[[StateVector, float], ControlVector]
+# pi(x, t) -> time-varying state feedback
+
+ControlInput = Union[ControlVector, TimeVaryingControl, None]
+# Flexible control input for integration
+
+TimeIndexedControl = Callable[[int], ControlVector]
+# u[k] -> time-indexed control (discrete)
+
+DiscreteFeedbackPolicy = Callable[[StateVector, int], ControlVector]
+# pi(x[k], k) -> discrete-time state feedback
+
+DiscreteControlInput = Union[ControlVector, Sequence[ControlVector], TimeIndexedControl, None]
+# Flexible control input for discrete simulation
+
 StateEstimator = Callable[[OutputVector], StateVector]
 # L(y) -> x_hat
 
@@ -197,6 +216,13 @@ VALID_DEVICES = ("cpu", "cuda", "mps", "tpu")
 DEFAULT_BACKEND = "numpy"
 DEFAULT_DEVICE = "cpu"
 DEFAULT_DTYPE = np.float64
+
+# Method groupings
+ADAPTIVE_ODE_METHODS = ("RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA")
+FIXED_STEP_ODE_METHODS = ("euler", "rk2", "rk4", "midpoint")
+STIFF_ODE_METHODS = ("Radau", "BDF", "LSODA")
+ADDITIVE_NOISE_SDE_METHODS = ("SEA", "SHARK", "SRA1", "SRA3", "SOSRA")
+GENERAL_SDE_METHODS = ("euler", "EM", "milstein", "ItoMilstein", "srk")
 ```
 
 ### Configuration TypedDicts
@@ -334,6 +360,7 @@ SymbolicExpression = sp.Expr       # Single symbolic expression
 SymbolicMatrix = sp.Matrix         # Matrix of expressions
 SymbolicSymbol = sp.Symbol         # Single symbolic variable
 SymbolDict = Dict[str, sp.Symbol]  # Name -> symbol mapping
+SymbolicExpressionInput = Union[sp.Expr, sp.Matrix, List[sp.Expr]]  # Flexible input
 ```
 
 ### System Equation Types
@@ -1042,16 +1069,34 @@ class CacheStatistics(TypedDict):
 Metadata = Dict[str, Any]
 # Arbitrary metadata dictionary
 
+class ExecutionStats(TypedDict, total=False):
+    """Execution time and resource statistics."""
+    execution_time: float
+    memory_used: int
+    function_calls: int
+    backend: str
+
 class ValidationResult(TypedDict):
-    valid: bool
+    is_valid: bool
     errors: List[str]
     warnings: List[str]
+    info: Dict
 
-class PerformanceMetrics(TypedDict):
-    wall_time: float
-    cpu_time: float
-    memory_peak: int
-    function_calls: int
+class SymbolicValidationResult:
+    """Validation result for symbolic systems."""
+    is_valid: bool
+    errors: List[str]
+    warnings: List[str]
+    info: Dict[str, Any]
+
+class PerformanceMetrics(TypedDict, total=False):
+    """Performance metrics for simulation/control."""
+    settling_time: float
+    rise_time: float
+    overshoot: float
+    steady_state_error: float
+    control_effort: float
+    trajectory_cost: float
 ```
 
 ---
