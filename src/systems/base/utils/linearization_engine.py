@@ -201,6 +201,7 @@ class LinearizationEngine:
         else:
             raise ValueError(f"Unknown backend: {target_backend}")
 
+    # TODO: Symbolic TypedDict Return-Type?
     def compute_symbolic(
         self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None
     ) -> Tuple[sp.Matrix, sp.Matrix]:
@@ -625,6 +626,7 @@ class LinearizationEngine:
     # Jacobian Verification
     # ========================================================================
 
+    # TODO: TypedDict for JacobianVerification?
     def verify_jacobians(
         self,
         x: StateVector,

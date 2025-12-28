@@ -492,6 +492,7 @@ class BackendManager:
         }
         return config
 
+    # TODO: TypepdDict?
     def get_extended_info(self) -> dict:
         """
         Get extended backend information including versions.
