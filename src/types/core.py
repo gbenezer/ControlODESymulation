@@ -835,6 +835,182 @@ Examples
 ...     return model.forward(torch.tensor(x)).numpy()
 """
 
+TimeVaryingControl = Callable[[float], ControlVector]
+"""
+Time-varying control function u(t).
+
+Maps time to control action: u = u_func(t).
+
+This is useful for pre-planned control trajectories or time-scheduled
+controllers where the control depends explicitly on time.
+
+Parameters
+----------
+t : float
+    Current time
+
+Returns
+-------
+ControlVector
+    Control action (nu,) at time t
+
+Examples
+--------
+>>> # Sinusoidal control
+>>> def sine_control(t: float) -> ControlVector:
+...     return np.array([np.sin(t)])
+>>> 
+>>> # Exponential decay
+>>> def decaying_control(t: float) -> ControlVector:
+...     return u0 * np.exp(-t / tau)
+>>> 
+>>> # Piecewise constant
+>>> def switched_control(t: float) -> ControlVector:
+...     if t < 5.0:
+...         return np.array([1.0])
+...     else:
+...         return np.array([-1.0])
+>>> 
+>>> # Use in integration
+>>> result = system.integrate(x0, u=sine_control, t_span=(0, 10))
+
+See Also
+--------
+ControlPolicy : State-feedback control u = π(x)
+FeedbackController : Combined state-time feedback u = π(x, t)
+"""
+
+FeedbackController = Callable[[StateVector, float], ControlVector]
+"""
+Feedback controller with time awareness π(x, t).
+
+Maps (state, time) to control action: u = π(x, t).
+
+This generalizes ControlPolicy to include explicit time-dependence,
+allowing for time-varying gains, scheduled controllers, or reference
+tracking with time-varying setpoints.
+
+Parameters
+----------
+x : StateVector
+    Current state (nx,)
+t : float
+    Current time
+
+Returns
+-------
+ControlVector
+    Control action (nu,)
+
+Examples
+--------
+>>> # Time-varying LQR (scheduled gain)
+>>> def scheduled_lqr(x: StateVector, t: float) -> ControlVector:
+...     K_t = K0 * np.exp(-t / tau)  # Decaying gain
+...     return -K_t @ x
+>>> 
+>>> # Reference tracking with time-varying setpoint
+>>> def tracking_controller(x: StateVector, t: float) -> ControlVector:
+...     x_ref_t = np.array([np.sin(t), np.cos(t)])
+...     error = x - x_ref_t
+...     return -K @ error
+>>> 
+>>> # Gain scheduling based on time
+>>> def gain_scheduled(x: StateVector, t: float) -> ControlVector:
+...     if t < 5.0:
+...         return -K_low @ x   # Low gain initially
+...     else:
+...         return -K_high @ x  # High gain later
+>>> 
+>>> # Model predictive control with receding horizon
+>>> def mpc_controller(x: StateVector, t: float) -> ControlVector:
+...     horizon = [t, t + T_horizon]
+...     return solve_mpc(x, horizon)
+>>> 
+>>> # Use in simulation
+>>> result = system.simulate(x0, controller=tracking_controller, t_span=(0, 10))
+
+Notes
+-----
+For purely state-dependent control (no time dependence), prefer ControlPolicy
+which has the simpler signature u = π(x).
+
+See Also
+--------
+ControlPolicy : Pure state feedback u = π(x)
+TimeVaryingControl : Pure time-varying u = u(t)
+"""
+
+ControlInput = Union[ControlVector, TimeVaryingControl, None]
+"""
+Unified type for control inputs to integration methods.
+
+Allows flexible specification of control in numerical integration:
+- Constant control: Fixed array applied for all t
+- Time-varying control: Function u(t) evaluated at each time step  
+- Autonomous: None implies zero control
+
+This type is primarily used in integration methods where the control
+strategy needs to be specified.
+
+Type Variants
+-------------
+ControlVector : ArrayLike
+    Constant control u(t) = u_const for all t ∈ [t0, tf]
+    Shape: (nu,)
+    
+TimeVaryingControl : Callable[[float], ControlVector]
+    Time-dependent control u(t) = u_func(t)
+    Evaluated by integrator at each time point
+    
+None
+    Zero control or autonomous dynamics
+    Equivalent to u(t) = 0 for all t
+
+Examples
+--------
+Constant control:
+
+>>> u_const = np.array([1.0, 0.5])
+>>> result = system.integrate(x0, u=u_const, t_span=(0, 10))
+
+Time-varying control:
+
+>>> def u_func(t):
+...     return np.array([np.sin(t), np.cos(t)])
+>>> result = system.integrate(x0, u=u_func, t_span=(0, 10))
+
+Autonomous (no control):
+
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+
+Usage in Integration
+--------------------
+The integration method handles each variant:
+
+>>> def integrate(self, x0: StateVector, u: ControlInput = None, ...):
+...     def rhs(t, x):
+...         if u is None:
+...             u_t = None
+...         elif callable(u):
+...             u_t = u(t)  # Evaluate time-varying control
+...         else:
+...             u_t = u     # Use constant control
+...         return self(x, u_t, t)
+
+Notes
+-----
+For closed-loop simulation with state feedback, use FeedbackController
+in the simulate() method instead. ControlInput is for open-loop or
+pre-planned trajectories in integrate().
+
+See Also
+--------
+FeedbackController : Closed-loop control for simulate()
+TimeVaryingControl : Component type for time-varying control
+ControlVector : Component type for constant control
+"""
+
 StateEstimator = Callable[[OutputVector], StateVector]
 """
 State estimator/observer L(y).
