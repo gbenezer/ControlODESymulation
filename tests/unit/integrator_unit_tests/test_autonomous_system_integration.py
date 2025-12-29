@@ -317,15 +317,15 @@ class TestAutonomousFixedStepIntegrators:
         result = integrator.integrate(x0=initial_state, u_func=u_func, t_span=(0.0, 5.0))
 
         # Validate result
-        assert result.success
-        assert result.x.shape[0] > 1  # Multiple time points
-        assert result.x.shape[1] == 2  # State dimension
-        assert np.all(np.isfinite(result.x))
-        assert result.nsteps > 0
-        assert result.nfev > 0
+        assert result["success"]
+        assert result["x"].shape[0] > 1  # Multiple time points
+        assert result["x"].shape[1] == 2  # State dimension
+        assert np.all(np.isfinite(result["x"]))
+        assert result["nsteps"] > 0
+        assert result["nfev"] > 0
 
         # Van der Pol should show oscillatory behavior
-        x_std = np.std(result.x, axis=0)
+        x_std = np.std(result["x"], axis=0)
         assert np.all(x_std > 0.1)  # States should vary
 
     def test_fixed_step_consistency(self, van_der_pol_autonomous, initial_state):
@@ -348,7 +348,7 @@ class TestAutonomousFixedStepIntegrators:
         )
 
         # Should match to high precision
-        np.testing.assert_allclose(x_manual, result.x[-1], rtol=1e-10, atol=1e-12)
+        np.testing.assert_allclose(x_manual, result["x"][-1], rtol=1e-10, atol=1e-12)
 
 
 # ============================================================================
@@ -368,10 +368,10 @@ class TestAutonomousScipyIntegrator:
 
         result = integrator.integrate(x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0))
 
-        assert result.success, f"Integration failed with {method}: {result.message}"
-        assert np.all(np.isfinite(result.x))
-        assert result.nfev > 0
-        assert result.nsteps > 0
+        assert result["success"], f"Integration failed with {method}: {result["message"]}"
+        assert np.all(np.isfinite(result["x"]))
+        assert result["nfev"] > 0
+        assert result["nsteps"] > 0
 
     def test_scipy_adaptive_step_size(self, van_der_pol_autonomous, initial_state):
         """Test that adaptive stepping works (variable time points)"""
@@ -384,10 +384,10 @@ class TestAutonomousScipyIntegrator:
             x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0), t_eval=None
         )
 
-        assert result.success
+        assert result["success"]
 
         # Time points should be non-uniform (adaptive)
-        dt_values = np.diff(result.t)
+        dt_values = np.diff(result["t"])
         assert np.std(dt_values) > 0  # Variable step sizes
 
     def test_scipy_with_specified_times(self, van_der_pol_autonomous, initial_state):
@@ -401,8 +401,8 @@ class TestAutonomousScipyIntegrator:
             x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0), t_eval=t_eval
         )
 
-        assert result.success
-        np.testing.assert_allclose(result.t, t_eval, rtol=1e-10)
+        assert result["success"]
+        np.testing.assert_allclose(result["t"], t_eval, rtol=1e-10)
 
     def test_scipy_tight_tolerances(self, linear_autonomous, initial_state):
         """Test high-accuracy integration matches analytical solution"""
@@ -421,7 +421,7 @@ class TestAutonomousScipyIntegrator:
         # Compare with analytical solution
         x_analytical = linear_autonomous.analytical_solution(initial_state, t_final)
 
-        np.testing.assert_allclose(result.x[-1], x_analytical, rtol=1e-9, atol=1e-11)
+        np.testing.assert_allclose(result["x"][-1], x_analytical, rtol=1e-9, atol=1e-11)
 
 
 # ============================================================================
@@ -445,9 +445,9 @@ class TestAutonomousTorchDiffEq:
 
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 3.0))
 
-        assert result.success
-        assert torch.all(torch.isfinite(result.x))
-        assert result.x.shape[1] == 2
+        assert result["success"]
+        assert torch.all(torch.isfinite(result["x"]))
+        assert result["x"].shape[1] == 2
 
     def test_torchdiffeq_single_step(self, van_der_pol_autonomous):
         """Test single step with PyTorch"""
@@ -478,7 +478,7 @@ class TestAutonomousTorchDiffEq:
 
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 2.0))
 
-        assert result.success
+        assert result["success"]
 
     def test_torchdiffeq_gradient_computation(self, van_der_pol_autonomous):
         """Test gradient computation through autonomous integration"""
@@ -494,7 +494,7 @@ class TestAutonomousTorchDiffEq:
         result = integrator.integrate(x0=x0, u_func=lambda t, x: None, t_span=(0.0, 1.0))
 
         # Compute loss and backprop
-        loss = result.x[-1].sum()
+        loss = result["x"][-1].sum()
         loss.backward()
 
         assert x0.grad is not None
@@ -524,8 +524,8 @@ class TestAutonomousDiffrax:
 
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 3.0))
 
-        assert result.success, f"Diffrax {solver} failed: {result.message}"
-        assert jnp.all(jnp.isfinite(result.x)), f"Diffrax {solver} produced NaN/Inf"
+        assert result["success"], f"Diffrax {solver} failed: {result["message"]}"
+        assert jnp.all(jnp.isfinite(result["x"])), f"Diffrax {solver} produced NaN/Inf"
 
     def test_diffrax_euler_simple_system(self, linear_autonomous):
         """Test Diffrax Euler with simpler linear system"""
@@ -543,8 +543,8 @@ class TestAutonomousDiffrax:
             x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.5)  # Shorter time span
         )
 
-        assert result.success, f"Diffrax euler failed: {result.message}"
-        assert jnp.all(jnp.isfinite(result.x))
+        assert result["success"], f"Diffrax euler failed: {result["message"]}"
+        assert jnp.all(jnp.isfinite(result["x"]))
 
     def test_diffrax_single_step(self, van_der_pol_autonomous):
         """Test single step with JAX"""
@@ -590,7 +590,7 @@ class TestAutonomousDiffrax:
         def loss_fn(x0):
             """Simple loss: final state norm"""
             result = integrator.integrate(x0=x0, u_func=lambda t, x: None, t_span=(0.0, 1.0))
-            return jnp.sum(result.x[-1] ** 2)
+            return jnp.sum(result["x"][-1] ** 2)
 
         x0 = jnp.array([1.0, 0.0])
 
@@ -628,8 +628,8 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0)
         )
 
-        assert result.success, f"Julia {algorithm} failed: {result.message}"
-        assert np.all(np.isfinite(result.x))
+        assert result["success"], f"Julia {algorithm} failed: {result["message"]}"
+        assert np.all(np.isfinite(result["x"]))
 
     @pytest.mark.parametrize("algorithm", ["ROCK4", "Vern7"])
     def test_diffeqpy_stabilized_and_highorder(self, van_der_pol_autonomous, algorithm):
@@ -656,8 +656,8 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 3.0)
         )
 
-        assert result.success, f"Julia {algorithm} failed: {result.message}"
-        assert np.all(np.isfinite(result.x))
+        assert result["success"], f"Julia {algorithm} failed: {result["message"]}"
+        assert np.all(np.isfinite(result["x"]))
 
     @pytest.mark.skipif(not DIFFEQPY_AVAILABLE, reason="Julia/DiffEqPy not installed")
     @pytest.mark.skip(
@@ -711,8 +711,8 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0)
         )
 
-        assert result.success, f"Auto-switching failed: {result.message}"
-        assert np.all(np.isfinite(result.x))
+        assert result["success"], f"Auto-switching failed: {result["message"]}"
+        assert np.all(np.isfinite(result["x"]))
 
     def test_diffeqpy_high_accuracy(self, linear_autonomous):
         """Test very high accuracy with Julia Vern9"""
@@ -731,7 +731,7 @@ class TestAutonomousDiffEqPy:
         # Compare with analytical solution
         x_analytical = linear_autonomous.analytical_solution(np.array([1.0, 0.0]), t_final)
 
-        np.testing.assert_allclose(result.x[-1], x_analytical, rtol=1e-10, atol=1e-12)
+        np.testing.assert_allclose(result["x"][-1], x_analytical, rtol=1e-10, atol=1e-12)
 
 
 # ============================================================================
@@ -782,7 +782,7 @@ class TestAutonomousVsControlledEquivalence:
         )
 
         # Trajectories should match
-        np.testing.assert_allclose(result_auto.x, result_controlled.x, rtol=1e-8, atol=1e-10)
+        np.testing.assert_allclose(result_auto["x"], result_controlled["x"], rtol=1e-8, atol=1e-10)
 
 
 # ============================================================================
@@ -825,7 +825,7 @@ class TestAutonomousCrossBackendConsistency:
         # Should match exactly (same algorithm, same dt, same precision)
         # (Increased rtol from 1e-10 and atol from 1e-12 because RK4 just
         # isn't accurate enough)
-        np.testing.assert_allclose(result_np.x, result_torch.x.cpu().numpy(), rtol=1e-4, atol=1e-7)
+        np.testing.assert_allclose(result_np["x"], result_torch["x"].cpu().numpy(), rtol=1e-4, atol=1e-7)
 
     def test_adaptive_solvers_consistency(self, linear_autonomous):
         """Test that different adaptive solvers agree on linear system"""
@@ -849,7 +849,7 @@ class TestAutonomousCrossBackendConsistency:
                 t_span=(0.0, t_final),
                 t_eval=np.array([0.0, t_final]),
             )
-            results.append(result.x[-1])
+            results.append(result["x"][-1])
 
         # All methods should agree with analytical solution
         for i, result_final in enumerate(results):
@@ -878,8 +878,8 @@ class TestAutonomousFactoryMethods:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 2.0)
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
     def test_factory_for_production(self, van_der_pol_autonomous):
         """Test IntegratorFactory.for_production()"""
@@ -889,8 +889,8 @@ class TestAutonomousFactoryMethods:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 3.0)
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
     @pytest.mark.skipif(not DIFFEQPY_AVAILABLE, reason="Julia not available")
     def test_factory_for_julia(self, van_der_pol_autonomous):
@@ -901,19 +901,22 @@ class TestAutonomousFactoryMethods:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 2.0)
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
     def test_factory_for_simple_simulation(self, van_der_pol_autonomous):
-        """Test IntegratorFactory.for_simple_simulation()"""
-        integrator = IntegratorFactory.for_simple_simulation(van_der_pol_autonomous, dt=0.01)
+        """Test IntegratorFactory.create() for simple simulations"""
+        # Use basic RK4 integrator for simple simulations
+        integrator = IntegratorFactory.for_simple(
+            van_der_pol_autonomous, backend="numpy", dt=0.01
+        )
 
         result = integrator.integrate(
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0)
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
     def test_factory_for_optimization(self, linear_autonomous):
         """Test IntegratorFactory.for_optimization()"""
@@ -932,7 +935,7 @@ class TestAutonomousFactoryMethods:
 
         result = integrator.integrate(x0=x0, u_func=lambda t, x: None, t_span=(0.0, 1.0))
 
-        assert result.success
+        assert result["success"]
 
 
 # ============================================================================
@@ -952,9 +955,9 @@ class TestAutonomousEdgeCases:
         x0 = np.array([1.0, 0.0])
         result = integrator.integrate(x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.0))
 
-        assert result.success
-        assert result.nsteps == 0
-        np.testing.assert_allclose(result.x[0], x0)
+        assert result["success"]
+        assert result["nsteps"] == 0
+        np.testing.assert_allclose(result["x"][0], x0)
 
     @pytest.mark.skipif(not JAX_AVAILABLE, reason="JAX not installed")
     @pytest.mark.skip(
@@ -994,8 +997,8 @@ class TestAutonomousEdgeCases:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1e-3)
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
     def test_large_state_values(self, linear_autonomous):
         """Test integration with large initial states"""
@@ -1010,8 +1013,8 @@ class TestAutonomousEdgeCases:
             x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.1)  # Short time to stay finite
         )
 
-        assert result.success
-        assert np.all(np.isfinite(result.x))
+        assert result["success"]
+        assert np.all(np.isfinite(result["x"]))
 
 
 # ============================================================================
@@ -1043,7 +1046,7 @@ class TestAutonomousPerformanceStats:
         stats_final = integrator.get_stats()
         assert stats_final["total_steps"] > 0
         assert stats_final["total_fev"] > 0
-        assert stats_final["total_fev"] == result.nfev
+        assert stats_final["total_fev"] == result["nfev"]
         assert stats_final["avg_fev_per_step"] > 0
 
     def test_multiple_integrations_accumulate_stats(self, van_der_pol_autonomous):
