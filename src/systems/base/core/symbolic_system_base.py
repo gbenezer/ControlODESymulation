@@ -1036,8 +1036,8 @@ class SymbolicSystemBase(ABC):
         >>> print(f"Available: {info['available_backends']}")
         >>> print(f"Compiled: {info['compiled_backends']}")
         """
-        # Get base info from backend manager
-        info = self.backend.get_info()
+        # Get extended info from backend manager
+        info = self.backend.get_extended_info()
 
         # Add code generation status
         compiled = [
@@ -1106,8 +1106,8 @@ class SymbolicSystemBase(ABC):
         reset_caches : Clear compiled function cache
         get_backend_info : Check compilation status
         """
-        # Delegate to code generator
-        return self._code_gen.compile(backends=backends, verbose=verbose, **kwargs)
+        # Delegate to code generator's compile_all method
+        return self._code_gen.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def reset_caches(self, backends: Optional[List[str]] = None):
         """

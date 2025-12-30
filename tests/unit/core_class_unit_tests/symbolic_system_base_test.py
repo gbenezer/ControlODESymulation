@@ -83,7 +83,10 @@ from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
 from src.systems.base.utils.backend_manager import BackendManager
 from src.systems.base.utils.code_generator import CodeGenerator
 from src.systems.base.utils.equilibrium_handler import EquilibriumHandler
-from src.systems.base.utils.symbolic_validator import ValidationError
+from src.systems.base.utils.symbolic_validator import (
+    SymbolicValidator,
+    ValidationError,
+)
 
 
 # ============================================================================
@@ -534,9 +537,9 @@ class TestCodeGeneration:
         assert system._code_gen is not None
         assert isinstance(system._code_gen, CodeGenerator)
 
-    @patch.object(CodeGenerator, "compile")
+    @patch.object(CodeGenerator, "compile_all")
     def test_compile_delegates_to_code_generator(self, mock_compile):
-        """compile() delegates to CodeGenerator."""
+        """compile() delegates to CodeGenerator.compile_all()."""
         mock_compile.return_value = {"numpy": 0.1}
         system = MinimalSystem()
         
@@ -545,7 +548,7 @@ class TestCodeGeneration:
         mock_compile.assert_called_once_with(backends=["numpy"], verbose=True)
         assert result == {"numpy": 0.1}
 
-    @patch.object(CodeGenerator, "compile")
+    @patch.object(CodeGenerator, "compile_all")
     def test_compile_returns_timing_dict(self, mock_compile):
         """compile() returns compilation times."""
         mock_compile.return_value = {"numpy": 0.1, "torch": 0.2}
@@ -1081,12 +1084,14 @@ class TestEdgeCases:
         """System can only be initialized once (via __init__)."""
         system = MinimalSystem()
         
-        # Trying to call define_system again shouldn't break things
-        # (though users shouldn't do this)
-        with pytest.raises(AttributeError):
-            # Trying to re-validate after init should fail
-            # because _validator.validate expects certain state
-            pass  # Just ensure system works normally
+        # System should be initialized
+        assert system._initialized
+        
+        # Calling define_system again would require manual re-validation
+        # which is not supported (users shouldn't do this)
+        # Just verify the system works normally
+        assert system.nx == 1
+        assert system.nu == 1
 
     def test_validation_error_provides_context(self):
         """ValidationError includes system class name."""
@@ -1360,7 +1365,7 @@ class TestIntegration:
         info_before = system.get_backend_info()
         
         # Compile
-        with patch.object(CodeGenerator, "compile", return_value={"numpy": 0.1}):
+        with patch.object(CodeGenerator, "compile_all", return_value={"numpy": 0.1}):
             times = system.compile(backends=["numpy"])
         
         # Verify
