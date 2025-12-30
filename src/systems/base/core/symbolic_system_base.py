@@ -182,11 +182,10 @@ License
 AGPL-3.0
 """
 
-import copy
 import json
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union, Any
 
 import numpy as np
 import sympy as sp
@@ -195,13 +194,20 @@ from src.systems.base.utils.backend_manager import BackendManager
 from src.systems.base.utils.code_generator import CodeGenerator
 from src.systems.base.utils.equilibrium_handler import EquilibriumHandler
 from src.systems.base.utils.symbolic_validator import SymbolicValidator, ValidationError
+from src.types.utilities import SymbolicValidationResult
 
 if TYPE_CHECKING:
     import jax.numpy as jnp
     import torch
 
-# Type alias for backend-agnostic arrays
-ArrayLike = Union[np.ndarray, "torch.Tensor", "jnp.ndarray"]
+# Type aliases
+from src.types.core import (
+    ScalarLike,
+    EquilibriumName,
+    EquilibriumState,
+    EquilibriumControl
+)
+from src.types.backends import Backend, Device
 
 
 class SymbolicSystemBase(ABC):
@@ -276,12 +282,16 @@ class SymbolicSystemBase(ABC):
         """
         Initialize the symbolic system using template method pattern.
 
+        CRITICAL: Uses cooperative multiple inheritance via super().__init__()
+        to ensure all base classes in the MRO are properly initialized.
+
         This constructor follows a carefully orchestrated sequence:
         1. Initialize empty symbolic containers
         2. Create specialized components (validation, backend, etc.)
-        3. Call user-defined define_system() to populate symbolic expressions
-        4. Validate the system definition
-        5. Initialize components that depend on validated system
+        3. **Call super().__init__() for cooperative inheritance**
+        4. Call user-defined define_system() to populate symbolic expressions
+        5. Validate the system definition
+        6. Initialize components that depend on validated system
 
         The template method pattern ensures consistent initialization across
         all symbolic systems while allowing customization via define_system().
@@ -307,6 +317,7 @@ class SymbolicSystemBase(ABC):
         The initialization sequence is critical:
         - BackendManager created first (needed by other components)
         - EquilibriumHandler created early (define_system may add equilibria)
+        - super().__init__() called BEFORE define_system (cooperative inheritance)
         - Validator created after define_system (validates populated system)
         - CodeGenerator created last (needs validated system)
 
@@ -377,9 +388,23 @@ class SymbolicSystemBase(ABC):
         # Initialization flag
         self._initialized: bool = False
         """Tracks whether system has been successfully initialized and validated"""
+        
+        # ====================================================================
+        # Phase 3: Cooperative Multiple Inheritance
+        # ====================================================================
+        # CRITICAL FIX: Call super().__init__() to ensure all base classes
+        # in the Method Resolution Order (MRO) are properly initialized
+        
+        # This is essential for multiple inheritance to work correctly:
+        # - If inheriting from (SymbolicSystemBase, ContinuousSystemBase),
+        #   this ensures ContinuousSystemBase.__init__() is called (if it exists)
+        # - If ContinuousSystemBase has no __init__, Python's object.__init__() is called
+        # - This maintains the cooperative inheritance chain
+        
+        super().__init__()
 
         # ====================================================================
-        # Phase 3: Template Method Pattern - Define → Validate → Initialize
+        # Phase 4: Template Method Pattern - Define → Validate → Initialize
         # ====================================================================
 
         # Step 1: Call user-defined system definition
@@ -388,7 +413,7 @@ class SymbolicSystemBase(ABC):
         # Step 2: Create validator and validate system definition
         self._validator = SymbolicValidator(self)
         try:
-            validation_result = self._validator.validate(raise_on_error=True)
+            validation_result: SymbolicValidationResult = self._validator.validate(raise_on_error=True)
         except ValidationError as e:
             # Re-raise with context about which system failed
             raise ValidationError(
@@ -689,6 +714,71 @@ class SymbolicSystemBase(ABC):
                 print("=" * 70)
         """
         pass
+    
+    # ========================================================================
+    # Hook Method for Equilibrium Verification (Template Method Pattern)
+    # ========================================================================
+
+    def _verify_equilibrium_numpy(
+        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike
+    ) -> bool:
+        """
+        Verify equilibrium condition (hook method for concrete classes).
+
+        This is a template method hook that concrete classes override to
+        provide time-domain-specific equilibrium verification:
+        - Continuous: ||f(x_eq, u_eq)|| < tol
+        - Discrete: ||f(x_eq, u_eq) - x_eq|| < tol
+
+        Base implementation raises NotImplementedError to force subclasses
+        to provide their own verification logic.
+
+        Parameters
+        ----------
+        x_eq : np.ndarray
+            Equilibrium state (nx,)
+        u_eq : np.ndarray
+            Equilibrium control (nu,)
+        tol : float
+            Tolerance for verification
+
+        Returns
+        -------
+        bool
+            True if equilibrium condition is satisfied
+
+        Raises
+        ------
+        NotImplementedError
+            If subclass doesn't implement this method
+
+        Notes
+        -----
+        This method is called by add_equilibrium() when verify=True.
+        Concrete classes must override to provide appropriate verification.
+
+        Examples
+        --------
+        In ContinuousDynamicalSystem:
+
+        >>> def _verify_equilibrium_numpy(self, x_eq, u_eq, tol):
+        ...     '''Continuous: f(x_eq, u_eq) ≈ 0'''
+        ...     dx = self(x_eq, u_eq, t=0.0)
+        ...     return np.linalg.norm(dx) < tol
+
+        In DiscreteDynamicalSystem:
+
+        >>> def _verify_equilibrium_numpy(self, x_eq, u_eq, tol):
+        ...     '''Discrete: f(x_eq, u_eq) ≈ x_eq'''
+        ...     x_next = self.step(x_eq, u_eq, k=0)
+        ...     return np.linalg.norm(x_next - x_eq) < tol
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement _verify_equilibrium_numpy() "
+            "to support equilibrium verification. This method should check:\n"
+            "  - Continuous systems: ||f(x_eq, u_eq)|| < tol\n"
+            "  - Discrete systems: ||f(x_eq, u_eq) - x_eq|| < tol"
+        )
 
     # ========================================================================
     # Properties - System Dimensions
@@ -794,7 +884,7 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     @property
-    def _default_backend(self) -> str:
+    def _default_backend(self) -> Backend:
         """
         Get default backend (backward compatibility property).
 
@@ -815,7 +905,7 @@ class SymbolicSystemBase(ABC):
         return self.backend.default_backend
 
     @_default_backend.setter
-    def _default_backend(self, value: str):
+    def _default_backend(self, value: Backend):
         """
         Set default backend (backward compatibility property).
 
@@ -827,7 +917,7 @@ class SymbolicSystemBase(ABC):
         self.backend.set_default(value)
 
     @property
-    def _preferred_device(self) -> str:
+    def _preferred_device(self) -> Device:
         """
         Get preferred device (backward compatibility property).
 
@@ -848,7 +938,7 @@ class SymbolicSystemBase(ABC):
         return self.backend.preferred_device
 
     @_preferred_device.setter
-    def _preferred_device(self, value: str):
+    def _preferred_device(self, value: Device):
         """
         Set preferred device (backward compatibility property).
 
@@ -864,7 +954,7 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def set_default_backend(
-        self, backend: str, device: Optional[str] = None
+        self, backend: Backend, device: Optional[Device] = None
     ) -> "SymbolicSystemBase":
         """
         Set default backend and optionally device for this system.
@@ -906,7 +996,7 @@ class SymbolicSystemBase(ABC):
         self.backend.set_default(backend, device)
         return self
 
-    def to_device(self, device: str) -> "SymbolicSystemBase":
+    def to_device(self, device: Device) -> "SymbolicSystemBase":
         """
         Set preferred device for PyTorch/JAX backends.
 
@@ -947,7 +1037,7 @@ class SymbolicSystemBase(ABC):
 
         return self
 
-    def _clear_backend_cache(self, backend: str):
+    def _clear_backend_cache(self, backend: Backend):
         """
         Clear cached compiled functions for a specific backend.
 
@@ -966,7 +1056,7 @@ class SymbolicSystemBase(ABC):
         self._code_gen.reset_cache([backend])
 
     @contextmanager
-    def use_backend(self, backend: str, device: Optional[str] = None):
+    def use_backend(self, backend: Backend, device: Optional[Device] = None):
         """
         Temporarily switch to a different backend and/or device.
 
@@ -1010,7 +1100,7 @@ class SymbolicSystemBase(ABC):
         with self.backend.use_backend(backend, device):
             yield self
 
-    def get_backend_info(self) -> Dict[str, any]:
+    def get_backend_info(self) -> Dict[str, Any]:
         """
         Get comprehensive information about backend configuration and status.
 
@@ -1056,7 +1146,7 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[str, float]:
         """
         Pre-compile dynamics functions for specified backends.
@@ -1109,7 +1199,7 @@ class SymbolicSystemBase(ABC):
         # Delegate to code generator's compile_all method
         return self._code_gen.compile_all(backends=backends, verbose=verbose, **kwargs)
 
-    def reset_caches(self, backends: Optional[List[str]] = None):
+    def reset_caches(self, backends: Optional[List[Backend]] = None):
         """
         Reset cached compiled functions for specified backends.
 
@@ -1264,9 +1354,9 @@ class SymbolicSystemBase(ABC):
 
     def add_equilibrium(
         self,
-        name: str,
-        x_eq: np.ndarray,
-        u_eq: np.ndarray,
+        name: EquilibriumName,
+        x_eq: EquilibriumState,
+        u_eq: EquilibriumControl,
         verify: bool = True,
         tol: float = 1e-6,
         **metadata,
@@ -1339,11 +1429,36 @@ class SymbolicSystemBase(ABC):
         """
         # Base class: no verification function
         # Concrete subclasses override to provide verification via _verify_equilibrium_numpy
-        verify_fn = None if not verify else None
+        
+        # CRITICAL FIX: Properly handle verification function
+        verify_fn = None
+        
+        if verify:
+            # Check if concrete class implements verification
+            try:
+                # Try to call the hook method to see if it's implemented
+                # We pass dummy values just to check if it raises NotImplementedError
+                test_result = self._verify_equilibrium_numpy(x_eq, u_eq, tol)
+                
+                # If we get here, method is implemented - use it
+                def verify_fn(x, u):
+                    return self._verify_equilibrium_numpy(x, u, tol)
+                    
+            except NotImplementedError:
+                # Method not implemented - warn but continue
+                
+                import warnings
+                warnings.warn(
+                    f"{self.__class__.__name__} does not implement _verify_equilibrium_numpy(). "
+                    f"Equilibrium '{name}' will be added without verification.",
+                    UserWarning
+                )
+                
+                verify_fn = None
 
         self.equilibria.add(name, x_eq, u_eq, verify_fn=verify_fn, tol=tol, **metadata)
 
-    def set_default_equilibrium(self, name: str) -> "SymbolicSystemBase":
+    def set_default_equilibrium(self, name: EquilibriumName) -> "SymbolicSystemBase":
         """
         Set default equilibrium for get operations without name.
 
@@ -1369,8 +1484,8 @@ class SymbolicSystemBase(ABC):
         return self
 
     def get_equilibrium(
-        self, name: Optional[str] = None, backend: Optional[str] = None
-    ) -> Tuple[ArrayLike, ArrayLike]:
+        self, name: Optional[EquilibriumName] = None, backend: Optional[Backend] = None
+    ) -> Tuple[EquilibriumState, EquilibriumControl]:
         """
         Get equilibrium state and control in specified backend.
 
@@ -1394,7 +1509,7 @@ class SymbolicSystemBase(ABC):
         backend = backend or self._default_backend
         return self.equilibria.get_both(name, backend)
 
-    def list_equilibria(self) -> List[str]:
+    def list_equilibria(self) -> List[EquilibriumName]:
         """
         List all equilibrium names.
 
@@ -1410,7 +1525,7 @@ class SymbolicSystemBase(ABC):
         """
         return self.equilibria.list_names()
 
-    def get_equilibrium_metadata(self, name: Optional[str] = None) -> Dict:
+    def get_equilibrium_metadata(self, name: Optional[EquilibriumName] = None) -> Dict:
         """
         Get metadata for equilibrium.
 
@@ -1432,7 +1547,7 @@ class SymbolicSystemBase(ABC):
         """
         return self.equilibria.get_metadata(name)
 
-    def remove_equilibrium(self, name: str):
+    def remove_equilibrium(self, name: EquilibriumName):
         """
         Remove an equilibrium point.
 
