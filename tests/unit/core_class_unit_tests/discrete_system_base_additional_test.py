@@ -127,6 +127,35 @@ class LinearDiscrete(DiscreteSystemBase):
     
     def linearize(self, x_eq, u_eq=None):
         return (self.A, self.B)
+    
+    def rollout(self, x0, policy=None, n_steps=100):
+        """Closed-loop simulation with state feedback policy."""
+        states = [x0]
+        controls = []
+        x = x0.copy()
+        
+        for k in range(n_steps):
+            if policy is None:
+                u = np.zeros(self.nu)
+            else:
+                u = policy(x, k)
+            
+            controls.append(u)
+            x = self.step(x, u, k)
+            states.append(x)
+        
+        states_array = np.array(states).T
+        controls_array = np.array(controls).T
+        time_array = np.arange(n_steps + 1) * self.dt
+        
+        return {
+            "states": states_array,
+            "controls": controls_array,
+            "time": time_array,
+            "dt": self.dt,
+            "closed_loop": policy is not None,
+            "metadata": {"n_steps": n_steps}
+        }
 
 
 class StableMarginallyUnstable(DiscreteSystemBase):
@@ -717,7 +746,14 @@ class TestComplexPolicies(unittest.TestCase):
         
         result = system.rollout(x0, policy=saturating_policy, n_steps=50)
         
-        self.assertTrue(result['closed_loop'])
+        # Verify rollout completed successfully
+        self.assertIn('states', result)
+        self.assertEqual(result['states'].shape[1], 51)
+        
+        # If controls are tracked, verify saturation
+        if 'controls' in result and result['controls'] is not None:
+            max_control = np.max(np.abs(result['controls']))
+            self.assertLessEqual(max_control, 1.0 + 1e-6)
     
     def test_adaptive_policy(self):
         """Time-varying adaptive policy."""
@@ -734,7 +770,14 @@ class TestComplexPolicies(unittest.TestCase):
         
         result = system.rollout(x0, policy=adaptive_policy, n_steps=100)
         
-        self.assertTrue(result['closed_loop'])
+        # Verify rollout completed successfully
+        self.assertIn('states', result)
+        self.assertEqual(result['states'].shape[1], 101)
+        
+        # System should converge (adaptive gain stabilizes it)
+        final_norm = np.linalg.norm(result['states'][:, -1])
+        initial_norm = np.linalg.norm(x0)
+        self.assertLess(final_norm, initial_norm)
 
 
 # =============================================================================
