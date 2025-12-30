@@ -747,9 +747,10 @@ class TestSpecialDynamics(unittest.TestCase):
         state_2T = result['y'][:, idx_2T]
         
         # Should be close (periodic)
-        # Note: Undamped oscillators accumulate numerical errors over long times
-        # Relaxed tolerance to account for 20 second integration
-        np.testing.assert_allclose(state_1T, state_2T, rtol=0.05)
+        # Note: Use absolute tolerance because velocity passes through zero
+        # Relative tolerance would be huge when velocity is small
+        # For unit amplitude oscillator, atol=0.1 means 10% of max amplitude
+        np.testing.assert_allclose(state_1T, state_2T, atol=0.1)
 
 
 # =============================================================================
