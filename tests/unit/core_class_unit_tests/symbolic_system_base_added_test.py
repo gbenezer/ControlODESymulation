@@ -1008,8 +1008,8 @@ class TestComplexParameterUpdates:
         for sym in system.parameters.keys():
             system.parameters[sym] *= 2.0
 
-        # All should be updated
-        assert all(v > 1.0 for v in system.parameters.values())
+        # All should be updated (c=0.5*2=1.0, so use >=)
+        assert all(v >= 1.0 for v in system.parameters.values())
 
     def test_parameter_update_affects_equation_printing(self):
         """Updated parameters affect print output."""
@@ -1052,12 +1052,12 @@ class TestSubclassContract:
             MissingStateVars()
 
     def test_define_system_must_set_control_vars(self):
-        """define_system must set control_vars."""
+        """define_system should set control_vars, or it defaults to empty for autonomous systems."""
         class MissingControlVars(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
                 self.state_vars = [x]
-                # Missing control_vars
+                # Missing control_vars - should default to empty (autonomous)
                 self._f_sym = sp.Matrix([0])
                 self.parameters = {}
                 self.order = 1
@@ -1065,8 +1065,10 @@ class TestSubclassContract:
             def print_equations(self, simplify=True):
                 pass
 
-        with pytest.raises(ValidationError):
-            MissingControlVars()
+        # Should work - defaults to autonomous (nu=0)
+        system = MissingControlVars()
+        assert system.nu == 0
+        assert system.control_vars == []
 
     def test_f_sym_must_be_matrix(self):
         """_f_sym must be a SymPy Matrix."""
