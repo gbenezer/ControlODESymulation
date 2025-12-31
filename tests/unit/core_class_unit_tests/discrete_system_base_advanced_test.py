@@ -2,7 +2,7 @@
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
-# by the Foundation, either version 3 of the License, or
+# by the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -14,8 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Advanced Integration Tests for DiscreteSystemBase
-=================================================
+Advanced Integration Tests for DiscreteSystemBase (TIME-MAJOR)
+==============================================================
 
 Third complementary test suite focusing on:
 
@@ -82,7 +82,7 @@ from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 
 
 # =============================================================================
-# Advanced Test System Implementations
+# Advanced Test System Implementations (TIME-MAJOR)
 # =============================================================================
 
 
@@ -108,8 +108,8 @@ class DoubleIntegratorDiscrete(DiscreteSystemBase):
         return self.A @ x + self.B @ u
     
     def simulate(self, x0, u_sequence=None, n_steps=100):
-        states = [x0]
-        x = x0.copy()
+        states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
+        states[0, :] = x0
         
         for k in range(n_steps):
             if u_sequence is None:
@@ -121,11 +121,10 @@ class DoubleIntegratorDiscrete(DiscreteSystemBase):
             else:
                 u = u_sequence
             
-            x = self.step(x, u, k)
-            states.append(x)
+            states[k + 1, :] = self.step(states[k, :], u, k)
         
         return {
-            "states": np.array(states).T,
+            "states": states,  # (n_steps+1, nx)
             "time": np.arange(n_steps + 1) * self.dt,
             "dt": self.dt,
             "metadata": {"n_steps": n_steps}
@@ -133,35 +132,6 @@ class DoubleIntegratorDiscrete(DiscreteSystemBase):
     
     def linearize(self, x_eq, u_eq=None):
         return (self.A, self.B)
-    
-    def rollout(self, x0, policy=None, n_steps=100):
-        """Closed-loop simulation with state feedback policy."""
-        states = [x0]
-        controls = []
-        x = x0.copy()
-        
-        for k in range(n_steps):
-            if policy is None:
-                u = np.zeros(self.nu)
-            else:
-                u = policy(x, k)
-            
-            controls.append(u)
-            x = self.step(x, u, k)
-            states.append(x)
-        
-        states_array = np.array(states).T
-        controls_array = np.array(controls).T
-        time_array = np.arange(n_steps + 1) * self.dt
-        
-        return {
-            "states": states_array,
-            "controls": controls_array,
-            "time": time_array,
-            "dt": self.dt,
-            "closed_loop": policy is not None,
-            "metadata": {"n_steps": n_steps}
-        }
 
 
 class DiscreteOscillator(DiscreteSystemBase):
@@ -194,8 +164,8 @@ class DiscreteOscillator(DiscreteSystemBase):
         return self.A @ x + self.B @ u
     
     def simulate(self, x0, u_sequence=None, n_steps=100):
-        states = [x0]
-        x = x0.copy()
+        states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
+        states[0, :] = x0
         
         for k in range(n_steps):
             if u_sequence is None:
@@ -205,11 +175,10 @@ class DiscreteOscillator(DiscreteSystemBase):
             else:
                 u = u_sequence
             
-            x = self.step(x, u, k)
-            states.append(x)
+            states[k + 1, :] = self.step(states[k, :], u, k)
         
         return {
-            "states": np.array(states).T,
+            "states": states,  # (n_steps+1, nx)
             "time": np.arange(n_steps + 1) * self.dt,
             "dt": self.dt,
             "metadata": {}
@@ -244,8 +213,8 @@ class ParametricDiscrete(DiscreteSystemBase):
         return A @ x + B @ u
     
     def simulate(self, x0, u_sequence=None, n_steps=100):
-        states = [x0]
-        x = x0.copy()
+        states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
+        states[0, :] = x0
         
         for k in range(n_steps):
             if u_sequence is None:
@@ -255,11 +224,10 @@ class ParametricDiscrete(DiscreteSystemBase):
             else:
                 u = u_sequence
             
-            x = self.step(x, u, k)
-            states.append(x)
+            states[k + 1, :] = self.step(states[k, :], u, k)
         
         return {
-            "states": np.array(states).T,
+            "states": states,  # (n_steps+1, nx)
             "time": np.arange(n_steps + 1) * self.dt,
             "dt": self.dt,
             "metadata": {}
@@ -320,11 +288,11 @@ class SwitchedDiscrete(DiscreteSystemBase):
         return False
     
     def simulate(self, x0, u_sequence=None, n_steps=100):
-        states = [x0]
-        x = x0.copy()
+        states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
+        states[0, :] = x0
         
         for k in range(n_steps):
-            self.check_switch_condition(x, k)
+            self.check_switch_condition(states[k, :], k)
             
             if u_sequence is None:
                 u = None
@@ -333,11 +301,10 @@ class SwitchedDiscrete(DiscreteSystemBase):
             else:
                 u = u_sequence
             
-            x = self.step(x, u, k)
-            states.append(x)
+            states[k + 1, :] = self.step(states[k, :], u, k)
         
         return {
-            "states": np.array(states).T,
+            "states": states,  # (n_steps+1, nx)
             "time": np.arange(n_steps + 1) * self.dt,
             "dt": self.dt,
             "metadata": {"switch_count": self.switch_count}
@@ -375,8 +342,9 @@ class TestMultiSystemComposition(unittest.TestCase):
         x0_2 = np.array([0.0, 0.0])
         result2 = system2.simulate(x0_2, u_sequence=u, n_steps=10)
         
-        self.assertEqual(result1['states'].shape[1], 11)
-        self.assertEqual(result2['states'].shape[1], 11)
+        # TIME-MAJOR
+        self.assertEqual(result1['states'].shape, (11, 2))
+        self.assertEqual(result2['states'].shape, (11, 2))
     
     def test_parallel_simulation(self):
         """Simulate multiple systems in parallel."""
@@ -398,10 +366,8 @@ class TestMultiSystemComposition(unittest.TestCase):
         for result in results:
             self.assertIn('states', result)
         
-        # Different dt should give different trajectories
-        # Systems integrate same duration but with different time steps
-        # Check that at least some states differ
-        final_states = [r['states'][:, -1] for r in results]
+        # Different dt should give different trajectories (TIME-MAJOR)
+        final_states = [r['states'][-1, :] for r in results]
         
         # At least one pair should be different
         differs = False
@@ -435,8 +401,8 @@ class TestModelPredictiveControl(unittest.TestCase):
         
         result = system.simulate(x0, u_sequence=u_test, n_steps=N_horizon)
         
-        # Should predict N steps
-        self.assertEqual(result['states'].shape[1], N_horizon + 1)
+        # Should predict N steps (TIME-MAJOR)
+        self.assertEqual(result['states'].shape, (N_horizon + 1, 2))
     
     def test_mpc_receding_horizon(self):
         """MPC solves at each step (receding horizon)."""
@@ -444,7 +410,8 @@ class TestModelPredictiveControl(unittest.TestCase):
         x0 = np.array([2.0, 0.0])
         
         # Simulate MPC loop
-        trajectory = [x0]
+        trajectory = np.zeros((51, 2))  # TIME-MAJOR
+        trajectory[0, :] = x0
         x = x0.copy()
         
         for k in range(50):
@@ -452,12 +419,10 @@ class TestModelPredictiveControl(unittest.TestCase):
             # u = -Kp*position - Kd*velocity
             u_mpc = -2.0 * x[0] - 1.0 * x[1]  # Stronger gains
             x = system.step(x, np.array([u_mpc]), k)
-            trajectory.append(x)
-        
-        trajectory = np.array(trajectory).T
+            trajectory[k + 1, :] = x
         
         # Should converge toward origin (may not reach exactly zero)
-        final_position = trajectory[0, -1]
+        final_position = trajectory[-1, 0]
         self.assertLess(abs(final_position), 0.5)  # Relaxed tolerance
     
     def test_mpc_constraint_satisfaction(self):
@@ -467,7 +432,8 @@ class TestModelPredictiveControl(unittest.TestCase):
         
         # Simulate with control constraints
         u_max = 1.0
-        trajectory = [x0]
+        trajectory = np.zeros((101, 2))  # TIME-MAJOR
+        trajectory[0, :] = x0
         x = x0.copy()
         
         for k in range(100):
@@ -475,12 +441,10 @@ class TestModelPredictiveControl(unittest.TestCase):
             u_desired = -2.0 * x[0] - 1.0 * x[1]
             u = np.array([np.clip(u_desired, -u_max, u_max)])
             x = system.step(x, u, k)
-            trajectory.append(x)
-        
-        trajectory = np.array(trajectory).T
+            trajectory[k + 1, :] = x
         
         # Should converge (slower due to saturation)
-        final_state = trajectory[:, -1]
+        final_state = trajectory[-1, :]
         # Relaxed tolerance - saturation slows convergence significantly
         self.assertLess(np.linalg.norm(final_state), 1.0)
 
@@ -517,8 +481,8 @@ class TestStateEstimation(unittest.TestCase):
         # Predict 10 steps ahead (no measurements)
         result = system.simulate(x_est, u_sequence=u_sequence, n_steps=10)
         
-        # Predictions should be available
-        self.assertEqual(result['states'].shape[1], 11)
+        # Predictions should be available (TIME-MAJOR)
+        self.assertEqual(result['states'].shape, (11, 2))
 
 
 # =============================================================================
@@ -594,7 +558,7 @@ class TestEnsembleSimulation(unittest.TestCase):
         for _ in range(n_samples):
             x0 = np.random.randn(2)
             result = system.simulate(x0, n_steps=50)
-            final_states.append(result['states'][:, -1])
+            final_states.append(result['states'][-1, :])  # TIME-MAJOR
         
         final_states = np.array(final_states)
         
@@ -617,7 +581,7 @@ class TestEnsembleSimulation(unittest.TestCase):
             
             system = ParametricDiscrete(alpha=alpha, beta=beta)
             result = system.simulate(x0, n_steps=50)
-            final_states.append(result['states'][0, -1])
+            final_states.append(result['states'][-1, 0])  # TIME-MAJOR
         
         final_states = np.array(final_states)
         
@@ -713,8 +677,8 @@ class TestParameterSensitivity(unittest.TestCase):
         result1 = system1.simulate(x0, n_steps=50)
         result2 = system2.simulate(x0, n_steps=50)
         
-        # Should differ but not drastically
-        diff = np.linalg.norm(result1['states'][:, -1] - result2['states'][:, -1])
+        # Should differ but not drastically (TIME-MAJOR)
+        diff = np.linalg.norm(result1['states'][-1, :] - result2['states'][-1, :])
         self.assertGreater(diff, 1e-6)  # Should differ
         self.assertLess(diff, 1.0)  # But not too much
     
@@ -728,7 +692,7 @@ class TestParameterSensitivity(unittest.TestCase):
         for alpha in alphas:
             system = ParametricDiscrete(alpha=alpha, beta=0.1)
             result = system.simulate(x0, n_steps=100)
-            final_norm = np.linalg.norm(result['states'][:, -1])
+            final_norm = np.linalg.norm(result['states'][-1, :])  # TIME-MAJOR
             final_norms.append(final_norm)
         
         # Larger alpha (closer to 1) should decay slower
@@ -803,7 +767,7 @@ class TestCheckpointing(unittest.TestCase):
         
         # Simulate first half
         result1 = system.simulate(x0, n_steps=25)
-        x_checkpoint = result1['states'][:, -1]
+        x_checkpoint = result1['states'][-1, :]  # TIME-MAJOR
         
         # Continue from checkpoint
         result2 = system.simulate(x_checkpoint, n_steps=25)
@@ -811,10 +775,10 @@ class TestCheckpointing(unittest.TestCase):
         # Compare to full simulation
         result_full = system.simulate(x0, n_steps=50)
         
-        # Final states should match
+        # Final states should match (TIME-MAJOR)
         np.testing.assert_allclose(
-            result2['states'][:, -1],
-            result_full['states'][:, -1],
+            result2['states'][-1, :],
+            result_full['states'][-1, :],
             rtol=1e-10
         )
     
@@ -872,8 +836,8 @@ class TestAdvancedPolicies(unittest.TestCase):
         
         result = system.rollout(x0, policy=gain_scheduled_policy, n_steps=100)
         
-        # Should converge (gain scheduling should stabilize)
-        final_position = result['states'][0, -1]
+        # Should converge (gain scheduling should stabilize) (TIME-MAJOR)
+        final_position = result['states'][-1, 0]
         self.assertLess(abs(final_position), 1.0)  # Relaxed tolerance
     
     def test_event_triggered_policy(self):
@@ -912,7 +876,8 @@ class TestRecedingHorizon(unittest.TestCase):
         
         # Receding horizon: plan N steps, execute 1, replan
         N_horizon = 10
-        trajectory = [x0]
+        trajectory = np.zeros((51, 2))  # TIME-MAJOR
+        trajectory[0, :] = x0
         x = x0.copy()
         
         for k in range(50):
@@ -921,12 +886,10 @@ class TestRecedingHorizon(unittest.TestCase):
             
             # Execute first control
             x = system.step(x, np.array([u_mpc]), k)
-            trajectory.append(x)
-        
-        trajectory = np.array(trajectory).T
+            trajectory[k + 1, :] = x
         
         # Should converge toward origin
-        self.assertLess(abs(trajectory[0, -1]), 0.5)  # Relaxed tolerance
+        self.assertLess(abs(trajectory[-1, 0]), 0.5)  # Relaxed tolerance
     
     def test_warm_start_behavior(self):
         """Warm starting from previous solution."""
@@ -936,7 +899,8 @@ class TestRecedingHorizon(unittest.TestCase):
         # Store previous solution
         u_prev = np.zeros(10)
         
-        trajectory = [x0]
+        trajectory = np.zeros((31, 2))  # TIME-MAJOR
+        trajectory[0, :] = x0
         x = x0.copy()
         
         for k in range(30):
@@ -946,10 +910,10 @@ class TestRecedingHorizon(unittest.TestCase):
             # Use first control
             u = u_prev[0]
             x = system.step(x, np.array([u]), k)
-            trajectory.append(x)
+            trajectory[k + 1, :] = x
         
         # Should have trajectory
-        self.assertEqual(len(trajectory), 31)
+        self.assertEqual(trajectory.shape, (31, 2))
 
 
 # =============================================================================
@@ -978,8 +942,8 @@ class TestDeadbeatControl(unittest.TestCase):
             x0 = np.array([1.0, 0.5])
             result = system.rollout(x0, policy=deadbeat_policy, n_steps=10)
             
-            # Should reach zero in nx=2 steps (or very close)
-            state_at_2 = result['states'][:, 2]
+            # Should reach zero in nx=2 steps (or very close) (TIME-MAJOR)
+            state_at_2 = result['states'][2, :]
             self.assertLess(np.linalg.norm(state_at_2), 1e-6)
         except Exception:
             self.skipTest("Pole placement not available")
