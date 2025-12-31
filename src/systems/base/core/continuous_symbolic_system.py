@@ -137,9 +137,10 @@ from src.systems.base.utils.observation_engine import ObservationEngine
 
 # Type imports
 from src.types.core import (
-    ArrayLike,
     ControlInput,
     ControlVector,
+    OutputMatrix,
+    OutputVector,
     ScalarLike,
     StateVector,
 )
@@ -792,7 +793,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         x: Union[StateVector, str],
         u: Optional[ControlVector] = None,
         backend: Optional[Backend] = None,
-    ) -> Tuple[ArrayLike, ArrayLike]:
+    ) -> LinearizationResult:
         """
         Compute numerical linearization: A = ∂f/∂x, B = ∂f/∂u.
 
@@ -941,7 +942,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         self,
         x: StateVector,
         backend: Optional[Backend] = None
-    ) -> ArrayLike:
+    ) -> OutputVector:
         """
         Evaluate output equation: y = h(x).
 
@@ -977,7 +978,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         self,
         x: StateVector,
         backend: Optional[Backend] = None
-    ) -> ArrayLike:
+    ) -> OutputMatrix:
         """
         Compute linearized observation matrix: C = ∂h/∂x.
 
