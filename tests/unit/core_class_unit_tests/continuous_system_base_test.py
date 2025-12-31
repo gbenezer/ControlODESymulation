@@ -55,6 +55,7 @@ class SimpleContinuousSystem(ContinuousSystemBase):
         """Simple Euler integration returning IntegrationResult."""
         t_start, t_end = t_span
         dt_integrator = kwargs.get("max_step", 0.01)
+        t_eval = kwargs.get("t_eval", None)  # Support requested time points
         
         # Handle backward integration
         if t_end < t_start:
@@ -76,7 +77,7 @@ class SimpleContinuousSystem(ContinuousSystemBase):
                 if u is None:
                     u_val = None
                 elif callable(u):
-                    u_val = u(t)
+                    u_val = u(t, x)  # Note: signature is (t, x) not (x, t)
                 else:
                     u_val = u
 
@@ -94,7 +95,7 @@ class SimpleContinuousSystem(ContinuousSystemBase):
                 if u is None:
                     u_val = None
                 elif callable(u):
-                    u_val = u(t)
+                    u_val = u(t, x)
                 else:
                     u_val = u
 
@@ -107,15 +108,29 @@ class SimpleContinuousSystem(ContinuousSystemBase):
                 t_points.append(t)
                 states_list.append(x.copy())
 
+        t_array = np.array(t_points)
+        states_array = np.array(states_list)  # Shape: (T, nx) - time-major
+        
+        # If specific times requested, interpolate
+        if t_eval is not None:
+            states_interp = np.zeros((len(t_eval), self.nx))
+            for i in range(self.nx):
+                states_interp[:, i] = np.interp(t_eval, t_array, states_array[:, i])
+            t_array = np.array(t_eval)
+            states_array = states_interp
+
         return {
-            "t": np.array(t_points),
-            "y": np.array(states_list).T,
+            "t": t_array,
+            "x": states_array,  # Changed from "y", now (T, nx)
             "success": True,
             "message": "Integration successful",
             "nfev": nfev,
             "njev": 0,
             "nlu": 0,
-            "status": 0
+            "status": 0,
+            "nsteps": len(t_array) - 1,
+            "integration_time": 0.0,
+            "solver": method
         }
 
     def linearize(self, x_eq, u_eq=None):
@@ -135,18 +150,28 @@ class TimeVaryingSystem(ContinuousSystemBase):
         return -t * x + u
     
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs):
-        # Simplified integration
-        t_points = np.linspace(t_span[0], t_span[1], 50)
-        states = np.outer(x0, np.exp(-0.5 * t_points**2))
+        t_eval = kwargs.get("t_eval", None)
+        
+        if t_eval is not None:
+            t_points = np.array(t_eval)
+        else:
+            t_points = np.linspace(t_span[0], t_span[1], 50)
+        
+        # Simple analytical solution: x(t) = x0 * exp(-t²/2)
+        states = np.outer(np.exp(-0.5 * t_points**2), x0)  # (T, nx)
+        
         return {
             "t": t_points,
-            "y": states,
+            "x": states,  # Changed from "y", now (T, nx)
             "success": True,
             "message": "Success",
             "nfev": 50,
             "njev": 0,
             "nlu": 0,
-            "status": 0
+            "status": 0,
+            "nsteps": len(t_points) - 1,
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -174,18 +199,28 @@ class StochasticSystem(ContinuousSystemBase):
         return -x + u
     
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="EM", **kwargs):
-        # Mock SDE integration
-        t_points = np.linspace(t_span[0], t_span[1], 100)
-        states = np.outer(x0, np.exp(-t_points))
+        t_eval = kwargs.get("t_eval", None)
+        
+        if t_eval is not None:
+            t_points = np.array(t_eval)
+        else:
+            t_points = np.linspace(t_span[0], t_span[1], 100)
+        
+        # Mock SDE solution
+        states = np.outer(np.exp(-t_points), x0)  # (T, nx)
+        
         return {
             "t": t_points,
-            "y": states,
+            "x": states,  # Changed from "y", now (T, nx)
             "success": True,
             "message": "Success",
             "nfev": 100,
             "njev": 0,
             "nlu": 0,
-            "status": 0
+            "status": 0,
+            "nsteps": len(t_points) - 1,
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -216,26 +251,34 @@ class NonlinearPendulum(ContinuousSystemBase):
         return np.array([theta_dot, -self.g / self.L * np.sin(theta) + u_val])
     
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs):
-        # Use simple integration
-        t_points = np.linspace(t_span[0], t_span[1], 100)
-        states = np.zeros((self.nx, len(t_points)))
-        states[:, 0] = x0
+        t_eval = kwargs.get("t_eval", None)
+        
+        if t_eval is not None:
+            t_points = np.array(t_eval)
+        else:
+            t_points = np.linspace(t_span[0], t_span[1], 100)
+        
         dt = t_points[1] - t_points[0]
+        states = np.zeros((len(t_points), self.nx))  # (T, nx)
+        states[0, :] = x0
         
         for i in range(1, len(t_points)):
-            u_val = u(t_points[i-1]) if callable(u) else u
-            dxdt = self(states[:, i-1], u_val, t_points[i-1])
-            states[:, i] = states[:, i-1] + dt * dxdt
+            u_val = u(t_points[i-1], states[i-1, :]) if callable(u) else u
+            dxdt = self(states[i-1, :], u_val, t_points[i-1])
+            states[i, :] = states[i-1, :] + dt * dxdt
         
         return {
             "t": t_points,
-            "y": states,
+            "x": states,  # Changed from "y", now (T, nx)
             "success": True,
             "message": "Success",
             "nfev": len(t_points),
             "njev": 0,
             "nlu": 0,
-            "status": 0
+            "status": 0,
+            "nsteps": len(t_points) - 1,
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -448,7 +491,7 @@ class TestContinuousSystemBase(unittest.TestCase):
         self.assertIsInstance(result, dict)
         
         # Check all required fields
-        required_fields = ["t", "y", "success", "message", "nfev"]
+        required_fields = ["t", "x", "success", "message", "nfev"]
         for field in required_fields:
             self.assertIn(field, result)
 
@@ -477,12 +520,12 @@ class TestContinuousSystemBase(unittest.TestCase):
         result = self.system.integrate(x0, u, t_span=(0.0, 1.0))
         
         self.assertTrue(result["success"])
-        self.assertEqual(result["y"].shape[0], self.system.nx)
+        self.assertEqual(result["x"].shape[1], self.system.nx)
 
     def test_integrate_with_time_varying_control_function(self):
         """Integrate with callable control function."""
         x0 = np.array([1.0, 1.0])
-        u_func = lambda t: np.array([np.sin(2*np.pi*t)])
+        u_func = lambda t, x: np.array([np.sin(2*np.pi*t)])
         
         result = self.system.integrate(x0, u_func, t_span=(0.0, 2.0))
         
@@ -492,7 +535,7 @@ class TestContinuousSystemBase(unittest.TestCase):
         """Integrate with piecewise constant control."""
         x0 = np.array([1.0, 1.0])
         
-        def u_piecewise(t):
+        def u_piecewise(t, x):
             if t < 0.5:
                 return np.array([1.0])
             else:
@@ -534,16 +577,17 @@ class TestContinuousSystemBase(unittest.TestCase):
         x0 = np.array([1.0, 1.0])
         result = self.system.integrate(x0)
         
-        # y should be (nx, n_points)
-        self.assertEqual(result["y"].shape[0], self.system.nx)
-        self.assertEqual(result["y"].shape[1], len(result["t"]))
+        # x should be (T, nx) - time-major ordering
+        self.assertEqual(result["x"].shape[0], len(result["t"]))
+        self.assertEqual(result["x"].shape[1], self.system.nx)
 
     def test_integrate_initial_condition_preserved(self):
         """Initial condition appears in integrated trajectory."""
         x0 = np.array([2.5, -1.3])
         result = self.system.integrate(x0)
         
-        np.testing.assert_array_almost_equal(result["y"][:, 0], x0)
+        # First row is initial condition (time-major: (T, nx))
+        np.testing.assert_array_almost_equal(result["x"][0, :], x0)
 
     def test_integrate_autonomous_decay(self):
         """Autonomous stable system decays over time."""
@@ -551,7 +595,7 @@ class TestContinuousSystemBase(unittest.TestCase):
         result = self.system.integrate(x0, u=None, t_span=(0.0, 5.0))
         
         # System is dx/dt = -x, should decay exponentially
-        final_state = result["y"][:, -1]
+        final_state = result["x"][-1, :]  # Last row (time-major)
         self.assertLess(np.linalg.norm(final_state), 0.1 * np.linalg.norm(x0))
 
     def test_integrate_different_initial_conditions(self):
