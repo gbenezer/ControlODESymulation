@@ -416,7 +416,7 @@ class DiscreteSystemBase(ABC):
         controls_array = np.array(controls).T if controls else None
 
         return {
-            "states": states,
+            "states": states.T,
             "controls": controls_array,
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
