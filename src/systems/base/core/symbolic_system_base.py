@@ -774,10 +774,16 @@ class SymbolicSystemBase(ABC):
         ...     return np.linalg.norm(x_next - x_eq) < tol
         """
         raise NotImplementedError(
-            f"{self.__class__.__name__} must implement _verify_equilibrium_numpy() "
-            "to support equilibrium verification. This method should check:\n"
-            "  - Continuous systems: ||f(x_eq, u_eq)|| < tol\n"
-            "  - Discrete systems: ||f(x_eq, u_eq) - x_eq|| < tol"
+            f"{self.__class__.__name__} must implement _verify_equilibrium_numpy(). "
+            f"This method should check the equilibrium condition for your system type.\n"
+            f"\n"
+            f"For continuous systems:\n"
+            f"    dx = self(x_eq, u_eq, t=0.0)\n"
+            f"    return np.linalg.norm(dx) < tol\n"
+            f"\n"
+            f"For discrete systems:\n"
+            f"    x_next = self.step(x_eq, u_eq, k=0)\n"
+            f"    return np.linalg.norm(x_next - x_eq) < tol"
         )
 
     # ========================================================================
