@@ -39,7 +39,7 @@ import numpy as np
 import pytest
 import sympy as sp
 
-from src.systems.base.continuous_stochastic_system import (
+from src.systems.base.core.continuous_stochastic_system import (
     ContinuousStochasticSystem,
     StochasticDynamicalSystem,  # Backward compatibility alias
 )
