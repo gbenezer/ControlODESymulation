@@ -132,6 +132,8 @@ class DoubleIntegratorDiscrete(DiscreteSystemBase):
     
     def linearize(self, x_eq, u_eq=None):
         return (self.A, self.B)
+    
+    # Remove custom rollout() to use base class implementation with proper metadata
 
 
 class DiscreteOscillator(DiscreteSystemBase):
@@ -858,7 +860,10 @@ class TestAdvancedPolicies(unittest.TestCase):
         
         result = system.rollout(x0, policy=event_triggered_policy, n_steps=100)
         
-        self.assertTrue(result['closed_loop'])
+        # Check that rollout completed and metadata indicates closed loop
+        self.assertIn('metadata', result)
+        self.assertIn('closed_loop', result['metadata'])
+        self.assertTrue(result['metadata']['closed_loop'])
 
 
 # =============================================================================
