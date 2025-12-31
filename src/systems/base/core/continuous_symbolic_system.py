@@ -244,7 +244,8 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         self,
         x: StateVector,
         u: Optional[ControlVector] = None,
-        t: ScalarLike = 0.0
+        t: ScalarLike = 0.0,
+        backend: Optional[Backend] = None
     ) -> StateVector:
         """
         Evaluate continuous-time dynamics: dx/dt = f(x, u, t).
@@ -278,7 +279,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> u_batch = np.random.randn(100, 1)
         >>> dx_batch = system(x_batch, u_batch)
         """
-        return self._dynamics.evaluate(x, u, backend=None)
+        return self._dynamics.evaluate(x, u, backend=backend)
 
     def integrate(
         self,

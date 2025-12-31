@@ -28,7 +28,7 @@ from typing import Callable, Optional, Union
 
 from src.types.core import ControlVector, StateVector, ControlInput, FeedbackController, ScalarLike
 from src.types.linearization import LinearizationResult
-from src.types.backends import IntegrationMethod
+from src.types.backends import IntegrationMethod, Backend
 from src.types.trajectories import IntegrationResult, SimulationResult, TimeSpan
 
 
@@ -80,7 +80,8 @@ class ContinuousSystemBase(ABC):
         self,
         x: StateVector,
         u: Optional[ControlVector] = None,
-        t: ScalarLike = 0.0
+        t: ScalarLike = 0.0,
+        backend: Optional[Backend] = None
     ) -> StateVector:
         """
         Evaluate continuous-time dynamics: dx/dt = f(x, u, t).
