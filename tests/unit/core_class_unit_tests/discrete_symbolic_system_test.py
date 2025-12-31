@@ -394,10 +394,10 @@ class TestStateTransition:
         system = DiscreteLinear(a=0.9, b=0.0)
 
         x = np.array([1.0])
+        u = np.array([0.0])  # Provide zero control, not None
         for k in range(10):
-            x = system.step(x, u=None, k=k)
+            x = system.step(x, u, k=k)
 
-        # Should decay
         assert x[0] < 0.5
 
 
@@ -560,7 +560,7 @@ class TestControlSequenceHandling:
 
         u_func = system._prepare_control_sequence(None, 10)
 
-        result = u_func(0, np.array([1.0]))
+        result = u_func(np.array([1.0]), 0)  # (x, k)
         np.testing.assert_array_equal(result, np.zeros(1))
 
     def test_constant_array(self):
@@ -570,9 +570,9 @@ class TestControlSequenceHandling:
         u_const = np.array([0.5])
         u_func = system._prepare_control_sequence(u_const, 10)
 
-        # Same at all steps
-        assert np.allclose(u_func(0, np.zeros(1)), u_const)
-        assert np.allclose(u_func(5, np.zeros(1)), u_const)
+        # Use (x, k) order
+        assert np.allclose(u_func(np.zeros(1), 0), u_const)
+        assert np.allclose(u_func(np.zeros(1), 5), u_const)
 
     def test_time_indexed_callable(self):
         """Time-indexed u(k)."""
@@ -583,18 +583,19 @@ class TestControlSequenceHandling:
 
         u_func = system._prepare_control_sequence(u_indexed, 10)
 
-        assert np.allclose(u_func(5, np.zeros(1)), [0.5])
+        # Correct order: (x, k) not (k, x)
+        assert np.allclose(u_func(np.zeros(1), 5), [0.5])
 
-    def test_state_feedback_kx_order(self):
-        """State feedback u(k, x)."""
+    def test_state_feedback_xk_order(self):  # ✅ Renamed
+        """State feedback u(x, k)."""
         system = DiscreteLinear()
 
-        def policy(k, x):
+        def policy(x, k):  # ✅ Correct order
             return -0.5 * x
 
         u_func = system._prepare_control_sequence(policy, 10)
 
-        result = u_func(0, np.array([2.0]))
+        result = u_func(np.array([2.0]), 0)  # (x, k)
         np.testing.assert_allclose(result, [-1.0])
 
     def test_invalid_control_type_raises(self):
@@ -1264,12 +1265,10 @@ class TestEndToEndWorkflows:
         """Discrete feedback control."""
         system = DiscreteLinear(a=0.95, b=0.1)
 
-        # Design controller
         Ad, Bd = system.linearize(np.zeros(1), np.zeros(1))
         K = np.array([[0.5]])
 
-        # Simulate with feedback
-        def policy(k, x):
+        def policy(x, k):  # Correct order: (x, k)
             return -K @ x
 
         result = system.rollout(
@@ -1278,7 +1277,6 @@ class TestEndToEndWorkflows:
             n_steps=50
         )
 
-        # Should stabilize
         assert abs(result['states'][-1, 0]) < 0.1
 
     def test_autonomous_convergence(self):
