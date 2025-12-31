@@ -236,6 +236,7 @@ from .symbolic_system_base import SymbolicSystemBase
 from .continuous_system_base import ContinuousSystemBase
 from .discrete_system_base import DiscreteSystemBase
 from .continuous_symbolic_system import ContinuousSymbolicSystem
+from .discrete_symbolic_system import DiscreteSymbolicSystem
 
 # Export public API
 __all__ = [
@@ -244,7 +245,10 @@ __all__ = [
     "ContinuousSystemBase",
     "DiscreteSystemBase",
     # Layer 2: Deterministic Systems
-    "ContinuousSymbolicSystem"
+    "ContinuousSymbolicSystem",
+    "DiscreteSymbolicSystem",
+    # Layer 3: Stochastic Systems
+    # Layer 4: Discretized Systems
 ]
 
 # Version tracking for this module
