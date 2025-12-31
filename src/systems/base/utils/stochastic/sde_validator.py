@@ -396,7 +396,7 @@ class SDEValidator:
         if is_all_zero:
             self._warnings.append(
                 "Diffusion matrix is all zeros - this is an ODE, not an SDE. "
-                "Consider using DeterministicDynamicalSystem instead."
+                "Consider using a deterministic system type instead."
             )
 
     def _validate_noise_type_claim(self, claimed_type: str):
