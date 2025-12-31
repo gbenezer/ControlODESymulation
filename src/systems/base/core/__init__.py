@@ -232,22 +232,26 @@ GNU Affero General Public License v3.0
 """
 
 # Import base classes
+from .symbolic_system_base import SymbolicSystemBase
 from .continuous_system_base import ContinuousSystemBase
 from .discrete_system_base import DiscreteSystemBase
+from .continuous_symbolic_system import ContinuousSymbolicSystem
 
 # Export public API
 __all__ = [
     # Layer 1: Abstract base classes
+    "SymbolicSystemBase",
     "ContinuousSystemBase",
     "DiscreteSystemBase",
+    # Layer 2: Deterministic Systems
+    "ContinuousSymbolicSystem"
 ]
 
 # Version tracking for this module
-__version__ = "1.0.0"
-__phase__ = "Phase 1: Abstract Base Classes"
-__last_updated__ = "2025-12-26"
+__version__ = "2.0.0"
+__phase__ = "Phase 2: Deterministic System Classes"
+__last_updated__ = "2025-12-30"
 
 # Module-level documentation
-__doc_title__ = "Core System Base Classes"
-__doc_summary__ = "Abstract interfaces for continuous and discrete dynamical systems"
-__doc_layer__ = "Layer 1: Foundation"
+__doc_title__ = "Core System Classes"
+__doc_summary__ = "Interfaces for continuous and discrete dynamical systems"
