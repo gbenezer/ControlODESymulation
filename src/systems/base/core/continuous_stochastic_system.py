@@ -845,7 +845,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         return (A, B, G)
 
     # ========================================================================
-    # Noise Query Methods
+    # Query Methods
     # ========================================================================
 
     def is_additive_noise(self) -> bool:
@@ -867,6 +867,12 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
     def get_noise_type(self) -> NoiseType:
         """Get classified noise type."""
         return self.noise_characteristics.noise_type
+    
+    def get_sde_type(self) -> SDEType:
+        return self.sde_type
+    
+    def get_diffusion_matrix(self, x, u=None, backend=Backend | None):
+        return self.diffusion(x, u, backend=backend)
 
     def depends_on_state(self) -> bool:
         """Check if diffusion depends on state variables."""
