@@ -80,7 +80,6 @@ Reuses: Nothing (self-contained SymPy analysis)
 """
 
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict, List, Optional, Set
 
 import sympy as sp
@@ -267,6 +266,13 @@ class NoiseCharacterizer:
             Control variable symbols
         time_var : sp.Symbol, optional
             Time variable symbol (if time-varying)
+        
+        Examples
+        --------
+        >>> x1, x2 = sp.symbols('x1 x2')
+        >>> u = sp.symbols('u')
+        >>> diffusion = sp.Matrix([[0.1], [0.2]])
+        >>> char = NoiseCharacterizer(diffusion, [x1, x2], [u])
         """
         self.diffusion_expr = diffusion_expr
         self.state_vars = state_vars
@@ -279,6 +285,63 @@ class NoiseCharacterizer:
 
         # Perform analysis (lazy - only when accessed)
         self._characteristics = None
+    
+    @classmethod
+    def from_dict(cls, config: Dict) -> "NoiseCharacterizer":
+        """
+        Create NoiseCharacterizer from configuration dictionary.
+        
+        This is a convenience factory method for creating characterizers from
+        dictionaries, such as test fixtures or saved configurations.
+        
+        Parameters
+        ----------
+        config : Dict
+            Configuration dictionary with keys:
+            - "diffusion" or "diffusion_expr": Symbolic diffusion matrix
+            - "state_vars": List of state symbols
+            - "control_vars": List of control symbols
+            - "time_var" (optional): Time symbol
+        
+        Returns
+        -------
+        NoiseCharacterizer
+            Initialized characterizer
+        
+        Examples
+        --------
+        >>> config = {
+        ...     "diffusion": sp.Matrix([[0.1*x]]),
+        ...     "state_vars": [x],
+        ...     "control_vars": [u]
+        ... }
+        >>> char = NoiseCharacterizer.from_dict(config)
+        >>> result = char.analyze()
+        
+        With test fixtures:
+        >>> @pytest.fixture
+        ... def my_noise():
+        ...     return {"diffusion": ..., "state_vars": ..., "control_vars": ...}
+        >>> 
+        >>> def test_something(my_noise):
+        ...     char = NoiseCharacterizer.from_dict(my_noise)
+        ...     # or equivalently:
+        ...     char = NoiseCharacterizer(**my_noise)  # Now works!
+        """
+        # Handle both "diffusion" and "diffusion_expr" keys
+        diffusion_expr = config.get("diffusion_expr") or config.get("diffusion")
+        
+        if diffusion_expr is None:
+            raise ValueError(
+                "Configuration dictionary must contain 'diffusion' or 'diffusion_expr' key"
+            )
+        
+        return cls(
+            diffusion_expr=diffusion_expr,
+            state_vars=config["state_vars"],
+            control_vars=config["control_vars"],
+            time_var=config.get("time_var")
+        )
 
     @property
     def characteristics(self) -> NoiseCharacteristics:
