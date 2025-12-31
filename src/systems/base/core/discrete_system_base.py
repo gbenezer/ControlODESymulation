@@ -368,6 +368,11 @@ class DiscreteSystemBase(ABC):
         -------
         DiscreteSimulationResult
             TypedDict (returns as dict) containing trajectory and metadata
+            - states: (n_steps+1, nx) - TIME-MAJOR
+            - controls: (n_steps, nu) - TIME-MAJOR
+            - time_steps: (n_steps+1,)
+            - dt: float
+            - metadata: dict with closed_loop flag
 
         Examples
         --------
@@ -397,13 +402,14 @@ class DiscreteSystemBase(ABC):
         ...     return mpc_controller.compute_control(x, k)
         >>> result = system.rollout(x0, policy, n_steps=100)
         """
+        
         # Manual rollout with state feedback
         if policy is None:
             return self.simulate(x0, u_sequence=None, n_steps=n_steps, **kwargs)
 
-        # Implement closed-loop rollout
-        states = np.zeros((getattr(self, 'nx', x0.shape[0]), n_steps + 1))
-        states[:, 0] = x0
+        # Implement closed-loop rollout with TIME-MAJOR ordering
+        states = np.zeros((n_steps + 1, getattr(self, 'nx', x0.shape[0])))
+        states[0, :] = x0
         controls = []
         x = x0
 
@@ -411,13 +417,13 @@ class DiscreteSystemBase(ABC):
             u = policy(x, k)
             controls.append(u)
             x = self.step(x, u, k)
-            states[:, k + 1] = x
+            states[k + 1, :] = x
 
-        controls_array = np.array(controls).T if controls else None
+        controls_array = np.array(controls) if controls else None  # (n_steps, nu)
 
         return {
-            "states": states.T,
-            "controls": controls_array,
+            "states": states,  # (n_steps+1, nx)
+            "controls": controls_array,  # (n_steps, nu)
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
             "metadata": {**kwargs, "closed_loop": True, "method": "rollout"}
