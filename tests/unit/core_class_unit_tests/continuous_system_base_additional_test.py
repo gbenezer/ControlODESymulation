@@ -101,18 +101,22 @@ class VanDerPolOscillator(ContinuousSystemBase):
         from scipy.integrate import solve_ivp
         
         def rhs(t, x):
-            return self(x, u, t)
+            u_val = u(t, x) if callable(u) else (u if u is not None else None)
+            return self(x, u_val, t)
         
         result = solve_ivp(rhs, t_span, x0, method=method, **kwargs)
         return {
             "t": result.t,
-            "y": result.y,
+            "x": result.y.T,  # Convert (nx, T) to (T, nx)
             "success": result.success,
             "message": result.message,
             "nfev": result.nfev,
-            "njev": result.njev if hasattr(result, 'njev') else 0,
-            "nlu": result.nlu if hasattr(result, 'nlu') else 0,
-            "status": result.status
+            "njev": getattr(result, 'njev', 0),
+            "nlu": getattr(result, 'nlu', 0),
+            "status": result.status,
+            "nsteps": len(result.t),
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -149,18 +153,22 @@ class StiffChemicalReaction(ContinuousSystemBase):
         from scipy.integrate import solve_ivp
         
         def rhs(t, x):
-            return self(x, u, t)
+            u_val = u(t, x) if callable(u) else (u if u is not None else None)
+            return self(x, u_val, t)
         
         result = solve_ivp(rhs, t_span, x0, method=method, **kwargs)
         return {
             "t": result.t,
-            "y": result.y,
+            "x": result.y.T,  # Convert (nx, T) to (T, nx)
             "success": result.success,
             "message": result.message,
             "nfev": result.nfev,
-            "njev": result.njev if hasattr(result, 'njev') else 0,
-            "nlu": result.nlu if hasattr(result, 'nlu') else 0,
-            "status": result.status
+            "njev": getattr(result, 'njev', 0),
+            "nlu": getattr(result, 'nlu', 0),
+            "status": result.status,
+            "nsteps": len(result.t),
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -196,19 +204,22 @@ class HighDimensionalLinear(ContinuousSystemBase):
         from scipy.integrate import solve_ivp
         
         def rhs(t, x):
-            u_val = u(t) if callable(u) else (u if u is not None else None)
+            u_val = u(t, x) if callable(u) else (u if u is not None else None)
             return self(x, u_val, t)
         
         result = solve_ivp(rhs, t_span, x0, method=method, **kwargs)
         return {
             "t": result.t,
-            "y": result.y,
+            "x": result.y.T,  # Convert (nx, T) to (T, nx)
             "success": result.success,
             "message": result.message,
             "nfev": result.nfev,
-            "njev": result.njev if hasattr(result, 'njev') else 0,
-            "nlu": result.nlu if hasattr(result, 'nlu') else 0,
-            "status": result.status
+            "njev": getattr(result, 'njev', 0),
+            "nlu": getattr(result, 'nlu', 0),
+            "status": result.status,
+            "nsteps": len(result.t),
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -238,18 +249,22 @@ class LorenzSystem(ContinuousSystemBase):
         from scipy.integrate import solve_ivp
         
         def rhs(t, x):
-            return self(x, u, t)
+            u_val = u(t, x) if callable(u) else (u if u is not None else None)
+            return self(x, u_val, t)
         
         result = solve_ivp(rhs, t_span, x0, method=method, **kwargs)
         return {
             "t": result.t,
-            "y": result.y,
+            "x": result.y.T,  # Convert (nx, T) to (T, nx)
             "success": result.success,
             "message": result.message,
             "nfev": result.nfev,
-            "njev": result.njev if hasattr(result, 'njev') else 0,
-            "nlu": result.nlu if hasattr(result, 'nlu') else 0,
-            "status": result.status
+            "njev": getattr(result, 'njev', 0),
+            "nlu": getattr(result, 'nlu', 0),
+            "status": result.status,
+            "nsteps": len(result.t),
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -286,19 +301,22 @@ class ControlledOscillator(ContinuousSystemBase):
         from scipy.integrate import solve_ivp
         
         def rhs(t, x):
-            u_val = u(t) if callable(u) else (u if u is not None else None)
+            u_val = u(t, x) if callable(u) else (u if u is not None else None)
             return self(x, u_val, t)
         
         result = solve_ivp(rhs, t_span, x0, method=method, **kwargs)
         return {
             "t": result.t,
-            "y": result.y,
+            "x": result.y.T,  # Convert (nx, T) to (T, nx)
             "success": result.success,
             "message": result.message,
             "nfev": result.nfev,
-            "njev": result.njev if hasattr(result, 'njev') else 0,
-            "nlu": result.nlu if hasattr(result, 'nlu') else 0,
-            "status": result.status
+            "njev": getattr(result, 'njev', 0),
+            "nlu": getattr(result, 'nlu', 0),
+            "status": result.status,
+            "nsteps": len(result.t),
+            "integration_time": 0.0,
+            "solver": method
         }
     
     def linearize(self, x_eq, u_eq=None):
@@ -330,7 +348,7 @@ class TestNumericalAccuracy(unittest.TestCase):
         
         for tol in tolerances:
             result = system.integrate(x0, t_span=t_span, rtol=tol, atol=tol)
-            final_states.append(result['y'][:, -1])
+            final_states.append(result['x'][-1, :])
         
         # More stringent tolerance should give different (hopefully better) result
         diff_1_2 = np.linalg.norm(final_states[0] - final_states[1])
@@ -353,8 +371,8 @@ class TestNumericalAccuracy(unittest.TestCase):
         
         # Results should be close (though adaptive time points differ)
         # Compare final states
-        final_rk45 = result_rk45['y'][:, -1]
-        final_rk23 = result_rk23['y'][:, -1]
+        final_rk45 = result_rk45['x'][-1, :]
+        final_rk23 = result_rk23['x'][-1, :]
         
         np.testing.assert_allclose(final_rk45, final_rk23, rtol=1e-3)
     
@@ -377,7 +395,7 @@ class TestNumericalAccuracy(unittest.TestCase):
         result = system.integrate(x0, t_span=(0, 20), rtol=1e-9, atol=1e-12)
         
         # Compute energy: E = 0.5*(x1^2 + x2^2)
-        energies = 0.5 * (result['y'][0, :]**2 + result['y'][1, :]**2)
+        energies = 0.5 * (result['x'][:, 0]**2 + result['x'][:, 1]**2)
         
         # Energy should be approximately constant
         energy_drift = np.abs(energies[-1] - energies[0]) / energies[0]
@@ -424,7 +442,7 @@ class TestStiffSystems(unittest.TestCase):
         
         # Total concentration should be conserved
         total_initial = np.sum(x0)
-        total_final = np.sum(result['y'][:, -1])
+        total_final = np.sum(result['x'][-1, :])
         
         np.testing.assert_allclose(total_final, total_initial, rtol=1e-6)
     
@@ -459,7 +477,7 @@ class TestLongTimeIntegration(unittest.TestCase):
         
         self.assertTrue(result['success'])
         # States should remain bounded (damped oscillator)
-        self.assertLess(np.max(np.abs(result['y'])), 2.0)
+        self.assertLess(np.max(np.abs(result['x'])), 2.0)
     
     def test_long_time_autonomous_decay(self):
         """Damped autonomous system should decay over time."""
@@ -469,7 +487,7 @@ class TestLongTimeIntegration(unittest.TestCase):
         result = system.integrate(x0, t_span=(0, 100))
         
         # Final state should be near zero (damped)
-        final_state = result['y'][:, -1]
+        final_state = result['x'][-1, :]
         self.assertLess(np.linalg.norm(final_state), 0.1)
     
     @pytest.mark.slow
@@ -482,7 +500,7 @@ class TestLongTimeIntegration(unittest.TestCase):
         
         self.assertTrue(result['success'])
         # System should remain stable
-        self.assertLess(np.max(np.abs(result['y'])), 10.0)
+        self.assertLess(np.max(np.abs(result['x'])), 10.0)
 
 
 # =============================================================================
@@ -498,7 +516,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([1.0, 0.0])
         
-        def switching_control(t):
+        def switching_control(t, x):
             """Switch from u=1 to u=-1 at t=5"""
             return np.array([1.0 if t < 5.0 else -1.0])
         
@@ -513,7 +531,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([0.0, 0.0])
         
-        def high_freq_control(t):
+        def high_freq_control(t, x):
             return np.array([np.sin(20 * t)])
         
         result = system.integrate(x0, u=high_freq_control, t_span=(0, 10), max_step=0.01)
@@ -525,7 +543,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([2.0, 0.0])
         
-        def state_controller(x, t):
+        def state_controller(t, x):
             """Simple proportional control: u = -K*x"""
             K = np.array([[1.0, 0.5]])
             return -K @ x
@@ -534,8 +552,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         
         self.assertTrue(result['metadata']['success'])
         self.assertIn('controls', result)
-        # Note: Base class simulate() returns controls=None (placeholder)
-        # Concrete implementations should override to populate controls
+        # Base class should populate controls
         if result['controls'] is not None:
             self.assertEqual(result['controls'].shape[1], len(result['time']))
     
@@ -544,7 +561,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([5.0, 0.0])
         
-        def saturated_controller(x, t):
+        def saturated_controller(t, x):
             """Saturate control between -1 and 1."""
             u_desired = -2.0 * x[0] - 0.5 * x[1]
             return np.array([np.clip(u_desired, -1.0, 1.0)])
@@ -553,7 +570,6 @@ class TestComplexControlScenarios(unittest.TestCase):
         
         self.assertTrue(result['metadata']['success'])
         # Check saturation was applied (if controls are tracked)
-        # Note: Base class returns controls=None, concrete implementations should override
         if result['controls'] is not None:
             self.assertLessEqual(np.max(np.abs(result['controls'])), 1.0 + 1e-6)
     
@@ -562,7 +578,7 @@ class TestComplexControlScenarios(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([1.0, 0.0])
         
-        def adaptive_controller(x, t):
+        def adaptive_controller(t, x):
             """Gain increases with time."""
             K = 0.1 + 0.1 * t
             return np.array([-K * x[0]])
@@ -709,8 +725,8 @@ class TestSpecialDynamics(unittest.TestCase):
         
         # After long time, should be on limit cycle
         # Check periodicity (rough test)
-        final_trajectory = result['y'][:, -1000:]  # Last 1000 points
-        amplitude = np.std(final_trajectory[0, :])
+        final_trajectory = result['x'][-1000:, :]  # Last 1000 points
+        amplitude = np.std(final_trajectory[:, 0])
         self.assertGreater(amplitude, 0.5)  # Non-trivial oscillation
     
     def test_chaotic_lorenz_sensitivity(self):
@@ -725,7 +741,7 @@ class TestSpecialDynamics(unittest.TestCase):
         
         # Small initial difference should grow
         initial_diff = np.linalg.norm(x0_1 - x0_2)
-        final_diff = np.linalg.norm(result_1['y'][:, -1] - result_2['y'][:, -1])
+        final_diff = np.linalg.norm(result_1['x'][-1, :] - result_2['x'][-1, :])
         
         self.assertGreater(final_diff, initial_diff * 100)
     
@@ -743,13 +759,10 @@ class TestSpecialDynamics(unittest.TestCase):
         idx_1T = np.argmin(np.abs(result['t'] - T))
         idx_2T = np.argmin(np.abs(result['t'] - 2*T))
         
-        state_1T = result['y'][:, idx_1T]
-        state_2T = result['y'][:, idx_2T]
+        state_1T = result['x'][idx_1T, :]
+        state_2T = result['x'][idx_2T, :]
         
         # Should be close (periodic)
-        # Note: Use absolute tolerance because velocity passes through zero
-        # Relative tolerance would be huge when velocity is small
-        # For unit amplitude oscillator, atol=0.1 means 10% of max amplitude
         np.testing.assert_allclose(state_1T, state_2T, atol=0.1)
 
 
@@ -768,7 +781,7 @@ class TestErrorRecovery(unittest.TestCase):
         
         # Try integration with impossible time span
         try:
-            result = system.integrate(x0, t_span=(10, 0), method="RK45")  # Backward without proper setup
+            result = system.integrate(x0, t_span=(10, 0), method="RK45")
         except Exception:
             pass
         
@@ -784,7 +797,7 @@ class TestErrorRecovery(unittest.TestCase):
         # Generate multiple failures
         for _ in range(5):
             try:
-                system.integrate(x0, t_span=(0, -1))  # Invalid
+                system.integrate(x0, t_span=(0, -1))
             except Exception:
                 pass
         
@@ -817,7 +830,7 @@ class TestInterpolationAccuracy(unittest.TestCase):
         self.assertTrue(result_simulate['metadata']['success'])
         
         # Final states should be close
-        final_integrate = result_integrate['y'][:, -1]
+        final_integrate = result_integrate['x'][-1, :]
         final_simulate = result_simulate['states'][:, -1]
         
         np.testing.assert_allclose(final_integrate, final_simulate, rtol=1e-3)
@@ -836,7 +849,7 @@ class TestControllerComplexity(unittest.TestCase):
         system = ControlledOscillator()
         x0 = np.array([1.0, 0.0])
         
-        def nested_controller(x, t):
+        def nested_controller(t, x):
             """Controller that evaluates system dynamics."""
             dx = system(x, np.zeros(1), t)
             # Simple logic based on derivative
@@ -855,7 +868,7 @@ class TestControllerComplexity(unittest.TestCase):
         # Create stateful controller
         integral_error = [0.0]  # Mutable to allow closure modification
         
-        def pi_controller(x, t):
+        def pi_controller(t, x):
             """PI controller with integral action."""
             error = x[0]  # Error from setpoint (0)
             integral_error[0] += error * 0.1  # Rough integration
