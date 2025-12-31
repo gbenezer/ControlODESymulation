@@ -162,7 +162,7 @@ class TorchDiffEqIntegrator(IntegratorBase):
 
     def __init__(
         self,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: Optional[ScalarLike] = None,
         step_mode: StepMode = StepMode.ADAPTIVE,
         backend: Backend = "torch",

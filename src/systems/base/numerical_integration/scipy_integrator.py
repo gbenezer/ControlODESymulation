@@ -163,7 +163,7 @@ class ScipyIntegrator(IntegratorBase):
 
     def __init__(
         self,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: Optional[ScalarLike] = 0.01,
         method: str = "RK45",
         backend: Backend = "numpy",

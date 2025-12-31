@@ -115,7 +115,7 @@ class IntegratorBase(ABC):
 
     def __init__(
         self,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: Optional[ScalarLike] = None,
         step_mode: StepMode = StepMode.FIXED,
         backend: Backend = "numpy",

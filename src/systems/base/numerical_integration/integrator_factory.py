@@ -197,7 +197,7 @@ class IntegratorFactory:
     @classmethod
     def create(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         backend: Backend = "numpy",
         method: Optional[IntegrationMethod] = None,
         dt: Optional[ScalarLike] = None,
@@ -327,7 +327,7 @@ class IntegratorFactory:
     @classmethod
     def _create_numpy_integrator(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         method: IntegrationMethod,
         dt: Optional[ScalarLike],
         step_mode: StepMode,
@@ -459,7 +459,7 @@ class IntegratorFactory:
     @classmethod
     def _create_torch_integrator(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         method: IntegrationMethod,
         dt: Optional[ScalarLike],
         step_mode: StepMode,
@@ -478,7 +478,7 @@ class IntegratorFactory:
     @classmethod
     def _create_jax_integrator(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         method: IntegrationMethod,
         dt: Optional[ScalarLike],
         step_mode: StepMode,
@@ -517,7 +517,7 @@ class IntegratorFactory:
 
     @classmethod
     def auto(
-        cls, system: ContinuousSystemBase, prefer_backend: Optional[Backend] = None, **options
+        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options
     ) -> IntegratorBase:
         """
         Automatically select best integrator for system.
@@ -582,7 +582,7 @@ class IntegratorFactory:
 
     @classmethod
     def for_production(
-        cls, system: ContinuousSystemBase, use_julia: bool = False, **options
+        cls, system: "ContinuousSystemBase", use_julia: bool = False, **options
     ) -> IntegratorBase:
         """
         Create integrator for production use.
@@ -633,7 +633,7 @@ class IntegratorFactory:
                 default_options.update(options)
 
                 return DiffEqPyIntegrator(
-                    system: ContinuousSystemBase, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())", **default_options
+                    system, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())", **default_options
                 )
             except ImportError:
                 raise ImportError(
@@ -649,11 +649,11 @@ class IntegratorFactory:
             }
             default_options.update(options)
 
-            return cls.create(system: ContinuousSystemBase, backend="numpy", method="LSODA", **default_options)
+            return cls.create(system, backend="numpy", method="LSODA", **default_options)
 
     @classmethod
     def for_optimization(
-        cls, system: ContinuousSystemBase, prefer_backend: Optional[Backend] = None, **options
+        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options
     ) -> IntegratorBase:
         """
         Create integrator optimized for gradient-based optimization.
@@ -687,7 +687,7 @@ class IntegratorFactory:
             try:
                 import torch
 
-                return cls.create(system: ContinuousSystemBase, backend="torch", method="dopri5", **options)
+                return cls.create(system, backend="torch", method="dopri5", **options)
             except ImportError:
                 raise ImportError("PyTorch backend requires: pip install torch torchdiffeq")
 
@@ -695,7 +695,7 @@ class IntegratorFactory:
             try:
                 import jax
 
-                return cls.create(system: ContinuousSystemBase, backend="jax", method="tsit5", **options)
+                return cls.create(system, backend="jax", method="tsit5", **options)
             except ImportError:
                 raise ImportError("JAX backend requires: pip install jax diffrax")
 
@@ -704,12 +704,12 @@ class IntegratorFactory:
             try:
                 import jax
 
-                return cls.create(system: ContinuousSystemBase, backend="jax", method="tsit5", **options)
+                return cls.create(system, backend="jax", method="tsit5", **options)
             except ImportError:
                 try:
                     import torch
 
-                    return cls.create(system: ContinuousSystemBase, backend="torch", method="dopri5", **options)
+                    return cls.create(system, backend="torch", method="dopri5", **options)
                 except ImportError:
                     raise ImportError(
                         "Optimization requires JAX or PyTorch. Install either:\n"
@@ -719,7 +719,7 @@ class IntegratorFactory:
 
     @classmethod
     def for_neural_ode(
-        cls, system: ContinuousSystemBase, use_adjoint: bool = True, **options
+        cls, system: "ContinuousSystemBase", use_adjoint: bool = True, **options
     ) -> IntegratorBase:
         """
         Create integrator for Neural ODE training.
@@ -757,7 +757,7 @@ class IntegratorFactory:
     @classmethod
     def for_julia(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         algorithm: str = "Tsit5",
         **options,
     ) -> IntegratorBase:
@@ -799,7 +799,7 @@ class IntegratorFactory:
                 DiffEqPyIntegrator,
             )
 
-            return DiffEqPyIntegrator(system: ContinuousSystemBase, backend="numpy", algorithm=algorithm, **options)
+            return DiffEqPyIntegrator(system, backend="numpy", algorithm=algorithm, **options)
         except ImportError:
             raise ImportError(
                 "Julia integration requires diffeqpy. "
@@ -810,7 +810,7 @@ class IntegratorFactory:
     @classmethod
     def for_simple(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: ScalarLike = 0.01,
         backend: Backend = "numpy",
         **options,
@@ -844,13 +844,13 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_simple(autonomous_system)
         """
         return cls.create(
-            system: ContinuousSystemBase, backend=backend, method="rk4", dt=dt, step_mode=StepMode.FIXED, **options
+            system, backend=backend, method="rk4", dt=dt, step_mode=StepMode.FIXED, **options
         )
 
     @classmethod
     def for_educational(
         cls,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: ScalarLike = 0.01,
         backend: Backend = "numpy",
         **options,
@@ -884,7 +884,7 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_educational(autonomous_system)
         """
         return cls.create(
-            system: ContinuousSystemBase, backend=backend, method="euler", dt=dt, step_mode=StepMode.FIXED, **options
+            system, backend=backend, method="euler", dt=dt, step_mode=StepMode.FIXED, **options
         )
 
     # ========================================================================
@@ -1228,7 +1228,7 @@ class IntegratorFactory:
 
 
 def create_integrator(
-    system: ContinuousSystemBase,
+    system: "ContinuousSystemBase",
     backend: Backend = "numpy",
     method: Optional[str] = None,
     **options,
@@ -1247,10 +1247,10 @@ def create_integrator(
     >>> # Autonomous system
     >>> integrator = create_integrator(autonomous_system)
     """
-    return IntegratorFactory.create(system: ContinuousSystemBase, backend, method, **options)
+    return IntegratorFactory.create(system, backend, method, **options)
 
 
-def auto_integrator(system: ContinuousSystemBase, **options) -> IntegratorBase:
+def auto_integrator(system: "ContinuousSystemBase", **options) -> IntegratorBase:
     """
     Automatically select best available integrator.
 
@@ -1263,4 +1263,4 @@ def auto_integrator(system: ContinuousSystemBase, **options) -> IntegratorBase:
     >>> # Autonomous system
     >>> integrator = auto_integrator(autonomous_system)
     """
-    return IntegratorFactory.auto(system: ContinuousSystemBase, **options)
+    return IntegratorFactory.auto(system, **options)

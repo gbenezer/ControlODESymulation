@@ -152,7 +152,7 @@ class DiffraxIntegrator(IntegratorBase):
 
     def __init__(
         self,
-        system: ContinuousSystemBase,
+        system: "ContinuousSystemBase",
         dt: Optional[float] = None,
         step_mode: StepMode = StepMode.ADAPTIVE,
         backend: Backend = "jax",
