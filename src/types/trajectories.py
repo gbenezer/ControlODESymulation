@@ -419,73 +419,108 @@ class IntegrationResult(TypedDict, total=False):
 
 class SimulationResult(TypedDict, total=False):
     """
-    Result from discretized continuous-time simulation.
+    Result from continuous-time system simulation.
 
-    Contains trajectories, control sequences, and metadata.
+    Contains trajectories on a regular time grid, control sequences, and metadata.
+
+    **SHAPE CONVENTION**: For backward compatibility, arrays use **state-major**
+    ordering (nx, n_steps). This may change in future versions to time-major.
 
     Attributes
     ----------
+    time : TimePoints
+        Regular time points (n_steps+1,) with spacing dt
     states : StateTrajectory
-        State trajectory (n_steps+1, nx) - includes initial state
+        State trajectory **(nx, n_steps+1)** - includes initial state
+        **NOTE**: State-major ordering for backward compatibility
     controls : Optional[ControlSequence]
-        Control sequence used (n_steps, nu)
+        Control sequence used **(nu, n_steps)** if controller provided
     outputs : Optional[OutputSequence]
-        Output sequence (n_steps+1, ny) if computed
+        Output sequence **(ny, n_steps+1)** if computed
     noise : Optional[NoiseSequence]
         Noise sequence (n_steps, nw) for stochastic systems
-    time : Optional[TimePoints]
-        Time points (n_steps+1,) if applicable
-    success: bool
-        Whether or not the simulation succeeded
+    success : bool
+        Whether simulation succeeded
     metadata : Dict[str, Any]
-        Additional information (cost, constraints, etc.)
+        Additional information:
+        - 'method': Integration method used
+        - 'dt': Time step used
+        - 'nfev': Number of function evaluations
+        - 'cost': Trajectory cost (if applicable)
+
+    Notes
+    -----
+    This is the result from `simulate()` which provides a regular time grid
+    by wrapping the lower-level `integrate()` method.
+
+    **Array Ordering**: Currently uses **(nx, T)** state-major ordering for
+    backward compatibility with legacy code. Access states as `states[:, k]`
+    for state at time k, or `states[i, :]` for trajectory of state i.
+
+    For the raw adaptive-grid integration result, use `integrate()` which
+    may use different conventions depending on the backend.
 
     Examples
     --------
-    >>> # Basic discrete simulation
+    Continuous simulation with state feedback:
+
+    >>> def controller(x, t):  # Note: (x, t) order
+    ...     K = np.array([[-1.0, -2.0]])
+    ...     return -K @ x
+    >>>
     >>> result: SimulationResult = system.simulate(
-    ...     x0=np.zeros(3),
-    ...     u_seq=np.zeros((100, 2)),
-    ...     steps=100,
-    ...     return_all=True
+    ...     x0=np.array([1.0, 0.0]),
+    ...     controller=controller,
+    ...     t_span=(0.0, 10.0),
+    ...     dt=0.01
     ... )
     >>>
-    >>> states = result['states']      # (101, 3)
-    >>> controls = result['controls']  # (100, 2)
+    >>> time = result['time']           # (1001,)
+    >>> states = result['states']       # (2, 1001) - state-major!
+    >>> controls = result['controls']   # (1, 1000)
     >>>
-    >>> # Stochastic simulation
+    >>> # Access state trajectory of first state variable
+    >>> x1_trajectory = states[0, :]    # (1001,)
+    >>>
+    >>> # Access state at time step k
+    >>> x_at_k = states[:, k]           # (2,)
+    >>>
+    >>> # Plot
+    >>> import matplotlib.pyplot as plt
+    >>> plt.plot(time, states[0, :], label='x1')
+    >>> plt.plot(time, states[1, :], label='x2')
+    >>>
+    >>> # Check success
+    >>> if result['success']:
+    ...     print(f"Simulation completed with {result['metadata']['nfev']} evaluations")
+
+    Stochastic simulation:
+
     >>> result: SimulationResult = sde_system.simulate(
     ...     x0=np.zeros(2),
-    ...     u_seq=np.zeros((100, 1)),
-    ...     w_seq=np.random.randn(100, 2),
-    ...     steps=100
+    ...     controller=None,  # Open-loop
+    ...     t_span=(0, 5),
+    ...     dt=0.01
     ... )
     >>>
     >>> if 'noise' in result:
     ...     print("Stochastic simulation")
     ...     noise_used = result['noise']
-    >>>
-    >>> # With time information
-    >>> dt = 0.01
-    >>> result: SimulationResult = system.simulate(
-    ...     x0=x0, u_seq=u_seq, steps=100, dt=dt
-    ... )
-    >>> time = result['time']  # [0, dt, 2*dt, ..., 100*dt]
-    >>>
-    >>> # Access metadata
-    >>> if 'metadata' in result:
-    ...     metadata = result['metadata']
-    ...     if 'cost' in metadata:
-    ...         print(f"Trajectory cost: {metadata['cost']:.2f}")
+
+    See Also
+    --------
+    integrate : Lower-level integration with adaptive time grid
+    IntegrationResult : Result type from integrate()
     """
 
-    states: ArrayLike
-    controls: Optional[ArrayLike]
-    outputs: Optional[ArrayLike]
-    noise: Optional[ArrayLike]
-    time: Optional[ArrayLike]
+    time: ArrayLike  # (n_steps+1,)
+    states: ArrayLike  # (nx, n_steps+1) - STATE-MAJOR for backward compat
+    controls: Optional[ArrayLike]  # (nu, n_steps)
+    outputs: Optional[ArrayLike]  # (ny, n_steps+1)
+    noise: Optional[ArrayLike]  # (n_steps, nw)
     success: bool
     metadata: Dict[str, Any]
+
 
 class DiscreteSimulationResult(TypedDict, total=False):
     """
@@ -494,62 +529,123 @@ class DiscreteSimulationResult(TypedDict, total=False):
     Contains state trajectory, control sequence, and metadata for
     discrete-time systems (difference equations).
 
+    **SHAPE CONVENTION**: Different methods return different orderings!
+    - `simulate()`: Returns **(nx, n_steps+1)** state-major (legacy)
+    - `rollout()`: Returns **(n_steps+1, nx)** time-major (preferred)
+
     Attributes
     ----------
     states : StateTrajectory
-        State trajectory (n_steps+1, nx) - includes initial state x[0]
+        State trajectory - **shape depends on method**:
+        - `simulate()`: **(nx, n_steps+1)** - state-major
+        - `rollout()`: **(n_steps+1, nx)** - time-major
     controls : Optional[ControlSequence]
-        Control sequence applied (n_steps, nu)
+        Control sequence applied - **shape depends on method**:
+        - `simulate()`: **(nu, n_steps)** - state-major
+        - `rollout()`: **(n_steps, nu)** - time-major
     outputs : Optional[OutputSequence]
-        Output sequence (n_steps+1, ny) if computed
+        Output sequence (shape varies by method)
     noise : Optional[NoiseSequence]
-        Noise sequence (n_steps, nw) for stochastic discrete systems
+        Noise sequence for stochastic discrete systems
     time_steps : ArrayLike
         Time step indices [0, 1, 2, ..., n_steps]
     dt : float
-        Time step / sampling period
-    success: bool
-        Whether or not the simulation succeeded
+        Time step / sampling period (seconds per step)
+    success : bool
+        Whether simulation succeeded
     metadata : Dict[str, Any]
-        Additional information (method, closed_loop, etc.)
+        Additional information:
+        - 'method': 'discrete_step', 'rollout', etc.
+        - 'closed_loop': bool - whether state feedback was used
+        - 'cost': Trajectory cost (if applicable)
 
     Notes
     -----
-    The discrete result differs from continuous simulation results:
-    - Uses integer time_steps instead of continuous time points
-    - Includes dt (sampling period) as a scalar
-    - State trajectory has n_steps+1 points (includes x[0])
-    - Control sequence has n_steps points (u[0] through u[n_steps-1])
+    **Time Representation**: Unlike continuous systems which use continuous
+    time points, discrete systems use:
+    - `time_steps`: Integer indices [0, 1, 2, ...]
+    - `dt`: Scalar sampling period
+
+    Convert to continuous time if needed: `time = time_steps * dt`
+
+    **Array Ordering Inconsistency**: Be careful - `simulate()` and `rollout()`
+    return different array orderings! Check `metadata['method']` to determine
+    which convention is being used.
 
     Examples
     --------
-    >>> # Discrete simulation
+    Discrete simulation (state-major, from simulate()):
+
     >>> result: DiscreteSimulationResult = discrete_system.simulate(
     ...     x0=np.array([1.0, 0.0]),
-    ...     u_sequence=np.zeros((100, 1)),
+    ...     u_sequence=np.zeros((100, 1)),  # Time-major input
     ...     n_steps=100
     ... )
     >>>
-    >>> states = result['states']          # (101, 2) - includes x[0]
-    >>> controls = result['controls']      # (100, 1)
+    >>> states = result['states']          # (2, 101) - STATE-MAJOR!
+    >>> controls = result['controls']      # (1, 100) - STATE-MAJOR!
     >>> time_steps = result['time_steps']  # [0, 1, ..., 100]
     >>> dt = result['dt']                  # 0.01
     >>>
-    >>> # Convert to continuous time if needed
-    >>> time_continuous = result['time_steps'] * result['dt']
+    >>> # Access state at step k
+    >>> x_k = states[:, k]                 # (2,) - column indexing
     >>>
-    >>> # Plot discrete trajectory
+    >>> # Access trajectory of state i
+    >>> x1_traj = states[0, :]             # (101,)
+
+    Discrete rollout (time-major, from rollout()):
+
+    >>> def policy(x, k):  # Note: (x, k) order
+    ...     K = np.array([[-1.0, -2.0]])
+    ...     return -K @ x
+    >>>
+    >>> result: DiscreteSimulationResult = discrete_system.rollout(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     policy=policy,
+    ...     n_steps=100
+    ... )
+    >>>
+    >>> states = result['states']          # (101, 2) - TIME-MAJOR!
+    >>> controls = result['controls']      # (100, 1) - TIME-MAJOR!
+    >>>
+    >>> # Access state at step k
+    >>> x_k = states[k, :]                 # (2,) - row indexing
+    >>>
+    >>> # Access trajectory of state i
+    >>> x1_traj = states[:, 0]             # (101,)
+
+    Converting between conventions:
+
+    >>> # Check which convention was used
+    >>> if result['metadata']['method'] == 'rollout':
+    ...     # Time-major: (T, nx) - already correct for most uses
+    ...     states_time_major = result['states']
+    ... else:
+    ...     # State-major: (nx, T) - transpose if needed
+    ...     states_time_major = result['states'].T
+
+    Plot discrete trajectory (handle both conventions):
+
     >>> import matplotlib.pyplot as plt
-    >>> plt.step(time_steps, states[:, 0], where='post', label='x1')
-    >>> plt.xlabel('Time Step k')
-    >>> plt.ylabel('State')
+    >>> method = result['metadata']['method']
+    >>>
+    >>> if method == 'rollout':
+    ...     # Time-major: states is (T, nx)
+    ...     plt.step(time_steps, states[:, 0], where='post', label='x1')
+    ... else:
+    ...     # State-major: states is (nx, T)
+    ...     plt.step(time_steps, states[0, :], where='post', label='x1')
+
+    See Also
+    --------
+    SimulationResult : Continuous-time simulation result
     """
 
-    states: ArrayLike
-    controls: Optional[ArrayLike]
+    states: ArrayLike  # Shape varies: (nx, T) or (T, nx)
+    controls: Optional[ArrayLike]  # Shape varies: (nu, T) or (T, nu)
     outputs: Optional[ArrayLike]
     noise: Optional[ArrayLike]
-    time_steps: ArrayLike
+    time_steps: ArrayLike  # (n_steps+1,)
     dt: float
     success: bool
     metadata: Dict[str, Any]
