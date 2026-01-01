@@ -1269,9 +1269,83 @@ class DiscretizedSystem(DiscreteSystemBase):
     
     def _step_fixed(self, x, u, t_start, t_end):
         """
-        Single fixed-step integration.
+        Single fixed-step integration from t_start to t_end.
         
-        Automatically uses SDE integrator for stochastic systems with SDE methods.
+        Automatically selects between SDE and deterministic integration based on
+        system type and method configuration. For stochastic systems with SDE
+        methods, attempts SDE integration with fallback to deterministic.
+        
+        Parameters
+        ----------
+        x : StateVector
+            Current state (nx,)
+        u : ControlVector or None
+            Control input (constant over [t_start, t_end])
+        t_start : float
+            Start time
+        t_end : float
+            End time (typically t_start + dt)
+        
+        Returns
+        -------
+        StateVector
+            State at t_end (nx,)
+        
+        Integration Selection Logic
+        ---------------------------
+        1. **SDE integration** (if all conditions met):
+        - System is stochastic (self._is_stochastic = True)
+        - Method is SDE method (self._method in _SDE_METHODS)
+        - SDE integrator available (self._has_sde_integrator = True)
+        - Uses SDEIntegratorFactory with specified method
+        
+        2. **Deterministic integration** (otherwise):
+        - Non-stochastic systems
+        - Stochastic systems with deterministic methods
+        - SDE integration unavailable or failed
+        - Uses IntegratorFactory with specified method
+        
+        Fallback Behavior
+        -----------------
+        If SDE integration is attempted but fails, automatically falls back to
+        deterministic integration (RK4) with a warning. Fallback occurs when:
+        
+        - **ImportError**: SDEIntegratorFactory module not available
+        - Missing package: diffeqpy (NumPy), torchsde (PyTorch), diffrax (JAX)
+        
+        - **AttributeError**: System missing required SDE interface
+        - System lacks `diffusion()` method
+        - System lacks `_default_backend` attribute
+        - Backend object missing expected attributes
+        
+        - **ValueError**: Invalid configuration for SDE integrator
+        - Method not supported by backend
+        - Invalid dt or integrator_kwargs
+        - System dimensions mismatch (nx, nu, nw)
+        
+        **Warning**: When fallback occurs, noise is IGNORED and only drift term
+        is integrated. This produces incorrect results for stochastic systems.
+        
+        Notes
+        -----
+        - Called by `step()` when mode is FIXED_STEP
+        - Each call creates new integrator instance (may be inefficient for
+        long simulations with many steps)
+        - Control u is held constant over the integration interval
+        - For stochastic systems, each call generates different noise realization
+        
+        Examples
+        --------
+        >>> # Typical usage through step() method
+        >>> discrete = DiscretizedSystem(system, dt=0.01, method='rk4',
+        ...                              mode=DiscretizationMode.FIXED_STEP)
+        >>> x_next = discrete.step(x0, u0, k=0)
+        >>> # Internally calls: _step_fixed(x0, u0, 0.0, 0.01)
+        
+        See Also
+        --------
+        _step_dense : Step using adaptive integration with dense output
+        step : Public interface for single time step
         """
         # Check if we should use SDE integrator
         use_sde = (
@@ -1326,8 +1400,118 @@ class DiscretizedSystem(DiscreteSystemBase):
         """
         Single step using dense output (adaptive methods).
         
-        Note: Most SDE methods don't support dense output, so this falls back
-        to regular integration for stochastic systems.
+        Integrates from t_start to t_end using adaptive step size methods and
+        evaluates solution at t_end using dense output (continuous solution
+        representation). For stochastic systems, falls back to regular integration
+        since most SDE methods don't support dense output.
+        
+        Parameters
+        ----------
+        x : StateVector
+            Current state (nx,)
+        u : ControlVector or None
+            Control input (constant over [t_start, t_end])
+        t_start : float
+            Start time
+        t_end : float
+            End time (typically t_start + dt)
+        
+        Returns
+        -------
+        StateVector
+            State at t_end (nx,)
+        
+        Integration Selection Logic
+        ---------------------------
+        1. **SDE integration** (if stochastic system with SDE method):
+        - Attempts SDE integration WITHOUT dense output
+        - Most SDE methods don't support dense output
+        - Uses final point from integration result
+        - Falls back to deterministic on failure
+        
+        2. **Deterministic integration with dense output** (otherwise):
+        - Uses adaptive method (RK45, LSODA, etc.)
+        - Computes continuous solution representation
+        - Evaluates solution exactly at t_end
+        - More accurate for adaptive methods than using final integration point
+        
+        Dense Output Behavior
+        ---------------------
+        **Deterministic systems:**
+        - Adaptive integrator computes solution representation (e.g., Hermite
+        interpolant for RK45)
+        - Solution can be evaluated at any t in [t_start, t_end]
+        - Result at t_end is typically more accurate than last integration point
+        - Fallback: If dense output unavailable, uses final integration point
+        
+        **Stochastic systems:**
+        - Dense output NOT SUPPORTED for SDE methods
+        - Uses final integration point only
+        - Each call produces different result due to random noise
+        - Interpolation between SDE sample paths is not well-defined
+        
+        Fallback Behavior (SDE Path)
+        ----------------------------
+        If SDE integration is attempted but fails, falls back to deterministic
+        integration with dense output. Fallback triggers:
+        
+        - **ImportError**: SDEIntegratorFactory not available
+        - Missing: diffeqpy (NumPy), torchsde (PyTorch), diffrax (JAX)
+        
+        - **AttributeError**: System interface incomplete
+        - Missing `diffusion()` method
+        - Missing `_default_backend` attribute
+        - Backend missing expected methods
+        
+        - **ValueError**: Invalid SDE integrator configuration
+        - Method not supported by backend
+        - Invalid parameters (dt, method, dimensions)
+        
+        **Warning**: Fallback ignores noise - produces incorrect results for
+        stochastic systems.
+        
+        Fallback Behavior (Dense Output Path)
+        -------------------------------------
+        If dense output is unavailable (old scipy versions, custom integrators),
+        uses final integration point instead:
+        
+        - Checks if result['sol'] exists and is not None
+        - If available: evaluates sol(t_end)
+        - If unavailable: uses result['x'][-1, :] or result['y'][:, -1]
+        
+        Notes
+        -----
+        - Called by `step()` when mode is DENSE_OUTPUT
+        - Preferred for adaptive methods (more accurate than FIXED_STEP mode)
+        - Less efficient than FIXED_STEP for fixed-step methods
+        - For long simulations, BATCH_INTERPOLATION mode is more efficient
+        
+        Performance Considerations
+        --------------------------
+        - Creates new integrator instance per call (overhead for short intervals)
+        - Dense output evaluation is cheap compared to integration cost
+        - For N steps, BATCH mode does 1 integration vs N integrations here
+        
+        Examples
+        --------
+        >>> # Typical usage with adaptive method
+        >>> discrete = DiscretizedSystem(system, dt=0.01, method='RK45',
+        ...                              mode=DiscretizationMode.DENSE_OUTPUT)
+        >>> x_next = discrete.step(x0, u0, k=0)
+        >>> # Internally: integrates [0.0, 0.01] adaptively, evaluates sol(0.01)
+        
+        >>> # With stochastic system (no dense output)
+        >>> discrete = DiscretizedSystem(stochastic_system, dt=0.01,
+        ...                              sde_method='euler_maruyama',
+        ...                              mode=DiscretizationMode.DENSE_OUTPUT)
+        >>> x_next = discrete.step(x0, u0, k=0)
+        >>> # Internally: SDE integration without dense output, uses final point
+        
+        See Also
+        --------
+        _step_fixed : Step using fixed-step integration
+        _simulate_batch : Batch integration with interpolation (more efficient)
+        step : Public interface for single time step
         """
         # Check if we should use SDE integrator
         use_sde = (
@@ -1778,28 +1962,221 @@ class DiscretizedSystem(DiscreteSystemBase):
         }
     
     def _interpolate_trajectory(self, t_adaptive, y_adaptive, t_regular):
-        """Interpolate from adaptive to regular grid."""
+        """
+        Interpolate trajectory from adaptive time grid to regular time grid.
+        
+        Used in BATCH_INTERPOLATION mode to convert adaptive integrator output
+        (irregular time points) to the requested regular time grid (uniform dt).
+        
+        Parameters
+        ----------
+        t_adaptive : ndarray, shape (n_adaptive,)
+            Time points from adaptive integration (irregular spacing).
+            Expected to span at least the range of t_regular.
+        y_adaptive : ndarray, shape (n_adaptive, nx) or (nx, n_adaptive)
+            State trajectory at adaptive time points.
+            Automatically transposed if shape is (nx, n_adaptive).
+        t_regular : ndarray, shape (n_regular,)
+            Desired regular time grid (uniform spacing dt).
+            Typically: [0, dt, 2*dt, ..., n_steps*dt]
+        
+        Returns
+        -------
+        y_regular : ndarray, shape (n_regular, nx)
+            Interpolated state trajectory at regular time points
+        
+        Raises
+        ------
+        ValueError
+            If t_regular extends significantly beyond t_adaptive range,
+            indicating integration failure or early termination.
+        
+        Interpolation Method
+        --------------------
+        - Uses scipy.interpolate.interp1d
+        - Kind determined by self._interpolation_kind ('linear' or 'cubic')
+        - Automatic fallback: cubic → linear if n_adaptive < 4 points
+        - Each state dimension interpolated independently
+        
+        Time Grid Validation
+        --------------------
+        The method validates that t_adaptive properly spans t_regular:
+        
+        1. **Floating-point tolerance** (tol = 1e-10):
+        - Small mismatches due to floating-point arithmetic are allowed
+        - Typical: t_adaptive[-1] = 9.999999999999998 vs t_regular[-1] = 10.0
+        
+        2. **Significant mismatch** (> 1% of dt):
+        - Raises ValueError with diagnostic information
+        - Indicates adaptive integrator stopped early due to:
+            * max_steps limit reached
+            * Numerical issues (stiffness, instability)
+            * Integration failure
+        
+        3. **Minor mismatch** (> tol but < 1% of dt):
+        - Issues warning but continues
+        - Clips t_regular to t_adaptive range
+        - Uses endpoint extrapolation
+        
+        **Why validation is important:**
+        Previous implementation silently extrapolated when t_adaptive was shorter
+        than expected, masking serious integration failures. This could produce
+        incorrect results without any indication that something went wrong.
+        
+        Notes
+        -----
+        - Only used in BATCH_INTERPOLATION mode
+        - Assumes t_adaptive is sorted (enforced with assume_sorted=True)
+        - Transposition handling: Accepts either (n, nx) or (nx, n) for y_adaptive
+        - Independent interpolation per state may introduce small artifacts at
+        state constraints
+        
+        Performance
+        -----------
+        - O(nx * n_regular * log(n_adaptive)) for sorted interpolation
+        - Cubic interpolation ~2-3x slower than linear
+        - Negligible compared to integration cost for typical simulations
+        - Validation overhead is O(1)
+        
+        Accuracy
+        --------
+        - Linear: O(h²) error where h = max spacing in t_adaptive
+        - Cubic: O(h⁴) error
+        - For adaptive integrators with dense output, evaluating dense output
+        directly (DENSE_OUTPUT mode) is more accurate than interpolation
+        
+        Examples
+        --------
+        >>> # Normal case - adaptive grid spans regular grid
+        >>> t_adaptive = np.array([0.0, 0.003, 0.011, 0.025, ..., 10.0])
+        >>> y_adaptive = np.random.randn(len(t_adaptive), 4)  # 4 states
+        >>> t_regular = np.arange(0, 10.01, 0.01)  # 1001 points
+        >>> y_regular = discrete._interpolate_trajectory(
+        ...     t_adaptive, y_adaptive, t_regular
+        ... )
+        >>> y_regular.shape
+        (1001, 4)
+        
+        >>> # Floating-point mismatch (harmless)
+        >>> t_adaptive = np.array([0.0, 0.5, 0.999999999999998])
+        >>> t_regular = np.array([0.0, 0.5, 1.0])
+        >>> y_regular = discrete._interpolate_trajectory(...)  # Works fine
+        
+        >>> # Minor mismatch (warning issued)
+        >>> t_adaptive = np.array([0.0, 0.5, 0.99])  # 1% short
+        >>> t_regular = np.array([0.0, 0.5, 1.0])
+        >>> y_regular = discrete._interpolate_trajectory(...)
+        # UserWarning: Time grid mismatch detected...
+        
+        >>> # Significant mismatch (error raised)
+        >>> t_adaptive = np.array([0.0, 0.5, 0.8])  # 20% short
+        >>> t_regular = np.array([0.0, 0.5, 1.0])
+        >>> y_regular = discrete._interpolate_trajectory(...)
+        # ValueError: Adaptive integration appears to have failed...
+        
+        >>> # Cubic interpolation requires ≥4 points
+        >>> t_adaptive_short = np.array([0.0, 0.5, 1.0])  # Only 3 points
+        >>> # Automatically falls back to linear (no warning needed)
+        
+        See Also
+        --------
+        _simulate_batch : Main caller of this method
+        scipy.interpolate.interp1d : Underlying interpolation function
+        """
+        # Transpose if necessary
         if y_adaptive.shape[0] != len(t_adaptive):
             y_adaptive = y_adaptive.T
         
         nx = y_adaptive.shape[1]
         y_regular = np.zeros((len(t_regular), nx))
         
-        # Clip t_regular to be within t_adaptive range (avoid extrapolation errors)
+        # ========================================================================
+        # Validate time grid compatibility
+        # ========================================================================
+        
+        # Define tolerance for floating-point comparisons
+        FP_TOL = 1e-10  # Floating-point epsilon tolerance
+        MISMATCH_TOL = 0.01 * self._dt  # 1% of time step
+        
+        # Check start time
+        t_start_diff = t_regular[0] - t_adaptive[0]
+        if t_start_diff < -FP_TOL:  # t_regular starts before t_adaptive
+            raise ValueError(
+                f"Regular time grid starts before adaptive grid: "
+                f"t_regular[0]={t_regular[0]:.10f}, t_adaptive[0]={t_adaptive[0]:.10f}. "
+                f"Difference: {t_start_diff:.2e}"
+            )
+        
+        # Check end time
+        t_end_diff = t_regular[-1] - t_adaptive[-1]
+        
+        if t_end_diff > MISMATCH_TOL:
+            # Significant mismatch - integration likely failed
+            raise ValueError(
+                f"Adaptive integration appears to have failed or stopped early. "
+                f"Requested end time: t={t_regular[-1]:.6f}, "
+                f"but integration stopped at t={t_adaptive[-1]:.6f}. "
+                f"Shortfall: {t_end_diff:.6f} ({t_end_diff/self._dt:.1f} time steps). "
+                f"This may indicate:\n"
+                f"  - max_steps limit reached\n"
+                f"  - Numerical instability in integration\n"
+                f"  - Stiff system requiring different method\n"
+                f"Check result['success'] and consider using a more robust integrator."
+            )
+        
+        elif t_end_diff > FP_TOL:
+            # Minor mismatch - warn but continue
+            import warnings
+            warnings.warn(
+                f"Time grid mismatch detected. "
+                f"Requested t_end={t_regular[-1]:.10f}, "
+                f"but adaptive integration ended at t={t_adaptive[-1]:.10f}. "
+                f"Difference: {t_end_diff:.2e}. "
+                f"Clipping to adaptive range and extrapolating with endpoint values.",
+                UserWarning,
+                stacklevel=3  # Report from _simulate_batch
+            )
+        
+        # If start time slightly before adaptive grid (within tolerance), clip it
+        if t_start_diff > FP_TOL:
+            import warnings
+            warnings.warn(
+                f"Regular grid starts slightly after adaptive grid "
+                f"(Δt={t_start_diff:.2e}). Clipping to adaptive range.",
+                UserWarning,
+                stacklevel=3
+            )
+        
+        # ========================================================================
+        # Clip to safe range (after validation)
+        # ========================================================================
+        
+        # Clip t_regular to be within t_adaptive range
+        # After validation, this should only clip floating-point noise
         t_regular_clipped = np.clip(t_regular, t_adaptive[0], t_adaptive[-1])
         
-        # Choose interpolation kind based on available points
+        # ========================================================================
+        # Choose interpolation kind
+        # ========================================================================
+        
         kind = self._interpolation_kind
         if len(t_adaptive) < 4 and kind == 'cubic':
-            kind = 'linear'  # Fall back to linear if not enough points for cubic
+            # Fallback to linear if not enough points for cubic
+            # (cubic spline requires at least 4 points)
+            kind = 'linear'
+        
+        # ========================================================================
+        # Perform interpolation
+        # ========================================================================
         
         for i in range(nx):
             interp = interp1d(
-                t_adaptive, y_adaptive[:, i], 
+                t_adaptive, 
+                y_adaptive[:, i], 
                 kind=kind,
-                bounds_error=False,  # Don't raise on out-of-bounds
-                fill_value=(y_adaptive[0, i], y_adaptive[-1, i]),  # Extrapolate with endpoints
-                assume_sorted=True
+                bounds_error=False,  # Don't raise (we've already validated)
+                fill_value=(y_adaptive[0, i], y_adaptive[-1, i]),  # Endpoint extrapolation
+                assume_sorted=True  # Performance optimization
             )
             y_regular[:, i] = interp(t_regular_clipped)
         
