@@ -57,7 +57,7 @@ Inheritance Hierarchy
                             |
          +------------------+------------------+
          |                                     |
-    ContinuousDynamicalSystem          DiscreteDynamicalSystem
+    ContinuousSymbolicSystem          DiscreteSymbolicSystem
     (+ ContinuousSystemBase)           (+ DiscreteSystemBase)
          |                                     |
          |                                     |
@@ -156,8 +156,8 @@ class MySystem(SymbolicSystemBase, ContinuousSystemBase):
 
 See Also
 --------
-- ContinuousDynamicalSystem: Concrete continuous-time implementation
-- DiscreteDynamicalSystem: Concrete discrete-time implementation
+- ContinuousSymbolicSystem: Concrete continuous-time implementation
+- DiscreteSymbolicSystem: Concrete discrete-time implementation
 - ContinuousSystemBase: Continuous-time interface
 - DiscreteSystemBase: Discrete-time interface
 - BackendManager: Multi-backend management
@@ -495,8 +495,10 @@ class SymbolicSystemBase(ABC):
 
         - ``self.state_vars``: List[sp.Symbol]
             State variables (e.g., [x, y, theta])
+            Cannot be empty
         - ``self.control_vars``: List[sp.Symbol]
             Control variables (e.g., [u1, u2])
+            Empty list for autonomous systems
         - ``self._f_sym``: sp.Matrix
             Symbolic dynamics (column vector)
         - ``self.parameters``: Dict[sp.Symbol, float]
