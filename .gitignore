@@ -380,6 +380,9 @@ cython_debug/
 # test virtual environments created when running test_pyproject.sh
 test_venv*/
 
+# personal reference documents for my own usage
+personal_reference/
+
 # ============================================================================
 # Keep These (Negations)
 # ============================================================================
