@@ -32,6 +32,9 @@ DiscretizedSystem satisfies:
 
 This is CORRECT - discretization is numerical, not symbolic!
 
+NOTE: DiscretizedSystem itself doesn't provide symbolic discrete-time expressions, 
+even when wrapping symbolic continuous systems. 
+
 See class docstring for complete documentation.
 """
 
@@ -359,7 +362,7 @@ class DiscretizedSystem(DiscreteSystemBase):
     # ========================================================================
     
     @staticmethod
-    def _normalize_method_name(method: str, backend: str = 'numpy') -> str:
+    def _normalize_method_name(method: str, backend: Backend = 'numpy') -> str:
         """
         Normalize method names across backends to canonical form.
         
@@ -610,7 +613,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         return method
     
     @staticmethod
-    def get_available_methods(backend: str = 'numpy', method_type: str = 'all') -> dict:
+    def get_available_methods(backend: Backend = 'numpy', method_type: str = 'all') -> dict:
         """
         Get available integration methods for a backend.
         
