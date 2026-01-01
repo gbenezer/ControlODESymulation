@@ -422,17 +422,17 @@ class TestCustomNoiseSupport:
         # Should be identical
         assert_allclose(x_sde, x_expected, rtol=1e-10, atol=1e-12)
 
-    def test_zero_noise_trajectory_matches_deterministic(self, ou_system):
+    def test_zero_noise_short_trajectory_matches_deterministic(self, ou_system):
         """
-        Test that a full trajectory with zero noise matches deterministic evolution.
-
-        This is a more comprehensive test that runs multiple steps.
+        Test that a short trajectory with zero noise matches deterministic evolution.
+        
+        Uses fewer steps to avoid accumulation of numerical integration error.
         """
         integrator = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
 
         x0 = jnp.array([1.0])
         dt = 0.01
-        n_steps = 100
+        n_steps = 10  # Shorter trajectory to reduce error accumulation
         alpha = 1.0
 
         # Run SDE trajectory with zero noise
@@ -448,8 +448,43 @@ class TestCustomNoiseSupport:
         t_values = jnp.arange(n_steps + 1) * dt
         x_analytical = x0 * jnp.exp(-alpha * t_values).reshape(-1, 1)
 
-        # Should match closely (within numerical integration error)
-        assert_allclose(sde_trajectory, x_analytical, rtol=1e-3, atol=1e-4)
+        # Should match closely (Euler has O(dt) global error)
+        # For 10 steps with dt=0.01, expect error ~ O(0.01) ≈ 0.01
+        assert_allclose(sde_trajectory, x_analytical, rtol=2e-2, atol=1e-3)
+
+    def test_zero_noise_verifies_drift_only_dynamics(self, ou_system):
+        """
+        Test that zero noise produces drift-only dynamics using trajectory comparison.
+        
+        Compares SDE trajectory with zero noise against manually computed
+        Euler discretization of the drift term only.
+        """
+        integrator = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
+
+        x0 = jnp.array([1.0])
+        dt = 0.01
+        n_steps = 20
+        alpha = 1.0
+
+        # Run SDE trajectory with zero noise
+        x_sde = x0
+        sde_trajectory = [x_sde]
+        for _ in range(n_steps):
+            x_sde = integrator.step(x_sde, None, dt, dW=jnp.zeros(1))
+            sde_trajectory.append(x_sde)
+        sde_trajectory = jnp.stack(sde_trajectory)
+
+        # Manually compute Euler discretization of drift only
+        # x[k+1] = x[k] + f(x[k]) * dt = x[k] - alpha * x[k] * dt
+        x_euler = x0
+        euler_trajectory = [x_euler]
+        for _ in range(n_steps):
+            x_euler = x_euler + (-alpha * x_euler) * dt
+            euler_trajectory.append(x_euler)
+        euler_trajectory = jnp.stack(euler_trajectory)
+
+        # Should be EXACTLY identical (both use same Euler discretization)
+        assert_allclose(sde_trajectory, euler_trajectory, rtol=1e-10, atol=1e-12)
 
     def test_custom_noise_with_controlled_system(self, controlled_system):
         """Test custom noise with controlled SDE."""
