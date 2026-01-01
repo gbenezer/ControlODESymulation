@@ -422,7 +422,7 @@ def generate_numpy_function(
         - Vector expr: returns shape (n,)
 
         Extract scalar: result[0] or result.item()
-        
+
         Special case: Inhomogeneous structures (batched multiplicative noise)
         are returned as-is for higher-level handlers to process.
     """
@@ -495,7 +495,7 @@ def generate_torch_function(
         - Vector expr: returns shape (n,)
 
         Extract scalar: result[0] or result.item()
-        
+
         Special case: Inhomogeneous structures (batched multiplicative noise)
         are returned as-is for higher-level handlers to process.
     """
@@ -568,7 +568,7 @@ def generate_jax_function(
         - Vector expr: returns shape (n,)
 
         Extract scalar: result[0] or result.item()
-        
+
         Special case: Inhomogeneous structures (batched multiplicative noise)
         are returned as-is for higher-level handlers to process.
     """

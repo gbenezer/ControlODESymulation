@@ -129,24 +129,24 @@ Usage Example
 ```python
 class MySystem(SymbolicSystemBase, ContinuousSystemBase):
     '''Concrete system combining symbolic machinery with continuous interface.'''
-    
+
     def define_system(self, a=1.0, b=2.0):
         '''Define symbolic system.'''
         x = sp.symbols('x', real=True)
         u = sp.symbols('u', real=True)
         a_sym, b_sym = sp.symbols('a b', real=True, positive=True)
-        
+
         self.state_vars = [x]
         self.control_vars = [u]
         self._f_sym = sp.Matrix([-a_sym * x + b_sym * u])
         self.parameters = {a_sym: a, b_sym: b}
         self.order = 1
-    
+
     def print_equations(self, simplify=True):
         '''Implement with continuous notation.'''
         print("dx/dt = f(x, u)")
         # ... implementation details
-    
+
     # Must also implement ContinuousSystemBase interface:
     # - __call__(x, u, t) → dx/dt
     # - integrate(x0, u, t_span)
@@ -201,12 +201,7 @@ if TYPE_CHECKING:
     import torch
 
 # Type aliases
-from src.types.core import (
-    ScalarLike,
-    EquilibriumName,
-    EquilibriumState,
-    EquilibriumControl
-)
+from src.types.core import ScalarLike, EquilibriumName, EquilibriumState, EquilibriumControl
 from src.types.backends import Backend, Device
 
 
@@ -388,19 +383,19 @@ class SymbolicSystemBase(ABC):
         # Initialization flag
         self._initialized: bool = False
         """Tracks whether system has been successfully initialized and validated"""
-        
+
         # ====================================================================
         # Phase 3: Cooperative Multiple Inheritance
         # ====================================================================
         # CRITICAL FIX: Call super().__init__() to ensure all base classes
         # in the Method Resolution Order (MRO) are properly initialized
-        
+
         # This is essential for multiple inheritance to work correctly:
         # - If inheriting from (SymbolicSystemBase, ContinuousSystemBase),
         #   this ensures ContinuousSystemBase.__init__() is called (if it exists)
         # - If ContinuousSystemBase has no __init__, Python's object.__init__() is called
         # - This maintains the cooperative inheritance chain
-        
+
         super().__init__()
 
         # ====================================================================
@@ -413,7 +408,9 @@ class SymbolicSystemBase(ABC):
         # Step 2: Create validator and validate system definition
         self._validator = SymbolicValidator(self)
         try:
-            validation_result: SymbolicValidationResult = self._validator.validate(raise_on_error=True)
+            validation_result: SymbolicValidationResult = self._validator.validate(
+                raise_on_error=True
+            )
         except ValidationError as e:
             # Re-raise with context about which system failed
             raise ValidationError(
@@ -716,7 +713,7 @@ class SymbolicSystemBase(ABC):
                 print("=" * 70)
         """
         pass
-    
+
     # ========================================================================
     # Hook Method for Equilibrium Verification (Template Method Pattern)
     # ========================================================================
@@ -1322,9 +1319,7 @@ class SymbolicSystemBase(ABC):
     # Symbolic Utilities
     # ========================================================================
 
-    def substitute_parameters(
-        self, expr: Union[sp.Expr, sp.Matrix]
-    ) -> Union[sp.Expr, sp.Matrix]:
+    def substitute_parameters(self, expr: Union[sp.Expr, sp.Matrix]) -> Union[sp.Expr, sp.Matrix]:
         """
         Substitute numerical parameter values into symbolic expression.
 
@@ -1437,40 +1432,42 @@ class SymbolicSystemBase(ABC):
         """
         # Base class: no verification function
         # Concrete subclasses override to provide verification via _verify_equilibrium_numpy
-        
+
         # CRITICAL FIX: Properly handle verification function
         # FIXED IMPLEMENTATION: Verify first, then add
-        
+
         # TODO: having a _verify_equilibrium_numpy() function seems ad-hoc
         # compared to having the verification be handled by the EquilibriumHandler;
         # may need minor refactoring
-    
+
         if verify:
             # Check if concrete class implements verification
             try:
                 is_valid = self._verify_equilibrium_numpy(x_eq, u_eq, tol)
-                
+
                 if not is_valid:
                     # Equilibrium verification failed
                     import warnings
+
                     warnings.warn(
                         f"Equilibrium '{name}' at x={x_eq}, u={u_eq} failed verification. "
                         f"The equilibrium condition is not satisfied within tolerance {tol}. "
                         f"Adding anyway, but this may not be a true equilibrium point.",
                         UserWarning,
-                        stacklevel=2
+                        stacklevel=2,
                     )
-                    
+
             except NotImplementedError:
                 # Method not implemented - warn
                 import warnings
+
                 warnings.warn(
                     f"{self.__class__.__name__} does not implement _verify_equilibrium_numpy(). "
                     f"Equilibrium '{name}' will be added without verification.",
                     UserWarning,
-                    stacklevel=2
+                    stacklevel=2,
                 )
-        
+
         # Add to handler (without verify_fn - we already checked)
         # Pass verify_fn=None to prevent EquilibriumHandler from trying to verify again
         self.equilibria.add(name, x_eq, u_eq, verify_fn=None, tol=tol, **metadata)

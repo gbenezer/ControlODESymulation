@@ -35,11 +35,12 @@ try:
     import jax.numpy as jnp
 except ImportError:
     jax_available = False
-    
+
 
 # =============================================================================
 # Test System Implementations
 # =============================================================================
+
 
 class SimpleDiscreteSystem(DiscreteSystemBase):
     """Concrete implementation: x[k+1] = 0.9*x[k] + 0.1*u[k]"""
@@ -56,12 +57,7 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
     def dt(self) -> float:
         return self._dt
 
-    def step(
-        self,
-        x: StateVector,
-        u: Optional[ControlVector] = None,
-        k: int = 0
-    ) -> StateVector:
+    def step(self, x: StateVector, u: Optional[ControlVector] = None, k: int = 0) -> StateVector:
         """x[k+1] = Ad*x[k] + Bd*u[k]"""
         if u is None:
             u = np.zeros(self.nu)
@@ -75,10 +71,11 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
     def simulate(
         self,
         x0: StateVector,
-        u_sequence: Optional[Union[ControlVector, Sequence[ControlVector],
-                                   Callable[[int], ControlVector]]] = None,
+        u_sequence: Optional[
+            Union[ControlVector, Sequence[ControlVector], Callable[[int], ControlVector]]
+        ] = None,
         n_steps: int = 100,
-        **kwargs
+        **kwargs,
     ) -> dict:
         """Simulate for n_steps - returns plain dict with TIME-MAJOR order."""
         states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR: (n_steps+1, nx)
@@ -108,13 +105,11 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
             "controls": controls_array,  # Shape: (n_steps, nu) or None
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
-            "metadata": kwargs
+            "metadata": kwargs,
         }
 
     def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
     ) -> DiscreteLinearization:
         """Already linear, return (Ad, Bd) tuple."""
         return (self.Ad, self.Bd)
@@ -122,51 +117,51 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
 
 class TimeVaryingDiscreteSystem(DiscreteSystemBase):
     """Time-varying: x[k+1] = (0.9 - 0.01*k)*x[k] + u[k]"""
-    
+
     def __init__(self, nx=2, nu=1, dt_val=0.1):
         self.nx = nx
         self.nu = nu
         self.ny = nx
         self._dt = dt_val
-    
+
     @property
     def dt(self) -> float:
         return self._dt
-    
+
     def step(self, x, u=None, k=0):
         u = u if u is not None else np.zeros(self.nu)
         alpha = 0.9 - 0.01 * k
         return alpha * x + u
-    
+
     def simulate(self, x0, u_sequence=None, n_steps=100, **kwargs):
         states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
         states[0, :] = x0
         controls = []
-        
+
         for k in range(n_steps):
             u = self._get_control(u_sequence, k)
             if u is not None:
                 controls.append(u)
             states[k + 1, :] = self.step(states[k, :], u, k)
-        
+
         return {
             "states": states,  # (n_steps+1, nx)
             "controls": np.array(controls) if controls else None,  # (n_steps, nu)
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
-            "metadata": kwargs
+            "metadata": kwargs,
         }
-    
+
     def linearize(self, x_eq, u_eq=None):
         # Linearization at k=0
         Ad = 0.9 * np.eye(self.nx)
         Bd = np.ones((self.nx, self.nu))
         return (Ad, Bd)
-    
+
     @property
     def is_time_varying(self):
         return True
-    
+
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
@@ -180,7 +175,7 @@ class TimeVaryingDiscreteSystem(DiscreteSystemBase):
 
 class UnstableDiscreteSystem(DiscreteSystemBase):
     """Unstable system: x[k+1] = 1.1*x[k] + u[k]"""
-    
+
     def __init__(self, nx=2, nu=1, dt_val=0.1):
         self.nx = nx
         self.nu = nu
@@ -188,37 +183,37 @@ class UnstableDiscreteSystem(DiscreteSystemBase):
         self._dt = dt_val
         self.Ad = 1.1 * np.eye(nx)
         self.Bd = np.ones((nx, nu))
-    
+
     @property
     def dt(self) -> float:
         return self._dt
-    
+
     def step(self, x, u=None, k=0):
         u = u if u is not None else np.zeros(self.nu)
         return self.Ad @ x + self.Bd @ u.flatten()
-    
+
     def simulate(self, x0, u_sequence=None, n_steps=100, **kwargs):
         states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
         states[0, :] = x0
         controls = []
-        
+
         for k in range(n_steps):
             u = self._get_control(u_sequence, k)
             if u is not None:
                 controls.append(u)
             states[k + 1, :] = self.step(states[k, :], u, k)
-        
+
         return {
             "states": states,
             "controls": np.array(controls) if controls else None,
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
-            "metadata": kwargs
+            "metadata": kwargs,
         }
-    
+
     def linearize(self, x_eq, u_eq=None):
         return (self.Ad, self.Bd)
-    
+
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
@@ -232,46 +227,46 @@ class UnstableDiscreteSystem(DiscreteSystemBase):
 
 class NonlinearDiscreteSystem(DiscreteSystemBase):
     """Nonlinear: x[k+1] = tanh(x[k]) + u[k]"""
-    
+
     def __init__(self, nx=2, nu=1, dt_val=0.1):
         self.nx = nx
         self.nu = nu
         self.ny = nx
         self._dt = dt_val
-    
+
     @property
     def dt(self) -> float:
         return self._dt
-    
+
     def step(self, x, u=None, k=0):
         u = u if u is not None else np.zeros(self.nu)
         return np.tanh(x) + u
-    
+
     def simulate(self, x0, u_sequence=None, n_steps=100, **kwargs):
         states = np.zeros((n_steps + 1, self.nx))  # TIME-MAJOR
         states[0, :] = x0
         controls = []
-        
+
         for k in range(n_steps):
             u = self._get_control(u_sequence, k)
             if u is not None:
                 controls.append(u)
             states[k + 1, :] = self.step(states[k, :], u, k)
-        
+
         return {
             "states": states,
             "controls": np.array(controls) if controls else None,
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
-            "metadata": kwargs
+            "metadata": kwargs,
         }
-    
+
     def linearize(self, x_eq, u_eq=None):
         # Ad = diag(sech^2(x_eq))
-        Ad = np.diag(1.0 / np.cosh(x_eq)**2)
+        Ad = np.diag(1.0 / np.cosh(x_eq) ** 2)
         Bd = np.ones((self.nx, self.nu))
         return (Ad, Bd)
-    
+
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
@@ -286,6 +281,7 @@ class NonlinearDiscreteSystem(DiscreteSystemBase):
 # =============================================================================
 # Test Suite
 # =============================================================================
+
 
 class TestDiscreteSystemBase(unittest.TestCase):
     """Comprehensive test suite for DiscreteSystemBase abstract class."""
@@ -313,56 +309,68 @@ class TestDiscreteSystemBase(unittest.TestCase):
 
     def test_missing_dt_property_raises_error(self):
         """Class missing dt property cannot be instantiated."""
+
         class IncompleteSystem(DiscreteSystemBase):
             def step(self, x, u=None, k=0):
                 return x
+
             def simulate(self, x0, u_sequence, n_steps):
                 return {}
+
             def linearize(self, x_eq, u_eq):
                 return (np.eye(2), np.eye(2, 1))
-        
+
         with self.assertRaises(TypeError):
             system = IncompleteSystem()
 
     def test_missing_step_method_raises_error(self):
         """Class missing step() cannot be instantiated."""
+
         class IncompleteSystem(DiscreteSystemBase):
             @property
             def dt(self):
                 return 0.1
+
             def simulate(self, x0, u_sequence, n_steps):
                 return {}
+
             def linearize(self, x_eq, u_eq):
                 return (np.eye(2), np.eye(2, 1))
-        
+
         with self.assertRaises(TypeError):
             system = IncompleteSystem()
 
     def test_missing_simulate_method_raises_error(self):
         """Class missing simulate() cannot be instantiated."""
+
         class IncompleteSystem(DiscreteSystemBase):
             @property
             def dt(self):
                 return 0.1
+
             def step(self, x, u=None, k=0):
                 return x
+
             def linearize(self, x_eq, u_eq):
                 return (np.eye(2), np.eye(2, 1))
-        
+
         with self.assertRaises(TypeError):
             system = IncompleteSystem()
 
     def test_missing_linearize_method_raises_error(self):
         """Class missing linearize() cannot be instantiated."""
+
         class IncompleteSystem(DiscreteSystemBase):
             @property
             def dt(self):
                 return 0.1
+
             def step(self, x, u=None, k=0):
                 return x
+
             def simulate(self, x0, u_sequence, n_steps):
                 return {}
-        
+
         with self.assertRaises(TypeError):
             system = IncompleteSystem()
 
@@ -377,9 +385,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
             SimpleDiscreteSystem(),
             TimeVaryingDiscreteSystem(),
             UnstableDiscreteSystem(),
-            NonlinearDiscreteSystem()
+            NonlinearDiscreteSystem(),
         ]
-        
+
         for sys in systems:
             self.assertIsInstance(sys, DiscreteSystemBase)
 
@@ -436,9 +444,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
     def test_step_without_control(self):
         """Step without control (u=None)."""
         x = np.array([1.0, 2.0])
-        
+
         x_next = self.system.step(x, u=None)
-        
+
         expected = 0.9 * x  # No control, just dynamics
         np.testing.assert_array_almost_equal(x_next, expected)
 
@@ -446,9 +454,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Step with explicit zero control."""
         x = np.array([1.0, 2.0])
         u = np.zeros(1)
-        
+
         x_next = self.system.step(x, u)
-        
+
         expected = 0.9 * x
         np.testing.assert_array_almost_equal(x_next, expected)
 
@@ -456,9 +464,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Step from zero state."""
         x = np.zeros(2)
         u = np.array([0.5])
-        
+
         x_next = self.system.step(x, u)
-        
+
         # x[k+1] = 0.9*0 + 0.1*0.5 = 0.05
         expected = np.array([0.05, 0.05])
         np.testing.assert_array_almost_equal(x_next, expected)
@@ -467,9 +475,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Step returns state with correct shape."""
         x = np.array([1.0, 2.0])
         u = np.array([0.5])
-        
+
         x_next = self.system.step(x, u)
-        
+
         self.assertEqual(x_next.shape, x.shape)
 
     def test_step_with_different_dimensions(self):
@@ -478,30 +486,30 @@ class TestDiscreteSystemBase(unittest.TestCase):
             sys = SimpleDiscreteSystem(nx=nx, nu=nu)
             x = np.random.randn(nx)
             u = np.random.randn(nu)
-            
+
             x_next = sys.step(x, u)
-            
+
             self.assertEqual(x_next.shape, (nx,))
 
     def test_step_with_time_index(self):
         """Step accepts time index parameter."""
         x = np.array([1.0, 2.0])
         u = np.array([0.5])
-        
+
         # For time-invariant system, k shouldn't matter
         x_next_k0 = self.system.step(x, u, k=0)
         x_next_k5 = self.system.step(x, u, k=5)
-        
+
         np.testing.assert_array_almost_equal(x_next_k0, x_next_k5)
 
     def test_step_time_varying_depends_on_k(self):
         """Time-varying system step depends on k."""
         x = np.array([1.0, 1.0])
         u = np.zeros(1)
-        
+
         x_next_k0 = self.time_varying.step(x, u, k=0)
         x_next_k10 = self.time_varying.step(x, u, k=10)
-        
+
         # Should be different due to time-varying dynamics
         self.assertFalse(np.allclose(x_next_k0, x_next_k10))
 
@@ -509,9 +517,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Nonlinear system step evaluation."""
         x = np.array([0.5, -0.3])
         u = np.array([0.1])
-        
+
         x_next = self.nonlinear.step(x, u)
-        
+
         # x[k+1] = tanh(x) + u
         expected = np.tanh(x) + u
         np.testing.assert_array_almost_equal(x_next, expected)
@@ -520,12 +528,12 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Multiple step calls propagate state correctly."""
         x = np.array([1.0, 1.0])
         u = np.array([0.0])
-        
+
         # Step 3 times
         x1 = self.system.step(x, u)
         x2 = self.system.step(x1, u)
         x3 = self.system.step(x2, u)
-        
+
         # Should decay exponentially
         self.assertLess(np.linalg.norm(x3), np.linalg.norm(x))
 
@@ -635,12 +643,12 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Simulate with n_steps=1 works correctly."""
         x0 = np.array([1.0, 1.0])
         u = np.array([0.5])
-        
+
         result = self.system.simulate(x0, u, n_steps=1)
-        
+
         # Should have 2 states: x[0] and x[1]
         self.assertEqual(result["states"].shape, (2, self.system.nx))
-        
+
         # x[1] should match manual step
         x1_manual = self.system.step(x0, u, k=0)
         np.testing.assert_array_almost_equal(result["states"][1, :], x1_manual)
@@ -649,9 +657,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """Simulate with many steps."""
         x0 = np.array([1.0, 1.0])
         n_steps = 1000
-        
+
         result = self.system.simulate(x0, n_steps=n_steps)
-        
+
         self.assertEqual(result["states"].shape, (n_steps + 1, self.system.nx))
 
     def test_simulate_metadata_stores_kwargs(self):
@@ -668,9 +676,9 @@ class TestDiscreteSystemBase(unittest.TestCase):
             sys = SimpleDiscreteSystem(nx=nx, nu=nu)
             x0 = np.random.randn(nx)
             u = np.random.randn(nu)
-            
+
             result = sys.simulate(x0, u, n_steps=10)
-            
+
             self.assertEqual(result["states"].shape, (11, nx))
             self.assertEqual(result["controls"].shape, (10, nu))
 
@@ -701,10 +709,10 @@ class TestDiscreteSystemBase(unittest.TestCase):
         """rollout() with state feedback policy."""
         x0 = np.array([1.0, 1.0])
         K = np.array([[-0.5, -0.5]])
-        
+
         def policy(x, k):
             return -K @ x
-        
+
         result = self.system.rollout(x0, policy, n_steps=20)
 
         self.assertTrue("controls" in result)
@@ -715,10 +723,10 @@ class TestDiscreteSystemBase(unittest.TestCase):
     def test_rollout_closed_loop_flag(self):
         """rollout() sets closed_loop flag in metadata."""
         x0 = np.array([1.0, 1.0])
-        
+
         def policy(x, k):
             return np.array([0.0])
-        
+
         result = self.system.rollout(x0, policy, n_steps=10)
 
         self.assertIn("closed_loop", result["metadata"])
@@ -727,10 +735,10 @@ class TestDiscreteSystemBase(unittest.TestCase):
     def test_rollout_time_varying_policy(self):
         """rollout() with time-varying policy."""
         x0 = np.array([1.0, 1.0])
-        
+
         def policy(x, k):
             return np.array([0.1 * k])  # Increases with time
-        
+
         result = self.system.rollout(x0, policy, n_steps=10)
 
         # Controls should vary
@@ -740,13 +748,13 @@ class TestDiscreteSystemBase(unittest.TestCase):
     def test_rollout_stabilizing_policy(self):
         """rollout() with stabilizing policy improves stability."""
         x0 = np.array([1.0, 1.0])
-        
+
         # LQR-like gain
         K = np.array([[1.0, 1.0]])
-        
+
         def policy(x, k):
             return -K @ x
-        
+
         result = self.system.rollout(x0, policy, n_steps=50)
 
         # Should converge to origin
@@ -766,7 +774,7 @@ class TestDiscreteSystemBase(unittest.TestCase):
 
         self.assertIsInstance(lin, tuple)
         self.assertEqual(len(lin), 2)
-        
+
         Ad, Bd = lin
         self.assertEqual(Ad.shape, (2, 2))
         self.assertEqual(Bd.shape, (2, 1))
@@ -917,14 +925,14 @@ class TestDiscreteSystemBase(unittest.TestCase):
     def test_repr_contains_class_name(self):
         """String representation contains class name."""
         repr_str = repr(self.system)
-        self.assertIn('SimpleDiscreteSystem', repr_str)
+        self.assertIn("SimpleDiscreteSystem", repr_str)
 
     def test_repr_contains_dimensions(self):
         """String representation contains dimensions."""
         repr_str = repr(self.system)
-        self.assertIn('nx=2', repr_str)
-        self.assertIn('nu=1', repr_str)
-        self.assertIn('dt=0.1', repr_str)
+        self.assertIn("nx=2", repr_str)
+        self.assertIn("nu=1", repr_str)
+        self.assertIn("dt=0.1", repr_str)
 
     def test_repr_different_systems(self):
         """Different systems have different representations."""
@@ -939,6 +947,7 @@ class TestDiscreteSystemBase(unittest.TestCase):
 
     def test_polymorphic_usage(self):
         """System can be used polymorphically."""
+
         def check_stability(sys: DiscreteSystemBase):
             x_eq = np.zeros(sys.nx)
             u_eq = np.zeros(sys.nu)
@@ -952,6 +961,7 @@ class TestDiscreteSystemBase(unittest.TestCase):
 
     def test_polymorphic_simulation(self):
         """Generic simulation works for all systems."""
+
         def simulate_from_random(sys: DiscreteSystemBase, n_steps=10):
             x0 = np.random.randn(sys.nx)
             return sys.simulate(x0, n_steps=n_steps)
@@ -1012,5 +1022,5 @@ class TestDiscreteSystemBase(unittest.TestCase):
         self.assertGreater(np.linalg.norm(final_state), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

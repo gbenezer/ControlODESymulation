@@ -107,7 +107,7 @@ class MinimalDiscreteSystem:
         """Simple linear dynamics: x[k+1] = 0.9*x + 0.1*u"""
         if u is None:
             u = np.zeros(self.nu)
-        
+
         # Handle zero control dimension
         if self.nu == 0:
             return 0.9 * x
@@ -136,7 +136,9 @@ class MinimalDiscreteSystem:
 class LinearizableDiscreteSystem(MinimalDiscreteSystem):
     """Extends minimal with linearization."""
 
-    def linearize(self, x_eq: StateVector, u_eq: Optional[ControlVector] = None) -> DiscreteLinearization:
+    def linearize(
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+    ) -> DiscreteLinearization:
         """Linear system: Ad = 0.9*I, Bd = 0.1*I"""
         Ad = 0.9 * np.eye(self.nx)
         Bd = 0.1 * np.eye(self.nx, self.nu)
@@ -154,7 +156,9 @@ class SymbolicDiscreteSystem(LinearizableDiscreteSystem):
         self.control_vars = [sp.symbols(f"u{i}") for i in range(nu)]
         self.parameters = {sp.symbols("a"): 0.9, sp.symbols("b"): 0.1}
 
-    def compile(self, backends: Optional[List[str]] = None, verbose: bool = False) -> Dict[str, float]:
+    def compile(
+        self, backends: Optional[List[str]] = None, verbose: bool = False
+    ) -> Dict[str, float]:
         """Mock compilation"""
         backends = backends or ["numpy"]
         return {backend: 0.001 for backend in backends}
@@ -206,7 +210,9 @@ class MinimalContinuousSystem:
     def nu(self) -> int:
         return self._nu
 
-    def __call__(self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0) -> StateVector:
+    def __call__(
+        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0
+    ) -> StateVector:
         """Simple linear dynamics: dx/dt = -x + u"""
         u = u if u is not None else np.zeros(self.nu)
         return -x + u

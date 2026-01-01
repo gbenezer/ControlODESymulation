@@ -59,7 +59,7 @@ from src.types.trajectories import (
 )
 
 from src.types.backends import Backend
-    
+
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 
@@ -202,7 +202,7 @@ class ExplicitEulerIntegrator(IntegratorBase):
         ... )
         >>> print(f"Final: {result['x'][-1]}")
         >>>
-        >>> # Autonomous system  
+        >>> # Autonomous system
         >>> result = integrator.integrate(
         ...     x0=np.array([1.0, 0.0]),
         ...     u_func=lambda t, x: None,

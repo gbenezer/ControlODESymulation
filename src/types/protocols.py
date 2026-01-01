@@ -60,7 +60,7 @@ Protocol Hierarchy
 ```
 DiscreteSystemProtocol
     ↓ extends (adds linearize)
-LinearizableDiscreteProtocol  
+LinearizableDiscreteProtocol
     ↓ extends (adds symbolic machinery)
 SymbolicDiscreteProtocol
 
@@ -68,7 +68,7 @@ SymbolicDiscreteProtocol
 ContinuousSystemProtocol (optional)
     ↓ extends
 LinearizableContinuousProtocol
-    ↓ extends  
+    ↓ extends
 SymbolicContinuousProtocol
 ```
 
@@ -78,7 +78,7 @@ Usage Examples
 
 >>> from src.types.protocols import LinearizableDiscreteProtocol
 >>> from src.types.control_classical import LQRResult
->>> 
+>>>
 >>> def discrete_lqr(
 ...     system: LinearizableDiscreteProtocol,
 ...     Q: np.ndarray,
@@ -88,7 +88,7 @@ Usage Examples
 ...     Ad, Bd = system.linearize(np.zeros(system.nx), np.zeros(system.nu))
 ...     # ... solve discrete-time Riccati equation
 ...     return {"K": K, "P": P, ...}
->>> 
+>>>
 >>> # Both work:
 >>> lqr1 = discrete_lqr(DiscreteSymbolicSystem(...), Q, R)  # ✓
 >>> lqr2 = discrete_lqr(DiscretizedSystem(...), Q, R)       # ✓
@@ -96,14 +96,14 @@ Usage Examples
 **Example 2: Equation Export (requires symbolic)**
 
 >>> from src.types.protocols import SymbolicDiscreteProtocol
->>> 
+>>>
 >>> def export_to_latex(system: SymbolicDiscreteProtocol) -> str:
 ...     '''Export equations - requires symbolic expressions.'''
 ...     latex = []
 ...     for var, expr in zip(system.state_vars, system._f_sym):
 ...         latex.append(f"{sp.latex(var)}_{k+1} = {sp.latex(expr)}")
 ...     return "\\n".join(latex)
->>> 
+>>>
 >>> # Type checker catches misuse:
 >>> export_to_latex(DiscreteSymbolicSystem(...))  # ✓ OK
 >>> export_to_latex(DiscretizedSystem(...))       # ✗ mypy error - good!
@@ -111,7 +111,7 @@ Usage Examples
 **Example 3: Generic Simulation**
 
 >>> from src.types.protocols import DiscreteSystemProtocol
->>> 
+>>>
 >>> def monte_carlo(system: DiscreteSystemProtocol, n_trials: int):
 ...     '''Works with ANY discrete system.'''
 ...     results = []
@@ -124,11 +124,11 @@ Usage Examples
 **Example 4: Runtime Type Checking (use sparingly)**
 
 >>> from src.types.protocols import SymbolicDiscreteProtocol
->>> 
+>>>
 >>> def smart_analysis(system: LinearizableDiscreteProtocol):
 ...     '''Adapt behavior based on capabilities.'''
 ...     Ad, Bd = system.linearize(x_eq, u_eq)
-...     
+...
 ...     # Check if symbolic machinery available
 ...     if isinstance(system, SymbolicDiscreteProtocol):
 ...         system.compile(backends=['jax'])  # Use code generation
@@ -329,9 +329,7 @@ class DiscreteSystemProtocol(Protocol):
         """
         ...
 
-    def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, k: int = 0
-    ) -> StateVector:
+    def step(self, x: StateVector, u: Optional[ControlVector] = None, k: int = 0) -> StateVector:
         """
         Compute next state: x[k+1] = f(x[k], u[k]).
 
@@ -417,7 +415,7 @@ class LinearizableDiscreteProtocol(DiscreteSystemProtocol, Protocol):
     LQR design function:
 
     >>> from scipy.linalg import solve_discrete_are
-    >>> 
+    >>>
     >>> def design_lqr(
     ...     system: LinearizableDiscreteProtocol,
     ...     Q: np.ndarray,
@@ -430,29 +428,29 @@ class LinearizableDiscreteProtocol(DiscreteSystemProtocol, Protocol):
     ...     if x_eq is None:
     ...         x_eq = np.zeros(system.nx)
     ...         u_eq = np.zeros(system.nu)
-    ...     
+    ...
     ...     # Get linearization
     ...     Ad, Bd = system.linearize(x_eq, u_eq)
-    ...     
+    ...
     ...     # Solve discrete-time algebraic Riccati equation
     ...     P = solve_discrete_are(Ad, Bd, Q, R)
     ...     K = np.linalg.inv(R + Bd.T @ P @ Bd) @ (Bd.T @ P @ Ad)
-    ...     
+    ...
     ...     # Check closed-loop stability
     ...     A_cl = Ad - Bd @ K
     ...     eigenvalues = np.linalg.eigvals(A_cl)
-    ...     
+    ...
     ...     return {
     ...         "K": K,
     ...         "P": P,
     ...         "eigenvalues": eigenvalues,
     ...         "cost": x_eq.T @ P @ x_eq
     ...     }
-    >>> 
+    >>>
     >>> # Works with DiscreteSymbolicSystem
     >>> symbolic_sys = DiscreteOscillator(dt=0.01)
     >>> result1 = design_lqr(symbolic_sys, Q, R)
-    >>> 
+    >>>
     >>> # Also works with DiscretizedSystem
     >>> continuous = Pendulum(m=1.0, l=0.5)
     >>> discretized = DiscretizedSystem(continuous, dt=0.01)
@@ -468,7 +466,7 @@ class LinearizableDiscreteProtocol(DiscreteSystemProtocol, Protocol):
     ...     )
     ...     eigenvalues = np.linalg.eigvals(Ad)
     ...     return np.all(np.abs(eigenvalues) < 1.0)
-    >>> 
+    >>>
     >>> is_stable = check_stability(any_discrete_system)  # Works with any!
 
     MPC with linearization:
@@ -482,7 +480,7 @@ class LinearizableDiscreteProtocol(DiscreteSystemProtocol, Protocol):
     ...     '''MPC using linearization around reference.'''
     ...     # Linearize around reference
     ...     Ad, Bd = system.linearize(x_ref, np.zeros(system.nu))
-    ...     
+    ...
     ...     # Solve QP for optimal control
     ...     # ... MPC formulation ...
     ...     return u_optimal
@@ -579,7 +577,7 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
     LaTeX equation export:
 
     >>> import sympy as sp
-    >>> 
+    >>>
     >>> def export_equations_latex(
     ...     system: SymbolicDiscreteProtocol,
     ...     simplify: bool = True
@@ -587,19 +585,19 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
     ...     '''Export system equations to LaTeX.'''
     ...     latex_lines = []
     ...     latex_lines.append(r"\\begin{align}")
-    ...     
+    ...
     ...     for var, expr in zip(system.state_vars, system._f_sym):
     ...         expr_sub = system.substitute_parameters(expr)
     ...         if simplify:
     ...             expr_sub = sp.simplify(expr_sub)
-    ...         
+    ...
     ...         var_latex = sp.latex(var)
     ...         expr_latex = sp.latex(expr_sub)
     ...         latex_lines.append(f"{var_latex}_{{k+1}} &= {expr_latex} \\\\\\\\")
-    ...     
+    ...
     ...     latex_lines.append(r"\\end{align}")
     ...     return "\\n".join(latex_lines)
-    >>> 
+    >>>
     >>> # Only works with symbolic systems:
     >>> latex = export_equations_latex(DiscreteSymbolicSystem(...))  # ✓
     >>> latex = export_equations_latex(DiscretizedSystem(...))       # ✗ Type error
@@ -611,13 +609,13 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
     ...     c_code = []
     ...     c_code.append("// Discrete dynamics: x[k+1] = f(x[k], u[k])")
     ...     c_code.append("void dynamics(double* x, double* u, double* x_next) {")
-    ...     
+    ...
     ...     for i, expr in enumerate(system._f_sym):
     ...         expr_sub = system.substitute_parameters(expr)
     ...         # Convert to C expression
     ...         c_expr = sp.ccode(expr_sub)
     ...         c_code.append(f"    x_next[{i}] = {c_expr};")
-    ...     
+    ...
     ...     c_code.append("}")
     ...     return "\\n".join(c_code)
 
@@ -634,15 +632,15 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
     ...         if str(sym) == param_name:
     ...             param_sym = sym
     ...             break
-    ...     
+    ...
     ...     if param_sym is None:
     ...         raise ValueError(f"Parameter '{param_name}' not found")
-    ...     
+    ...
     ...     # Compute symbolic derivative: ∂f/∂param
     ...     sensitivity = sp.Matrix([
     ...         sp.diff(expr, param_sym) for expr in system._f_sym
     ...     ])
-    ...     
+    ...
     ...     return sensitivity
 
     Runtime capability checking:
@@ -762,7 +760,7 @@ class ContinuousSystemProtocol(Protocol):
     ... ) -> DiscretizedSystem:
     ...     '''Discretize any continuous system.'''
     ...     return DiscretizedSystem(system, dt, method='rk4')
-    >>> 
+    >>>
     >>> # Works with any continuous system:
     >>> discrete1 = discretize_any(ContinuousSymbolicSystem(...), dt=0.01)
     >>> discrete2 = discretize_any(ContinuousStochasticSystem(...), dt=0.01)
@@ -916,12 +914,12 @@ class SymbolicContinuousProtocol(LinearizableContinuousProtocol, Protocol):
     ...     '''Generate MATLAB ODE function.'''
     ...     matlab_code = []
     ...     matlab_code.append("function dxdt = dynamics(t, x, u)")
-    ...     
+    ...
     ...     for i, expr in enumerate(system._f_sym):
     ...         expr_sub = system.substitute_parameters(expr)
     ...         matlab_expr = sp.octave_code(expr_sub)  # SymPy → MATLAB
     ...         matlab_code.append(f"    dxdt({i+1}) = {matlab_expr};")
-    ...     
+    ...
     ...     matlab_code.append("end")
     ...     return "\\n".join(matlab_code)
     """
@@ -1033,7 +1031,7 @@ class CompilableSystemProtocol(Protocol):
         ...
 
 
-@runtime_checkable  
+@runtime_checkable
 class ParametricSystemProtocol(Protocol):
     """
     System with modifiable parameters.
@@ -1055,12 +1053,12 @@ class ParametricSystemProtocol(Protocol):
     ...             if str(sym) == param_name:
     ...                 system.parameters[sym] = val
     ...                 break
-    ...         
+    ...
     ...         # Recompile and analyze
     ...         system.reset_caches()
     ...         result = analyze_stability(system)
     ...         results.append(result)
-    ...     
+    ...
     ...     return results
     """
 
@@ -1080,12 +1078,10 @@ __all__ = [
     "DiscreteSystemProtocol",
     "LinearizableDiscreteProtocol",
     "SymbolicDiscreteProtocol",
-    
     # Continuous system protocols (OPTIONAL - add if needed)
     "ContinuousSystemProtocol",
     "LinearizableContinuousProtocol",
     "SymbolicContinuousProtocol",
-    
     # Utility protocols (domain-specific capabilities)
     "StochasticSystemProtocol",
     "CompilableSystemProtocol",

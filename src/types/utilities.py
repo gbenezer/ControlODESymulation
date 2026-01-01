@@ -974,20 +974,23 @@ Examples
 # Validation and Performance Types
 # ============================================================================
 
+
 class ExecutionStats(TypedDict):
     """Execution statistics for tracking function performance.
-    
+
     Tracks runtime performance of any callable component:
     - Function evaluation time
     - Call frequency
     - Average execution time
-    
+
     This is distinct from PerformanceMetrics which measures
     control system performance (settling time, overshoot, etc.).
     """
+
     calls: int
     total_time: float
     avg_time: float
+
 
 class ValidationResult(TypedDict, total=False):
     """
@@ -1053,6 +1056,7 @@ class SymbolicValidationResult:
     errors: List[str]
     warnings: List[str]
     info: Dict
+
 
 class PerformanceMetrics(TypedDict, total=False):
     """

@@ -354,7 +354,7 @@ class IntegratorFactory:
             except ImportError as e:
                 raise ImportError(
                     f"Julia method '{method}' requires diffeqpy. "
-                    f"Install Julia and run: julia> using Pkg; Pkg.add(\"DifferentialEquations\")\n"
+                    f'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
                     f"Then: pip install diffeqpy\n"
                     f"Error: {e}"
                 )
@@ -633,12 +633,15 @@ class IntegratorFactory:
                 default_options.update(options)
 
                 return DiffEqPyIntegrator(
-                    system, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())", **default_options
+                    system,
+                    backend="numpy",
+                    algorithm="AutoTsit5(Rosenbrock23())",
+                    **default_options,
                 )
             except ImportError:
                 raise ImportError(
                     "Julia integration requires diffeqpy. "
-                    "Install Julia and run: julia> using Pkg; Pkg.add(\"DifferentialEquations\")\n"
+                    'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
                     "Then: pip install diffeqpy"
                 )
         else:
@@ -750,9 +753,7 @@ class IntegratorFactory:
         except ImportError:
             raise ImportError("Neural ODE requires PyTorch: pip install torch torchdiffeq")
 
-        return cls.create(
-            system, backend="torch", method="dopri5", adjoint=use_adjoint, **options
-        )
+        return cls.create(system, backend="torch", method="dopri5", adjoint=use_adjoint, **options)
 
     @classmethod
     def for_julia(
@@ -803,7 +804,7 @@ class IntegratorFactory:
         except ImportError:
             raise ImportError(
                 "Julia integration requires diffeqpy. "
-                "Install Julia and run: julia> using Pkg; Pkg.add(\"DifferentialEquations\")\n"
+                'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
                 "Then: pip install diffeqpy"
             )
 

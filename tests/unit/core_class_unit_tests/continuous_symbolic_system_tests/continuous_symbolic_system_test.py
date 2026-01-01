@@ -103,9 +103,9 @@ class LinearContinuous(ContinuousSymbolicSystem):
     """Simple linear continuous system: dx/dt = -a*x + b*u"""
 
     def define_system(self, a=1.0, b=1.0):
-        x = sp.symbols('x', real=True)
-        u = sp.symbols('u', real=True)
-        a_sym, b_sym = sp.symbols('a b', positive=True)
+        x = sp.symbols("x", real=True)
+        u = sp.symbols("u", real=True)
+        a_sym, b_sym = sp.symbols("a b", positive=True)
 
         self.state_vars = [x]
         self.control_vars = [u]
@@ -118,8 +118,8 @@ class AutonomousContinuous(ContinuousSymbolicSystem):
     """Autonomous system: dx/dt = -alpha*x"""
 
     def define_system(self, alpha=1.0):
-        x = sp.symbols('x', real=True)
-        alpha_sym = sp.symbols('alpha', positive=True)
+        x = sp.symbols("x", real=True)
+        alpha_sym = sp.symbols("alpha", positive=True)
 
         self.state_vars = [x]
         self.control_vars = []  # No control
@@ -132,16 +132,20 @@ class PendulumContinuous(ContinuousSymbolicSystem):
     """Nonlinear pendulum: second-order system"""
 
     def define_system(self, m=1.0, l=0.5, g=9.81, b=0.1):
-        theta, omega = sp.symbols('theta omega', real=True)
-        u = sp.symbols('u', real=True)
-        m_sym, l_sym, g_sym, b_sym = sp.symbols('m l g b', positive=True)
+        theta, omega = sp.symbols("theta omega", real=True)
+        u = sp.symbols("u", real=True)
+        m_sym, l_sym, g_sym, b_sym = sp.symbols("m l g b", positive=True)
 
         self.state_vars = [theta, omega]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([
-            omega,
-            -(g_sym / l_sym) * sp.sin(theta) - (b_sym / (m_sym * l_sym**2)) * omega + u / (m_sym * l_sym**2)
-        ])
+        self._f_sym = sp.Matrix(
+            [
+                omega,
+                -(g_sym / l_sym) * sp.sin(theta)
+                - (b_sym / (m_sym * l_sym**2)) * omega
+                + u / (m_sym * l_sym**2),
+            ]
+        )
         self.parameters = {m_sym: m, l_sym: l, g_sym: g, b_sym: b}
         self.order = 1
 
@@ -150,8 +154,8 @@ class SystemWithCustomOutput(ContinuousSymbolicSystem):
     """System with custom output function"""
 
     def define_system(self):
-        x, v = sp.symbols('x v', real=True)
-        u = sp.symbols('u', real=True)
+        x, v = sp.symbols("x v", real=True)
+        u = sp.symbols("u", real=True)
 
         self.state_vars = [x, v]
         self.control_vars = [u]
@@ -196,11 +200,11 @@ class TestMultipleInheritance:
         system = LinearContinuous()
 
         # Symbolic methods
-        assert hasattr(system, 'substitute_parameters')
-        assert hasattr(system, 'compile')
-        assert hasattr(system, 'reset_caches')
-        assert hasattr(system, 'add_equilibrium')
-        assert hasattr(system, 'get_config_dict')
+        assert hasattr(system, "substitute_parameters")
+        assert hasattr(system, "compile")
+        assert hasattr(system, "reset_caches")
+        assert hasattr(system, "add_equilibrium")
+        assert hasattr(system, "get_config_dict")
 
     def test_has_continuous_methods(self):
         """System has methods from ContinuousSystemBase."""
@@ -208,9 +212,9 @@ class TestMultipleInheritance:
 
         # Continuous methods
         assert callable(system)  # __call__
-        assert hasattr(system, 'integrate')
-        assert hasattr(system, 'linearize')
-        assert hasattr(system, 'simulate')
+        assert hasattr(system, "integrate")
+        assert hasattr(system, "linearize")
+        assert hasattr(system, "simulate")
 
     def test_has_continuous_properties(self):
         """System has continuous-time properties."""
@@ -230,9 +234,9 @@ class TestMultipleInheritance:
         assert system._code_gen is not None
 
         # Continuous-specific components
-        assert hasattr(system, '_dynamics')
-        assert hasattr(system, '_linearization')
-        assert hasattr(system, '_observation')
+        assert hasattr(system, "_dynamics")
+        assert hasattr(system, "_linearization")
+        assert hasattr(system, "_observation")
 
 
 # ============================================================================
@@ -275,10 +279,10 @@ class TestContinuousInterface:
         result = system.integrate(x0, u=None, t_span=(0.0, 1.0))
 
         # Check TypedDict structure
-        assert 't' in result
-        assert 'x' in result
-        assert 'success' in result
-        assert 'nfev' in result
+        assert "t" in result
+        assert "x" in result
+        assert "success" in result
+        assert "nfev" in result
 
     def test_linearize_returns_tuple(self):
         """linearize() returns (A, B) tuple."""
@@ -299,14 +303,10 @@ class TestContinuousInterface:
         """simulate() returns results on regular time grid."""
         system = LinearContinuous()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            t_span=(0.0, 1.0),
-            dt=0.1
-        )
+        result = system.simulate(x0=np.array([1.0]), t_span=(0.0, 1.0), dt=0.1)
 
         # Should have regular grid
-        t = result['time']
+        t = result["time"]
         dt_actual = np.diff(t)
         np.testing.assert_allclose(dt_actual, 0.1, rtol=1e-10)
 
@@ -326,72 +326,54 @@ class TestIntegration:
         x0 = np.array([1.0])
         result = system.integrate(x0, u=None, t_span=(0.0, 2.0))
 
-        assert result['success']
-        assert result['t'].shape[0] > 0
-        assert result['x'].shape == (result['t'].shape[0], 1)  # Time-major (T, nx)
+        assert result["success"]
+        assert result["t"].shape[0] > 0
+        assert result["x"].shape == (result["t"].shape[0], 1)  # Time-major (T, nx)
 
     def test_integrate_with_specific_method(self):
         """Integration with specific solver method."""
         system = LinearContinuous()
 
-        methods = ['RK45', 'RK23', 'LSODA']
+        methods = ["RK45", "RK23", "LSODA"]
 
         for method in methods:
-            result = system.integrate(
-                x0=np.array([1.0]),
-                u=None,
-                t_span=(0.0, 1.0),
-                method=method
-            )
-            assert result['success'], f"Method {method} failed"
-            assert result['solver'] == method or method in result.get('solver', '')
+            result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method=method)
+            assert result["success"], f"Method {method} failed"
+            assert result["solver"] == method or method in result.get("solver", "")
 
     def test_integrate_fixed_step_rk4(self):
         """Integration with fixed-step RK4."""
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0),
-            method='rk4',
-            dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01
         )
 
-        assert result['success']
+        assert result["success"]
         # Fixed-step should have predictable number of points
         expected_steps = int((1.0 - 0.0) / 0.01) + 1
-        assert abs(len(result['t']) - expected_steps) <= 1
+        assert abs(len(result["t"]) - expected_steps) <= 1
 
     def test_integrate_autonomous_system(self):
         """Integration of autonomous system (nu=0)."""
         system = AutonomousContinuous(alpha=1.0)
 
         x0 = np.array([1.0])
-        result = system.integrate(
-            x0,
-            u=None,  # No control
-            t_span=(0.0, 2.0)
-        )
+        result = system.integrate(x0, u=None, t_span=(0.0, 2.0))  # No control
 
-        assert result['success']
+        assert result["success"]
         # Should decay exponentially
-        assert result['x'][-1, 0] < x0[0]
+        assert result["x"][-1, 0] < x0[0]
 
     def test_integrate_with_tolerances(self):
         """Integration with custom tolerances."""
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0),
-            method='RK45',
-            rtol=1e-9,
-            atol=1e-11
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="RK45", rtol=1e-9, atol=1e-11
         )
 
-        assert result['success']
+        assert result["success"]
 
     def test_integrate_time_major_convention(self):
         """Integration result uses time-major (T, nx) convention."""
@@ -401,8 +383,8 @@ class TestIntegration:
         result = system.integrate(x0, u=None, t_span=(0.0, 1.0))
 
         # Time-major: (T, nx) not (nx, T)
-        n_times = len(result['t'])
-        assert result['x'].shape == (n_times, 2)
+        n_times = len(result["t"])
+        assert result["x"].shape == (n_times, 2)
 
     def test_integrate_convergence(self):
         """Integration converges for stable system."""
@@ -412,7 +394,7 @@ class TestIntegration:
         result = system.integrate(x0, u=None, t_span=(0.0, 5.0))
 
         # Should converge toward zero
-        assert abs(result['x'][-1, 0]) < 0.01
+        assert abs(result["x"][-1, 0]) < 0.01
 
 
 # ============================================================================
@@ -529,8 +511,8 @@ class TestControlInputHandling:
         ]
 
         for u in formats:
-            result = system.integrate(x0, u, t_span, method='rk4', dt=0.01)
-            assert result['success'], f"Failed with control type: {type(u)}"
+            result = system.integrate(x0, u, t_span, method="rk4", dt=0.01)
+            assert result["success"], f"Failed with control type: {type(u)}"
 
 
 # ============================================================================
@@ -596,10 +578,10 @@ class TestLinearization:
         """linearized_dynamics() accepts equilibrium name."""
         system = LinearContinuous()
 
-        system.add_equilibrium('test', np.array([1.0]), np.array([0.5]), verify=False)
+        system.add_equilibrium("test", np.array([1.0]), np.array([0.5]), verify=False)
 
         # Linearize by name
-        A, B = system.linearized_dynamics('test')
+        A, B = system.linearized_dynamics("test")
 
         assert A.shape == (1, 1)
         assert B.shape == (1, 1)
@@ -623,15 +605,14 @@ class TestLinearization:
         """Symbolic linearization by equilibrium name."""
         system = LinearContinuous()
 
-        system.add_equilibrium('test', np.array([0.5]), np.array([0.0]), verify=False)
+        system.add_equilibrium("test", np.array([0.5]), np.array([0.0]), verify=False)
 
-        A_sym, B_sym = system.linearized_dynamics_symbolic('test')
+        A_sym, B_sym = system.linearized_dynamics_symbolic("test")
 
         assert isinstance(A_sym, sp.Matrix)
 
     @pytest.mark.skipif(
-        not torch_available,  # requires torch
-        reason="Requires PyTorch for autodiff"
+        not torch_available, reason="Requires PyTorch for autodiff"  # requires torch
     )
     def test_verify_jacobians_torch(self):
         """Verify Jacobians against PyTorch autodiff."""
@@ -641,12 +622,12 @@ class TestLinearization:
         x = np.array([0.5])
         u = np.array([0.2])
 
-        results = system.verify_jacobians(x, u, backend='torch', tol=1e-6)
+        results = system.verify_jacobians(x, u, backend="torch", tol=1e-6)
 
-        assert results['A_match']
-        assert results['B_match']
-        assert results['A_error'] < 1e-6
-        assert results['B_error'] < 1e-6
+        assert results["A_match"]
+        assert results["B_match"]
+        assert results["A_error"] < 1e-6
+        assert results["B_error"] < 1e-6
 
 
 # ============================================================================
@@ -661,7 +642,7 @@ class TestEquilibriumVerification:
         """System implements _verify_equilibrium_numpy hook."""
         system = LinearContinuous()
 
-        assert hasattr(system, '_verify_equilibrium_numpy')
+        assert hasattr(system, "_verify_equilibrium_numpy")
         assert callable(system._verify_equilibrium_numpy)
 
     def test_verify_valid_equilibrium(self):
@@ -696,9 +677,9 @@ class TestEquilibriumVerification:
         u_eq = np.array([1.0])
 
         # Should add without warning
-        system.add_equilibrium('valid', x_eq, u_eq, verify=True, tol=1e-6)
+        system.add_equilibrium("valid", x_eq, u_eq, verify=True, tol=1e-6)
 
-        assert 'valid' in system.list_equilibria()
+        assert "valid" in system.list_equilibria()
 
     def test_add_equilibrium_with_verification_failure_warns(self):
         """Adding invalid equilibrium warns but adds anyway."""
@@ -708,10 +689,10 @@ class TestEquilibriumVerification:
         u_eq = np.array([0.0])  # Wrong!
 
         with pytest.warns(UserWarning, match="failed verification"):
-            system.add_equilibrium('invalid', x_eq, u_eq, verify=True, tol=1e-6)
+            system.add_equilibrium("invalid", x_eq, u_eq, verify=True, tol=1e-6)
 
         # Should still be added
-        assert 'invalid' in system.list_equilibria()
+        assert "invalid" in system.list_equilibria()
 
     def test_equilibrium_verification_respects_tolerance(self):
         """Verification respects tolerance parameter."""
@@ -804,12 +785,12 @@ class TestPerformanceTracking:
 
         stats = system.get_performance_stats()
 
-        assert 'forward_calls' in stats
-        assert 'forward_time' in stats
-        assert 'avg_forward_time' in stats
-        assert 'linearization_calls' in stats
-        assert 'linearization_time' in stats
-        assert 'avg_linearization_time' in stats
+        assert "forward_calls" in stats
+        assert "forward_time" in stats
+        assert "avg_forward_time" in stats
+        assert "linearization_calls" in stats
+        assert "linearization_time" in stats
+        assert "avg_linearization_time" in stats
 
     def test_performance_stats_track_calls(self):
         """Performance stats track function calls."""
@@ -825,7 +806,7 @@ class TestPerformanceTracking:
 
         stats = system.get_performance_stats()
 
-        assert stats['forward_calls'] >= 10
+        assert stats["forward_calls"] >= 10
 
     def test_reset_performance_stats(self):
         """reset_performance_stats() clears counters."""
@@ -839,7 +820,7 @@ class TestPerformanceTracking:
         system.reset_performance_stats()
 
         stats = system.get_performance_stats()
-        assert stats['forward_calls'] == 0
+        assert stats["forward_calls"] == 0
 
 
 # ============================================================================
@@ -854,7 +835,7 @@ class TestBackendOperations:
         """Default backend is numpy."""
         system = LinearContinuous()
 
-        assert system._default_backend == 'numpy'
+        assert system._default_backend == "numpy"
 
     def test_forward_with_backend_override(self):
         """forward() accepts backend parameter."""
@@ -864,15 +845,15 @@ class TestBackendOperations:
         u = np.array([0.5])
 
         # Should not raise
-        dx = system.forward(x, u, backend='numpy')
+        dx = system.forward(x, u, backend="numpy")
         assert dx.shape == (1,)
 
     def test_backend_switching(self):
         """Can switch backends."""
         system = LinearContinuous()
 
-        system.set_default_backend('numpy')
-        assert system._default_backend == 'numpy'
+        system.set_default_backend("numpy")
+        assert system._default_backend == "numpy"
 
         # Can still evaluate
         dx = system(np.array([1.0]), np.array([0.0]))
@@ -882,7 +863,7 @@ class TestBackendOperations:
         """warmup() prepares backend."""
         system = LinearContinuous()
 
-        success = system.warmup(backend='numpy')
+        success = system.warmup(backend="numpy")
 
         assert success
 
@@ -916,10 +897,11 @@ class TestBackwardCompatibility:
 
     def test_old_name_still_works(self):
         """Can use old class name."""
+
         class OldStyleSystem(SymbolicDynamicalSystem):
             def define_system(self):
-                x = sp.symbols('x')
-                u = sp.symbols('u')
+                x = sp.symbols("x")
+                u = sp.symbols("u")
                 self.state_vars = [x]
                 self.control_vars = [u]
                 self._f_sym = sp.Matrix([-x + u])
@@ -933,9 +915,10 @@ class TestBackwardCompatibility:
 
     def test_shorter_alias_works(self):
         """Can use shorter ContinuousDynamicalSystem name."""
+
         class NewStyleSystem(ContinuousDynamicalSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([-x])
@@ -967,40 +950,27 @@ class TestEdgeCases:
         """Integration with zero control."""
         system = LinearContinuous(a=1.0)
 
-        result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0)
-        )
+        result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 1.0))
 
-        assert result['success']
+        assert result["success"]
 
     def test_large_time_span(self):
         """Integration over large time span."""
         system = LinearContinuous(a=0.1)  # Slow dynamics
 
-        result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 100.0),
-            method='LSODA'
-        )
+        result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 100.0), method="LSODA")
 
-        assert result['success']
+        assert result["success"]
 
     def test_stiff_tolerance_parameters(self):
         """Can set tight tolerances."""
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0),
-            rtol=1e-12,
-            atol=1e-14
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), rtol=1e-12, atol=1e-14
         )
 
-        assert result['success']
+        assert result["success"]
 
     def test_batched_dynamics_evaluation(self):
         """Batched evaluation of dynamics."""
@@ -1051,10 +1021,10 @@ class TestAutonomousSystems:
         x0 = np.array([1.0])
         result = system.integrate(x0, u=None, t_span=(0.0, 2.0))
 
-        assert result['success']
+        assert result["success"]
         # Should decay: x(t) = x0 * exp(-alpha*t)
         expected_final = 1.0 * np.exp(-2.0 * 2.0)
-        np.testing.assert_allclose(result['x'][-1, 0], expected_final, rtol=1e-3)
+        np.testing.assert_allclose(result["x"][-1, 0], expected_final, rtol=1e-3)
 
     def test_autonomous_linearize_empty_B(self):
         """Autonomous linearization has empty B matrix."""
@@ -1093,8 +1063,8 @@ class TestPrintEquations:
         system.print_equations()
 
         captured = capsys.readouterr()
-        assert 'Continuous-Time' in captured.out
-        assert 'dx/dt' in captured.out or 'd' in captured.out
+        assert "Continuous-Time" in captured.out
+        assert "dx/dt" in captured.out or "d" in captured.out
 
     def test_print_equations_simplify_parameter(self, capsys):
         """print_equations() respects simplify parameter."""
@@ -1111,7 +1081,7 @@ class TestPrintEquations:
         system.print_equations()
 
         captured = capsys.readouterr()
-        assert 'Output' in captured.out or 'y' in captured.out
+        assert "Output" in captured.out or "y" in captured.out
 
 
 # ============================================================================
@@ -1127,7 +1097,7 @@ class TestRealComponentIntegration:
         system = LinearContinuous()
 
         # Should have evaluator
-        assert hasattr(system, '_dynamics')
+        assert hasattr(system, "_dynamics")
 
         # Can evaluate
         dx = system._dynamics.evaluate(np.array([1.0]), np.array([0.0]), backend=None)
@@ -1138,14 +1108,10 @@ class TestRealComponentIntegration:
         system = LinearContinuous()
 
         # Should have engine
-        assert hasattr(system, '_linearization')
+        assert hasattr(system, "_linearization")
 
         # Can linearize
-        A, B = system._linearization.compute_dynamics(
-            np.zeros(1),
-            np.zeros(1),
-            backend=None
-        )
+        A, B = system._linearization.compute_dynamics(np.zeros(1), np.zeros(1), backend=None)
         assert A.shape == (1, 1)
 
     def test_observation_engine_integration(self):
@@ -1153,7 +1119,7 @@ class TestRealComponentIntegration:
         system = LinearContinuous()
 
         # Should have engine
-        assert hasattr(system, '_observation')
+        assert hasattr(system, "_observation")
 
         # Can evaluate
         y = system._observation.evaluate(np.array([1.0]), backend=None)
@@ -1166,11 +1132,7 @@ class TestRealComponentIntegration:
         system = LinearContinuous()
 
         # Should be able to create integrator
-        integrator = IntegratorFactory.create(
-            system=system,
-            backend='numpy',
-            method='RK45'
-        )
+        integrator = IntegratorFactory.create(system=system, backend="numpy", method="RK45")
 
         assert integrator is not None
 
@@ -1189,23 +1151,15 @@ class TestEndToEndWorkflows:
         system = PendulumContinuous(m=0.5, l=0.3, g=9.81, b=0.1)
 
         # 2. Configure
-        system.set_default_backend('numpy')
+        system.set_default_backend("numpy")
 
         # 3. Add equilibrium
         system.add_equilibrium(
-            'downward',
-            x_eq=np.array([0.0, 0.0]),
-            u_eq=np.array([0.0]),
-            verify=True
+            "downward", x_eq=np.array([0.0, 0.0]), u_eq=np.array([0.0]), verify=True
         )
 
         # 4. Integrate
-        result = system.integrate(
-            x0=np.array([0.1, 0.0]),
-            u=None,
-            t_span=(0.0, 5.0),
-            method='RK45'
-        )
+        result = system.integrate(x0=np.array([0.1, 0.0]), u=None, t_span=(0.0, 5.0), method="RK45")
 
         # 5. Linearize
         A, B = system.linearize(np.zeros(2), np.zeros(1))
@@ -1215,7 +1169,7 @@ class TestEndToEndWorkflows:
         # Damped pendulum at bottom is stable
         is_stable = np.all(np.real(eigenvalues) < 0)
 
-        assert result['success']
+        assert result["success"]
         assert A.shape == (2, 2)
         assert is_stable
 
@@ -1225,17 +1179,13 @@ class TestEndToEndWorkflows:
         system = AutonomousContinuous(alpha=1.0)
 
         # 2. Integrate
-        result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 3.0)
-        )
+        result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 3.0))
 
         # 3. Linearize
         A, B = system.linearize(np.zeros(1), np.array([]))
 
         # 4. Verify
-        assert result['success']
+        assert result["success"]
         assert A.shape == (1, 1)
         assert B.shape == (1, 0)
         np.testing.assert_allclose(A, [[-1.0]])
@@ -1253,16 +1203,12 @@ class TestEndToEndWorkflows:
 
         # Simulate closed-loop
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=controller,
-            t_span=(0.0, 5.0),
-            method='rk4',
-            dt=0.01
+            x0=np.array([1.0]), u=controller, t_span=(0.0, 5.0), method="rk4", dt=0.01
         )
 
-        assert result['success']
+        assert result["success"]
         # Should stabilize faster with control
-        assert abs(result['x'][-1, 0]) < 0.01
+        assert abs(result["x"][-1, 0]) < 0.01
 
 
 # ============================================================================
@@ -1305,14 +1251,10 @@ class TestComparisonWithOld:
         x_analytical = x0 * np.exp(-1.0 * t_final)
 
         result = system.integrate(
-            x0=np.array([x0]),
-            u=None,
-            t_span=(0.0, t_final),
-            method='RK45',
-            rtol=1e-9
+            x0=np.array([x0]), u=None, t_span=(0.0, t_final), method="RK45", rtol=1e-9
         )
 
-        x_numerical = result['x'][-1, 0]
+        x_numerical = result["x"][-1, 0]
         np.testing.assert_allclose(x_numerical, x_analytical, rtol=1e-6)
 
 
@@ -1333,24 +1275,20 @@ class TestTypeSafety:
 
         # Has required methods
         assert callable(system)
-        assert hasattr(system, 'integrate')
-        assert hasattr(system, 'linearize')
+        assert hasattr(system, "integrate")
+        assert hasattr(system, "linearize")
 
     def test_integrate_return_type(self):
         """integrate() returns IntegrationResult TypedDict."""
         system = LinearContinuous()
 
-        result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0)
-        )
+        result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 1.0))
 
         # Should be dict-like
         assert isinstance(result, dict)
 
         # Required fields
-        required_fields = ['t', 'x', 'success']
+        required_fields = ["t", "x", "success"]
         for field in required_fields:
             assert field in result
 
@@ -1377,35 +1315,27 @@ class TestIntegrationResultConvention:
         """Integration result uses (T, nx) shape."""
         system = PendulumContinuous()
 
-        result = system.integrate(
-            x0=np.array([0.1, 0.0]),
-            u=None,
-            t_span=(0.0, 1.0)
-        )
+        result = system.integrate(x0=np.array([0.1, 0.0]), u=None, t_span=(0.0, 1.0))
 
-        n_times = len(result['t'])
-        assert result['x'].shape == (n_times, 2)  # (T, nx) not (nx, T)
+        n_times = len(result["t"])
+        assert result["x"].shape == (n_times, 2)  # (T, nx) not (nx, T)
 
     def test_time_major_indexing(self):
         """Time-major indexing works as expected."""
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0),
-            method='rk4',
-            dt=0.1
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.1
         )
 
         # Access state at each time
-        for i in range(len(result['t'])):
-            x_at_t = result['x'][i, :]  # (nx,)
+        for i in range(len(result["t"])):
+            x_at_t = result["x"][i, :]  # (nx,)
             assert x_at_t.shape == (1,)
 
         # Access state component over time
-        x_component = result['x'][:, 0]  # (T,)
-        assert x_component.shape == (len(result['t']),)
+        x_component = result["x"][:, 0]  # (T,)
+        assert x_component.shape == (len(result["t"]),)
 
 
 # ============================================================================
@@ -1416,50 +1346,38 @@ class TestIntegrationResultConvention:
 class TestParametrizedScenarios:
     """Parametrized tests for various scenarios."""
 
-    @pytest.mark.parametrize("method", ['RK45', 'RK23', 'LSODA', 'rk4'])
+    @pytest.mark.parametrize("method", ["RK45", "RK23", "LSODA", "rk4"])
     def test_various_integration_methods(self, method):
         """Test different integration methods."""
         system = LinearContinuous()
 
-        kwargs = {'dt': 0.01} if method == 'rk4' else {}
+        kwargs = {"dt": 0.01} if method == "rk4" else {}
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0),
-            method=method,
-            **kwargs
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method=method, **kwargs
         )
 
-        assert result['success'], f"Method {method} failed"
+        assert result["success"], f"Method {method} failed"
 
     @pytest.mark.parametrize("a_val", [0.1, 1.0, 5.0, 10.0])
     def test_various_decay_rates(self, a_val):
         """Test systems with different decay rates."""
         system = LinearContinuous(a=a_val)
 
-        result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 5.0)
-        )
+        result = system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 5.0))
 
-        assert result['success']
+        assert result["success"]
         # Should decay
-        assert result['x'][-1, 0] < result['x'][0, 0]
+        assert result["x"][-1, 0] < result["x"][0, 0]
 
     @pytest.mark.parametrize("x0_val", [0.1, 1.0, 5.0, 10.0])
     def test_various_initial_conditions(self, x0_val):
         """Test various initial conditions."""
         system = LinearContinuous(a=1.0)
 
-        result = system.integrate(
-            x0=np.array([x0_val]),
-            u=None,
-            t_span=(0.0, 2.0)
-        )
+        result = system.integrate(x0=np.array([x0_val]), u=None, t_span=(0.0, 2.0))
 
-        assert result['success']
+        assert result["success"]
 
 
 # ============================================================================
@@ -1500,7 +1418,7 @@ class TestErrorHandling:
         u_eq = np.array([0.0])
 
         with pytest.raises(ValueError):
-            system.add_equilibrium('wrong', x_wrong, u_eq, verify=False)
+            system.add_equilibrium("wrong", x_wrong, u_eq, verify=False)
 
 
 # ============================================================================
@@ -1561,13 +1479,9 @@ class TestUsingFixtures:
 
     def test_integrate_with_fixture(self, linear_system):
         """Can integrate using fixture."""
-        result = linear_system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 1.0)
-        )
+        result = linear_system.integrate(x0=np.array([1.0]), u=None, t_span=(0.0, 1.0))
 
-        assert result['success']
+        assert result["success"]
 
     def test_linearize_with_fixture(self, linear_system):
         """Can linearize using fixture."""
@@ -1591,26 +1505,24 @@ class TestMultiComponentIntegration:
 
         system = LinearContinuous()
 
-        with patch.object(IntegratorFactory, 'create', wraps=IntegratorFactory.create) as mock_create:
+        with patch.object(
+            IntegratorFactory, "create", wraps=IntegratorFactory.create
+        ) as mock_create:
             result = system.integrate(
-                x0=np.array([1.0]),
-                u=None,
-                t_span=(0.0, 0.1),
-                method='rk4',
-                dt=0.01
+                x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
             )
 
             # Should have called factory
             mock_create.assert_called_once()
-            
+
             # Verify system was passed (check both args and kwargs)
             call_args = mock_create.call_args
-            
+
             # Could be positional or keyword
             if len(call_args[0]) > 0:
                 assert call_args[0][0] is system
             else:
-                assert call_args[1].get('system') is system
+                assert call_args[1].get("system") is system
 
     def test_dynamics_evaluator_called_during_integration(self):
         """DynamicsEvaluator is called during integration."""
@@ -1627,11 +1539,7 @@ class TestMultiComponentIntegration:
         system._dynamics.evaluate = wrapped_evaluate
 
         result = system.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 0.1),
-            method='rk4',
-            dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
         )
 
         # Should have evaluated dynamics multiple times
@@ -1642,13 +1550,11 @@ class TestMultiComponentIntegration:
         system = LinearContinuous()
 
         # Track what actually gets called - the DynamicsEvaluator
-        with patch.object(system._dynamics, 'evaluate', wraps=system._dynamics.evaluate) as mock_eval:
+        with patch.object(
+            system._dynamics, "evaluate", wraps=system._dynamics.evaluate
+        ) as mock_eval:
             # Verify equilibrium
-            is_valid = system._verify_equilibrium_numpy(
-                np.array([1.0]),
-                np.array([1.0]),
-                tol=1e-6
-            )
+            is_valid = system._verify_equilibrium_numpy(np.array([1.0]), np.array([1.0]), tol=1e-6)
 
             # Should have evaluated dynamics at least once
             assert mock_eval.call_count > 0
@@ -1667,36 +1573,37 @@ class TestCodeReduction:
         # Methods that should NOT be in ContinuousSymbolicSystem
         # (should be inherited from SymbolicSystemBase)
         base_methods = [
-            'substitute_parameters',
-            'compile',
-            'reset_caches',
-            'get_config_dict',
-            'save_config',
-            'set_default_backend',
-            'to_device',
-            'use_backend',
-            'get_backend_info',
+            "substitute_parameters",
+            "compile",
+            "reset_caches",
+            "get_config_dict",
+            "save_config",
+            "set_default_backend",
+            "to_device",
+            "use_backend",
+            "get_backend_info",
         ]
 
-        continuous_code = open('src/systems/base/core/continuous_symbolic_system.py').read()
+        continuous_code = open("src/systems/base/core/continuous_symbolic_system.py").read()
 
         # These methods should NOT be defined in ContinuousSymbolicSystem
         for method in base_methods:
             # Check if method is defined (not just inherited)
-            assert f'def {method}(' not in continuous_code, \
-                f"Method {method} should be inherited, not redefined"
+            assert (
+                f"def {method}(" not in continuous_code
+            ), f"Method {method} should be inherited, not redefined"
 
     def test_has_only_continuous_specific_methods(self):
         """ContinuousSymbolicSystem has only continuous-specific methods."""
         # Methods that SHOULD be in ContinuousSymbolicSystem
         required_methods = [
-            '__init__',
-            '__call__',
-            'integrate',
-            'linearize',
-            'print_equations',
-            '_verify_equilibrium_numpy',
-            '_prepare_control_input',
+            "__init__",
+            "__call__",
+            "integrate",
+            "linearize",
+            "print_equations",
+            "_verify_equilibrium_numpy",
+            "_prepare_control_input",
         ]
 
         for method in required_methods:
@@ -1747,9 +1654,10 @@ class TestSymbolicValidation:
 
     def test_invalid_system_raises_validation_error(self):
         """Invalid system definition raises ValidationError."""
+
         class InvalidSystem(ContinuousSymbolicSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []  # Empty is valid (autonomous)
                 # Missing _f_sym entirely!
@@ -1760,9 +1668,10 @@ class TestSymbolicValidation:
 
     def test_dimension_mismatch_caught(self):
         """Dimension mismatch in definition caught."""
+
         class DimensionMismatch(ContinuousSymbolicSystem):
             def define_system(self):
-                x, y = sp.symbols('x y')
+                x, y = sp.symbols("x y")
                 self.state_vars = [x, y]  # 2 states
                 self.control_vars = []
                 self._f_sym = sp.Matrix([0])  # Only 1 equation!
@@ -1797,15 +1706,11 @@ class TestPerformanceBenchmarks:
 
         def run_integration():
             return system.integrate(
-                x0=np.array([1.0]),
-                u=None,
-                t_span=(0.0, 1.0),
-                method='rk4',
-                dt=0.01
+                x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01
             )
 
         result = benchmark(run_integration)
-        assert result['success']
+        assert result["success"]
 
     def test_linearization_speed(self, benchmark):
         """Benchmark linearization."""

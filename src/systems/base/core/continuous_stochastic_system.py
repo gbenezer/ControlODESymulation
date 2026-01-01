@@ -191,7 +191,9 @@ import numpy as np
 import sympy as sp
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
-from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import SDEIntegratorFactory
+from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import (
+    SDEIntegratorFactory,
+)
 from src.systems.base.utils.stochastic.diffusion_handler import DiffusionHandler
 from src.systems.base.utils.stochastic.noise_analysis import (
     NoiseCharacteristics,
@@ -392,14 +394,12 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             sde_type_lower = self.sde_type.lower()
             if sde_type_lower not in ["ito", "stratonovich"]:
                 raise ValueError(
-                    f"Invalid sde_type '{self.sde_type}'. "
-                    f"Must be 'ito' or 'stratonovich'"
+                    f"Invalid sde_type '{self.sde_type}'. " f"Must be 'ito' or 'stratonovich'"
                 )
             self.sde_type = SDEType(sde_type_lower)
         elif not isinstance(self.sde_type, SDEType):
             raise TypeError(
-                f"sde_type must be string or SDEType enum, "
-                f"got {type(self.sde_type).__name__}"
+                f"sde_type must be string or SDEType enum, " f"got {type(self.sde_type).__name__}"
             )
 
         # Create DiffusionHandler for code generation
@@ -430,7 +430,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         t_eval: Optional[TimePoints] = None,
         n_paths: int = 1,
         seed: Optional[int] = None,
-        **integrator_kwargs
+        **integrator_kwargs,
     ):
         """
         Integrate stochastic system using SDE solver.
@@ -515,37 +515,29 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             backend=self._default_backend,
             method=method,
             seed=seed,
-            **integrator_kwargs
+            **integrator_kwargs,
         )
 
         # Single path vs Monte Carlo
         if n_paths == 1:
             # Single trajectory
-            return integrator.integrate(
-                x0=x0,
-                u_func=u_func,
-                t_span=t_span,
-                t_eval=t_eval
-            )
+            return integrator.integrate(x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval)
         else:
             # Monte Carlo simulation
-            if hasattr(integrator, 'integrate_monte_carlo'):
+            if hasattr(integrator, "integrate_monte_carlo"):
                 return integrator.integrate_monte_carlo(
-                    x0=x0,
-                    u_func=u_func,
-                    t_span=t_span,
-                    n_paths=n_paths,
-                    t_eval=t_eval
+                    x0=x0, u_func=u_func, t_span=t_span, n_paths=n_paths, t_eval=t_eval
                 )
             else:
                 # Manual Monte Carlo (run n_paths separate integrations)
                 import warnings
+
                 warnings.warn(
                     f"Integrator '{method}' does not have native Monte Carlo support. "
                     f"Running {n_paths} separate integrations (may be slow).",
-                    UserWarning
+                    UserWarning,
                 )
-                
+
                 all_paths = []
                 for i in range(n_paths):
                     # Set different seed for each path
@@ -555,26 +547,23 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
                         backend=self._default_backend,
                         method=method,
                         seed=path_seed,
-                        **integrator_kwargs
+                        **integrator_kwargs,
                     )
-                    
+
                     result = path_integrator.integrate(
-                        x0=x0,
-                        u_func=u_func,
-                        t_span=t_span,
-                        t_eval=t_eval
+                        x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval
                     )
-                    all_paths.append(result['x'])
-                
+                    all_paths.append(result["x"])
+
                 # Stack all paths
                 x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
-                
+
                 # Return combined result
                 return {
                     **result,  # Use last result for metadata
-                    'x': x_all,
-                    'n_paths': n_paths,
-                    'message': f'Monte Carlo with {n_paths} paths (manual mode)'
+                    "x": x_all,
+                    "n_paths": n_paths,
+                    "message": f"Monte Carlo with {n_paths} paths (manual mode)",
                 }
 
     # ========================================================================
@@ -586,7 +575,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         x: StateVector,
         u: Optional[ControlVector] = None,
         t: ScalarLike = 0.0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Evaluate drift term f(x, u, t) or f(x, t) for autonomous.
@@ -633,7 +622,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         x: StateVector,
         u: Optional[ControlVector] = None,
         t: ScalarLike = 0.0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ):
         """
         Evaluate diffusion term g(x, u, t) or g(x, t) for autonomous.
@@ -689,9 +678,11 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
                 u = np.array([])
             elif backend_to_use == "torch":
                 import torch
+
                 u = torch.tensor([])
             elif backend_to_use == "jax":
                 import jax.numpy as jnp
+
                 u = jnp.array([])
         elif u is not None and self.nu == 0:
             raise ValueError(f"Autonomous system cannot take control input")
@@ -703,29 +694,25 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
             # Check for empty batch
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "torch":
             import torch
+
             x_arr = torch.atleast_1d(torch.as_tensor(x))
             u_arr = torch.atleast_1d(torch.as_tensor(u)) if self.nu > 0 else torch.tensor([])
 
             if len(x_arr.shape) > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "jax":
             import jax.numpy as jnp
+
             x_arr = jnp.atleast_1d(jnp.asarray(x))
             u_arr = jnp.atleast_1d(jnp.asarray(u)) if self.nu > 0 else jnp.array([])
 
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
         else:
             raise ValueError(f"Unknown backend: {backend_to_use}")
 
@@ -750,7 +737,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         x: StateVector,
         u: Optional[ControlVector] = None,
         t: ScalarLike = 0.0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Evaluate drift dynamics: dx/dt = f(x, u, t) or dx/dt = f(x, t).
@@ -798,11 +785,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
     # Override Linearization to Include Diffusion Matrix
     # ========================================================================
 
-    def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
-    ):
+    def linearize(self, x_eq: StateVector, u_eq: Optional[ControlVector] = None):
         """
         Compute linearization including diffusion: A = ∂f/∂x, B = ∂f/∂u, G = g(x_eq).
 
@@ -831,17 +814,17 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         >>> x_eq = np.zeros(2)
         >>> u_eq = np.zeros(1)
         >>> A, B, G = system.linearize(x_eq, u_eq)
-        >>> 
+        >>>
         >>> # Check continuous stability: Re(λ) < 0
         >>> eigenvalues = np.linalg.eigvals(A)
         >>> is_stable = np.all(np.real(eigenvalues) < 0)
         """
         # Get drift linearization from parent
         A, B = super().linearize(x_eq, u_eq)
-        
+
         # Evaluate diffusion at equilibrium
         G = self.diffusion(x_eq, u_eq)
-        
+
         return (A, B, G)
 
     # ========================================================================
@@ -867,10 +850,10 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
     def get_noise_type(self) -> NoiseType:
         """Get classified noise type."""
         return self.noise_characteristics.noise_type
-    
+
     def get_sde_type(self) -> SDEType:
         return self.sde_type
-    
+
     # May need to make this more elaborate or otherwise replace with
     # cleaner implementation
     def get_diffusion_matrix(self, x, u=None, backend=Backend | None):
@@ -955,23 +938,13 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
     # ========================================================================
 
     def compile_diffusion(
-        self,
-        backends: Optional[List[Backend]] = None,
-        verbose: bool = False,
-        **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[Backend, float]:
         """Pre-compile diffusion functions for specified backends."""
-        return self.diffusion_handler.compile_all(
-            backends=backends,
-            verbose=verbose,
-            **kwargs
-        )
+        return self.diffusion_handler.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def compile_all(
-        self,
-        backends: Optional[List[Backend]] = None,
-        verbose: bool = False,
-        **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[Backend, Dict[str, float]]:
         """
         Compile both drift and diffusion for all backends.
@@ -991,17 +964,11 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
                 print(f"\nCompiling {backend} backend...")
 
             # Compile drift (via parent)
-            drift_timings = super().compile(
-                backends=[backend],
-                verbose=verbose,
-                **kwargs
-            )
+            drift_timings = super().compile(backends=[backend], verbose=verbose, **kwargs)
 
             # Compile diffusion
             diffusion_timings = self.compile_diffusion(
-                backends=[backend],
-                verbose=verbose,
-                **kwargs
+                backends=[backend], verbose=verbose, **kwargs
             )
 
             results[backend] = {

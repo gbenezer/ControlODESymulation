@@ -48,7 +48,18 @@ Usage
 """
 
 # Conditional imports for type checking
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    Sequence,
+)
 
 import numpy as np
 

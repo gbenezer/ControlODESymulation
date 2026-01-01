@@ -51,13 +51,14 @@ class ValidationError(Exception):
 
     pass
 
+
 class SDEValidationInfo(TypedDict):
     """
     Type-safe info dictionary for SDE validation results.
-    
+
     Contains system dimensions and noise characteristics.
     """
-    
+
     # System dimensions
     nx: int
     nw: int

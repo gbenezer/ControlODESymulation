@@ -25,7 +25,7 @@ Just symbolic analysis using SymPy.
 
 Components:
     - NoiseType: Enum for noise classifications
-    - SDEType: Enum for SDE interpretations  
+    - SDEType: Enum for SDE interpretations
     - NoiseCharacteristics: Dataclass with analysis results
     - NoiseCharacterizer: Analysis engine (pure SymPy)
 
@@ -63,13 +63,13 @@ The noise type classification follows this priority order:
 Key Fix
 -------
 Previous version had bug where MULTIPLICATIVE was unreachable:
-    
+
     # WRONG (old code):
     elif is_multiplicative and not is_diagonal and not is_scalar:
         return NoiseType.GENERAL  # ← Bug! Should be MULTIPLICATIVE
     elif is_multiplicative:
         return NoiseType.MULTIPLICATIVE  # ← Unreachable!
-    
+
     # CORRECT (fixed):
     elif is_multiplicative:
         return NoiseType.MULTIPLICATIVE  # ← Now reachable!
@@ -130,7 +130,7 @@ class NoiseCharacteristics:
     >>> char = NoiseCharacteristics(...)
     >>> if char.is_additive:
     ...     G = precompute_constant_noise()  # Optimization!
-    >>> 
+    >>>
     >>> solvers = char.recommended_solvers('jax')
     >>> print(solvers)  # ['sea', 'shark'] for additive
     """
@@ -266,7 +266,7 @@ class NoiseCharacterizer:
             Control variable symbols
         time_var : sp.Symbol, optional
             Time variable symbol (if time-varying)
-        
+
         Examples
         --------
         >>> x1, x2 = sp.symbols('x1 x2')
@@ -285,15 +285,15 @@ class NoiseCharacterizer:
 
         # Perform analysis (lazy - only when accessed)
         self._characteristics = None
-    
+
     @classmethod
     def from_dict(cls, config: Dict) -> "NoiseCharacterizer":
         """
         Create NoiseCharacterizer from configuration dictionary.
-        
+
         This is a convenience factory method for creating characterizers from
         dictionaries, such as test fixtures or saved configurations.
-        
+
         Parameters
         ----------
         config : Dict
@@ -302,12 +302,12 @@ class NoiseCharacterizer:
             - "state_vars": List of state symbols
             - "control_vars": List of control symbols
             - "time_var" (optional): Time symbol
-        
+
         Returns
         -------
         NoiseCharacterizer
             Initialized characterizer
-        
+
         Examples
         --------
         >>> config = {
@@ -317,12 +317,12 @@ class NoiseCharacterizer:
         ... }
         >>> char = NoiseCharacterizer.from_dict(config)
         >>> result = char.analyze()
-        
+
         With test fixtures:
         >>> @pytest.fixture
         ... def my_noise():
         ...     return {"diffusion": ..., "state_vars": ..., "control_vars": ...}
-        >>> 
+        >>>
         >>> def test_something(my_noise):
         ...     char = NoiseCharacterizer.from_dict(my_noise)
         ...     # or equivalently:
@@ -330,17 +330,17 @@ class NoiseCharacterizer:
         """
         # Handle both "diffusion" and "diffusion_expr" keys
         diffusion_expr = config.get("diffusion_expr") or config.get("diffusion")
-        
+
         if diffusion_expr is None:
             raise ValueError(
                 "Configuration dictionary must contain 'diffusion' or 'diffusion_expr' key"
             )
-        
+
         return cls(
             diffusion_expr=diffusion_expr,
             state_vars=config["state_vars"],
             control_vars=config["control_vars"],
-            time_var=config.get("time_var")
+            time_var=config.get("time_var"),
         )
 
     @property
@@ -461,55 +461,55 @@ class NoiseCharacterizer:
     ) -> NoiseType:
         """
         Classify noise type with CORRECTED hierarchy.
-        
+
         Priority (most specific to most general):
         1. ADDITIVE - constant, no dependencies (best for optimization)
         2. SCALAR - single noise source (nw=1), may be state-dependent
         3. DIAGONAL - diagonal structure (nw=nx), independent noise sources
         4. MULTIPLICATIVE - state-dependent, non-diagonal, non-scalar
         5. GENERAL - fallback for complex cases
-        
+
         Key Changes from Previous Version
         ----------------------------------
         FIXED: Removed the buggy condition that made MULTIPLICATIVE unreachable.
-        
+
         OLD (BUGGY):
             elif is_multiplicative and not is_diagonal and not is_scalar:
                 return NoiseType.GENERAL  # ← BUG!
             elif is_multiplicative:
                 return NoiseType.MULTIPLICATIVE  # ← Unreachable
-        
+
         NEW (CORRECT):
             elif is_multiplicative:
                 return NoiseType.MULTIPLICATIVE  # ← Now reachable!
-        
+
         This means:
         - Diagonal + multiplicative → DIAGONAL (diagonal has higher priority)
         - Scalar + multiplicative → SCALAR (scalar has higher priority)
         - Non-diagonal, non-scalar, multiplicative → MULTIPLICATIVE ✓
-        
+
         Examples by Category
         --------------------
         ADDITIVE:
         >>> g = [[0.3, 0.2]]  # Constant 1×2
         >>> # Classification: ADDITIVE
-        
+
         SCALAR:
         >>> g = [[σ*x]]  # State-dependent, nw=1
         >>> # Classification: SCALAR (not MULTIPLICATIVE!)
-        
+
         DIAGONAL:
         >>> g = [[σ₁*x₁, 0], [0, σ₂*x₂]]  # Diagonal, state-dependent
         >>> # Classification: DIAGONAL (not MULTIPLICATIVE!)
-        
+
         MULTIPLICATIVE:
         >>> g = [[σ₁*x₁, σ₂*x₂]]  # Non-diagonal, non-scalar, state-dependent
         >>> # Classification: MULTIPLICATIVE ✓
-        
+
         GENERAL:
         >>> g = complex non-standard structure
         >>> # Classification: GENERAL
-        
+
         Parameters
         ----------
         is_additive : bool
@@ -520,7 +520,7 @@ class NoiseCharacterizer:
             Diagonal matrix structure
         is_scalar : bool
             Single noise source (nw = 1)
-        
+
         Returns
         -------
         NoiseType
@@ -529,20 +529,20 @@ class NoiseCharacterizer:
         # Priority 1: Constant (most optimizable)
         if is_additive:
             return NoiseType.ADDITIVE
-        
+
         # Priority 2: Single noise source (special structure)
         if is_scalar:
             return NoiseType.SCALAR
-        
+
         # Priority 3: Diagonal (independent noise sources)
         if is_diagonal:
             return NoiseType.DIAGONAL
-        
+
         # Priority 4: State-dependent non-diagonal non-scalar
         # FIXED: Removed buggy condition that caused MULTIPLICATIVE to be unreachable
         if is_multiplicative:
             return NoiseType.MULTIPLICATIVE
-        
+
         # Priority 5: Fallback
         return NoiseType.GENERAL
 
@@ -588,7 +588,7 @@ class NoiseCharacterizer:
 
         if claimed_type == "scalar" and not char.is_scalar:
             raise ValueError(f"Claimed noise_type='scalar' but nw={char.num_wiener} > 1")
-        
+
         if claimed_type == "multiplicative" and not char.is_multiplicative:
             raise ValueError(
                 f"Claimed noise_type='multiplicative' but diffusion is constant "

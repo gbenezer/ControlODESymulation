@@ -298,6 +298,7 @@ class TestParameterConstraints:
 
     def test_negative_parameters_allowed(self):
         """Negative parameters should work (not all are positive)."""
+
         # Note: In our test system, parameters are declared positive
         # But we can create a system without that constraint
         class SystemWithNegativeParams(SymbolicSystemBase):
@@ -338,9 +339,7 @@ class TestParameterConstraints:
 
     def test_many_parameters(self):
         """System with many parameters."""
-        system = SystemWithComplexParameters(
-            m=1.0, k=2.0, c=3.0, g=4.0, l=5.0
-        )
+        system = SystemWithComplexParameters(m=1.0, k=2.0, c=3.0, g=4.0, l=5.0)
 
         assert len(system.parameters) == 5
         # All parameters should be set
@@ -663,7 +662,11 @@ class TestCopyBehavior:
         system2 = copy.deepcopy(system1)
 
         # Change system2's backend
-        system2.set_default_backend("torch") if system2.backend.check_available("torch") else system2.set_default_backend("numpy")
+        (
+            system2.set_default_backend("torch")
+            if system2.backend.check_available("torch")
+            else system2.set_default_backend("numpy")
+        )
 
         # system1 should be unchanged (if torch was available)
         assert system1._default_backend == "numpy"
@@ -753,6 +756,7 @@ class TestValidationBoundaries:
 
     def test_single_state_system(self):
         """System with single state."""
+
         class SingleStateSystem(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
@@ -771,6 +775,7 @@ class TestValidationBoundaries:
 
     def test_system_with_no_dynamics(self):
         """System with zero dynamics (dx/dt = 0)."""
+
         class NoDynamicsSystem(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
@@ -790,6 +795,7 @@ class TestValidationBoundaries:
 
     def test_system_validation_catches_dimension_mismatch(self):
         """Validation catches dimension mismatches."""
+
         class BadDimensionSystem(SymbolicSystemBase):
             def define_system(self):
                 x, y = sp.symbols("x y")
@@ -808,6 +814,7 @@ class TestValidationBoundaries:
 
     def test_system_validation_catches_missing_f_sym(self):
         """Validation catches missing _f_sym."""
+
         class MissingDynamicsSystem(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
@@ -825,6 +832,7 @@ class TestValidationBoundaries:
 
     def test_higher_order_validation(self):
         """Validation works for higher-order systems."""
+
         class ValidSecondOrderSystem(SymbolicSystemBase):
             def define_system(self):
                 q, q_dot = sp.symbols("q q_dot")
@@ -1049,6 +1057,7 @@ class TestSubclassContract:
 
     def test_define_system_must_set_state_vars(self):
         """define_system must set state_vars."""
+
         class MissingStateVars(SymbolicSystemBase):
             def define_system(self):
                 # Missing state_vars
@@ -1066,6 +1075,7 @@ class TestSubclassContract:
 
     def test_define_system_must_set_control_vars(self):
         """define_system should set control_vars, or it defaults to empty for autonomous systems."""
+
         class MissingControlVars(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
@@ -1085,6 +1095,7 @@ class TestSubclassContract:
 
     def test_f_sym_must_be_matrix(self):
         """_f_sym must be a SymPy Matrix."""
+
         class WrongFSymType(SymbolicSystemBase):
             def define_system(self):
                 x = sp.symbols("x")
@@ -1109,10 +1120,7 @@ class TestSubclassContract:
 class TestConcurrentAccess:
     """Test thread safety of system operations."""
 
-    @pytest.mark.skipif(
-        not hasattr(threading, "Thread"),
-        reason="Threading not available"
-    )
+    @pytest.mark.skipif(not hasattr(threading, "Thread"), reason="Threading not available")
     def test_multiple_threads_reading_properties(self):
         """Multiple threads can read system properties safely."""
         system = MinimalSystemForCopy()
@@ -1136,10 +1144,7 @@ class TestConcurrentAccess:
         # All results should be consistent
         assert all(r == results[0] for r in results)
 
-    @pytest.mark.skipif(
-        not hasattr(threading, "Thread"),
-        reason="Threading not available"
-    )
+    @pytest.mark.skipif(not hasattr(threading, "Thread"), reason="Threading not available")
     def test_concurrent_backend_switching_warns(self):
         """Concurrent backend switching (not recommended)."""
         system = MinimalSystemForCopy()

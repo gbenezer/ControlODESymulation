@@ -102,9 +102,7 @@ class ObservationEngine:
     # Output Evaluation: y = h(x)
     # ========================================================================
 
-    def evaluate(
-        self, x: StateVector, backend: Optional[Backend] = None
-    ) -> OutputVector:
+    def evaluate(self, x: StateVector, backend: Optional[Backend] = None) -> OutputVector:
         """
         Evaluate output equation: y = h(x).
 
@@ -343,9 +341,7 @@ class ObservationEngine:
     # Observation Linearization: C = ∂h/∂x
     # ========================================================================
 
-    def compute_jacobian(
-        self, x: StateVector, backend: Optional[Backend] = None
-    ) -> OutputMatrix:
+    def compute_jacobian(self, x: StateVector, backend: Optional[Backend] = None) -> OutputMatrix:
         """
         Compute linearized observation: C = ∂h/∂x.
 

@@ -571,9 +571,7 @@ class SDEIntegratorFactory:
         ...     adjoint=False
         ... )
         """
-        return cls.create(
-            sde_system, backend="torch", method="euler", adjoint=adjoint, **options
-        )
+        return cls.create(sde_system, backend="torch", method="euler", adjoint=adjoint, **options)
 
     @classmethod
     def for_julia(
@@ -674,7 +672,9 @@ class SDEIntegratorFactory:
         )
 
     @staticmethod
-    def list_methods(backend: Optional[Backend] = None) -> Dict[Backend, List[SDEIntegrationMethod]]:
+    def list_methods(
+        backend: Optional[Backend] = None,
+    ) -> Dict[Backend, List[SDEIntegrationMethod]]:
         """
         List available SDE methods for each backend.
 

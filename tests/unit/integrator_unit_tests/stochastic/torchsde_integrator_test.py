@@ -98,7 +98,7 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """
         Return diffusion matrix (required for integrator).
-        
+
         Parameters
         ----------
         x : array_like
@@ -107,7 +107,7 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
             Control input
         backend : str
             Backend to use ('numpy', 'torch', 'jax')
-        
+
         Returns
         -------
         array_like
@@ -115,6 +115,7 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
         """
         if backend == "torch":
             import torch
+
             # Get sigma parameter value
             sigma = list(self.parameters.values())[1]  # Second parameter is sigma
             # Ensure x is a tensor
@@ -155,6 +156,7 @@ class BrownianMotion(StochasticDynamicalSystem):
         """Return diffusion matrix."""
         if backend == "torch":
             import torch
+
             sigma = list(self.parameters.values())[0]
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
@@ -194,6 +196,7 @@ class ControlledOU(StochasticDynamicalSystem):
         """Return diffusion matrix."""
         if backend == "torch":
             import torch
+
             sigma = list(self.parameters.values())[1]
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
@@ -233,14 +236,13 @@ class TwoDimensionalOU(StochasticDynamicalSystem):
         """Return diffusion matrix."""
         if backend == "torch":
             import torch
+
             # Get sigma1 and sigma2 parameter values
             params = list(self.parameters.values())
             sigma1, sigma2 = params[1], params[2]
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
-            return torch.tensor(
-                [[sigma1, 0.0], [0.0, sigma2]], dtype=x.dtype, device=x.device
-            )
+            return torch.tensor([[sigma1, 0.0], [0.0, sigma2]], dtype=x.dtype, device=x.device)
         elif backend == "numpy":
             params = list(self.parameters.values())
             sigma1, sigma2 = params[1], params[2]

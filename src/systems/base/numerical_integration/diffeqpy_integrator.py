@@ -744,12 +744,12 @@ class DiffEqPyIntegrator(IntegratorBase):
                 "integration_time": elapsed,
                 "solver": self.name,
             }
-            
+
             # Add optional fields conditionally
             if dense_output or self.dense:
                 result["sol"] = sol
                 result["dense_output"] = True
-            
+
             return result
 
         except Exception as e:

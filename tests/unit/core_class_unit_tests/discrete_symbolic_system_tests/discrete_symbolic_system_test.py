@@ -92,9 +92,9 @@ class DiscreteLinear(DiscreteSymbolicSystem):
     """Simple linear discrete system: x[k+1] = a*x[k] + b*u[k]"""
 
     def define_system(self, a=0.9, b=0.1, dt=0.01):
-        x = sp.symbols('x', real=True)
-        u = sp.symbols('u', real=True)
-        a_sym, b_sym = sp.symbols('a b', real=True)
+        x = sp.symbols("x", real=True)
+        u = sp.symbols("u", real=True)
+        a_sym, b_sym = sp.symbols("a b", real=True)
 
         self.state_vars = [x]
         self.control_vars = [u]
@@ -108,8 +108,8 @@ class DiscreteAutonomous(DiscreteSymbolicSystem):
     """Autonomous discrete: x[k+1] = a*x[k]"""
 
     def define_system(self, a=0.95, dt=0.1):
-        x = sp.symbols('x', real=True)
-        a_sym = sp.symbols('a', real=True)
+        x = sp.symbols("x", real=True)
+        a_sym = sp.symbols("a", real=True)
 
         self.state_vars = [x]
         self.control_vars = []  # No control
@@ -123,21 +123,24 @@ class DiscreteTwoState(DiscreteSymbolicSystem):
     """Two-state discrete system"""
 
     def define_system(self, a11=0.9, a12=0.1, a21=-0.1, a22=0.8, b1=0.1, b2=0.05, dt=0.01):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        u = sp.symbols('u', real=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        u = sp.symbols("u", real=True)
 
-        a11_sym, a12_sym, a21_sym, a22_sym = sp.symbols('a11 a12 a21 a22', real=True)
-        b1_sym, b2_sym = sp.symbols('b1 b2', real=True)
+        a11_sym, a12_sym, a21_sym, a22_sym = sp.symbols("a11 a12 a21 a22", real=True)
+        b1_sym, b2_sym = sp.symbols("b1 b2", real=True)
 
         self.state_vars = [x1, x2]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([
-            a11_sym * x1 + a12_sym * x2 + b1_sym * u,
-            a21_sym * x1 + a22_sym * x2 + b2_sym * u
-        ])
+        self._f_sym = sp.Matrix(
+            [a11_sym * x1 + a12_sym * x2 + b1_sym * u, a21_sym * x1 + a22_sym * x2 + b2_sym * u]
+        )
         self.parameters = {
-            a11_sym: a11, a12_sym: a12, a21_sym: a21, a22_sym: a22,
-            b1_sym: b1, b2_sym: b2
+            a11_sym: a11,
+            a12_sym: a12,
+            a21_sym: a21,
+            a22_sym: a22,
+            b1_sym: b1,
+            b2_sym: b2,
         }
         self._dt = dt
         self.order = 1
@@ -147,8 +150,8 @@ class DiscreteLogisticMap(DiscreteSymbolicSystem):
     """Nonlinear: x[k+1] = r*x[k]*(1-x[k])"""
 
     def define_system(self, r=3.5, dt=1.0):
-        x = sp.symbols('x', real=True, positive=True)
-        r_sym = sp.symbols('r', positive=True)
+        x = sp.symbols("x", real=True, positive=True)
+        r_sym = sp.symbols("r", positive=True)
 
         self.state_vars = [x]
         self.control_vars = []
@@ -162,12 +165,12 @@ class DiscreteWithOutput(DiscreteSymbolicSystem):
     """System with custom output"""
 
     def define_system(self, dt=0.01):
-        x, v = sp.symbols('x v', real=True)
-        u = sp.symbols('u', real=True)
+        x, v = sp.symbols("x v", real=True)
+        u = sp.symbols("u", real=True)
 
         self.state_vars = [x, v]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([0.9*x + 0.1*v, v + 0.05*u])
+        self._f_sym = sp.Matrix([0.9 * x + 0.1 * v, v + 0.05 * u])
         self._h_sym = sp.Matrix([x, x**2 + v**2])
         self.parameters = {}
         self._dt = dt
@@ -206,19 +209,19 @@ class TestMultipleInheritance:
         """Has SymbolicSystemBase methods."""
         system = DiscreteLinear()
 
-        assert hasattr(system, 'substitute_parameters')
-        assert hasattr(system, 'compile')
-        assert hasattr(system, 'add_equilibrium')
-        assert hasattr(system, 'get_config_dict')
+        assert hasattr(system, "substitute_parameters")
+        assert hasattr(system, "compile")
+        assert hasattr(system, "add_equilibrium")
+        assert hasattr(system, "get_config_dict")
 
     def test_has_discrete_methods(self):
         """Has DiscreteSystemBase methods."""
         system = DiscreteLinear()
 
-        assert hasattr(system, 'step')
-        assert hasattr(system, 'simulate')
-        assert hasattr(system, 'linearize')
-        assert hasattr(system, 'rollout')
+        assert hasattr(system, "step")
+        assert hasattr(system, "simulate")
+        assert hasattr(system, "linearize")
+        assert hasattr(system, "rollout")
 
     def test_has_discrete_properties(self):
         """Has discrete-time properties."""
@@ -226,7 +229,7 @@ class TestMultipleInheritance:
 
         assert system.is_discrete
         assert not system.is_continuous
-        assert hasattr(system, 'dt')
+        assert hasattr(system, "dt")
 
 
 # ============================================================================
@@ -265,17 +268,13 @@ class TestDiscreteInterface:
         """simulate() returns DiscreteSimulationResult."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
 
         # Check structure
-        assert 'states' in result
-        assert 'time_steps' in result
-        assert 'dt' in result
-        assert 'metadata' in result
+        assert "states" in result
+        assert "time_steps" in result
+        assert "dt" in result
+        assert "metadata" in result
 
     def test_linearize_returns_discrete_matrices(self):
         """linearize() returns (Ad, Bd)."""
@@ -295,15 +294,11 @@ class TestDiscreteInterface:
         def policy(x, k):
             return -0.5 * x
 
-        result = system.rollout(
-            x0=np.array([1.0]),
-            policy=policy,
-            n_steps=10
-        )
+        result = system.rollout(x0=np.array([1.0]), policy=policy, n_steps=10)
 
         # Time-major: (T, nx)
-        assert result['states'].shape == (11, 1)  # (n_steps+1, nx)
-        assert result['controls'] is not None
+        assert result["states"].shape == (11, 1)  # (n_steps+1, nx)
+        assert result["controls"] is not None
 
 
 # ============================================================================
@@ -322,12 +317,13 @@ class TestSamplingPeriod:
 
     def test_dt_required_in_define_system(self):
         """define_system() must set _dt."""
+
         class MissingDt(DiscreteSymbolicSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
-                self._f_sym = sp.Matrix([0.9*x])
+                self._f_sym = sp.Matrix([0.9 * x])
                 self.parameters = {}
                 self.order = 1
                 # Missing: self._dt = ...
@@ -427,28 +423,20 @@ class TestSimulation:
         """Simulate with u=None (zero control)."""
         system = DiscreteLinear(a=0.9, b=0.1)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
 
-        assert result['states'].shape == (11, 1)  # Time-major: (n_steps+1, nx)
-        assert result['time_steps'].shape == (11,)
-        assert result['dt'] == 0.01
+        assert result["states"].shape == (11, 1)  # Time-major: (n_steps+1, nx)
+        assert result["time_steps"].shape == (11,)
+        assert result["dt"] == 0.01
 
     def test_simulate_with_constant_control(self):
         """Simulate with constant control."""
         system = DiscreteLinear(a=0.9, b=0.1)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=np.array([0.5]),
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=np.array([0.5]), n_steps=10)
 
-        assert result['controls'] is not None
-        assert result['controls'].shape == (1, 10)  # (nu, n_steps)
+        assert result["controls"] is not None
+        assert result["controls"].shape == (1, 10)  # (nu, n_steps)
 
     def test_simulate_with_precomputed_sequence_time_major(self):
         """Simulate with pre-computed (n_steps, nu) sequence."""
@@ -456,13 +444,9 @@ class TestSimulation:
 
         u_seq = np.array([[0.1], [0.2], [0.3], [0.4], [0.5]])  # (5, 1)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=u_seq,
-            n_steps=5
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=u_seq, n_steps=5)
 
-        assert result['states'].shape == (6, 1)  # (n_steps+1, nx)
+        assert result["states"].shape == (6, 1)  # (n_steps+1, nx)
 
     def test_simulate_with_precomputed_sequence_state_major(self):
         """Simulate with pre-computed (nu, n_steps) sequence."""
@@ -470,13 +454,9 @@ class TestSimulation:
 
         u_seq = np.array([[0.1, 0.2, 0.3, 0.4, 0.5]])  # (1, 5)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=u_seq,
-            n_steps=5
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=u_seq, n_steps=5)
 
-        assert result['states'].shape == (6, 1)
+        assert result["states"].shape == (6, 1)
 
     def test_simulate_with_time_indexed_function(self):
         """Simulate with u(k) function."""
@@ -485,13 +465,9 @@ class TestSimulation:
         def u_func(k):
             return np.array([0.1 * k])
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=u_func,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=u_func, n_steps=10)
 
-        assert result['success']
+        assert result["success"]
 
     def test_simulate_with_state_feedback(self):
         """Simulate with u(k, x) state feedback."""
@@ -500,13 +476,9 @@ class TestSimulation:
         def policy(k, x):
             return -0.5 * x
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=policy,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=policy, n_steps=10)
 
-        assert result['success']
+        assert result["success"]
 
     def test_simulate_with_list_control(self):
         """Simulate with list of controls."""
@@ -514,41 +486,29 @@ class TestSimulation:
 
         u_list = [np.array([0.1]), np.array([0.2]), np.array([0.3])]
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=u_list,
-            n_steps=3
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=u_list, n_steps=3)
 
-        assert result['success']
+        assert result["success"]
 
     def test_simulate_convergence(self):
         """Stable discrete system converges."""
         system = DiscreteLinear(a=0.8, b=0.0)  # Stable
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=50
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=50)
 
         # Should converge to zero
-        assert abs(result['states'][-1, 0]) < 0.01
+        assert abs(result["states"][-1, 0]) < 0.01
 
     def test_simulate_autonomous(self):
         """Simulate autonomous system."""
         system = DiscreteAutonomous(a=0.95)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=20
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=20)
 
-        assert result['success']
+        assert result["success"]
         # x[k] = 0.95^k
         expected_final = 0.95**20
-        np.testing.assert_allclose(result['states'][-1, 0], expected_final, rtol=1e-6)
+        np.testing.assert_allclose(result["states"][-1, 0], expected_final, rtol=1e-6)
 
 
 # ============================================================================
@@ -723,7 +683,7 @@ class TestEquilibriumVerification:
         """_verify_equilibrium_numpy is implemented."""
         system = DiscreteLinear()
 
-        assert hasattr(system, '_verify_equilibrium_numpy')
+        assert hasattr(system, "_verify_equilibrium_numpy")
         assert callable(system._verify_equilibrium_numpy)
 
     def test_verify_valid_fixed_point(self):
@@ -758,9 +718,9 @@ class TestEquilibriumVerification:
         x_eq = np.array([1.0])
         u_eq = np.array([1.0])
 
-        system.add_equilibrium('test', x_eq, u_eq, verify=True)
+        system.add_equilibrium("test", x_eq, u_eq, verify=True)
 
-        assert 'test' in system.list_equilibria()
+        assert "test" in system.list_equilibria()
 
     def test_add_invalid_equilibrium_warns(self):
         """Adding invalid equilibrium warns."""
@@ -770,18 +730,14 @@ class TestEquilibriumVerification:
         u_eq = np.array([0.0])  # Wrong!
 
         with pytest.warns(UserWarning, match="failed verification"):
-            system.add_equilibrium('invalid', x_eq, u_eq, verify=True, tol=1e-6)
+            system.add_equilibrium("invalid", x_eq, u_eq, verify=True, tol=1e-6)
 
     def test_origin_is_fixed_point_with_zero_control(self):
         """Origin is fixed point for zero control."""
         system = DiscreteLinear(a=0.9, b=0.1)
 
         # x[k+1] = 0.9*0 + 0.1*0 = 0 ✓
-        is_valid = system._verify_equilibrium_numpy(
-            np.zeros(1),
-            np.zeros(1),
-            tol=1e-6
-        )
+        is_valid = system._verify_equilibrium_numpy(np.zeros(1), np.zeros(1), tol=1e-6)
 
         assert is_valid
 
@@ -800,9 +756,9 @@ class TestPerformanceTracking:
 
         stats = system.get_performance_stats()
 
-        assert 'forward_calls' in stats
-        assert 'forward_time' in stats
-        assert 'linearization_calls' in stats
+        assert "forward_calls" in stats
+        assert "forward_time" in stats
+        assert "linearization_calls" in stats
 
     def test_stats_track_step_calls(self):
         """Stats track step() calls."""
@@ -814,7 +770,7 @@ class TestPerformanceTracking:
             x = system.step(x, np.array([0.0]))
 
         stats = system.get_performance_stats()
-        assert stats['forward_calls'] >= 10
+        assert stats["forward_calls"] >= 10
 
     def test_reset_stats(self):
         """Can reset statistics."""
@@ -827,7 +783,7 @@ class TestPerformanceTracking:
         system.reset_performance_stats()
 
         stats = system.get_performance_stats()
-        assert stats['forward_calls'] == 0
+        assert stats["forward_calls"] == 0
 
 
 # ============================================================================
@@ -858,16 +814,12 @@ class TestAutonomousSystems:
         """Simulate autonomous system."""
         system = DiscreteAutonomous(a=0.95)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
 
-        assert result['success']
+        assert result["success"]
         # x[k] = a^k * x0
         expected = 0.95**10 * 1.0
-        np.testing.assert_allclose(result['states'][-1, 0], expected, rtol=1e-6)
+        np.testing.assert_allclose(result["states"][-1, 0], expected, rtol=1e-6)
 
     def test_autonomous_linearize(self):
         """Linearize autonomous system."""
@@ -932,45 +884,33 @@ class TestTimeMajorConvention:
         """simulate() returns (n_steps+1, nx) shape."""
         system = DiscreteTwoState()
 
-        result = system.simulate(
-            x0=np.array([1.0, 0.0]),
-            u_sequence=None,
-            n_steps=20
-        )
+        result = system.simulate(x0=np.array([1.0, 0.0]), u_sequence=None, n_steps=20)
 
         # Time-major: (T, nx)
-        assert result['states'].shape == (21, 2)  # (n_steps+1, nx)
+        assert result["states"].shape == (21, 2)  # (n_steps+1, nx)
 
     def test_time_major_indexing(self):
         """Time-major indexing pattern."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
 
         # Access state at time k
-        x_at_k5 = result['states'][5, :]  # (nx,)
+        x_at_k5 = result["states"][5, :]  # (nx,)
         assert x_at_k5.shape == (1,)
 
         # Access state component over time
-        x_component = result['states'][:, 0]  # (T,)
+        x_component = result["states"][:, 0]  # (T,)
         assert x_component.shape == (11,)
 
     def test_controls_shape(self):
         """Control sequence has correct shape."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=np.array([0.5]),
-            n_steps=10
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=np.array([0.5]), n_steps=10)
 
         # Controls: (nu, n_steps)
-        assert result['controls'].shape == (1, 10)
+        assert result["controls"].shape == (1, 10)
 
 
 # ============================================================================
@@ -988,8 +928,8 @@ class TestPrintEquations:
         system.print_equations()
 
         captured = capsys.readouterr()
-        assert 'Discrete-Time' in captured.out
-        assert '[k+1]' in captured.out
+        assert "Discrete-Time" in captured.out
+        assert "[k+1]" in captured.out
 
     def test_print_shows_dt(self, capsys):
         """Displays sampling period."""
@@ -998,7 +938,7 @@ class TestPrintEquations:
         system.print_equations()
 
         captured = capsys.readouterr()
-        assert '0.05' in captured.out
+        assert "0.05" in captured.out
 
 
 # ============================================================================
@@ -1015,12 +955,13 @@ class TestBackwardCompatibility:
 
     def test_alias_works(self):
         """Can use alias name."""
+
         class SystemWithAlias(DiscreteDynamicalSystem):
             def define_system(self, dt=0.1):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
-                self._f_sym = sp.Matrix([0.9*x])
+                self._f_sym = sp.Matrix([0.9 * x])
                 self.parameters = {}
                 self._dt = dt
                 self.order = 1
@@ -1043,52 +984,36 @@ class TestEdgeCases:
         """Simulate for single step."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=1
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=1)
 
-        assert result['states'].shape == (2, 1)  # x[0] and x[1]
+        assert result["states"].shape == (2, 1)  # x[0] and x[1]
 
     def test_zero_steps_simulation(self):
         """Simulate for zero steps."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=0
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=0)
 
         # Should just return initial state
-        assert result['states'].shape == (1, 1)
-        np.testing.assert_array_equal(result['states'][0, :], [1.0])
+        assert result["states"].shape == (1, 1)
+        np.testing.assert_array_equal(result["states"][0, :], [1.0])
 
     def test_long_simulation(self):
         """Long simulation."""
         system = DiscreteLinear(a=0.99)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=1000
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=1000)
 
-        assert result['states'].shape == (1001, 1)
+        assert result["states"].shape == (1001, 1)
 
     def test_unstable_system_diverges(self):
         """Unstable system diverges."""
         system = DiscreteLinear(a=1.1, b=0.0)  # Unstable
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=20
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=20)
 
         # Should grow
-        assert result['states'][-1, 0] > result['states'][0, 0]
+        assert result["states"][-1, 0] > result["states"][0, 0]
 
 
 # ============================================================================
@@ -1106,7 +1031,7 @@ class TestContinuousVsDiscrete:
         # Continuous system
         class SimpleContinuous(ContinuousSymbolicSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([-x])
@@ -1120,23 +1045,15 @@ class TestContinuousVsDiscrete:
 
         # Integrate continuous
         result_cont = cont.integrate(
-            x0=np.array([1.0]),
-            u=None,
-            t_span=(0.0, 0.1),
-            method='rk4',
-            dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
         )
 
         # Simulate discrete
-        result_disc = disc.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
+        result_disc = disc.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
 
         # Both should be time-major: (T, nx)
-        assert result_cont['x'].shape[0] == len(result_cont['t'])  # (T, nx)
-        assert result_disc['states'].shape[0] == len(result_disc['time_steps'])  # (T, nx)
+        assert result_cont["x"].shape[0] == len(result_cont["t"])  # (T, nx)
+        assert result_disc["states"].shape[0] == len(result_disc["time_steps"])  # (T, nx)
 
 
 # ============================================================================
@@ -1171,13 +1088,9 @@ class TestParametrizedScenarios:
         """Test different simulation lengths."""
         system = DiscreteLinear()
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=n_steps
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=n_steps)
 
-        assert result['states'].shape == (n_steps + 1, 1)
+        assert result["states"].shape == (n_steps + 1, 1)
 
 
 # ============================================================================
@@ -1234,12 +1147,8 @@ class TestUsingFixtures:
 
     def test_simulate_with_fixture(self, discrete_linear):
         """Can simulate with fixture."""
-        result = discrete_linear.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=10
-        )
-        assert result['success']
+        result = discrete_linear.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=10)
+        assert result["success"]
 
 
 # ============================================================================
@@ -1256,14 +1165,10 @@ class TestEndToEndWorkflows:
         system = DiscreteTwoState(dt=0.01)
 
         # 2. Configure
-        system.set_default_backend('numpy')
+        system.set_default_backend("numpy")
 
         # 3. Simulate
-        result = system.simulate(
-            x0=np.array([1.0, 0.0]),
-            u_sequence=np.array([0.0]),
-            n_steps=50
-        )
+        result = system.simulate(x0=np.array([1.0, 0.0]), u_sequence=np.array([0.0]), n_steps=50)
 
         # 4. Linearize
         Ad, Bd = system.linearize(np.zeros(2), np.zeros(1))
@@ -1272,7 +1177,7 @@ class TestEndToEndWorkflows:
         eigenvalues = np.linalg.eigvals(Ad)
         is_stable = np.all(np.abs(eigenvalues) < 1.0)
 
-        assert result['success']
+        assert result["success"]
         assert Ad.shape == (2, 2)
 
     def test_feedback_control_workflow(self):
@@ -1285,26 +1190,18 @@ class TestEndToEndWorkflows:
         def policy(x, k):  # Correct order: (x, k)
             return -K @ x
 
-        result = system.rollout(
-            x0=np.array([1.0]),
-            policy=policy,
-            n_steps=50
-        )
+        result = system.rollout(x0=np.array([1.0]), policy=policy, n_steps=50)
 
-        assert abs(result['states'][-1, 0]) < 0.1
+        assert abs(result["states"][-1, 0]) < 0.1
 
     def test_autonomous_convergence(self):
         """Autonomous system convergence."""
         system = DiscreteAutonomous(a=0.9)
 
-        result = system.simulate(
-            x0=np.array([1.0]),
-            u_sequence=None,
-            n_steps=100
-        )
+        result = system.simulate(x0=np.array([1.0]), u_sequence=None, n_steps=100)
 
         # Should converge to zero
-        assert abs(result['states'][-1, 0]) < 0.01
+        assert abs(result["states"][-1, 0]) < 0.01
 
 
 # ============================================================================
@@ -1317,12 +1214,13 @@ class TestErrorHandling:
 
     def test_missing_dt_raises(self):
         """Missing dt in define_system raises."""
+
         class NoDt(DiscreteSymbolicSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
-                self._f_sym = sp.Matrix([0.9*x])
+                self._f_sym = sp.Matrix([0.9 * x])
                 self.parameters = {}
                 # Missing: self._dt
 

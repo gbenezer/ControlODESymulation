@@ -73,7 +73,7 @@ from src.types.core import (
     ScalarLike,
     StateVector,
     NoiseVector,
-    DiffusionMatrix
+    DiffusionMatrix,
 )
 from src.types.trajectories import (
     SDEIntegrationResult,
@@ -86,24 +86,24 @@ from src.types.backends import SDEType, NoiseType, ConvergenceType
 if TYPE_CHECKING:
     import jax.numpy as jnp
     import torch
-    
+
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
 
 def get_trajectory_statistics(result: SDEIntegrationResult) -> Dict[str, Any]:
     """
     Compute trajectory statistics for Monte Carlo analysis.
-    
+
     Parameters
     ----------
     result : SDEIntegrationResult
         SDE integration result with single or multiple paths
-    
+
     Returns
     -------
     Dict[str, Any]
         Statistics including mean, std, quantiles across paths
-    
+
     Examples
     --------
     >>> mc_result = integrator.integrate_monte_carlo(x0, u_func, (0, 10), n_paths=1000)
@@ -113,7 +113,7 @@ def get_trajectory_statistics(result: SDEIntegrationResult) -> Dict[str, Any]:
     """
     n_paths = result.get("n_paths", 1)
     x = result["x"]
-    
+
     if n_paths == 1:
         return {
             "mean": x,
@@ -254,17 +254,17 @@ class SDEIntegratorBase(IntegratorBase):
                 Pre-generated noise (for deterministic testing)
         """
         # Validate system type - check for required SDE methods
-        if not hasattr(sde_system, 'get_sde_type'):
+        if not hasattr(sde_system, "get_sde_type"):
             raise TypeError(
                 f"sde_system must be a StochasticDynamicalSystem with get_sde_type() method, "
                 f"got {type(sde_system).__name__}"
             )
-        if not hasattr(sde_system, 'get_diffusion_matrix'):
+        if not hasattr(sde_system, "get_diffusion_matrix"):
             raise TypeError(
                 f"sde_system must be a StochasticDynamicalSystem with get_diffusion_matrix() method, "
                 f"got {type(sde_system).__name__}"
             )
-        
+
         # Initialize base integrator
         super().__init__(sde_system, dt, step_mode, backend, **options)
 
@@ -301,7 +301,9 @@ class SDEIntegratorBase(IntegratorBase):
             # For additive noise, diffusion is constant
             dummy_x = np.zeros(sde_system.nx)
             dummy_u = np.zeros(sde_system.nu) if sde_system.nu > 0 else None
-            self._cached_diffusion = sde_system.get_diffusion_matrix(dummy_x, dummy_u, backend=backend)
+            self._cached_diffusion = sde_system.get_diffusion_matrix(
+                dummy_x, dummy_u, backend=backend
+            )
 
     def _initialize_rng(self, backend: str, seed: Optional[int]):
         """Initialize random number generator for backend."""
@@ -309,11 +311,13 @@ class SDEIntegratorBase(IntegratorBase):
             return np.random.default_rng(seed)
         elif backend == "torch":
             import torch
+
             if seed is not None:
                 torch.manual_seed(seed)
             return None  # PyTorch uses global state
         elif backend == "jax":
             import jax
+
             if seed is not None:
                 return jax.random.PRNGKey(seed)
             else:
@@ -321,7 +325,9 @@ class SDEIntegratorBase(IntegratorBase):
         else:
             return None
 
-    def _generate_noise(self, shape: Tuple[int, ...], dt: Optional[ScalarLike] = None) -> NoiseVector:
+    def _generate_noise(
+        self, shape: Tuple[int, ...], dt: Optional[ScalarLike] = None
+    ) -> NoiseVector:
         """
         Generate Brownian motion increments.
 
@@ -343,9 +349,11 @@ class SDEIntegratorBase(IntegratorBase):
             dW = self._rng.standard_normal(shape)
         elif self.backend == "torch":
             import torch
+
             dW = torch.randn(shape, dtype=torch.float64)
         elif self.backend == "jax":
             import jax
+
             self._rng, subkey = jax.random.split(self._rng)
             dW = jax.random.normal(subkey, shape)
         else:
@@ -358,7 +366,9 @@ class SDEIntegratorBase(IntegratorBase):
 
         return dW
 
-    def _evaluate_diffusion(self, x: StateVector, u: Optional[ControlVector] = None) -> DiffusionMatrix:
+    def _evaluate_diffusion(
+        self, x: StateVector, u: Optional[ControlVector] = None
+    ) -> DiffusionMatrix:
         """
         Evaluate diffusion matrix with caching for additive noise.
 
@@ -385,31 +395,31 @@ class SDEIntegratorBase(IntegratorBase):
     def _evaluate_drift(self, x: StateVector, u: Optional[ControlVector] = None) -> ArrayLike:
         """
         Evaluate drift term (deterministic dynamics).
-        
+
         This is an alias for _evaluate_dynamics() providing clearer semantics
         in the SDE context where we distinguish between drift and diffusion.
-        
+
         Parameters
         ----------
         x : ArrayLike
             State
         u : Optional[ArrayLike]
             Control
-        
+
         Returns
         -------
         ArrayLike
             Drift vector f(x, u)
-        
+
         Notes
         -----
         For SDE: dx = f(x,u) dt + g(x,u) dW
         - f(x,u) is the drift (this method)
         - g(x,u) is the diffusion (_evaluate_diffusion)
-        
+
         This method is semantically equivalent to _evaluate_dynamics() from
         the base IntegratorBase class, but provides clearer naming for SDE code.
-        
+
         Examples
         --------
         >>> # Evaluate drift and diffusion separately
@@ -505,7 +515,7 @@ class SDEIntegratorBase(IntegratorBase):
             - t: float - current time (**FIRST** argument, scipy convention)
             - x: ArrayLike - current state (**SECOND** argument)
             - Returns: Optional[ArrayLike] - control input u, or None for autonomous
-            
+
             Can be:
             - Autonomous: lambda t, x: None
             - Constant control: lambda t, x: u_const
@@ -878,24 +888,20 @@ class SDEIntegratorBase(IntegratorBase):
         return {**base_stats, **sde_stats}
 
     def _apply_stratonovich_correction(
-        self, 
-        x: StateVector, 
-        u: Optional[ControlVector], 
-        g: DiffusionMatrix, 
-        dt: ScalarLike
+        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, dt: ScalarLike
     ) -> ArrayLike:
         """
         Apply Stratonovich correction term.
-        
+
         Converts Stratonovich SDE to Itô form by adding drift correction:
-        
+
             correction = 0.5 * Σ_j g_j · (∂g_j/∂x)
-        
+
         where g_j is the j-th column of diffusion matrix G.
-        
+
         This allows Stratonovich SDEs to be integrated using Itô methods
         by modifying the drift term.
-        
+
         Parameters
         ----------
         x : ArrayLike
@@ -906,22 +912,22 @@ class SDEIntegratorBase(IntegratorBase):
             Diffusion matrix at current state (nx, nw)
         dt : float
             Time step (not used in correction, included for API consistency)
-            
+
         Returns
         -------
         ArrayLike
             Correction term to add to drift (nx,)
-            
+
         Notes
         -----
         For additive noise (g constant), correction is zero.
         For multiplicative noise, uses automatic differentiation when available.
-        
+
         Implementation uses:
         - NumPy: Finite differences
         - PyTorch: Autograd
         - JAX: jax.jacobian
-        
+
         Examples
         --------
         >>> # Geometric Brownian motion: dx = μx dt + σx dW (Stratonovich)
@@ -932,11 +938,11 @@ class SDEIntegratorBase(IntegratorBase):
         # For additive noise, correction is exactly zero
         if self._is_additive:
             return np.zeros_like(x)
-        
+
         # Compute Stratonovich correction
         nx = len(x)
         nw = g.shape[1] if len(g.shape) > 1 else 1
-        
+
         if self.backend == "numpy":
             return self._stratonovich_correction_numpy(x, u, g, nx, nw)
         elif self.backend == "torch":
@@ -945,121 +951,121 @@ class SDEIntegratorBase(IntegratorBase):
             return self._stratonovich_correction_jax(x, u, g, nx, nw)
         else:
             raise ValueError(f"Unknown backend: {self.backend}")
-    
+
     def _stratonovich_correction_numpy(
         self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
     ) -> ArrayLike:
         """Compute Stratonovich correction using finite differences (NumPy)."""
         import numpy as np
-        
+
         correction = np.zeros(nx)
         eps = 1e-7  # Finite difference step
-        
+
         # For each noise dimension j
         for j in range(nw):
             g_j = g[:, j] if nw > 1 else g.flatten()
-            
+
             # Compute Jacobian ∂g_j/∂x using finite differences
             # ∂g_j/∂x_i ≈ (g_j(x + eps*e_i) - g_j(x - eps*e_i)) / (2*eps)
             dg_j_dx = np.zeros((nx, nx))
-            
+
             for i in range(nx):
                 # Perturb state in i-th direction
                 x_plus = x.copy()
                 x_minus = x.copy()
                 x_plus[i] += eps
                 x_minus[i] -= eps
-                
+
                 # Evaluate diffusion at perturbed states
                 g_plus = self._evaluate_diffusion(x_plus, u)
                 g_minus = self._evaluate_diffusion(x_minus, u)
-                
+
                 # Extract j-th column
                 g_j_plus = g_plus[:, j] if nw > 1 else g_plus.flatten()
                 g_j_minus = g_minus[:, j] if nw > 1 else g_minus.flatten()
-                
+
                 # Finite difference approximation
                 dg_j_dx[:, i] = (g_j_plus - g_j_minus) / (2 * eps)
-            
+
             # Add contribution: 0.5 * g_j · (∂g_j/∂x)
             correction += 0.5 * dg_j_dx @ g_j
-        
+
         return correction
-    
+
     def _stratonovich_correction_torch(
         self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
     ) -> ArrayLike:
         """Compute Stratonovich correction using autograd (PyTorch)."""
         import torch
-        
+
         # Ensure tensors require grad
         x_torch = torch.as_tensor(x, dtype=torch.float64).requires_grad_(True)
         u_torch = torch.as_tensor(u, dtype=torch.float64) if u is not None else None
-        
+
         correction = torch.zeros(nx, dtype=torch.float64)
-        
+
         # For each noise dimension j
         for j in range(nw):
             # Define function to differentiate: g_j(x)
             def diffusion_column_j(x_var):
                 g_val = self.sde_system.get_diffusion_matrix(x_var, u_torch, backend="torch")
                 return g_val[:, j] if nw > 1 else g_val.flatten()
-            
+
             # Compute g_j at current x
             g_j = diffusion_column_j(x_torch)
-            
+
             # Compute Jacobian ∂g_j/∂x using autograd
             dg_j_dx = torch.zeros((nx, nx), dtype=torch.float64)
             for i in range(nx):
                 # Compute ∂(g_j)_i/∂x
                 grad_outputs = torch.zeros_like(g_j)
                 grad_outputs[i] = 1.0
-                
+
                 # Clear previous gradients
                 if x_torch.grad is not None:
                     x_torch.grad.zero_()
-                
+
                 # Compute gradient
                 g_j_i = diffusion_column_j(x_torch)[i]
                 g_j_i.backward(retain_graph=True)
-                
+
                 if x_torch.grad is not None:
                     dg_j_dx[i, :] = x_torch.grad.clone()
-            
+
             # Add contribution: 0.5 * g_j · (∂g_j/∂x)
             correction += 0.5 * (dg_j_dx @ g_j.detach())
-        
+
         return correction.detach().numpy()
-    
+
     def _stratonovich_correction_jax(
         self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
     ) -> ArrayLike:
         """Compute Stratonovich correction using jax.jacobian (JAX)."""
         import jax
         import jax.numpy as jnp
-        
+
         x_jax = jnp.asarray(x)
         u_jax = jnp.asarray(u) if u is not None else None
-        
+
         correction = jnp.zeros(nx)
-        
+
         # For each noise dimension j
         for j in range(nw):
             # Define function for j-th column of diffusion
             def diffusion_column_j(x_var):
                 g_val = self.sde_system.get_diffusion_matrix(x_var, u_jax, backend="jax")
                 return g_val[:, j] if nw > 1 else g_val.flatten()
-            
+
             # Compute g_j
             g_j = diffusion_column_j(x_jax)
-            
+
             # Compute Jacobian using JAX
             jacobian_fn = jax.jacobian(diffusion_column_j)
             dg_j_dx = jacobian_fn(x_jax)  # Shape: (nx, nx)
-            
+
             # Add contribution: 0.5 * (∂g_j/∂x) @ g_j
             correction += 0.5 * (dg_j_dx @ g_j)
-        
+
         return np.asarray(correction)
 
     def reset_stats(self):

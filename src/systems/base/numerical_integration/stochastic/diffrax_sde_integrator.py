@@ -136,6 +136,7 @@ from src.types.backends import SDEType, NoiseType, ConvergenceType, Backend, Dev
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
+
 class DiffraxSDEIntegrator(SDEIntegratorBase):
     """
     JAX-based SDE integrator using the Diffrax library.
@@ -321,12 +322,12 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         return solver_class()
 
     def _get_brownian_motion(
-        self, 
-        key, 
-        t0: ScalarLike, 
-        t1: ScalarLike, 
-        shape: Tuple[int, ...], 
-        dW: Optional[NoiseVector] = None
+        self,
+        key,
+        t0: ScalarLike,
+        t1: ScalarLike,
+        shape: Tuple[int, ...],
+        dW: Optional[NoiseVector] = None,
     ):
         """
         Create Brownian motion for the integration interval.

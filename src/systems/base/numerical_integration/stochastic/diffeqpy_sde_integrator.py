@@ -143,6 +143,7 @@ from src.types.backends import SDEType, NoiseType, ConvergenceType, Backend, Dev
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
+
 class DiffEqPySDEIntegrator(SDEIntegratorBase):
     """
     Julia-based SDE integrator using DifferentialEquations.jl via diffeqpy.
@@ -670,7 +671,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         """
         # Start timing
         start_time = time.perf_counter()
-        
+
         x0 = np.asarray(x0, dtype=np.float64)
         t0, tf = t_span
 
@@ -726,7 +727,11 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                     diffusion_evals=0,
                     n_paths=1,
                     convergence_type=self.convergence_type.value,
-                    sde_type=self.sde_type.value if hasattr(self.sde_type, 'value') else str(self.sde_type),
+                    sde_type=(
+                        self.sde_type.value
+                        if hasattr(self.sde_type, "value")
+                        else str(self.sde_type)
+                    ),
                 )
 
             # Check success
@@ -764,7 +769,9 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 noise_samples=None,  # Julia doesn't expose noise samples
                 n_paths=1,
                 convergence_type=self.convergence_type.value,
-                sde_type=self.sde_type.value if hasattr(self.sde_type, 'value') else str(self.sde_type),
+                sde_type=(
+                    self.sde_type.value if hasattr(self.sde_type, "value") else str(self.sde_type)
+                ),
             )
 
         except Exception as e:
@@ -785,7 +792,9 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 diffusion_evals=0,
                 n_paths=1,
                 convergence_type=self.convergence_type.value,
-                sde_type=self.sde_type.value if hasattr(self.sde_type, 'value') else str(self.sde_type),
+                sde_type=(
+                    self.sde_type.value if hasattr(self.sde_type, "value") else str(self.sde_type)
+                ),
             )
 
     def validate_julia_setup(self):

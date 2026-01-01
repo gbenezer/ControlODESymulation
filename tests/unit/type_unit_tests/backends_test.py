@@ -149,6 +149,7 @@ class TestMethodTypes:
 # Test Noise and Stochastic Types
 # ============================================================================
 
+
 # TODO: refactor
 class TestNoiseTypes:
     """Test noise and stochastic type definitions."""
@@ -346,6 +347,7 @@ class TestUtilityFunctions:
 
         with pytest.raises(ValueError, match="NumPy backend only supports CPU"):
             validate_device("mps", "numpy")
+
 
 # ============================================================================
 # Test Configuration Validation
@@ -597,7 +599,7 @@ class TestIntegrationPatterns:
             "rtol": 1e-10,
             "atol": 1e-12,
         }
-        
+
         assert integrator_config["rtol"] <= 1e-6
 
     def test_gpu_acceleration_configuration(self):
@@ -709,6 +711,7 @@ class TestDefaultValues:
         """Test default dtype is double precision."""
         assert DEFAULT_DTYPE == np.float64
         # Control/scientific computing needs precision
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

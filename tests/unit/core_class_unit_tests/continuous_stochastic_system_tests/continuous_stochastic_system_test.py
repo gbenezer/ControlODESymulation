@@ -44,7 +44,8 @@ from src.systems.base.core.continuous_stochastic_system import (
     StochasticDynamicalSystem,  # Backward compatibility alias
 )
 from src.systems.base.utils.stochastic.noise_analysis import NoiseType, SDEType
-# from src.systems.base.utils.symbolic_validator import 
+
+# from src.systems.base.utils.symbolic_validator import
 from src.systems.base.utils.stochastic.sde_validator import ValidationError
 
 # Conditional imports for backends
@@ -71,10 +72,10 @@ class OrnsteinUhlenbeck(ContinuousStochasticSystem):
     """Simple 1D Ornstein-Uhlenbeck process (additive noise)."""
 
     def define_system(self, alpha=1.0, sigma=0.5):
-        x = sp.symbols('x', real=True)
-        u = sp.symbols('u', real=True)
-        alpha_sym = sp.symbols('alpha', positive=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
+        x = sp.symbols("x", real=True)
+        u = sp.symbols("u", real=True)
+        alpha_sym = sp.symbols("alpha", positive=True)
+        sigma_sym = sp.symbols("sigma", positive=True)
 
         # Drift: dx = (-alpha*x + u)dt
         self.state_vars = [x]
@@ -85,16 +86,16 @@ class OrnsteinUhlenbeck(ContinuousStochasticSystem):
 
         # Diffusion: g(x,u) = sigma (constant/additive)
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class GeometricBrownianMotion(ContinuousStochasticSystem):
     """1D Geometric Brownian motion (multiplicative noise)."""
 
     def define_system(self, mu=0.1, sigma=0.2):
-        x = sp.symbols('x', positive=True)
-        u = sp.symbols('u', real=True)
-        mu_sym, sigma_sym = sp.symbols('mu sigma', positive=True)
+        x = sp.symbols("x", positive=True)
+        u = sp.symbols("u", real=True)
+        mu_sym, sigma_sym = sp.symbols("mu sigma", positive=True)
 
         # Drift: dx = (mu*x + u)dt
         self.state_vars = [x]
@@ -105,15 +106,15 @@ class GeometricBrownianMotion(ContinuousStochasticSystem):
 
         # Diffusion: g(x,u) = sigma*x (state-dependent)
         self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class AutonomousBrownianMotion(ContinuousStochasticSystem):
     """Pure Brownian motion (autonomous, zero drift)."""
 
     def define_system(self, sigma=1.0):
-        x = sp.symbols('x', real=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
+        x = sp.symbols("x", real=True)
+        sigma_sym = sp.symbols("sigma", positive=True)
 
         # No drift, no control
         self.state_vars = [x]
@@ -124,46 +125,37 @@ class AutonomousBrownianMotion(ContinuousStochasticSystem):
 
         # Diffusion only
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class TwoDimensionalSDE(ContinuousStochasticSystem):
     """2D SDE with diagonal noise."""
 
     def define_system(self, a1=1.0, a2=2.0, sigma1=0.5, sigma2=0.3):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        u = sp.symbols('u', real=True)
-        a1_sym, a2_sym = sp.symbols('a1 a2', real=True)
-        sigma1_sym, sigma2_sym = sp.symbols('sigma1 sigma2', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        u = sp.symbols("u", real=True)
+        a1_sym, a2_sym = sp.symbols("a1 a2", real=True)
+        sigma1_sym, sigma2_sym = sp.symbols("sigma1 sigma2", positive=True)
 
         # Drift
         self.state_vars = [x1, x2]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([
-            [-a1_sym * x1 + u],
-            [-a2_sym * x2]
-        ])
-        self.parameters = {
-            a1_sym: a1, a2_sym: a2,
-            sigma1_sym: sigma1, sigma2_sym: sigma2
-        }
+        self._f_sym = sp.Matrix([[-a1_sym * x1 + u], [-a2_sym * x2]])
+        self.parameters = {a1_sym: a1, a2_sym: a2, sigma1_sym: sigma1, sigma2_sym: sigma2}
         self.order = 1
 
         # Diagonal diffusion
-        self.diffusion_expr = sp.Matrix([
-            [sigma1_sym, 0],
-            [0, sigma2_sym]
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix([[sigma1_sym, 0], [0, sigma2_sym]])
+        self.sde_type = "ito"
 
 
 class ControlDependentNoise(ContinuousStochasticSystem):
     """SDE where diffusion depends on control input."""
 
     def define_system(self, alpha=1.0, beta=0.5):
-        x = sp.symbols('x', real=True)
-        u = sp.symbols('u', real=True)
-        alpha_sym, beta_sym = sp.symbols('alpha beta', positive=True)
+        x = sp.symbols("x", real=True)
+        u = sp.symbols("u", real=True)
+        alpha_sym, beta_sym = sp.symbols("alpha beta", positive=True)
 
         # Drift
         self.state_vars = [x]
@@ -174,15 +166,15 @@ class ControlDependentNoise(ContinuousStochasticSystem):
 
         # Diffusion depends on control: g(x,u) = beta*u
         self.diffusion_expr = sp.Matrix([[beta_sym * u]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class StratonovichSDE(ContinuousStochasticSystem):
     """Stratonovich SDE for testing sde_type handling."""
 
     def define_system(self, alpha=1.0, sigma=0.5):
-        x = sp.symbols('x', real=True)
-        alpha_sym, sigma_sym = sp.symbols('alpha sigma', positive=True)
+        x = sp.symbols("x", real=True)
+        alpha_sym, sigma_sym = sp.symbols("alpha sigma", positive=True)
 
         self.state_vars = [x]
         self.control_vars = []
@@ -191,7 +183,7 @@ class StratonovichSDE(ContinuousStochasticSystem):
         self.order = 1
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
-        self.sde_type = 'stratonovich'  # Stratonovich interpretation
+        self.sde_type = "stratonovich"  # Stratonovich interpretation
 
 
 # ============================================================================
@@ -212,10 +204,10 @@ class TestInitializationAndValidation:
         assert system.nw == 1
 
         # Check SDE-specific attributes exist
-        assert hasattr(system, 'diffusion_expr')
-        assert hasattr(system, 'diffusion_handler')
-        assert hasattr(system, 'noise_characteristics')
-        assert hasattr(system, 'sde_type')
+        assert hasattr(system, "diffusion_expr")
+        assert hasattr(system, "diffusion_handler")
+        assert hasattr(system, "noise_characteristics")
+        assert hasattr(system, "sde_type")
 
         # Check initialization flag
         assert system._initialized is True
@@ -225,7 +217,7 @@ class TestInitializationAndValidation:
 
         class MissingDiffusion(ContinuousStochasticSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([[-x]])
@@ -249,14 +241,14 @@ class TestInitializationAndValidation:
         # Invalid string should raise error
         class InvalidSDEType(ContinuousStochasticSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([[-x]])
                 self.parameters = {}
                 self.order = 1
                 self.diffusion_expr = sp.Matrix([[0.5]])
-                self.sde_type = 'invalid'  # Wrong!
+                self.sde_type = "invalid"  # Wrong!
 
         with pytest.raises(ValueError, match="Invalid sde_type"):
             InvalidSDEType()
@@ -275,12 +267,12 @@ class TestInitializationAndValidation:
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
         # Check parent attributes exist
-        assert hasattr(system, '_dynamics')
-        assert hasattr(system, '_linearization')
-        assert hasattr(system, '_observation')
-        assert hasattr(system, '_code_gen')
-        assert hasattr(system, 'backend')
-        assert hasattr(system, 'equilibria')
+        assert hasattr(system, "_dynamics")
+        assert hasattr(system, "_linearization")
+        assert hasattr(system, "_observation")
+        assert hasattr(system, "_code_gen")
+        assert hasattr(system, "backend")
+        assert hasattr(system, "equilibria")
 
         # Check parent properties work
         assert system.is_continuous == True
@@ -364,10 +356,7 @@ class TestDriftAndDiffusionEvaluation:
         g = system.diffusion(x, u)
 
         assert g.shape == (2, 2)
-        expected = np.array([
-            [0.5, 0.0],
-            [0.0, 0.3]
-        ])
+        expected = np.array([[0.5, 0.0], [0.0, 0.3]])
         np.testing.assert_allclose(g, expected)
 
     def test_diffusion_control_dependent(self):
@@ -518,17 +507,16 @@ class TestNoiseAnalysis:
         """Test solver recommendations for additive noise."""
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
-        jax_solvers = system.recommend_solvers('jax')
+        jax_solvers = system.recommend_solvers("jax")
         assert len(jax_solvers) > 0
         # Additive noise should recommend specialized solvers
-        assert any('euler' in s.lower() or 'sea' in s.lower() 
-                   for s in jax_solvers)
+        assert any("euler" in s.lower() or "sea" in s.lower() for s in jax_solvers)
 
     def test_solver_recommendations_multiplicative(self):
         """Test solver recommendations for multiplicative noise."""
         system = GeometricBrownianMotion(mu=0.1, sigma=0.2)
 
-        jax_solvers = system.recommend_solvers('jax')
+        jax_solvers = system.recommend_solvers("jax")
         assert len(jax_solvers) > 0
 
     def test_optimization_opportunities(self):
@@ -536,12 +524,12 @@ class TestNoiseAnalysis:
         # Additive noise - can precompute
         system1 = OrnsteinUhlenbeck()
         opts1 = system1.get_optimization_opportunities()
-        assert opts1['precompute_diffusion'] is True
+        assert opts1["precompute_diffusion"] is True
 
         # Multiplicative noise - cannot precompute
         system2 = GeometricBrownianMotion()
         opts2 = system2.get_optimization_opportunities()
-        assert opts2['precompute_diffusion'] is False
+        assert opts2["precompute_diffusion"] is False
 
 
 # ============================================================================
@@ -627,17 +615,11 @@ class TestLinearization:
         assert G.shape == (2, 2)
 
         # Check diagonal A matrix
-        expected_A = np.array([
-            [-1.0, 0.0],
-            [0.0, -2.0]
-        ])
+        expected_A = np.array([[-1.0, 0.0], [0.0, -2.0]])
         np.testing.assert_allclose(A, expected_A)
 
         # Check diagonal G matrix
-        expected_G = np.array([
-            [0.5, 0.0],
-            [0.0, 0.3]
-        ])
+        expected_G = np.array([[0.5, 0.0], [0.0, 0.3]])
         np.testing.assert_allclose(G, expected_G)
 
     def test_linearization_autonomous(self):
@@ -674,7 +656,7 @@ class TestConstantNoiseOptimization:
 
         assert system.can_optimize_for_additive()
 
-        G = system.get_constant_noise(backend='numpy')
+        G = system.get_constant_noise(backend="numpy")
 
         assert G.shape == (1, 1)
         np.testing.assert_allclose(G, np.array([[0.5]]))
@@ -707,8 +689,8 @@ class TestConstantNoiseOptimization:
         """Test constant noise in different backends."""
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
-        G_numpy = system.get_constant_noise('numpy')
-        
+        G_numpy = system.get_constant_noise("numpy")
+
         # Verify type and value
         assert isinstance(G_numpy, np.ndarray)
         np.testing.assert_allclose(G_numpy, np.array([[0.5]]))
@@ -725,13 +707,13 @@ class TestBackendCompatibility:
     def test_numpy_backend(self):
         """Test NumPy backend evaluation."""
         system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
-        system.set_default_backend('numpy')
+        system.set_default_backend("numpy")
 
         x = np.array([1.0])
         u = np.array([0.5])
 
-        f = system.drift(x, u, backend='numpy')
-        g = system.diffusion(x, u, backend='numpy')
+        f = system.drift(x, u, backend="numpy")
+        g = system.diffusion(x, u, backend="numpy")
 
         assert isinstance(f, np.ndarray)
         assert isinstance(g, np.ndarray)
@@ -742,13 +724,13 @@ class TestBackendCompatibility:
         import torch
 
         system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
-        system.set_default_backend('torch')
+        system.set_default_backend("torch")
 
         x = torch.tensor([1.0])
         u = torch.tensor([0.5])
 
-        f = system.drift(x, u, backend='torch')
-        g = system.diffusion(x, u, backend='torch')
+        f = system.drift(x, u, backend="torch")
+        g = system.diffusion(x, u, backend="torch")
 
         assert isinstance(f, torch.Tensor)
         assert isinstance(g, torch.Tensor)
@@ -759,13 +741,13 @@ class TestBackendCompatibility:
         import jax.numpy as jnp
 
         system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
-        system.set_default_backend('jax')
+        system.set_default_backend("jax")
 
         x = jnp.array([1.0])
         u = jnp.array([0.5])
 
-        f = system.drift(x, u, backend='jax')
-        g = system.diffusion(x, u, backend='jax')
+        f = system.drift(x, u, backend="jax")
+        g = system.diffusion(x, u, backend="jax")
 
         assert isinstance(f, jnp.ndarray)
         assert isinstance(g, jnp.ndarray)
@@ -778,22 +760,24 @@ class TestBackendCompatibility:
         u = np.array([0.5])
 
         # NumPy reference
-        f_np = system.drift(x, u, backend='numpy')
-        g_np = system.diffusion(x, u, backend='numpy')
+        f_np = system.drift(x, u, backend="numpy")
+        g_np = system.diffusion(x, u, backend="numpy")
 
-        available_backends = ['numpy']
-        
+        available_backends = ["numpy"]
+
         # Check for torch
         try:
             import torch
-            available_backends.append('torch')
+
+            available_backends.append("torch")
         except ImportError:
             pass
-        
+
         # Check for jax
         try:
             import jax
-            available_backends.append('jax')
+
+            available_backends.append("jax")
         except ImportError:
             pass
 
@@ -804,13 +788,14 @@ class TestBackendCompatibility:
             g = system.diffusion(x, u, backend=backend)
 
             # Convert to numpy for comparison
-            if backend == 'torch':
+            if backend == "torch":
                 import torch
+
                 if isinstance(f, torch.Tensor):
                     f = f.cpu().detach().numpy()
                 if isinstance(g, torch.Tensor):
                     g = g.cpu().detach().numpy()
-            elif backend == 'jax':
+            elif backend == "jax":
                 f = np.asarray(f)
                 g = np.asarray(g)
 
@@ -830,15 +815,13 @@ class TestSDEIntegration:
     def test_integration_interface_exists(self):
         """Test that integration interface exists and is callable."""
         system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
-        
-        assert hasattr(system, 'integrate')
+
+        assert hasattr(system, "integrate")
         assert callable(system.integrate)
 
-    @pytest.mark.parametrize("method,backend", [
-        ("EM", "numpy"),
-        ("euler", "torch"),
-        ("Euler", "jax")
-    ])
+    @pytest.mark.parametrize(
+        "method,backend", [("EM", "numpy"), ("euler", "torch"), ("Euler", "jax")]
+    )
     def test_single_path_integration(self, method, backend):
         """Test single trajectory integration with backend-appropriate methods."""
         # Skip if backend not available
@@ -855,29 +838,24 @@ class TestSDEIntegration:
         system.set_default_backend(backend)
 
         x0 = np.array([1.0])
-        
+
         try:
             result = system.integrate(
-                x0=x0,
-                u=None,
-                t_span=(0.0, 0.5),
-                method=method,
-                dt=0.01,
-                seed=42
+                x0=x0, u=None, t_span=(0.0, 0.5), method=method, dt=0.01, seed=42
             )
 
             # Check basic result structure - be flexible about success
             assert isinstance(result, dict)
             # Many integrators report success, but if there's an error it should be clear
-            if not result.get('success', True):
+            if not result.get("success", True):
                 # Check if it's a known issue
-                message = result.get('message', '')
-                if 'unsqueeze' in message or 'numpy.ndarray' in message:
+                message = result.get("message", "")
+                if "unsqueeze" in message or "numpy.ndarray" in message:
                     pytest.skip(f"Known TorchSDE compatibility issue: NumPy/Torch conversion")
                 else:
                     # Unknown failure
                     pytest.fail(f"Integration failed: {message}")
-            
+
         except (ImportError, NotImplementedError, ValueError) as e:
             pytest.skip(f"SDE integrator not available: {e}")
 
@@ -892,7 +870,7 @@ class TestSDEIntegration:
                     pytest.importorskip("diffrax")
                 elif backend == "torch":
                     pytest.importorskip("torchsde")
-                
+
                 system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
                 system.set_default_backend(backend)
 
@@ -906,15 +884,15 @@ class TestSDEIntegration:
                     method=method,
                     dt=0.01,
                     n_paths=n_paths,
-                    seed=42
+                    seed=42,
                 )
 
-                assert result.get('n_paths', 1) >= 1
+                assert result.get("n_paths", 1) >= 1
                 return  # Test passed
-                
+
             except (ImportError, NotImplementedError):
                 continue
-        
+
         pytest.skip("No SDE backend available for Monte Carlo")
 
     def test_integration_with_constant_control(self):
@@ -928,7 +906,7 @@ class TestSDEIntegration:
                     pytest.importorskip("diffrax")
                 else:
                     pytest.importorskip("torchsde")
-                
+
                 system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
                 system.set_default_backend(backend)
 
@@ -936,20 +914,15 @@ class TestSDEIntegration:
                 u_const = np.array([0.5])
 
                 result = system.integrate(
-                    x0=x0,
-                    u=u_const,
-                    t_span=(0.0, 0.2),
-                    method=method,
-                    dt=0.01,
-                    seed=42
+                    x0=x0, u=u_const, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
                 )
 
-                assert result.get('success', True)
+                assert result.get("success", True)
                 return
-                
+
             except (ImportError, NotImplementedError):
                 continue
-        
+
         pytest.skip("No SDE backend available")
 
     def test_integration_with_time_varying_control(self):
@@ -962,7 +935,7 @@ class TestSDEIntegration:
                     pytest.importorskip("diffrax")
                 else:
                     pytest.importorskip("torchsde")
-                
+
                 system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
                 system.set_default_backend(backend)
 
@@ -972,20 +945,15 @@ class TestSDEIntegration:
                     return np.array([np.sin(t)])
 
                 result = system.integrate(
-                    x0=x0,
-                    u=u_func,
-                    t_span=(0.0, 0.2),
-                    method=method,
-                    dt=0.01,
-                    seed=42
+                    x0=x0, u=u_func, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
                 )
 
-                assert result.get('success', True)
+                assert result.get("success", True)
                 return
-                
+
             except (ImportError, NotImplementedError):
                 continue
-        
+
         pytest.skip("No SDE backend available")
 
     def test_integration_autonomous(self):
@@ -998,64 +966,53 @@ class TestSDEIntegration:
                     pytest.importorskip("diffrax")
                 else:
                     pytest.importorskip("torchsde")
-                
+
                 system = AutonomousBrownianMotion(sigma=1.0)
                 system.set_default_backend(backend)
 
                 x0 = np.array([0.0])
 
                 result = system.integrate(
-                    x0=x0,
-                    u=None,
-                    t_span=(0.0, 0.2),
-                    method=method,
-                    dt=0.01,
-                    seed=42
+                    x0=x0, u=None, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
                 )
 
-                assert result.get('success', True)
+                assert result.get("success", True)
                 return
-                
+
             except (ImportError, NotImplementedError):
                 continue
-        
+
         pytest.skip("No SDE backend available")
 
     def test_integration_reproducibility(self):
         """Test that same seed gives same results (where supported)."""
         # Note: Julia/diffeqpy has limited seed control through Python
         # Only JAX and PyTorch have reliable reproducibility
-        
+
         for backend, method in [("jax", "Euler"), ("torch", "euler")]:
             try:
                 if backend == "jax":
                     pytest.importorskip("diffrax")
                 else:
                     pytest.importorskip("torchsde")
-                
+
                 system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
                 system.set_default_backend(backend)
 
                 x0 = np.array([1.0])
 
-                result1 = system.integrate(
-                    x0=x0, t_span=(0, 0.2), method=method,
-                    dt=0.01, seed=42
-                )
+                result1 = system.integrate(x0=x0, t_span=(0, 0.2), method=method, dt=0.01, seed=42)
 
-                result2 = system.integrate(
-                    x0=x0, t_span=(0, 0.2), method=method,
-                    dt=0.01, seed=42
-                )
+                result2 = system.integrate(x0=x0, t_span=(0, 0.2), method=method, dt=0.01, seed=42)
 
                 # Same seed should give same trajectory for JAX/Torch
-                if 'x' in result1 and 'x' in result2:
-                    np.testing.assert_allclose(result1['x'], result2['x'], rtol=1e-5)
+                if "x" in result1 and "x" in result2:
+                    np.testing.assert_allclose(result1["x"], result2["x"], rtol=1e-5)
                 return  # Test passed
-                
+
             except (ImportError, NotImplementedError):
                 continue
-        
+
         # If neither JAX nor Torch available, skip
         # (Julia/diffeqpy doesn't have reliable seed control from Python)
         pytest.skip("No SDE backend with reproducible RNG available (need JAX or PyTorch)")
@@ -1076,23 +1033,23 @@ class TestInformationAndDiagnostics:
         info = system.get_info()
 
         # Check required keys exist
-        assert 'system_type' in info
-        assert 'is_stochastic' in info
-        assert 'sde_type' in info
-        assert 'dimensions' in info
-        assert 'noise' in info
-        assert 'recommended_solvers' in info
+        assert "system_type" in info
+        assert "is_stochastic" in info
+        assert "sde_type" in info
+        assert "dimensions" in info
+        assert "noise" in info
+        assert "recommended_solvers" in info
 
         # Check values
-        assert info['system_type'] == 'ContinuousStochasticSystem'
-        assert info['is_stochastic'] is True
-        assert info['sde_type'] == 'ito'
+        assert info["system_type"] == "ContinuousStochasticSystem"
+        assert info["is_stochastic"] is True
+        assert info["sde_type"] == "ito"
 
         # Check dimensions
-        dims = info['dimensions']
-        assert dims['nx'] == 1
-        assert dims['nu'] == 1
-        assert dims['nw'] == 1
+        dims = info["dimensions"]
+        assert dims["nx"] == 1
+        assert dims["nu"] == 1
+        assert dims["nw"] == 1
 
     def test_print_sde_info(self, capsys):
         """Test print_sde_info produces formatted output."""
@@ -1104,12 +1061,12 @@ class TestInformationAndDiagnostics:
         output = captured.out
 
         # Check key information appears
-        assert 'OrnsteinUhlenbeck' in output
-        assert 'nx=1' in output
-        assert 'nu=1' in output
-        assert 'nw=1' in output
-        assert 'additive' in output.lower()
-        assert 'ito' in output.lower()
+        assert "OrnsteinUhlenbeck" in output
+        assert "nx=1" in output
+        assert "nu=1" in output
+        assert "nw=1" in output
+        assert "additive" in output.lower()
+        assert "ito" in output.lower()
 
     def test_is_pure_diffusion(self):
         """Test pure diffusion detection."""
@@ -1134,38 +1091,38 @@ class TestCompilationAndCaching:
         """Test diffusion compilation."""
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
-        timings = system.compile_diffusion(backends=['numpy'], verbose=False)
+        timings = system.compile_diffusion(backends=["numpy"], verbose=False)
 
-        assert 'numpy' in timings
-        assert timings['numpy'] >= 0  # Compilation time
+        assert "numpy" in timings
+        assert timings["numpy"] >= 0  # Compilation time
 
     def test_compile_all(self):
         """Test compiling both drift and diffusion."""
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
-        timings = system.compile_all(backends=['numpy'], verbose=False)
+        timings = system.compile_all(backends=["numpy"], verbose=False)
 
-        assert 'numpy' in timings
-        assert 'drift' in timings['numpy']
-        assert 'diffusion' in timings['numpy']
+        assert "numpy" in timings
+        assert "drift" in timings["numpy"]
+        assert "diffusion" in timings["numpy"]
 
     def test_reset_diffusion_cache(self):
         """Test clearing diffusion cache."""
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
         # Compile
-        system.compile_diffusion(backends=['numpy'])
+        system.compile_diffusion(backends=["numpy"])
 
         # Evaluate (should be cached)
         x = np.array([1.0])
         u = np.array([0.0])
-        g1 = system.diffusion(x, u, backend='numpy')
+        g1 = system.diffusion(x, u, backend="numpy")
 
         # Clear cache
-        system.reset_diffusion_cache(['numpy'])
+        system.reset_diffusion_cache(["numpy"])
 
         # Re-evaluate (should recompile)
-        g2 = system.diffusion(x, u, backend='numpy')
+        g2 = system.diffusion(x, u, backend="numpy")
 
         # Should give same result
         np.testing.assert_allclose(g1, g2)
@@ -1175,7 +1132,7 @@ class TestCompilationAndCaching:
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
         # Compile everything
-        system.compile_all(backends=['numpy'])
+        system.compile_all(backends=["numpy"])
 
         x = np.array([1.0])
         u = np.array([0.0])
@@ -1185,7 +1142,7 @@ class TestCompilationAndCaching:
         g1 = system.diffusion(x, u)
 
         # Clear all caches
-        system.reset_all_caches(['numpy'])
+        system.reset_all_caches(["numpy"])
 
         # Re-evaluate (should recompile)
         f2 = system.drift(x, u)
@@ -1254,9 +1211,10 @@ class TestEdgeCasesAndErrorHandling:
 
     def test_zero_noise_dimension(self):
         """Test system with zero noise sources (degenerate case)."""
+
         class ZeroNoise(ContinuousStochasticSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([[-x]])
@@ -1272,16 +1230,17 @@ class TestEdgeCasesAndErrorHandling:
 
     def test_invalid_sde_type_value(self):
         """Test invalid sde_type raises error."""
+
         class InvalidSDE(ContinuousStochasticSystem):
             def define_system(self):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([[-x]])
                 self.parameters = {}
                 self.order = 1
                 self.diffusion_expr = sp.Matrix([[0.5]])
-                self.sde_type = 'invalid_type'  # Wrong!
+                self.sde_type = "invalid_type"  # Wrong!
 
         with pytest.raises(ValueError, match="Invalid sde_type"):
             InvalidSDE()
@@ -1339,12 +1298,12 @@ class TestStringRepresentations:
 
         repr_str = repr(system)
 
-        assert 'OrnsteinUhlenbeck' in repr_str
-        assert 'nx=1' in repr_str
-        assert 'nu=1' in repr_str
-        assert 'nw=1' in repr_str
-        assert 'additive' in repr_str
-        assert 'ito' in repr_str
+        assert "OrnsteinUhlenbeck" in repr_str
+        assert "nx=1" in repr_str
+        assert "nu=1" in repr_str
+        assert "nw=1" in repr_str
+        assert "additive" in repr_str
+        assert "ito" in repr_str
 
     def test_str_format(self):
         """Test __str__ is human-readable."""
@@ -1352,10 +1311,10 @@ class TestStringRepresentations:
 
         str_repr = str(system)
 
-        assert 'OrnsteinUhlenbeck' in str_repr
-        assert '1 state' in str_repr
-        assert '1 control' in str_repr
-        assert 'additive' in str_repr
+        assert "OrnsteinUhlenbeck" in str_repr
+        assert "1 state" in str_repr
+        assert "1 control" in str_repr
+        assert "additive" in str_repr
 
     def test_str_plural_states(self):
         """Test __str__ handles pluralization."""
@@ -1363,8 +1322,8 @@ class TestStringRepresentations:
 
         str_repr = str(system)
 
-        assert '2 states' in str_repr  # Plural
-        assert '2 noise sources' in str_repr  # Plural
+        assert "2 states" in str_repr  # Plural
+        assert "2 noise sources" in str_repr  # Plural
 
 
 # ============================================================================
@@ -1381,9 +1340,9 @@ class TestMigrationAndBackwardCompatibility:
         # Should be able to use old name
         class OldNameSystem(StochasticDynamicalSystem):
             def define_system(self, alpha=1.0, sigma=0.5):
-                x = sp.symbols('x')
-                u = sp.symbols('u')
-                alpha_sym, sigma_sym = sp.symbols('alpha sigma', positive=True)
+                x = sp.symbols("x")
+                u = sp.symbols("u")
+                alpha_sym, sigma_sym = sp.symbols("alpha sigma", positive=True)
 
                 self.state_vars = [x]
                 self.control_vars = [u]
@@ -1391,7 +1350,7 @@ class TestMigrationAndBackwardCompatibility:
                 self.parameters = {alpha_sym: alpha, sigma_sym: sigma}
                 self.order = 1
                 self.diffusion_expr = sp.Matrix([[sigma_sym]])
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         system = OldNameSystem()
         assert isinstance(system, ContinuousStochasticSystem)
@@ -1426,10 +1385,7 @@ class TestComplexSystems:
 
     def test_multidimensional_system(self):
         """Test system with multiple states and noise sources."""
-        system = TwoDimensionalSDE(
-            a1=1.0, a2=2.0,
-            sigma1=0.5, sigma2=0.3
-        )
+        system = TwoDimensionalSDE(a1=1.0, a2=2.0, sigma1=0.5, sigma2=0.3)
 
         assert system.nx == 2
         assert system.nu == 1
@@ -1455,7 +1411,7 @@ class TestComplexSystems:
 
         class CoupledNoise(ContinuousStochasticSystem):
             def define_system(self):
-                x1, x2 = sp.symbols('x1 x2', real=True)
+                x1, x2 = sp.symbols("x1 x2", real=True)
                 self.state_vars = [x1, x2]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([[-x1], [-x2]])
@@ -1463,11 +1419,8 @@ class TestComplexSystems:
                 self.order = 1
 
                 # Coupled diffusion
-                self.diffusion_expr = sp.Matrix([
-                    [0.5, 0.2],
-                    [0.2, 0.3]
-                ])
-                self.sde_type = 'ito'
+                self.diffusion_expr = sp.Matrix([[0.5, 0.2], [0.2, 0.3]])
+                self.sde_type = "ito"
 
         system = CoupledNoise()
 
@@ -1477,10 +1430,7 @@ class TestComplexSystems:
         x = np.array([1.0, 2.0])
         g = system.diffusion(x)
 
-        expected = np.array([
-            [0.5, 0.2],
-            [0.2, 0.3]
-        ])
+        expected = np.array([[0.5, 0.2], [0.2, 0.3]])
         np.testing.assert_allclose(g, expected)
 
 
@@ -1499,10 +1449,10 @@ class TestParentClassIntegration:
         # Add equilibrium
         x_eq = np.array([0.0])
         u_eq = np.array([0.0])
-        system.add_equilibrium('origin', x_eq, u_eq, verify=True)
+        system.add_equilibrium("origin", x_eq, u_eq, verify=True)
 
         # Retrieve
-        x_ret, u_ret = system.get_equilibrium('origin')
+        x_ret, u_ret = system.get_equilibrium("origin")
         np.testing.assert_allclose(x_ret, x_eq)
         np.testing.assert_allclose(u_ret, u_eq)
 
@@ -1511,12 +1461,12 @@ class TestParentClassIntegration:
         system = OrnsteinUhlenbeck(alpha=1.0, sigma=0.5)
 
         # Default NumPy
-        assert system._default_backend == 'numpy'
+        assert system._default_backend == "numpy"
 
         # Switch to torch (if available)
         if pytest.importorskip("torch", minversion=None):
-            system.set_default_backend('torch')
-            assert system._default_backend == 'torch'
+            system.set_default_backend("torch")
+            assert system._default_backend == "torch"
 
     def test_print_equations(self, capsys):
         """Test print_equations from parent."""
@@ -1528,18 +1478,17 @@ class TestParentClassIntegration:
         output = captured.out
 
         # Should show drift equations
-        assert 'dx/dt' in output or 'Dynamics' in output
+        assert "dx/dt" in output or "Dynamics" in output
 
     def test_parameter_substitution(self):
         """Test parameter substitution from parent."""
         system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
 
         # Get symbolic parameter
-        alpha_sym = [k for k in system.parameters.keys() 
-                     if 'alpha' in str(k)][0]
+        alpha_sym = [k for k in system.parameters.keys() if "alpha" in str(k)][0]
 
         # Create expression with parameter
-        x = sp.symbols('x')
+        x = sp.symbols("x")
         expr = alpha_sym * x
 
         # Substitute
@@ -1555,13 +1504,13 @@ class TestParentClassIntegration:
         config = system.get_config_dict()
 
         # Check standard fields
-        assert 'class_name' in config
-        assert 'nx' in config
-        assert 'parameters' in config
+        assert "class_name" in config
+        assert "nx" in config
+        assert "parameters" in config
 
         # Check values
-        assert config['nx'] == 1
-        assert config['nu'] == 1
+        assert config["nx"] == 1
+        assert config["nu"] == 1
 
 
 # ============================================================================
@@ -1588,8 +1537,8 @@ class TestPerformanceAndStatistics:
 
         stats = system.get_performance_stats()
 
-        assert stats['forward_calls'] == 10
-        assert stats['forward_time'] > 0
+        assert stats["forward_calls"] == 10
+        assert stats["forward_time"] > 0
 
     def test_performance_stats_reset(self):
         """Test resetting performance statistics."""
@@ -1606,7 +1555,7 @@ class TestPerformanceAndStatistics:
         system.reset_performance_stats()
 
         stats = system.get_performance_stats()
-        assert stats['forward_calls'] == 0
+        assert stats["forward_calls"] == 0
 
 
 # ============================================================================
@@ -1623,8 +1572,8 @@ class TestValidationEdgeCases:
         class HighDimSDE(ContinuousStochasticSystem):
             def define_system(self, n=10):
                 # Create n states
-                states = sp.symbols(f'x0:{n}', real=True)
-                u = sp.symbols('u', real=True)
+                states = sp.symbols(f"x0:{n}", real=True)
+                u = sp.symbols("u", real=True)
 
                 self.state_vars = list(states)
                 self.control_vars = [u]
@@ -1633,14 +1582,13 @@ class TestValidationEdgeCases:
                 self._f_sym = sp.Matrix([[-x + u] for x in states])
 
                 # Independent noise for each state
-                sigma_vals = [sp.symbols(f'sigma{i}', positive=True) 
-                              for i in range(n)]
+                sigma_vals = [sp.symbols(f"sigma{i}", positive=True) for i in range(n)]
                 self.diffusion_expr = sp.diag(*sigma_vals)
 
                 params = {sigma_vals[i]: 0.1 * (i + 1) for i in range(n)}
                 self.parameters = params
                 self.order = 1
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         system = HighDimSDE(n=10)
 
@@ -1653,8 +1601,8 @@ class TestValidationEdgeCases:
 
         class SingleNoiseMultiState(ContinuousStochasticSystem):
             def define_system(self):
-                x1, x2 = sp.symbols('x1 x2', real=True)
-                sigma = sp.symbols('sigma', positive=True)
+                x1, x2 = sp.symbols("x1 x2", real=True)
+                sigma = sp.symbols("sigma", positive=True)
 
                 self.state_vars = [x1, x2]
                 self.control_vars = []
@@ -1663,11 +1611,8 @@ class TestValidationEdgeCases:
                 self.order = 1
 
                 # Single noise affects both states
-                self.diffusion_expr = sp.Matrix([
-                    [sigma],
-                    [sigma]
-                ])
-                self.sde_type = 'ito'
+                self.diffusion_expr = sp.Matrix([[sigma], [sigma]])
+                self.sde_type = "ito"
 
         system = SingleNoiseMultiState()
 
@@ -1777,16 +1722,16 @@ class TestComprehensiveIntegration:
         assert G_lin.shape == (1, 1)
 
         # 6. Get solver recommendations
-        solvers = system.recommend_solvers('jax')
+        solvers = system.recommend_solvers("jax")
         assert len(solvers) > 0
 
         # 7. Compile
-        timings = system.compile_all(backends=['numpy'])
-        assert 'numpy' in timings
+        timings = system.compile_all(backends=["numpy"])
+        assert "numpy" in timings
 
         # 8. Get info
         info = system.get_info()
-        assert info['is_stochastic'] is True
+        assert info["is_stochastic"] is True
 
     def test_multi_backend_workflow(self):
         """Test workflow across multiple backends."""
@@ -1796,8 +1741,8 @@ class TestComprehensiveIntegration:
         u = np.array([0.0])
 
         # Test NumPy
-        f_np = system.drift(x, u, backend='numpy')
-        g_np = system.diffusion(x, u, backend='numpy')
+        f_np = system.drift(x, u, backend="numpy")
+        g_np = system.diffusion(x, u, backend="numpy")
 
         # Results should be consistent
         assert f_np.shape == (1,)
@@ -1808,5 +1753,5 @@ class TestComprehensiveIntegration:
 # Run Tests
 # ============================================================================
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '--tb=short'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])

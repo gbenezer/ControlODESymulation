@@ -173,6 +173,7 @@ Optimization method for control/estimation problems.
 # Noise and Stochastic Types
 # ============================================================================
 
+
 class NoiseType(Enum):
     """
     Noise structure classification for stochastic systems.
@@ -181,19 +182,19 @@ class NoiseType(Enum):
     - 'additive': g(x,u,t) = constant (state-independent)
     * Most efficient - can precompute
     * Example: dx = f(x)dt + σ*dW
-    
+
     - 'multiplicative': g(x,u,t) depends on state
     * State-dependent noise intensity
     * Example: dx = f(x)dt + σ*x*dW (Geometric Brownian Motion)
-    
+
     - 'diagonal': g(x,u,t) is diagonal matrix
     * Independent noise sources
     * Enables element-wise solvers
-    
+
     - 'scalar': Single noise source (nw=1)
     * Simplest stochastic case
     * One Wiener process
-    
+
     - 'general': Full coupling, no special structure
     * Most general, least efficient
     """
@@ -204,6 +205,7 @@ class NoiseType(Enum):
     SCALAR = "scalar"  # Single Wiener process
     GENERAL = "general"  # Full matrix, state-dependent
 
+
 class SDEType(Enum):
     """
     SDE interpretation type.
@@ -213,7 +215,7 @@ class SDEType(Enum):
     * dx = f(x)dt + g(x)dW
     * Martingale property
     * Simpler numerically
-    
+
     - 'stratonovich': Stratonovich interpretation (physics/engineering)
     * dx = f(x)dt + g(x)∘dW
     * Chain rule works normally
@@ -227,7 +229,8 @@ class SDEType(Enum):
 
     ITO = "ito"
     STRATONOVICH = "stratonovich"
-    
+
+
 class ConvergenceType(Enum):
     """
     SDE convergence type for numerical integration.
@@ -238,7 +241,7 @@ class ConvergenceType(Enum):
     * E[|X_numerical - X_true|] → 0
     * Needed for: Filtering, control synthesis, single trajectory accuracy
     * More expensive to achieve
-    
+
     - 'weak': Weak convergence
     * Distributions/moments converge
     * E[φ(X_numerical)] → E[φ(X_true)] for test functions φ
@@ -578,6 +581,7 @@ Examples
 # ============================================================================
 # Method Selection Utilities
 # ============================================================================
+
 
 def get_backend_default_method(backend: Backend, is_stochastic: bool = False) -> str:
     """

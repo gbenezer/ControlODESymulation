@@ -151,6 +151,7 @@ from src.types.backends import (
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
+
 class TorchSDEIntegrator(SDEIntegratorBase):
     """
     PyTorch-based SDE integrator using the torchsde library.
@@ -624,7 +625,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
             )
         except Exception as e:
             import traceback
-            
+
             integration_time = time.perf_counter() - t_start
 
             return SDEIntegrationResult(
@@ -816,7 +817,9 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         return ys[-1]
 
 
-def create_torchsde_integrator(sde_system: "ContinuousStochasticSystem", method="euler", dt=0.01, **options):
+def create_torchsde_integrator(
+    sde_system: "ContinuousStochasticSystem", method="euler", dt=0.01, **options
+):
     """Quick factory for TorchSDE integrators."""
     return TorchSDEIntegrator(sde_system, dt=dt, method=method, backend="torch", **options)
 

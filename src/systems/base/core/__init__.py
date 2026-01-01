@@ -72,29 +72,29 @@ Method Interfaces
 ContinuousSystemBase:
     __call__(x, u, t) → StateVector
         Evaluate dynamics: dx/dt = f(x, u, t)
-    
+
     integrate(x0, u, t_span, method) → IntegrationResult
         Low-level ODE solver with diagnostics (adaptive steps)
-    
+
     simulate(x0, controller, t_span, dt) → SimulationResult
         High-level trajectory on regular time grid
-    
+
     linearize(x_eq, u_eq) → (A, B) or (A, B, G)
         Compute Jacobian matrices at equilibrium
 
 DiscreteSystemBase:
     dt (property) → float
         Sampling period / time step
-    
+
     step(x, u, k) → StateVector
         Single time step: x[k+1] = f(x[k], u[k], k)
-    
+
     simulate(x0, u_sequence, n_steps) → DiscreteSimulationResult
         Multi-step open/closed-loop simulation
-    
+
     rollout(x0, policy, n_steps) → DiscreteSimulationResult
         Closed-loop with state feedback policy
-    
+
     linearize(x_eq, u_eq) → (Ad, Bd) or (Ad, Bd, Gd)
         Compute discrete Jacobian matrices
 
@@ -105,10 +105,10 @@ Usage Examples
 ...     def __init__(self):
 ...         self.nx = 2
 ...         self.nu = 1
-...     
+...
 ...     def __call__(self, x, u=None, t=0.0):
 ...         return -x + (u if u is not None else 0.0)
-...     
+...
 ...     def integrate(self, x0, u, t_span, method="RK45", **kwargs):
 ...         # Use scipy.integrate.solve_ivp
 ...         result = solve_ivp(...)
@@ -118,7 +118,7 @@ Usage Examples
 ...             "success": result.success,
 ...             "nfev": result.nfev
 ...         }
-...     
+...
 ...     def linearize(self, x_eq, u_eq):
 ...         A = -np.eye(self.nx)
 ...         B = np.eye(self.nx, self.nu)
@@ -127,11 +127,11 @@ Usage Examples
 >>> # Use the system
 >>> system = MyODE()
 >>> x0 = np.array([1.0, 0.0])
->>> 
+>>>
 >>> # Low-level: Access solver diagnostics
 >>> int_result = system.integrate(x0, u=None, t_span=(0, 10))
 >>> print(f"Solver used {int_result['nfev']} evaluations")
->>> 
+>>>
 >>> # High-level: Get clean trajectory
 >>> sim_result = system.simulate(x0, controller=None, t_span=(0, 10), dt=0.01)
 >>> plt.plot(sim_result["time"], sim_result["states"][0, :])
@@ -142,19 +142,19 @@ Usage Examples
 ...         self._dt = dt
 ...         self.nx = 2
 ...         self.nu = 1
-...     
+...
 ...     @property
 ...     def dt(self):
 ...         return self._dt
-...     
+...
 ...     def step(self, x, u=None, k=0):
 ...         u = u if u is not None else np.zeros(self.nu)
 ...         return 0.9 * x + 0.1 * u
-...     
+...
 ...     def simulate(self, x0, u_sequence, n_steps):
 ...         # Implement multi-step simulation
 ...         ...
-...     
+...
 ...     def linearize(self, x_eq, u_eq):
 ...         Ad = 0.9 * np.eye(self.nx)
 ...         Bd = 0.1 * np.eye(self.nx, self.nu)
@@ -162,10 +162,10 @@ Usage Examples
 
 >>> # Use the discrete system
 >>> discrete_sys = MyDiscreteSystem(dt=0.1)
->>> 
+>>>
 >>> # Open-loop simulation
 >>> result = discrete_sys.simulate(x0, u_sequence=u_seq, n_steps=100)
->>> 
+>>>
 >>> # Closed-loop with state feedback
 >>> K = np.array([[-1.0, -2.0]])
 >>> def policy(x, k):

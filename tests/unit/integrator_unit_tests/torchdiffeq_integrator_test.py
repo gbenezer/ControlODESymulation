@@ -74,7 +74,7 @@ from src.types.trajectories import (
 class MockExponentialSystem:
     """
     Simple exponential decay: dx/dt = -k*x + u.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -83,12 +83,10 @@ class MockExponentialSystem:
         self.nu = 1
         self.k = k
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "torch"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "torch") -> StateVector:
         """
         Evaluate dynamics - MUST return same structure as x.
-        
+
         Parameters
         ----------
         x : StateVector
@@ -97,7 +95,7 @@ class MockExponentialSystem:
             Control (1,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -116,7 +114,7 @@ class MockExponentialSystem:
     ) -> ScalarLike:
         """
         Analytical solution.
-        
+
         Parameters
         ----------
         x0 : ScalarLike
@@ -125,7 +123,7 @@ class MockExponentialSystem:
             Time
         u_const : ScalarLike
             Constant control input
-            
+
         Returns
         -------
         ScalarLike
@@ -140,7 +138,7 @@ class MockExponentialSystem:
 class MockLinearSystem:
     """
     Mock dynamical system for testing: dx/dt = Ax + Bu.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -151,12 +149,10 @@ class MockLinearSystem:
         self.A = torch.tensor([[-0.5, 1.0], [-1.0, -0.5]])
         self.B = torch.tensor([[0.0], [1.0]])
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "torch"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "torch") -> StateVector:
         """
         Evaluate dynamics - MUST return same structure as x.
-        
+
         Parameters
         ----------
         x : StateVector
@@ -165,7 +161,7 @@ class MockLinearSystem:
             Control (nu,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -544,7 +540,11 @@ class TestAutonomousSystems:
     @pytest.fixture
     def integrator(self, autonomous_system):
         return TorchDiffEqIntegrator(
-            autonomous_system, dt=0.01, step_mode=StepMode.ADAPTIVE, backend="torch", method="dopri5"
+            autonomous_system,
+            dt=0.01,
+            step_mode=StepMode.ADAPTIVE,
+            backend="torch",
+            method="dopri5",
         )
 
     def test_autonomous_single_step(self, integrator):

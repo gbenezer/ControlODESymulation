@@ -100,12 +100,12 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self._sde_type_value = SDEType.ITO
-    
+
     def get_sde_type(self):
         """Return SDE type (required by sde_integrator_base validation)."""
         return self._sde_type_value
-    
-    def get_diffusion_matrix(self, x, u=None, backend='numpy'):
+
+    def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (required by sde_integrator_base validation)."""
         return self.diffusion(x, u, backend=backend)
 
@@ -127,12 +127,12 @@ class BrownianMotion(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self._sde_type_value = SDEType.ITO
-    
+
     def get_sde_type(self):
         """Return SDE type (required by sde_integrator_base validation)."""
         return self._sde_type_value
-    
-    def get_diffusion_matrix(self, x, u=None, backend='numpy'):
+
+    def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (required by sde_integrator_base validation)."""
         return self.diffusion(x, u, backend=backend)
 
@@ -156,12 +156,12 @@ class ControlledOU(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self._sde_type_value = SDEType.ITO
-    
+
     def get_sde_type(self):
         """Return SDE type (required by sde_integrator_base validation)."""
         return self._sde_type_value
-    
-    def get_diffusion_matrix(self, x, u=None, backend='numpy'):
+
+    def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (required by sde_integrator_base validation)."""
         return self.diffusion(x, u, backend=backend)
 
@@ -185,12 +185,12 @@ class TwoDimensionalOU(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma1_sym, 0], [0, sigma2_sym]])
         self._sde_type_value = SDEType.ITO
-    
+
     def get_sde_type(self):
         """Return SDE type (required by sde_integrator_base validation)."""
         return self._sde_type_value
-    
-    def get_diffusion_matrix(self, x, u=None, backend='numpy'):
+
+    def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (required by sde_integrator_base validation)."""
         return self.diffusion(x, u, backend=backend)
 
@@ -418,14 +418,14 @@ class TestCustomNoiseSupport:
         alpha = 1.0
         f_x = -alpha * x  # Drift term
         x_expected = x + f_x * dt
-        
+
         # Should be identical
         assert_allclose(x_sde, x_expected, rtol=1e-10, atol=1e-12)
 
     def test_zero_noise_trajectory_matches_deterministic(self, ou_system):
         """
         Test that a full trajectory with zero noise matches deterministic evolution.
-        
+
         This is a more comprehensive test that runs multiple steps.
         """
         integrator = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
@@ -587,13 +587,13 @@ class TestAutonomousSystems:
 
         result = integrator.integrate(x0, u_func, t_span)
 
-        assert result['success']
-        assert result['x'].shape[0] > 10
-        assert result['x'].shape[1] == 1
-        assert result['nsteps'] > 0
+        assert result["success"]
+        assert result["x"].shape[0] > 10
+        assert result["x"].shape[1] == 1
+        assert result["nsteps"] > 0
 
         # State should evolve
-        assert not jnp.allclose(result['x'][-1], x0)
+        assert not jnp.allclose(result["x"][-1], x0)
 
     def test_autonomous_2d_integration(self, ou_2d_system):
         """Test integration of 2D autonomous system."""
@@ -605,9 +605,9 @@ class TestAutonomousSystems:
 
         result = integrator.integrate(x0, u_func, t_span)
 
-        assert result['success']
-        assert result['x'].shape[1] == 2
-        assert result['x'].shape[0] > 10
+        assert result["success"]
+        assert result["x"].shape[1] == 2
+        assert result["x"].shape[0] > 10
 
     def test_autonomous_reproducibility_with_seed(self, ou_system):
         """Test that same seed gives reproducible results (JAX feature)."""
@@ -624,7 +624,7 @@ class TestAutonomousSystems:
         result2 = integrator2.integrate(x0, u_func, t_span)
 
         # Results should be identical (JAX has good seed control)
-        np.testing.assert_allclose(result1['x'], result2['x'], rtol=1e-5)
+        np.testing.assert_allclose(result1["x"], result2["x"], rtol=1e-5)
 
 
 # ============================================================================
@@ -652,9 +652,9 @@ class TestPureDiffusionSystems:
 
         result = integrator.integrate(x0, u_func, t_span)
 
-        assert result['success']
-        assert result['x'].shape[0] > 10
-        assert result['nsteps'] > 0
+        assert result["success"]
+        assert result["x"].shape[0] > 10
+        assert result["nsteps"] > 0
 
     def test_pure_diffusion_with_zero_noise(self, brownian_system):
         """Test that Brownian motion with zero noise doesn't move."""
@@ -685,7 +685,7 @@ class TestPureDiffusionSystems:
         result2 = integrator2.integrate(x0, u_func, t_span)
 
         # Should be identical
-        np.testing.assert_allclose(result1['x'], result2['x'], rtol=1e-6)
+        np.testing.assert_allclose(result1["x"], result2["x"], rtol=1e-6)
 
     def test_pure_diffusion_different_seeds_differ(self, brownian_system):
         """Test that different seeds give different results."""
@@ -701,7 +701,7 @@ class TestPureDiffusionSystems:
         result2 = integrator2.integrate(x0, u_func, t_span)
 
         # Should be different
-        assert not jnp.allclose(result1['x'], result2['x'])
+        assert not jnp.allclose(result1["x"], result2["x"])
 
 
 # ============================================================================
@@ -722,9 +722,9 @@ class TestControlledSystems:
 
         result = integrator.integrate(x0, u_func, t_span)
 
-        assert result['success']
-        assert result['x'].shape[0] > 10
-        assert result['nsteps'] > 0
+        assert result["success"]
+        assert result["x"].shape[0] > 10
+        assert result["nsteps"] > 0
 
     def test_state_feedback_control(self, controlled_system):
         """Test state feedback control."""
@@ -737,8 +737,8 @@ class TestControlledSystems:
 
         result = integrator.integrate(x0, u_func, t_span)
 
-        assert result['success']
-        assert result['x'].shape[0] > 10
+        assert result["success"]
+        assert result["x"].shape[0] > 10
 
 
 # ============================================================================
@@ -761,7 +761,7 @@ class TestIntegrationMethods:
         assert "x" in result
         assert "success" in result
         assert "nsteps" in result
-        assert result['success']
+        assert result["success"]
 
     def test_integrate_with_t_eval(self, integrator_euler):
         """Test integration with specific evaluation times."""
@@ -772,8 +772,8 @@ class TestIntegrationMethods:
 
         result = integrator_euler.integrate(x0, u_func, t_span, t_eval=t_eval)
 
-        assert result['success']
-        assert len(result['t']) == len(t_eval)
+        assert result["success"]
+        assert len(result["t"]) == len(t_eval)
 
     def test_step_method(self, integrator_euler):
         """Test single step method."""
@@ -798,7 +798,7 @@ class TestIntegrationMethods:
         stats = integrator_euler.get_sde_stats()
         # Note: Diffrax stats tracking in closures may not work
         # Just verify integration happened
-        assert result['nsteps'] > 0
+        assert result["nsteps"] > 0
 
 
 # ============================================================================
@@ -859,7 +859,7 @@ class TestJAXFeatures:
 
         # Define loss as final state squared
         def loss_fn(result):
-            return jnp.sum(result['x'][-1] ** 2)
+            return jnp.sum(result["x"][-1] ** 2)
 
         loss, grad = integrator.integrate_with_gradient(x0, u_func, t_span, loss_fn)
 
@@ -892,7 +892,7 @@ class TestJAXFeatures:
         results = integrator.vectorized_integrate(x0_batch, u_func, t_span)
 
         assert len(results) == 3
-        assert all(r['success'] for r in results)
+        assert all(r["success"] for r in results)
 
 
 # ============================================================================
@@ -922,7 +922,7 @@ class TestSpecializedSolvers:
 
         # SEA might not work properly in all Diffrax versions
         # If it exists but fails, skip rather than fail
-        if not result['success']:
+        if not result["success"]:
             pytest.skip(f"SEA solver exists but integration failed: {result['message']}")
 
     def test_shark_solver_high_accuracy(self, ou_system):
@@ -941,7 +941,7 @@ class TestSpecializedSolvers:
 
         # SHARK might not work properly in all Diffrax versions
         # If it exists but fails, skip rather than fail
-        if not result['success']:
+        if not result["success"]:
             pytest.skip(f"SHARK solver exists but integration failed: {result['message']}")
 
 
@@ -962,7 +962,7 @@ class TestLevyArea:
         x0 = jnp.array([1.0])
         result = integrator.integrate(x0, lambda t, x: None, (0.0, 0.5))
 
-        assert result['success']
+        assert result["success"]
 
     def test_levy_area_space_time(self, ou_system):
         """Test space-time Levy area for Milstein."""
@@ -979,7 +979,7 @@ class TestLevyArea:
         # May fail if Levy area API incompatible - that's okay
         try:
             result = integrator.integrate(x0, lambda t, x: None, (0.0, 0.5))
-            assert result['success']
+            assert result["success"]
         except (TypeError, AttributeError):
             pytest.skip("SpaceTimeLevyArea API incompatible with this Diffrax version")
 

@@ -169,11 +169,11 @@ class TestTypeSystemIntegration:
         # Type annotations
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.0])
-        
+
         A: StateMatrix
         B: InputMatrix
         A, B = engine.compute_dynamics(x, u, backend="numpy")
-        
+
         # Verify types and shapes
         assert isinstance(A, np.ndarray)
         assert isinstance(B, np.ndarray)
@@ -189,12 +189,12 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.0])
-        
+
         # Clear semantic meaning
         A: StateMatrix  # State Jacobian ∂f/∂x
         B: InputMatrix  # Input Jacobian ∂f/∂u
         A, B = engine.compute_dynamics(x, u)
-        
+
         assert isinstance(A, np.ndarray)
         assert isinstance(B, np.ndarray)
 
@@ -222,15 +222,15 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.0])
-        
+
         # Return type is explicit tuple
         result: Tuple[StateMatrix, InputMatrix] = engine.compute_dynamics(x, u)
         A, B = result
-        
+
         # First element is StateMatrix
         assert isinstance(A, np.ndarray)
         assert A.shape == (1, 1)
-        
+
         # Second element is InputMatrix
         assert isinstance(B, np.ndarray)
         assert B.shape == (1, 1)
@@ -244,11 +244,11 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([1.0])
         u: Optional[ControlVector] = None  # Autonomous system
-        
+
         A: StateMatrix
         B: InputMatrix
         A, B = engine.compute_dynamics(x, u)
-        
+
         assert A.shape == (1, 1)
         assert B.shape == (1, 0)  # Empty InputMatrix for autonomous
 
@@ -266,14 +266,14 @@ class TestTypeSystemIntegration:
         A_np: StateMatrix
         B_np: InputMatrix
         A_np, B_np = engine.compute_dynamics(x_np, u_np, backend="numpy")
-        
+
         # PyTorch tensors are also StateVector/ControlVector
         x_torch: StateVector = torch.tensor([1.0])
         u_torch: ControlVector = torch.tensor([0.0])
         A_torch: StateMatrix
         B_torch: InputMatrix
         A_torch, B_torch = engine.compute_dynamics(x_torch, u_torch, backend="torch")
-        
+
         # Both backends work with semantic types
         assert isinstance(A_np, np.ndarray)
         assert isinstance(B_np, np.ndarray)
@@ -289,18 +289,18 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.0])
-        
+
         # Clear semantic meaning - no ambiguity
         A: StateMatrix  # Obviously the state Jacobian
         B: InputMatrix  # Obviously the input Jacobian
         A, B = engine.compute_dynamics(x, u)
-        
+
         # vs generic (ambiguous):
         # result1, result2 = engine.compute_dynamics(x, u)  # Which is which?
-        
+
         # Verify correct values
         assert np.allclose(A, np.array([[-2.0]]))  # ∂f/∂x
-        assert np.allclose(B, np.array([[1.0]]))   # ∂f/∂u
+        assert np.allclose(B, np.array([[1.0]]))  # ∂f/∂u
 
     def test_second_order_system_types(self):
         """Test type annotations with second-order systems"""
@@ -311,11 +311,11 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([0.1, 0.0])  # [q, q_dot]
         u: ControlVector = np.array([0.0])
-        
+
         A: StateMatrix  # (2, 2) for state-space form
         B: InputMatrix  # (2, 1) for state-space form
         A, B = engine.compute_dynamics(x, u)
-        
+
         # Second-order system has state-space linearization
         assert A.shape == (2, 2)
         assert B.shape == (2, 1)
@@ -330,7 +330,7 @@ class TestTypeSystemIntegration:
         # Can still use ArrayLike (less semantic)
         x: ArrayLike = np.array([1.0])
         u: ArrayLike = np.array([0.0])
-        
+
         A, B = engine.compute_dynamics(x, u)
         assert isinstance(A, np.ndarray)
         assert isinstance(B, np.ndarray)

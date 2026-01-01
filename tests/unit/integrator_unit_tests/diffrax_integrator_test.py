@@ -76,7 +76,7 @@ from src.types.trajectories import (
 class MockLinearSystem:
     """
     Mock dynamical system for testing: dx/dt = Ax + Bu.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -87,12 +87,10 @@ class MockLinearSystem:
         self.A = jnp.array([[-0.5, 1.0], [-1.0, -0.5]])
         self.B = jnp.array([[0.0], [1.0]])
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "jax"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "jax") -> StateVector:
         """
         Evaluate dynamics - MUST return same structure as x.
-        
+
         Parameters
         ----------
         x : StateVector
@@ -101,7 +99,7 @@ class MockLinearSystem:
             Control (nu,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -117,7 +115,7 @@ class MockLinearSystem:
 class MockExponentialSystem:
     """
     Simple exponential decay: dx/dt = -k*x + u.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -126,12 +124,10 @@ class MockExponentialSystem:
         self.nu = 1
         self.k = k
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "jax"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "jax") -> StateVector:
         """
         Evaluate dynamics - MUST return same structure as x.
-        
+
         Parameters
         ----------
         x : StateVector
@@ -140,7 +136,7 @@ class MockExponentialSystem:
             Control (1,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -156,7 +152,7 @@ class MockExponentialSystem:
     ) -> ScalarLike:
         """
         Analytical solution.
-        
+
         Parameters
         ----------
         x0 : ScalarLike
@@ -165,7 +161,7 @@ class MockExponentialSystem:
             Time
         u_const : ScalarLike
             Constant control input
-            
+
         Returns
         -------
         ScalarLike
@@ -180,7 +176,7 @@ class MockExponentialSystem:
 class MockStiffSystem:
     """
     Stiff ODE for testing implicit solvers: dx/dt = -1000*x + u.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -189,12 +185,10 @@ class MockStiffSystem:
         self.nu = 1
         self.stiffness = stiffness
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "jax"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "jax") -> StateVector:
         """
         Evaluate dynamics.
-        
+
         Parameters
         ----------
         x : StateVector
@@ -203,7 +197,7 @@ class MockStiffSystem:
             Control (1,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -216,14 +210,14 @@ class MockStiffSystem:
     def analytical_solution(self, x0: ScalarLike, t: ScalarLike) -> ScalarLike:
         """
         Analytical solution for u=0.
-        
+
         Parameters
         ----------
         x0 : ScalarLike
             Initial state
         t : ScalarLike
             Time
-            
+
         Returns
         -------
         ScalarLike
@@ -235,7 +229,7 @@ class MockStiffSystem:
 class MockSemiStiffSystem:
     """
     Semi-stiff system for testing IMEX solvers.
-    
+
     Uses semantic types from centralized type system.
     """
 
@@ -243,12 +237,10 @@ class MockSemiStiffSystem:
         self.nx = 2
         self.nu = 1
 
-    def __call__(
-        self, x: StateVector, u: ControlVector, backend: str = "jax"
-    ) -> StateVector:
+    def __call__(self, x: StateVector, u: ControlVector, backend: str = "jax") -> StateVector:
         """
         Full dynamics (for standard integration).
-        
+
         Parameters
         ----------
         x : StateVector
@@ -257,7 +249,7 @@ class MockSemiStiffSystem:
             Control (1,)
         backend : str
             Backend identifier
-            
+
         Returns
         -------
         StateVector
@@ -275,14 +267,14 @@ class MockSemiStiffSystem:
     def explicit_part(self, t: ScalarLike, x: StateVector) -> StateVector:
         """
         Non-stiff part for IMEX.
-        
+
         Parameters
         ----------
         t : ScalarLike
             Time
         x : StateVector
             State (2,)
-            
+
         Returns
         -------
         StateVector
@@ -293,14 +285,14 @@ class MockSemiStiffSystem:
     def implicit_part(self, t: ScalarLike, x: StateVector) -> StateVector:
         """
         Stiff part for IMEX.
-        
+
         Parameters
         ----------
         t : ScalarLike
             Time
         x : StateVector
             State (2,)
-            
+
         Returns
         -------
         StateVector
@@ -518,7 +510,9 @@ class TestImplicitSolvers:
             assert result["x"][-1, 0] < x0[0]
         else:
             # If it fails, that's okay for very stiff problems
-            pytest.skip(f"Implicit solver {solver} struggled with stiff problem: {result['message']}")
+            pytest.skip(
+                f"Implicit solver {solver} struggled with stiff problem: {result['message']}"
+            )
 
     def test_implicit_vs_explicit_on_stiff(self):
         """Test that implicit solvers can be created."""
@@ -633,9 +627,7 @@ class TestIMEXSolvers:
 
     def test_imex_error_if_not_imex_solver(self, semistiff_system):
         """Test that non-IMEX solver raises error with integrate_imex."""
-        integrator = DiffraxIntegrator(
-            semistiff_system, dt=0.01, backend="jax", solver="dopri5"
-        )
+        integrator = DiffraxIntegrator(semistiff_system, dt=0.01, backend="jax", solver="dopri5")
 
         x0 = jnp.array([1.0, 0.5])
         t_span: TimeSpan = (0.0, 0.5)
@@ -653,7 +645,9 @@ class TestIMEXSolvers:
         semistiff_system = MockSemiStiffSystem()
 
         try:
-            integrator = DiffraxIntegrator(semistiff_system, dt=0.01, backend="jax", solver="kencarp4")
+            integrator = DiffraxIntegrator(
+                semistiff_system, dt=0.01, backend="jax", solver="kencarp4"
+            )
             name = integrator.name
             assert "IMEX" in name
             assert "kencarp4" in name

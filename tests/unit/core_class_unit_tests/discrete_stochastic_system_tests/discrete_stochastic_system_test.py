@@ -60,11 +60,11 @@ class DiscreteOU(DiscreteStochasticSystem):
     """Discrete-time Ornstein-Uhlenbeck process (AR(1) with additive noise)."""
 
     def define_system(self, alpha=1.0, sigma=0.5, dt=0.1):
-        x = sp.symbols('x', real=True)
-        u = sp.symbols('u', real=True)
-        alpha_sym = sp.symbols('alpha', positive=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
-        dt_sym = sp.symbols('dt', positive=True)
+        x = sp.symbols("x", real=True)
+        u = sp.symbols("u", real=True)
+        alpha_sym = sp.symbols("alpha", positive=True)
+        sigma_sym = sp.symbols("sigma", positive=True)
+        dt_sym = sp.symbols("dt", positive=True)
 
         # Deterministic: x[k+1] = (1 - α*dt)*x[k] + u[k]
         self.state_vars = [x]
@@ -76,17 +76,17 @@ class DiscreteOU(DiscreteStochasticSystem):
 
         # Stochastic: additive noise
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class GeometricRandomWalk(DiscreteStochasticSystem):
     """Discrete-time geometric random walk (multiplicative noise)."""
 
     def define_system(self, mu=0.1, sigma=0.2, dt=1.0):
-        x = sp.symbols('x', positive=True)
-        u = sp.symbols('u', real=True)
-        mu_sym = sp.symbols('mu', real=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
+        x = sp.symbols("x", positive=True)
+        u = sp.symbols("u", real=True)
+        mu_sym = sp.symbols("mu", real=True)
+        sigma_sym = sp.symbols("sigma", positive=True)
 
         # Deterministic: x[k+1] = (1 + μ)*x[k] + u[k]
         self.state_vars = [x]
@@ -98,47 +98,38 @@ class GeometricRandomWalk(DiscreteStochasticSystem):
 
         # Stochastic: multiplicative noise
         self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class MultiDimensionalStochastic(DiscreteStochasticSystem):
     """2D system with coupled noise."""
 
     def define_system(self, a=0.9, b=0.1, sigma1=0.3, sigma2=0.2, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        u = sp.symbols('u', real=True)
-        a_sym, b_sym = sp.symbols('a b', real=True)
-        sigma1_sym, sigma2_sym = sp.symbols('sigma1 sigma2', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        u = sp.symbols("u", real=True)
+        a_sym, b_sym = sp.symbols("a b", real=True)
+        sigma1_sym, sigma2_sym = sp.symbols("sigma1 sigma2", positive=True)
 
         # Deterministic: linear coupling
         self.state_vars = [x1, x2]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([
-            a_sym * x1 + b_sym * x2,
-            -b_sym * x1 + a_sym * x2 + u
-        ])
-        self.parameters = {
-            a_sym: a, b_sym: b,
-            sigma1_sym: sigma1, sigma2_sym: sigma2
-        }
+        self._f_sym = sp.Matrix([a_sym * x1 + b_sym * x2, -b_sym * x1 + a_sym * x2 + u])
+        self.parameters = {a_sym: a, b_sym: b, sigma1_sym: sigma1, sigma2_sym: sigma2}
         self._dt = dt
         self.order = 1
 
         # Stochastic: diagonal noise
-        self.diffusion_expr = sp.Matrix([
-            [sigma1_sym, 0],
-            [0, sigma2_sym]
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix([[sigma1_sym, 0], [0, sigma2_sym]])
+        self.sde_type = "ito"
 
 
 class AutonomousStochastic(DiscreteStochasticSystem):
     """Autonomous system (no control input)."""
 
     def define_system(self, alpha=0.95, sigma=0.1, dt=0.1):
-        x = sp.symbols('x', real=True)
-        alpha_sym = sp.symbols('alpha', positive=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
+        x = sp.symbols("x", real=True)
+        alpha_sym = sp.symbols("alpha", positive=True)
+        sigma_sym = sp.symbols("sigma", positive=True)
 
         # Autonomous: no control
         self.state_vars = [x]
@@ -150,14 +141,14 @@ class AutonomousStochastic(DiscreteStochasticSystem):
 
         # Additive noise
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
-        self.sde_type = 'ito'
+        self.sde_type = "ito"
 
 
 class InvalidDiffusionSystem(DiscreteStochasticSystem):
     """System that doesn't set diffusion_expr (should fail)."""
 
     def define_system(self, dt=0.1):
-        x = sp.symbols('x')
+        x = sp.symbols("x")
         self.state_vars = [x]
         self.control_vars = []
         self._f_sym = sp.Matrix([0.9 * x])
@@ -171,8 +162,8 @@ class WrongDimensionDiffusion(DiscreteStochasticSystem):
     """System with diffusion dimension mismatch."""
 
     def define_system(self, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2')
-        sigma = sp.symbols('sigma', positive=True)
+        x1, x2 = sp.symbols("x1 x2")
+        sigma = sp.symbols("sigma", positive=True)
 
         self.state_vars = [x1, x2]  # nx=2
         self.control_vars = []
@@ -183,12 +174,13 @@ class WrongDimensionDiffusion(DiscreteStochasticSystem):
 
         # Wrong: diffusion has 1 row but should have 2
         self.diffusion_expr = sp.Matrix([[sigma]])  # Should be (2, nw)!
-        self.sde_type = 'ito'
-        
+        self.sde_type = "ito"
+
+
 class MultiplicativeNoise2D(DiscreteStochasticSystem):
     """
     2D system with state-dependent noise (2 noise sources).
-    
+
     This has TRUE multiplicative noise because:
     - nw = 2 (not scalar)
     - g depends on state
@@ -196,44 +188,43 @@ class MultiplicativeNoise2D(DiscreteStochasticSystem):
     """
 
     def define_system(self, a=0.9, sigma1=0.2, sigma2=0.15, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        u = sp.symbols('u', real=True)
-        a_sym = sp.symbols('a', real=True)
-        sigma1_sym, sigma2_sym = sp.symbols('sigma1 sigma2', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        u = sp.symbols("u", real=True)
+        a_sym = sp.symbols("a", real=True)
+        sigma1_sym, sigma2_sym = sp.symbols("sigma1 sigma2", positive=True)
 
         # Deterministic: simple linear
         self.state_vars = [x1, x2]
         self.control_vars = [u]
-        self._f_sym = sp.Matrix([
-            a_sym * x1 + u,
-            a_sym * x2
-        ])
+        self._f_sym = sp.Matrix([a_sym * x1 + u, a_sym * x2])
         self.parameters = {a_sym: a, sigma1_sym: sigma1, sigma2_sym: sigma2}
         self._dt = dt
         self.order = 1
 
         # MULTIPLICATIVE: noise depends on state, nw=2
-        self.diffusion_expr = sp.Matrix([
-            [sigma1_sym * x1, 0],            # First noise scales with x1
-            [0, sigma2_sym * x2]             # Second noise scales with x2
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix(
+            [
+                [sigma1_sym * x1, 0],  # First noise scales with x1
+                [0, sigma2_sym * x2],  # Second noise scales with x2
+            ]
+        )
+        self.sde_type = "ito"
 
 
 class FullyMultiplicativeNoise(DiscreteStochasticSystem):
     """
     System where ALL noise sources are state-dependent.
-    
+
     g(x) = [σ1*x1  σ2*x1]
            [σ3*x2  σ4*x2]
-    
+
     Both noise sources affect both states, all scaled by state.
     """
 
     def define_system(self, a=0.95, sigma1=0.2, sigma2=0.15, sigma3=0.1, sigma4=0.12, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        a_sym = sp.symbols('a', real=True)
-        s1, s2, s3, s4 = sp.symbols('sigma1 sigma2 sigma3 sigma4', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        a_sym = sp.symbols("a", real=True)
+        s1, s2, s3, s4 = sp.symbols("sigma1 sigma2 sigma3 sigma4", positive=True)
 
         self.state_vars = [x1, x2]
         self.control_vars = []  # Autonomous for simplicity
@@ -243,29 +234,31 @@ class FullyMultiplicativeNoise(DiscreteStochasticSystem):
         self.order = 1
 
         # Fully coupled multiplicative noise
-        self.diffusion_expr = sp.Matrix([
-            [s1 * x1, s2 * x1],   # Both noise sources scale with x1
-            [s3 * x2, s4 * x2]    # Both noise sources scale with x2
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix(
+            [
+                [s1 * x1, s2 * x1],  # Both noise sources scale with x1
+                [s3 * x2, s4 * x2],  # Both noise sources scale with x2
+            ]
+        )
+        self.sde_type = "ito"
 
 
 class StateAndControlDependentNoise(DiscreteStochasticSystem):
     """
     Noise depends on both state AND control.
-    
+
     g(x, u) = [σ1*x1*u]
               [σ2*x2  ]
-    
+
     First noise source depends on both x1 and u.
     Second depends only on x2.
     """
 
     def define_system(self, a=0.9, sigma1=0.2, sigma2=0.15, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        u = sp.symbols('u', real=True)
-        a_sym = sp.symbols('a', real=True)
-        sigma1_sym, sigma2_sym = sp.symbols('sigma1 sigma2', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        u = sp.symbols("u", real=True)
+        a_sym = sp.symbols("a", real=True)
+        sigma1_sym, sigma2_sym = sp.symbols("sigma1 sigma2", positive=True)
 
         self.state_vars = [x1, x2]
         self.control_vars = [u]
@@ -275,24 +268,26 @@ class StateAndControlDependentNoise(DiscreteStochasticSystem):
         self.order = 1
 
         # Mixed: first depends on x1*u, second on x2
-        self.diffusion_expr = sp.Matrix([
-            [sigma1_sym * x1 * u],   # Depends on state AND control
-            [sigma2_sym * x2]         # Depends only on state
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix(
+            [
+                [sigma1_sym * x1 * u],  # Depends on state AND control
+                [sigma2_sym * x2],  # Depends only on state
+            ]
+        )
+        self.sde_type = "ito"
 
 
 class ThreeNoiseSourcesMultiplicative(DiscreteStochasticSystem):
     """
     2D system with 3 independent noise sources, all multiplicative.
-    
+
     More noise sources than states (nw > nx).
     """
 
     def define_system(self, a=0.9, s1=0.2, s2=0.15, s3=0.1, dt=0.1):
-        x1, x2 = sp.symbols('x1 x2', real=True)
-        a_sym = sp.symbols('a', real=True)
-        sigma1, sigma2, sigma3 = sp.symbols('sigma1 sigma2 sigma3', positive=True)
+        x1, x2 = sp.symbols("x1 x2", real=True)
+        a_sym = sp.symbols("a", real=True)
+        sigma1, sigma2, sigma3 = sp.symbols("sigma1 sigma2 sigma3", positive=True)
 
         self.state_vars = [x1, x2]
         self.control_vars = []
@@ -302,11 +297,10 @@ class ThreeNoiseSourcesMultiplicative(DiscreteStochasticSystem):
         self.order = 1
 
         # 3 noise sources (nw=3 > nx=2)
-        self.diffusion_expr = sp.Matrix([
-            [sigma1 * x1, sigma2 * x1, 0],
-            [0, sigma3 * x2, sigma3 * x2]
-        ])
-        self.sde_type = 'ito'
+        self.diffusion_expr = sp.Matrix(
+            [[sigma1 * x1, sigma2 * x1, 0], [0, sigma3 * x2, sigma3 * x2]]
+        )
+        self.sde_type = "ito"
 
 
 # ============================================================================
@@ -391,10 +385,10 @@ class TestNoiseCharacterization(unittest.TestCase):
         self.assertFalse(system.depends_on_state())
         self.assertFalse(system.depends_on_control())
         self.assertFalse(system.depends_on_time())
-        
+
     def test_multiplicative_noise_detection_scalar_override(self):
         system = GeometricRandomWalk(mu=0.1, sigma=0.2, dt=1.0)
-        
+
         # It IS multiplicative in nature
         self.assertTrue(system.depends_on_state())
         # But classified as SCALAR because nw=1
@@ -526,9 +520,7 @@ class TestDiffusionEvaluation(unittest.TestCase):
 
         # Check values: σ*x for each sample
         np.testing.assert_allclose(
-            g[:, 0, 0],
-            np.array([0.2, 0.4, 0.6]),  # 0.2*[1, 2, 3]
-            rtol=1e-10
+            g[:, 0, 0], np.array([0.2, 0.4, 0.6]), rtol=1e-10  # 0.2*[1, 2, 3]
         )
 
 
@@ -630,29 +622,24 @@ class TestStochasticSimulation(unittest.TestCase):
         x0 = np.array([1.0])
         n_steps = 100
 
-        result = self.system.simulate_stochastic(
-            x0=x0,
-            u_sequence=None,
-            n_steps=n_steps,
-            seed=42
-        )
+        result = self.system.simulate_stochastic(x0=x0, u_sequence=None, n_steps=n_steps, seed=42)
 
         # Check result structure
-        self.assertIn('states', result)
-        self.assertIn('time_steps', result)
-        self.assertIn('dt', result)
-        self.assertIn('metadata', result)
+        self.assertIn("states", result)
+        self.assertIn("time_steps", result)
+        self.assertIn("dt", result)
+        self.assertIn("metadata", result)
 
         # Check shapes
-        self.assertEqual(result['states'].shape, (n_steps + 1, 1))
-        self.assertEqual(len(result['time_steps']), n_steps + 1)
+        self.assertEqual(result["states"].shape, (n_steps + 1, 1))
+        self.assertEqual(len(result["time_steps"]), n_steps + 1)
 
         # Check metadata
-        self.assertEqual(result['metadata']['n_paths'], 1)
-        self.assertEqual(result['metadata']['seed'], 42)
+        self.assertEqual(result["metadata"]["n_paths"], 1)
+        self.assertEqual(result["metadata"]["seed"], 42)
 
         # Check initial condition
-        np.testing.assert_allclose(result['states'][0, :], x0, rtol=1e-10)
+        np.testing.assert_allclose(result["states"][0, :], x0, rtol=1e-10)
 
     def test_simulate_monte_carlo(self):
         """Test Monte Carlo simulation with multiple paths."""
@@ -661,26 +648,18 @@ class TestStochasticSimulation(unittest.TestCase):
         n_paths = 50
 
         result = self.system.simulate_stochastic(
-            x0=x0,
-            u_sequence=None,
-            n_steps=n_steps,
-            n_paths=n_paths,
-            seed=42
+            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42
         )
 
         # Check shape: (n_paths, n_steps+1, nx)
-        self.assertEqual(result['states'].shape, (n_paths, n_steps + 1, 1))
+        self.assertEqual(result["states"].shape, (n_paths, n_steps + 1, 1))
 
         # Check metadata
-        self.assertEqual(result['metadata']['n_paths'], n_paths)
+        self.assertEqual(result["metadata"]["n_paths"], n_paths)
 
         # Check all paths start at x0
         for path in range(n_paths):
-            np.testing.assert_allclose(
-                result['states'][path, 0, :],
-                x0,
-                rtol=1e-10
-            )
+            np.testing.assert_allclose(result["states"][path, 0, :], x0, rtol=1e-10)
 
     def test_simulate_reproducibility(self):
         """Test that same seed gives same results."""
@@ -691,11 +670,7 @@ class TestStochasticSimulation(unittest.TestCase):
         result2 = self.system.simulate_stochastic(x0, None, n_steps, seed=42)
 
         # Should be identical
-        np.testing.assert_allclose(
-            result1['states'],
-            result2['states'],
-            rtol=1e-10
-        )
+        np.testing.assert_allclose(result1["states"], result2["states"], rtol=1e-10)
 
 
 class TestConstantNoiseOptimization(unittest.TestCase):
@@ -705,7 +680,7 @@ class TestConstantNoiseOptimization(unittest.TestCase):
         """Test getting constant noise matrix."""
         system = DiscreteOU(sigma=0.3, dt=0.1)
 
-        G = system.get_constant_noise(backend='numpy')
+        G = system.get_constant_noise(backend="numpy")
 
         self.assertEqual(G.shape, (1, 1))
         self.assertAlmostEqual(G[0, 0], 0.3, places=10)
@@ -729,8 +704,8 @@ class TestBackendCompatibility(unittest.TestCase):
 
     def test_numpy_backend(self):
         """Test NumPy backend."""
-        f = self.system(self.x, self.u, backend='numpy')
-        g = self.system.diffusion(self.x, self.u, backend='numpy')
+        f = self.system(self.x, self.u, backend="numpy")
+        g = self.system.diffusion(self.x, self.u, backend="numpy")
 
         self.assertIsInstance(f, np.ndarray)
         self.assertIsInstance(g, np.ndarray)
@@ -759,16 +734,16 @@ class TestPrintingAndInfo(unittest.TestCase):
         info = self.system.get_info()
 
         # Check required keys
-        self.assertIn('system_type', info)
-        self.assertIn('is_discrete', info)
-        self.assertIn('is_stochastic', info)
-        self.assertIn('dimensions', info)
-        self.assertIn('noise', info)
+        self.assertIn("system_type", info)
+        self.assertIn("is_discrete", info)
+        self.assertIn("is_stochastic", info)
+        self.assertIn("dimensions", info)
+        self.assertIn("noise", info)
 
         # Check values
-        self.assertEqual(info['system_type'], 'DiscreteStochasticSystem')
-        self.assertTrue(info['is_discrete'])
-        self.assertTrue(info['is_stochastic'])
+        self.assertEqual(info["system_type"], "DiscreteStochasticSystem")
+        self.assertTrue(info["is_discrete"])
+        self.assertTrue(info["is_stochastic"])
 
 
 class TestStatisticalProperties(unittest.TestCase):
@@ -781,23 +756,17 @@ class TestStatisticalProperties(unittest.TestCase):
         n_steps = 100
         n_paths = 500
 
-        result = system.simulate_stochastic(
-            x0, None, n_steps, n_paths, seed=42
-        )
+        result = system.simulate_stochastic(x0, None, n_steps, n_paths, seed=42)
 
         # Compute variance at each time step
-        variance_traj = result['states'].var(axis=0)[:, 0]
+        variance_traj = result["states"].var(axis=0)[:, 0]
 
         # For random walk: Var[x[k]] = k * σ²
         expected_variance = np.arange(n_steps + 1) * 0.3**2
 
         # Check at specific points (allow 30% error due to finite samples)
         for k in [10, 50, 100]:
-            self.assertAlmostEqual(
-                variance_traj[k] / expected_variance[k],
-                1.0,
-                delta=0.3
-            )
+            self.assertAlmostEqual(variance_traj[k] / expected_variance[k], 1.0, delta=0.3)
 
 
 class TestEdgeCases(unittest.TestCase):
@@ -828,7 +797,8 @@ class TestEdgeCases(unittest.TestCase):
 
         # f ≈ (1 - α*dt)*x = (1 - 2e-6)*1 ≈ 1.0
         self.assertAlmostEqual(f[0], 1.0 - 2e-6, places=8)
-        
+
+
 # ============================================================================
 # Test Suite for Multiplicative Noise Detection
 # ============================================================================
@@ -837,11 +807,11 @@ class TestEdgeCases(unittest.TestCase):
 class TestMultiplicativeNoiseDetection(unittest.TestCase):
     """
     Test that multiplicative noise is correctly detected.
-    
+
     Key principle: For MULTIPLICATIVE classification (not SCALAR):
     - Need nw > 1 (multiple noise sources), OR
     - System must be multiplicative with nw=1 but not classifiable as SCALAR
-    
+
     The NoiseCharacterizer hierarchy is:
     1. SCALAR (if nw == 1)
     2. ADDITIVE (if constant)
@@ -870,9 +840,7 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
 
     def test_fully_multiplicative_detected(self):
         """Test fully coupled multiplicative noise."""
-        system = FullyMultiplicativeNoise(
-            sigma1=0.2, sigma2=0.15, sigma3=0.1, sigma4=0.12, dt=0.1
-        )
+        system = FullyMultiplicativeNoise(sigma1=0.2, sigma2=0.15, sigma3=0.1, sigma4=0.12, dt=0.1)
 
         # Should be MULTIPLICATIVE (nw=2, state-dependent)
         self.assertTrue(system.is_multiplicative_noise())
@@ -892,10 +860,10 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
         # Should be MULTIPLICATIVE (depends on x and u)
         # Note: might be SCALAR if nw=1, let's check
         self.assertEqual(system.nw, 1)
-        
+
         # With nw=1, classified as SCALAR even though multiplicative
         self.assertTrue(system.is_scalar_noise())
-        
+
         # But dependencies should still be detected
         self.assertTrue(system.depends_on_state())
         self.assertTrue(system.depends_on_control())  # ✓ This is key!
@@ -928,10 +896,7 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
         # Expected: [[σ1*x1, 0], [0, σ2*x2]]
         # = [[0.2*2.0, 0], [0, 0.15*3.0]]
         # = [[0.4, 0], [0, 0.45]]
-        expected_g = np.array([
-            [0.4, 0.0],
-            [0.0, 0.45]
-        ])
+        expected_g = np.array([[0.4, 0.0], [0.0, 0.45]])
 
         np.testing.assert_allclose(g, expected_g, rtol=1e-10)
 
@@ -942,7 +907,7 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
 
         x_batch = np.array([[1.0, 2.0], [3.0, 4.0]])
         u_batch = np.array([[0.0], [0.0]])
-        
+
         print(x_batch)
         print(u_batch)
         print(system)
@@ -950,7 +915,7 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
         print(system.diffusion_expr)
         print(system.diffusion_handler)
         print(system.diffusion)
-        system.compile_diffusion(backends=['numpy'])
+        system.compile_diffusion(backends=["numpy"])
 
         g = system.diffusion(x_batch, u_batch)
         print(g.shape)
@@ -962,19 +927,11 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
 
         # First sample: x=[1, 2]
         # g[0] = [[0.2*1, 0], [0, 0.15*2]] = [[0.2, 0], [0, 0.3]]
-        np.testing.assert_allclose(
-            g[0],
-            np.array([[0.2, 0.0], [0.0, 0.3]]),
-            rtol=1e-10
-        )
+        np.testing.assert_allclose(g[0], np.array([[0.2, 0.0], [0.0, 0.3]]), rtol=1e-10)
 
         # Second sample: x=[3, 4]
         # g[1] = [[0.2*3, 0], [0, 0.15*4]] = [[0.6, 0], [0, 0.6]]
-        np.testing.assert_allclose(
-            g[1],
-            np.array([[0.6, 0.0], [0.0, 0.6]]),
-            rtol=1e-10
-        )
+        np.testing.assert_allclose(g[1], np.array([[0.6, 0.0], [0.0, 0.6]]), rtol=1e-10)
 
     def test_multiplicative_stochastic_step(self):
         """Test stochastic step with multiplicative noise."""
@@ -1008,13 +965,13 @@ class TestMultiplicativeNoiseDetection(unittest.TestCase):
 
         # Optimization opportunities
         opts = system.get_optimization_opportunities()
-        self.assertFalse(opts['precompute_diffusion'])
+        self.assertFalse(opts["precompute_diffusion"])
 
 
 class TestScalarVsMultiplicativeClassification(unittest.TestCase):
     """
     Test the distinction between SCALAR and MULTIPLICATIVE classification.
-    
+
     Key insight from NoiseCharacterizer:
     - SCALAR is prioritized when nw == 1
     - MULTIPLICATIVE requires nw > 1 OR special conditions
@@ -1023,14 +980,14 @@ class TestScalarVsMultiplicativeClassification(unittest.TestCase):
     def test_scalar_multiplicative_system(self):
         """
         Test system with nw=1 and state-dependent noise.
-        
+
         This is multiplicative in NATURE but classified as SCALAR.
         """
-        
+
         class ScalarMultiplicative(DiscreteStochasticSystem):
             def define_system(self, sigma=0.2, dt=0.1):
-                x = sp.symbols('x', real=True)
-                sigma_sym = sp.symbols('sigma', positive=True)
+                x = sp.symbols("x", real=True)
+                sigma_sym = sp.symbols("sigma", positive=True)
 
                 self.state_vars = [x]
                 self.control_vars = []
@@ -1042,7 +999,7 @@ class TestScalarVsMultiplicativeClassification(unittest.TestCase):
                 # Multiplicative in nature: g = σ*x
                 # But nw=1, so classified as SCALAR
                 self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         system = ScalarMultiplicative(sigma=0.2, dt=0.1)
 
@@ -1060,11 +1017,12 @@ class TestScalarVsMultiplicativeClassification(unittest.TestCase):
         """
         Test that TRUE multiplicative classification requires nw > 1.
         """
+
         # nw=1: Classified as SCALAR (even if state-dependent)
         class SingleNoise(DiscreteStochasticSystem):
             def define_system(self, dt=0.1):
-                x = sp.symbols('x')
-                sigma = sp.symbols('sigma', positive=True)
+                x = sp.symbols("x")
+                sigma = sp.symbols("sigma", positive=True)
 
                 self.state_vars = [x]
                 self.control_vars = []
@@ -1074,13 +1032,13 @@ class TestScalarVsMultiplicativeClassification(unittest.TestCase):
                 self.order = 1
 
                 self.diffusion_expr = sp.Matrix([[sigma * x]])  # nw=1
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         # nw=2: Classified as MULTIPLICATIVE
         class DoubleNoise(DiscreteStochasticSystem):
             def define_system(self, dt=0.1):
-                x = sp.symbols('x')
-                s1, s2 = sp.symbols('sigma1 sigma2', positive=True)
+                x = sp.symbols("x")
+                s1, s2 = sp.symbols("sigma1 sigma2", positive=True)
 
                 self.state_vars = [x]
                 self.control_vars = []
@@ -1090,7 +1048,7 @@ class TestScalarVsMultiplicativeClassification(unittest.TestCase):
                 self.order = 1
 
                 self.diffusion_expr = sp.Matrix([[s1 * x, s2 * x]])  # nw=2
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         single = SingleNoise(dt=0.1)
         double = DoubleNoise(dt=0.1)
@@ -1134,7 +1092,7 @@ class TestMultiplicativeNoiseNumericalBehavior(unittest.TestCase):
     def test_variance_grows_faster_than_additive(self):
         """
         Test that multiplicative noise causes faster variance growth.
-        
+
         For multiplicative: Var[x[k]] grows exponentially
         For additive: Var[x[k]] grows linearly
         """
@@ -1144,8 +1102,8 @@ class TestMultiplicativeNoiseNumericalBehavior(unittest.TestCase):
         # Multiplicative noise system (scalar classification, but state-dependent)
         class SimpleMultiplicative(DiscreteStochasticSystem):
             def define_system(self, sigma=0.3, dt=0.1):
-                x = sp.symbols('x')
-                sigma_sym = sp.symbols('sigma', positive=True)
+                x = sp.symbols("x")
+                sigma_sym = sp.symbols("sigma", positive=True)
 
                 self.state_vars = [x]
                 self.control_vars = []
@@ -1157,7 +1115,7 @@ class TestMultiplicativeNoiseNumericalBehavior(unittest.TestCase):
 
                 # Multiplicative: g = σ*x
                 self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         multiplicative = SimpleMultiplicative(sigma=0.3, dt=0.1)
 
@@ -1170,8 +1128,8 @@ class TestMultiplicativeNoiseNumericalBehavior(unittest.TestCase):
         result_mult = multiplicative.simulate_stochastic(x0, None, n_steps, n_paths, seed=43)
 
         # Compute variance trajectories
-        var_add = result_add['states'].var(axis=0)[:, 0]
-        var_mult = result_mult['states'].var(axis=0)[:, 0]
+        var_add = result_add["states"].var(axis=0)[:, 0]
+        var_mult = result_mult["states"].var(axis=0)[:, 0]
 
         # At late times, multiplicative should have higher variance
         # (multiplicative noise amplifies with state)
@@ -1216,16 +1174,11 @@ class TestMultiplicativeNoiseSimulation(unittest.TestCase):
         x0 = np.array([1.0, 1.0])
         n_steps = 100
 
-        result = system.simulate_stochastic(
-            x0=x0,
-            u_sequence=None,
-            n_steps=n_steps,
-            seed=42
-        )
+        result = system.simulate_stochastic(x0=x0, u_sequence=None, n_steps=n_steps, seed=42)
 
         # Should complete successfully
-        self.assertTrue(result['success'])
-        self.assertEqual(result['states'].shape, (n_steps + 1, 2))
+        self.assertTrue(result["success"])
+        self.assertEqual(result["states"].shape, (n_steps + 1, 2))
 
     def test_monte_carlo_with_multiplicative(self):
         """Test Monte Carlo with multiplicative noise."""
@@ -1236,28 +1189,24 @@ class TestMultiplicativeNoiseSimulation(unittest.TestCase):
         n_paths = 100
 
         result = system.simulate_stochastic(
-            x0=x0,
-            u_sequence=None,
-            n_steps=n_steps,
-            n_paths=n_paths,
-            seed=42
+            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42
         )
 
-        self.assertEqual(result['states'].shape, (n_paths, n_steps + 1, 2))
-        self.assertEqual(result['metadata']['n_paths'], n_paths)
+        self.assertEqual(result["states"].shape, (n_paths, n_steps + 1, 2))
+        self.assertEqual(result["metadata"]["n_paths"], n_paths)
 
 
 class TestNoiseTypeHierarchy(unittest.TestCase):
     """
     Test understanding of noise type classification hierarchy.
-    
+
     NoiseCharacterizer priority (from code inspection):
     1. ADDITIVE (constant, no dependencies) - takes absolute priority
-    2. SCALAR (nw == 1) 
+    2. SCALAR (nw == 1)
     3. DIAGONAL (diagonal matrix structure)
     4. MULTIPLICATIVE (state-dependent, not diagonal)
     5. GENERAL (fallback)
-    
+
     NOTE: hierarchy was updated to allow noise types to have
     multiple attributes true at the same time; for optimization
     the main categorization follows the hierarchy.
@@ -1270,15 +1219,15 @@ class TestNoiseTypeHierarchy(unittest.TestCase):
         # Case 1: nw=1, constant → ADDITIVE and SCALAR; ADDITIVE takes precedence
         class Case1(DiscreteStochasticSystem):
             def define_system(self, dt=0.1):
-                x = sp.symbols('x')
+                x = sp.symbols("x")
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([0.9 * x])
-                self.parameters = {sp.symbols('sigma'): 0.3}
+                self.parameters = {sp.symbols("sigma"): 0.3}
                 self._dt = dt
                 self.order = 1
                 self.diffusion_expr = sp.Matrix([[0.3]])  # Constant, nw=1
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         c1 = Case1(dt=0.1)
         self.assertEqual(c1.get_noise_type(), NoiseType.ADDITIVE)  # ADDITIVE and SCALAR
@@ -1286,8 +1235,8 @@ class TestNoiseTypeHierarchy(unittest.TestCase):
         # Case 2: nw=2, constant → ADDITIVE
         class Case2(DiscreteStochasticSystem):
             def define_system(self, dt=0.1):
-                x = sp.symbols('x')
-                s1, s2 = sp.symbols('sigma1 sigma2', positive=True)
+                x = sp.symbols("x")
+                s1, s2 = sp.symbols("sigma1 sigma2", positive=True)
                 self.state_vars = [x]
                 self.control_vars = []
                 self._f_sym = sp.Matrix([0.9 * x])
@@ -1295,7 +1244,7 @@ class TestNoiseTypeHierarchy(unittest.TestCase):
                 self._dt = dt
                 self.order = 1
                 self.diffusion_expr = sp.Matrix([[0.3, 0.2]])  # Constant, nw=2
-                self.sde_type = 'ito'
+                self.sde_type = "ito"
 
         c2 = Case2(dt=0.1)
         self.assertEqual(c2.get_noise_type(), NoiseType.ADDITIVE)
@@ -1350,7 +1299,7 @@ def run_tests(verbosity=2):
         TestScalarVsMultiplicativeClassification,
         TestMultiplicativeNoiseNumericalBehavior,
         TestMultiplicativeNoiseSimulation,
-        TestNoiseTypeHierarchy
+        TestNoiseTypeHierarchy,
     ]
 
     for test_class in test_classes:
@@ -1361,7 +1310,7 @@ def run_tests(verbosity=2):
     return runner.run(suite)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run with verbose output
     result = run_tests(verbosity=2)
 

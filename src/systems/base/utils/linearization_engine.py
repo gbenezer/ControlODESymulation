@@ -327,9 +327,7 @@ class LinearizationEngine:
     # Backend-Specific Implementations
     # ========================================================================
 
-    def _compute_dynamics_numpy(
-        self, x: np.ndarray, u: np.ndarray
-    ) -> DeterministicLinearization:
+    def _compute_dynamics_numpy(self, x: np.ndarray, u: np.ndarray) -> DeterministicLinearization:
         """
         NumPy implementation using cached functions or symbolic evaluation.
 
@@ -632,7 +630,7 @@ class LinearizationEngine:
         x: StateVector,
         u: Optional[ControlVector] = None,
         backend: Backend = "torch",
-        tol: float = 1e-4
+        tol: float = 1e-4,
     ) -> Dict[str, Union[bool, float]]:
         """
         Verify symbolic Jacobians against automatic differentiation.

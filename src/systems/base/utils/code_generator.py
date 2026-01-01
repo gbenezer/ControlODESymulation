@@ -72,9 +72,17 @@ class CodeGenerator:
         self.system = system
 
         # Cache for generated functions (backend → function)
-        self._f_funcs: Dict[str, Optional[DynamicsFunction]] = {"numpy": None, "torch": None, "jax": None}
+        self._f_funcs: Dict[str, Optional[DynamicsFunction]] = {
+            "numpy": None,
+            "torch": None,
+            "jax": None,
+        }
 
-        self._h_funcs: Dict[str, Optional[OutputFunction]] = {"numpy": None, "torch": None, "jax": None}
+        self._h_funcs: Dict[str, Optional[OutputFunction]] = {
+            "numpy": None,
+            "torch": None,
+            "jax": None,
+        }
 
         # Cache for Jacobian functions
         self._A_funcs: Dict[str, Optional[Callable]] = {"numpy": None, "torch": None, "jax": None}

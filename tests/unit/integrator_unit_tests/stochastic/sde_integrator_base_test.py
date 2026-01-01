@@ -101,14 +101,15 @@ class MockSDESystem(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self.sde_type = "ito"
-    
+
     def get_sde_type(self):
         """Return SDE type as enum."""
         return SDEType.ITO
-    
+
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix."""
         import numpy as np
+
         # Additive noise: constant diffusion
         sigma = list(self.parameters.values())[1]  # Second parameter is sigma
         return np.array([[sigma]])
@@ -136,14 +137,15 @@ class MockSDESystemMultiplicative(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym * x]])
         self.sde_type = "ito"
-    
+
     def get_sde_type(self):
         """Return SDE type as enum."""
         return SDEType.ITO
-    
+
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (multiplicative)."""
         import numpy as np
+
         sigma = list(self.parameters.values())[1]  # Second parameter is sigma
         x_val = np.atleast_1d(x)[0]
         return np.array([[sigma * x_val]])
@@ -172,14 +174,15 @@ class MockSDESystemControlled(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self.sde_type = "ito"
-    
+
     def get_sde_type(self):
         """Return SDE type as enum."""
         return SDEType.ITO
-    
+
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix."""
         import numpy as np
+
         sigma = list(self.parameters.values())[1]  # Second parameter is sigma
         return np.array([[sigma]])
 
@@ -205,14 +208,15 @@ class MockSDESystemPureDiffusion(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma_sym]])
         self.sde_type = "ito"
-    
+
     def get_sde_type(self):
         """Return SDE type as enum."""
         return SDEType.ITO
-    
+
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix."""
         import numpy as np
+
         sigma = list(self.parameters.values())[0]  # First parameter is sigma
         return np.array([[sigma]])
 
@@ -241,14 +245,15 @@ class MockSDESystem2D(StochasticDynamicalSystem):
 
         self.diffusion_expr = sp.Matrix([[sigma1_sym, 0], [0, sigma2_sym]])
         self.sde_type = "ito"
-    
+
     def get_sde_type(self):
         """Return SDE type as enum."""
         return SDEType.ITO
-    
+
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix (2x2 diagonal)."""
         import numpy as np
+
         params = list(self.parameters.values())
         sigma1 = params[1]  # Second parameter
         sigma2 = params[2]  # Third parameter
@@ -276,7 +281,7 @@ class ConcreteSDEIntegrator(SDEIntegratorBase):
 
         f = self._evaluate_drift(x, u)
         g = self._evaluate_diffusion(x, u)
-        
+
         # Apply Stratonovich correction if using Stratonovich interpretation
         if self.sde_type == SDEType.STRATONOVICH:
             stratonovich_correction = self._apply_stratonovich_correction(x, u, g, dt)
@@ -865,9 +870,9 @@ class TestSDEIntegrationResult:
         x = np.random.randn(11, 2)
 
         result: SDEIntegrationResult = {
-            "t": t, 
-            "x": x, 
-            "success": True, 
+            "t": t,
+            "x": x,
+            "success": True,
             "nsteps": 10,
             "nfev": 10,
             "solver": "Test",
@@ -884,8 +889,8 @@ class TestSDEIntegrationResult:
         x = np.random.randn(11, 2)
 
         result: SDEIntegrationResult = {
-            "t": t, 
-            "x": x, 
+            "t": t,
+            "x": x,
             "n_paths": 1,
             "success": True,
             "nfev": 10,
@@ -904,8 +909,8 @@ class TestSDEIntegrationResult:
         x = np.random.randn(100, 11, 2)
 
         result: SDEIntegrationResult = {
-            "t": t, 
-            "x": x, 
+            "t": t,
+            "x": x,
             "n_paths": 100,
             "success": True,
             "nfev": 100,
@@ -984,9 +989,9 @@ class TestErrorHandling:
 
         x = np.array([1.0])
         g = np.array([[0.5]])  # Additive (constant)
-        
+
         correction = integrator._apply_stratonovich_correction(x, None, g, 0.01)
-        
+
         # Additive noise has zero correction
         np.testing.assert_array_almost_equal(correction, np.zeros(1))
 
@@ -995,23 +1000,23 @@ class TestErrorHandling:
         # Geometric Brownian Motion: dx = μx dt + σx dW (Stratonovich)
         # Itô form: dx = (μ + 0.5*σ²)x dt + σx dW
         # So correction should be 0.5*σ²*x
-        
+
         integrator = ConcreteSDEIntegrator(
             mock_sde_multiplicative, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH
         )
-        
+
         x = np.array([2.0])  # State value
         sigma = 0.2  # From MockSDESystemMultiplicative default
-        
+
         # Get diffusion matrix
         g = integrator._evaluate_diffusion(x, None)
-        
+
         # Compute correction
         correction = integrator._apply_stratonovich_correction(x, None, g, 0.01)
-        
+
         # Expected: 0.5 * σ² * x
         expected = 0.5 * sigma**2 * x
-        
+
         np.testing.assert_array_almost_equal(correction, expected, decimal=5)
 
     def test_invalid_backend_raises(self, mock_sde_system):

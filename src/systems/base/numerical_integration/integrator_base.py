@@ -206,7 +206,9 @@ class IntegratorBase(ABC):
         }
 
     @abstractmethod
-    def step(self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None) -> StateVector:
+    def step(
+        self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None
+    ) -> StateVector:
         """
         Take one integration step: x(t) → x(t + dt).
 
@@ -275,7 +277,7 @@ class IntegratorBase(ABC):
             - t: float - current time (**FIRST** argument, scipy convention)
             - x: ArrayLike - current state (**SECOND** argument)
             - Returns: ArrayLike - control input u
-            
+
             Can be:
             - Constant control: lambda t, x: u_const
             - State feedback: lambda t, x: -K @ x

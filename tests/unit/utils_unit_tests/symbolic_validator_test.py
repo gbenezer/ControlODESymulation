@@ -789,7 +789,6 @@ class TestValidationResultReturn:
 
         result = validator.validate(raise_on_error=False)
 
-        
         assert isinstance(result, SymbolicValidationResult)
         assert result.is_valid
         assert isinstance(result.errors, list)

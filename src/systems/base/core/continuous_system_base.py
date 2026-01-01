@@ -51,7 +51,7 @@ class ContinuousSystemBase(ABC):
     >>> class MyODESystem(ContinuousSystemBase):
     ...     def __call__(self, x, u=None, t=0.0):
     ...         return -x + (u if u is not None else 0.0)
-    ...     
+    ...
     ...     def integrate(self, x0, u, t_span, method="RK45", **kwargs):
     ...         # Use scipy.integrate.solve_ivp or similar
     ...         result = solve_ivp(...)
@@ -62,7 +62,7 @@ class ContinuousSystemBase(ABC):
     ...             "nfev": result.nfev,
     ...             ...
     ...         }
-    ...     
+    ...
     ...     def linearize(self, x_eq, u_eq):
     ...         A = -np.eye(self.nx)
     ...         B = np.eye(self.nx, self.nu)
@@ -79,7 +79,7 @@ class ContinuousSystemBase(ABC):
         x: StateVector,
         u: Optional[ControlVector] = None,
         t: ScalarLike = 0.0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Evaluate continuous-time dynamics: dx/dt = f(x, u, t).
@@ -133,7 +133,7 @@ class ContinuousSystemBase(ABC):
         u: ControlInput = None,
         t_span: TimeSpan = (0.0, 10.0),
         method: IntegrationMethod = "RK45",
-        **integrator_kwargs
+        **integrator_kwargs,
     ) -> IntegrationResult:
         """
         Low-level numerical integration with ODE solver diagnostics.
@@ -163,18 +163,18 @@ class ContinuousSystemBase(ABC):
             Initial state (nx,)
         u : Union[ControlVector, Callable[[float], ControlVector], None]
             Control input in flexible formats:
-            
+
             - **None**: Zero control or autonomous system
             - **Array (nu,)**: Constant control u(t) = u_const for all t
             - **Callable u(t)**: Time-varying control, signature: t → u
             - **Callable u(t, x)**: State-feedback control (auto-detected)
             - **Callable u(x, t)**: State-feedback control (auto-detected)
-            
+
             The method will automatically detect the function signature and convert
             to the internal (t, x) → u convention used by solvers. For callables with
             two parameters, it attempts to detect the order by inspecting parameter
             names or testing with dummy values.
-            
+
             **Standard Convention**: Functions with two parameters should use (t, x) order
             to avoid ambiguity. If using (x, t) order, the wrapper will attempt detection
             but may fail on edge cases - prefer wrapping explicitly:
@@ -185,10 +185,10 @@ class ContinuousSystemBase(ABC):
             Time interval (t_start, t_end)
         method : str
             Integration method. Options:
-            
+
         **integrator_kwargs
             Additional arguments passed to the ODE solver:
-            
+
             - **dt** : float (required for fixed-step methods)
             - **rtol** : float (relative tolerance, default: 1e-6)
             - **atol** : float (absolute tolerance, default: 1e-8)
@@ -202,7 +202,7 @@ class ContinuousSystemBase(ABC):
         -------
         IntegrationResult
             TypedDict containing:
-            
+
             - **t**: Time points (T,) - adaptive, chosen by solver
             - **x** or **y**: State trajectory
             - scipy returns 'y' with shape (nx, T)
@@ -241,7 +241,7 @@ class ContinuousSystemBase(ABC):
         >>> result = system.integrate(x0, u=None, t_span=(0, 10))
         >>> print(f"Success: {result['success']}")
         >>> print(f"Function evaluations: {result['nfev']}")
-        >>> 
+        >>>
         >>> # Handle both scipy and other backends
         >>> if 'y' in result:
         >>>     trajectory = result['y']  # scipy: (nx, T)
@@ -339,10 +339,10 @@ class ContinuousSystemBase(ABC):
 
         >>> # NumPy (scipy)
         >>> result_np = system.integrate(x0, u=None, t_span=(0, 10), method='RK45')
-        >>> 
+        >>>
         >>> # Julia (DiffEqPy)
         >>> result_jl = system.integrate(x0, u=None, t_span=(0, 10), method='Tsit5')
-        >>> 
+        >>>
         >>> # JAX (diffrax)
         >>> system.set_default_backend('jax')
         >>> result_jax = system.integrate(x0, u=None, t_span=(0, 10), method='tsit5')
@@ -372,9 +372,7 @@ class ContinuousSystemBase(ABC):
 
     @abstractmethod
     def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
     ) -> LinearizationResult:
         """
         Compute linearized dynamics around an equilibrium point.
@@ -448,7 +446,7 @@ class ContinuousSystemBase(ABC):
         t_span: TimeSpan = (0.0, 10.0),
         dt: ScalarLike = 0.01,
         method: IntegrationMethod = "RK45",
-        **kwargs
+        **kwargs,
     ) -> SimulationResult:
         """
         High-level simulation interface with regular time grid.
@@ -493,7 +491,7 @@ class ContinuousSystemBase(ABC):
         - Natural for time-series analysis
         - Consistent with ML/data science conventions
         - Matches discrete systems' output format
-        
+
 
         Unlike integrate(), this method:
         - Returns states on a regular time grid (not adaptive)
@@ -540,7 +538,7 @@ class ContinuousSystemBase(ABC):
         >>> def controller(x, t):
         ...     return -K @ x
         >>> result = system.simulate(x0, controller, t_span=(0, 5))
-        >>> 
+        >>>
         >>> # Extract trajectory
         >>> t = result["time"]
         >>> x = result["states"]  # (T, nx)
@@ -595,19 +593,21 @@ class ContinuousSystemBase(ABC):
         integrate : Low-level integration with solver diagnostics
         rollout : Alternative name for simulation
         """
-        
+
         # Create regular time grid
         t_regular = np.arange(t_span[0], t_span[1] + dt, dt)
-        
+
         # Adapt controller signature from (x, t) to scipy's (t, x) if needed
         if controller is not None:
+
             def u_func_scipy(t, x):
                 """Adapter: converts scipy's (t, x) to our (x, t) convention"""
                 return controller(x, t)
+
             u_func = u_func_scipy
         else:
             u_func = None
-        
+
         # Call low-level integrate() with regular time grid
         int_result = self.integrate(
             x0=x0,
@@ -615,9 +615,9 @@ class ContinuousSystemBase(ABC):
             t_span=t_span,
             t_eval=t_regular,  # Request specific times
             method=method,
-            **kwargs
+            **kwargs,
         )
-        
+
         # Handle both 'x' and 'y' keys (different integrator conventions)
         if "x" in int_result:
             states_time_major = int_result["x"]  # (T, nx) - modern convention
@@ -629,25 +629,21 @@ class ContinuousSystemBase(ABC):
                 "Integration result missing both 'x' and 'y' keys. "
                 "This indicates an issue with the integrator backend."
             )
-        
+
         # If times don't exactly match requested grid, interpolate
         if not np.allclose(int_result["t"], t_regular, rtol=1e-10):
             # Need to interpolate to exact regular grid
             T, nx = states_time_major.shape
             states_interp = np.zeros((len(t_regular), nx))
-            
+
             # Interpolate each state dimension
             for i in range(nx):
-                states_interp[:, i] = np.interp(
-                    t_regular,
-                    int_result["t"],
-                    states_time_major[:, i]
-                )
-            
+                states_interp[:, i] = np.interp(t_regular, int_result["t"], states_time_major[:, i])
+
             states_regular = states_interp  # (T, nx)
         else:
             states_regular = states_time_major  # (T, nx)
-        
+
         # Reconstruct control trajectory if controller provided
         controls = None
         if controller is not None:
@@ -656,13 +652,13 @@ class ContinuousSystemBase(ABC):
             for i, t in enumerate(t_regular):
                 # Extract state at this time (states_regular is (T, nx))
                 x_t = states_regular[i, :]
-                
+
                 # Call controller with (x, t) signature (our convention)
                 u_t = controller(x_t, t)
                 controls_list.append(u_t)
-            
+
             controls = np.array(controls_list)  # (T, nu) - time-major
-        
+
         return {
             "time": t_regular,
             "states": states_regular,  # (T, nx) - TIME-MAJOR
@@ -672,10 +668,10 @@ class ContinuousSystemBase(ABC):
                 "method": method,
                 "dt": dt,
                 "nfev": int_result.get("nfev", None),
-                "integration_time": int_result.get("integration_time", None)
-            }
+                "integration_time": int_result.get("integration_time", None),
+            },
         }
-        
+
     def rollout(
         self,
         x0: StateVector,
@@ -683,7 +679,7 @@ class ContinuousSystemBase(ABC):
         t_span: TimeSpan = (0.0, 10.0),
         dt: ScalarLike = 0.01,
         method: IntegrationMethod = "RK45",
-        **kwargs
+        **kwargs,
     ) -> SimulationResult:
         """
         Rollout system trajectory with optional state-feedback policy.
@@ -788,11 +784,11 @@ class ContinuousSystemBase(ABC):
         ...     "MPC": mpc_policy,
         ...     "Neural": neural_policy
         ... }
-        >>> 
+        >>>
         >>> results = {}
         >>> for name, policy in policies.items():
         ...     results[name] = system.rollout(x0, policy, t_span=(0, 10))
-        ...     
+        ...
         >>> # Plot comparison
         >>> for name, result in results.items():
         ...     plt.plot(result["time"], result["states"][:, 0], label=name)
@@ -802,13 +798,13 @@ class ContinuousSystemBase(ABC):
 
         >>> # Generate initial trajectory
         >>> result = system.rollout(x0, initial_policy, t_span=(0, 5))
-        >>> 
+        >>>
         >>> # Extract trajectory for optimization
         >>> trajectory = result["states"]  # (T, nx)
-        >>> 
+        >>>
         >>> # Optimize policy
         >>> optimized_policy = optimize_policy(trajectory)
-        >>> 
+        >>>
         >>> # Re-rollout with optimized policy
         >>> final_result = system.rollout(x0, optimized_policy, t_span=(0, 5))
 
@@ -819,7 +815,7 @@ class ContinuousSystemBase(ABC):
         ...     mu = policy_network(x)
         ...     u = mu + np.random.randn(*mu.shape) * sigma
         ...     return u
-        >>> 
+        >>>
         >>> rollouts = []
         >>> for episode in range(num_episodes):
         ...     result = system.rollout(x0, stochastic_policy, t_span=(0, 10))
@@ -834,7 +830,7 @@ class ContinuousSystemBase(ABC):
         ...     x0_perturbed = x0 + np.random.randn(len(x0)) * 0.1
         ...     result = system.rollout(x0_perturbed, policy, t_span=(0, 10))
         ...     results.append(result)
-        >>> 
+        >>>
         >>> # Analyze performance distribution
         >>> final_errors = [np.linalg.norm(r["states"][-1, :]) for r in results]
         >>> print(f"Mean final error: {np.mean(final_errors):.3f}")
@@ -856,18 +852,13 @@ class ContinuousSystemBase(ABC):
         """
         # Call simulate() with same functionality
         result = self.simulate(
-            x0=x0,
-            controller=policy,
-            t_span=t_span,
-            dt=dt,
-            method=method,
-            **kwargs
+            x0=x0, controller=policy, t_span=t_span, dt=dt, method=method, **kwargs
         )
-        
+
         # Add closed_loop flag to metadata for consistency with discrete systems
         result["metadata"]["closed_loop"] = policy is not None
         result["metadata"]["method_type"] = "rollout"
-        
+
         return result
 
     # =========================================================================
@@ -919,7 +910,7 @@ class ContinuousSystemBase(ABC):
         ContinuousSymbolicSystem(nx=2, nu=1, ny=2)
         """
         class_name = self.__class__.__name__
-        nx = getattr(self, 'nx', '?')
-        nu = getattr(self, 'nu', '?')
-        ny = getattr(self, 'ny', '?')
+        nx = getattr(self, "nx", "?")
+        nu = getattr(self, "nu", "?")
+        ny = getattr(self, "ny", "?")
         return f"{class_name}(nx={nx}, nu={nu}, ny={ny})"

@@ -541,9 +541,7 @@ class TestEquilibriumBasedIntegration:
         """Test integration from origin equilibrium."""
         x_eq, u_eq = integrator_with_equilibria.system.get_equilibrium("zero")
 
-        result = integrator_with_equilibria.integrate(
-            x0=x_eq, u_func=lambda t: u_eq, t_span=(0, 1)
-        )
+        result = integrator_with_equilibria.integrate(x0=x_eq, u_func=lambda t: u_eq, t_span=(0, 1))
 
         assert result["success"]
         assert len(result["t"]) > 1
@@ -552,9 +550,7 @@ class TestEquilibriumBasedIntegration:
         """Test integration from custom equilibrium."""
         x_eq, u_eq = integrator_with_equilibria.system.get_equilibrium("custom")
 
-        result = integrator_with_equilibria.integrate(
-            x0=x_eq, u_func=lambda t: u_eq, t_span=(0, 1)
-        )
+        result = integrator_with_equilibria.integrate(x0=x_eq, u_func=lambda t: u_eq, t_span=(0, 1))
 
         assert result["success"]
 

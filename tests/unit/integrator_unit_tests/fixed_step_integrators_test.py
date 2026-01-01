@@ -197,7 +197,7 @@ class TestExplicitEuler:
         assert "message" in result
         assert "solver" in result
         assert "integration_time" in result
-        
+
         # Verify values
         assert result["nsteps"] > 0
         assert result["nfev"] > 0

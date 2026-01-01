@@ -130,9 +130,11 @@ class MockSDESystem(StochasticDynamicalSystem):
         """Required abstract method - mock implementation."""
         pass
 
-    def drift(self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy") -> StateVector:
+    def drift(
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+    ) -> StateVector:
         """Mock drift function: f(x, u) = -x + u
-        
+
         Note: Added t parameter to match StochasticDynamicalSystem.__call__() signature.
         """
         if u is None:
@@ -205,7 +207,9 @@ class MockSDESystem(StochasticDynamicalSystem):
         """Return SDE interpretation type (Ito or Stratonovich)."""
         return self._sde_type
 
-    def get_drift_matrix(self, x: StateVector, u: ControlVector, backend: Backend = "numpy") -> StateVector:
+    def get_drift_matrix(
+        self, x: StateVector, u: ControlVector, backend: Backend = "numpy"
+    ) -> StateVector:
         """Alias for drift() - some integrators may use this name."""
         return self.drift(x, u, backend)
 
@@ -220,9 +224,11 @@ class MockAutonomousSDESystem(MockSDESystem):
     def __init__(self, nx: int = 2, nw: int = 2, noise_type: str = "general"):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
-    def drift(self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy") -> StateVector:
+    def drift(
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+    ) -> StateVector:
         """Autonomous drift: f(x) = -x
-        
+
         Note: Added t parameter to match StochasticDynamicalSystem.__call__() signature.
         """
         return -x
@@ -238,9 +244,11 @@ class MockPureDiffusionSystem(MockSDESystem):
     def __init__(self, nx: int = 2, nw: int = 2, noise_type: str = "additive"):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
-    def drift(self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy") -> StateVector:
+    def drift(
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+    ) -> StateVector:
         """Zero drift
-        
+
         Note: Added t parameter to match StochasticDynamicalSystem.__call__() signature.
         """
         if backend == "numpy":
@@ -262,7 +270,7 @@ class MockPureDiffusionSystem(MockSDESystem):
 
 class MockSDEIntegrator(SDEIntegratorBase):
     """Mock SDE integrator for testing factory.
-    
+
     Uses centralized types for all type annotations.
     """
 
@@ -564,9 +572,7 @@ class TestUseCaseHelpers:
             "src.systems.base.numerical_integration.stochastic.diffeqpy_sde_integrator.DiffEqPySDEIntegrator",
             return_value=mock_integrator,
         ) as mock_class:
-            integrator = SDEIntegratorFactory.for_julia(
-                controlled_sde_system, algorithm="SRIW1"
-            )
+            integrator = SDEIntegratorFactory.for_julia(controlled_sde_system, algorithm="SRIW1")
 
             call_kwargs = mock_class.call_args[1]
             assert call_kwargs["backend"] == "numpy"

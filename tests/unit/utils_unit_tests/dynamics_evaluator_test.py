@@ -179,9 +179,9 @@ class TestTypeSystemIntegration:
         # Type annotation should work
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.5])
-        
+
         dx: StateVector = evaluator.evaluate(x, u, backend="numpy")
-        
+
         assert isinstance(dx, np.ndarray)
         assert dx.shape == (1,)
 
@@ -195,7 +195,7 @@ class TestTypeSystemIntegration:
         # Type annotations
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.5])
-        
+
         # Should accept typed parameters
         dx = evaluator.evaluate(x, u)
         assert isinstance(dx, np.ndarray)
@@ -216,7 +216,7 @@ class TestTypeSystemIntegration:
         assert isinstance(dx, np.ndarray)
 
         backend = "torch"  # Type checker allows this
-        backend = "jax"    # Type checker allows this
+        backend = "jax"  # Type checker allows this
 
     def test_optional_control_vector(self):
         """Test that Optional[ControlVector] works for autonomous systems"""
@@ -228,7 +228,7 @@ class TestTypeSystemIntegration:
         # Type annotation with Optional
         x: StateVector = np.array([1.0])
         u: Optional[ControlVector] = None  # Autonomous system
-        
+
         dx: StateVector = evaluator.evaluate(x, u)
         assert isinstance(dx, np.ndarray)
 
@@ -241,10 +241,10 @@ class TestTypeSystemIntegration:
 
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.5])
-        
+
         # Return type should be StateVector
         result: StateVector = evaluator.evaluate(x, u)
-        
+
         # Verify it's actually a state derivative
         assert isinstance(result, np.ndarray)
         assert result.shape == (1,)
@@ -261,12 +261,12 @@ class TestTypeSystemIntegration:
         x_np: StateVector = np.array([1.0])
         u_np: ControlVector = np.array([0.5])
         dx_np: StateVector = evaluator.evaluate(x_np, u_np, backend="numpy")
-        
+
         # PyTorch tensors are also StateVector/ControlVector
         x_torch: StateVector = torch.tensor([1.0])
         u_torch: ControlVector = torch.tensor([0.5])
         dx_torch: StateVector = evaluator.evaluate(x_torch, u_torch, backend="torch")
-        
+
         # Both should work
         assert isinstance(dx_np, np.ndarray)
         assert isinstance(dx_torch, torch.Tensor)
@@ -281,9 +281,9 @@ class TestTypeSystemIntegration:
         # Batched inputs are still StateVector/ControlVector
         x: StateVector = np.array([[1.0], [2.0], [3.0]])
         u: ControlVector = np.array([[0.5], [0.5], [0.5]])
-        
+
         dx: StateVector = evaluator.evaluate(x, u)
-        
+
         assert dx.shape == (3, 1)
 
     def test_arraylike_is_compatible(self):
@@ -296,37 +296,37 @@ class TestTypeSystemIntegration:
         # ArrayLike can be used as well
         x: ArrayLike = np.array([1.0])
         u: ArrayLike = np.array([0.5])
-        
+
         # Should work with ArrayLike (less semantic but still valid)
         dx = evaluator.evaluate(x, u)
         assert isinstance(dx, np.ndarray)
-    
+
     def test_execution_stats_type(self):
         """Test that get_stats returns ExecutionStats TypedDict"""
         system = MockLinearSystem(a=2.0)
         code_gen = CodeGenerator(system)
         backend_mgr = BackendManager()
         evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
-        
+
         x: StateVector = np.array([1.0])
         u: ControlVector = np.array([0.5])
-        
+
         # Make a call
         evaluator.evaluate(x, u)
-        
+
         # get_stats should return ExecutionStats
         stats: ExecutionStats = evaluator.get_stats()
-        
+
         # Verify structure
         assert "calls" in stats
         assert "total_time" in stats
         assert "avg_time" in stats
-        
+
         # Verify types
         assert isinstance(stats["calls"], int)
         assert isinstance(stats["total_time"], float)
         assert isinstance(stats["avg_time"], float)
-        
+
         # Verify values
         assert stats["calls"] == 1
         assert stats["total_time"] > 0

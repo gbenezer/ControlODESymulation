@@ -825,7 +825,9 @@ class TestAutonomousCrossBackendConsistency:
         # Should match exactly (same algorithm, same dt, same precision)
         # (Increased rtol from 1e-10 and atol from 1e-12 because RK4 just
         # isn't accurate enough)
-        np.testing.assert_allclose(result_np["x"], result_torch["x"].cpu().numpy(), rtol=1e-4, atol=1e-7)
+        np.testing.assert_allclose(
+            result_np["x"], result_torch["x"].cpu().numpy(), rtol=1e-4, atol=1e-7
+        )
 
     def test_adaptive_solvers_consistency(self, linear_autonomous):
         """Test that different adaptive solvers agree on linear system"""
@@ -907,9 +909,7 @@ class TestAutonomousFactoryMethods:
     def test_factory_for_simple_simulation(self, van_der_pol_autonomous):
         """Test IntegratorFactory.create() for simple simulations"""
         # Use basic RK4 integrator for simple simulations
-        integrator = IntegratorFactory.for_simple(
-            van_der_pol_autonomous, backend="numpy", dt=0.01
-        )
+        integrator = IntegratorFactory.for_simple(van_der_pol_autonomous, backend="numpy", dt=0.01)
 
         result = integrator.integrate(
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0)

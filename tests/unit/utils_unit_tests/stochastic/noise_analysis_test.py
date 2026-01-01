@@ -105,9 +105,9 @@ def diagonal_noise_3d():
 def true_multiplicative_noise():
     """Non-diagonal, non-scalar, state-dependent → MULTIPLICATIVE."""
     x1, x2 = sp.symbols("x1 x2")
-    
+
     # Key: nw=2 (not scalar), non-diagonal, state-dependent
-    diffusion = sp.Matrix([[0.1*x1, 0.05*x2], [0.0, 0.2*x2]])
+    diffusion = sp.Matrix([[0.1 * x1, 0.05 * x2], [0.0, 0.2 * x2]])
 
     return {
         "diffusion": diffusion,
@@ -361,7 +361,7 @@ class TestMultiplicativeNoiseDetection:
         assert result.is_multiplicative
         assert result.depends_on_state
         assert not result.is_additive
-        
+
         # But classified as SCALAR because nw=1
         assert result.noise_type == NoiseType.SCALAR
 
@@ -472,10 +472,10 @@ class TestDiagonalNoiseDetection:
         """Test constant diagonal matrix."""
         x1, x2 = sp.symbols("x1 x2")
         diffusion = sp.Matrix([[0.1, 0], [0, 0.2]])
-        
+
         char = NoiseCharacterizer(diffusion, [x1, x2], [])
         result = char.analyze()
-        
+
         assert result.is_diagonal
         assert result.is_additive
         # ADDITIVE takes priority
@@ -667,14 +667,14 @@ class TestNoiseTypeClassificationCORRECTED:
         """ADDITIVE has highest priority."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
         result = char.analyze()
-        
+
         assert result.noise_type == NoiseType.ADDITIVE
 
     def test_scalar_priority_over_multiplicative(self, scalar_multiplicative_noise):
         """SCALAR priority when nw=1."""
         char = NoiseCharacterizer.from_dict(scalar_multiplicative_noise)
         result = char.analyze()
-        
+
         # Classified as SCALAR even though multiplicative
         assert result.noise_type == NoiseType.SCALAR
         assert result.is_multiplicative  # Still true
@@ -683,14 +683,14 @@ class TestNoiseTypeClassificationCORRECTED:
         """DIAGONAL priority for diagonal matrices."""
         char = NoiseCharacterizer.from_dict(diagonal_noise_3d)
         result = char.analyze()
-        
+
         assert result.noise_type == NoiseType.DIAGONAL
 
     def test_multiplicative_NOW_REACHABLE(self, true_multiplicative_noise):
         """MULTIPLICATIVE now works (FIXED!)."""
         char = NoiseCharacterizer.from_dict(true_multiplicative_noise)
         result = char.analyze()
-        
+
         # With the FIX, this returns MULTIPLICATIVE!
         assert result.noise_type == NoiseType.MULTIPLICATIVE
         assert result.is_multiplicative
@@ -701,7 +701,7 @@ class TestNoiseTypeClassificationCORRECTED:
         """Fully coupled now classified as MULTIPLICATIVE (after fix)."""
         char = NoiseCharacterizer.from_dict(general_noise_2d)
         result = char.analyze()
-        
+
         # After fix: non-diagonal state-dependent → MULTIPLICATIVE
         assert result.noise_type == NoiseType.MULTIPLICATIVE
         assert result.is_multiplicative
@@ -723,7 +723,7 @@ class TestValidationMethods:
     def test_validate_additive_claim_incorrect(self, scalar_multiplicative_noise):
         """Incorrect additive claim raises error."""
         char = NoiseCharacterizer.from_dict(scalar_multiplicative_noise)
-        
+
         with pytest.raises(ValueError, match="Claimed noise_type='additive'"):
             char.validate_noise_type_claim("additive")
 
@@ -735,7 +735,7 @@ class TestValidationMethods:
     def test_validate_diagonal_claim_incorrect(self, general_noise_2d):
         """Incorrect diagonal claim raises error."""
         char = NoiseCharacterizer.from_dict(general_noise_2d)
-        
+
         with pytest.raises(ValueError, match="Claimed noise_type='diagonal'"):
             char.validate_noise_type_claim("diagonal")
 
@@ -747,7 +747,7 @@ class TestValidationMethods:
     def test_validate_scalar_claim_incorrect(self, diagonal_noise_3d):
         """Incorrect scalar claim raises error."""
         char = NoiseCharacterizer.from_dict(diagonal_noise_3d)
-        
+
         with pytest.raises(ValueError, match="Claimed noise_type='scalar'"):
             char.validate_noise_type_claim("scalar")
 
@@ -759,7 +759,7 @@ class TestValidationMethods:
     def test_validate_multiplicative_claim_incorrect(self, additive_noise_2d):
         """Incorrect multiplicative claim raises error."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
-        
+
         with pytest.raises(ValueError, match="Claimed noise_type='multiplicative'"):
             char.validate_noise_type_claim("multiplicative")
 
@@ -853,7 +853,7 @@ class TestSolverRecommendations:
         """JAX additive solvers."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("jax")
         assert "sea" in solvers
         assert "shark" in solvers
@@ -863,7 +863,7 @@ class TestSolverRecommendations:
         """JAX scalar solvers."""
         char = NoiseCharacterizer.from_dict(scalar_multiplicative_noise)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("jax")
         assert "euler_heun" in solvers
         assert "heun" in solvers
@@ -872,7 +872,7 @@ class TestSolverRecommendations:
         """JAX diagonal solvers."""
         char = NoiseCharacterizer.from_dict(diagonal_noise_3d)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("jax")
         assert "euler_heun" in solvers
         assert "spark" in solvers
@@ -881,7 +881,7 @@ class TestSolverRecommendations:
         """JAX multiplicative solvers."""
         char = NoiseCharacterizer.from_dict(true_multiplicative_noise)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("jax")
         assert len(solvers) > 0
         assert "euler_heun" in solvers
@@ -890,7 +890,7 @@ class TestSolverRecommendations:
         """PyTorch additive solvers."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("torch")
         assert any(s in ["euler", "milstein", "srk"] for s in solvers)
 
@@ -898,7 +898,7 @@ class TestSolverRecommendations:
         """PyTorch general solvers."""
         char = NoiseCharacterizer.from_dict(general_noise_2d)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("torch")
         assert len(solvers) > 0
 
@@ -906,7 +906,7 @@ class TestSolverRecommendations:
         """NumPy (Julia) additive solvers."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("numpy")
         assert any(s.startswith("SRA") for s in solvers)
 
@@ -914,7 +914,7 @@ class TestSolverRecommendations:
         """NumPy (Julia) multiplicative solvers."""
         char = NoiseCharacterizer.from_dict(true_multiplicative_noise)
         result = char.analyze()
-        
+
         solvers = result.recommended_solvers("numpy")
         assert "SRIW1" in solvers or "SRI" in solvers
 
@@ -930,21 +930,21 @@ class TestCharacteristicsProperty:
     def test_lazy_loading(self, additive_noise_2d):
         """Characteristics computed on first access."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
-        
+
         assert char._characteristics is None
-        
+
         result = char.characteristics
-        
+
         assert char._characteristics is not None
         assert result is char._characteristics
 
     def test_caching(self, additive_noise_2d):
         """Characteristics cached after first access."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
-        
+
         result1 = char.characteristics
         result2 = char.characteristics
-        
+
         assert result1 is result2
 
 
@@ -959,7 +959,7 @@ class TestStringRepresentations:
     def test_repr_before_analysis(self, additive_noise_2d):
         """Test __repr__ before analysis."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
-        
+
         repr_str = repr(char)
         assert "not yet analyzed" in repr_str
 
@@ -967,7 +967,7 @@ class TestStringRepresentations:
         """Test __repr__ after analysis."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
         _ = char.characteristics
-        
+
         repr_str = repr(char)
         assert "NoiseCharacterizer" in repr_str
         assert "additive" in repr_str
@@ -985,10 +985,10 @@ class TestEdgeCases:
         """Zero diffusion → ADDITIVE."""
         x, u = sp.symbols("x u")
         diffusion = sp.Matrix([[0]])
-        
+
         char = NoiseCharacterizer(diffusion, [x], [u])
         result = char.analyze()
-        
+
         assert result.is_additive
         assert result.noise_type == NoiseType.ADDITIVE
 
@@ -996,10 +996,10 @@ class TestEdgeCases:
         """Identity → ADDITIVE + DIAGONAL."""
         x1, x2 = sp.symbols("x1 x2")
         diffusion = sp.Matrix([[1, 0], [0, 1]])
-        
+
         char = NoiseCharacterizer(diffusion, [x1, x2], [])
         result = char.analyze()
-        
+
         assert result.is_additive
         assert result.is_diagonal
         assert result.noise_type == NoiseType.ADDITIVE
@@ -1008,10 +1008,10 @@ class TestEdgeCases:
         """1×1 matrix."""
         x, u = sp.symbols("x u")
         diffusion = sp.Matrix([[0.1]])
-        
+
         char = NoiseCharacterizer(diffusion, [x], [u])
         result = char.analyze()
-        
+
         assert result.is_scalar
         assert result.is_additive
         assert result.is_diagonal
@@ -1020,10 +1020,10 @@ class TestEdgeCases:
         """Complex expression with trig."""
         x1, x2 = sp.symbols("x1 x2")
         diffusion = sp.Matrix([[sp.sin(x1) + sp.cos(x2)]])
-        
+
         char = NoiseCharacterizer(diffusion, [x1, x2], [])
         result = char.analyze()
-        
+
         assert result.is_multiplicative
         assert result.depends_on_state
         assert len(result.state_dependencies) == 2
@@ -1031,13 +1031,14 @@ class TestEdgeCases:
     def test_large_matrix(self):
         """Large diffusion matrix."""
         n = 10
-        state_vars = sp.symbols(f'x0:{n}')
-        diffusion = sp.Matrix([[sp.Symbol(f's{i}') if i == j else 0 
-                                for j in range(n)] for i in range(n)])
-        
+        state_vars = sp.symbols(f"x0:{n}")
+        diffusion = sp.Matrix(
+            [[sp.Symbol(f"s{i}") if i == j else 0 for j in range(n)] for i in range(n)]
+        )
+
         char = NoiseCharacterizer(diffusion, list(state_vars), [])
         result = char.analyze()
-        
+
         assert result.is_diagonal
         assert result.num_wiener == n
 
@@ -1053,45 +1054,45 @@ class TestIntegrationWorkflows:
     def test_full_workflow_additive(self, additive_noise_2d):
         """Complete workflow for additive."""
         char = NoiseCharacterizer.from_dict(additive_noise_2d)
-        
+
         result = char.analyze()
         assert result.noise_type == NoiseType.ADDITIVE
-        
+
         solvers = result.recommended_solvers("jax")
         assert len(solvers) > 0
-        
+
         hints = char.get_optimization_hints()
         assert hints["can_precompute_diffusion"]
-        
+
         assert char.validate_noise_type_claim("additive")
 
     def test_full_workflow_multiplicative(self, true_multiplicative_noise):
         """Complete workflow for multiplicative."""
         char = NoiseCharacterizer.from_dict(true_multiplicative_noise)
-        
+
         result = char.characteristics
         assert result.noise_type == NoiseType.MULTIPLICATIVE
         assert result.is_multiplicative
         assert result.depends_on_state
-        
+
         hints = char.get_optimization_hints()
         assert not hints["can_precompute_diffusion"]
         assert hints["requires_reevaluation"]
-        
+
         assert char.validate_noise_type_claim("multiplicative")
 
     def test_full_workflow_diagonal(self, diagonal_noise_3d):
         """Complete workflow for diagonal."""
         char = NoiseCharacterizer.from_dict(diagonal_noise_3d)
-        
+
         result = char.characteristics
         assert result.noise_type == NoiseType.DIAGONAL
         assert result.is_diagonal
         assert result.is_multiplicative
-        
+
         hints = char.get_optimization_hints()
         assert hints["can_use_diagonal_solver"]
-        
+
         assert char.validate_noise_type_claim("diagonal")
 
 
@@ -1110,7 +1111,7 @@ class TestConvenienceFunction:
             additive_noise_2d["state_vars"],
             additive_noise_2d["control_vars"],
         )
-        
+
         assert isinstance(result, NoiseCharacteristics)
         assert result.noise_type == NoiseType.ADDITIVE
 

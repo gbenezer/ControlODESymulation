@@ -429,14 +429,12 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             sde_type_lower = self.sde_type.lower()
             if sde_type_lower not in ["ito", "stratonovich"]:
                 raise ValueError(
-                    f"Invalid sde_type '{self.sde_type}'. "
-                    f"Must be 'ito' or 'stratonovich'"
+                    f"Invalid sde_type '{self.sde_type}'. " f"Must be 'ito' or 'stratonovich'"
                 )
             self.sde_type = SDEType(sde_type_lower)
         elif not isinstance(self.sde_type, SDEType):
             raise TypeError(
-                f"sde_type must be string or SDEType enum, "
-                f"got {type(self.sde_type).__name__}"
+                f"sde_type must be string or SDEType enum, " f"got {type(self.sde_type).__name__}"
             )
 
         # Create DiffusionHandler for code generation
@@ -463,7 +461,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         x: StateVector,
         u: Optional[ControlVector] = None,
         k: int = 0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Evaluate deterministic part: f(x[k], u[k]).
@@ -514,7 +512,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         x: StateVector,
         u: Optional[ControlVector] = None,
         k: int = 0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ):
         """
         Evaluate diffusion term g(x[k], u[k]).
@@ -571,9 +569,11 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                 u = np.array([])
             elif backend_to_use == "torch":
                 import torch
+
                 u = torch.tensor([])
             elif backend_to_use == "jax":
                 import jax.numpy as jnp
+
                 u = jnp.array([])
         elif u is not None and self.nu == 0:
             raise ValueError(f"Autonomous system cannot take control input")
@@ -585,29 +585,25 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
             # Check for empty batch
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "torch":
             import torch
+
             x_arr = torch.atleast_1d(torch.as_tensor(x))
             u_arr = torch.atleast_1d(torch.as_tensor(u)) if self.nu > 0 else torch.tensor([])
 
             if len(x_arr.shape) > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "jax":
             import jax.numpy as jnp
+
             x_arr = jnp.atleast_1d(jnp.asarray(x))
             u_arr = jnp.atleast_1d(jnp.asarray(u)) if self.nu > 0 else jnp.array([])
 
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(
-                    f"Empty batch detected in diffusion evaluation (batch_size=0)."
-                )
+                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
         else:
             raise ValueError(f"Unknown backend: {backend_to_use}")
 
@@ -633,7 +629,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         u: Optional[ControlVector] = None,
         w: Optional[NoiseVector] = None,
         k: int = 0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Compute full stochastic step: x[k+1] = f(x[k], u[k]) + g(x[k], u[k]) * w[k].
@@ -727,9 +723,11 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                     stochastic_term = np.einsum("ijk,ik->ij", g, w)
                 elif backend == "torch":
                     import torch
+
                     stochastic_term = torch.bmm(g, w.unsqueeze(-1)).squeeze(-1)
                 elif backend == "jax":
                     import jax.numpy as jnp
+
                     stochastic_term = jnp.einsum("ijk,ik->ij", g, w)
 
             elif g_ndim == 2:
@@ -766,7 +764,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         n_steps: int = 100,
         n_paths: int = 1,
         seed: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Simulate stochastic discrete system with optional Monte Carlo.
@@ -861,10 +859,10 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             for k in range(n_steps):
                 u = u_func(x, k)
                 controls.append(u)
-                
+
                 # Generate noise
                 w_k = np.random.randn(self.nw)
-                
+
                 # Stochastic step
                 x = self.step_stochastic(x, u, w_k, k)
                 states[k + 1, :] = x
@@ -881,29 +879,29 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                     "method": "discrete_stochastic_step",
                     "n_paths": 1,
                     "noise_type": self.noise_characteristics.noise_type.value,
-                    "seed": seed
-                }
+                    "seed": seed,
+                },
             }
 
         else:
             # Monte Carlo simulation
             all_paths = np.zeros((n_paths, n_steps + 1, self.nx))
-            
+
             for path_idx in range(n_paths):
                 states = np.zeros((n_steps + 1, self.nx))
                 states[0, :] = x0
-                
+
                 x = x0
                 for k in range(n_steps):
                     u = u_func(x, k)
-                    
+
                     # Generate noise
                     w_k = np.random.randn(self.nw)
-                    
+
                     # Stochastic step
                     x = self.step_stochastic(x, u, w_k, k)
                     states[k + 1, :] = x
-                
+
                 all_paths[path_idx, :, :] = states
 
             return {
@@ -916,19 +914,15 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                     "method": "discrete_stochastic_monte_carlo",
                     "n_paths": n_paths,
                     "noise_type": self.noise_characteristics.noise_type.value,
-                    "seed": seed
-                }
+                    "seed": seed,
+                },
             }
 
     # ========================================================================
     # Override Linearization to Include Diffusion Matrix
     # ========================================================================
 
-    def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
-    ):
+    def linearize(self, x_eq: StateVector, u_eq: Optional[ControlVector] = None):
         """
         Compute linearization including diffusion: Ad = ∂f/∂x, Bd = ∂f/∂u, Gd = g(x_eq).
 
@@ -957,7 +951,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         >>> x_eq = np.zeros(2)
         >>> u_eq = np.zeros(1)
         >>> Ad, Bd, Gd = system.linearize(x_eq, u_eq)
-        >>> 
+        >>>
         >>> # Check discrete stability: |λ| < 1
         >>> eigenvalues = np.linalg.eigvals(Ad)
         >>> is_stable = np.all(np.abs(eigenvalues) < 1)
@@ -967,10 +961,10 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
         """
         # Get deterministic linearization from parent
         Ad, Bd = super().linearize(x_eq, u_eq)
-        
+
         # Evaluate diffusion at equilibrium
         Gd = self.diffusion(x_eq, u_eq)
-        
+
         return (Ad, Bd, Gd)
 
     # ========================================================================
@@ -996,7 +990,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
     def get_noise_type(self) -> NoiseType:
         """Get classified noise type."""
         return self.noise_characteristics.noise_type
-    
+
     def get_sde_type(self) -> SDEType:
         """Get SDE interpretation type (Itô convention for discrete)."""
         return self.sde_type
@@ -1063,23 +1057,13 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
     # ========================================================================
 
     def compile_diffusion(
-        self,
-        backends: Optional[List[Backend]] = None,
-        verbose: bool = False,
-        **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[Backend, float]:
         """Pre-compile diffusion functions for specified backends."""
-        return self.diffusion_handler.compile_all(
-            backends=backends,
-            verbose=verbose,
-            **kwargs
-        )
+        return self.diffusion_handler.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def compile_all(
-        self,
-        backends: Optional[List[Backend]] = None,
-        verbose: bool = False,
-        **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
     ) -> Dict[Backend, Dict[str, float]]:
         """
         Compile both deterministic and diffusion for all backends.
@@ -1099,17 +1083,11 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                 print(f"\nCompiling {backend} backend...")
 
             # Compile deterministic (via parent)
-            det_timings = super().compile(
-                backends=[backend],
-                verbose=verbose,
-                **kwargs
-            )
+            det_timings = super().compile(backends=[backend], verbose=verbose, **kwargs)
 
             # Compile diffusion
             diffusion_timings = self.compile_diffusion(
-                backends=[backend],
-                verbose=verbose,
-                **kwargs
+                backends=[backend], verbose=verbose, **kwargs
             )
 
             results[backend] = {
@@ -1315,9 +1293,11 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             return np.random.randn(*shape)
         elif backend == "torch":
             import torch
+
             return torch.randn(*shape)
         elif backend == "jax":
             import jax
+
             # JAX needs explicit key management
             # For simplicity, use random key (users should set seed externally)
             key = jax.random.PRNGKey(np.random.randint(0, 2**31))

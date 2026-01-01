@@ -829,8 +829,16 @@ class TestIntegrationResult:
         result = integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
 
         # Check all required fields
-        required_fields = ["t", "x", "success", "message", "nfev", "nsteps", 
-                          "integration_time", "solver"]
+        required_fields = [
+            "t",
+            "x",
+            "success",
+            "message",
+            "nfev",
+            "nsteps",
+            "integration_time",
+            "solver",
+        ]
         for field in required_fields:
             assert field in result, f"Missing required field: {field}"
 

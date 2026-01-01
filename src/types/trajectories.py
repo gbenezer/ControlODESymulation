@@ -334,18 +334,18 @@ Examples
 class IntegrationResult(TypedDict, total=False):
     """
     Result from continuous-time integration (ODE/SDE solver).
-    
+
     Contains trajectory, time points, and solver diagnostics.
-    
+
     Shape Convention
     ----------------
     Time-major ordering for easy analysis and plotting:
     - t: (T,) - Time points
     - x: (T, nx) - State at each time point
-    
+
     This differs from scipy's (nx, T) convention but is more natural
     for analysis: x[:, i] gives i-th component over time.
-    
+
     Attributes
     ----------
     t : ArrayLike
@@ -364,7 +364,7 @@ class IntegrationResult(TypedDict, total=False):
         Computation time in seconds
     solver : str
         Name of solver used
-    
+
     Optional Fields
     ---------------
     njev : int
@@ -377,7 +377,7 @@ class IntegrationResult(TypedDict, total=False):
         Dense output object (solver-specific)
     dense_output : bool
         Whether dense output is available
-    
+
     Examples
     --------
     >>> # Integrate system
@@ -390,7 +390,7 @@ class IntegrationResult(TypedDict, total=False):
     >>> # Access results
     >>> t = result["t"]        # Time points (T,)
     >>> x = result["x"]        # States (T, nx)
-    >>> 
+    >>>
     >>> # Plot first state component
     >>> import matplotlib.pyplot as plt
     >>> plt.plot(t, x[:, 0], label='x1')
@@ -401,6 +401,7 @@ class IntegrationResult(TypedDict, total=False):
     ...     print(f"Completed in {result['integration_time']:.3f}s")
     ...     print(f"Function evals: {result['nfev']}")
     """
+
     t: ArrayLike
     x: ArrayLike
     success: bool
@@ -649,25 +650,26 @@ class DiscreteSimulationResult(TypedDict, total=False):
     dt: float
     success: bool
     metadata: Dict[str, Any]
-    
+
+
 class SDEIntegrationResult(TypedDict, total=False):
     """
     Result from SDE integration.
-    
+
     TypedDict containing trajectory, noise samples, and SDE-specific diagnostics.
-    
+
     Shape Conventions
     -----------------
     Single trajectory:
     - t: (T,)
     - x: (T, nx)
     - noise_samples: (T-1, nw) or (T, nw)
-    
+
     Multiple paths (Monte Carlo):
     - t: (T,)
     - x: (n_paths, T, nx)
     - noise_samples: (n_paths, T-1, nw) or (n_paths, T, nw)
-    
+
     Attributes
     ----------
     t : ArrayLike
@@ -688,7 +690,7 @@ class SDEIntegrationResult(TypedDict, total=False):
         Solver method used
     integration_time : float
         Computation time in seconds
-    
+
     SDE-Specific Fields
     -------------------
     diffusion_evals : int
@@ -701,7 +703,7 @@ class SDEIntegrationResult(TypedDict, total=False):
         'strong' or 'weak' convergence
     sde_type : str
         'ito' or 'stratonovich' interpretation
-    
+
     Examples
     --------
     >>> # Single trajectory
@@ -723,7 +725,7 @@ class SDEIntegrationResult(TypedDict, total=False):
     >>> print(f"Shape: {mc_result['x'].shape}")  # (1000, T, nx)
     >>> print(f"Number of paths: {mc_result['n_paths']}")
     """
-    
+
     # Required fields (from IntegrationResult)
     t: ArrayLike
     x: ArrayLike
@@ -731,17 +733,18 @@ class SDEIntegrationResult(TypedDict, total=False):
     nfev: int
     nsteps: int
     solver: str
-    
+
     # Optional fields
     message: str
     integration_time: float
-    
+
     # SDE-specific fields
     diffusion_evals: int
     noise_samples: ArrayLike
     n_paths: int
     convergence_type: str
     sde_type: str
+
 
 # ============================================================================
 # Trajectory Analysis Types

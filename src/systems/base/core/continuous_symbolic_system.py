@@ -74,7 +74,7 @@ class Pendulum(ContinuousSymbolicSystem):
         theta, omega = sp.symbols('theta omega', real=True)
         u = sp.symbols('u', real=True)
         m_sym, l_sym, g_sym, b_sym = sp.symbols('m l g b', positive=True)
-        
+
         self.state_vars = [theta, omega]
         self.control_vars = [u]
         self._f_sym = sp.Matrix([
@@ -192,10 +192,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     >>> system = Oscillator(k=2.0, c=0.5)
     >>> x = np.array([0.1, 0.0])
     >>> dx = system(x, u=None)  # Evaluate dynamics
-    >>> 
+    >>>
     >>> # Integrate
     >>> result = system.integrate(x, t_span=(0, 10), method='RK45')
-    >>> 
+    >>>
     >>> # Linearize
     >>> A, B = system.linearize(np.zeros(2), np.zeros(1))
     """
@@ -227,7 +227,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         # Initialize continuous-time-specific evaluators
         # These require the symbolic system to be validated (done in super().__init__)
-        
+
         self._dynamics = DynamicsEvaluator(self, self._code_gen, self.backend)
         """Evaluates forward dynamics: dx/dt = f(x, u)"""
 
@@ -246,7 +246,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         x: StateVector,
         u: Optional[ControlVector] = None,
         t: ScalarLike = 0.0,
-        backend: Optional[Backend] = None
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Evaluate continuous-time dynamics: dx/dt = f(x, u, t).
@@ -271,10 +271,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> x = np.array([1.0, 0.0])
         >>> u = np.array([0.5])
         >>> dx = system(x, u)
-        >>> 
+        >>>
         >>> # Autonomous system
         >>> dx = system(x)  # u=None
-        >>> 
+        >>>
         >>> # Batched
         >>> x_batch = np.random.randn(100, 2)
         >>> u_batch = np.random.randn(100, 1)
@@ -290,7 +290,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         method: IntegrationMethod = "RK45",
         t_eval: Optional[TimePoints] = None,
         dense_output: bool = False,
-        **integrator_kwargs
+        **integrator_kwargs,
     ) -> IntegrationResult:
         """
         Integrate continuous system using numerical ODE solver.
@@ -317,30 +317,30 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
             Initial state (nx,)
         u : Union[ControlVector, Callable, None]
             Control input in flexible formats:
-            
+
             - **None**: Zero control or autonomous system
             - **Array (nu,)**: Constant control u(t) = u_const for all t
             - **Callable u(t)**: Time-varying control, signature: t → u
             - **Callable u(t, x)**: State-feedback, scipy convention (time first)
             - **Callable u(x, t)**: State-feedback, control theory convention (state first)
-            
+
             The method automatically detects callable signatures by:
             1. Checking parameter names ('t', 'x', 'time', 'state')
             2. Testing with dummy values if names are ambiguous
             3. Falling back to (t, x) assumption with warning
-            
+
             **Recommendation**: For two-parameter callables, use standard (t, x) order
             to avoid ambiguity. If your controller uses (x, t), the wrapper will
             attempt detection, but explicit wrapping is safer:
             ```python
                 u_func = lambda t, x: my_controller(x, t)
             ```
-            
+
         t_span : TimeSpan
             Integration interval (t_start, t_end)
         method : IntegrationMethod
             Integration method. Options:
-            
+
         t_eval : Optional[TimePoints]
             Specific times to return solution. If provided, interpolates/evaluates
             solution at these times. If None:
@@ -352,22 +352,22 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
             result['sol'](t). Default: False
         **integrator_kwargs
             Additional integrator options passed to the solver:
-            
+
             **Required for fixed-step methods**:
             - **dt** : float - Time step (required for 'euler', 'midpoint', 'rk4')
-            
+
             **Tolerance control (adaptive methods)**:
             - **rtol** : float - Relative tolerance (default: 1e-6)
             - **atol** : float - Absolute tolerance (default: 1e-8)
-            
+
             **Step size control (adaptive methods)**:
             - **max_step** : float - Maximum step size (default: inf)
             - **first_step** : float - Initial step size guess (default: auto)
             - **min_step** : float - Minimum step size (default: 0)
-            
+
             **Limits**:
             - **max_steps** : int - Maximum number of steps (default: 10000)
-            
+
             **Backend-specific** (see integrator documentation):
             - JAX: 'stepsize_controller', 'adjoint'
             - PyTorch: 'adjoint', 'method_options'
@@ -377,19 +377,19 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         -------
         IntegrationResult
             TypedDict containing:
-            
+
             **Always present**:
             - **t**: Time points (T,) - adaptive or uniform grid
             - **x**: State trajectory (T, nx) - **time-major ordering**
             - **success**: bool - Whether integration succeeded
             - **message**: str - Status message or error description
             - **solver**: str - Name of integrator used
-            
+
             **Performance metrics**:
             - **nfev**: int - Number of function evaluations (dynamics calls)
             - **nsteps**: int - Number of integration steps taken
             - **integration_time**: float - Wall-clock time (seconds)
-            
+
             **Optional (method-dependent)**:
             - **njev**: int - Number of Jacobian evaluations (implicit methods)
             - **nlu**: int - Number of LU decompositions (implicit methods)
@@ -559,11 +559,11 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         >>> # NumPy (scipy)
         >>> result_np = system.integrate(x0, u=None, t_span=(0, 10))
-        >>> 
+        >>>
         >>> # JAX (JIT-compiled)
         >>> system.set_default_backend('jax')
         >>> result_jax = system.integrate(x0, u=None, t_span=(0, 10), method='tsit5')
-        >>> 
+        >>>
         >>> # PyTorch (autodiff)
         >>> system.set_default_backend('torch')
         >>> result_torch = system.integrate(x0, u=None, t_span=(0, 10), method='dopri5')
@@ -574,7 +574,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> print(f"Steps: {result['nsteps']}")
         >>> print(f"Function evals: {result['nfev']}")
         >>> print(f"Time: {result['integration_time']:.4f}s")
-        >>> 
+        >>>
         >>> if result['nfev'] > 10000:
         ...     print("⚠ Warning: Many function evaluations!")
         ...     print("Consider: stiff solver, relaxed tolerances, or check dynamics")
@@ -621,25 +621,16 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         # Create integrator via factory (no state stored - created on demand)
         integrator = IntegratorFactory.create(
-            system=self,
-            backend=self._default_backend,
-            method=method,
-            **integrator_kwargs
+            system=self, backend=self._default_backend, method=method, **integrator_kwargs
         )
 
         # Delegate to integrator
         return integrator.integrate(
-            x0=x0,
-            u_func=u_func,
-            t_span=t_span,
-            t_eval=t_eval,
-            dense_output=dense_output
+            x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval, dense_output=dense_output
         )
 
     def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
     ) -> LinearizationResult:
         """
         Compute linearization of continuous dynamics: A = ∂f/∂x, B = ∂f/∂u.
@@ -667,21 +658,21 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> x_eq = np.zeros(2)
         >>> u_eq = np.zeros(1)
         >>> A, B = system.linearize(x_eq, u_eq)
-        >>> 
+        >>>
         >>> # Check continuous stability: Re(λ) < 0
         >>> eigenvalues = np.linalg.eigvals(A)
         >>> is_stable = np.all(np.real(eigenvalues) < 0)
-        >>> 
+        >>>
         >>> # LQR design
         >>> from scipy.linalg import solve_continuous_are
         >>> P = solve_continuous_are(A, B, Q, R)
         >>> K = np.linalg.inv(R) @ B.T @ P
-        
+
         Notes
         -----
         For higher-order systems, automatically constructs the full
         state-space representation with kinematic relationships.
-        
+
         For autonomous systems (nu=0), B will be an empty (nx, 0) matrix.
         """
         return self._linearization.compute_dynamics(x_eq, u_eq, backend=None)
@@ -744,10 +735,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self,
-        x_eq: np.ndarray,
-        u_eq: np.ndarray,
-        tol: ScalarLike
+        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike
     ) -> bool:
         """
         Verify continuous equilibrium condition: ||f(x_eq, u_eq)|| < tol.
@@ -773,12 +761,12 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         --------
         >>> # Valid equilibrium: dx/dt = -x + u = 0 when x = u
         >>> is_valid = system._verify_equilibrium_numpy(
-        ...     np.array([1.0]), 
-        ...     np.array([1.0]), 
+        ...     np.array([1.0]),
+        ...     np.array([1.0]),
         ...     tol=1e-6
         ... )
         >>> assert is_valid
-        
+
         Notes
         -----
         Uses NumPy backend for consistency regardless of default backend.
@@ -786,7 +774,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         """
         # Evaluate dynamics at equilibrium point
         dx = self(x_eq, u_eq, t=0.0)
-        
+
         # Check if near zero
         error = np.linalg.norm(dx)
         return error < tol
@@ -796,8 +784,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _prepare_control_input(
-        self,
-        u: ControlInput
+        self, u: ControlInput
     ) -> Callable[[float, StateVector], Optional[ControlVector]]:
         """
         Convert various control input formats to standard function.
@@ -823,7 +810,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         For callable inputs, we assume the standard (t, x) parameter order
         unless the function explicitly fails with that order. This is simpler
         and more reliable than trying to auto-detect parameter order.
-        
+
         **Standard Convention**: All control functions should use (t, x) order.
         If your controller uses (x, t) order, wrap it:
             u_func = lambda t, x: controller(x, t)
@@ -845,56 +832,57 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
             if n_params == 1:
                 # u(t) - time-varying only
                 return lambda t, x: u(t)
-            
+
             elif n_params == 2:
                 # u(t, x) or u(x, t) - state feedback
-                # 
+                #
                 # STRATEGY: Assume standard (t, x) order first.
                 # Only swap if we can definitively detect (x, t) order.
-                
+
                 # Try to detect parameter order by checking parameter names
                 param_names = list(sig.parameters.keys())
-                
+
                 # Check for common patterns in parameter names
-                if param_names == ['x', 't'] or param_names == ['state', 'time']:
+                if param_names == ["x", "t"] or param_names == ["state", "time"]:
                     # Explicitly (x, t) order - need to swap
                     return lambda t, x: u(x, t)
-                
-                elif param_names == ['t', 'x'] or param_names == ['time', 'state']:
+
+                elif param_names == ["t", "x"] or param_names == ["time", "state"]:
                     # Explicitly (t, x) order - correct
                     return u
-                
+
                 else:
                     # Parameter names don't tell us - try to test
                     try:
                         # Try (t, x) order with dummy values
                         test_x = np.zeros(self.nx)
                         test_result = u(0.0, test_x)
-                        
+
                         # Success - assume (t, x) is correct
                         return u
-                    
+
                     except Exception:
                         # Failed with (t, x) - try (x, t)
                         try:
                             test_x = np.zeros(self.nx)
                             test_result = u(test_x, 0.0)
-                            
+
                             # Success with (x, t) - need to swap
                             return lambda t, x: u(x, t)
-                        
+
                         except Exception:
                             # Can't determine - assume standard (t, x) and let it fail
                             # with a clear error message during integration
                             import warnings
+
                             warnings.warn(
                                 f"Could not determine parameter order for control function. "
                                 f"Assuming standard (t, x) order. If your function uses (x, t), "
                                 f"wrap it: lambda t, x: controller(x, t)",
-                                UserWarning
+                                UserWarning,
                             )
                             return u
-            
+
             else:
                 # Wrong number of parameters
                 raise ValueError(
@@ -905,18 +893,18 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         else:
             # Constant control - convert array to function
             u_array = np.asarray(u)
-            
+
             # Validate dimensions
             if u_array.ndim == 0:
                 # Scalar - convert to 1D array
                 u_array = np.array([float(u_array)])
-            
+
             if u_array.shape[0] != self.nu:
                 raise ValueError(
                     f"Control array dimension mismatch. Expected (nu={self.nu},), "
                     f"got shape {u_array.shape}"
                 )
-            
+
             return lambda t, x: u_array
 
     # ========================================================================
@@ -924,10 +912,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def forward(
-        self,
-        x: StateVector,
-        u: Optional[ControlVector] = None,
-        backend: Optional[Backend] = None
+        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None
     ) -> StateVector:
         """
         Alias for dynamics evaluation with explicit backend specification.
@@ -992,10 +977,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         ...     np.array([0.0, 0.0]),
         ...     np.array([0.0])
         ... )
-        >>> 
+        >>>
         >>> # By equilibrium name
         >>> A, B = system.linearized_dynamics('inverted')
-        >>> 
+        >>>
         >>> # Force PyTorch backend
         >>> A, B = system.linearized_dynamics(x, u, backend='torch')
         """
@@ -1036,10 +1021,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> A_sym, B_sym = system.linearized_dynamics_symbolic()
         >>> print(A_sym)
         Matrix([[0, 1], [-10.0, -0.5]])
-        >>> 
+        >>>
         >>> # At named equilibrium
         >>> A_sym, B_sym = system.linearized_dynamics_symbolic('inverted')
-        >>> 
+        >>>
         >>> # Convert to NumPy
         >>> A_np = np.array(A_sym, dtype=float)
         """
@@ -1057,7 +1042,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         x: StateVector,
         u: Optional[ControlVector] = None,
         tol: float = 1e-3,
-        backend: str = "torch"
+        backend: str = "torch",
     ) -> Dict[str, Union[bool, float]]:
         """
         Verify symbolic Jacobians against automatic differentiation.
@@ -1090,13 +1075,13 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> x = np.array([0.1, 0.0])
         >>> u = np.array([0.0])
         >>> results = system.verify_jacobians(x, u, backend='torch')
-        >>> 
+        >>>
         >>> if results['A_match'] and results['B_match']:
         ...     print("✓ Jacobians verified!")
         ... else:
         ...     print(f"✗ A error: {results['A_error']:.2e}")
         ...     print(f"✗ B error: {results['B_error']:.2e}")
-        
+
         Notes
         -----
         Requires PyTorch or JAX for automatic differentiation.
@@ -1109,11 +1094,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # Output Function Methods
     # ========================================================================
 
-    def h(
-        self,
-        x: StateVector,
-        backend: Optional[Backend] = None
-    ) -> OutputVector:
+    def h(self, x: StateVector, backend: Optional[Backend] = None) -> OutputVector:
         """
         Evaluate output equation: y = h(x).
 
@@ -1138,7 +1119,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         >>> y = system.h(x)
         >>> np.allclose(y, x)
         True
-        >>> 
+        >>>
         >>> # Custom output
         >>> x = np.array([1.0, 2.0])
         >>> y = system.h(x)  # Might return energy, distance, etc.
@@ -1146,9 +1127,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         return self._observation.evaluate(x, backend)
 
     def linearized_observation(
-        self,
-        x: StateVector,
-        backend: Optional[Backend] = None
+        self, x: StateVector, backend: Optional[Backend] = None
     ) -> OutputMatrix:
         """
         Compute linearized observation matrix: C = ∂h/∂x.
@@ -1169,17 +1148,14 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         --------
         >>> x = np.array([1.0, 2.0])
         >>> C = system.linearized_observation(x)
-        >>> 
+        >>>
         >>> # For identity output
         >>> np.allclose(C, np.eye(system.nx))
         True
         """
         return self._observation.compute_jacobian(x, backend)
 
-    def linearized_observation_symbolic(
-        self,
-        x_eq: Optional[sp.Matrix] = None
-    ) -> sp.Matrix:
+    def linearized_observation_symbolic(self, x_eq: Optional[sp.Matrix] = None) -> sp.Matrix:
         """
         Compute symbolic observation Jacobian: C = ∂h/∂x.
 
@@ -1226,7 +1202,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         --------
         >>> for _ in range(100):
         ...     dx = system(x, u)
-        >>> 
+        >>>
         >>> stats = system.get_performance_stats()
         >>> print(f"Forward calls: {stats['forward_calls']}")
         >>> print(f"Avg time: {stats['avg_forward_time']:.6f}s")

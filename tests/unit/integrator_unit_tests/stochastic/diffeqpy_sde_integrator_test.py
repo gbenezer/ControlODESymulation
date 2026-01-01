@@ -104,6 +104,7 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix G(x, u)."""
         import numpy as np
+
         # For OU: constant diffusion (additive noise)
         sigma = list(self.parameters.values())[1]  # sigma is second parameter
         return np.array([[sigma]])
@@ -135,6 +136,7 @@ class GeometricBrownianMotion(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix G(x, u)."""
         import numpy as np
+
         # For GBM: multiplicative noise (state-dependent)
         sigma = list(self.parameters.values())[1]  # sigma is second parameter
         x_val = np.atleast_1d(x)[0]
@@ -166,6 +168,7 @@ class BrownianMotion(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix G(x, u)."""
         import numpy as np
+
         # For pure Brownian: constant diffusion
         sigma = list(self.parameters.values())[0]  # sigma is only parameter
         return np.array([[sigma]])
@@ -198,6 +201,7 @@ class ControlledOU(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix G(x, u)."""
         import numpy as np
+
         # For controlled OU: constant diffusion (additive noise)
         sigma = list(self.parameters.values())[1]  # sigma is second parameter
         return np.array([[sigma]])
@@ -230,6 +234,7 @@ class TwoDimensionalOU(StochasticDynamicalSystem):
     def get_diffusion_matrix(self, x, u=None, backend="numpy"):
         """Return diffusion matrix G(x, u)."""
         import numpy as np
+
         # For 2D OU: diagonal diffusion matrix
         params_list = list(self.parameters.values())
         sigma1 = params_list[1]  # sigma1 is second parameter

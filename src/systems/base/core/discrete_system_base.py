@@ -61,19 +61,19 @@ class DiscreteSystemBase(ABC):
     ...         self._dt = dt
     ...         self.nx = 2
     ...         self.nu = 1
-    ...     
+    ...
     ...     @property
     ...     def dt(self):
     ...         return self._dt
-    ...     
+    ...
     ...     def step(self, x, u=None, k=0):
     ...         u = u if u is not None else np.zeros(self.nu)
     ...         return 0.9 * x + 0.1 * u
-    ...     
+    ...
     ...     def simulate(self, x0, u_sequence, n_steps):
     ...         # Implement multi-step simulation
     ...         ...
-    ...     
+    ...
     ...     def linearize(self, x_eq, u_eq):
     ...         Ad = 0.9 * np.eye(self.nx)
     ...         Bd = 0.1 * np.eye(self.nx, self.nu)
@@ -125,12 +125,7 @@ class DiscreteSystemBase(ABC):
     # =========================================================================
 
     @abstractmethod
-    def step(
-        self,
-        x: StateVector,
-        u: Optional[ControlVector] = None,
-        k: int = 0
-    ) -> StateVector:
+    def step(self, x: StateVector, u: Optional[ControlVector] = None, k: int = 0) -> StateVector:
         """
         Compute next state: x[k+1] = f(x[k], u[k], k).
 
@@ -186,11 +181,7 @@ class DiscreteSystemBase(ABC):
 
     @abstractmethod
     def simulate(
-        self,
-        x0: StateVector,
-        u_sequence: DiscreteControlInput = None,
-        n_steps: int = 100,
-        **kwargs
+        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs
     ) -> DiscreteSimulationResult:
         """
         Simulate system for multiple discrete time steps.
@@ -260,9 +251,7 @@ class DiscreteSystemBase(ABC):
 
     @abstractmethod
     def linearize(
-        self,
-        x_eq: StateVector,
-        u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
     ) -> DiscreteLinearization:
         """
         Compute linearized discrete dynamics around an equilibrium point.
@@ -344,7 +333,7 @@ class DiscreteSystemBase(ABC):
         x0: StateVector,
         policy: Optional[DiscreteFeedbackPolicy] = None,
         n_steps: int = 100,
-        **kwargs
+        **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Rollout system trajectory with optional state-feedback policy.
@@ -402,13 +391,13 @@ class DiscreteSystemBase(ABC):
         ...     return mpc_controller.compute_control(x, k)
         >>> result = system.rollout(x0, policy, n_steps=100)
         """
-        
+
         # Manual rollout with state feedback
         if policy is None:
             return self.simulate(x0, u_sequence=None, n_steps=n_steps, **kwargs)
 
         # Implement closed-loop rollout with TIME-MAJOR ordering
-        states = np.zeros((n_steps + 1, getattr(self, 'nx', x0.shape[0])))
+        states = np.zeros((n_steps + 1, getattr(self, "nx", x0.shape[0])))
         states[0, :] = x0
         controls = []
         x = x0
@@ -426,7 +415,7 @@ class DiscreteSystemBase(ABC):
             "controls": controls_array,  # (n_steps, nu)
             "time_steps": np.arange(n_steps + 1),
             "dt": self.dt,
-            "metadata": {**kwargs, "closed_loop": True, "method": "rollout"}
+            "metadata": {**kwargs, "closed_loop": True, "method": "rollout"},
         }
 
     # =========================================================================
@@ -495,7 +484,7 @@ class DiscreteSystemBase(ABC):
         DiscreteSymbolicSystem(nx=2, nu=1, dt=0.01)
         """
         class_name = self.__class__.__name__
-        nx = getattr(self, 'nx', '?')
-        nu = getattr(self, 'nu', '?')
-        dt = getattr(self, 'dt', '?')
+        nx = getattr(self, "nx", "?")
+        nu = getattr(self, "nu", "?")
+        dt = getattr(self, "dt", "?")
         return f"{class_name}(nx={nx}, nu={nu}, dt={dt})"

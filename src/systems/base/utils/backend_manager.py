@@ -136,6 +136,7 @@ class BackendManager:
         # Check PyTorch
         try:
             import torch
+
             available.append("torch")
         except ImportError:
             pass
@@ -143,6 +144,7 @@ class BackendManager:
         # Check JAX
         try:
             import jax
+
             available.append("jax")
         except ImportError:
             pass
@@ -169,7 +171,7 @@ class BackendManager:
             >>> mgr = BackendManager()
             >>> x = np.array([1.0])
             >>> mgr.detect(x)  # Returns 'numpy'
-            >>> 
+            >>>
             >>> import torch
             >>> x_torch = torch.tensor([1.0])
             >>> mgr.detect(x_torch)  # Returns 'torch'
@@ -222,15 +224,11 @@ class BackendManager:
                 msg = f"Backend '{backend}' not available"
 
             raise RuntimeError(msg)
-        
-    def ensure_type(
-        self,
-        arr: ArrayLike,
-        backend: Optional[Backend] = None
-    ) -> ArrayLike:
+
+    def ensure_type(self, arr: ArrayLike, backend: Optional[Backend] = None) -> ArrayLike:
         """
         Ensure array is in specified backend type.
-        
+
         Converts array only if it's not already the correct type.
         Less aggressive than convert() - preserves existing type if compatible.
 
@@ -328,6 +326,7 @@ class BackendManager:
             return array_np
         elif target_backend == "torch":
             import torch
+
             tensor = torch.tensor(array_np, dtype=torch.float32)
             if self._preferred_device != "cpu":
                 tensor = tensor.to(self._preferred_device)
@@ -335,6 +334,7 @@ class BackendManager:
         elif target_backend == "jax":
             import jax.numpy as jnp
             from jax import device_put, devices
+
             array_jax = jnp.array(array_np)
             if self._preferred_device != "cpu":
                 try:
@@ -517,12 +517,14 @@ class BackendManager:
 
         if self.check_available("torch"):
             import torch
+
             info["torch_version"] = torch.__version__
         else:
             info["torch_version"] = None
 
         if self.check_available("jax"):
             import jax
+
             info["jax_version"] = jax.__version__
         else:
             info["jax_version"] = None
@@ -540,4 +542,6 @@ class BackendManager:
 
     def __str__(self) -> str:
         """Human-readable string"""
-        return f"BackendManager(default='{self._default_backend}', device='{self._preferred_device}')"
+        return (
+            f"BackendManager(default='{self._default_backend}', device='{self._preferred_device}')"
+        )
