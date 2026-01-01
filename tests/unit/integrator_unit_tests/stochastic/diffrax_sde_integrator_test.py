@@ -63,7 +63,7 @@ from src.systems.base.numerical_integration.stochastic.diffrax_sde_integrator im
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     StepMode,
 )
-from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
+from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # Import types from centralized type system
 from src.types.backends import ConvergenceType, SDEType
