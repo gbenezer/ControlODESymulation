@@ -1,6 +1,6 @@
 # Core numerical and scientific computing
 numpy>=2.0.0,<3.0.0
-scipy>=1.14.0,<2.0.0
+scipy>=1.10.0,<2.0.0  # 1.14+ requires Python 3.10+
 sympy>=1.13.0,<2.0.0
 
 # Deep learning frameworks
