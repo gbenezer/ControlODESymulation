@@ -397,34 +397,59 @@ class TestCustomNoiseSupport:
 
         assert_allclose(x_next, expected, rtol=1e-6, atol=1e-8)
 
-    # Discretization framework is deprecated
-    # TODO: reformulate this test
-    # def test_zero_noise_matches_deterministic_ode(self, ou_system):
-    #     """
-    #     Test that SDE with zero noise matches deterministic ODE.
+    def test_zero_noise_matches_deterministic_dynamics(self, ou_system):
+        """
+        Test that SDE with zero noise matches deterministic drift dynamics.
 
-    #     This verifies that zero noise truly gives drift-only dynamics.
-    #     """
-    #     from src.systems.base.discretization.discretizer import Discretizer
+        This verifies that zero noise truly gives drift-only dynamics
+        by directly computing the expected drift evolution.
+        """
+        integrator_sde = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
 
-    #     integrator_sde = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
+        x = jnp.array([1.0])
+        u = None
+        dt = 0.01
 
-    #     # Create deterministic version
-    #     det_system = ou_system.to_deterministic()
-    #     integrator_ode = Discretizer(det_system, dt=0.01, method="euler", backend="jax")
+        # SDE with zero noise - should give pure drift
+        x_sde = integrator_sde.step(x, u, dt, dW=jnp.zeros(1))
 
-    #     x = jnp.array([1.0])
-    #     u = None
-    #     dt = 0.01
+        # Compute expected deterministic dynamics using Euler method
+        # For OU: dx/dt = -alpha * x, so x(t+dt) = x(t) + (-alpha * x(t)) * dt
+        alpha = 1.0
+        f_x = -alpha * x  # Drift term
+        x_expected = x + f_x * dt
+        
+        # Should be identical
+        assert_allclose(x_sde, x_expected, rtol=1e-10, atol=1e-12)
 
-    #     # SDE with zero noise
-    #     x_sde = integrator_sde.step(x, u, dt, dW=jnp.zeros(1))
+    def test_zero_noise_trajectory_matches_deterministic(self, ou_system):
+        """
+        Test that a full trajectory with zero noise matches deterministic evolution.
+        
+        This is a more comprehensive test that runs multiple steps.
+        """
+        integrator = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
 
-    #     # ODE (no noise)
-    #     x_ode = integrator_ode.step(x, u, dt)
+        x0 = jnp.array([1.0])
+        dt = 0.01
+        n_steps = 100
+        alpha = 1.0
 
-    #     # Should be identical
-    #     assert_allclose(x_sde, x_ode, rtol=1e-10, atol=1e-12)
+        # Run SDE trajectory with zero noise
+        x_sde = x0
+        sde_trajectory = [x_sde]
+        for _ in range(n_steps):
+            x_sde = integrator.step(x_sde, None, dt, dW=jnp.zeros(1))
+            sde_trajectory.append(x_sde)
+        sde_trajectory = jnp.stack(sde_trajectory)
+
+        # Compute expected deterministic trajectory analytically
+        # For OU with zero noise: x(t) = x0 * exp(-alpha * t)
+        t_values = jnp.arange(n_steps + 1) * dt
+        x_analytical = x0 * jnp.exp(-alpha * t_values).reshape(-1, 1)
+
+        # Should match closely (within numerical integration error)
+        assert_allclose(sde_trajectory, x_analytical, rtol=1e-3, atol=1e-4)
 
     def test_custom_noise_with_controlled_system(self, controlled_system):
         """Test custom noise with controlled SDE."""
