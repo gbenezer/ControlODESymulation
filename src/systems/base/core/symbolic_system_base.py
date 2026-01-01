@@ -185,7 +185,7 @@ AGPL-3.0
 import json
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union, Any
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import sympy as sp
@@ -197,12 +197,11 @@ from src.systems.base.utils.symbolic_validator import SymbolicValidator, Validat
 from src.types.utilities import SymbolicValidationResult
 
 if TYPE_CHECKING:
-    import jax.numpy as jnp
-    import torch
+    pass
 
 # Type aliases
-from src.types.core import ScalarLike, EquilibriumName, EquilibriumState, EquilibriumControl
 from src.types.backends import Backend, Device
+from src.types.core import EquilibriumControl, EquilibriumName, EquilibriumState, ScalarLike
 
 
 class SymbolicSystemBase(ABC):
@@ -409,12 +408,12 @@ class SymbolicSystemBase(ABC):
         self._validator = SymbolicValidator(self)
         try:
             validation_result: SymbolicValidationResult = self._validator.validate(
-                raise_on_error=True
+                raise_on_error=True,
             )
         except ValidationError as e:
             # Re-raise with context about which system failed
             raise ValidationError(
-                f"Validation failed for {self.__class__.__name__}:\n{str(e)}"
+                f"Validation failed for {self.__class__.__name__}:\n{e!s}",
             ) from e
 
         # Step 3: Update equilibrium handler dimensions (now that we know nx, nu)
@@ -624,7 +623,6 @@ class SymbolicSystemBase(ABC):
                 self.parameters = {m_sym: m, k_sym: k, c_sym: c}
                 self.order = 2  # Second-order form
         """
-        pass
 
     @abstractmethod
     def print_equations(self, simplify: bool = True):
@@ -712,14 +710,13 @@ class SymbolicSystemBase(ABC):
 
                 print("=" * 70)
         """
-        pass
 
     # ========================================================================
     # Hook Method for Equilibrium Verification (Template Method Pattern)
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike
+        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
     ) -> bool:
         """
         Verify equilibrium condition (hook method for concrete classes).
@@ -782,7 +779,7 @@ class SymbolicSystemBase(ABC):
             f"\n"
             f"For discrete systems:\n"
             f"    x_next = self.step(x_eq, u_eq, k=0)\n"
-            f"    return np.linalg.norm(x_next - x_eq) < tol"
+            f"    return np.linalg.norm(x_next - x_eq) < tol",
         )
 
     # ========================================================================
@@ -849,10 +846,9 @@ class SymbolicSystemBase(ABC):
         """
         if self.output_vars:
             return len(self.output_vars)
-        elif self._h_sym is not None:
+        if self._h_sym is not None:
             return self._h_sym.shape[0]
-        else:
-            return self.nx
+        return self.nx
 
     @property
     def nq(self) -> int:
@@ -959,7 +955,7 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def set_default_backend(
-        self, backend: Backend, device: Optional[Device] = None
+        self, backend: Backend, device: Optional[Device] = None,
     ) -> "SymbolicSystemBase":
         """
         Set default backend and optionally device for this system.
@@ -1151,7 +1147,7 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def compile(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[str, float]:
         """
         Pre-compile dynamics functions for specified backends.
@@ -1313,7 +1309,6 @@ class SymbolicSystemBase(ABC):
         """
         # Base class does nothing
         # Concrete subclasses override to reset their components
-        pass
 
     # ========================================================================
     # Symbolic Utilities
@@ -1498,7 +1493,7 @@ class SymbolicSystemBase(ABC):
         return self
 
     def get_equilibrium(
-        self, name: Optional[EquilibriumName] = None, backend: Optional[Backend] = None
+        self, name: Optional[EquilibriumName] = None, backend: Optional[Backend] = None,
     ) -> Tuple[EquilibriumState, EquilibriumControl]:
         """
         Get equilibrium state and control in specified backend.

@@ -21,12 +21,13 @@ Abstract base class for all continuous-time dynamical systems.
 """
 
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Union
+from typing import Optional
+
 import numpy as np
 
-from src.types.core import ControlVector, StateVector, ControlInput, FeedbackController, ScalarLike
+from src.types.backends import Backend, IntegrationMethod
+from src.types.core import ControlInput, ControlVector, FeedbackController, ScalarLike, StateVector
 from src.types.linearization import LinearizationResult
-from src.types.backends import IntegrationMethod, Backend
 from src.types.trajectories import IntegrationResult, SimulationResult, TimeSpan
 
 
@@ -124,7 +125,6 @@ class ContinuousSystemBase(ABC):
         >>> u_batch = np.random.randn(1, 100)  # 100 controls
         >>> dxdt_batch = system(x_batch, u_batch)  # Returns (2, 100)
         """
-        pass
 
     @abstractmethod
     def integrate(
@@ -368,11 +368,10 @@ class ContinuousSystemBase(ABC):
         IntegratorFactory : Create custom integrators with specific methods
         linearize : Compute linearized dynamics at equilibrium
         """
-        pass
 
     @abstractmethod
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute linearized dynamics around an equilibrium point.
@@ -433,7 +432,6 @@ class ContinuousSystemBase(ABC):
         >>> P = solve_continuous_are(A, B, Q, R)
         >>> K = np.linalg.inv(R) @ B.T @ P
         """
-        pass
 
     # =========================================================================
     # Concrete Methods (Provided by base class)
@@ -627,7 +625,7 @@ class ContinuousSystemBase(ABC):
         else:
             raise KeyError(
                 "Integration result missing both 'x' and 'y' keys. "
-                "This indicates an issue with the integrator backend."
+                "This indicates an issue with the integrator backend.",
             )
 
         # If times don't exactly match requested grid, interpolate
@@ -852,7 +850,7 @@ class ContinuousSystemBase(ABC):
         """
         # Call simulate() with same functionality
         result = self.simulate(
-            x0=x0, controller=policy, t_span=t_span, dt=dt, method=method, **kwargs
+            x0=x0, controller=policy, t_span=t_span, dt=dt, method=method, **kwargs,
         )
 
         # Add closed_loop flag to metadata for consistency with discrete systems

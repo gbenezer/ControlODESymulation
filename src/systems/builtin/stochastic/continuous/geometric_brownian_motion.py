@@ -257,10 +257,9 @@ class GeometricBrownianMotion(StochasticDynamicalSystem):
         if u == 0:
             # Simple exponential growth
             return x0 * np.exp(mu * t)
-        else:
-            # With constant control (approximate)
-            # This is approximate; exact solution with u is more complex
-            return x0 * np.exp(mu * t) + u * t * np.exp(mu * t)
+        # With constant control (approximate)
+        # This is approximate; exact solution with u is more complex
+        return x0 * np.exp(mu * t) + u * t * np.exp(mu * t)
 
     def get_variance(self, x0: float, t: float) -> float:
         """
@@ -317,11 +316,10 @@ class BrownianMotionWithDrift(GeometricBrownianMotion):
     Mathematically identical to GeometricBrownianMotion.
     """
 
-    pass
 
 
 def create_stock_price_model(
-    expected_return: float = 0.07, annual_volatility: float = 0.20
+    expected_return: float = 0.07, annual_volatility: float = 0.20,
 ) -> GeometricBrownianMotion:
     """
     Create GBM model for stock price dynamics.

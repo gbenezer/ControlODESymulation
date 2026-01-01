@@ -193,10 +193,10 @@ from src.systems.base.utils.stochastic.noise_analysis import (
     SDEType,
 )
 from src.systems.base.utils.stochastic.sde_validator import SDEValidator, ValidationError
+from src.types.backends import Backend
 
 # Type imports
-from src.types.core import StateVector, ControlVector, ScalarLike, NoiseVector, DiscreteControlInput
-from src.types.backends import Backend
+from src.types.core import ControlVector, DiscreteControlInput, NoiseVector, StateVector
 from src.types.trajectories import DiscreteSimulationResult
 
 
@@ -375,7 +375,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                 "Example:\n"
                 "  def define_system(self, dt=0.1):\n"
                 "      # ... set deterministic attributes and self._dt ...\n"
-                "      self.diffusion_expr = sp.Matrix([[sigma]])"
+                "      self.diffusion_expr = sp.Matrix([[sigma]])",
             )
 
         # Run stochastic-specific validation
@@ -411,7 +411,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             validator.validate(raise_on_error=True)
         except ValidationError as e:
             raise ValidationError(
-                f"Stochastic validation failed for {self.__class__.__name__}:\n{str(e)}"
+                f"Stochastic validation failed for {self.__class__.__name__}:\n{e!s}",
             ) from e
 
     def _initialize_stochastic_components(self):
@@ -429,12 +429,12 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             sde_type_lower = self.sde_type.lower()
             if sde_type_lower not in ["ito", "stratonovich"]:
                 raise ValueError(
-                    f"Invalid sde_type '{self.sde_type}'. " f"Must be 'ito' or 'stratonovich'"
+                    f"Invalid sde_type '{self.sde_type}'. Must be 'ito' or 'stratonovich'",
                 )
             self.sde_type = SDEType(sde_type_lower)
         elif not isinstance(self.sde_type, SDEType):
             raise TypeError(
-                f"sde_type must be string or SDEType enum, " f"got {type(self.sde_type).__name__}"
+                f"sde_type must be string or SDEType enum, got {type(self.sde_type).__name__}",
             )
 
         # Create DiffusionHandler for code generation
@@ -562,7 +562,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             if self.nu > 0:
                 raise ValueError(
                     f"Non-autonomous system requires control input u. "
-                    f"System has {self.nu} control input(s)."
+                    f"System has {self.nu} control input(s).",
                 )
             # Create empty control array
             if backend_to_use == "numpy":
@@ -576,7 +576,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
                 u = jnp.array([])
         elif u is not None and self.nu == 0:
-            raise ValueError(f"Autonomous system cannot take control input")
+            raise ValueError("Autonomous system cannot take control input")
 
         # Convert to appropriate backend
         if backend_to_use == "numpy":
@@ -585,7 +585,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
             # Check for empty batch
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "torch":
             import torch
@@ -594,7 +594,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             u_arr = torch.atleast_1d(torch.as_tensor(u)) if self.nu > 0 else torch.tensor([])
 
             if len(x_arr.shape) > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "jax":
             import jax.numpy as jnp
@@ -603,7 +603,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             u_arr = jnp.atleast_1d(jnp.asarray(u)) if self.nu > 0 else jnp.array([])
 
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
         else:
             raise ValueError(f"Unknown backend: {backend_to_use}")
 
@@ -733,27 +733,18 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
             elif g_ndim == 2:
                 # Additive: g is (nx, nw) constant, w is (batch, nw)
                 # Broadcast: (nx, nw) @ (batch, nw).T → (nx, batch) → T → (batch, nx)
-                if backend == "numpy":
-                    stochastic_term = (g @ w.T).T
-                elif backend == "torch":
-                    stochastic_term = (g @ w.T).T
-                elif backend == "jax":
+                if backend == "numpy" or backend == "torch" or backend == "jax":
                     stochastic_term = (g @ w.T).T
 
             else:
                 raise ValueError(
                     f"Unexpected diffusion shape for batched input: g.shape={g.shape}. "
-                    f"Expected (batch, nx, nw) for multiplicative or (nx, nw) for additive."
+                    f"Expected (batch, nx, nw) for multiplicative or (nx, nw) for additive.",
                 )
 
-        else:
-            # Single trajectory: g is (nx, nw), w is (nw,)
-            if backend == "numpy":
-                stochastic_term = g @ w
-            elif backend == "torch":
-                stochastic_term = g @ w
-            elif backend == "jax":
-                stochastic_term = g @ w
+        # Single trajectory: g is (nx, nw), w is (nw,)
+        elif backend == "numpy" or backend == "torch" or backend == "jax":
+            stochastic_term = g @ w
 
         return f + stochastic_term
 
@@ -883,40 +874,39 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
                 },
             }
 
-        else:
-            # Monte Carlo simulation
-            all_paths = np.zeros((n_paths, n_steps + 1, self.nx))
+        # Monte Carlo simulation
+        all_paths = np.zeros((n_paths, n_steps + 1, self.nx))
 
-            for path_idx in range(n_paths):
-                states = np.zeros((n_steps + 1, self.nx))
-                states[0, :] = x0
+        for path_idx in range(n_paths):
+            states = np.zeros((n_steps + 1, self.nx))
+            states[0, :] = x0
 
-                x = x0
-                for k in range(n_steps):
-                    u = u_func(x, k)
+            x = x0
+            for k in range(n_steps):
+                u = u_func(x, k)
 
-                    # Generate noise
-                    w_k = np.random.randn(self.nw)
+                # Generate noise
+                w_k = np.random.randn(self.nw)
 
-                    # Stochastic step
-                    x = self.step_stochastic(x, u, w_k, k)
-                    states[k + 1, :] = x
+                # Stochastic step
+                x = self.step_stochastic(x, u, w_k, k)
+                states[k + 1, :] = x
 
-                all_paths[path_idx, :, :] = states
+            all_paths[path_idx, :, :] = states
 
-            return {
-                "states": all_paths,  # (n_paths, n_steps+1, nx)
-                "controls": None,  # Reconstructing for all paths is complex
-                "time_steps": np.arange(n_steps + 1),
-                "dt": self.dt,
-                "success": True,
-                "metadata": {
-                    "method": "discrete_stochastic_monte_carlo",
-                    "n_paths": n_paths,
-                    "noise_type": self.noise_characteristics.noise_type.value,
-                    "seed": seed,
-                },
-            }
+        return {
+            "states": all_paths,  # (n_paths, n_steps+1, nx)
+            "controls": None,  # Reconstructing for all paths is complex
+            "time_steps": np.arange(n_steps + 1),
+            "dt": self.dt,
+            "success": True,
+            "metadata": {
+                "method": "discrete_stochastic_monte_carlo",
+                "n_paths": n_paths,
+                "noise_type": self.noise_characteristics.noise_type.value,
+                "seed": seed,
+            },
+        }
 
     # ========================================================================
     # Override Linearization to Include Diffusion Matrix
@@ -1057,13 +1047,13 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
     # ========================================================================
 
     def compile_diffusion(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[Backend, float]:
         """Pre-compile diffusion functions for specified backends."""
         return self.diffusion_handler.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def compile_all(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[Backend, Dict[str, float]]:
         """
         Compile both deterministic and diffusion for all backends.
@@ -1087,7 +1077,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
             # Compile diffusion
             diffusion_timings = self.compile_diffusion(
-                backends=[backend], verbose=verbose, **kwargs
+                backends=[backend], verbose=verbose, **kwargs,
             )
 
             results[backend] = {
@@ -1268,42 +1258,36 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
     def _is_batched(self, x: Any) -> bool:
         """Check if input is batched (2D)."""
-        if isinstance(x, np.ndarray):
+        if isinstance(x, np.ndarray) or hasattr(x, "ndim"):
             return x.ndim > 1
-        elif hasattr(x, "ndim"):
-            return x.ndim > 1
-        elif hasattr(x, "shape"):
+        if hasattr(x, "shape"):
             return len(x.shape) > 1
         return False
 
     def _get_ndim(self, arr) -> int:
         """Get number of dimensions of array."""
-        if isinstance(arr, np.ndarray):
+        if isinstance(arr, np.ndarray) or hasattr(arr, "ndim"):
             return arr.ndim
-        elif hasattr(arr, "ndim"):
-            return arr.ndim
-        elif hasattr(arr, "shape"):
+        if hasattr(arr, "shape"):
             return len(arr.shape)
-        else:
-            return 0
+        return 0
 
     def _generate_noise(self, shape, backend: Backend):
         """Generate standard normal noise in specified backend."""
         if backend == "numpy":
             return np.random.randn(*shape)
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             return torch.randn(*shape)
-        elif backend == "jax":
+        if backend == "jax":
             import jax
 
             # JAX needs explicit key management
             # For simplicity, use random key (users should set seed externally)
             key = jax.random.PRNGKey(np.random.randint(0, 2**31))
             return jax.random.normal(key, shape)
-        else:
-            raise ValueError(f"Unknown backend: {backend}")
+        raise ValueError(f"Unknown backend: {backend}")
 
     # ========================================================================
     # String Representations

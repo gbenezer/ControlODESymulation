@@ -43,14 +43,14 @@ Usage
 """
 
 # Conditional imports
-from typing import TYPE_CHECKING, Any, Dict, Literal, Optional
 from enum import Enum
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional
 
 import numpy as np
 from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    import sympy as sp
+    pass
 
 
 # ============================================================================
@@ -652,7 +652,7 @@ def validate_backend(backend: str) -> Backend:
     >>> validate_backend('pytorch')  # ValueError
     """
     if backend not in VALID_BACKENDS:
-        raise ValueError(f"Invalid backend '{backend}'. " f"Choose from: {VALID_BACKENDS}")
+        raise ValueError(f"Invalid backend '{backend}'. Choose from: {VALID_BACKENDS}")
     return backend
 
 

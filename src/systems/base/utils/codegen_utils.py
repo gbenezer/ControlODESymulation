@@ -51,7 +51,6 @@ import torch
 from src.types.backends import Backend
 from src.types.symbolic import SymbolicExpressionInput
 
-
 # Helper functions
 
 
@@ -78,16 +77,15 @@ def _numpy_min(*args):
 
     if len(args) == 0:
         raise ValueError("Min requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return args[0]
-    elif len(args) == 2:
+    if len(args) == 2:
         return np.minimum(args[0], args[1])
-    else:
-        # More than 2 args: reduce iteratively
-        result = args[0]
-        for arg in args[1:]:
-            result = np.minimum(result, arg)
-        return result
+    # More than 2 args: reduce iteratively
+    result = args[0]
+    for arg in args[1:]:
+        result = np.minimum(result, arg)
+    return result
 
 
 def _numpy_max(*args):
@@ -113,16 +111,15 @@ def _numpy_max(*args):
 
     if len(args) == 0:
         raise ValueError("Max requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return args[0]
-    elif len(args) == 2:
+    if len(args) == 2:
         return np.maximum(args[0], args[1])
-    else:
-        # More than 2 args: reduce iteratively
-        result = args[0]
-        for arg in args[1:]:
-            result = np.maximum(result, arg)
-        return result
+    # More than 2 args: reduce iteratively
+    result = args[0]
+    for arg in args[1:]:
+        result = np.maximum(result, arg)
+    return result
 
 
 def _torch_min(*args):
@@ -148,20 +145,19 @@ def _torch_min(*args):
 
     if len(args) == 0:
         raise ValueError("Min requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return torch.as_tensor(args[0]) if not isinstance(args[0], torch.Tensor) else args[0]
-    elif len(args) == 2:
+    if len(args) == 2:
         a, b = args
         a_tensor = torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.minimum(a_tensor, b_tensor)
-    else:
-        # More than 2 args: convert all to tensors and reduce
-        tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
-        result = tensors[0]
-        for t in tensors[1:]:
-            result = torch.minimum(result, t)
-        return result
+    # More than 2 args: convert all to tensors and reduce
+    tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
+    result = tensors[0]
+    for t in tensors[1:]:
+        result = torch.minimum(result, t)
+    return result
 
 
 def _torch_max(*args):
@@ -187,20 +183,19 @@ def _torch_max(*args):
 
     if len(args) == 0:
         raise ValueError("Max requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return torch.as_tensor(args[0]) if not isinstance(args[0], torch.Tensor) else args[0]
-    elif len(args) == 2:
+    if len(args) == 2:
         a, b = args
         a_tensor = torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a
         b_tensor = torch.as_tensor(b) if not isinstance(b, torch.Tensor) else b
         return torch.maximum(a_tensor, b_tensor)
-    else:
-        # More than 2 args: convert all to tensors and reduce
-        tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
-        result = tensors[0]
-        for t in tensors[1:]:
-            result = torch.maximum(result, t)
-        return result
+    # More than 2 args: convert all to tensors and reduce
+    tensors = [torch.as_tensor(a) if not isinstance(a, torch.Tensor) else a for a in args]
+    result = tensors[0]
+    for t in tensors[1:]:
+        result = torch.maximum(result, t)
+    return result
 
 
 def _jax_min(*args):
@@ -226,16 +221,15 @@ def _jax_min(*args):
 
     if len(args) == 0:
         raise ValueError("Min requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return jnp.asarray(args[0])
-    elif len(args) == 2:
+    if len(args) == 2:
         return jnp.minimum(args[0], args[1])
-    else:
-        # More than 2 args: reduce iteratively
-        result = args[0]
-        for arg in args[1:]:
-            result = jnp.minimum(result, arg)
-        return result
+    # More than 2 args: reduce iteratively
+    result = args[0]
+    for arg in args[1:]:
+        result = jnp.minimum(result, arg)
+    return result
 
 
 def _jax_max(*args):
@@ -261,16 +255,15 @@ def _jax_max(*args):
 
     if len(args) == 0:
         raise ValueError("Max requires at least one argument")
-    elif len(args) == 1:
+    if len(args) == 1:
         return jnp.asarray(args[0])
-    elif len(args) == 2:
+    if len(args) == 2:
         return jnp.maximum(args[0], args[1])
-    else:
-        # More than 2 args: reduce iteratively
-        result = args[0]
-        for arg in args[1:]:
-            result = jnp.maximum(result, arg)
-        return result
+    # More than 2 args: reduce iteratively
+    result = args[0]
+    for arg in args[1:]:
+        result = jnp.maximum(result, arg)
+    return result
 
 
 def _numpy_matrix_handler(data):
@@ -287,10 +280,8 @@ def _numpy_matrix_handler(data):
                 item[0] if isinstance(item, (list, tuple)) and len(item) == 1 else item
                 for item in data
             ]
-        else:
-            return data
-    else:
         return data
+    return data
 
 
 def _torch_matrix_handler(data):
@@ -308,12 +299,10 @@ def _torch_matrix_handler(data):
                 item[0] if isinstance(item, (list, tuple)) and len(item) == 1 else item
                 for item in data
             ]
-        else:
-            # Already flat
-            return data
-    else:
-        # Single item
+        # Already flat
         return data
+    # Single item
+    return data
 
 
 def _jax_matrix_handler(data):
@@ -447,16 +436,15 @@ def generate_numpy_function(
         if isinstance(result, np.ndarray):
             if result.ndim == 0:
                 return np.array([result])
-            elif result.ndim == 1:
+            if result.ndim == 1:
                 return result
-            elif result.ndim == 2 and result.shape[1] == 1:
+            if result.ndim == 2 and result.shape[1] == 1:
                 return result.flatten()
-            else:
-                return result.flatten()
-        elif isinstance(result, np.matrix):
+            return result.flatten()
+        if isinstance(result, np.matrix):
             # Convert matrix to array and flatten
             return np.asarray(result).flatten()
-        elif isinstance(result, (list, tuple)):
+        if isinstance(result, (list, tuple)):
             # Try to convert to array - if it fails due to inhomogeneous structure,
             # return as-is for higher-level handlers (e.g., DiffusionHandler) to process
             try:
@@ -514,7 +502,7 @@ def generate_torch_function(
             # Return as-is if already a tensor
             return result.flatten() if result.ndim > 1 else result
 
-        elif isinstance(result, (list, tuple)):
+        if isinstance(result, (list, tuple)):
             # Try to convert list to tensor (like NumPy does to array)
             # If it fails due to inhomogeneous structure, return as-is
             try:
@@ -529,9 +517,8 @@ def generate_torch_function(
 
                 if len(tensors) == 1:
                     return tensors[0]
-                else:
-                    # Stack and flatten (like NumPy)
-                    return torch.stack(tensors).flatten()
+                # Stack and flatten (like NumPy)
+                return torch.stack(tensors).flatten()
             except (ValueError, TypeError, RuntimeError):
                 # Inhomogeneous structure - pass through as-is
                 return result
@@ -599,13 +586,12 @@ def generate_jax_function(
         if isinstance(result, jnp.ndarray):
             if result.ndim == 0:
                 return jnp.array([result])
-            elif result.ndim == 1:
+            if result.ndim == 1:
                 return result
-            elif result.ndim == 2 and result.shape[1] == 1:
+            if result.ndim == 2 and result.shape[1] == 1:
                 return result.flatten()
-            else:
-                return result.flatten()
-        elif isinstance(result, (list, tuple)):
+            return result.flatten()
+        if isinstance(result, (list, tuple)):
             # Try to convert to JAX array - if it fails due to inhomogeneous
             # structure, return as-is for higher-level handlers
             try:
@@ -618,10 +604,9 @@ def generate_jax_function(
 
                 if len(arrays) == 0:
                     raise ValueError("Empty result from lambdify")
-                elif len(arrays) == 1:
+                if len(arrays) == 1:
                     return jnp.atleast_1d(arrays[0])
-                else:
-                    return jnp.stack(arrays, axis=0)
+                return jnp.stack(arrays, axis=0)
             except (ValueError, TypeError):
                 # Inhomogeneous structure - pass through as-is
                 return result
@@ -678,12 +663,11 @@ def generate_function(
     """
     if backend == "numpy":
         return generate_numpy_function(expr, symbols)
-    elif backend == "torch":
+    if backend == "torch":
         return generate_torch_function(expr, symbols, **kwargs)
-    elif backend == "jax":
+    if backend == "jax":
         return generate_jax_function(expr, symbols, **kwargs)
-    else:
-        raise ValueError(f"Unknown backend: {backend}")
+    raise ValueError(f"Unknown backend: {backend}")
 
 
 def generate_jacobian_function(
@@ -717,34 +701,33 @@ def generate_jacobian_function(
         jacobian = expr.jacobian(wrt_symbols)
         return generate_function(jacobian, symbols, backend, **kwargs)
 
-    else:
-        # Use automatic differentiation (JAX only)
-        if backend != "jax":
-            raise ValueError("Automatic differentiation only supported for JAX backend")
+    # Use automatic differentiation (JAX only)
+    if backend != "jax":
+        raise ValueError("Automatic differentiation only supported for JAX backend")
 
-        import jax
+    import jax
 
-        # First generate the base function
-        base_func = generate_jax_function(expr, symbols, jit=False)
+    # First generate the base function
+    base_func = generate_jax_function(expr, symbols, jit=False)
 
-        # Determine which argument indices correspond to wrt_symbols
-        wrt_indices = [symbols.index(s) for s in wrt_symbols]
+    # Determine which argument indices correspond to wrt_symbols
+    wrt_indices = [symbols.index(s) for s in wrt_symbols]
 
-        # Create wrapper that computes Jacobian
-        def jac_func(*args):
-            # Define function of just the wrt variables
-            def f_wrt(*wrt_vals):
-                # Reconstruct full argument list
-                full_args = list(args)
-                for i, idx in enumerate(wrt_indices):
-                    full_args[idx] = wrt_vals[i]
-                return base_func(*full_args)
+    # Create wrapper that computes Jacobian
+    def jac_func(*args):
+        # Define function of just the wrt variables
+        def f_wrt(*wrt_vals):
+            # Reconstruct full argument list
+            full_args = list(args)
+            for i, idx in enumerate(wrt_indices):
+                full_args[idx] = wrt_vals[i]
+            return base_func(*full_args)
 
-            # Stack wrt arguments for jacobian
-            wrt_args = tuple(args[i] for i in wrt_indices)
-            return jax.jacobian(f_wrt)(*wrt_args)
+        # Stack wrt arguments for jacobian
+        wrt_args = tuple(args[i] for i in wrt_indices)
+        return jax.jacobian(f_wrt)(*wrt_args)
 
-        if kwargs.get("jit", True):
-            jac_func = jax.jit(jac_func)
+    if kwargs.get("jit", True):
+        jac_func = jax.jit(jac_func)
 
-        return jac_func
+    return jac_func

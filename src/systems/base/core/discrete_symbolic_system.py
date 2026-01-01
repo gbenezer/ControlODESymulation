@@ -124,17 +124,17 @@ from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
 from src.systems.base.utils.dynamics_evaluator import DynamicsEvaluator
 from src.systems.base.utils.linearization_engine import LinearizationEngine
 from src.systems.base.utils.observation_engine import ObservationEngine
+from src.types.backends import Backend
 
 # Type imports
 from src.types.core import (
-    OutputMatrix,
     ControlVector,
-    OutputVector,
     DiscreteControlInput,
+    OutputMatrix,
+    OutputVector,
     ScalarLike,
     StateVector,
 )
-from src.types.backends import Backend
 from src.types.linearization import LinearizationResult
 from src.types.trajectories import DiscreteSimulationResult
 
@@ -198,7 +198,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         if not hasattr(self, "_dt"):
             raise ValueError(
                 f"{self.__class__.__name__} must define self._dt in define_system(). "
-                "Example: self._dt = 0.01"
+                "Example: self._dt = 0.01",
             )
 
         # Initialize discrete-specific evaluators
@@ -270,7 +270,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         return self._dynamics.evaluate(x, u, backend=backend)
 
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs
+        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Simulate discrete system for multiple steps.
@@ -352,7 +352,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         }
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute discrete linearization: Ad = ∂f/∂x, Bd = ∂f/∂u.
@@ -443,7 +443,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike
+        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
     ) -> bool:
         """
         Verify discrete equilibrium condition: ||f(x_eq, u_eq) - x_eq|| < tol.
@@ -488,7 +488,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def _prepare_control_sequence(
-        self, u_sequence: DiscreteControlInput, n_steps: int
+        self, u_sequence: DiscreteControlInput, n_steps: int,
     ) -> Callable[[StateVector, int], Optional[ControlVector]]:
         """
         Convert various control sequence formats to standard function.
@@ -558,11 +558,10 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
             if self.nu == 0:
                 # Autonomous system - return None
                 return lambda x, k: None
-            else:
-                # Non-autonomous but zero control
-                return lambda x, k: np.zeros(self.nu)
+            # Non-autonomous but zero control
+            return lambda x, k: np.zeros(self.nu)
 
-        elif callable(u_sequence):
+        if callable(u_sequence):
             # Function - could be u(k) or u(x, k) or u(k, x)
             import inspect
 
@@ -574,7 +573,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                 # Convert to (x, k) → u signature
                 return lambda x, k: u_sequence(k)
 
-            elif n_params == 2:
+            if n_params == 2:
                 # u(x, k) or u(k, x) - state feedback
                 # Need to determine parameter order
 
@@ -590,7 +589,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                     # (x, k) order - correct! Use as-is
                     return u_sequence
 
-                elif param_names[0] in ["k", "t", "time", "step"] and param_names[1] in [
+                if param_names[0] in ["k", "t", "time", "step"] and param_names[1] in [
                     "x",
                     "state",
                     "x_k",
@@ -598,50 +597,47 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                     # (k, x) order - need to swap
                     return lambda x, k: u_sequence(k, x)
 
-                else:
-                    # Strategy 2: Try calling with test values
+                # Strategy 2: Try calling with test values
+                try:
+                    # Try (x, k) order first (our standard)
+                    test_x = np.zeros(self.nx)
+                    test_result = u_sequence(test_x, 0)
+
+                    # Validate result
+                    test_result_array = np.asarray(test_result)
+                    if test_result_array.shape[0] == self.nu:
+                        # Success with (x, k) - use as-is
+                        return u_sequence
+                    # Wrong dimension - might be wrong order
+                    raise ValueError("Dimension mismatch")
+
+                except Exception:
+                    # Failed with (x, k), try (k, x)
                     try:
-                        # Try (x, k) order first (our standard)
                         test_x = np.zeros(self.nx)
-                        test_result = u_sequence(test_x, 0)
+                        test_result = u_sequence(0, test_x)
 
                         # Validate result
                         test_result_array = np.asarray(test_result)
                         if test_result_array.shape[0] == self.nu:
-                            # Success with (x, k) - use as-is
-                            return u_sequence
-                        else:
-                            # Wrong dimension - might be wrong order
-                            raise ValueError("Dimension mismatch")
+                            # Success with (k, x) - swap to our standard
+                            return lambda x, k: u_sequence(k, x)
+                        raise ValueError("Dimension mismatch")
 
-                    except Exception:
-                        # Failed with (x, k), try (k, x)
-                        try:
-                            test_x = np.zeros(self.nx)
-                            test_result = u_sequence(0, test_x)
-
-                            # Validate result
-                            test_result_array = np.asarray(test_result)
-                            if test_result_array.shape[0] == self.nu:
-                                # Success with (k, x) - swap to our standard
-                                return lambda x, k: u_sequence(k, x)
-                            else:
-                                raise ValueError("Dimension mismatch")
-
-                        except Exception as e:
-                            # Can't determine order - raise helpful error
-                            raise ValueError(
-                                f"Could not determine parameter order for control function. "
-                                f"Please use signature u(x, k) or u(k) for time-indexed control. "
-                                f"Function signature: {sig}. Error: {e}"
-                            )
+                    except Exception as e:
+                        # Can't determine order - raise helpful error
+                        raise ValueError(
+                            f"Could not determine parameter order for control function. "
+                            f"Please use signature u(x, k) or u(k) for time-indexed control. "
+                            f"Function signature: {sig}. Error: {e}",
+                        )
 
             else:
                 # Wrong number of parameters
                 raise ValueError(
                     f"Control function must have 1 or 2 parameters, got {n_params}. "
                     f"Use u(k) for time-indexed or u(x, k) for state feedback. "
-                    f"Function signature: {sig}"
+                    f"Function signature: {sig}",
                 )
 
         elif isinstance(u_sequence, np.ndarray):
@@ -652,12 +648,12 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                 if u_sequence.shape[0] != self.nu:
                     raise ValueError(
                         f"Control dimension mismatch. Expected (nu={self.nu},), "
-                        f"got shape {u_sequence.shape}"
+                        f"got shape {u_sequence.shape}",
                     )
                 # Return constant control
                 return lambda x, k: u_sequence
 
-            elif u_sequence.ndim == 2:
+            if u_sequence.ndim == 2:
                 # 2D array - pre-computed sequence
                 # Could be (n_steps, nu) time-major or (nu, n_steps) state-major
 
@@ -666,31 +662,28 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                     def time_major_control(x, k):
                         if k < len(u_sequence):
                             return u_sequence[k, :]
-                        else:
-                            # Repeat last control
-                            return u_sequence[-1, :]
+                        # Repeat last control
+                        return u_sequence[-1, :]
 
                     return time_major_control
 
-                elif u_sequence.shape[0] == self.nu and u_sequence.shape[1] == n_steps:
+                if u_sequence.shape[0] == self.nu and u_sequence.shape[1] == n_steps:
                     # (nu, n_steps) - state-major
                     def state_major_control(x, k):
                         if k < u_sequence.shape[1]:
                             return u_sequence[:, k]
-                        else:
-                            # Repeat last control
-                            return u_sequence[:, -1]
+                        # Repeat last control
+                        return u_sequence[:, -1]
 
                     return state_major_control
 
-                elif u_sequence.shape[0] == self.nu:
+                if u_sequence.shape[0] == self.nu:
                     # Ambiguous: could be (nu, T) where T != n_steps
                     # Treat as state-major sequence
                     def ambiguous_control(x, k):
                         if k < u_sequence.shape[1]:
                             return u_sequence[:, k]
-                        else:
-                            return u_sequence[:, -1]
+                        return u_sequence[:, -1]
 
                     import warnings
 
@@ -702,19 +695,17 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                     )
                     return ambiguous_control
 
-                else:
-                    # Shape doesn't match expected patterns
-                    raise ValueError(
-                        f"Control sequence shape {u_sequence.shape} doesn't match expected patterns. "
-                        f"Expected: (n_steps={n_steps}, nu={self.nu}) time-major, "
-                        f"or (nu={self.nu}, n_steps={n_steps}) state-major."
-                    )
-
-            else:
-                # 3D or higher - not supported
+                # Shape doesn't match expected patterns
                 raise ValueError(
-                    f"Control array must be 1D or 2D, got {u_sequence.ndim}D with shape {u_sequence.shape}"
+                    f"Control sequence shape {u_sequence.shape} doesn't match expected patterns. "
+                    f"Expected: (n_steps={n_steps}, nu={self.nu}) time-major, "
+                    f"or (nu={self.nu}, n_steps={n_steps}) state-major.",
                 )
+
+            # 3D or higher - not supported
+            raise ValueError(
+                f"Control array must be 1D or 2D, got {u_sequence.ndim}D with shape {u_sequence.shape}",
+            )
 
         elif isinstance(u_sequence, (list, tuple)):
             # List or tuple of control values
@@ -728,12 +719,11 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
                     if u_array.shape[0] != self.nu:
                         raise ValueError(
                             f"Control at step {k} has wrong dimension. "
-                            f"Expected ({self.nu},), got {u_array.shape}"
+                            f"Expected ({self.nu},), got {u_array.shape}",
                         )
                     return u_array
-                else:
-                    # Repeat last control
-                    return np.asarray(u_sequence[-1])
+                # Repeat last control
+                return np.asarray(u_sequence[-1])
 
             return list_control
 
@@ -742,7 +732,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
             raise TypeError(
                 f"Invalid control sequence type: {type(u_sequence)}. "
                 f"Expected: None, np.ndarray, callable, list, or tuple. "
-                f"Got: {type(u_sequence).__name__}"
+                f"Got: {type(u_sequence).__name__}",
             )
 
     # ========================================================================
@@ -750,7 +740,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def forward(
-        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None
+        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Alias for step() with explicit backend specification.
@@ -921,7 +911,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         return self._observation.evaluate(x, backend)
 
     def linearized_observation(
-        self, x: StateVector, backend: Optional[Backend] = None
+        self, x: StateVector, backend: Optional[Backend] = None,
     ) -> OutputMatrix:
         """
         Compute C = ∂h/∂x.

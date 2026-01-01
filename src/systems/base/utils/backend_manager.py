@@ -33,22 +33,22 @@ from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
 
-# Import from centralized type system
-from src.types.core import ArrayLike
 from src.types.backends import (
-    Backend,
-    Device,
-    BackendConfig,
     DEFAULT_BACKEND,
     DEFAULT_DEVICE,
+    Backend,
+    BackendConfig,
+    Device,
     validate_backend,
     validate_device,
 )
+
+# Import from centralized type system
+from src.types.core import ArrayLike
 from src.types.utilities import is_jax, is_numpy, is_torch
 
 if TYPE_CHECKING:
-    import jax.numpy as jnp
-    import torch
+    pass
 
 
 class BackendManager:
@@ -98,7 +98,7 @@ class BackendManager:
         if default_backend not in self._available_backends:
             raise RuntimeError(
                 f"Default backend '{default_backend}' is not available. "
-                f"Available backends: {self._available_backends}"
+                f"Available backends: {self._available_backends}",
             )
 
     # ========================================================================
@@ -178,15 +178,14 @@ class BackendManager:
         """
         if is_torch(array):
             return "torch"
-        elif is_jax(array):
+        if is_jax(array):
             return "jax"
-        elif is_numpy(array):
+        if is_numpy(array):
             return "numpy"
-        else:
-            raise TypeError(
-                f"Unknown input type: {type(array)}. "
-                f"Expected np.ndarray, torch.Tensor, or jax.numpy.ndarray"
-            )
+        raise TypeError(
+            f"Unknown input type: {type(array)}. "
+            f"Expected np.ndarray, torch.Tensor, or jax.numpy.ndarray",
+        )
 
     def check_available(self, backend: Backend) -> bool:
         """
@@ -252,7 +251,7 @@ class BackendManager:
                 return np.asarray(arr)
             return arr
 
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             if not isinstance(arr, torch.Tensor):
@@ -263,7 +262,7 @@ class BackendManager:
             # Ensure correct device
             return arr.to(self.preferred_device)
 
-        elif backend == "jax":
+        if backend == "jax":
             import jax.numpy as jnp
 
             if not isinstance(arr, jnp.ndarray):
@@ -324,14 +323,14 @@ class BackendManager:
         # Convert from NumPy to target backend
         if target_backend == "numpy":
             return array_np
-        elif target_backend == "torch":
+        if target_backend == "torch":
             import torch
 
             tensor = torch.tensor(array_np, dtype=torch.float32)
             if self._preferred_device != "cpu":
                 tensor = tensor.to(self._preferred_device)
             return tensor
-        elif target_backend == "jax":
+        if target_backend == "jax":
             import jax.numpy as jnp
             from jax import device_put, devices
 
@@ -343,8 +342,7 @@ class BackendManager:
                 except (IndexError, RuntimeError):
                     pass
             return array_jax
-        else:
-            raise RuntimeError(f"Unhandled target backend: {target_backend}")
+        raise RuntimeError(f"Unhandled target backend: {target_backend}")
 
     # ========================================================================
     # Configuration

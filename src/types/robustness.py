@@ -86,16 +86,13 @@ Usage
 
 from typing import List, Optional, Tuple, Union
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (
     ArrayLike,
-    ControlVector,
     CovarianceMatrix,
     GainMatrix,
     ParameterVector,
-    StateVector,
 )
 from .trajectories import (
     ControlSequence,

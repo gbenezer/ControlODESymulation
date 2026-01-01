@@ -88,7 +88,6 @@ from .core import (
     ControlVector,
     CovarianceMatrix,
     GainMatrix,
-    OutputVector,
     ParameterVector,
     StateVector,
 )

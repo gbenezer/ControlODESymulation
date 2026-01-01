@@ -51,7 +51,6 @@ if TYPE_CHECKING:
 class ValidationError(ValueError):
     """Raised when system validation fails"""
 
-    pass
 
 
 # ============================================================================
@@ -217,7 +216,7 @@ class SymbolicValidator:
                 if not isinstance(var, sp.Symbol):
                     self._errors.append(
                         f"state_vars[{i}] = {var} is not a SymPy Symbol "
-                        f"(got {type(var).__name__})"
+                        f"(got {type(var).__name__})",
                     )
 
         # Check control_vars contains only Symbols
@@ -226,7 +225,7 @@ class SymbolicValidator:
                 if not isinstance(var, sp.Symbol):
                     self._errors.append(
                         f"control_vars[{i}] = {var} is not a SymPy Symbol "
-                        f"(got {type(var).__name__})"
+                        f"(got {type(var).__name__})",
                     )
 
         # Check output_vars contains only Symbols (if defined)
@@ -235,7 +234,7 @@ class SymbolicValidator:
                 if not isinstance(var, sp.Symbol):
                     self._errors.append(
                         f"output_vars[{i}] = {var} is not a SymPy Symbol "
-                        f"(got {type(var).__name__})"
+                        f"(got {type(var).__name__})",
                     )
 
         # Check _f_sym is a Matrix
@@ -255,12 +254,12 @@ class SymbolicValidator:
                     self._errors.append(
                         f"Parameter key {key} is not a SymPy Symbol "
                         f"(got {type(key).__name__}). "
-                        f"Use Symbol objects as keys: {{m: 1.0}} not {{'m': 1.0}}"
+                        f"Use Symbol objects as keys: {{m: 1.0}} not {{'m': 1.0}}",
                     )
 
                 if not isinstance(value, (int, float, np.number)):
                     self._errors.append(
-                        f"Parameter value for {key} must be numeric, " f"got {type(value).__name__}"
+                        f"Parameter value for {key} must be numeric, got {type(value).__name__}",
                     )
 
         # Check order is an integer
@@ -286,13 +285,13 @@ class SymbolicValidator:
                 if actual_rows != expected_rows:
                     self._errors.append(
                         f"_f_sym has {actual_rows} rows but expected {expected_rows} "
-                        f"(nx={nx}, order={order}, nq={nx//order if order > 1 else nx})"
+                        f"(nx={nx}, order={order}, nq={nx//order if order > 1 else nx})",
                     )
 
                 if system._f_sym.shape[1] != 1:
                     self._errors.append(
                         f"_f_sym must be column vector (shape[1]=1), "
-                        f"got shape {system._f_sym.shape}"
+                        f"got shape {system._f_sym.shape}",
                     )
 
         # Check _h_sym dimensions (if defined)
@@ -301,7 +300,7 @@ class SymbolicValidator:
                 if system._h_sym.shape[1] != 1:
                     self._errors.append(
                         f"_h_sym must be column vector (shape[1]=1), "
-                        f"got shape {system._h_sym.shape}"
+                        f"got shape {system._h_sym.shape}",
                     )
 
                 # Check consistency with output_vars if defined
@@ -312,7 +311,7 @@ class SymbolicValidator:
                     if ny_from_vars != ny_from_h:
                         self._errors.append(
                             f"output_vars has {ny_from_vars} elements but "
-                            f"_h_sym has {ny_from_h} rows"
+                            f"_h_sym has {ny_from_h} rows",
                         )
 
         # Check system order vs state dimension
@@ -321,7 +320,7 @@ class SymbolicValidator:
                 self._errors.append(
                     f"For order={order} system, nx={nx} must be divisible by order. "
                     f"Got nx % order = {nx % order}. "
-                    f"State should be [q, q̇, q̈, ...] with balanced partitions."
+                    f"State should be [q, q̇, q̈, ...] with balanced partitions.",
                 )
 
         # Check reasonable order
@@ -331,7 +330,7 @@ class SymbolicValidator:
             elif order > 5:
                 self._warnings.append(
                     f"order = {order} is unusually high. "
-                    f"Are you sure this is correct? Most systems are order 1 or 2."
+                    f"Are you sure this is correct? Most systems are order 1 or 2.",
                 )
 
     def _validate_symbols(self):
@@ -381,7 +380,7 @@ class SymbolicValidator:
         expected_symbols = set(
             system.state_vars
             + system.control_vars  # Empty list is fine for autonomous systems
-            + list(system.parameters.keys())
+            + list(system.parameters.keys()),
         )
 
         # Check for undefined symbols
@@ -389,7 +388,7 @@ class SymbolicValidator:
         if undefined_symbols:
             self._errors.append(
                 f"_f_sym contains undefined symbols: {undefined_symbols}. "
-                f"All symbols must be declared in state_vars, control_vars, or parameters."
+                f"All symbols must be declared in state_vars, control_vars, or parameters.",
             )
 
         # Check that dynamics depend on states (warning only)
@@ -397,7 +396,7 @@ class SymbolicValidator:
         if not (f_symbols & state_symbols):
             self._warnings.append(
                 "_f_sym does not depend on any state variables. "
-                "Is this intentional? (e.g., integrator system)"
+                "Is this intentional? (e.g., integrator system)",
             )
 
         # Validate output expression (if defined)
@@ -416,7 +415,7 @@ class SymbolicValidator:
                     if h_symbols & control_symbols:
                         self._errors.append(
                             f"_h_sym contains control variables {h_symbols & control_symbols}. "
-                            f"Output h(x) should only depend on states, not controls."
+                            f"Output h(x) should only depend on states, not controls.",
                         )
 
                 # Check for undefined symbols in output
@@ -424,7 +423,7 @@ class SymbolicValidator:
                 if undefined:
                     self._errors.append(
                         f"_h_sym contains undefined symbols: {undefined}. "
-                        f"Output can only use state_vars and parameters."
+                        f"Output can only use state_vars and parameters.",
                     )
 
     def _validate_parameters(self):
@@ -456,7 +455,7 @@ class SymbolicValidator:
             if unused_params:
                 self._warnings.append(
                     f"Parameters {unused_params} are defined but not used in _f_sym or _h_sym. "
-                    f"Consider removing them or checking for typos."
+                    f"Consider removing them or checking for typos.",
                 )
 
     def _validate_physical_constraints(self):
@@ -473,7 +472,7 @@ class SymbolicValidator:
             if not np.isfinite(value):
                 self._errors.append(
                     f"Parameter {symbol} has non-finite value: {value}. "
-                    f"Parameters must be finite numbers."
+                    f"Parameters must be finite numbers.",
                 )
                 continue
 
@@ -481,12 +480,12 @@ class SymbolicValidator:
             if abs(value) < 1e-10:
                 self._warnings.append(
                     f"Parameter {symbol} = {value} is very small (< 1e-10). "
-                    f"This may cause numerical issues."
+                    f"This may cause numerical issues.",
                 )
             elif abs(value) > 1e10:
                 self._warnings.append(
                     f"Parameter {symbol} = {value} is very large (> 1e10). "
-                    f"Consider rescaling for numerical stability."
+                    f"Consider rescaling for numerical stability.",
                 )
 
     def _validate_naming_conventions(self):
@@ -526,7 +525,7 @@ class SymbolicValidator:
             duplicates = [name for name, count in counts.items() if count > 1]
             self._errors.append(
                 f"Duplicate variable names found: {duplicates}. "
-                f"Each variable must have a unique name."
+                f"Each variable must have a unique name.",
             )
 
         # Check naming convention for second-order systems
@@ -544,7 +543,7 @@ class SymbolicValidator:
                     self._warnings.append(
                         f"Second-order system but state_vars don't follow [q, q̇] pattern. "
                         f"State names: {state_names}. "
-                        f"Consider naming derivatives with '_dot' suffix for clarity."
+                        f"Consider naming derivatives with '_dot' suffix for clarity.",
                     )
 
     def _check_usage_patterns(self):
@@ -676,7 +675,7 @@ class SymbolicValidator:
 
     @staticmethod
     def validate_system(
-        system: "SymbolicDynamicalSystem", raise_on_error: bool = True
+        system: "SymbolicDynamicalSystem", raise_on_error: bool = True,
     ) -> SymbolicValidationResult:
         """
         Static convenience method for one-off validation.

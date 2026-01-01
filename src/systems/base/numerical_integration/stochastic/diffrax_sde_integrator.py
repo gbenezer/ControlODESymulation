@@ -114,24 +114,21 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 import diffrax as dfx
 import jax
 import jax.numpy as jnp
-from jax import Array
 
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     SDEIntegratorBase,
     StepMode,
 )
+from src.types.backends import Backend, ConvergenceType, Device, SDEType
 
 # Import types from centralized type system
 from src.types.core import (
-    ArrayLike,
-    StateVector,
     ControlVector,
     NoiseVector,
     ScalarLike,
+    StateVector,
 )
 from src.types.trajectories import SDEIntegrationResult, TimePoints, TimeSpan
-from src.types.backends import SDEType, NoiseType, ConvergenceType, Backend, Device
-
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
@@ -280,7 +277,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         # Validate solver
         if self.solver_name not in self._solver_map:
             raise ValueError(
-                f"Unknown solver '{solver}'. " f"Available: {list(self._solver_map.keys())}"
+                f"Unknown solver '{solver}'. Available: {list(self._solver_map.keys())}",
             )
 
         # Adjoint method for backpropagation
@@ -294,7 +291,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         if self.adjoint_name not in self._adjoint_map:
             raise ValueError(
                 f"Unknown adjoint '{self.adjoint_name}'. "
-                f"Available: {list(self._adjoint_map.keys())}"
+                f"Available: {list(self._adjoint_map.keys())}",
             )
 
         # Device management
@@ -316,7 +313,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
             if self.levy_area == "none":
                 raise ValueError(
                     f"Solver '{self.solver_name}' requires levy_area. "
-                    f"Set levy_area='space-time' or 'full'"
+                    f"Set levy_area='space-time' or 'full'",
                 )
 
         return solver_class()
@@ -372,7 +369,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         if self.levy_area == "none":
             # Standard Brownian motion (no Levy area)
             return dfx.VirtualBrownianTree(t0, t1, tol=1e-3, shape=shape, key=key)
-        elif self.levy_area == "space-time":
+        if self.levy_area == "space-time":
             # Space-time Levy area (for Milstein)
             try:
                 return dfx.SpaceTimeLevyArea(t0, t1, tol=1e-3, shape=shape, key=key)
@@ -389,7 +386,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         else:
             raise ValueError(
                 f"Invalid levy_area '{self.levy_area}'. "
-                f"Choose from: 'none', 'space-time', 'full'"
+                f"Choose from: 'none', 'space-time', 'full'",
             )
 
     def step(
@@ -559,7 +556,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         # Validate time span
         if tf <= t0:
             raise ValueError(
-                f"End time must be greater than start time. " f"Got t_span=({t0}, {tf})"
+                f"End time must be greater than start time. Got t_span=({t0}, {tf})",
             )
 
         # Generate random key
@@ -695,7 +692,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
                 t=jnp.array([t0]),
                 x=x0[jnp.newaxis, :] if x0.ndim == 1 else x0,
                 success=False,
-                message=f"Diffrax SDE integration failed: {str(e)}\n{traceback.format_exc()}",
+                message=f"Diffrax SDE integration failed: {e!s}\n{traceback.format_exc()}",
                 nfev=0,
                 nsteps=0,
                 diffusion_evals=0,
@@ -956,7 +953,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
 
     @staticmethod
     def recommend_solver(
-        noise_type: str, accuracy: str = "medium", has_derivatives: bool = False
+        noise_type: str, accuracy: str = "medium", has_derivatives: bool = False,
     ) -> str:
         """
         Recommend Diffrax solver based on problem characteristics.
@@ -987,19 +984,17 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
         if noise_type == "additive":
             if accuracy == "high":
                 return "SHARK"
-            elif accuracy == "medium":
+            if accuracy == "medium":
                 return "SEA"
-            else:
-                return "Euler"
+            return "Euler"
 
-        elif has_derivatives and accuracy == "high":
+        if has_derivatives and accuracy == "high":
             return "ItoMilstein"
 
-        elif accuracy == "high":
+        if accuracy == "high":
             return "EulerHeun"
 
-        else:
-            return "Euler"
+        return "Euler"
 
 
 # ============================================================================
@@ -1008,7 +1003,7 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
 
 
 def create_diffrax_sde_integrator(
-    sde_system: "ContinuousStochasticSystem", solver: str = "Euler", dt: float = 0.01, **options
+    sde_system: "ContinuousStochasticSystem", solver: str = "Euler", dt: float = 0.01, **options,
 ) -> DiffraxSDEIntegrator:
     """
     Quick factory for Diffrax SDE integrators.
@@ -1073,7 +1068,7 @@ def list_diffrax_sde_solvers() -> None:
             if "strong_order" in info:
                 print(
                     f"  - {solver}: {info['description']} "
-                    f"(strong {info['strong_order']}, weak {info['weak_order']})"
+                    f"(strong {info['strong_order']}, weak {info['weak_order']})",
                 )
             else:
                 print(f"  - {solver}: {info['description']}")

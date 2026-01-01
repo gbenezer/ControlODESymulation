@@ -121,31 +121,29 @@ Examples
 
 import time
 import warnings
-from typing import Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 import torch
-from torch import Tensor
 
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     SDEIntegratorBase,
     StepMode,
 )
+from src.types.backends import (
+    ConvergenceType,
+    SDEType,
+)
 
 # Import from centralized type system
 from src.types.core import (
-    StateVector,
     ControlVector,
     ScalarLike,
+    StateVector,
 )
 from src.types.trajectories import (
     SDEIntegrationResult,
-    TimeSpan,
     TimePoints,
-)
-from src.types.backends import (
-    SDEType,
-    ConvergenceType,
-    NoiseType,
+    TimeSpan,
 )
 
 if TYPE_CHECKING:
@@ -296,7 +294,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
                 "Installation:\n"
                 "  pip install torchsde\n"
                 "Or with CUDA:\n"
-                "  pip install torch torchsde --index-url https://download.pytorch.org/whl/cu118"
+                "  pip install torch torchsde --index-url https://download.pytorch.org/whl/cu118",
             ) from e
 
         # Validate method
@@ -309,7 +307,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
             "adaptive_heun",
         ]
         if self.method not in available_methods:
-            raise ValueError(f"Unknown method '{method}'. " f"Available: {available_methods}")
+            raise ValueError(f"Unknown method '{method}'. Available: {available_methods}")
 
         # Validate method compatibility with SDE type
         self._validate_method_sde_compatibility()
@@ -348,7 +346,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
                 f"Solutions:\n"
                 f"  1. Use an Ito-compatible method: {ito_only + both}\n"
                 f"  2. Change system to Stratonovich (set sde_type='stratonovich')\n"
-                f"  3. Override integrator SDE type: sde_type=SDEType.STRATONOVICH"
+                f"  3. Override integrator SDE type: sde_type=SDEType.STRATONOVICH",
             )
 
         if self.method in ito_only and self.sde_type == SDEType.STRATONOVICH:
@@ -358,7 +356,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
                 f"Solutions:\n"
                 f"  1. Use a Stratonovich-compatible method: {stratonovich_only + both}\n"
                 f"  2. Change system to Ito (set sde_type='ito')\n"
-                f"  3. Override integrator SDE type: sde_type=SDEType.ITO"
+                f"  3. Override integrator SDE type: sde_type=SDEType.ITO",
             )
 
     @property
@@ -511,7 +509,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         ts = torch.tensor([0.0, step_size], dtype=x.dtype, device=self.device)
 
         ys = (self.torchsde.sdeint_adjoint if self.use_adjoint else self.torchsde.sdeint)(
-            sde, x, ts, method=self.method, dt=step_size
+            sde, x, ts, method=self.method, dt=step_size,
         )
 
         x_next = ys[-1]
@@ -588,7 +586,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
             # torchsde expects batch dimension: (batch, nx)
             y0 = x0.unsqueeze(0) if x0.ndim == 1 else x0
             ys = (self.torchsde.sdeint_adjoint if self.use_adjoint else self.torchsde.sdeint)(
-                sde, y0, ts, method=self.method, dt=self.dt
+                sde, y0, ts, method=self.method, dt=self.dt,
             )
 
             # Remove batch dimension if single trajectory
@@ -632,7 +630,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
                 t=torch.tensor([t0], device=self.device),
                 x=x0.unsqueeze(0) if x0.ndim == 1 else x0,
                 success=False,
-                message=f"TorchSDE integration failed: {str(e)}\n{traceback.format_exc()}",
+                message=f"TorchSDE integration failed: {e!s}\n{traceback.format_exc()}",
                 nfev=0,
                 nsteps=0,
                 diffusion_evals=0,
@@ -765,12 +763,11 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         """Recommend method based on use case."""
         if use_case == "neural_sde":
             return "euler"
-        elif use_case == "high_accuracy":
+        if use_case == "high_accuracy":
             return "srk"
-        elif use_case == "adaptive":
+        if use_case == "adaptive":
             return "reversible_heun"
-        else:
-            return "euler"
+        return "euler"
 
     def vectorized_step(
         self,
@@ -818,7 +815,7 @@ class TorchSDEIntegrator(SDEIntegratorBase):
 
 
 def create_torchsde_integrator(
-    sde_system: "ContinuousStochasticSystem", method="euler", dt=0.01, **options
+    sde_system: "ContinuousStochasticSystem", method="euler", dt=0.01, **options,
 ):
     """Quick factory for TorchSDE integrators."""
     return TorchSDEIntegrator(sde_system, dt=dt, method=method, backend="torch", **options)
@@ -839,7 +836,7 @@ def list_torchsde_methods():
             if "strong_order" in info:
                 print(
                     f"  - {method}: {info['description']} "
-                    f"(strong {info['strong_order']}, weak {info['weak_order']})"
+                    f"(strong {info['strong_order']}, weak {info['weak_order']})",
                 )
             else:
                 print(f"  - {method}: {info['description']}")

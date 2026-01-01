@@ -24,7 +24,7 @@ This module should be placed at:
 """
 
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Sequence, Union
+from typing import Optional
 
 import numpy as np
 
@@ -118,7 +118,6 @@ class DiscreteSystemBase(ABC):
         >>> print(f"Sampling frequency: {freq} Hz")
         Sampling frequency: 100.0 Hz
         """
-        pass
 
     # =========================================================================
     # Abstract Methods (MUST be implemented by subclasses)
@@ -177,11 +176,10 @@ class DiscreteSystemBase(ABC):
         ...     x = system.step(x, u, k)
         ...     # Log or visualize x
         """
-        pass
 
     @abstractmethod
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs
+        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Simulate system for multiple discrete time steps.
@@ -247,11 +245,10 @@ class DiscreteSystemBase(ABC):
 
         >>> result = system.simulate(x0, u_sequence=None, n_steps=100)
         """
-        pass
 
     @abstractmethod
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """
         Compute linearized discrete dynamics around an equilibrium point.
@@ -322,7 +319,6 @@ class DiscreteSystemBase(ABC):
         >>> dt = system.dt
         >>> A_approx = (Ad - np.eye(system.nx)) / dt
         """
-        pass
 
     # =========================================================================
     # Concrete Methods (Provided by base class)

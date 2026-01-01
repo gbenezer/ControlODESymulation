@@ -30,16 +30,15 @@ Reuses:
 - NoiseCharacterizer for noise structure analysis
 """
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
-from typing_extensions import TypedDict
+from typing import List, Optional, Set
 
 import sympy as sp
+from typing_extensions import TypedDict
 
-from src.types.symbolic import ParameterDict, SymbolicDiffusionMatrix, SymbolicMatrix
 from src.systems.base.utils.stochastic.noise_analysis import NoiseCharacterizer
-from src.types.utilities import SymbolicValidationResult
 from src.systems.base.utils.symbolic_validator import SymbolicValidator
+from src.types.symbolic import ParameterDict, SymbolicDiffusionMatrix, SymbolicMatrix
+from src.types.utilities import SymbolicValidationResult
 
 # ============================================================================
 # Exceptions
@@ -49,7 +48,6 @@ from src.systems.base.utils.symbolic_validator import SymbolicValidator
 class ValidationError(Exception):
     """Raised when SDE validation fails."""
 
-    pass
 
 
 class SDEValidationInfo(TypedDict):
@@ -177,7 +175,7 @@ class SDEValidator:
 
         if not isinstance(diffusion_expr, sp.Matrix):
             raise TypeError(
-                f"diffusion_expr must be sp.Matrix, got {type(diffusion_expr).__name__}"
+                f"diffusion_expr must be sp.Matrix, got {type(diffusion_expr).__name__}",
             )
 
         if not isinstance(state_vars, list):
@@ -332,7 +330,7 @@ class SDEValidator:
 
         except Exception as e:
             # If SymbolicValidator itself fails, catch it
-            self._errors.append(f"Drift validation failed: {str(e)}")
+            self._errors.append(f"Drift validation failed: {e!s}")
 
     # ========================================================================
     # Validation Checks - Diffusion (SDE-specific)
@@ -344,7 +342,7 @@ class SDEValidator:
         if self.diffusion.shape[0] != self.nx:
             self._errors.append(
                 f"Diffusion rows ({self.diffusion.shape[0]}) must match "
-                f"state dimension ({self.nx})"
+                f"state dimension ({self.nx})",
             )
 
         # Diffusion must have at least one column
@@ -355,14 +353,14 @@ class SDEValidator:
         if self.nw > self.nx:
             self._warnings.append(
                 f"Number of noise sources ({self.nw}) exceeds state dimension ({self.nx}). "
-                f"This is unusual - typically nw <= nx."
+                f"This is unusual - typically nw <= nx.",
             )
 
         # Warn if very high-dimensional noise
         if self.nw > 10:
             self._warnings.append(
                 f"Very high-dimensional noise (nw={self.nw}). "
-                f"SDE solving can be computationally expensive."
+                f"SDE solving can be computationally expensive.",
             )
 
     def _validate_diffusion_symbols(self):
@@ -382,7 +380,7 @@ class SDEValidator:
 
         if undefined_diffusion:
             self._errors.append(
-                f"Undefined symbols in diffusion: {sorted(str(s) for s in undefined_diffusion)}"
+                f"Undefined symbols in diffusion: {sorted(str(s) for s in undefined_diffusion)}",
             )
 
     def _validate_zero_diffusion(self):
@@ -397,7 +395,7 @@ class SDEValidator:
         if is_all_zero:
             self._warnings.append(
                 "Diffusion matrix is all zeros - this is an ODE, not an SDE. "
-                "Consider using a deterministic system type instead."
+                "Consider using a deterministic system type instead.",
             )
 
     def _validate_noise_type_claim(self, claimed_type: str):
@@ -418,7 +416,7 @@ class SDEValidator:
         try:
             characterizer.validate_noise_type_claim(claimed_type)
         except ValueError as e:
-            self._errors.append(f"Noise type validation failed: {str(e)}")
+            self._errors.append(f"Noise type validation failed: {e!s}")
 
     # ========================================================================
     # Info Building
@@ -478,7 +476,7 @@ class SDEValidator:
         lines.append("COMMON FIXES:")
         lines.append("  1. Ensure drift and diffusion have correct dimensions")
         lines.append(
-            "  2. Check that all symbols are defined in state_vars, control_vars, or parameters"
+            "  2. Check that all symbols are defined in state_vars, control_vars, or parameters",
         )
         lines.append("  3. Use Symbol objects as parameter keys: {m: 1.0} not {'m': 1.0}")
         lines.append("  4. Verify noise type claim matches actual structure")

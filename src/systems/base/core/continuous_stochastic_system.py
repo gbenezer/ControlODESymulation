@@ -201,11 +201,11 @@ from src.systems.base.utils.stochastic.noise_analysis import (
     SDEType,
 )
 from src.systems.base.utils.stochastic.sde_validator import SDEValidator, ValidationError
+from src.types.backends import Backend, SDEIntegrationMethod
 
 # Type imports
-from src.types.core import StateVector, ControlVector, ControlInput, ScalarLike
-from src.types.backends import Backend, SDEIntegrationMethod
-from src.types.trajectories import TimeSpan, TimePoints
+from src.types.core import ControlInput, ControlVector, ScalarLike, StateVector
+from src.types.trajectories import TimePoints, TimeSpan
 
 
 class ContinuousStochasticSystem(ContinuousSymbolicSystem):
@@ -340,7 +340,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
                 "Example:\n"
                 "  def define_system(self):\n"
                 "      # ... set drift attributes ...\n"
-                "      self.diffusion_expr = sp.Matrix([[sigma * x]])"
+                "      self.diffusion_expr = sp.Matrix([[sigma * x]])",
             )
 
         # Run SDE-specific validation
@@ -376,7 +376,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             validator.validate(raise_on_error=True)
         except ValidationError as e:
             raise ValidationError(
-                f"SDE validation failed for {self.__class__.__name__}:\n{str(e)}"
+                f"SDE validation failed for {self.__class__.__name__}:\n{e!s}",
             ) from e
 
     def _initialize_sde_components(self):
@@ -394,12 +394,12 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             sde_type_lower = self.sde_type.lower()
             if sde_type_lower not in ["ito", "stratonovich"]:
                 raise ValueError(
-                    f"Invalid sde_type '{self.sde_type}'. " f"Must be 'ito' or 'stratonovich'"
+                    f"Invalid sde_type '{self.sde_type}'. Must be 'ito' or 'stratonovich'",
                 )
             self.sde_type = SDEType(sde_type_lower)
         elif not isinstance(self.sde_type, SDEType):
             raise TypeError(
-                f"sde_type must be string or SDEType enum, " f"got {type(self.sde_type).__name__}"
+                f"sde_type must be string or SDEType enum, got {type(self.sde_type).__name__}",
             )
 
         # Create DiffusionHandler for code generation
@@ -522,49 +522,47 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         if n_paths == 1:
             # Single trajectory
             return integrator.integrate(x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval)
-        else:
-            # Monte Carlo simulation
-            if hasattr(integrator, "integrate_monte_carlo"):
-                return integrator.integrate_monte_carlo(
-                    x0=x0, u_func=u_func, t_span=t_span, n_paths=n_paths, t_eval=t_eval
-                )
-            else:
-                # Manual Monte Carlo (run n_paths separate integrations)
-                import warnings
+        # Monte Carlo simulation
+        if hasattr(integrator, "integrate_monte_carlo"):
+            return integrator.integrate_monte_carlo(
+                x0=x0, u_func=u_func, t_span=t_span, n_paths=n_paths, t_eval=t_eval,
+            )
+        # Manual Monte Carlo (run n_paths separate integrations)
+        import warnings
 
-                warnings.warn(
-                    f"Integrator '{method}' does not have native Monte Carlo support. "
-                    f"Running {n_paths} separate integrations (may be slow).",
-                    UserWarning,
-                )
+        warnings.warn(
+            f"Integrator '{method}' does not have native Monte Carlo support. "
+            f"Running {n_paths} separate integrations (may be slow).",
+            UserWarning,
+        )
 
-                all_paths = []
-                for i in range(n_paths):
-                    # Set different seed for each path
-                    path_seed = seed + i if seed is not None else None
-                    path_integrator = SDEIntegratorFactory.create(
-                        sde_system=self,
-                        backend=self._default_backend,
-                        method=method,
-                        seed=path_seed,
-                        **integrator_kwargs,
-                    )
+        all_paths = []
+        for i in range(n_paths):
+            # Set different seed for each path
+            path_seed = seed + i if seed is not None else None
+            path_integrator = SDEIntegratorFactory.create(
+                sde_system=self,
+                backend=self._default_backend,
+                method=method,
+                seed=path_seed,
+                **integrator_kwargs,
+            )
 
-                    result = path_integrator.integrate(
-                        x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval
-                    )
-                    all_paths.append(result["x"])
+            result = path_integrator.integrate(
+                x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval,
+            )
+            all_paths.append(result["x"])
 
-                # Stack all paths
-                x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
+        # Stack all paths
+        x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
 
-                # Return combined result
-                return {
-                    **result,  # Use last result for metadata
-                    "x": x_all,
-                    "n_paths": n_paths,
-                    "message": f"Monte Carlo with {n_paths} paths (manual mode)",
-                }
+        # Return combined result
+        return {
+            **result,  # Use last result for metadata
+            "x": x_all,
+            "n_paths": n_paths,
+            "message": f"Monte Carlo with {n_paths} paths (manual mode)",
+        }
 
     # ========================================================================
     # Primary Interface - Drift and Diffusion Evaluation
@@ -671,7 +669,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             if self.nu > 0:
                 raise ValueError(
                     f"Non-autonomous system requires control input u. "
-                    f"System has {self.nu} control input(s)."
+                    f"System has {self.nu} control input(s).",
                 )
             # Create empty control array
             if backend_to_use == "numpy":
@@ -685,7 +683,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
                 u = jnp.array([])
         elif u is not None and self.nu == 0:
-            raise ValueError(f"Autonomous system cannot take control input")
+            raise ValueError("Autonomous system cannot take control input")
 
         # Convert to appropriate backend
         if backend_to_use == "numpy":
@@ -694,7 +692,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
             # Check for empty batch
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "torch":
             import torch
@@ -703,7 +701,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             u_arr = torch.atleast_1d(torch.as_tensor(u)) if self.nu > 0 else torch.tensor([])
 
             if len(x_arr.shape) > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
 
         elif backend_to_use == "jax":
             import jax.numpy as jnp
@@ -712,7 +710,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             u_arr = jnp.atleast_1d(jnp.asarray(u)) if self.nu > 0 else jnp.array([])
 
             if x_arr.ndim > 1 and x_arr.shape[0] == 0:
-                raise ValueError(f"Empty batch detected in diffusion evaluation (batch_size=0).")
+                raise ValueError("Empty batch detected in diffusion evaluation (batch_size=0).")
         else:
             raise ValueError(f"Unknown backend: {backend_to_use}")
 
@@ -938,13 +936,13 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
     # ========================================================================
 
     def compile_diffusion(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[Backend, float]:
         """Pre-compile diffusion functions for specified backends."""
         return self.diffusion_handler.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def compile_all(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[Backend, Dict[str, float]]:
         """
         Compile both drift and diffusion for all backends.
@@ -968,7 +966,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
             # Compile diffusion
             diffusion_timings = self.compile_diffusion(
-                backends=[backend], verbose=verbose, **kwargs
+                backends=[backend], verbose=verbose, **kwargs,
             )
 
             results[backend] = {

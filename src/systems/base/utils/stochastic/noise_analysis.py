@@ -84,8 +84,7 @@ from typing import Dict, List, Optional, Set
 
 import sympy as sp
 
-from src.types.backends import Backend, SDEType, NoiseType
-
+from src.types.backends import Backend, NoiseType
 
 # ============================================================================
 # Analysis Results Container
@@ -172,40 +171,37 @@ class NoiseCharacteristics:
             if self.is_additive:
                 # Specialized additive-noise solvers
                 return ["sea", "shark", "sra1"]
-            elif self.is_scalar:
+            if self.is_scalar:
                 # Single noise source
                 return ["euler_heun", "heun", "reversible_heun"]
-            elif self.is_diagonal:
+            if self.is_diagonal:
                 # Independent noise sources
                 return ["euler_heun", "spark"]
-            elif self.noise_type == NoiseType.MULTIPLICATIVE:
+            if self.noise_type == NoiseType.MULTIPLICATIVE:
                 # Multiplicative-specific solvers
                 return ["euler_heun", "reversible_heun", "spark"]
-            else:
-                # General noise
-                return ["euler_heun", "spark", "general_shark"]
+            # General noise
+            return ["euler_heun", "spark", "general_shark"]
 
-        elif backend == "torch":
+        if backend == "torch":
             # TorchSDE recommendations
             if self.is_additive:
                 return ["euler", "milstein", "srk"]
-            elif self.is_scalar or self.is_diagonal:
+            if self.is_scalar or self.is_diagonal:
                 return ["milstein", "srk"]
-            elif self.noise_type == NoiseType.MULTIPLICATIVE:
+            if self.noise_type == NoiseType.MULTIPLICATIVE:
                 return ["srk", "reversible_heun"]
-            else:
-                return ["euler", "srk", "reversible_heun"]
+            return ["euler", "srk", "reversible_heun"]
 
-        elif backend == "numpy":
+        if backend == "numpy":
             # Julia/DiffEqPy recommendations
             if self.is_additive:
                 # High-order methods for additive noise
                 return ["SRA1", "SRA2", "SRA3"]
-            elif self.noise_type == NoiseType.MULTIPLICATIVE:
+            if self.noise_type == NoiseType.MULTIPLICATIVE:
                 return ["SRIW1", "SRIW2", "SRI"]
-            else:
-                # General solvers
-                return ["SOSRI", "SRI", "SRIW1", "SRIW2"]
+            # General solvers
+            return ["SOSRI", "SRI", "SRIW1", "SRIW2"]
 
         return []
 
@@ -333,7 +329,7 @@ class NoiseCharacterizer:
 
         if diffusion_expr is None:
             raise ValueError(
-                "Configuration dictionary must contain 'diffusion' or 'diffusion_expr' key"
+                "Configuration dictionary must contain 'diffusion' or 'diffusion_expr' key",
             )
 
         return cls(
@@ -403,7 +399,7 @@ class NoiseCharacterizer:
 
         # Determine overall noise type (FIXED LOGIC)
         noise_type = self._classify_noise_type(
-            is_additive, is_multiplicative, is_diagonal, is_scalar
+            is_additive, is_multiplicative, is_diagonal, is_scalar,
         )
 
         return NoiseCharacteristics(
@@ -457,7 +453,7 @@ class NoiseCharacterizer:
         return True
 
     def _classify_noise_type(
-        self, is_additive: bool, is_multiplicative: bool, is_diagonal: bool, is_scalar: bool
+        self, is_additive: bool, is_multiplicative: bool, is_diagonal: bool, is_scalar: bool,
     ) -> NoiseType:
         """
         Classify noise type with CORRECTED hierarchy.
@@ -577,13 +573,13 @@ class NoiseCharacterizer:
                 f"Claimed noise_type='additive' but diffusion depends on: "
                 f"state={char.depends_on_state}, "
                 f"control={char.depends_on_control}, "
-                f"time={char.depends_on_time}"
+                f"time={char.depends_on_time}",
             )
 
         if claimed_type == "diagonal" and not char.is_diagonal:
             raise ValueError(
                 "Claimed noise_type='diagonal' but diffusion has "
-                "off-diagonal elements (coupling between noise sources)"
+                "off-diagonal elements (coupling between noise sources)",
             )
 
         if claimed_type == "scalar" and not char.is_scalar:
@@ -591,8 +587,8 @@ class NoiseCharacterizer:
 
         if claimed_type == "multiplicative" and not char.is_multiplicative:
             raise ValueError(
-                f"Claimed noise_type='multiplicative' but diffusion is constant "
-                f"(no state dependence detected)"
+                "Claimed noise_type='multiplicative' but diffusion is constant "
+                "(no state dependence detected)",
             )
 
         return True
@@ -627,14 +623,13 @@ class NoiseCharacterizer:
         char = self.characteristics
         if char.is_additive:
             return "O(1) - constant, precomputable"
-        elif char.is_scalar:
+        if char.is_scalar:
             return "O(nx) - scalar multiplication"
-        elif char.is_diagonal:
+        if char.is_diagonal:
             return "O(nx) - element-wise"
-        elif char.noise_type == NoiseType.MULTIPLICATIVE:
+        if char.noise_type == NoiseType.MULTIPLICATIVE:
             return "O(nx * nw) - full matrix, state-dependent"
-        else:
-            return "O(nx * nw) - full matrix, general"
+        return "O(nx * nw) - full matrix, general"
 
     def _recommend_backends(self) -> List[str]:
         """Recommend backends based on noise structure."""

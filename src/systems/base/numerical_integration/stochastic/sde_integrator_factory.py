@@ -61,23 +61,21 @@ Examples
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-# Import from centralized type system
-from src.types.core import ScalarLike
-from src.types.backends import (
-    Backend,
-    SDEType,
-    ConvergenceType,
-    NoiseType,
-    SDEIntegrationMethod,
-    VALID_BACKENDS,
-    validate_backend,
-)
-
 # Import base classes and utilities
 from src.systems.base.numerical_integration.integrator_base import StepMode
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     SDEIntegratorBase,
 )
+from src.types.backends import (
+    Backend,
+    ConvergenceType,
+    SDEIntegrationMethod,
+    SDEType,
+    validate_backend,
+)
+
+# Import from centralized type system
+from src.types.core import ScalarLike
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
@@ -310,24 +308,23 @@ class SDEIntegratorFactory:
                 raise ValueError(
                     f"Method '{method}' requires backend '{expected_backend}', "
                     f"but backend '{backend}' was specified. "
-                    f"Either change backend or use a compatible method."
+                    f"Either change backend or use a compatible method.",
                 )
 
         # Create integrator based on backend
         if backend == "numpy":
             return cls._create_diffeqpy(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options
+                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
             )
-        elif backend == "torch":
+        if backend == "torch":
             return cls._create_torchsde(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options
+                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
             )
-        elif backend == "jax":
+        if backend == "jax":
             return cls._create_diffrax(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options
+                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
             )
-        else:
-            raise ValueError(f"Unknown backend: {backend}")
+        raise ValueError(f"Unknown backend: {backend}")
 
     @classmethod
     def _create_diffeqpy(
@@ -349,7 +346,7 @@ class SDEIntegratorFactory:
         except ImportError as e:
             raise ImportError(
                 "DiffEqPy integration requires diffeqpy package. "
-                "Install: pip install diffeqpy && python -c 'from diffeqpy import install; install()'"
+                "Install: pip install diffeqpy && python -c 'from diffeqpy import install; install()'",
             ) from e
 
         return DiffEqPySDEIntegrator(
@@ -384,7 +381,7 @@ class SDEIntegratorFactory:
         except ImportError as e:
             raise ImportError(
                 "TorchSDE integration requires torchsde package. "
-                "Install: pip install torch torchsde"
+                "Install: pip install torch torchsde",
             ) from e
 
         return TorchSDEIntegrator(
@@ -419,7 +416,7 @@ class SDEIntegratorFactory:
         except ImportError as e:
             raise ImportError(
                 "Diffrax integration requires jax and diffrax packages. "
-                "Install: pip install jax diffrax"
+                "Install: pip install jax diffrax",
             ) from e
 
         return DiffraxSDEIntegrator(
@@ -436,7 +433,7 @@ class SDEIntegratorFactory:
 
     @classmethod
     def auto(
-        cls, sde_system: "ContinuousStochasticSystem", seed: Optional[int] = None, **options
+        cls, sde_system: "ContinuousStochasticSystem", seed: Optional[int] = None, **options,
     ) -> SDEIntegratorBase:
         """
         Automatically select best available SDE integrator.
@@ -480,7 +477,7 @@ class SDEIntegratorFactory:
 
         raise ImportError(
             "No SDE integrator backend available. "
-            "Install at least one of: diffeqpy, torchsde, or diffrax"
+            "Install at least one of: diffeqpy, torchsde, or diffrax",
         )
 
     @classmethod
@@ -534,12 +531,12 @@ class SDEIntegratorFactory:
 
         raise ImportError(
             "Optimization requires JAX (diffrax) or PyTorch (torchsde). "
-            "Install: pip install jax diffrax  OR  pip install torch torchsde"
+            "Install: pip install jax diffrax  OR  pip install torch torchsde",
         )
 
     @classmethod
     def for_neural_sde(
-        cls, sde_system: "ContinuousStochasticSystem", adjoint: bool = True, **options
+        cls, sde_system: "ContinuousStochasticSystem", adjoint: bool = True, **options,
     ) -> SDEIntegratorBase:
         """
         Create SDE integrator for neural SDEs.
@@ -838,7 +835,7 @@ class SDEIntegratorFactory:
 
         if use_case not in recommendations:
             raise ValueError(
-                f"Unknown use case '{use_case}'. " f"Choose from: {list(recommendations.keys())}"
+                f"Unknown use case '{use_case}'. Choose from: {list(recommendations.keys())}",
             )
 
         rec = recommendations[use_case].copy()

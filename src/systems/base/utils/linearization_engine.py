@@ -41,7 +41,7 @@ import sympy as sp
 # Import from centralized type system
 from src.types import ArrayLike
 from src.types.backends import Backend
-from src.types.core import ControlVector, InputMatrix, StateMatrix, StateVector
+from src.types.core import ControlVector, StateVector
 from src.types.linearization import DeterministicLinearization
 from src.types.utilities import ExecutionStats
 
@@ -154,7 +154,7 @@ class LinearizationEngine:
             if self.system.nu > 0:
                 raise ValueError(
                     "Non-autonomous system requires control input u. "
-                    f"System has {self.system.nu} control input(s)."
+                    f"System has {self.system.nu} control input(s).",
                 )
             # Create empty control for autonomous system
             if backend == "default":
@@ -194,16 +194,15 @@ class LinearizationEngine:
         # Dispatch to backend-specific implementation
         if target_backend == "numpy":
             return self._compute_dynamics_numpy(x, u)
-        elif target_backend == "torch":
+        if target_backend == "torch":
             return self._compute_dynamics_torch(x, u)
-        elif target_backend == "jax":
+        if target_backend == "jax":
             return self._compute_dynamics_jax(x, u)
-        else:
-            raise ValueError(f"Unknown backend: {target_backend}")
+        raise ValueError(f"Unknown backend: {target_backend}")
 
     # TODO: Symbolic TypedDict Return-Type?
     def compute_symbolic(
-        self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None
+        self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None,
     ) -> Tuple[sp.Matrix, sp.Matrix]:
         """
         Compute symbolic linearization A = ∂f/∂x, B = ∂f/∂u.
@@ -360,7 +359,7 @@ class LinearizationEngine:
                 f"Cannot compute Jacobian matrices for zero samples. "
                 f"Received x.shape={x.shape}, u.shape={u_shape_str}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or iteration code."
+                f"Check your data loading, filtering, or iteration code.",
             )
 
         A_batch = np.zeros((batch_size, self.system.nx, self.system.nx))
@@ -399,7 +398,7 @@ class LinearizationEngine:
                 if self.system.nu > 0:
                     u_np = np.atleast_1d(u[i])
                     A_sym, B_sym = self.compute_symbolic(
-                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1))
+                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
                     )
                 else:
                     # Autonomous: pass None for u_eq
@@ -423,7 +422,7 @@ class LinearizationEngine:
         return A_batch, B_batch
 
     def _compute_dynamics_torch(
-        self, x: "torch.Tensor", u: "torch.Tensor"
+        self, x: "torch.Tensor", u: "torch.Tensor",
     ) -> DeterministicLinearization:
         """
         PyTorch implementation using cached functions or symbolic evaluation.
@@ -459,17 +458,17 @@ class LinearizationEngine:
                 f"Cannot compute Jacobian matrices for zero samples. "
                 f"Received x.shape={tuple(x.shape)}, u.shape={u_shape_str}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your DataLoader, filtering, or iteration code."
+                f"Check your DataLoader, filtering, or iteration code.",
             )
 
         device = x.device
         dtype = x.dtype
 
         A_batch = torch.zeros(
-            batch_size, self.system.nx, self.system.nx, dtype=dtype, device=device
+            batch_size, self.system.nx, self.system.nx, dtype=dtype, device=device,
         )
         B_batch = torch.zeros(
-            batch_size, self.system.nx, self.system.nu, dtype=dtype, device=device
+            batch_size, self.system.nx, self.system.nu, dtype=dtype, device=device,
         )
 
         # Try to get cached Jacobian functions
@@ -507,17 +506,17 @@ class LinearizationEngine:
                     u_np = np.atleast_1d(u_np)
 
                     A_sym, B_sym = self.compute_symbolic(
-                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1))
+                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
                     )
                 else:
                     # Autonomous: pass None for u_eq
                     A_sym, B_sym = self.compute_symbolic(sp.Matrix(x_np.reshape(-1, 1)), u_eq=None)
 
                 A_batch[i] = torch.tensor(
-                    np.array(A_sym, dtype=np.float64), dtype=dtype, device=device
+                    np.array(A_sym, dtype=np.float64), dtype=dtype, device=device,
                 )
                 B_batch[i] = torch.tensor(
-                    np.array(B_sym, dtype=np.float64), dtype=dtype, device=device
+                    np.array(B_sym, dtype=np.float64), dtype=dtype, device=device,
                 )
 
         if squeeze_output:
@@ -535,7 +534,7 @@ class LinearizationEngine:
         return A_batch, B_batch
 
     def _compute_dynamics_jax(
-        self, x: "jnp.ndarray", u: "jnp.ndarray"
+        self, x: "jnp.ndarray", u: "jnp.ndarray",
     ) -> DeterministicLinearization:
         """
         JAX implementation using automatic differentiation.
@@ -576,7 +575,7 @@ class LinearizationEngine:
                 f"Cannot compute Jacobian matrices for zero samples. "
                 f"Received x.shape={x.shape}, u.shape={u_shape_str}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or vmap usage."
+                f"Check your data loading, filtering, or vmap usage.",
             )
 
         # Define dynamics function for Jacobian computation
@@ -664,7 +663,7 @@ class LinearizationEngine:
         if backend not in ["torch", "jax"]:
             raise ValueError(
                 f"Jacobian verification requires autodiff backend ('torch' or 'jax'), "
-                f"got '{backend}'. NumPy doesn't support automatic differentiation."
+                f"got '{backend}'. NumPy doesn't support automatic differentiation.",
             )
 
         # Handle autonomous systems
@@ -687,11 +686,11 @@ class LinearizationEngine:
         # Dispatch to backend-specific verification
         if backend == "torch":
             return self._verify_jacobians_torch(x, u, tol)
-        else:  # jax
-            return self._verify_jacobians_jax(x, u, tol)
+        # jax
+        return self._verify_jacobians_jax(x, u, tol)
 
     def _verify_jacobians_torch(
-        self, x: ArrayLike, u: ArrayLike, tol: float
+        self, x: ArrayLike, u: ArrayLike, tol: float,
     ) -> Dict[str, Union[bool, float]]:
         """
         PyTorch-based Jacobian verification.
@@ -755,14 +754,14 @@ class LinearizationEngine:
             for i in range(n_outputs):
                 if fx[0, i].requires_grad:
                     grad_x = torch.autograd.grad(
-                        fx[0, i], x_grad, retain_graph=True, create_graph=False
+                        fx[0, i], x_grad, retain_graph=True, create_graph=False,
                     )[0]
                     A_num[0, i] = grad_x[0]
 
                     # Only compute B gradient for non-autonomous
                     if self.system.nu > 0:
                         grad_u = torch.autograd.grad(
-                            fx[0, i], u_grad, retain_graph=True, create_graph=False
+                            fx[0, i], u_grad, retain_graph=True, create_graph=False,
                         )[0]
                         B_num[0, i] = grad_u[0]
         else:
@@ -770,7 +769,7 @@ class LinearizationEngine:
             for i in range(n_outputs):
                 if fx[0, i].requires_grad:
                     grad_x = torch.autograd.grad(
-                        fx[0, i], x_grad, retain_graph=True, create_graph=False
+                        fx[0, i], x_grad, retain_graph=True, create_graph=False,
                     )[0]
 
                     row_idx = (self.system.order - 1) * self.system.nq + i
@@ -779,7 +778,7 @@ class LinearizationEngine:
                     # Only compute B gradient for non-autonomous
                     if self.system.nu > 0:
                         grad_u = torch.autograd.grad(
-                            fx[0, i], u_grad, retain_graph=True, create_graph=False
+                            fx[0, i], u_grad, retain_graph=True, create_graph=False,
                         )[0]
                         B_num[0, row_idx] = grad_u[0]
 
@@ -806,7 +805,7 @@ class LinearizationEngine:
         }
 
     def _verify_jacobians_jax(
-        self, x: ArrayLike, u: ArrayLike, tol: float
+        self, x: ArrayLike, u: ArrayLike, tol: float,
     ) -> Dict[str, Union[bool, float]]:
         """
         JAX-based Jacobian verification.
@@ -839,7 +838,7 @@ class LinearizationEngine:
         if self.system.nu > 0:
             u_np = np.array(u_2d[0])
             A_sym, B_sym = self.compute_symbolic(
-                sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1))
+                sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
             )
         else:
             # Autonomous: pass None for u_eq

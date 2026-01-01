@@ -56,24 +56,22 @@ safety, IDE autocomplete, and consistency across the codebase.
 """
 
 from abc import abstractmethod
-from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple
 
 import numpy as np
-from typing_extensions import TypedDict
 
 from src.systems.base.numerical_integration.integrator_base import (
     IntegratorBase,
     StepMode,
 )
-
+from src.types.backends import ConvergenceType, SDEType
 from src.types.core import (
     ArrayLike,
     ControlVector,
+    DiffusionMatrix,
+    NoiseVector,
     ScalarLike,
     StateVector,
-    NoiseVector,
-    DiffusionMatrix,
 )
 from src.types.trajectories import (
     SDEIntegrationResult,
@@ -81,11 +79,7 @@ from src.types.trajectories import (
     TimeSpan,
 )
 
-from src.types.backends import SDEType, NoiseType, ConvergenceType
-
 if TYPE_CHECKING:
-    import jax.numpy as jnp
-    import torch
 
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
@@ -257,12 +251,12 @@ class SDEIntegratorBase(IntegratorBase):
         if not hasattr(sde_system, "get_sde_type"):
             raise TypeError(
                 f"sde_system must be a StochasticDynamicalSystem with get_sde_type() method, "
-                f"got {type(sde_system).__name__}"
+                f"got {type(sde_system).__name__}",
             )
         if not hasattr(sde_system, "get_diffusion_matrix"):
             raise TypeError(
                 f"sde_system must be a StochasticDynamicalSystem with get_diffusion_matrix() method, "
-                f"got {type(sde_system).__name__}"
+                f"got {type(sde_system).__name__}",
             )
 
         # Initialize base integrator
@@ -302,31 +296,29 @@ class SDEIntegratorBase(IntegratorBase):
             dummy_x = np.zeros(sde_system.nx)
             dummy_u = np.zeros(sde_system.nu) if sde_system.nu > 0 else None
             self._cached_diffusion = sde_system.get_diffusion_matrix(
-                dummy_x, dummy_u, backend=backend
+                dummy_x, dummy_u, backend=backend,
             )
 
     def _initialize_rng(self, backend: str, seed: Optional[int]):
         """Initialize random number generator for backend."""
         if backend == "numpy":
             return np.random.default_rng(seed)
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             if seed is not None:
                 torch.manual_seed(seed)
             return None  # PyTorch uses global state
-        elif backend == "jax":
+        if backend == "jax":
             import jax
 
             if seed is not None:
                 return jax.random.PRNGKey(seed)
-            else:
-                return jax.random.PRNGKey(0)
-        else:
-            return None
+            return jax.random.PRNGKey(0)
+        return None
 
     def _generate_noise(
-        self, shape: Tuple[int, ...], dt: Optional[ScalarLike] = None
+        self, shape: Tuple[int, ...], dt: Optional[ScalarLike] = None,
     ) -> NoiseVector:
         """
         Generate Brownian motion increments.
@@ -367,7 +359,7 @@ class SDEIntegratorBase(IntegratorBase):
         return dW
 
     def _evaluate_diffusion(
-        self, x: StateVector, u: Optional[ControlVector] = None
+        self, x: StateVector, u: Optional[ControlVector] = None,
     ) -> DiffusionMatrix:
         """
         Evaluate diffusion matrix with caching for additive noise.
@@ -475,7 +467,6 @@ class SDEIntegratorBase(IntegratorBase):
         >>> dW = np.random.randn(nw) * np.sqrt(0.01)
         >>> x_next = integrator.step(x, u, dt=0.01, dW=dW)
         """
-        pass
 
     @abstractmethod
     def integrate(
@@ -710,7 +701,6 @@ class SDEIntegratorBase(IntegratorBase):
         step : Single SDE integration step with noise
         simulate : High-level simulation with (x, t) convention (if available)
         """
-        pass
 
     # ========================================================================
     # Monte Carlo Simulation
@@ -810,11 +800,10 @@ class SDEIntegratorBase(IntegratorBase):
                 "sde_type": self.sde_type.value,
             }
             return mc_result
-        else:
-            # Online statistics (memory efficient)
-            raise NotImplementedError(
-                "Online statistics not yet implemented. Use store_paths=True."
-            )
+        # Online statistics (memory efficient)
+        raise NotImplementedError(
+            "Online statistics not yet implemented. Use store_paths=True.",
+        )
 
     # ========================================================================
     # SDE-Specific Utilities
@@ -888,7 +877,7 @@ class SDEIntegratorBase(IntegratorBase):
         return {**base_stats, **sde_stats}
 
     def _apply_stratonovich_correction(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, dt: ScalarLike
+        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, dt: ScalarLike,
     ) -> ArrayLike:
         """
         Apply Stratonovich correction term.
@@ -945,15 +934,14 @@ class SDEIntegratorBase(IntegratorBase):
 
         if self.backend == "numpy":
             return self._stratonovich_correction_numpy(x, u, g, nx, nw)
-        elif self.backend == "torch":
+        if self.backend == "torch":
             return self._stratonovich_correction_torch(x, u, g, nx, nw)
-        elif self.backend == "jax":
+        if self.backend == "jax":
             return self._stratonovich_correction_jax(x, u, g, nx, nw)
-        else:
-            raise ValueError(f"Unknown backend: {self.backend}")
+        raise ValueError(f"Unknown backend: {self.backend}")
 
     def _stratonovich_correction_numpy(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
+        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using finite differences (NumPy)."""
         import numpy as np
@@ -993,7 +981,7 @@ class SDEIntegratorBase(IntegratorBase):
         return correction
 
     def _stratonovich_correction_torch(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
+        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using autograd (PyTorch)."""
         import torch
@@ -1038,7 +1026,7 @@ class SDEIntegratorBase(IntegratorBase):
         return correction.detach().numpy()
 
     def _stratonovich_correction_jax(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int
+        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using jax.jacobian (JAX)."""
         import jax
@@ -1087,5 +1075,5 @@ class SDEIntegratorBase(IntegratorBase):
         """Human-readable string."""
         noise_str = " (additive)" if self._is_additive else " (multiplicative)"
         return (
-            f"{self.name} (dt={self.dt:.4f}, {self.backend}, " f"{self.sde_type.value}{noise_str})"
+            f"{self.name} (dt={self.dt:.4f}, {self.backend}, {self.sde_type.value}{noise_str})"
         )

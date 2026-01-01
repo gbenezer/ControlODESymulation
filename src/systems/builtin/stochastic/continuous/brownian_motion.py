@@ -104,9 +104,7 @@ True
 >>> # Independent Brownian motions in each dimension
 """
 
-from typing import Optional
 
-import numpy as np
 import sympy as sp
 
 from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
@@ -229,7 +227,7 @@ class BrownianMotion2D(StochasticDynamicalSystem):
     def define_system(self, sigma1: float = 1.0, sigma2: float = 1.0):
         """Define 2D Brownian motion."""
         if sigma1 <= 0 or sigma2 <= 0:
-            raise ValueError(f"sigma values must be positive")
+            raise ValueError("sigma values must be positive")
 
         # Define symbolic variables
         x1, x2 = sp.symbols("x1 x2", real=True)

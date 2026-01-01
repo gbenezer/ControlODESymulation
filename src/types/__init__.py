@@ -110,21 +110,6 @@ from src.types import core, estimation
 # =============================================================================
 # Core Types - Fundamental vectors and matrices
 # =============================================================================
-from .core import (
-    ArrayLike,
-    ControlVector,
-    CovarianceMatrix,
-    FeedthroughMatrix,
-    GainMatrix,
-    InputMatrix,
-    OutputMatrix,
-    OutputVector,
-    ParameterVector,
-    StateMatrix,
-    StateVector,
-    SystemDimensions,
-)
-
 # =============================================================================
 # Backend Support - Multi-backend array operations
 # =============================================================================
@@ -141,54 +126,26 @@ from .backends import (
 )
 
 # =============================================================================
-# Trajectories - Time series and simulation results
+# Conformal Prediction - Distribution-free uncertainty quantification
 # =============================================================================
-from .trajectories import (
-    ControlSequence,
-    IntegrationResult,
-    NoiseSequence,
-    OutputSequence,
-    SimulationResult,
-    StateTrajectory,
-    TimePoints,
-    TimeSpan,
-    TrajectorySegment,
-    TrajectoryStatistics,
+from .conformal import (
+    AdaptiveConformalResult,
+    ConformalCalibrationResult,
+    ConformalPredictionResult,
+    ConformalPredictionSet,
+    NonconformityScore,
 )
 
 # =============================================================================
-# Linearization - Jacobian computation and linearization results
+# Contraction Theory - Contraction analysis and CCM
 # =============================================================================
-from .linearization import (
-    ControlJacobian,
-    ContinuousLinearization,
-    ContinuousStochasticLinearization,
-    DeterministicLinearization,
-    DiffusionJacobian,
-    DiscreteLinearization,
-    DiscreteStochasticLinearization,
-    FullLinearization,
-    FullStochasticLinearization,
-    LinearizationCacheKey,
-    LinearizationResult,
-    ObservationLinearization,
-    OutputJacobian,
-    StateJacobian,
-    StochasticLinearization,
-)
-
-# =============================================================================
-# Classical Control - LQR, LQG, Kalman, pole placement
-# =============================================================================
-from .control_classical import (
-    ControllabilityInfo,
-    KalmanFilterResult,
-    LQGResult,
-    LQRResult,
-    LuenbergerObserverResult,
-    ObservabilityInfo,
-    PolePlacementResult,
-    StabilityInfo,
+from .contraction import (
+    CCMResult,
+    ContractionAnalysisResult,
+    ContractionMetric,
+    ContractionRate,
+    FunnelingResult,
+    IncrementalStabilityResult,
 )
 
 # =============================================================================
@@ -205,12 +162,49 @@ from .control_advanced import (
 )
 
 # =============================================================================
+# Classical Control - LQR, LQG, Kalman, pole placement
+# =============================================================================
+from .control_classical import (
+    ControllabilityInfo,
+    KalmanFilterResult,
+    LQGResult,
+    LQRResult,
+    LuenbergerObserverResult,
+    ObservabilityInfo,
+    PolePlacementResult,
+    StabilityInfo,
+)
+from .core import (
+    ArrayLike,
+    ControlVector,
+    CovarianceMatrix,
+    FeedthroughMatrix,
+    GainMatrix,
+    InputMatrix,
+    OutputMatrix,
+    OutputVector,
+    ParameterVector,
+    StateMatrix,
+    StateVector,
+    SystemDimensions,
+)
+
+# =============================================================================
 # State Estimation - EKF, UKF, Particle filters
 # =============================================================================
 from .estimation import (
     EKFResult,
     ParticleFilterResult,
     UKFResult,
+)
+
+# =============================================================================
+# Differential Flatness - Flatness analysis and trajectory planning
+# =============================================================================
+from .flatness import (
+    DifferentialFlatnessResult,
+    FlatnessOutput,
+    TrajectoryPlanningResult,
 )
 
 # =============================================================================
@@ -230,21 +224,61 @@ from .identification import (
 )
 
 # =============================================================================
-# Symbolic Computation - Symbolic expressions and systems
+# Learning - Neural networks and reinforcement learning
 # =============================================================================
-from .symbolic import (
-    ParameterDict,
-    SubstitutionDict,
-    SymbolicDiffusionMatrix,
-    SymbolicExpression,
-    SymbolicGradient,
-    SymbolicHessian,
-    SymbolicJacobian,
-    SymbolicMatrix,
-    SymbolicOutputEquations,
-    SymbolicStateEquations,
-    SymbolicSymbol,
-    SymbolDict,
+from .learning import (
+    Dataset,
+    ImitationLearningResult,
+    LearningRate,
+    LossValue,
+    NeuralDynamicsResult,
+    NeuralNetworkConfig,
+    OnlineAdaptationResult,
+    PolicyEvaluationResult,
+    RLTrainingResult,
+    TrainingBatch,
+    TrainingResult,
+)
+
+# =============================================================================
+# Linearization - Jacobian computation and linearization results
+# =============================================================================
+from .linearization import (
+    ContinuousLinearization,
+    ContinuousStochasticLinearization,
+    ControlJacobian,
+    DeterministicLinearization,
+    DiffusionJacobian,
+    DiscreteLinearization,
+    DiscreteStochasticLinearization,
+    FullLinearization,
+    FullStochasticLinearization,
+    LinearizationCacheKey,
+    LinearizationResult,
+    ObservationLinearization,
+    OutputJacobian,
+    StateJacobian,
+    StochasticLinearization,
+)
+
+# =============================================================================
+# Model Reduction - Balanced realization and order reduction
+# =============================================================================
+from .model_reduction import (
+    BalancedRealizationResult,
+    ReducedOrderModelResult,
+)
+
+# =============================================================================
+# Optimization - General and trajectory optimization
+# =============================================================================
+from .optimization import (
+    ConstrainedOptimizationResult,
+    ConvexOptimizationResult,
+    OptimizationBounds,
+    OptimizationResult,
+    ParameterOptimizationResult,
+    TrajectoryOptimizationResult,
 )
 
 # =============================================================================
@@ -275,72 +309,37 @@ from .robustness import (
 )
 
 # =============================================================================
-# Optimization - General and trajectory optimization
+# Symbolic Computation - Symbolic expressions and systems
 # =============================================================================
-from .optimization import (
-    ConstrainedOptimizationResult,
-    ConvexOptimizationResult,
-    OptimizationBounds,
-    OptimizationResult,
-    ParameterOptimizationResult,
-    TrajectoryOptimizationResult,
+from .symbolic import (
+    ParameterDict,
+    SubstitutionDict,
+    SymbolDict,
+    SymbolicDiffusionMatrix,
+    SymbolicExpression,
+    SymbolicGradient,
+    SymbolicHessian,
+    SymbolicJacobian,
+    SymbolicMatrix,
+    SymbolicOutputEquations,
+    SymbolicStateEquations,
+    SymbolicSymbol,
 )
 
 # =============================================================================
-# Learning - Neural networks and reinforcement learning
+# Trajectories - Time series and simulation results
 # =============================================================================
-from .learning import (
-    Dataset,
-    ImitationLearningResult,
-    LearningRate,
-    LossValue,
-    NeuralDynamicsResult,
-    NeuralNetworkConfig,
-    OnlineAdaptationResult,
-    PolicyEvaluationResult,
-    RLTrainingResult,
-    TrainingBatch,
-    TrainingResult,
-)
-
-# =============================================================================
-# Conformal Prediction - Distribution-free uncertainty quantification
-# =============================================================================
-from .conformal import (
-    AdaptiveConformalResult,
-    ConformalCalibrationResult,
-    ConformalPredictionResult,
-    ConformalPredictionSet,
-    NonconformityScore,
-)
-
-# =============================================================================
-# Contraction Theory - Contraction analysis and CCM
-# =============================================================================
-from .contraction import (
-    CCMResult,
-    ContractionAnalysisResult,
-    ContractionMetric,
-    ContractionRate,
-    FunnelingResult,
-    IncrementalStabilityResult,
-)
-
-# =============================================================================
-# Differential Flatness - Flatness analysis and trajectory planning
-# =============================================================================
-from .flatness import (
-    DifferentialFlatnessResult,
-    FlatnessOutput,
-    TrajectoryPlanningResult,
-)
-
-# =============================================================================
-# Model Reduction - Balanced realization and order reduction
-# =============================================================================
-from .model_reduction import (
-    BalancedRealizationResult,
-    ReducedOrderModelResult,
+from .trajectories import (
+    ControlSequence,
+    IntegrationResult,
+    NoiseSequence,
+    OutputSequence,
+    SimulationResult,
+    StateTrajectory,
+    TimePoints,
+    TimeSpan,
+    TrajectorySegment,
+    TrajectoryStatistics,
 )
 
 # =============================================================================

@@ -38,12 +38,11 @@ the codebase.
 """
 
 import time
-from typing import Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 import diffrax as dfx
 import jax
 import jax.numpy as jnp
-from jax import Array
 
 from src.systems.base.numerical_integration.integrator_base import (
     IntegratorBase,
@@ -218,7 +217,7 @@ class DiffraxIntegrator(IntegratorBase):
         if not self.is_imex:
             if self.solver_name not in self._solver_map:
                 raise ValueError(
-                    f"Unknown solver '{solver}'. Available: {list(self._solver_map.keys()) + list(self._imex_solver_map.keys())}"
+                    f"Unknown solver '{solver}'. Available: {list(self._solver_map.keys()) + list(self._imex_solver_map.keys())}",
                 )
 
         # Check if solver is implicit (requires Jacobian for efficiency)
@@ -235,7 +234,7 @@ class DiffraxIntegrator(IntegratorBase):
 
         if self.adjoint_name not in self._adjoint_map:
             raise ValueError(
-                f"Unknown adjoint '{adjoint}'. Available: {list(self._adjoint_map.keys())}"
+                f"Unknown adjoint '{adjoint}'. Available: {list(self._adjoint_map.keys())}",
             )
 
     @property
@@ -250,8 +249,7 @@ class DiffraxIntegrator(IntegratorBase):
         if self.is_imex:
             # IMEX solvers require explicit and implicit terms
             return self._imex_solver_map[self.solver_name]()
-        else:
-            return self._solver_map[self.solver_name]()
+        return self._solver_map[self.solver_name]()
 
     def _create_ode_term(self, ode_func, use_implicit=False):
         """
@@ -277,14 +275,13 @@ class DiffraxIntegrator(IntegratorBase):
             implicit_term = dfx.ODETerm(lambda t, y, args: jnp.zeros_like(y))
             return dfx.MultiTerm(explicit_term, implicit_term)
 
-        elif self.is_implicit and use_implicit:
+        if self.is_implicit and use_implicit:
             # For implicit solvers, we can optionally provide the Jacobian
             # This is more efficient but requires linearization support
             return dfx.ODETerm(ode_func)
 
-        else:
-            # Standard explicit term
-            return dfx.ODETerm(ode_func)
+        # Standard explicit term
+        return dfx.ODETerm(ode_func)
 
     def step(
         self,
@@ -456,7 +453,7 @@ class DiffraxIntegrator(IntegratorBase):
             raise ValueError(
                 f"Backward integration (tf < t0) is not supported. "
                 f"Got t_span=({t0}, {tf}). "
-                f"For reverse-time integration, integrate forward and flip results."
+                f"For reverse-time integration, integrate forward and flip results.",
             )
 
         # Handle edge case
@@ -576,7 +573,7 @@ class DiffraxIntegrator(IntegratorBase):
                 t=jnp.array([t0]),
                 x=x0[None, :] if x0.ndim == 1 else x0,
                 success=False,
-                message=f"Integration failed: {str(e)}",
+                message=f"Integration failed: {e!s}",
                 nfev=0,
                 nsteps=0,
                 integration_time=integration_time,
@@ -859,20 +856,20 @@ class DiffraxIntegrator(IntegratorBase):
             raise ValueError(
                 "IMEX solvers are not available. "
                 "Requires Diffrax 0.8.0 or later. "
-                f"Current Diffrax version: {dfx.__version__}"
+                f"Current Diffrax version: {dfx.__version__}",
             )
 
         if not self.is_imex:
             raise ValueError(
                 f"Solver '{self.solver_name}' is not an IMEX solver. "
-                f"Use one of: {list(self._imex_solver_map.keys())}"
+                f"Use one of: {list(self._imex_solver_map.keys())}",
             )
 
         t0, tf = t_span
 
         if tf < t0:
             raise ValueError(
-                f"Backward integration not supported for IMEX. Got t_span=({t0}, {tf})"
+                f"Backward integration not supported for IMEX. Got t_span=({t0}, {tf})",
             )
 
         x0 = jnp.asarray(x0)
@@ -954,7 +951,7 @@ class DiffraxIntegrator(IntegratorBase):
                 t=jnp.array([t0]),
                 x=x0[None, :] if x0.ndim == 1 else x0,
                 success=False,
-                message=f"IMEX integration failed: {str(e)}",
+                message=f"IMEX integration failed: {e!s}",
                 nfev=0,
                 nsteps=0,
                 integration_time=integration_time,

@@ -123,7 +123,7 @@ Examples
 import os
 import re
 import time
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 import numpy as np
 
@@ -131,7 +131,7 @@ from src.systems.base.numerical_integration.integrator_base import (
     IntegratorBase,
     StepMode,
 )
-
+from src.types.backends import Backend
 from src.types.core import (
     ControlVector,
     ScalarLike,
@@ -142,8 +142,6 @@ from src.types.trajectories import (
     TimePoints,
     TimeSpan,
 )
-
-from src.types.backends import Backend
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
@@ -308,7 +306,7 @@ class DiffEqPyIntegrator(IntegratorBase):
         if backend != "numpy":
             raise ValueError(
                 f"DiffEqPyIntegrator requires backend='numpy', got '{backend}'. "
-                f"Julia arrays are automatically converted to NumPy."
+                f"Julia arrays are automatically converted to NumPy.",
             )
 
         super().__init__(system, dt, step_mode, backend, **options)
@@ -335,7 +333,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 "3. Install Python package:\n"
                 "   pip install diffeqpy\n"
                 "4. Run Julia setup from Python:\n"
-                "   python -c 'from diffeqpy import install; install()'"
+                "   python -c 'from diffeqpy import install; install()'",
             )
 
         # Validate algorithm
@@ -365,7 +363,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 except Exception as e:
                     raise ValueError(
                         f"Algorithm '{self.algorithm}' is listed as available but "
-                        f"could not be loaded from Julia. Error: {e}"
+                        f"could not be loaded from Julia. Error: {e}",
                     )
         else:
             # Unknown algorithm - give helpful error
@@ -376,7 +374,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 f"  - nonstiff: {', '.join(all_algorithms['nonstiff'][:5])}...\n"
                 f"  - stiff_rosenbrock: {', '.join(all_algorithms['stiff_rosenbrock'])}\n"
                 f"  - auto_switching: {', '.join(all_algorithms['auto_switching'])}\n"
-                f"  (Run list_algorithms() for complete list)"
+                f"  (Run list_algorithms() for complete list)",
             )
 
     @property
@@ -437,7 +435,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 return eval(modified_str)
             except Exception as e:
                 raise ValueError(
-                    f"Failed to create algorithm '{algo_str}'. " f"Check syntax. Error: {e}"
+                    f"Failed to create algorithm '{algo_str}'. Check syntax. Error: {e}",
                 )
         else:
             # Simple algorithm name
@@ -447,11 +445,11 @@ class DiffEqPyIntegrator(IntegratorBase):
             except AttributeError:
                 raise ValueError(
                     f"Algorithm '{algo_str}' not found in DifferentialEquations.jl. "
-                    f"Use list_algorithms() to see available options."
+                    f"Use list_algorithms() to see available options.",
                 )
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one integration step.
@@ -486,7 +484,7 @@ class DiffEqPyIntegrator(IntegratorBase):
         u_func = lambda t, x_cur: u  # May be None for autonomous
 
         result = self.integrate(
-            x0=x, u_func=u_func, t_span=(0.0, step_size), t_eval=np.array([0.0, step_size])
+            x0=x, u_func=u_func, t_span=(0.0, step_size), t_eval=np.array([0.0, step_size]),
         )
 
         return result["x"][-1]
@@ -693,8 +691,8 @@ class DiffEqPyIntegrator(IntegratorBase):
             if DEBUG_DIFFEQPY:
                 print(f"\n[DEBUG] Julia retcode: {sol.retcode}")
                 print(f"[DEBUG] retcode type: {type(sol.retcode)}")
-                print(f"[DEBUG] retcode str: '{str(sol.retcode)}'")
-                print(f"[DEBUG] retcode repr: {repr(sol.retcode)}")
+                print(f"[DEBUG] retcode str: '{sol.retcode!s}'")
+                print(f"[DEBUG] retcode repr: {sol.retcode!r}")
                 print(f"[DEBUG] sol.t length: {len(sol.t)}")
                 print(f"[DEBUG] sol.u length: {len(sol.u)}")
 
@@ -758,7 +756,7 @@ class DiffEqPyIntegrator(IntegratorBase):
 
             if DEBUG_DIFFEQPY:
                 print(f"\n[DEBUG] Integration exception: {type(e).__name__}")
-                print(f"[DEBUG] Exception message: {str(e)}")
+                print(f"[DEBUG] Exception message: {e!s}")
                 import traceback
 
                 traceback.print_exc()
@@ -767,7 +765,7 @@ class DiffEqPyIntegrator(IntegratorBase):
                 "t": np.array([t0]),
                 "x": x0[None, :] if x0.ndim == 1 else x0,
                 "success": False,
-                "message": f"Integration failed: {str(e)}",
+                "message": f"Integration failed: {e!s}",
                 "nfev": fev_count[0],
                 "nsteps": 0,
                 "integration_time": elapsed,
@@ -1047,7 +1045,7 @@ def create_diffeqpy_integrator(
     ... )
     """
     return DiffEqPyIntegrator(
-        system=system, dt=dt, step_mode=step_mode, backend="numpy", algorithm=algorithm, **options
+        system=system, dt=dt, step_mode=step_mode, backend="numpy", algorithm=algorithm, **options,
     )
 
 

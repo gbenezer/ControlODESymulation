@@ -134,6 +134,7 @@ from src.systems.base.numerical_integration.integrator_factory import Integrator
 from src.systems.base.utils.dynamics_evaluator import DynamicsEvaluator
 from src.systems.base.utils.linearization_engine import LinearizationEngine
 from src.systems.base.utils.observation_engine import ObservationEngine
+from src.types.backends import Backend, IntegrationMethod
 
 # Type imports
 from src.types.core import (
@@ -144,13 +145,11 @@ from src.types.core import (
     ScalarLike,
     StateVector,
 )
-from src.types.backends import Backend, IntegrationMethod
 from src.types.linearization import LinearizationResult
-from src.types.trajectories import IntegrationResult, SimulationResult, TimePoints, TimeSpan
+from src.types.trajectories import IntegrationResult, TimePoints, TimeSpan
 
 if TYPE_CHECKING:
-    import jax.numpy as jnp
-    import torch
+    pass
 
 
 class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
@@ -621,16 +620,16 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         # Create integrator via factory (no state stored - created on demand)
         integrator = IntegratorFactory.create(
-            system=self, backend=self._default_backend, method=method, **integrator_kwargs
+            system=self, backend=self._default_backend, method=method, **integrator_kwargs,
         )
 
         # Delegate to integrator
         return integrator.integrate(
-            x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval, dense_output=dense_output
+            x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval, dense_output=dense_output,
         )
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute linearization of continuous dynamics: A = ∂f/∂x, B = ∂f/∂u.
@@ -735,7 +734,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike
+        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
     ) -> bool:
         """
         Verify continuous equilibrium condition: ||f(x_eq, u_eq)|| < tol.
@@ -784,7 +783,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _prepare_control_input(
-        self, u: ControlInput
+        self, u: ControlInput,
     ) -> Callable[[float, StateVector], Optional[ControlVector]]:
         """
         Convert various control input formats to standard function.
@@ -820,11 +819,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
             if self.nu == 0:
                 # Autonomous - return None
                 return lambda t, x: None
-            else:
-                # Non-autonomous but zero control
-                return lambda t, x: np.zeros(self.nu)
+            # Non-autonomous but zero control
+            return lambda t, x: np.zeros(self.nu)
 
-        elif callable(u):
+        if callable(u):
             # Check function signature
             sig = inspect.signature(u)
             n_params = len(sig.parameters)
@@ -833,7 +831,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
                 # u(t) - time-varying only
                 return lambda t, x: u(t)
 
-            elif n_params == 2:
+            if n_params == 2:
                 # u(t, x) or u(x, t) - state feedback
                 #
                 # STRATEGY: Assume standard (t, x) order first.
@@ -847,47 +845,46 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
                     # Explicitly (x, t) order - need to swap
                     return lambda t, x: u(x, t)
 
-                elif param_names == ["t", "x"] or param_names == ["time", "state"]:
+                if param_names == ["t", "x"] or param_names == ["time", "state"]:
                     # Explicitly (t, x) order - correct
                     return u
 
-                else:
-                    # Parameter names don't tell us - try to test
-                    try:
-                        # Try (t, x) order with dummy values
-                        test_x = np.zeros(self.nx)
-                        test_result = u(0.0, test_x)
+                # Parameter names don't tell us - try to test
+                try:
+                    # Try (t, x) order with dummy values
+                    test_x = np.zeros(self.nx)
+                    test_result = u(0.0, test_x)
 
-                        # Success - assume (t, x) is correct
-                        return u
+                    # Success - assume (t, x) is correct
+                    return u
+
+                except Exception:
+                    # Failed with (t, x) - try (x, t)
+                    try:
+                        test_x = np.zeros(self.nx)
+                        test_result = u(test_x, 0.0)
+
+                        # Success with (x, t) - need to swap
+                        return lambda t, x: u(x, t)
 
                     except Exception:
-                        # Failed with (t, x) - try (x, t)
-                        try:
-                            test_x = np.zeros(self.nx)
-                            test_result = u(test_x, 0.0)
+                        # Can't determine - assume standard (t, x) and let it fail
+                        # with a clear error message during integration
+                        import warnings
 
-                            # Success with (x, t) - need to swap
-                            return lambda t, x: u(x, t)
-
-                        except Exception:
-                            # Can't determine - assume standard (t, x) and let it fail
-                            # with a clear error message during integration
-                            import warnings
-
-                            warnings.warn(
-                                f"Could not determine parameter order for control function. "
-                                f"Assuming standard (t, x) order. If your function uses (x, t), "
-                                f"wrap it: lambda t, x: controller(x, t)",
-                                UserWarning,
-                            )
-                            return u
+                        warnings.warn(
+                            "Could not determine parameter order for control function. "
+                            "Assuming standard (t, x) order. If your function uses (x, t), "
+                            "wrap it: lambda t, x: controller(x, t)",
+                            UserWarning,
+                        )
+                        return u
 
             else:
                 # Wrong number of parameters
                 raise ValueError(
                     f"Control function must have signature u(t) or u(t, x), "
-                    f"got {n_params} parameters. Function signature: {sig}"
+                    f"got {n_params} parameters. Function signature: {sig}",
                 )
 
         else:
@@ -902,7 +899,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
             if u_array.shape[0] != self.nu:
                 raise ValueError(
                     f"Control array dimension mismatch. Expected (nu={self.nu},), "
-                    f"got shape {u_array.shape}"
+                    f"got shape {u_array.shape}",
                 )
 
             return lambda t, x: u_array
@@ -912,7 +909,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def forward(
-        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None
+        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Alias for dynamics evaluation with explicit backend specification.
@@ -1127,7 +1124,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         return self._observation.evaluate(x, backend)
 
     def linearized_observation(
-        self, x: StateVector, backend: Optional[Backend] = None
+        self, x: StateVector, backend: Optional[Backend] = None,
     ) -> OutputMatrix:
         """
         Compute linearized observation matrix: C = ∂h/∂x.

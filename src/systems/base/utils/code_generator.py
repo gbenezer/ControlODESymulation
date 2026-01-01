@@ -31,7 +31,7 @@ the low-level SymPy → executable code conversion.
 """
 
 import time
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Tuple, Any
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 
 import sympy as sp
 
@@ -345,7 +345,7 @@ class CodeGenerator:
 
     # TODO: Change to a TypedDict-based return?
     def get_jacobians(
-        self, backend: Backend
+        self, backend: Backend,
     ) -> Tuple[Optional[Callable], Optional[Callable], Optional[Callable]]:
         """
         Get cached Jacobian functions without generating.

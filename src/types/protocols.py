@@ -181,14 +181,12 @@ See Also
 - src.types.linearization: Linearization result types
 """
 
-from typing import Any, Callable, Dict, List, Optional, Protocol, Tuple, Union, runtime_checkable
+from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 # Type imports
-from src.types.core import ControlVector, DiscreteControlInput, OutputVector, StateVector
-from src.types.backends import Backend
+from src.types.core import ControlVector, DiscreteControlInput, StateVector
 from src.types.linearization import DiscreteLinearization, LinearizationResult
 from src.types.trajectories import DiscreteSimulationResult, IntegrationResult, TimeSpan
-
 
 # ============================================================================
 # Discrete System Protocols
@@ -350,7 +348,7 @@ class DiscreteSystemProtocol(Protocol):
         ...
 
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput, n_steps: int
+        self, x0: StateVector, u_sequence: DiscreteControlInput, n_steps: int,
     ) -> DiscreteSimulationResult:
         """
         Simulate system for multiple steps.
@@ -498,7 +496,7 @@ class LinearizableDiscreteProtocol(DiscreteSystemProtocol, Protocol):
     """
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """
         Compute discrete-time linearization: Ad = ∂f/∂x, Bd = ∂f/∂u.
@@ -670,7 +668,7 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
     parameters: Dict  # Dict[sp.Symbol, float] - Parameter values
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False
+        self, backends: Optional[List[str]] = None, verbose: bool = False,
     ) -> Dict[str, float]:
         """
         Pre-compile symbolic expressions to numerical functions.
@@ -782,7 +780,7 @@ class ContinuousSystemProtocol(Protocol):
         ...
 
     def __call__(
-        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0
+        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0,
     ) -> StateVector:
         """
         Evaluate continuous dynamics: dx/dt = f(x, u, t).
@@ -804,7 +802,7 @@ class ContinuousSystemProtocol(Protocol):
         ...
 
     def integrate(
-        self, x0: StateVector, u, t_span: TimeSpan, method: str = "RK45", **kwargs
+        self, x0: StateVector, u, t_span: TimeSpan, method: str = "RK45", **kwargs,
     ) -> IntegrationResult:
         """
         Numerically integrate continuous system.
@@ -865,7 +863,7 @@ class LinearizableContinuousProtocol(ContinuousSystemProtocol, Protocol):
     """
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute continuous-time linearization: A = ∂f/∂x, B = ∂f/∂u.
@@ -930,7 +928,7 @@ class SymbolicContinuousProtocol(LinearizableContinuousProtocol, Protocol):
     parameters: Dict  # Dict[sp.Symbol, float]
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False
+        self, backends: Optional[List[str]] = None, verbose: bool = False,
     ) -> Dict[str, float]:
         """Pre-compile symbolic expressions"""
         ...
@@ -1021,7 +1019,7 @@ class CompilableSystemProtocol(Protocol):
     """
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False
+        self, backends: Optional[List[str]] = None, verbose: bool = False,
     ) -> Dict[str, float]:
         """Pre-compile functions"""
         ...

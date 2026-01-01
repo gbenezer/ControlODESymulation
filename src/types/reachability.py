@@ -93,7 +93,6 @@ Usage
 
 from typing import Callable, List, Optional
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (

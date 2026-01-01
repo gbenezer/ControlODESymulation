@@ -33,20 +33,16 @@ the codebase.
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple
-
-import numpy as np
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 if TYPE_CHECKING:
-    import jax.numpy as jnp
-    import torch
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 
 # Import types from centralized type system
 from src.types import ArrayLike
 from src.types.backends import Backend
-from src.types.core import ScalarLike, StateVector, ControlVector
-from src.types.trajectories import TimePoints, TimeSpan, IntegrationResult
+from src.types.core import ControlVector, ScalarLike, StateVector
+from src.types.trajectories import IntegrationResult, TimePoints, TimeSpan
 
 
 class StepMode(Enum):
@@ -181,7 +177,7 @@ class IntegratorBase(ABC):
         # Validate
         if step_mode == StepMode.FIXED and dt is None:
             raise ValueError(
-                "Time step dt is required for FIXED step mode. " "Specify dt in constructor."
+                "Time step dt is required for FIXED step mode. Specify dt in constructor.",
             )
 
         if step_mode == StepMode.ADAPTIVE and dt is None:
@@ -207,7 +203,7 @@ class IntegratorBase(ABC):
 
     @abstractmethod
     def step(
-        self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None
+        self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one integration step: x(t) → x(t + dt).
@@ -239,7 +235,6 @@ class IntegratorBase(ABC):
         >>> x_next.shape
         (2,)
         """
-        pass
 
     @abstractmethod
     def integrate(
@@ -406,7 +401,6 @@ class IntegratorBase(ABC):
         simulate : High-level simulation with (x, t) controller convention (recommended)
         step : Single integration step
         """
-        pass
 
     @property
     @abstractmethod
@@ -426,7 +420,6 @@ class IntegratorBase(ABC):
         >>> adaptive_integrator.name
         'scipy.RK45 (Adaptive)'
         """
-        pass
 
     # ========================================================================
     # Common Utilities (Shared by All Integrators)
@@ -457,7 +450,7 @@ class IntegratorBase(ABC):
             raise RuntimeError(
                 f"Internal error: Integrator received empty batch. "
                 f"This should have been caught by DynamicsEvaluator. "
-                f"x.shape={x.shape}. This is a bug - please report."
+                f"x.shape={x.shape}. This is a bug - please report.",
             )
 
         self._stats["total_fev"] += 1

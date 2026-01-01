@@ -37,17 +37,13 @@ import sympy as sp
 # Import from centralized type system
 from src.types.backends import Backend
 from src.types.core import (
-    ArrayLike,
-    FeedthroughMatrix,
     OutputMatrix,
     OutputVector,
     StateVector,
 )
-from src.types.linearization import ObservationLinearization
 from src.types.utilities import get_batch_size, is_batched
 
 if TYPE_CHECKING:
-    import jax
     import jax.numpy as jnp
     import torch
 
@@ -142,12 +138,11 @@ class ObservationEngine:
         # Dispatch to backend-specific implementation
         if target_backend == "numpy":
             return self._evaluate_numpy(x)
-        elif target_backend == "torch":
+        if target_backend == "torch":
             return self._evaluate_torch(x)
-        elif target_backend == "jax":
+        if target_backend == "jax":
             return self._evaluate_jax(x)
-        else:
-            raise ValueError(f"Unknown backend: {target_backend}")
+        raise ValueError(f"Unknown backend: {target_backend}")
 
     def _evaluate_numpy(self, x: np.ndarray) -> np.ndarray:
         """
@@ -184,7 +179,7 @@ class ObservationEngine:
                 f"Cannot compute outputs for zero samples. "
                 f"Received x.shape={x.shape}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or iteration code."
+                f"Check your data loading, filtering, or iteration code.",
             )
 
         results = []
@@ -199,7 +194,7 @@ class ObservationEngine:
         if len(results) == 0:
             raise RuntimeError(
                 "Internal error: No results generated despite non-empty input validation. "
-                "This is a bug in the observation engine - please report this."
+                "This is a bug in the observation engine - please report this.",
             )
 
         result = np.stack(results)
@@ -246,7 +241,7 @@ class ObservationEngine:
                 f"Cannot compute outputs for zero samples. "
                 f"Received x.shape={tuple(x.shape)}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your DataLoader, filtering, or iteration code."
+                f"Check your DataLoader, filtering, or iteration code.",
             )
 
         # Prepare input arguments
@@ -261,10 +256,9 @@ class ObservationEngine:
                 result = result.squeeze(0)
             elif result.ndim == 0:
                 result = result.reshape(1)
-        else:
-            # Batched output - ensure shape is (batch, ny)
-            if result.ndim == 1 and self.system.ny == 1:
-                result = result.unsqueeze(1)
+        # Batched output - ensure shape is (batch, ny)
+        elif result.ndim == 1 and self.system.ny == 1:
+            result = result.unsqueeze(1)
 
         # Final safety: ensure at least 1D
         if result.ndim == 0:
@@ -311,7 +305,7 @@ class ObservationEngine:
                 f"Cannot compute outputs for zero samples. "
                 f"Received x.shape={x.shape}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or vmap usage."
+                f"Check your data loading, filtering, or vmap usage.",
             )
 
         # For batched computation, use vmap
@@ -371,29 +365,26 @@ class ObservationEngine:
             if backend == "numpy" or backend is None:
                 if not is_batched(x):
                     return np.eye(self.system.nx)
-                else:
-                    batch_size = get_batch_size(x)
-                    return np.tile(np.eye(self.system.nx), (batch_size, 1, 1))
-            elif backend == "torch":
+                batch_size = get_batch_size(x)
+                return np.tile(np.eye(self.system.nx), (batch_size, 1, 1))
+            if backend == "torch":
                 import torch
 
                 if not is_batched(x):
                     return torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
-                else:
-                    batch_size = get_batch_size(x)
-                    return (
-                        torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
-                        .unsqueeze(0)
-                        .expand(batch_size, -1, -1)
-                    )
-            elif backend == "jax":
+                batch_size = get_batch_size(x)
+                return (
+                    torch.eye(self.system.nx, dtype=x.dtype, device=x.device)
+                    .unsqueeze(0)
+                    .expand(batch_size, -1, -1)
+                )
+            if backend == "jax":
                 import jax.numpy as jnp
 
                 if not is_batched(x):
                     return jnp.eye(self.system.nx)
-                else:
-                    batch_size = get_batch_size(x)
-                    return jnp.tile(jnp.eye(self.system.nx), (batch_size, 1, 1))
+                batch_size = get_batch_size(x)
+                return jnp.tile(jnp.eye(self.system.nx), (batch_size, 1, 1))
 
         # Determine target backend
         if backend == "default":
@@ -411,12 +402,11 @@ class ObservationEngine:
         # Dispatch to backend-specific implementation
         if target_backend == "numpy":
             return self._compute_jacobian_numpy(x)
-        elif target_backend == "torch":
+        if target_backend == "torch":
             return self._compute_jacobian_torch(x)
-        elif target_backend == "jax":
+        if target_backend == "jax":
             return self._compute_jacobian_jax(x)
-        else:
-            raise ValueError(f"Unknown backend: {target_backend}")
+        raise ValueError(f"Unknown backend: {target_backend}")
 
     def compute_symbolic(self, x_eq: Optional[sp.Matrix] = None) -> sp.Matrix:
         """
@@ -473,7 +463,7 @@ class ObservationEngine:
                 f"Cannot compute observation Jacobian for zero samples. "
                 f"Received x.shape={x.shape}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or iteration code."
+                f"Check your data loading, filtering, or iteration code.",
             )
 
         C_batch = np.zeros((batch_size, self.system.ny, self.system.nx))
@@ -531,14 +521,14 @@ class ObservationEngine:
                 f"Cannot compute observation Jacobian for zero samples. "
                 f"Received x.shape={tuple(x.shape)}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your DataLoader, filtering, or iteration code."
+                f"Check your DataLoader, filtering, or iteration code.",
             )
 
         device = x.device
         dtype = x.dtype
 
         C_batch = torch.zeros(
-            batch_size, self.system.ny, self.system.nx, dtype=dtype, device=device
+            batch_size, self.system.ny, self.system.nx, dtype=dtype, device=device,
         )
 
         # Try to get cached Jacobian function
@@ -559,7 +549,7 @@ class ObservationEngine:
 
                 C_sym = self.compute_symbolic(sp.Matrix(x_np))
                 C_batch[i] = torch.tensor(
-                    np.array(C_sym, dtype=np.float64), dtype=dtype, device=device
+                    np.array(C_sym, dtype=np.float64), dtype=dtype, device=device,
                 )
 
         if squeeze_output:
@@ -601,7 +591,7 @@ class ObservationEngine:
                 f"Cannot compute observation Jacobian for zero samples. "
                 f"Received x.shape={x.shape}. "
                 f"This usually indicates a bug in data preparation or loop logic. "
-                f"Check your data loading, filtering, or vmap usage."
+                f"Check your data loading, filtering, or vmap usage.",
             )
 
         # Define observation function for Jacobian computation

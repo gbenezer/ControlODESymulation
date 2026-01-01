@@ -102,13 +102,11 @@ Usage
 
 from typing import Callable, Optional
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (
     ArrayLike,
     GainMatrix,
-    StateVector,
 )
 from .trajectories import (
     StateTrajectory,

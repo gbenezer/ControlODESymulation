@@ -32,16 +32,16 @@ the codebase.
 """
 
 import time
-from typing import Callable, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 import torch
 import torchdiffeq
-from torch import Tensor
 
 from src.systems.base.numerical_integration.integrator_base import (
     IntegratorBase,
     StepMode,
 )
+from src.types.backends import Backend
 
 # Import types from centralized type system
 from src.types.core import (
@@ -54,7 +54,6 @@ from src.types.trajectories import (
     TimePoints,
     TimeSpan,
 )
-from src.types.backends import Backend
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
@@ -408,15 +407,14 @@ class TorchDiffEqIntegrator(IntegratorBase):
             if not isinstance(t_eval, torch.Tensor):
                 t_eval = torch.tensor(t_eval, dtype=x0.dtype, device=x0.device)
             t_points = t_eval
+        # For fixed-step methods, always generate full time grid
+        elif self.method in fixed_step_methods or self.step_mode == StepMode.FIXED:
+            # Generate uniform grid with specified dt
+            n_steps = max(2, int((tf - t0) / self.dt) + 1)
+            t_points = torch.linspace(t0, tf, n_steps, dtype=x0.dtype, device=x0.device)
         else:
-            # For fixed-step methods, always generate full time grid
-            if self.method in fixed_step_methods or self.step_mode == StepMode.FIXED:
-                # Generate uniform grid with specified dt
-                n_steps = max(2, int((tf - t0) / self.dt) + 1)
-                t_points = torch.linspace(t0, tf, n_steps, dtype=x0.dtype, device=x0.device)
-            else:
-                # For adaptive methods, can use just endpoints
-                t_points = torch.tensor([t0, tf], dtype=x0.dtype, device=x0.device)
+            # For adaptive methods, can use just endpoints
+            t_points = torch.tensor([t0, tf], dtype=x0.dtype, device=x0.device)
 
         # Define ODE function (pure function for autograd)
         def ode_func(t, state):
@@ -491,7 +489,7 @@ class TorchDiffEqIntegrator(IntegratorBase):
                 t=torch.tensor([t0], dtype=x0.dtype, device=x0.device),
                 x=x0.unsqueeze(0) if x0.ndim == 1 else x0,
                 success=False,
-                message=f"Integration failed: {str(e)}",
+                message=f"Integration failed: {e!s}",
                 nfev=0,
                 nsteps=0,
                 integration_time=integration_time,

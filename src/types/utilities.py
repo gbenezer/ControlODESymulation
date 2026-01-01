@@ -49,8 +49,8 @@ Usage
 """
 
 # Conditional imports for type checking
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, Tuple
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, Tuple
 
 import numpy as np
 from typing_extensions import TypedDict
@@ -103,7 +103,7 @@ class LinearizableProtocol(Protocol):
     """
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None, **kwargs
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None, **kwargs,
     ) -> Any:  # Returns LinearizationResult
         """
         Compute linearization at equilibrium.
@@ -273,7 +273,7 @@ def is_batched(x: ArrayLike) -> bool:
     """
     if hasattr(x, "ndim"):
         return x.ndim > 1
-    elif hasattr(x, "shape"):
+    if hasattr(x, "shape"):
         return len(x.shape) > 1
     return False
 
@@ -445,12 +445,11 @@ def get_backend(x: ArrayLike) -> Backend:
     """
     if is_numpy(x):
         return "numpy"
-    elif is_torch(x):
+    if is_torch(x):
         return "torch"
-    elif is_jax(x):
+    if is_jax(x):
         return "jax"
-    else:
-        raise TypeError(f"Unknown backend for type {type(x)}")
+    raise TypeError(f"Unknown backend for type {type(x)}")
 
 
 # ============================================================================
@@ -554,16 +553,15 @@ def ensure_backend(x: ArrayLike, backend: Backend) -> ArrayLike:
     # Convert to target backend
     if backend == "numpy":
         return x_np
-    elif backend == "torch":
+    if backend == "torch":
         import torch
 
         return torch.tensor(x_np)
-    elif backend == "jax":
+    if backend == "jax":
         import jax.numpy as jnp
 
         return jnp.array(x_np)
-    else:
-        raise ValueError(f"Unknown backend: {backend}")
+    raise ValueError(f"Unknown backend: {backend}")
 
 
 # ============================================================================
@@ -611,14 +609,13 @@ def check_state_shape(x: StateVector, nx: int, name: str = "state"):
         # Batched: (batch, nx)
         if x_arr.shape[1] != nx:
             raise ValueError(
-                f"{name} has incorrect dimension. " f"Expected (..., {nx}), got shape {x_arr.shape}"
+                f"{name} has incorrect dimension. Expected (..., {nx}), got shape {x_arr.shape}",
             )
-    else:
-        # Single: (nx,)
-        if x_arr.shape[0] != nx:
-            raise ValueError(
-                f"{name} has incorrect dimension. " f"Expected ({nx},), got shape {x_arr.shape}"
-            )
+    # Single: (nx,)
+    elif x_arr.shape[0] != nx:
+        raise ValueError(
+            f"{name} has incorrect dimension. Expected ({nx},), got shape {x_arr.shape}",
+        )
 
 
 def check_control_shape(u: ControlVector, nu: int, name: str = "control"):
@@ -660,14 +657,13 @@ def check_control_shape(u: ControlVector, nu: int, name: str = "control"):
         # Batched: (batch, nu)
         if u_arr.shape[1] != nu:
             raise ValueError(
-                f"{name} has incorrect dimension. " f"Expected (..., {nu}), got shape {u_arr.shape}"
+                f"{name} has incorrect dimension. Expected (..., {nu}), got shape {u_arr.shape}",
             )
-    else:
-        # Single: (nu,)
-        if u_arr.shape[0] != nu:
-            raise ValueError(
-                f"{name} has incorrect dimension. " f"Expected ({nu},), got shape {u_arr.shape}"
-            )
+    # Single: (nu,)
+    elif u_arr.shape[0] != nu:
+        raise ValueError(
+            f"{name} has incorrect dimension. Expected ({nu},), got shape {u_arr.shape}",
+        )
 
 
 def get_array_shape(x: ArrayLike) -> Tuple[int, ...]:
@@ -697,8 +693,7 @@ def get_array_shape(x: ArrayLike) -> Tuple[int, ...]:
     """
     if hasattr(x, "shape"):
         return tuple(x.shape)
-    else:
-        return ()
+    return ()
 
 
 def extract_dimensions(

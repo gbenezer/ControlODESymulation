@@ -212,7 +212,7 @@ class ExtendedKalmanFilter:
         # Get measurement Jacobian
         if self.is_discrete:
             C = self.system.continuous_time_system.linearized_observation(
-                self.x_hat.unsqueeze(0)
+                self.x_hat.unsqueeze(0),
             ).squeeze()
         else:
             C = self.system.linearized_observation(self.x_hat.unsqueeze(0)).squeeze()
@@ -272,11 +272,10 @@ class ExtendedKalmanFilter:
         """
         if x0 is not None:
             self.x_hat = x0.clone()
+        elif self.is_discrete:
+            self.x_hat = self.system.x_equilibrium.clone()
         else:
-            if self.is_discrete:
-                self.x_hat = self.system.x_equilibrium.clone()
-            else:
-                self.x_hat = self.system.x_equilibrium.clone()
+            self.x_hat = self.system.x_equilibrium.clone()
 
         if P0 is not None:
             self.P = P0.clone()

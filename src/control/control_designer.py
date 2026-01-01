@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import numpy as np
 import scipy.linalg
@@ -59,7 +59,7 @@ class ControlDesigner:
             raise TypeError(f"Unknown system type: {type(system)}")
 
     def lqr(
-        self, Q: np.ndarray, R: np.ndarray, equilibrium: Optional[str] = None
+        self, Q: np.ndarray, R: np.ndarray, equilibrium: Optional[str] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Design LQR controller (automatically handles continuous vs discrete).
@@ -155,7 +155,7 @@ class ControlDesigner:
         return K, L
 
     def closed_loop_matrix(
-        self, K: np.ndarray, L: np.ndarray, equilibrium: Optional[str] = None
+        self, K: np.ndarray, L: np.ndarray, equilibrium: Optional[str] = None,
     ) -> np.ndarray:
         """
         Compute closed-loop system matrix for LQG control.
@@ -242,6 +242,6 @@ class ControlDesigner:
         """Ensure cost matrix is 2D"""
         if isinstance(cost, (int, float)):
             return np.array([[cost]])
-        elif cost.ndim == 1:
+        if cost.ndim == 1:
             return np.diag(cost)
         return cost

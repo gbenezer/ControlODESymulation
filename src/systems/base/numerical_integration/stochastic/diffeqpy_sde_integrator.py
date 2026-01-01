@@ -126,7 +126,7 @@ Examples
 
 import time
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -134,11 +134,10 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
     SDEIntegratorBase,
     StepMode,
 )
-
 from src.types import ArrayLike
-from src.types.core import StateVector, ControlVector, NoiseVector, ScalarLike, DiffusionMatrix
-from src.types.trajectories import SDEIntegrationResult, TimeSpan, TimePoints
-from src.types.backends import SDEType, NoiseType, ConvergenceType, Backend, Device
+from src.types.backends import Backend, ConvergenceType, SDEType
+from src.types.core import ControlVector, NoiseVector, ScalarLike, StateVector
+from src.types.trajectories import SDEIntegrationResult, TimePoints, TimeSpan
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
@@ -241,7 +240,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         if backend != "numpy":
             raise ValueError(
                 "DiffEqPySDEIntegrator requires backend='numpy'. "
-                "Julia/Python bridge uses NumPy arrays."
+                "Julia/Python bridge uses NumPy arrays.",
             )
 
         # Initialize base class
@@ -275,7 +274,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 "3. Install Python package:\n"
                 "   pip install diffeqpy\n"
                 "4. Setup (one time):\n"
-                "   python -c 'from diffeqpy import install; install()'\n"
+                "   python -c 'from diffeqpy import install; install()'\n",
             ) from e
 
         # Validate algorithm availability
@@ -284,7 +283,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             raise ValueError(
                 f"Unknown Julia SDE algorithm '{algorithm}'.\n"
                 f"Available: {available[:10]}...\n"
-                f"Use list_algorithms() for complete list."
+                f"Use list_algorithms() for complete list.",
             )
 
         # Get algorithm constructor
@@ -344,7 +343,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         return getattr(self.de, algorithm, None)
 
     def _setup_julia_problem(
-        self, x0: np.ndarray, u_func: Callable, t_span: Tuple[float, float], noise_process=None
+        self, x0: np.ndarray, u_func: Callable, t_span: Tuple[float, float], noise_process=None,
     ):
         """
         Setup Julia SDE problem.
@@ -423,7 +422,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         if g0.shape != expected_shape:
             raise ValueError(
                 f"noise_rate_prototype shape mismatch. "
-                f"Expected {expected_shape}, got {g0.shape}"
+                f"Expected {expected_shape}, got {g0.shape}",
             )
 
         # Create SDE problem
@@ -450,11 +449,11 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
         except Exception as e:
             raise RuntimeError(
-                f"Failed to create Julia SDEProblem: {str(e)}\n"
+                f"Failed to create Julia SDEProblem: {e!s}\n"
                 f"x0 shape: {x0.shape}, dtype: {x0.dtype}\n"
                 f"g0 shape: {g0.shape}, dtype: {g0.dtype}\n"
                 f"System: nx={self.sde_system.nx}, nw={self.sde_system.nw}\n"
-                f"t_span: {t_span}"
+                f"t_span: {t_span}",
             )
 
     def _create_noise_grid(self, t_array: np.ndarray, W_array: np.ndarray):
@@ -492,7 +491,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             raise NotImplementedError(
                 "NoiseGrid not accessible via diffeqpy. "
                 "This may require direct Julia calls or a newer diffeqpy version. "
-                "For custom noise, use JAX/Diffrax backend instead."
+                "For custom noise, use JAX/Diffrax backend instead.",
             )
 
     def step(
@@ -595,7 +594,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
         # Setup problem for single step
         problem = self._setup_julia_problem(
-            x, u_func, (0.0, step_size), noise_process=noise_process
+            x, u_func, (0.0, step_size), noise_process=noise_process,
         )
 
         # Create algorithm instance
@@ -784,7 +783,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 t=np.array([t0]),
                 x=x0.reshape(1, -1),
                 success=False,
-                message=f"Julia SDE integration failed: {str(e)}\n{traceback.format_exc()}",
+                message=f"Julia SDE integration failed: {e!s}\n{traceback.format_exc()}",
                 nfev=0,
                 nsteps=0,
                 solver=self.algorithm,
@@ -851,7 +850,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
             import traceback
 
             raise RuntimeError(
-                f"Julia/DiffEqPy validation failed:\n{str(e)}\n"
+                f"Julia/DiffEqPy validation failed:\n{e!s}\n"
                 f"{traceback.format_exc()}\n\n"
                 f"Troubleshooting:\n"
                 f"1. Run diagnostic: python julia_sde_diagnostic.py\n"
@@ -860,7 +859,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
                 f"3. Reinstall diffeqpy:\n"
                 f"   pip uninstall diffeqpy pyjulia\n"
                 f"   pip install diffeqpy\n"
-                f"   python -c 'from diffeqpy import install; install()'\n"
+                f"   python -c 'from diffeqpy import install; install()'\n",
             ) from e
 
     # ========================================================================
@@ -1023,7 +1022,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
     @staticmethod
     def recommend_algorithm(
-        noise_type: str, stiffness: str = "none", accuracy: str = "medium"
+        noise_type: str, stiffness: str = "none", accuracy: str = "medium",
     ) -> str:
         """
         Recommend Julia SDE algorithm based on problem characteristics.
@@ -1072,27 +1071,25 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         """
         if stiffness == "severe":
             return "ImplicitEM"  # May not work via diffeqpy
-        elif stiffness == "moderate":
+        if stiffness == "moderate":
             return "SKenCarp"  # May not work via diffeqpy
 
         # Non-stiff recommendations
         if accuracy == "high":
             if noise_type == "additive":
                 return "SRA3"  # Verified to work
-            elif noise_type in ["diagonal", "scalar"]:
+            if noise_type in ["diagonal", "scalar"]:
                 # SRIW1 doesn't work via diffeqpy!
                 # This recommendation is from Julia's perspective
                 # For actual use, recommend JAX/Diffrax instead
                 return "SRIW1"  # Won't work - see docstring
-            else:
-                return "RKMil"  # May not work via diffeqpy
-        elif accuracy == "medium":
+            return "RKMil"  # May not work via diffeqpy
+        if accuracy == "medium":
             if noise_type == "diagonal":
                 return "SRA1"  # Untested via diffeqpy
-            else:
-                return "LambaEM"  # Likely works
-        else:  # low accuracy
-            return "EM"  # Always works
+            return "LambaEM"  # Likely works
+        # low accuracy
+        return "EM"  # Always works
 
 
 # ============================================================================
@@ -1101,7 +1098,7 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
 
 def create_diffeqpy_sde_integrator(
-    sde_system: "ContinuousStochasticSystem", algorithm: str = "EM", dt: float = 0.01, **options
+    sde_system: "ContinuousStochasticSystem", algorithm: str = "EM", dt: float = 0.01, **options,
 ) -> DiffEqPySDEIntegrator:
     """
     Quick factory for Julia SDE integrators.
@@ -1169,7 +1166,7 @@ def list_julia_sde_algorithms() -> None:
             if "strong_order" in info:
                 print(
                     f"  - {alg}: {info['description']} "
-                    f"(strong {info['strong_order']}, weak {info['weak_order']})"
+                    f"(strong {info['strong_order']}, weak {info['weak_order']})",
                 )
             else:
                 print(f"  - {alg}: {info['description']}")

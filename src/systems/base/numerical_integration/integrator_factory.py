@@ -63,10 +63,10 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from src.systems.base.numerical_integration.integrator_base import IntegratorBase, StepMode
+from src.types.backends import Backend, IntegrationMethod
 
 # Import semantic types from centralized type system
 from src.types.core import ScalarLike
-from src.types.backends import Backend, IntegrationMethod
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
@@ -299,30 +299,29 @@ class IntegratorFactory:
                     # Multiple backends allowed
                     if backend not in allowed:
                         raise ValueError(
-                            f"Method '{method}' requires backend in {allowed}, " f"got '{backend}'"
+                            f"Method '{method}' requires backend in {allowed}, got '{backend}'",
                         )
                 elif allowed != backend:
                     # Single backend required
                     raise ValueError(
-                        f"Method '{method}' requires backend '{allowed}', " f"got '{backend}'"
+                        f"Method '{method}' requires backend '{allowed}', got '{backend}'",
                     )
 
         # Check if fixed-step method requires dt
         if cls._is_fixed_step_method(method) or step_mode == StepMode.FIXED:
             if dt is None:
                 raise ValueError(
-                    f"Fixed-step method '{method}' or FIXED step mode " f"requires dt parameter"
+                    f"Fixed-step method '{method}' or FIXED step mode requires dt parameter",
                 )
 
         # Create appropriate integrator based on backend
         if backend == "numpy":
             return cls._create_numpy_integrator(system, method, dt, step_mode, **options)
-        elif backend == "torch":
+        if backend == "torch":
             return cls._create_torch_integrator(system, method, dt, step_mode, **options)
-        elif backend == "jax":
+        if backend == "jax":
             return cls._create_jax_integrator(system, method, dt, step_mode, **options)
-        else:
-            raise ValueError(f"Unknown backend: {backend}")
+        raise ValueError(f"Unknown backend: {backend}")
 
     @classmethod
     def _create_numpy_integrator(
@@ -349,14 +348,14 @@ class IntegratorFactory:
                 )
 
                 return DiffEqPyIntegrator(
-                    system, dt=dt, step_mode=step_mode, backend="numpy", algorithm=method, **options
+                    system, dt=dt, step_mode=step_mode, backend="numpy", algorithm=method, **options,
                 )
             except ImportError as e:
                 raise ImportError(
                     f"Julia method '{method}' requires diffeqpy. "
                     f'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
                     f"Then: pip install diffeqpy\n"
-                    f"Error: {e}"
+                    f"Error: {e}",
                 )
 
         # Check if manual fixed-step method
@@ -472,7 +471,7 @@ class IntegratorFactory:
 
         # Always use TorchDiffEq for torch backend
         return TorchDiffEqIntegrator(
-            system, dt=dt, step_mode=step_mode, backend="torch", method=method, **options
+            system, dt=dt, step_mode=step_mode, backend="torch", method=method, **options,
         )
 
     @classmethod
@@ -517,7 +516,7 @@ class IntegratorFactory:
 
     @classmethod
     def auto(
-        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options
+        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options,
     ) -> IntegratorBase:
         """
         Automatically select best integrator for system.
@@ -582,7 +581,7 @@ class IntegratorFactory:
 
     @classmethod
     def for_production(
-        cls, system: "ContinuousSystemBase", use_julia: bool = False, **options
+        cls, system: "ContinuousSystemBase", use_julia: bool = False, **options,
     ) -> IntegratorBase:
         """
         Create integrator for production use.
@@ -642,7 +641,7 @@ class IntegratorFactory:
                 raise ImportError(
                     "Julia integration requires diffeqpy. "
                     'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
-                    "Then: pip install diffeqpy"
+                    "Then: pip install diffeqpy",
                 )
         else:
             # Use scipy LSODA
@@ -656,7 +655,7 @@ class IntegratorFactory:
 
     @classmethod
     def for_optimization(
-        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options
+        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options,
     ) -> IntegratorBase:
         """
         Create integrator optimized for gradient-based optimization.
@@ -717,12 +716,12 @@ class IntegratorFactory:
                     raise ImportError(
                         "Optimization requires JAX or PyTorch. Install either:\n"
                         "  pip install jax diffrax\n"
-                        "  pip install torch torchdiffeq"
+                        "  pip install torch torchdiffeq",
                     )
 
     @classmethod
     def for_neural_ode(
-        cls, system: "ContinuousSystemBase", use_adjoint: bool = True, **options
+        cls, system: "ContinuousSystemBase", use_adjoint: bool = True, **options,
     ) -> IntegratorBase:
         """
         Create integrator for Neural ODE training.
@@ -805,7 +804,7 @@ class IntegratorFactory:
             raise ImportError(
                 "Julia integration requires diffeqpy. "
                 'Install Julia and run: julia> using Pkg; Pkg.add("DifferentialEquations")\n'
-                "Then: pip install diffeqpy"
+                "Then: pip install diffeqpy",
             )
 
     @classmethod
@@ -845,7 +844,7 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_simple(autonomous_system)
         """
         return cls.create(
-            system, backend=backend, method="rk4", dt=dt, step_mode=StepMode.FIXED, **options
+            system, backend=backend, method="rk4", dt=dt, step_mode=StepMode.FIXED, **options,
         )
 
     @classmethod
@@ -885,7 +884,7 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_educational(autonomous_system)
         """
         return cls.create(
-            system, backend=backend, method="euler", dt=dt, step_mode=StepMode.FIXED, **options
+            system, backend=backend, method="euler", dt=dt, step_mode=StepMode.FIXED, **options,
         )
 
     # ========================================================================
@@ -1027,7 +1026,7 @@ class IntegratorFactory:
 
         if use_case not in recommendations:
             raise ValueError(
-                f"Unknown use case '{use_case}'. " f"Choose from: {list(recommendations.keys())}"
+                f"Unknown use case '{use_case}'. Choose from: {list(recommendations.keys())}",
             )
 
         rec = recommendations[use_case].copy()
@@ -1219,7 +1218,7 @@ class IntegratorFactory:
         }
 
         return method_info.get(
-            method, {"name": method, "description": "No information available", "backend": backend}
+            method, {"name": method, "description": "No information available", "backend": backend},
         )
 
 

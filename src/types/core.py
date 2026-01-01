@@ -48,24 +48,20 @@ Usage
 """
 
 # Conditional imports for type checking
+from collections.abc import Sequence
 from typing import (
     TYPE_CHECKING,
-    Any,
     Callable,
-    Dict,
-    List,
     Optional,
     Tuple,
     TypeVar,
     Union,
-    Sequence,
 )
 
 import numpy as np
 
 if TYPE_CHECKING:
     import jax.numpy as jnp
-    import sympy as sp
     import torch
 
 

@@ -29,11 +29,10 @@ Uses semantic types from centralized type system for consistency:
 from typing import Optional, Tuple
 
 import diffrax as dfx
-import equinox as eqx
 import jax.numpy as jnp
 from jax import Array
 
-from src.types.core import ScalarLike, ArrayLike
+from src.types.core import ArrayLike, ScalarLike
 
 
 class CustomBrownianPath(dfx.AbstractPath):
@@ -119,20 +118,19 @@ class CustomBrownianPath(dfx.AbstractPath):
             alpha = jnp.where(dt != 0, (t0 - self.t0) / dt, 0.0)
 
             return self.dW * alpha
-        else:
-            # Query for B(t1) - B(t0) = increment
-            # Scale by sqrt(dt_query / dt_total) for sub-intervals
-            dt_total = self.t1 - self.t0
-            dt_query = t1 - t0
+        # Query for B(t1) - B(t0) = increment
+        # Scale by sqrt(dt_query / dt_total) for sub-intervals
+        dt_total = self.t1 - self.t0
+        dt_query = t1 - t0
 
-            # Avoid division by zero
-            scale = jnp.where(dt_total > 0, jnp.sqrt(dt_query / dt_total), 0.0)
+        # Avoid division by zero
+        scale = jnp.where(dt_total > 0, jnp.sqrt(dt_query / dt_total), 0.0)
 
-            return self.dW * scale
+        return self.dW * scale
 
 
 def create_custom_or_random_brownian(
-    key, t0: ScalarLike, t1: ScalarLike, shape: Tuple[int, ...], dW: Optional[ArrayLike] = None
+    key, t0: ScalarLike, t1: ScalarLike, shape: Tuple[int, ...], dW: Optional[ArrayLike] = None,
 ):
     """
     Create either custom or random Brownian motion for Diffrax.
@@ -167,6 +165,5 @@ def create_custom_or_random_brownian(
     if dW is not None:
         # Use custom noise
         return CustomBrownianPath(t0, t1, dW)
-    else:
-        # Use Diffrax's random noise generator
-        return dfx.VirtualBrownianTree(t0, t1, tol=1e-3, shape=shape, key=key)
+    # Use Diffrax's random noise generator
+    return dfx.VirtualBrownianTree(t0, t1, tol=1e-3, shape=shape, key=key)

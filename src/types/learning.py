@@ -85,9 +85,8 @@ Usage
 >>> policy = rl_result['learned_policy']
 """
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (

@@ -232,11 +232,11 @@ GNU Affero General Public License v3.0
 """
 
 # Import base classes
-from .symbolic_system_base import SymbolicSystemBase
-from .continuous_system_base import ContinuousSystemBase
-from .discrete_system_base import DiscreteSystemBase
 from .continuous_symbolic_system import ContinuousSymbolicSystem
+from .continuous_system_base import ContinuousSystemBase
 from .discrete_symbolic_system import DiscreteSymbolicSystem
+from .discrete_system_base import DiscreteSystemBase
+from .symbolic_system_base import SymbolicSystemBase
 
 # Export public API
 __all__ = [

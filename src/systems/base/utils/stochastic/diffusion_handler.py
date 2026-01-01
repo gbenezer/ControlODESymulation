@@ -40,15 +40,14 @@ from typing import Callable, Dict, List, Optional
 import numpy as np
 import sympy as sp
 
-from src.types.backends import Backend
-from src.types.core import DiffusionFunction, DiffusionMatrix
-from src.types.symbolic import ParameterDict, SymbolicDiffusionMatrix
 from src.systems.base.utils.codegen_utils import generate_function
 from src.systems.base.utils.stochastic.noise_analysis import (
     NoiseCharacteristics,
     NoiseCharacterizer,
-    NoiseType,
 )
+from src.types.backends import Backend
+from src.types.core import DiffusionFunction, DiffusionMatrix
+from src.types.symbolic import ParameterDict, SymbolicDiffusionMatrix
 
 
 class DiffusionHandler:
@@ -219,7 +218,7 @@ class DiffusionHandler:
 
         # REUSE: Use codegen_utils.generate_function()
         base_func = generate_function(
-            expr=diffusion_with_params, symbols=all_vars, backend=backend, **kwargs
+            expr=diffusion_with_params, symbols=all_vars, backend=backend, **kwargs,
         )
 
         # Verify callable (mirrors CodeGenerator)
@@ -345,24 +344,22 @@ class DiffusionHandler:
 
                     if result.shape == target_shape:
                         return result
-                    elif result.size == batch_size * self.nx * self.nw:
+                    if result.size == batch_size * self.nx * self.nw:
                         return result.reshape(target_shape)
-                    elif result.shape == (self.nx, self.nw):
+                    if result.shape == (self.nx, self.nw):
                         # Constant result despite batched input (edge case)
                         return result
-                    else:
-                        # Try to reshape
-                        return result.reshape(target_shape)
-                else:
-                    # Single input: ensure (nx, nw)
-                    result = np.atleast_2d(result)
-                    if result.shape != (self.nx, self.nw):
-                        result = result.reshape(self.nx, self.nw)
-                    return result
+                    # Try to reshape
+                    return result.reshape(target_shape)
+                # Single input: ensure (nx, nw)
+                result = np.atleast_2d(result)
+                if result.shape != (self.nx, self.nw):
+                    result = result.reshape(self.nx, self.nw)
+                return result
 
             return wrapped
 
-        elif backend == "torch":
+        if backend == "torch":
 
             def wrapped(*args):
                 import torch
@@ -424,31 +421,28 @@ class DiffusionHandler:
 
                         if result.shape == target_shape:
                             return result
-                        elif result.numel() == batch_size * self.nx * self.nw:
+                        if result.numel() == batch_size * self.nx * self.nw:
                             return result.reshape(target_shape)
-                        elif result.shape == torch.Size([self.nx, self.nw]):
+                        if result.shape == torch.Size([self.nx, self.nw]):
                             return result
-                        else:
-                            return result.reshape(target_shape)
-                    else:
-                        # Shouldn't reach here, but handle gracefully
-                        result = torch.tensor(result, dtype=torch.float32)
-                        return result.reshape(batch_size, self.nx, self.nw)
-                else:
-                    # Single input
-                    if isinstance(result, torch.Tensor):
-                        if result.dim() == 1:
-                            result = result.reshape(self.nx, self.nw)
-                        elif result.dim() == 0:
-                            result = result.reshape(1, 1)
-                    else:
-                        result = torch.tensor(result, dtype=torch.float32)
+                        return result.reshape(target_shape)
+                    # Shouldn't reach here, but handle gracefully
+                    result = torch.tensor(result, dtype=torch.float32)
+                    return result.reshape(batch_size, self.nx, self.nw)
+                # Single input
+                if isinstance(result, torch.Tensor):
+                    if result.dim() == 1:
                         result = result.reshape(self.nx, self.nw)
-                    return result
+                    elif result.dim() == 0:
+                        result = result.reshape(1, 1)
+                else:
+                    result = torch.tensor(result, dtype=torch.float32)
+                    result = result.reshape(self.nx, self.nw)
+                return result
 
             return wrapped
 
-        elif backend == "jax":
+        if backend == "jax":
 
             def wrapped(*args):
                 import jax.numpy as jnp
@@ -508,32 +502,28 @@ class DiffusionHandler:
 
                         if result.shape == target_shape:
                             return result
-                        elif result.size == batch_size * self.nx * self.nw:
+                        if result.size == batch_size * self.nx * self.nw:
                             return result.reshape(target_shape)
-                        elif result.shape == (self.nx, self.nw):
+                        if result.shape == (self.nx, self.nw):
                             return result
-                        else:
-                            return result.reshape(target_shape)
-                    else:
-                        # Shouldn't reach here, but handle gracefully
-                        result = jnp.array(result)
-                        return result.reshape(batch_size, self.nx, self.nw)
-                else:
-                    # Single input
-                    if isinstance(result, jnp.ndarray):
-                        if result.ndim == 1:
-                            result = result.reshape(self.nx, self.nw)
-                        elif result.ndim == 0:
-                            result = result.reshape(1, 1)
-                    else:
-                        result = jnp.array(result)
+                        return result.reshape(target_shape)
+                    # Shouldn't reach here, but handle gracefully
+                    result = jnp.array(result)
+                    return result.reshape(batch_size, self.nx, self.nw)
+                # Single input
+                if isinstance(result, jnp.ndarray):
+                    if result.ndim == 1:
                         result = result.reshape(self.nx, self.nw)
-                    return result
+                    elif result.ndim == 0:
+                        result = result.reshape(1, 1)
+                else:
+                    result = jnp.array(result)
+                    result = result.reshape(self.nx, self.nw)
+                return result
 
             return wrapped
 
-        else:
-            raise ValueError(f"Unknown backend: {backend}")
+        raise ValueError(f"Unknown backend: {backend}")
 
     def get_function(self, backend: Backend) -> Optional[DiffusionFunction]:
         """
@@ -600,7 +590,7 @@ class DiffusionHandler:
             raise ValueError(
                 "get_constant_noise() only valid for additive noise.\n"
                 f"Current noise type: {self.characteristics.noise_type.value}\n"
-                "For state-dependent noise, use generate_function() and evaluate at each point."
+                "For state-dependent noise, use generate_function() and evaluate at each point.",
             )
 
         # Check cache
@@ -669,17 +659,16 @@ class DiffusionHandler:
         """
         if backend == "numpy":
             return arr
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             dtype = torch.float64 if arr.dtype == np.float64 else torch.float32
             return torch.tensor(arr, dtype=dtype)
-        elif backend == "jax":
+        if backend == "jax":
             import jax.numpy as jnp
 
             return jnp.array(arr)
-        else:
-            raise ValueError(f"Unknown backend: {backend}")
+        raise ValueError(f"Unknown backend: {backend}")
 
     def has_constant_noise(self) -> bool:
         """
@@ -732,7 +721,7 @@ class DiffusionHandler:
     # ========================================================================
 
     def compile_all(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs
+        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
     ) -> Dict[str, float]:
         """
         Pre-compile diffusion functions for multiple backends.

@@ -41,7 +41,7 @@ See class docstring for complete documentation.
 import inspect
 import time
 from enum import Enum
-from typing import Callable, Optional, Sequence, Tuple, List
+from typing import Optional
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -49,12 +49,8 @@ from scipy.interpolate import interp1d
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 from src.systems.base.numerical_integration.integrator_factory import IntegratorFactory
-from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import (
-    SDEIntegratorFactory,
-)
-
-from src.types.core import ControlVector, DiscreteControlInput, StateVector
 from src.types.backends import Backend
+from src.types.core import ControlVector, DiscreteControlInput, StateVector
 from src.types.linearization import DiscreteLinearization
 from src.types.trajectories import DiscreteSimulationResult
 
@@ -110,7 +106,7 @@ class DiscretizedSystem(DiscreteSystemBase):
             "midpoint",
             "rk4",
             "heun",  # Manual implementations (all backends)
-        ]
+        ],
     )
 
     # Adaptive deterministic methods (scipy + backends)
@@ -151,7 +147,7 @@ class DiscretizedSystem(DiscreteSystemBase):
             "Rosenbrock23",
             "Rodas5",
             "ROCK4",
-        ]
+        ],
     )
 
     # ========================================================================
@@ -191,7 +187,7 @@ class DiscretizedSystem(DiscreteSystemBase):
             "SHARK",
             "SRA1",
             "ReversibleHeun",
-        ]
+        ],
     )
 
     # Adaptive SDE methods (rare, but they exist)
@@ -201,7 +197,7 @@ class DiscretizedSystem(DiscreteSystemBase):
             "adaptive_heun",
             "reversible_heun",  # TorchSDE
             "LambaEM",  # Julia adaptive
-        ]
+        ],
     )
 
     # ========================================================================
@@ -636,12 +632,9 @@ class DiscretizedSystem(DiscreteSystemBase):
                 "dopri8",
                 "bosh3",
                 "fehlberg2",
-                "adaptive_heun",
                 "explicit_adams",
                 "implicit_adams",
                 # Manual implementations
-                "euler",
-                "midpoint",
                 "rk4",
                 "heun",
             }
@@ -804,22 +797,21 @@ class DiscretizedSystem(DiscreteSystemBase):
 
         if method_type == "all":
             return backend_methods
-        elif method_type == "deterministic":
+        if method_type == "deterministic":
             return {
                 k: v
                 for k, v in backend_methods.items()
                 if "deterministic" in k or k == "canonical_aliases"
             }
-        elif method_type == "stochastic":
+        if method_type == "stochastic":
             return {
                 k: v for k, v in backend_methods.items() if "sde" in k or k == "canonical_aliases"
             }
-        elif method_type == "fixed_step":
+        if method_type == "fixed_step":
             return {k: v for k, v in backend_methods.items() if "fixed_step" in k}
-        elif method_type == "adaptive":
+        if method_type == "adaptive":
             return {k: v for k, v in backend_methods.items() if "adaptive" in k}
-        else:
-            raise ValueError(f"Unknown method_type: {method_type}")
+        raise ValueError(f"Unknown method_type: {method_type}")
 
     def __init__(
         self,
@@ -1087,7 +1079,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         if not isinstance(continuous_system, ContinuousSystemBase):
             raise TypeError(
                 f"Expected ContinuousSystemBase (or subclass), "
-                f"got {type(continuous_system).__name__}"
+                f"got {type(continuous_system).__name__}",
             )
 
         if dt <= 0:
@@ -1290,7 +1282,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         if self._mode == DiscretizationMode.FIXED_STEP and not self._is_fixed_step:
             raise ValueError(
                 f"Cannot use adaptive method '{method}' with FIXED_STEP mode. "
-                f"Use mode=DiscretizationMode.DENSE_OUTPUT or choose a fixed-step method."
+                f"Use mode=DiscretizationMode.DENSE_OUTPUT or choose a fixed-step method.",
             )
 
         # Warn about BATCH mode with stochastic systems
@@ -1714,7 +1706,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         )
 
         result = integrator.integrate(
-            x0=x, u_func=lambda t, xv: u, t_span=(t_start, t_end), dense_output=True
+            x0=x, u_func=lambda t, xv: u, t_span=(t_start, t_end), dense_output=True,
         )
 
         if "sol" in result and result["sol"] is not None:
@@ -1724,7 +1716,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         return result["x"][-1, :] if "x" in result else result["y"][:, -1]
 
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs
+        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
     ) -> DiscreteSimulationResult:
         return (
             self._simulate_batch(x0, u_sequence, n_steps)
@@ -2012,14 +2004,14 @@ class DiscretizedSystem(DiscreteSystemBase):
         if not self._is_stochastic:
             raise ValueError(
                 "simulate_stochastic() only available for stochastic systems. "
-                "Use regular simulate() for deterministic systems."
+                "Use regular simulate() for deterministic systems.",
             )
 
         if self._method not in self._SDE_METHODS:
             raise ValueError(
                 f"simulate_stochastic() requires SDE method. "
                 f"Current method '{self._method}' is deterministic. "
-                f"Use sde_method parameter: DiscretizedSystem(system, sde_method='euler_maruyama')"
+                f"Use sde_method parameter: DiscretizedSystem(system, sde_method='euler_maruyama')",
             )
 
         if not self._has_sde_integrator:
@@ -2027,7 +2019,7 @@ class DiscretizedSystem(DiscreteSystemBase):
                 "SDE integrator not available. Install required package:\n"
                 "  - NumPy backend: pip install diffeqpy\n"
                 "  - PyTorch backend: pip install torchsde\n"
-                "  - JAX backend: pip install diffrax"
+                "  - JAX backend: pip install diffrax",
             )
 
         # Run multiple trajectories
@@ -2264,7 +2256,7 @@ class DiscretizedSystem(DiscreteSystemBase):
             raise ValueError(
                 f"Regular time grid starts before adaptive grid: "
                 f"t_regular[0]={t_regular[0]:.10f}, t_adaptive[0]={t_adaptive[0]:.10f}. "
-                f"Difference: {t_start_diff:.2e}"
+                f"Difference: {t_start_diff:.2e}",
             )
 
         # Check end time
@@ -2281,10 +2273,10 @@ class DiscretizedSystem(DiscreteSystemBase):
                 f"  - max_steps limit reached\n"
                 f"  - Numerical instability in integration\n"
                 f"  - Stiff system requiring different method\n"
-                f"Check result['success'] and consider using a more robust integrator."
+                f"Check result['success'] and consider using a more robust integrator.",
             )
 
-        elif t_end_diff > FP_TOL:
+        if t_end_diff > FP_TOL:
             # Minor mismatch - warn but continue
             import warnings
 
@@ -2345,7 +2337,7 @@ class DiscretizedSystem(DiscreteSystemBase):
         return y_regular
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         lin_result = self._continuous_system.linearize(x_eq, u_eq)
         A, B = lin_result[:2]  # Handle both (A,B) and (A,B,G)
@@ -2373,11 +2365,11 @@ class DiscretizedSystem(DiscreteSystemBase):
             sig = inspect.signature(u_sequence)
             if len(sig.parameters) == 1:
                 return lambda x, k: u_sequence(k)
-            elif len(sig.parameters) == 2:
+            if len(sig.parameters) == 2:
                 names = list(sig.parameters.keys())
                 if names[0] in ["x", "state"]:
                     return u_sequence
-                elif names[0] in ["k", "time"]:
+                if names[0] in ["k", "time"]:
                     return lambda x, k: u_sequence(k, x)
                 try:
                     u_sequence(np.zeros(self.nx), 0)
@@ -2386,7 +2378,7 @@ class DiscretizedSystem(DiscreteSystemBase):
                     return lambda x, k: u_sequence(k, x)
             else:
                 raise TypeError(
-                    f"Control function must accept 1 or 2 parameters, got {len(sig.parameters)}"
+                    f"Control function must accept 1 or 2 parameters, got {len(sig.parameters)}",
                 )
 
         if isinstance(u_sequence, np.ndarray):
@@ -2394,7 +2386,7 @@ class DiscretizedSystem(DiscreteSystemBase):
                 # Constant control - validate dimension
                 if u_sequence.size != self.nu:
                     raise ValueError(
-                        f"Control dimension mismatch: expected {self.nu}, got {u_sequence.size}"
+                        f"Control dimension mismatch: expected {self.nu}, got {u_sequence.size}",
                     )
                 return lambda x, k: u_sequence
             if u_sequence.shape[0] == n_steps:
@@ -2976,19 +2968,19 @@ class DiscretizedSystem(DiscreteSystemBase):
             if not self._has_sde_integrator:
                 warnings.append(
                     "Stochastic system with deterministic integrator - noise is IGNORED. "
-                    "Install SDE integration support for proper noise handling."
+                    "Install SDE integration support for proper noise handling.",
                 )
             elif self._method_source == "user_specified":
                 warnings.append(
                     f"Using deterministic method '{self._method}' on stochastic system - "
-                    f"consider using '{self._detect_sde_method(self._continuous_system)}' instead."
+                    f"consider using '{self._detect_sde_method(self._continuous_system)}' instead.",
                 )
 
         # Check for BATCH mode with stochastic
         if self._mode == DiscretizationMode.BATCH_INTERPOLATION and self.is_stochastic:
             warnings.append(
                 "BATCH_INTERPOLATION mode with stochastic system - "
-                "each simulation produces different trajectory."
+                "each simulation produces different trajectory.",
             )
 
         # Check for cubic interpolation with few expected points
@@ -2997,14 +2989,14 @@ class DiscretizedSystem(DiscreteSystemBase):
             and self._mode == DiscretizationMode.BATCH_INTERPOLATION
         ):
             warnings.append(
-                "Using cubic interpolation - automatic fallback to linear if <4 adaptive points."
+                "Using cubic interpolation - automatic fallback to linear if <4 adaptive points.",
             )
 
         if warnings:
             info["warnings"] = warnings
 
         return info
-    
+
     def _get_method_selection_description(self) -> str:
         """
         Get human-readable description of how the integration method was selected.
@@ -3073,38 +3065,35 @@ class DiscretizedSystem(DiscreteSystemBase):
         """
         # Get the method source from metadata (set during __init__)
         source = self._method_source
-        
+
         # Generate description based on source
-        if source == 'explicit':
+        if source == "explicit":
             # sde_method was explicitly provided and used
             return f"Explicitly set via sde_method='{self._method}'"
-        
-        elif source == 'explicit_unavailable':
+
+        if source == "explicit_unavailable":
             # sde_method requested but integrator not available
             return (f"SDE method '{self._original_method}' requested but unavailable, "
                     f"using '{self._method}'")
-        
-        elif source == 'deterministic_fallback':
+
+        if source == "deterministic_fallback":
             # Stochastic system but using deterministic method
             if self._has_sde_integrator:
                 return f"Deterministic fallback (user specified '{self._method}')"
-            else:
-                return "Deterministic fallback (SDE integrator unavailable)"
-        
-        elif source == 'user_specified':
+            return "Deterministic fallback (SDE integrator unavailable)"
+
+        if source == "user_specified":
             # User explicitly chose method or disabled auto-detection
             if self._is_stochastic and not self._is_method_sde(self._method):
                 return f"User-specified method '{self._method}' (auto-detection disabled)"
-            else:
-                return f"User-specified method '{self._method}'"
-        
-        elif source == 'deterministic_system':
+            return f"User-specified method '{self._method}'"
+
+        if source == "deterministic_system":
             # Deterministic system - no special handling needed
             return "Deterministic system"
-        
-        else:
-            # Fallback for unknown source
-            return f"Method '{self._method}' (source: {source})"
+
+        # Fallback for unknown source
+        return f"Method '{self._method}' (source: {source})"
 
     def print_info(self):
         """
@@ -3606,7 +3595,7 @@ def discretize_batch(continuous_system, dt, method="LSODA", **kwargs):
 
 
 def analyze_discretization_error(
-    continuous_system, x0, u_sequence, dt_values, method="rk4", n_steps=100, reference_dt=None
+    continuous_system, x0, u_sequence, dt_values, method="rk4", n_steps=100, reference_dt=None,
 ):
     """
     Analyze discretization error vs time step for convergence study.
@@ -3919,10 +3908,10 @@ def analyze_discretization_error(
         # Use linear interpolation to avoid cubic spline issues
         for i in range(continuous_system.nx):
             states_interp[:, i] = interp1d(t_curr, result["states"][:, i], kind="linear")(
-                t_compare_valid
+                t_compare_valid,
             )
             ref_interp[:, i] = interp1d(t_ref, ref_result["states"][:, i], kind="linear")(
-                t_compare_valid
+                t_compare_valid,
             )
 
         errors.append(np.sqrt(np.mean((states_interp - ref_interp) ** 2)))
@@ -3942,7 +3931,7 @@ def analyze_discretization_error(
 
 
 def recommend_dt(
-    continuous_system, x0, target_error=1e-6, method="rk4", dt_range=(1e-4, 0.1), n_test=10
+    continuous_system, x0, target_error=1e-6, method="rk4", dt_range=(1e-4, 0.1), n_test=10,
 ):
     """
         Recommend optimal time step for target discretization accuracy.
@@ -4480,10 +4469,10 @@ def compute_discretization_quality(discrete_system, x0, u_sequence, n_steps, met
 __all__ = [
     "DiscretizationMode",
     "DiscretizedSystem",
+    "analyze_discretization_error",
+    "compute_discretization_quality",
+    "detect_sde_integrator",
     "discretize",
     "discretize_batch",
-    "analyze_discretization_error",
     "recommend_dt",
-    "detect_sde_integrator",
-    "compute_discretization_quality",
 ]

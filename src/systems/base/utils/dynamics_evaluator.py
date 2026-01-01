@@ -35,12 +35,11 @@ import time
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
-from typing_extensions import TypedDict
 
 # Import from centralized type system
 from src.types.backends import Backend
-from src.types.core import ArrayLike, ControlVector, StateVector
-from src.types.utilities import get_batch_size, is_batched, ExecutionStats
+from src.types.core import ControlVector, StateVector
+from src.types.utilities import ExecutionStats, get_batch_size, is_batched
 
 if TYPE_CHECKING:
     import jax.numpy as jnp
@@ -148,7 +147,7 @@ class DynamicsEvaluator:
             if self.system.nu > 0:
                 raise ValueError(
                     f"Non-autonomous system requires control input u. "
-                    f"System has {self.system.nu} control input(s)."
+                    f"System has {self.system.nu} control input(s).",
                 )
             # Create empty control array in appropriate backend
             if backend == "default":
@@ -188,12 +187,11 @@ class DynamicsEvaluator:
         # Dispatch to backend-specific implementation
         if target_backend == "numpy":
             return self._evaluate_numpy(x, u)
-        elif target_backend == "torch":
+        if target_backend == "torch":
             return self._evaluate_torch(x, u)
-        elif target_backend == "jax":
+        if target_backend == "jax":
             return self._evaluate_jax(x, u)
-        else:
-            raise ValueError(f"Unknown backend: {target_backend}")
+        raise ValueError(f"Unknown backend: {target_backend}")
 
     # ========================================================================
     # Backend-Specific Implementations
@@ -228,7 +226,7 @@ class DynamicsEvaluator:
                     f"System evaluation requires at least one sample. "
                     f"Received x.shape={x.shape}, u.shape={u_shape_str}. "
                     f"This usually indicates a bug in data preparation or loop logic. "
-                    f"Check your data loading, filtering, or iteration code."
+                    f"Check your data loading, filtering, or iteration code.",
                 )
 
         # For autonomous systems, u should be empty
@@ -249,7 +247,7 @@ class DynamicsEvaluator:
                 if batch_size_x != batch_size_u:
                     raise ValueError(
                         f"Batch size mismatch: x has {batch_size_x} samples, "
-                        f"u has {batch_size_u} samples"
+                        f"u has {batch_size_u} samples",
                     )
 
         # Generate function (uses cache if available)
@@ -288,7 +286,7 @@ class DynamicsEvaluator:
             if len(results) == 0:
                 raise RuntimeError(
                     "Internal error: No results generated despite non-empty input validation. "
-                    "This is a bug in the dynamics evaluator - please report this."
+                    "This is a bug in the dynamics evaluator - please report this.",
                 )
 
             result = np.stack(results)
@@ -312,7 +310,6 @@ class DynamicsEvaluator:
         Raises:
             ValueError: If batch is empty (batch_size=0)
         """
-        import torch
 
         start_time = time.time()
 
@@ -333,7 +330,7 @@ class DynamicsEvaluator:
                     f"System evaluation requires at least one sample. "
                     f"Received x.shape={tuple(x.shape)}, u.shape={u_shape_str}. "
                     f"This usually indicates a bug in data preparation or loop logic. "
-                    f"Check your DataLoader, filtering, or iteration code."
+                    f"Check your DataLoader, filtering, or iteration code.",
                 )
 
         # For autonomous systems, u should be empty
@@ -354,7 +351,7 @@ class DynamicsEvaluator:
                 if batch_size_x != batch_size_u:
                     raise ValueError(
                         f"Batch size mismatch: x has {batch_size_x} samples, "
-                        f"u has {batch_size_u} samples"
+                        f"u has {batch_size_u} samples",
                     )
 
         # Generate function (uses cache if available)
@@ -390,16 +387,11 @@ class DynamicsEvaluator:
             # Ensure at least 1D
             if result.ndim == 0:
                 result = result.unsqueeze(0)
-        else:
-            # Batched input case - ensure proper 2D shape (batch, nq)
-            if result.ndim == 1:
-                # If result is (batch,), reshape to (batch, 1) for single output systems
-                if self.system.order > 1:
-                    result = result.unsqueeze(1)
-                else:
-                    # For first-order systems with nx=1, also need (batch, 1)
-                    if self.system.nx == 1:
-                        result = result.unsqueeze(1)
+        # Batched input case - ensure proper 2D shape (batch, nq)
+        elif result.ndim == 1:
+            # If result is (batch,), reshape to (batch, 1) for single output systems
+            if self.system.order > 1 or self.system.nx == 1:
+                result = result.unsqueeze(1)
 
         # Update performance stats
         self._stats["calls"] += 1
@@ -442,7 +434,7 @@ class DynamicsEvaluator:
                     f"System evaluation requires at least one sample. "
                     f"Received x.shape={x.shape}, u.shape={u_shape_str}. "
                     f"This usually indicates a bug in data preparation or loop logic. "
-                    f"Check your data loading, filtering, or vmap usage."
+                    f"Check your data loading, filtering, or vmap usage.",
                 )
 
         # For autonomous systems, u should be empty
@@ -463,7 +455,7 @@ class DynamicsEvaluator:
                 if batch_size_x != batch_size_u:
                     raise ValueError(
                         f"Batch size mismatch: x has {batch_size_x} samples, "
-                        f"u has {batch_size_u} samples"
+                        f"u has {batch_size_u} samples",
                     )
 
         # Generate function (uses cache if available)
@@ -518,11 +510,10 @@ class DynamicsEvaluator:
             # Ensure at least 1D
             if result.ndim == 0:
                 result = jnp.expand_dims(result, 0)
-        else:
-            # Batched case - ensure proper 2D shape
-            if result.ndim == 1:
-                if self.system.order > 1 or self.system.nx == 1:
-                    result = jnp.expand_dims(result, 1)
+        # Batched case - ensure proper 2D shape
+        elif result.ndim == 1:
+            if self.system.order > 1 or self.system.nx == 1:
+                result = jnp.expand_dims(result, 1)
 
         # Update performance stats
         self._stats["calls"] += 1

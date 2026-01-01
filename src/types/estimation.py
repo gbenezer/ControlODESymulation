@@ -99,7 +99,6 @@ Usage
 ...     print("Particle degeneracy detected")
 """
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (
@@ -381,6 +380,6 @@ class ParticleFilterResult(TypedDict, total=False):
 
 __all__ = [
     "EKFResult",
-    "UKFResult",
     "ParticleFilterResult",
+    "UKFResult",
 ]

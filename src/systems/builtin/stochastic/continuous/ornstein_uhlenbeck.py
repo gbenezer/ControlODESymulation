@@ -299,7 +299,7 @@ def create_ou_process(time_constant: float = 1.0, volatility: float = 1.0) -> Or
 
 
 def create_vasicek_model(
-    mean_reversion: float = 0.5, long_term_rate: float = 0.05, volatility: float = 0.01
+    mean_reversion: float = 0.5, long_term_rate: float = 0.05, volatility: float = 0.01,
 ) -> OrnsteinUhlenbeck:
     """
     Create Vasicek interest rate model (special case of OU).

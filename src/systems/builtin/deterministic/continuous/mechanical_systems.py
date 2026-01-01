@@ -70,7 +70,7 @@ class SymbolicPendulum(SymbolicDynamicalSystem):
     """
 
     def define_system(
-        self, m_val: float = 1.0, l_val: float = 1.0, beta_val: float = 1.0, g_val: float = 9.81
+        self, m_val: float = 1.0, l_val: float = 1.0, beta_val: float = 1.0, g_val: float = 9.81,
     ):
         theta, theta_dot = sp.symbols("theta theta_dot", real=True)
         u = sp.symbols("u", real=True)
@@ -89,7 +89,7 @@ class SymbolicPendulum(SymbolicDynamicalSystem):
 
         ml2 = m * l * l
         self._f_sym = sp.Matrix(
-            [theta_dot, (-beta / ml2) * theta_dot + (g / l) * sp.sin(theta) + u / ml2]
+            [theta_dot, (-beta / ml2) * theta_dot + (g / l) * sp.sin(theta) + u / ml2],
         )
         self._h_sym = sp.Matrix([theta])  # Output is theta (no duplicate needed)
 

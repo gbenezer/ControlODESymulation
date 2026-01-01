@@ -87,9 +87,8 @@ Usage
 >>> u_traj = traj_result['control_trajectory']
 """
 
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 
-import numpy as np
 from typing_extensions import TypedDict
 
 from .core import (

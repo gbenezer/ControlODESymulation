@@ -45,7 +45,7 @@ Supported Methods:
 """
 
 import time
-from typing import TYPE_CHECKING, Callable, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, Optional
 
 import numpy as np
 
@@ -53,7 +53,7 @@ from src.systems.base.numerical_integration.integrator_base import (
     IntegratorBase,
     StepMode,
 )
-
+from src.types.backends import Backend
 from src.types.core import (
     ControlVector,
     ScalarLike,
@@ -64,7 +64,6 @@ from src.types.trajectories import (
     TimePoints,
     TimeSpan,
 )
-from src.types.backends import Backend
 
 if TYPE_CHECKING:
     from src.systems.base.core.continuous_system_base import ContinuousSystemBase
@@ -201,7 +200,7 @@ class ScipyIntegrator(IntegratorBase):
             raise ValueError(
                 "ScipyIntegrator only supports NumPy backend. "
                 "For PyTorch, use TorchDiffEqIntegrator. "
-                "For JAX, use DiffraxIntegrator."
+                "For JAX, use DiffraxIntegrator.",
             )
 
         super().__init__(system, dt, StepMode.ADAPTIVE, backend, **options)
@@ -220,11 +219,11 @@ class ScipyIntegrator(IntegratorBase):
             self._solve_ivp = scipy.integrate.solve_ivp
         except ImportError:
             raise ImportError(
-                "scipy is required for ScipyIntegrator. " "Install with: pip install scipy"
+                "scipy is required for ScipyIntegrator. Install with: pip install scipy",
             )
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None
+        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one integration step (uses integrate() internally).
@@ -258,7 +257,7 @@ class ScipyIntegrator(IntegratorBase):
         u_func = lambda t, x_cur: u  # May be None for autonomous
 
         result = self.integrate(
-            x0=x, u_func=u_func, t_span=(0.0, dt), t_eval=np.array([0.0, dt]), dense_output=False
+            x0=x, u_func=u_func, t_span=(0.0, dt), t_eval=np.array([0.0, dt]), dense_output=False,
         )
 
         # Return final state

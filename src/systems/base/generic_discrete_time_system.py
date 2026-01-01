@@ -22,8 +22,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import scipy
 import torch
-import torch.nn as nn
 from plotly.subplots import make_subplots
+from torch import nn
 
 import control
 from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
@@ -106,10 +106,9 @@ class GenericDiscreteTimeSystem(nn.Module):
         """
         if self.order == 1:
             return self._integrate_first_order(x, u)
-        elif self.order == 2:
+        if self.order == 2:
             return self._integrate_second_order(x, u)
-        else:
-            return self._integrate_arbitrary_order(x, u)
+        return self._integrate_arbitrary_order(x, u)
 
     def __call__(self, x: torch.Tensor, u: torch.Tensor) -> torch.Tensor:
         """Make the system callable like a function"""
@@ -180,7 +179,7 @@ class GenericDiscreteTimeSystem(nn.Module):
             if horizon is not None and horizon != T:
                 warnings.warn(
                     f"horizon={horizon} specified but control sequence has length {T}. "
-                    f"Using sequence length T={T}."
+                    f"Using sequence length T={T}.",
                 )
 
         else:
@@ -191,7 +190,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     "Usage:\n"
                     "  - Control sequence: simulate(x0, controller=u_seq)  # horizon inferred\n"
                     "  - Controller func:  simulate(x0, controller=π, horizon=100)\n"
-                    "  - Zero control:     simulate(x0, controller=None, horizon=100)"
+                    "  - Zero control:     simulate(x0, controller=None, horizon=100)",
                 )
             T = horizon
 
@@ -219,7 +218,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                 raise ValueError("horizon must be specified when controller is None")
             T = horizon
             controller_func = lambda x: torch.zeros(
-                x.shape[0], self.nu, device=x.device, dtype=x.dtype
+                x.shape[0], self.nu, device=x.device, dtype=x.dtype,
             )
             is_controller_function = True
         elif is_control_sequence:
@@ -237,7 +236,7 @@ class GenericDiscreteTimeSystem(nn.Module):
             if u_sequence.shape[0] != batch_size:
                 raise ValueError(
                     f"Control sequence batch size {u_sequence.shape[0]} "
-                    f"doesn't match state batch size {batch_size}"
+                    f"doesn't match state batch size {batch_size}",
                 )
 
             T = u_sequence.shape[1]
@@ -251,7 +250,7 @@ class GenericDiscreteTimeSystem(nn.Module):
         else:
             raise TypeError(
                 f"controller must be torch.Tensor, callable, nn.Module, or None. "
-                f"Got {type(controller)}"
+                f"Got {type(controller)}",
             )
 
         # Initialize storage
@@ -307,8 +306,7 @@ class GenericDiscreteTimeSystem(nn.Module):
             if squeeze_batch:
                 controls_tensor = controls_tensor.squeeze(0)
             return result, controls_tensor
-        else:
-            return result
+        return result
 
     def _integrate_first_order(self, x: torch.Tensor, u: torch.Tensor) -> torch.Tensor:
         """Integrate first-order system: dx/dt = f(x, u)"""
@@ -338,7 +336,7 @@ class GenericDiscreteTimeSystem(nn.Module):
             x_next = x + (self.dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
         else:
             raise NotImplementedError(
-                f"Integration method {self.integration_method} not implemented"
+                f"Integration method {self.integration_method} not implemented",
             )
 
         return x_next
@@ -396,7 +394,7 @@ class GenericDiscreteTimeSystem(nn.Module):
 
         else:
             raise NotImplementedError(
-                f"Integration method {self.integration_method} not implemented for 2nd order"
+                f"Integration method {self.integration_method} not implemented for 2nd order",
             )
 
         if self.position_integration == IntegrationMethod.ExplicitEuler:
@@ -419,7 +417,7 @@ class GenericDiscreteTimeSystem(nn.Module):
 
         else:
             raise NotImplementedError(
-                f"Position integration {self.position_integration} not implemented"
+                f"Position integration {self.position_integration} not implemented",
             )
 
         result = torch.cat([q_next, qdot_next], dim=1)
@@ -495,7 +493,7 @@ class GenericDiscreteTimeSystem(nn.Module):
 
         else:
             raise NotImplementedError(
-                f"Integration method {self.integration_method} not implemented for order {order}"
+                f"Integration method {self.integration_method} not implemented for order {order}",
             )
 
         result = torch.cat(derivatives_next, dim=1)
@@ -507,7 +505,7 @@ class GenericDiscreteTimeSystem(nn.Module):
         return result
 
     def linearized_dynamics(
-        self, x: torch.Tensor, u: torch.Tensor
+        self, x: torch.Tensor, u: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Compute linearized discrete dynamics using Euler approximation
@@ -944,7 +942,7 @@ class GenericDiscreteTimeSystem(nn.Module):
             [
                 np.hstack([Ad + Bd @ K, -Bd @ K]),  # x[k+1]
                 np.hstack([L @ C, Ad + Bd @ K - L @ C]),  # x̂[k+1]
-            ]
+            ],
         )
 
         # Clean up near-zero entries
@@ -1022,13 +1020,13 @@ class GenericDiscreteTimeSystem(nn.Module):
         print("=" * 70)
 
         # Basic info
-        print(f"\nDiscretization:")
+        print("\nDiscretization:")
         print(f"  Time step (dt):        {self.dt}")
         print(f"  Integration method:    {self.integration_method.name}")
         if self.order > 1:
             print(f"  Position integration:  {self.position_integration.name}")
 
-        print(f"\nDimensions:")
+        print("\nDimensions:")
         print(f"  State dimension (nx):    {self.nx}")
         print(f"  Control dimension (nu):  {self.nu}")
         print(f"  Output dimension (ny):   {self.continuous_time_system.ny}")
@@ -1036,7 +1034,7 @@ class GenericDiscreteTimeSystem(nn.Module):
         if self.order > 1:
             print(f"  Generalized coords (nq): {self.continuous_time_system.nq}")
 
-        print(f"\nEquilibrium:")
+        print("\nEquilibrium:")
         x_eq = self.x_equilibrium.detach().cpu().numpy()
         u_eq = self.u_equilibrium.detach().cpu().numpy()
         print(f"  x_eq = {x_eq}")
@@ -1057,7 +1055,7 @@ class GenericDiscreteTimeSystem(nn.Module):
 
             # Continuous-time linearization
             Ac, Bc = self.continuous_time_system.linearized_dynamics(
-                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0)
+                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0),
             )
             Ac_np = Ac.squeeze().detach().cpu().numpy()
             Bc_np = Bc.squeeze().detach().cpu().numpy()
@@ -1068,7 +1066,7 @@ class GenericDiscreteTimeSystem(nn.Module):
 
             # Discrete-time linearization
             Ad, Bd = self.linearized_dynamics(
-                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0)
+                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0),
             )
             Ad_np = Ad.squeeze().detach().cpu().numpy()
             Bd_np = Bd.squeeze().detach().cpu().numpy()
@@ -1081,17 +1079,17 @@ class GenericDiscreteTimeSystem(nn.Module):
             eigs_c = np.linalg.eigvals(Ac_np)
             eigs_d = np.linalg.eigvals(Ad_np)
 
-            print(f"\nEigenvalues:")
+            print("\nEigenvalues:")
             print(f"  Continuous: {eigs_c}")
             print(f"  Discrete:   {eigs_d}")
-            print(f"\nStability:")
+            print("\nStability:")
             print(f"  Continuous stable? {np.all(np.real(eigs_c) < 0)}")
             print(f"  Discrete stable?   {np.all(np.abs(eigs_d) < 1)}")
 
             # Observation matrix
             C = self.linearized_observation(self.x_equilibrium.unsqueeze(0))
             C_np = C.squeeze().detach().cpu().numpy()
-            print(f"\nObservation matrix C:")
+            print("\nObservation matrix C:")
             print(f"  C =\n{C_np}")
 
         print("=" * 70)
@@ -1108,12 +1106,12 @@ class GenericDiscreteTimeSystem(nn.Module):
         # Check discrete stability
         eigs_d = np.linalg.eigvals(
             self.linearized_dynamics(
-                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0)
+                self.x_equilibrium.unsqueeze(0), self.u_equilibrium.unsqueeze(0),
             )[0]
             .squeeze()
             .detach()
             .cpu()
-            .numpy()
+            .numpy(),
         )
         dt_stable = bool(np.all(np.abs(eigs_d) < 1))
 
@@ -1204,23 +1202,22 @@ class GenericDiscreteTimeSystem(nn.Module):
             """Calculate optimal rows/cols based on number of plots"""
             if n == 1:
                 return 1, 1
-            elif n == 2:
+            if n == 2:
                 return 1, 2
-            elif n == 3:
+            if n == 3:
                 return 1, 3
-            elif n == 4:
+            if n == 4:
                 return 2, 2
-            elif n <= 6:
+            if n <= 6:
                 return 2, 3
-            elif n <= 9:
+            if n <= 9:
                 return 3, 3
-            elif n <= 12:
+            if n <= 12:
                 return 3, 4
-            else:
-                # For many plots, prefer more columns than rows (easier to scroll vertically)
-                cols = int(np.ceil(np.sqrt(n * 1.5)))
-                rows = int(np.ceil(n / cols))
-                return rows, cols
+            # For many plots, prefer more columns than rows (easier to scroll vertically)
+            cols = int(np.ceil(np.sqrt(n * 1.5)))
+            rows = int(np.ceil(n / cols))
+            return rows, cols
 
         rows, cols = calculate_subplot_layout(num_plots)
 
@@ -1589,7 +1586,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     f"{state_names[2]}: %{{z:.4f}}<br>"
                     f"Time: %{{text:.3f}}s<extra></extra>",
                     text=time_steps,
-                )
+                ),
             )
 
         # Add start markers
@@ -1605,7 +1602,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     showlegend=(b == 0),
                     legendgroup="markers",
                     hovertemplate="<b>Start</b><extra></extra>",
-                )
+                ),
             )
 
         # Add end markers
@@ -1621,7 +1618,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     showlegend=(b == 0),
                     legendgroup="markers",
                     hovertemplate="<b>End</b><extra></extra>",
-                )
+                ),
             )
 
         # Add equilibrium marker if system has at least 3 states
@@ -1637,7 +1634,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     marker=dict(size=10, color="black", symbol="square"),
                     legendgroup="markers",
                     hovertemplate="<b>Equilibrium</b><extra></extra>",
-                )
+                ),
             )
 
         if title is None:
@@ -1750,7 +1747,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     line=dict(width=2, color=color),
                     marker=dict(size=4, color=color),
                     legendgroup=f"traj_{b}",
-                )
+                ),
             )
 
         # Second: Add start/end markers for all trajectories
@@ -1764,7 +1761,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     marker=dict(size=12, color="green", symbol="star"),
                     showlegend=(b == 0),
                     legendgroup="markers",
-                )
+                ),
             )
 
             fig.add_trace(
@@ -1776,7 +1773,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     marker=dict(size=12, color="red", symbol="x"),
                     showlegend=(b == 0),
                     legendgroup="markers",
-                )
+                ),
             )
 
         # Finally: Add equilibrium marker
@@ -1790,7 +1787,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     name="Equilibrium",
                     marker=dict(size=15, color="black", symbol="diamond"),
                     legendgroup="markers",
-                )
+                ),
             )
 
         if title is None:
@@ -1915,7 +1912,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     f"{state_names[2]}: %{{z:.4f}}<br>"
                     f"Time: %{{text:.3f}}s<extra></extra>",
                     text=time_steps,
-                )
+                ),
             )
 
             # Add periodic time markers if requested
@@ -1931,9 +1928,9 @@ class GenericDiscreteTimeSystem(nn.Module):
                         marker=dict(size=3, color=color, opacity=0.5),
                         showlegend=False,
                         legendgroup=f"traj_{b}",
-                        hovertemplate=f"t=%{{text:.3f}}s<extra></extra>",
+                        hovertemplate="t=%{text:.3f}s<extra></extra>",
                         text=time_steps[marker_indices],
-                    )
+                    ),
                 )
 
         # Add start markers
@@ -1949,7 +1946,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     showlegend=(b == 0),
                     legendgroup="markers",
                     hovertemplate="<b>Start</b><extra></extra>",
-                )
+                ),
             )
 
         # Add end markers
@@ -1965,7 +1962,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     showlegend=(b == 0),
                     legendgroup="markers",
                     hovertemplate="<b>End</b><extra></extra>",
-                )
+                ),
             )
 
         # Add equilibrium marker
@@ -1981,7 +1978,7 @@ class GenericDiscreteTimeSystem(nn.Module):
                     marker=dict(size=12, color="black", symbol="square"),
                     legendgroup="markers",
                     hovertemplate="<b>Equilibrium</b><extra></extra>",
-                )
+                ),
             )
 
         if title is None:
