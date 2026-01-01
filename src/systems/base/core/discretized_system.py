@@ -3004,6 +3004,107 @@ class DiscretizedSystem(DiscreteSystemBase):
             info["warnings"] = warnings
 
         return info
+    
+    def _get_method_selection_description(self) -> str:
+        """
+        Get human-readable description of how the integration method was selected.
+        
+        Used by get_info() to provide context about method selection decisions,
+        particularly important for stochastic systems where method selection
+        involves complex logic (auto-detection, fallbacks, explicit specification).
+        
+        Returns
+        -------
+        str
+            Human-readable description explaining method selection
+            
+        Method Selection Sources
+        -----------------------
+        The description is based on self._method_source, which can be:
+        
+        - 'explicit': sde_method explicitly provided and successfully used
+            Example: "Explicitly set via sde_method='EM'"
+            
+        - 'explicit_unavailable': sde_method requested but integrator unavailable
+            Example: "SDE method 'euler_maruyama' requested but unavailable, using 'rk4'"
+            
+        - 'deterministic_fallback': Stochastic system but using deterministic method
+            Example: "Deterministic fallback (SDE integrator unavailable)"
+            
+        - 'user_specified': User explicitly chose method or disabled auto-detection
+            Example: "User-specified method 'rk4' (auto-detection disabled)"
+            
+        - 'deterministic_system': System is deterministic (no special handling)
+            Example: "Deterministic system"
+            
+        Examples
+        --------
+        >>> # Deterministic system
+        >>> discrete = DiscretizedSystem(det_system, dt=0.01, method='rk4')
+        >>> discrete._get_method_selection_description()
+        'Deterministic system'
+        
+        >>> # Stochastic with explicit SDE method
+        >>> discrete = DiscretizedSystem(sde_system, dt=0.01, sde_method='euler_maruyama')
+        >>> discrete._get_method_selection_description()
+        "Explicitly set via sde_method='euler_maruyama'"
+        
+        >>> # Stochastic with deterministic method (auto-detection disabled)
+        >>> discrete = DiscretizedSystem(sde_system, dt=0.01, method='rk4', 
+        ...                              auto_detect_sde=False)
+        >>> discrete._get_method_selection_description()
+        "User-specified method 'rk4' (auto-detection disabled)"
+        
+        >>> # Stochastic with deterministic method (integrator unavailable)
+        >>> discrete = DiscretizedSystem(sde_system, dt=0.01, method='rk4')
+        >>> discrete._get_method_selection_description()
+        'Deterministic fallback (SDE integrator unavailable)'
+        
+        Notes
+        -----
+        - This method is called by get_info() - line 1490 in discretized_system.py
+        - The description helps users understand complex method selection logic
+        - Particularly useful for debugging stochastic discretization issues
+        
+        See Also
+        --------
+        get_info : Uses this method to populate 'method_selection' field
+        print_info : Displays the description in formatted output
+        """
+        # Get the method source from metadata (set during __init__)
+        source = self._method_source
+        
+        # Generate description based on source
+        if source == 'explicit':
+            # sde_method was explicitly provided and used
+            return f"Explicitly set via sde_method='{self._method}'"
+        
+        elif source == 'explicit_unavailable':
+            # sde_method requested but integrator not available
+            return (f"SDE method '{self._original_method}' requested but unavailable, "
+                    f"using '{self._method}'")
+        
+        elif source == 'deterministic_fallback':
+            # Stochastic system but using deterministic method
+            if self._has_sde_integrator:
+                return f"Deterministic fallback (user specified '{self._method}')"
+            else:
+                return "Deterministic fallback (SDE integrator unavailable)"
+        
+        elif source == 'user_specified':
+            # User explicitly chose method or disabled auto-detection
+            if self._is_stochastic and not self._is_method_sde(self._method):
+                return f"User-specified method '{self._method}' (auto-detection disabled)"
+            else:
+                return f"User-specified method '{self._method}'"
+        
+        elif source == 'deterministic_system':
+            # Deterministic system - no special handling needed
+            return "Deterministic system"
+        
+        else:
+            # Fallback for unknown source
+            return f"Method '{self._method}' (source: {source})"
 
     def print_info(self):
         """
