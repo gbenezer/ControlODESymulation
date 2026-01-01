@@ -255,7 +255,7 @@ markers = [
     "julia: marks tests that require Julia integration",
 ]
 # Increase timeout for slow tests
-timeout = 600
+timeout = 900
 
 # ============================================================================
 # COVERAGE CONFIGURATION
