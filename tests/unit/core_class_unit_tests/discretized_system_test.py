@@ -15,10 +15,9 @@ Test Coverage
 4. Control input handling (various formats)
 5. Linearization via ZOH
 6. Helper functions (discretize, discretize_batch, etc.)
-7. Advanced features (AdaptiveDiscretizedSystem, MultiRateDiscretizedSystem)
-8. Integration with real continuous systems
-9. Protocol satisfaction
-10. Edge cases and error handling
+7. Integration with real continuous systems
+8. Protocol satisfaction
+9. Edge cases and error handling
 
 Location
 --------
@@ -51,8 +50,6 @@ from src.systems.base.core.discretized_system import (
     recommend_dt,
     detect_sde_integrator,
     compute_discretization_quality,
-    AdaptiveDiscretizedSystem,
-    MultiRateDiscretizedSystem,
 )
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
@@ -981,113 +978,6 @@ class TestHelperFunctions:
         assert 'timing' in quality
         assert 'stability' in quality
         assert quality['timing']['steps_per_second'] > 0
-
-
-# ============================================================================
-# Test Suite: Advanced Features
-# ============================================================================
-
-
-class TestAdaptiveDiscretizedSystem:
-    """Test AdaptiveDiscretizedSystem experimental class."""
-    
-    def test_adaptive_initialization(self):
-        """Can initialize adaptive system."""
-        continuous = MockContinuousSystem()
-        adaptive = AdaptiveDiscretizedSystem(
-            continuous, dt_initial=0.01, dt_min=0.001, dt_max=0.1
-        )
-        
-        assert adaptive.dt == 0.01
-        assert adaptive._dt_min == 0.001
-        assert adaptive._dt_max == 0.1
-    
-    def test_adaptive_tracks_dt_history(self):
-        """Adaptive system tracks dt usage."""
-        continuous = MockContinuousSystem()
-        adaptive = AdaptiveDiscretizedSystem(continuous, dt_initial=0.01)
-        
-        x = np.array([1.0, 0.0])
-        for k in range(10):
-            x = adaptive.step(x, None, k)
-        
-        stats = adaptive.get_dt_statistics()
-        assert stats['n_steps'] == 10
-        assert stats['mean'] > 0
-    
-    def test_adaptive_reset_statistics(self):
-        """Can reset adaptive statistics."""
-        continuous = MockContinuousSystem()
-        adaptive = AdaptiveDiscretizedSystem(continuous, dt_initial=0.01)
-        
-        # Take some steps
-        x = np.array([1.0, 0.0])
-        for k in range(5):
-            x = adaptive.step(x, None, k)
-        
-        # Reset
-        adaptive.reset_statistics()
-        stats = adaptive.get_dt_statistics()
-        
-        assert stats['n_steps'] == 0
-
-
-class TestMultiRateDiscretizedSystem:
-    """Test MultiRateDiscretizedSystem experimental class."""
-    
-    def test_multirate_initialization(self):
-        """Can initialize multi-rate system."""
-        continuous = MockContinuousSystem(nx=2, nu=1)
-        multirate = MultiRateDiscretizedSystem(
-            continuous,
-            dt_fast=0.001,
-            dt_slow=0.01,
-            fast_indices=[0],
-            slow_indices=[1]
-        )
-        
-        assert multirate.dt == 0.001
-        assert multirate._dt_slow == 0.01
-        assert multirate._slow_update_interval == 10
-    
-    def test_multirate_invalid_ratio_raises(self):
-        """Raises if dt_slow not integer multiple of dt_fast."""
-        continuous = MockContinuousSystem(nx=2, nu=1)
-        
-        with pytest.raises(ValueError, match="integer multiple"):
-            MultiRateDiscretizedSystem(
-                continuous,
-                dt_fast=0.003,
-                dt_slow=0.01,  # 0.01/0.003 = 3.33... (not integer)
-                fast_indices=[0],
-                slow_indices=[1]
-            )
-    
-    def test_multirate_step_updates_selectively(self):
-        """Multi-rate step updates fast every step, slow periodically."""
-        continuous = MockContinuousSystem(nx=2, nu=1)
-        multirate = MultiRateDiscretizedSystem(
-            continuous,
-            dt_fast=0.001,
-            dt_slow=0.01,
-            fast_indices=[0],
-            slow_indices=[1],
-            method='rk4'
-        )
-        
-        x = np.array([1.0, 2.0])
-        x_initial_slow = x[1]
-        
-        # Take 5 steps (not at slow update interval)
-        for k in range(5):
-            x = multirate.step(x, None, k)
-        
-        # Fast state should have changed
-        assert not np.isclose(x[0], 1.0)
-        
-        # Slow state should be unchanged (not at interval)
-        # Note: This test might fail depending on implementation details
-        # The multirate step is experimental
 
 
 # ============================================================================

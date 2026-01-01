@@ -37,6 +37,7 @@ from src.systems.base.numerical_integration.integrator_factory import Integrator
 from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import SDEIntegratorFactory
 
 from src.types.core import ControlVector, DiscreteControlInput, StateVector
+from src.types.backends import Backend
 from src.types.linearization import DiscreteLinearization
 from src.types.trajectories import DiscreteSimulationResult
 
@@ -176,11 +177,11 @@ class DiscretizedSystem(DiscreteSystemBase):
         return False
     
     # ========================================================================
-    # Name Normalization (Optional but Recommended)
+    # Name Normalization
     # ========================================================================
     
     @staticmethod
-    def _normalize_method_name(method: str, backend: str = 'numpy') -> str:
+    def _normalize_method_name(method: str, backend: Backend = 'numpy') -> str:
         """
         Normalize method names across backends to canonical form.
         
@@ -1538,105 +1539,5 @@ def compute_discretization_quality(discrete_system, x0, u_sequence, n_steps, met
 __all__ = [
     'DiscretizationMode', 'DiscretizedSystem', 'discretize', 'discretize_batch',
     'analyze_discretization_error', 'recommend_dt', 'detect_sde_integrator',
-    'compute_discretization_quality', 'AdaptiveDiscretizedSystem', 'MultiRateDiscretizedSystem'
+    'compute_discretization_quality'
 ]
-
-
-# ============================================================================
-# Advanced Features - Experimental
-# ============================================================================
-
-
-class AdaptiveDiscretizedSystem(DiscretizedSystem):
-    """
-    Discretized system with adaptive time step selection.
-    
-    Automatically adjusts dt during simulation based on dynamics smoothness.
-    **EXPERIMENTAL** - for future development.
-    
-    Examples
-    --------
-    >>> adaptive = AdaptiveDiscretizedSystem(
-    ...     continuous, dt_initial=0.01, dt_min=0.001, dt_max=0.1, tol=1e-6
-    ... )
-    >>> result = adaptive.simulate(x0, u_sequence, n_steps=1000)
-    >>> stats = adaptive.get_dt_statistics()
-    >>> print(f"Mean dt: {stats['mean']:.4f}, Range: [{stats['min']:.4f}, {stats['max']:.4f}]")
-    """
-    
-    def __init__(self, continuous_system, dt_initial=0.01, dt_min=1e-4, 
-                 dt_max=0.1, tol=1e-6, **kwargs):
-        """Initialize adaptive discretization."""
-        super().__init__(continuous_system, dt=dt_initial, method='RK45',
-                        mode=DiscretizationMode.DENSE_OUTPUT, **kwargs)
-        self._dt_min = dt_min
-        self._dt_max = dt_max
-        self._tol = tol
-        self._dt_history = []
-    
-    def step(self, x, u=None, k=0):
-        """Adaptive step - tracks dt usage."""
-        self._dt_history.append(self._dt)
-        return super().step(x, u, k)
-    
-    def get_dt_statistics(self) -> dict:
-        """Get statistics about adaptive dt selection."""
-        if not self._dt_history:
-            return {"mean": self._dt, "min": self._dt, "max": self._dt, 
-                   "std": 0.0, "n_steps": 0}
-        
-        dt_array = np.array(self._dt_history)
-        return {
-            "mean": float(np.mean(dt_array)),
-            "min": float(np.min(dt_array)),
-            "max": float(np.max(dt_array)),
-            "std": float(np.std(dt_array)),
-            "n_steps": len(self._dt_history)
-        }
-    
-    def reset_statistics(self):
-        """Reset dt tracking."""
-        self._dt_history = []
-
-
-class MultiRateDiscretizedSystem(DiscretizedSystem):
-    """
-    Discretized system with multiple time scales.
-    
-    Uses different dt for different state components (fast/slow dynamics).
-    **EXPERIMENTAL** - for future development.
-    
-    Examples
-    --------
-    >>> multirate = MultiRateDiscretizedSystem(
-    ...     continuous, dt_fast=0.001, dt_slow=0.01,
-    ...     fast_indices=[0], slow_indices=[1]
-    ... )
-    >>> # Updates x[0] every step, x[1] every 10 steps
-    """
-    
-    def __init__(self, continuous_system, dt_fast, dt_slow, 
-                 fast_indices: List[int], slow_indices: List[int], **kwargs):
-        """Initialize multi-rate discretization."""
-        super().__init__(continuous_system, dt=dt_fast, **kwargs)
-        
-        self._dt_slow = dt_slow
-        self._fast_indices = fast_indices
-        self._slow_indices = slow_indices
-        
-        ratio = dt_slow / dt_fast
-        if not np.isclose(ratio, round(ratio)):
-            raise ValueError(f"dt_slow must be integer multiple of dt_fast, got ratio {ratio}")
-        
-        self._slow_update_interval = int(round(ratio))
-    
-    def step(self, x, u=None, k=0):
-        """Multi-rate step: update fast every step, slow every N steps."""
-        x_next = super().step(x, u, k)
-        
-        # Keep slow states unchanged except at slow update times
-        if k % self._slow_update_interval != 0:
-            for idx in self._slow_indices:
-                x_next[idx] = x[idx]
-        
-        return x_next
