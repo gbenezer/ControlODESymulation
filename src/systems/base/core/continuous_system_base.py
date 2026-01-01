@@ -18,9 +18,6 @@ Continuous System Base Class (Layer 1)
 ======================================
 
 Abstract base class for all continuous-time dynamical systems.
-
-This module should be placed at:
-    src/systems/base/continuous_system_base.py
 """
 
 from abc import ABC, abstractmethod
