@@ -98,7 +98,7 @@ viz = [
 
 # Classical control theory utilities
 control = [
-    "control>=0.10,<1.0",
+    "control>=0.9.0,<1.0",
 ]
 
 # Julia integration for DifferentialEquations.jl
@@ -144,10 +144,10 @@ dev = [
     "bandit>=1.7,<2.0",
     "safety>=3.0,<4.0",
     
-    # Pre-commit (optional - comment out if causing issues)
+    # Pre-commit
     "pre-commit>=3.6,<4.0",
     
-    # Code analysis (optional - comment out if causing issues)
+    # Code analysis
     "radon>=6.0,<7.0",
     "pydeps>=2.0,<4.0",
     
@@ -254,8 +254,8 @@ markers = [
     "torch: marks tests that require PyTorch",
     "julia: marks tests that require Julia integration",
 ]
-# Increase timeout for slow tests
-timeout = 900
+# Note: timeout removed - requires pytest-timeout to be installed
+# Add timeout = 600 if using pytest-timeout plugin
 
 # ============================================================================
 # COVERAGE CONFIGURATION
