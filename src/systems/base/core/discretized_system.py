@@ -20,7 +20,19 @@ Discretized System - Numerical Discretization of Continuous Systems
 Provides discrete-time approximation via three modes: FIXED_STEP, 
 DENSE_OUTPUT, and BATCH_INTERPOLATION.
 
-See module docstring for complete documentation.
+This module provides DiscretizedSystem, which wraps any ContinuousSystemBase
+and provides a discrete interface through numerical integration.
+
+Protocol Satisfaction
+--------------------
+DiscretizedSystem satisfies:
+- ✓ DiscreteSystemProtocol (step, simulate)
+- ✓ LinearizableDiscreteProtocol (linearize via ZOH)
+- ✗ SymbolicDiscreteProtocol (no symbolic expressions - purely numerical)
+
+This is CORRECT - discretization is numerical, not symbolic!
+
+See class docstring for complete documentation.
 """
 
 import inspect
@@ -48,7 +60,36 @@ class DiscretizationMode(Enum):
 
 
 class DiscretizedSystem(DiscreteSystemBase):
-    """Pure wrapper providing discrete interface to continuous systems."""
+    """
+    Pure wrapper providing discrete interface to continuous systems.
+    
+    Protocol Satisfaction
+    --------------------
+    This class satisfies:
+    - DiscreteSystemProtocol: Has step(), simulate(), dt, nx, nu
+    - LinearizableDiscreteProtocol: Has linearize() (wraps continuous)
+    
+    Does NOT satisfy:
+    - SymbolicDiscreteProtocol: No symbolic machinery (purely numerical)
+    
+    This means it can be used in:
+    - ✓ Any function expecting DiscreteSystemProtocol
+    - ✓ Control design (LQR, MPC) expecting LinearizableDiscreteProtocol
+    - ✗ Code generation expecting SymbolicDiscreteProtocol
+    
+    Examples
+    --------
+    >>> from src.types.protocols import LinearizableDiscreteProtocol
+    >>> 
+    >>> def lqr_design(system: LinearizableDiscreteProtocol, Q, R):
+    ...     Ad, Bd = system.linearize(np.zeros(system.nx), np.zeros(system.nu))
+    ...     # ... LQR computation
+    >>> 
+    >>> # DiscretizedSystem works here:
+    >>> continuous = Pendulum(m=1.0, l=0.5)
+    >>> discrete = DiscretizedSystem(continuous, dt=0.01)
+    >>> K = lqr_design(discrete, Q, R)  # ✓ Type checks pass!
+    """
     
     _FIXED_STEP_METHODS = frozenset(['euler', 'midpoint', 'rk4', 'heun'])
     
