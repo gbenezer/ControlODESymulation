@@ -1,12 +1,12 @@
 # Core numerical and scientific computing
 numpy>=2.0.0,<3.0.0
 scipy>=1.10.0,<2.0.0  # 1.14+ requires Python 3.10+
-sympy>=1.13.0,<2.0.0
+sympy>=1.12.0,<2.0.0
 
 # Deep learning frameworks
 torch>=2.5.0,<3.0.0
-jax>=0.4.0,<1.0.0
-jaxlib>=0.4.0,<1.0.0
+jax>=0.4.30,<1.0.0
+jaxlib>=0.4.30,<1.0.0
 
 # JAX ecosystem
 jaxtyping>=0.2.0,<1.0.0
@@ -16,8 +16,8 @@ optimistix>=0.0.8,<1.0.0
 lineax>=0.0.5,<1.0.0
 
 # Differential equations
-torchdiffeq>=0.2.0,<1.0.0
-torchsde>=0.2.0,<1.0.0
+torchdiffeq>=0.2.3,<1.0.0
+torchsde>=0.2.6,<1.0.0
 diffeqpy>=2.4.0,<3.0.0
 
 # Julia integration

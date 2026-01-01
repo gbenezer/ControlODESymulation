@@ -120,18 +120,23 @@ optimization = [
 # Development tools (testing, linting, type checking)
 dev = [
     # Testing
-    "pytest>=8.0,<9.0",
+    "pytest>=8.0,<10.0",
     "pytest-cov>=4.1,<8.0",
     "pytest-xdist>=3.5,<4.0",
     "pytest-timeout>=2.2,<3.0",
     "pytest-benchmark>=4.0,<6.0",
     "pytest-mock>=3.12,<4.0",
+    "pytest-rerunfailures>=12.0,<17.0",  # For @pytest.mark.flaky
+    "pytest-randomly>=3.0,<5.0",  # Randomize test order
+    "pytest-snapshot>=0.9,<1.0",  # Snapshot testing
+    "pytest-ordering>=0.6,<1.0",  # Control test execution order
+    "pytest-parallel>=0.1,<1.0",  # Alternative parallel execution
     "coverage>=7.4,<8.0",
     "mutmut>=3.0,<4.0",
     
     # Code quality
     "black>=24.0,<26.0",
-    "isort>=5.13,<6.0",
+    "isort>=5.13,<8.0",
     "ruff>=0.3,<1.0",
     "mypy>=1.8,<2.0",
     "mypy-extensions>=1.0,<2.0",
@@ -254,6 +259,7 @@ markers = [
     "jax: marks tests that require JAX",
     "torch: marks tests that require PyTorch",
     "julia: marks tests that require Julia integration",
+    "flaky: marks tests as flaky (may fail intermittently)",
 ]
 # Note: timeout removed - requires pytest-timeout to be installed
 # Add timeout = 600 if using pytest-timeout plugin
