@@ -1182,7 +1182,7 @@ def generate_function(expr, vars, backend):
     - Neural controller training
     - Neural certificate function construction and verification 
         - Lyapunov, barrier, contraction metric
-    - Reachability analysis
+    - Forward and backward reachability analysis
 
 4. **Model Predictive Control (MPC)**
    - Receding horizon optimization
@@ -1198,6 +1198,28 @@ def generate_function(expr, vars, backend):
 
 6. **System Composition**
     - Connector protocol interfaces to couple multiple subsystems
+
+### Potential Future Extensions
+
+1. Hybrid Systems
+    - Switched dynamics
+    - Hybrid automata
+    - Jump/flow dynamics
+
+2. Distributed Systems
+    - Multi-agent dynamics
+    - Network topology
+    - Consensus protocols
+
+3. Delay Systems
+    - Time-delayed feedback
+    - DDE integration
+    - Delayed stability analysis
+
+3. PDE Systems
+    - Spatiotemporal dynamics
+    - Finite/discrete element methods
+    - Spectral methods
 
 ---
 
