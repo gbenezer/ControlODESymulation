@@ -382,6 +382,9 @@ class SymbolicSystemBase(ABC):
         # Initialization flag
         self._initialized: bool = False
         """Tracks whether system has been successfully initialized and validated"""
+        
+        # Extract equilibria control flag
+        self._auto_add_equilibria = kwargs.pop('auto_add_equilibria', True)
 
         # ====================================================================
         # Phase 3: Cooperative Multiple Inheritance
@@ -425,6 +428,10 @@ class SymbolicSystemBase(ABC):
 
         # Step 5: Initialize code generator (depends on validated system)
         self._code_gen = CodeGenerator(self)
+        
+        # Step 6: Post-initialization hook for equilibria
+        if self._auto_add_equilibria and hasattr(self, 'setup_equilibria'):
+            self.setup_equilibria()
 
     # ========================================================================
     # String Representations
@@ -1349,6 +1356,31 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
     # Equilibrium Management
     # ========================================================================
+    
+    # Optional hook for subclasses to override
+    def setup_equilibria(self):
+        """
+        Optional hook to add equilibria after system initialization.
+        
+        This method is called automatically after the system is fully
+        initialized if auto_add_equilibria=True (default).
+        
+        Override this method in subclasses to add standard equilibria.
+        Can access self.parameters for parameter-dependent equilibria.
+        
+        Examples
+        --------
+        Parameter-independent:
+        >>> def setup_equilibria(self):
+        ...     self.equilibria.add('origin', np.zeros(self.nx), np.zeros(self.nu))
+        
+        Parameter-dependent:
+        >>> def setup_equilibria(self):
+        ...     g = self.parameters[self._g_sym]  # Access parameter value
+        ...     x_eq = np.array([0, np.sqrt(g)])
+        ...     self.equilibria.add('special', x_eq, np.zeros(self.nu))
+        """
+        pass  # Default: do nothing
 
     def add_equilibrium(
         self,
