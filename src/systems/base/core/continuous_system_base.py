@@ -21,7 +21,7 @@ Abstract base class for all continuous-time dynamical systems.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING
 
 import numpy as np
 
@@ -33,6 +33,10 @@ from src.types.trajectories import IntegrationResult, SimulationResult, TimeSpan
 if TYPE_CHECKING:
     from src.control.system_analysis import SystemAnalysis
     from src.control.control_synthesis import ControlSynthesis
+    from src.visualization.trajectory_plotter import TrajectoryPlotter
+    from src.visualization.phase_portrait import PhasePortraitPlotter  
+    from src.visualization.control_plots import ControlPlotter
+    import plotly.graph_objects as go
 
 
 class ContinuousSystemBase(ABC):
@@ -970,6 +974,347 @@ class ContinuousSystemBase(ABC):
             self._system_analysis = SystemAnalysis(backend=backend_str)
 
         return self._system_analysis
+
+    # =========================================================================
+    # Plotting Framework Integration
+    # =========================================================================
+
+    @property
+    def plotter(self) -> "TrajectoryPlotter":
+        """
+        Access trajectory plotting utilities.
+
+        Provides time-domain visualization for state and control trajectories
+        with automatic handling of batched data and backend conversion.
+
+        Returns
+        -------
+        TrajectoryPlotter
+            Trajectory plotting utilities with methods:
+            - plot_trajectory(t, x, u=None, state_names=None)
+            - plot_state_and_control(t, x, u, state_names=None)
+            - plot_comparison(t, trajectories, state_names=None)
+
+        Examples
+        --------
+        >>> # Plot integration result
+        >>> result = system.integrate(x0, u=None, t_span=(0, 10))
+        >>> fig = system.plotter.plot_trajectory(
+        ...     result['t'],
+        ...     result['x'],
+        ...     state_names=['Position', 'Velocity']
+        ... )
+        >>> fig.show()
+        >>>
+        >>> # With control inputs
+        >>> fig = system.plotter.plot_state_and_control(
+        ...     result['t'],
+        ...     result['x'],
+        ...     result['u']
+        ... )
+        >>>
+        >>> # Compare multiple simulations
+        >>> trajectories = {
+        ...     'Controlled': result_controlled['x'],
+        ...     'Uncontrolled': result_uncontrolled['x'],
+        ... }
+        >>> fig = system.plotter.plot_comparison(result['t'], trajectories)
+        >>>
+        >>> # Or use convenience method
+        >>> fig = system.plot(result, state_names=['θ', 'ω'])
+
+        See Also
+        --------
+        phase_plotter : Phase space visualization
+        control_plotter : Control analysis plots
+        plot : Convenience method
+
+        Notes
+        -----
+        - Automatically converts PyTorch/JAX arrays to NumPy for plotting
+        - Handles batched trajectories for Monte Carlo simulations
+        - Adaptive subplot layout based on number of states
+        """
+        if not hasattr(self, "_trajectory_plotter"):
+            self._trajectory_plotter = None
+
+        if self._trajectory_plotter is None:
+            from src.visualization.trajectory_plotter import TrajectoryPlotter
+
+            # Safe backend access (works for symbolic and non-symbolic systems)
+            backend = getattr(self, "backend", None)
+            if backend is not None and hasattr(backend, "default_backend"):
+                backend_str = backend.default_backend
+            else:
+                backend_str = "numpy"
+
+            self._trajectory_plotter = TrajectoryPlotter(backend=backend_str)
+
+        return self._trajectory_plotter
+
+    @property
+    def phase_plotter(self) -> "PhasePortraitPlotter":
+        """
+        Access phase portrait plotting utilities.
+
+        Provides state space visualization including 2D/3D phase portraits,
+        vector fields, and equilibrium point markers.
+
+        Returns
+        -------
+        PhasePortraitPlotter
+            Phase space plotting utilities with methods:
+            - plot_2d(x, state_names=None, vector_field=None, equilibria=None)
+            - plot_3d(x, state_names=None, show_direction=True)
+            - plot_limit_cycle(x, state_names=None, period_estimate=None)
+
+        Examples
+        --------
+        >>> # 2D phase portrait with vector field
+        >>> result = system.integrate(x0, u=None, t_span=(0, 20))
+        >>> fig = system.phase_plotter.plot_2d(
+        ...     result['x'],
+        ...     state_names=('Position', 'Velocity'),
+        ...     vector_field=system.__call__,
+        ...     equilibria=[np.zeros(2)],
+        ...     show_direction=True
+        ... )
+        >>> fig.show()
+        >>>
+        >>> # Limit cycle (Van der Pol, Lorenz, etc.)
+        >>> fig = system.phase_plotter.plot_limit_cycle(
+        ...     result['x'],
+        ...     state_names=('x', 'ẋ'),
+        ...     period_estimate=6.28  # Approx period in time units
+        ... )
+        >>>
+        >>> # 3D phase portrait (Lorenz attractor, etc.)
+        >>> fig = system.phase_plotter.plot_3d(
+        ...     result['x'],
+        ...     state_names=('x', 'y', 'z'),
+        ...     show_direction=True
+        ... )
+        >>>
+        >>> # Multiple trajectories (different ICs)
+        >>> x_batch = np.stack([sim1['x'], sim2['x'], sim3['x']])
+        >>> fig = system.phase_plotter.plot_2d(x_batch)
+
+        See Also
+        --------
+        plotter : Time-domain trajectory plotting
+        control_plotter : Control analysis plots
+
+        Notes
+        -----
+        - Interactive Plotly plots with zoom, pan, hover
+        - Vector field overlay shows system dynamics
+        - Start point marked with green circle
+        - End point marked with red square
+        - Direction arrows show flow along trajectory
+        """
+        if not hasattr(self, "_phase_plotter"):
+            self._phase_plotter = None
+
+        if self._phase_plotter is None:
+            from src.visualization.phase_portrait import PhasePortraitPlotter
+
+            backend = getattr(self, "backend", None)
+            if backend is not None and hasattr(backend, "default_backend"):
+                backend_str = backend.default_backend
+            else:
+                backend_str = "numpy"
+
+            self._phase_plotter = PhasePortraitPlotter(backend=backend_str)
+
+        return self._phase_plotter
+
+    @property
+    def control_plotter(self) -> "ControlPlotter":
+        """
+        Access control system analysis plotting utilities.
+
+        Provides control-specific visualizations including eigenvalue maps,
+        frequency response, Nyquist plots, root locus, and performance metrics.
+
+        Returns
+        -------
+        ControlPlotter
+            Control analysis plotting utilities with methods:
+            - plot_eigenvalue_map(eigenvalues, system_type='continuous')
+            - plot_frequency_response(w, mag_dB, phase_deg)
+            - plot_nyquist(real, imag, frequencies=None)
+            - plot_root_locus(root_locus_data, system_type='continuous')
+            - plot_step_response(t, y, reference=1.0)
+            - plot_impulse_response(t, y)
+            - plot_gain_comparison(gains, labels=None)
+            - plot_controllability_gramian(W_c, state_names=None)
+            - plot_observability_gramian(W_o, state_names=None)
+            - plot_riccati_convergence(P_history)
+
+        Examples
+        --------
+        >>> # Eigenvalue stability map (continuous: Re(λ) < 0)
+        >>> lqr = system.design_lqr(Q, R)
+        >>> fig = system.control_plotter.plot_eigenvalue_map(
+        ...     lqr['closed_loop_eigenvalues'],
+        ...     system_type='continuous'
+        ... )
+        >>> fig.show()
+        >>>
+        >>> # Impulse response
+        >>> from scipy.linalg import expm
+        >>> A_cl = A - B @ lqr['gain']
+        >>> t = np.linspace(0, 10, 1000)
+        >>> y_imp = np.array([C @ expm(A_cl * t_i) @ B for t_i in t]).flatten()
+        >>> fig = system.control_plotter.plot_impulse_response(t, y_imp)
+        >>>
+        >>> # Frequency response (Bode plot)
+        >>> from scipy import signal
+        >>> sys_cl = signal.StateSpace(A_cl, B, C, D)
+        >>> w, H = signal.freqresp(sys_cl, w=np.logspace(-2, 2, 1000))
+        >>> mag_dB = 20 * np.log10(np.abs(H).flatten())
+        >>> phase_deg = np.angle(H, deg=True).flatten()
+        >>> fig = system.control_plotter.plot_frequency_response(w, mag_dB, phase_deg)
+        >>>
+        >>> # Nyquist plot (open-loop for stability analysis)
+        >>> sys_ol = signal.StateSpace(A, B, C, D)
+        >>> w, H = signal.freqresp(sys_ol, w=np.logspace(-2, 2, 1000))
+        >>> fig = system.control_plotter.plot_nyquist(
+        ...     np.real(H).flatten(),
+        ...     np.imag(H).flatten(),
+        ...     frequencies=w
+        ... )
+        >>>
+        >>> # Root locus (Q weight variation)
+        >>> Q_values = np.logspace(-1, 3, 50)
+        >>> poles_list = [system.design_lqr(q*np.eye(2), R)['closed_loop_eigenvalues']
+        ...               for q in Q_values]
+        >>> fig = system.control_plotter.plot_root_locus({
+        ...     'gains': Q_values,
+        ...     'poles': np.array(poles_list)
+        ... }, system_type='continuous')
+        >>>
+        >>> # Gain comparison
+        >>> gains = {
+        ...     'Q=10': system.design_lqr(10*np.eye(2), R)['gain'],
+        ...     'Q=100': system.design_lqr(100*np.eye(2), R)['gain'],
+        ... }
+        >>> fig = system.control_plotter.plot_gain_comparison(gains, labels=['θ', 'ω'])
+
+        See Also
+        --------
+        plotter : Time-domain trajectory plotting
+        phase_plotter : Phase space visualization
+        design_lqr : LQR controller design (continuous-time)
+
+        Notes
+        -----
+        Continuous system stability:
+        - **Continuous: Re(λ) < 0 (left half-plane)** ← Use system_type='continuous'
+        - Discrete: |λ| < 1 (inside unit circle)
+        
+        Always specify `system_type='continuous'` for continuous systems!
+        """
+        if not hasattr(self, "_control_plotter"):
+            self._control_plotter = None
+
+        if self._control_plotter is None:
+            from src.visualization.control_plots import ControlPlotter
+
+            backend = getattr(self, "backend", None)
+            if backend is not None and hasattr(backend, "default_backend"):
+                backend_str = backend.default_backend
+            else:
+                backend_str = "numpy"
+
+            self._control_plotter = ControlPlotter(backend=backend_str)
+
+        return self._control_plotter
+
+    def plot(
+        self,
+        result: IntegrationResult,
+        state_names: Optional[list] = None,
+        **kwargs
+    ) -> "go.Figure":
+        """
+        Plot integration result (convenience method).
+
+        Wrapper around plotter.plot_trajectory() for quick visualization
+        of continuous-time integration results.
+
+        Parameters
+        ----------
+        result : IntegrationResult
+            Integration result dictionary with 't' and 'x' keys
+            from integrate() or simulate()
+        state_names : Optional[list]
+            Names for state variables (e.g., ['Position', 'Velocity'])
+            If None, uses generic labels ['x₁', 'x₂', ...]
+        **kwargs
+            Additional arguments passed to plot_trajectory():
+            - title : str - Plot title
+            - color_scheme : str - Color scheme name
+            - show_legend : bool - Show legend for batched trajectories
+
+        Returns
+        -------
+        go.Figure
+            Interactive Plotly figure object
+
+        Examples
+        --------
+        >>> # Simple usage
+        >>> result = system.integrate(x0, u=None, t_span=(0, 10))
+        >>> fig = system.plot(result)
+        >>> fig.show()
+        >>>
+        >>> # With state names and custom title
+        >>> fig = system.plot(
+        ...     result,
+        ...     state_names=['θ', 'ω'],
+        ...     title='Pendulum Dynamics'
+        ... )
+        >>>
+        >>> # Export to HTML
+        >>> fig.write_html('simulation.html')
+        >>>
+        >>> # Apply publication theme
+        >>> from src.visualization.themes import PlotThemes
+        >>> fig = system.plot(result)
+        >>> fig = PlotThemes.apply_theme(fig, theme='publication')
+        >>> fig.show()
+        >>>
+        >>> # Batched trajectories (Monte Carlo for stochastic systems)
+        >>> results = []
+        >>> for trial in range(10):
+        ...     results.append(system.integrate(x0, u=None, t_span=(0, 10)))
+        >>> x_batch = np.stack([r['x'] for r in results])
+        >>> result_batch = {'t': results[0]['t'], 'x': x_batch}
+        >>> fig = system.plot(result_batch)  # Plots all 10 trajectories
+
+        See Also
+        --------
+        plotter.plot_trajectory : Full trajectory plotting method
+        plotter.plot_state_and_control : Plot states and controls together
+        phase_plotter.plot_2d : Phase space visualization
+        control_plotter : Control analysis plots
+
+        Notes
+        -----
+        This is a convenience wrapper that:
+        - Extracts time and state from result dictionary
+        - Calls plotter.plot_trajectory() with appropriate arguments
+        - Returns Plotly figure for further customization
+        
+        For more control over plotting, use plotter methods directly.
+        """
+        return self.plotter.plot_trajectory(
+            result['t'],
+            result['x'],
+            state_names=state_names,
+            **kwargs
+        )
 
     # =========================================================================
     # Properties (Optional, can be overridden by subclasses)
