@@ -198,10 +198,9 @@ from src.systems.base.utils.stochastic.diffusion_handler import DiffusionHandler
 from src.systems.base.utils.stochastic.noise_analysis import (
     NoiseCharacteristics,
     NoiseType,
-    SDEType,
 )
 from src.systems.base.utils.stochastic.sde_validator import SDEValidator, ValidationError
-from src.types.backends import Backend, SDEIntegrationMethod
+from src.types.backends import Backend, SDEIntegrationMethod, SDEType
 
 # Type imports
 from src.types.core import ControlInput, ControlVector, ScalarLike, StateVector
