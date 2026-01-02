@@ -258,7 +258,7 @@ class TestPlot2D:
         """Test error on 1D trajectory."""
         x = np.array([1, 2, 3])
         
-        with pytest.raises(ValueError, match="plot_2d requires at least 2D array"):
+        with pytest.raises(ValueError, match="plot_2d requires 2D state"):
             plotter.plot_2d(x)
 
     def test_invalid_dimension_3d_state(self, plotter):
