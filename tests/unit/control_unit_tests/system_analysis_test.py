@@ -602,7 +602,7 @@ class TestBackendConsistency(AnalysisTestCase):
     def test_backend_not_passed_to_stability(self):
         """Test that stability method doesn't use backend parameter."""
         # Note: analyze_stability doesn't take backend parameter
-        with patch('src.control.system_analysis.analyze_stability') as mock_func:
+        with patch('src.control.classical_control_functions.analyze_stability') as mock_func:
             mock_func.return_value = {
                 'eigenvalues': np.array([-1, -2]),
                 'magnitudes': np.array([1, 2]),
@@ -622,7 +622,7 @@ class TestBackendConsistency(AnalysisTestCase):
     
     def test_backend_not_passed_to_controllability(self):
         """Test that controllability method doesn't use backend parameter."""
-        with patch('src.control.system_analysis.analyze_controllability') as mock_func:
+        with patch('src.control.classical_control_functions.analyze_controllability') as mock_func:
             mock_func.return_value = {
                 'controllability_matrix': np.eye(2),
                 'rank': 2,
@@ -663,7 +663,7 @@ class TestDelegation(AnalysisTestCase):
     
     def test_stability_delegates_correctly(self):
         """Test that stability delegates with correct arguments."""
-        with patch('src.control.system_analysis.analyze_stability') as mock_func:
+        with patch('src.control.classical_control_functions.analyze_stability') as mock_func:
             mock_func.return_value = {
                 'eigenvalues': np.array([-1, -2]),
                 'magnitudes': np.array([1, 2]),
@@ -691,7 +691,7 @@ class TestDelegation(AnalysisTestCase):
     
     def test_controllability_delegates_correctly(self):
         """Test that controllability delegates with correct arguments."""
-        with patch('src.control.system_analysis.analyze_controllability') as mock_func:
+        with patch('src.control.classical_control_functions.analyze_controllability') as mock_func:
             mock_func.return_value = {
                 'controllability_matrix': np.eye(2),
                 'rank': 2,
@@ -715,7 +715,7 @@ class TestDelegation(AnalysisTestCase):
     
     def test_observability_delegates_correctly(self):
         """Test that observability delegates with correct arguments."""
-        with patch('src.control.system_analysis.analyze_observability') as mock_func:
+        with patch('src.control.classical_control_functions.analyze_observability') as mock_func:
             mock_func.return_value = {
                 'observability_matrix': np.eye(2),
                 'rank': 2,
@@ -887,10 +887,15 @@ class TestIntegration(AnalysisTestCase):
         """Test analysis of unstable uncontrollable system."""
         analyzer = SystemAnalysis(backend='numpy')
         
+        # Create truly uncontrollable system
+        # First eigenvalue at 1 is uncontrollable (B only affects second state)
+        A_unstable_unctrl = np.array([[1, 0], [0, 2]])
+        B_only_second = np.array([[0], [1]])  # Only controls second state
+        
         # Unstable and uncontrollable - bad combination
         result = analyzer.analyze_linearization(
-            self.A_unstable,
-            self.B_unctrl,
+            A_unstable_unctrl,
+            B_only_second,
             self.C_stable,
             system_type='continuous'
         )
