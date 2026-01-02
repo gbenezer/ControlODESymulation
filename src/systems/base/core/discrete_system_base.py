@@ -789,7 +789,7 @@ class DiscreteSystemBase(ABC):
 
     def plot(
         self,
-        result: SimulationResult,
+        result: DiscreteSimulationResult,
         state_names: Optional[list] = None,
         **kwargs
     ) -> "go.Figure":
@@ -801,7 +801,7 @@ class DiscreteSystemBase(ABC):
 
         Parameters
         ----------
-        result : SimulationResult
+        result : DiscreteSimulationResult
             Simulation result dictionary with 't' and 'x' keys
             from simulate() or rollout()
         state_names : Optional[list]
