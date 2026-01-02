@@ -144,7 +144,7 @@ When to Use Each Protocol
 - Reinforcement learning rollouts
 - Any algorithm that just needs step()/simulate()
 
-**LinearizableDiscreteProtocol** (MOST COMMON):
+**LinearizableDiscreteProtocol**:
 - LQR design
 - MPC with linearization
 - Pole placement
@@ -159,11 +159,26 @@ When to Use Each Protocol
 - Documentation generation
 - Parameter sensitivity (symbolic)
 
-**ContinuousSystemProtocol** (add only if needed):
+**ContinuousSystemProtocol**:
 - Trajectory optimization
 - Safety verification
 - Reachability analysis
 - Discretization utilities
+
+**LinearizableContinuousProtocol**:
+- LQR design
+- MPC with linearization
+- Pole placement
+- Stability analysis
+- Observer design
+- Most control algorithms
+
+**SymbolicContinuousProtocol**:
+- Equation export (LaTeX, Markdown)
+- Code generation (C, CUDA, etc.)
+- Symbolic manipulation
+- Documentation generation
+- Parameter sensitivity (symbolic)
 
 Authors
 -------
@@ -716,7 +731,7 @@ class SymbolicDiscreteProtocol(LinearizableDiscreteProtocol, Protocol):
 
 
 # ============================================================================
-# Continuous System Protocols (Optional - Add Only If Needed)
+# Continuous System Protocols
 # ============================================================================
 
 
@@ -725,17 +740,11 @@ class ContinuousSystemProtocol(Protocol):
     """
     Minimal interface for continuous-time dynamical systems.
 
-    **OPTIONAL**: Only add this if you have functions that accept arbitrary
-    continuous systems. Most control design happens in discrete time, so you
-    may not need these protocols.
-
     Add continuous protocols if you have:
     - Trajectory optimization for continuous systems
     - Continuous-time verification algorithms
     - Reachability analysis
     - Generic continuous control design
-
-    If you're unsure, skip this and add later if needed.
 
     Implementations
     ---------------
@@ -762,11 +771,6 @@ class ContinuousSystemProtocol(Protocol):
     >>> # Works with any continuous system:
     >>> discrete1 = discretize_any(ContinuousSymbolicSystem(...), dt=0.01)
     >>> discrete2 = discretize_any(ContinuousStochasticSystem(...), dt=0.01)
-
-    Notes
-    -----
-    Consider whether you actually need this before adding it. Most discrete
-    control algorithms don't need to accept arbitrary continuous systems.
     """
 
     @property
@@ -833,8 +837,6 @@ class LinearizableContinuousProtocol(ContinuousSystemProtocol, Protocol):
     """
     Continuous system with linearization capability.
 
-    **OPTIONAL**: Only add if you have continuous-time control design algorithms.
-
     Implementations
     ---------------
     - ContinuousSymbolicSystem
@@ -887,9 +889,6 @@ class LinearizableContinuousProtocol(ContinuousSystemProtocol, Protocol):
 class SymbolicContinuousProtocol(LinearizableContinuousProtocol, Protocol):
     """
     Continuous system with symbolic machinery.
-
-    **OPTIONAL**: Only add if you have algorithms that need symbolic
-    continuous systems specifically.
 
     Implementations
     ---------------
