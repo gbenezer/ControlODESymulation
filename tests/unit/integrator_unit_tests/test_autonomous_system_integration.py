@@ -368,7 +368,7 @@ class TestAutonomousScipyIntegrator:
 
         result = integrator.integrate(x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0))
 
-        assert result["success"], f"Integration failed with {method}: {result["message"]}"
+        assert result["success"], f"Integration failed with {method}: {result['message']}"
         assert np.all(np.isfinite(result["x"]))
         assert result["nfev"] > 0
         assert result["nsteps"] > 0
@@ -524,7 +524,7 @@ class TestAutonomousDiffrax:
 
         result = integrator.integrate(x0=x0, u_func=u_func, t_span=(0.0, 3.0))
 
-        assert result["success"], f"Diffrax {solver} failed: {result["message"]}"
+        assert result["success"], f"Diffrax {solver} failed: {result['message']}"
         assert jnp.all(jnp.isfinite(result["x"])), f"Diffrax {solver} produced NaN/Inf"
 
     def test_diffrax_euler_simple_system(self, linear_autonomous):
@@ -543,7 +543,7 @@ class TestAutonomousDiffrax:
             x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.5)  # Shorter time span
         )
 
-        assert result["success"], f"Diffrax euler failed: {result["message"]}"
+        assert result["success"], f"Diffrax euler failed: {result['message']}"
         assert jnp.all(jnp.isfinite(result["x"]))
 
     def test_diffrax_single_step(self, van_der_pol_autonomous):
@@ -628,7 +628,7 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0)
         )
 
-        assert result["success"], f"Julia {algorithm} failed: {result["message"]}"
+        assert result["success"], f"Julia {algorithm} failed: {result['message']}"
         assert np.all(np.isfinite(result["x"]))
 
     @pytest.mark.parametrize("algorithm", ["ROCK4", "Vern7"])
@@ -656,7 +656,7 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 3.0)
         )
 
-        assert result["success"], f"Julia {algorithm} failed: {result["message"]}"
+        assert result["success"], f"Julia {algorithm} failed: {result['message']}"
         assert np.all(np.isfinite(result["x"]))
 
     @pytest.mark.skipif(not DIFFEQPY_AVAILABLE, reason="Julia/DiffEqPy not installed")
@@ -711,7 +711,7 @@ class TestAutonomousDiffEqPy:
             x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0)
         )
 
-        assert result["success"], f"Auto-switching failed: {result["message"]}"
+        assert result["success"], f"Auto-switching failed: {result['message']}"
         assert np.all(np.isfinite(result["x"]))
 
     def test_diffeqpy_high_accuracy(self, linear_autonomous):

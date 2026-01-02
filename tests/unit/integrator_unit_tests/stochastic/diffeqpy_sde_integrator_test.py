@@ -466,7 +466,7 @@ class TestAutonomousSystems:
         result = integrator.integrate(x0, u_func, t_span)
 
         # Basic success checks
-        assert result["success"], f"Integration failed: {result["message"]}"
+        assert result["success"], f"Integration failed: {result['message']}"
         assert result["x"].shape[0] > 10, "Not enough time points"
         assert result["x"].shape[1] == 1, "Wrong state dimension"
         assert result["nsteps"] > 0, "No steps recorded"
@@ -913,7 +913,7 @@ class TestHighAccuracyAlgorithms:
 
         # SRIW1 might still fail due to Julia/diffeqpy issues
         if not result_sriw1["success"]:
-            pytest.skip(f"SRIW1 integration failed: {result_sriw1["message"]}")
+            pytest.skip(f"SRIW1 integration failed: {result_sriw1['message']}")
 
         # If SRIW1 worked, verify results are valid
         assert result_sriw1["x"].shape[1] == 2
@@ -956,7 +956,7 @@ class TestHighAccuracyAlgorithms:
         if not result["success"]:
             pytest.skip(
                 f"SRA3 integration failed (may be Julia version/setup specific): "
-                f"{result["message"]}"
+                f"{result['message']}"
             )
 
         assert np.all(np.isfinite(result["x"]))
@@ -1368,7 +1368,7 @@ class TestAlgorithmComparison:
         assert result_em["success"]
 
         if not result_sra3["success"]:
-            pytest.skip(f"SRA3 failed: {result_sra3["message"]}")
+            pytest.skip(f"SRA3 failed: {result_sra3['message']}")
 
         # Both should have similar number of steps for fixed dt
         assert abs(result_em["nsteps"] - result_sra3["nsteps"]) < 5
