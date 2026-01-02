@@ -24,7 +24,7 @@ This module should be placed at:
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
@@ -37,14 +37,14 @@ from src.types.core import (
 from src.types.linearization import DiscreteLinearization
 from src.types.trajectories import DiscreteSimulationResult
 
-
 if TYPE_CHECKING:
-    from src.control.system_analysis import SystemAnalysis
-    from src.control.control_synthesis import ControlSynthesis
-    from src.visualization.trajectory_plotter import TrajectoryPlotter
-    from src.visualization.phase_portrait import PhasePortraitPlotter  
-    from src.visualization.control_plots import ControlPlotter
     import plotly.graph_objects as go
+
+    from src.control.control_synthesis import ControlSynthesis
+    from src.control.system_analysis import SystemAnalysis
+    from src.visualization.control_plots import ControlPlotter
+    from src.visualization.phase_portrait import PhasePortraitPlotter
+    from src.visualization.trajectory_plotter import TrajectoryPlotter
 
 
 class DiscreteSystemBase(ABC):
@@ -422,7 +422,7 @@ class DiscreteSystemBase(ABC):
             "dt": self.dt,
             "metadata": {**kwargs, "closed_loop": True, "method": "rollout"},
         }
-        
+
     # =========================================================================
     # Control Framework Integration
     # =========================================================================
@@ -538,7 +538,7 @@ class DiscreteSystemBase(ABC):
             self._system_analysis = SystemAnalysis(backend=backend_str)
 
         return self._system_analysis
-    
+
     # =========================================================================
     # Plotting Framework Integration
     # =========================================================================
@@ -791,7 +791,7 @@ class DiscreteSystemBase(ABC):
         self,
         result: DiscreteSimulationResult,
         state_names: Optional[list] = None,
-        **kwargs
+        **kwargs,
     ) -> "go.Figure":
         """
         Plot simulation result (convenience method).
@@ -866,10 +866,10 @@ class DiscreteSystemBase(ABC):
         For more control over plotting, use plotter methods directly.
         """
         return self.plotter.plot_trajectory(
-            result['t'],
-            result['x'],
+            result["t"],
+            result["x"],
             state_names=state_names,
-            **kwargs
+            **kwargs,
         )
 
     # =========================================================================

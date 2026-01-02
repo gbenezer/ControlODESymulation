@@ -97,7 +97,6 @@ from src.types.core import (
     StateMatrix,
 )
 
-
 # ============================================================================
 # Backend Conversion Utilities (Internal)
 # ============================================================================
@@ -120,12 +119,11 @@ def _to_numpy(arr, backend: Backend):
     if backend == "torch" or hasattr(arr, "cpu"):
         # PyTorch tensor
         return arr.detach().cpu().numpy()
-    elif backend == "jax" or hasattr(arr, "__array__"):
+    if backend == "jax" or hasattr(arr, "__array__"):
         # JAX array
         return np.array(arr)
-    else:
-        # Try generic conversion
-        return np.asarray(arr)
+    # Try generic conversion
+    return np.asarray(arr)
 
 
 def _from_numpy(arr: np.ndarray, backend: Backend):
@@ -141,16 +139,15 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
     """
     if backend == "numpy":
         return arr
-    elif backend == "torch":
+    if backend == "torch":
         import torch
 
         return torch.from_numpy(arr)
-    elif backend == "jax":
+    if backend == "jax":
         import jax.numpy as jnp
 
         return jnp.array(arr)
-    else:
-        return arr
+    return arr
 
 
 # ============================================================================
@@ -303,7 +300,7 @@ def design_lqr(
     # Validate system_type first
     if system_type not in ["continuous", "discrete"]:
         raise ValueError(
-            f"system_type must be 'continuous' or 'discrete', got '{system_type}'"
+            f"system_type must be 'continuous' or 'discrete', got '{system_type}'",
         )
 
     # Convert to NumPy for scipy
@@ -620,13 +617,13 @@ def design_lqg(
     """
     # Design LQR controller
     lqr_result = lqr_result = design_lqr(
-        A=A, 
-        B=B, 
-        Q=Q_state, 
-        R=R_control, 
+        A=A,
+        B=B,
+        Q=Q_state,
+        R=R_control,
         N=N,
-        system_type=system_type, 
-        backend=backend
+        system_type=system_type,
+        backend=backend,
     )
 
     # Design Kalman filter estimator

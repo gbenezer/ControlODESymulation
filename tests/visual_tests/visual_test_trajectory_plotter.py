@@ -31,7 +31,6 @@ from pathlib import Path
 
 from src.visualization.trajectory_plotter import TrajectoryPlotter
 
-
 def setup_output_directory():
     """Create output directory for visual tests."""
     output_dir = Path("visual_tests/trajectory_plotter")

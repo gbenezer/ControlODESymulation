@@ -76,8 +76,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
+from src.visualization.themes import ColorSchemes, PlotThemes
 
 
 class ControlPlotter:
@@ -226,7 +226,7 @@ class ControlPlotter:
 
         # Plot eigenvalues (use ColorSchemes for consistency)
         eigenvalue_color = ColorSchemes.PLOTLY[0]
-        
+
         fig.add_trace(
             go.Scatter(
                 x=np.real(eigs),
@@ -241,7 +241,7 @@ class ControlPlotter:
                 ),
                 hovertemplate="λ = %{x:.4f} + %{y:.4f}j<br>|λ| = %{text:.4f}<extra></extra>",
                 text=np.abs(eigs),
-            )
+            ),
         )
 
         # Determine plot limits
@@ -428,7 +428,7 @@ class ControlPlotter:
                         text=[f"{val:.3f}" for val in K.flatten()],
                         textposition="outside",
                         marker=dict(color=colors[idx]),
-                    )
+                    ),
                 )
 
             fig.update_layout(
@@ -590,7 +590,7 @@ class ControlPlotter:
         fig.update_yaxes(title_text="Change", type="log", row=1, col=2)
 
         fig.update_layout(
-            title=title, width=1000, height=400, showlegend=False
+            title=title, width=1000, height=400, showlegend=False,
         )
 
         # Apply theme
@@ -683,7 +683,7 @@ class ControlPlotter:
                 texttemplate="%{text}",
                 textfont={"size": 10},
                 colorbar=dict(title="Value"),
-            )
+            ),
         )
 
         fig.update_layout(
@@ -834,7 +834,7 @@ class ControlPlotter:
                 mode="lines",
                 name="Response",
                 line=dict(color=response_color, width=2),
-            )
+            ),
         )
 
         # Plot reference
@@ -845,7 +845,7 @@ class ControlPlotter:
                 mode="lines",
                 name="Reference",
                 line=dict(color="gray", width=2, dash="dash"),
-            )
+            ),
         )
 
         # Calculate and annotate metrics
@@ -884,7 +884,7 @@ class ControlPlotter:
             ss_error = reference - final_value
 
             # Add metrics text
-            metrics_text = f"<b>Performance Metrics:</b><br>"
+            metrics_text = "<b>Performance Metrics:</b><br>"
             if rise_time is not None:
                 metrics_text += f"Rise Time: {rise_time:.3f} s<br>"
             if settling_time is not None:
@@ -1017,7 +1017,7 @@ class ControlPlotter:
                 mode="lines",
                 name="Impulse Response",
                 line=dict(color=response_color, width=2),
-            )
+            ),
         )
 
         # Plot zero line
@@ -1029,7 +1029,7 @@ class ControlPlotter:
                 name="Zero",
                 line=dict(color="gray", width=1, dash="dash"),
                 showlegend=False,
-            )
+            ),
         )
 
         # Calculate and annotate metrics
@@ -1078,7 +1078,7 @@ class ControlPlotter:
                         decay_rate = None
 
             # Add metrics text
-            metrics_text = f"<b>Impulse Response Metrics:</b><br>"
+            metrics_text = "<b>Impulse Response Metrics:</b><br>"
             metrics_text += f"Peak: {peak_value:.3f}<br>"
             metrics_text += f"Peak Time: {peak_time:.3f} s<br>"
             if settling_time is not None:
@@ -1254,12 +1254,12 @@ class ControlPlotter:
 
         # Add 0 dB line to magnitude plot
         fig.add_hline(
-            y=0, line_dash="dash", line_color="gray", row=1, col=1, opacity=0.5
+            y=0, line_dash="dash", line_color="gray", row=1, col=1, opacity=0.5,
         )
 
         # Add -180° line to phase plot
         fig.add_hline(
-            y=-180, line_dash="dash", line_color="gray", row=2, col=1, opacity=0.5
+            y=-180, line_dash="dash", line_color="gray", row=2, col=1, opacity=0.5,
         )
 
         # Calculate and annotate margins
@@ -1430,7 +1430,7 @@ class ControlPlotter:
                 line=dict(color=nyquist_color, width=2),
                 marker=dict(size=4),
                 hovertemplate="Re: %{x:.3f}<br>Im: %{y:.3f}<extra></extra>",
-            )
+            ),
         )
 
         # Plot mirror for negative frequencies (complex conjugate)
@@ -1443,7 +1443,7 @@ class ControlPlotter:
                 line=dict(color=nyquist_color, width=2, dash="dot"),
                 marker=dict(size=4),
                 hovertemplate="Re: %{x:.3f}<br>Im: %{y:.3f}<extra></extra>",
-            )
+            ),
         )
 
         # Mark critical point (-1, 0j)
@@ -1460,7 +1460,7 @@ class ControlPlotter:
                         symbol="x",
                         line=dict(color="red", width=2),
                     ),
-                )
+                ),
             )
 
             # Add circle around critical point
@@ -1477,7 +1477,7 @@ class ControlPlotter:
                     line=dict(color="red", width=1, dash="dash"),
                     showlegend=False,
                     hoverinfo="skip",
-                )
+                ),
             )
 
         # Add real and imaginary axes
@@ -1619,7 +1619,7 @@ class ControlPlotter:
                     line=dict(color=colors[pole_idx], width=2),
                     marker=dict(size=4),
                     showlegend=(pole_idx < 5),  # Limit legend clutter
-                )
+                ),
             )
 
             # Mark start (K=0, open-loop pole)
@@ -1629,11 +1629,11 @@ class ControlPlotter:
                     y=[np.imag(pole_branch[0])],
                     mode="markers",
                     marker=dict(
-                        color="green", size=10, symbol="circle", line=dict(width=2)
+                        color="green", size=10, symbol="circle", line=dict(width=2),
                     ),
                     showlegend=(pole_idx == 0),
                     name="K=0" if pole_idx == 0 else None,
-                )
+                ),
             )
 
             # Mark end (K→∞)
@@ -1643,11 +1643,11 @@ class ControlPlotter:
                     y=[np.imag(pole_branch[-1])],
                     mode="markers",
                     marker=dict(
-                        color="red", size=10, symbol="square", line=dict(width=2)
+                        color="red", size=10, symbol="square", line=dict(width=2),
                     ),
                     showlegend=(pole_idx == 0),
                     name="K→∞" if pole_idx == 0 else None,
-                )
+                ),
             )
 
         # Add zeros if provided
@@ -1660,7 +1660,7 @@ class ControlPlotter:
                     mode="markers",
                     name="Zeros",
                     marker=dict(color="black", size=12, symbol="circle-open"),
-                )
+                ),
             )
 
         # Update layout
@@ -1778,7 +1778,7 @@ class ControlPlotter:
                     name="Unit Circle",
                     line=dict(color="black", width=2, dash="solid"),
                     showlegend=True,
-                )
+                ),
             )
 
             # Annotate regions

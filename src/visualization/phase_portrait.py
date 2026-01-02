@@ -75,8 +75,8 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
-from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
+from src.visualization.themes import ColorSchemes, PlotThemes
 
 
 class PhasePortraitPlotter:
@@ -246,7 +246,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 2:
             raise ValueError(
-                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)"
+                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)",
             )
 
         # Detect batching
@@ -291,7 +291,7 @@ class PhasePortraitPlotter:
                     name=f"Trajectory {batch_idx + 1}" if is_batched else "Trajectory",
                     line=dict(color=colors[batch_idx], width=2),
                     showlegend=True,
-                )
+                ),
             )
 
             # Start marker (green circle)
@@ -304,7 +304,7 @@ class PhasePortraitPlotter:
                         name="Start" if batch_idx == 0 else None,
                         marker=dict(color="green", size=10, symbol="circle"),
                         showlegend=(batch_idx == 0),
-                    )
+                    ),
                 )
 
                 # End marker (red square)
@@ -316,13 +316,13 @@ class PhasePortraitPlotter:
                         name="End" if batch_idx == 0 else None,
                         marker=dict(color="red", size=10, symbol="square"),
                         showlegend=(batch_idx == 0),
-                    )
+                    ),
                 )
 
             # Direction arrows
             if show_direction and T > 10:
                 self._add_direction_arrows_2d(
-                    fig, x_traj, colors[batch_idx], n_arrows=5
+                    fig, x_traj, colors[batch_idx], n_arrows=5,
                 )
 
         # Update layout
@@ -426,7 +426,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 3:
             raise ValueError(
-                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)"
+                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)",
             )
 
         # Detect batching
@@ -463,7 +463,7 @@ class PhasePortraitPlotter:
                     name=f"Trajectory {batch_idx + 1}" if is_batched else "Trajectory",
                     line=dict(color=colors[batch_idx], width=3),
                     showlegend=True,
-                )
+                ),
             )
 
             # Start marker (green sphere)
@@ -477,7 +477,7 @@ class PhasePortraitPlotter:
                         name="Start" if batch_idx == 0 else None,
                         marker=dict(color="green", size=8, symbol="circle"),
                         showlegend=(batch_idx == 0),
-                    )
+                    ),
                 )
 
                 # End marker (red cube)
@@ -490,7 +490,7 @@ class PhasePortraitPlotter:
                         name="End" if batch_idx == 0 else None,
                         marker=dict(color="red", size=8, symbol="square"),
                         showlegend=(batch_idx == 0),
-                    )
+                    ),
                 )
 
             # Direction markers (color gradient)
@@ -514,7 +514,7 @@ class PhasePortraitPlotter:
                         ),
                         name="Direction" if batch_idx == 0 else None,
                         showlegend=False,
-                    )
+                    ),
                 )
 
         # Update layout
@@ -764,7 +764,7 @@ class PhasePortraitPlotter:
                     pass
 
     def _add_equilibria_markers(
-        self, fig: go.Figure, equilibria: List[np.ndarray]
+        self, fig: go.Figure, equilibria: List[np.ndarray],
     ) -> None:
         """
         Add markers for equilibrium points.
@@ -800,7 +800,7 @@ class PhasePortraitPlotter:
                         line=dict(color="black", width=2),
                     ),
                     showlegend=True,
-                )
+                ),
             )
         elif ndim == 3:
             # 3D equilibria
@@ -817,11 +817,11 @@ class PhasePortraitPlotter:
                     name="Equilibria",
                     marker=dict(color="black", size=8, symbol="x"),
                     showlegend=True,
-                )
+                ),
             )
 
     def _add_direction_arrows_2d(
-        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5
+        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5,
     ) -> None:
         """
         Add direction arrows to 2D trajectory.

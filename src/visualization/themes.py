@@ -271,22 +271,21 @@ class ColorSchemes:
             raise ValueError(
                 f"Unknown color scheme '{scheme}'. "
                 f"Available: plotly, d3, colorblind_safe, tableau, "
-                f"sequential_blue, sequential_green, diverging_red_blue, diverging_purple_green"
+                f"sequential_blue, sequential_green, diverging_red_blue, diverging_purple_green",
             )
 
         # Return appropriate number of colors
         if n_colors is None:
             return palette.copy()
-        else:
-            # Cycle through palette if more colors needed
-            colors = []
-            for i in range(n_colors):
-                colors.append(palette[i % len(palette)])
-            return colors
+        # Cycle through palette if more colors needed
+        colors = []
+        for i in range(n_colors):
+            colors.append(palette[i % len(palette)])
+        return colors
 
     @staticmethod
     def interpolate_colors(
-        color1: str, color2: str, n_steps: int = 10
+        color1: str, color2: str, n_steps: int = 10,
     ) -> List[str]:
         """
         Generate color gradient between two colors.
@@ -452,7 +451,7 @@ class PlotThemes:
             else:
                 raise ValueError(
                     f"Unknown theme '{theme}'. "
-                    f"Available: default, publication, dark, presentation"
+                    f"Available: default, publication, dark, presentation",
                 )
         elif isinstance(theme, dict):
             config = theme
@@ -619,6 +618,6 @@ __all__ = [
     "ColorSchemes",
     "PlotThemes",
     "hex_to_rgb",
-    "rgb_to_hex",
     "lighten_color",
+    "rgb_to_hex",
 ]

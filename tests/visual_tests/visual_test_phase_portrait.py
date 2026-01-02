@@ -31,7 +31,6 @@ from pathlib import Path
 
 from src.visualization.phase_portrait import PhasePortraitPlotter
 
-
 def setup_output_directory():
     """Create output directory for visual tests."""
     output_dir = Path("visual_tests/phase_portrait")

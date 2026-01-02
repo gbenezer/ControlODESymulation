@@ -21,7 +21,7 @@ Abstract base class for all continuous-time dynamical systems.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 
@@ -31,12 +31,13 @@ from src.types.linearization import LinearizationResult
 from src.types.trajectories import IntegrationResult, SimulationResult, TimeSpan
 
 if TYPE_CHECKING:
-    from src.control.system_analysis import SystemAnalysis
-    from src.control.control_synthesis import ControlSynthesis
-    from src.visualization.trajectory_plotter import TrajectoryPlotter
-    from src.visualization.phase_portrait import PhasePortraitPlotter  
-    from src.visualization.control_plots import ControlPlotter
     import plotly.graph_objects as go
+
+    from src.control.control_synthesis import ControlSynthesis
+    from src.control.system_analysis import SystemAnalysis
+    from src.visualization.control_plots import ControlPlotter
+    from src.visualization.phase_portrait import PhasePortraitPlotter
+    from src.visualization.trajectory_plotter import TrajectoryPlotter
 
 
 class ContinuousSystemBase(ABC):
@@ -866,7 +867,7 @@ class ContinuousSystemBase(ABC):
         result["metadata"]["method_type"] = "rollout"
 
         return result
-    
+
     # =========================================================================
     # Control Framework Integration
     # =========================================================================
@@ -1235,7 +1236,7 @@ class ContinuousSystemBase(ABC):
         self,
         result: IntegrationResult,
         state_names: Optional[list] = None,
-        **kwargs
+        **kwargs,
     ) -> "go.Figure":
         """
         Plot integration result (convenience method).
@@ -1310,10 +1311,10 @@ class ContinuousSystemBase(ABC):
         For more control over plotting, use plotter methods directly.
         """
         return self.plotter.plot_trajectory(
-            result['t'],
-            result['x'],
+            result["t"],
+            result["x"],
             state_names=state_names,
-            **kwargs
+            **kwargs,
         )
 
     # =========================================================================

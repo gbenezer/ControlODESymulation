@@ -77,8 +77,8 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
+from src.visualization.themes import ColorSchemes, PlotThemes
 
 
 class TrajectoryPlotter:
@@ -287,7 +287,7 @@ class TrajectoryPlotter:
 
         # Add trajectory traces
         self._add_trajectory_traces(
-            fig, t_np, x_np, state_names, colors, is_batched, n_rows, n_cols
+            fig, t_np, x_np, state_names, colors, is_batched, n_rows, n_cols,
         )
 
         # Update layout
@@ -428,12 +428,12 @@ class TrajectoryPlotter:
 
         # Add state traces
         self._add_trajectory_traces(
-            fig, t_np, x_np, state_names, colors, is_batched, n_rows, n_cols, offset=0
+            fig, t_np, x_np, state_names, colors, is_batched, n_rows, n_cols, offset=0,
         )
 
         # Add control traces
         self._add_trajectory_traces(
-            fig, t_np, u_np, control_names, colors, is_batched, n_rows, n_cols, offset=nx
+            fig, t_np, u_np, control_names, colors, is_batched, n_rows, n_cols, offset=nx,
         )
 
         # Update layout
@@ -536,7 +536,7 @@ class TrajectoryPlotter:
                 trajectories_np[label] = x
             if x.shape != (T, nx):
                 raise ValueError(
-                    f"Trajectory '{label}' shape {x.shape} != expected {(T, nx)}"
+                    f"Trajectory '{label}' shape {x.shape} != expected {(T, nx)}",
                 )
 
         # Generate state names
@@ -676,11 +676,10 @@ class TrajectoryPlotter:
         if x.ndim == 3:
             return True
         # 2D or 1D → single
-        elif x.ndim <= 2:
+        if x.ndim <= 2:
             return False
-        else:
-            # 4D+ is unexpected but treat as batched
-            return True
+        # 4D+ is unexpected but treat as batched
+        return True
 
     def _determine_layout(self, n_plots: int) -> Tuple[int, int]:
         """
@@ -709,23 +708,22 @@ class TrajectoryPlotter:
         """
         if n_plots == 1:
             return (1, 1)
-        elif n_plots <= 4:
+        if n_plots <= 4:
             # Single row
             return (1, n_plots)
-        elif n_plots <= 8:
+        if n_plots <= 8:
             # Two rows
             n_cols = math.ceil(n_plots / 2)
             return (2, n_cols)
-        elif n_plots <= 12:
+        if n_plots <= 12:
             # Three rows, 4 columns max
             n_cols = min(4, math.ceil(n_plots / 3))
             n_rows = math.ceil(n_plots / n_cols)
             return (n_rows, n_cols)
-        else:
-            # Square-ish grid
-            n_cols = math.ceil(math.sqrt(n_plots))
-            n_rows = math.ceil(n_plots / n_cols)
-            return (n_rows, n_cols)
+        # Square-ish grid
+        n_cols = math.ceil(math.sqrt(n_plots))
+        n_rows = math.ceil(n_plots / n_cols)
+        return (n_rows, n_cols)
 
     def _add_trajectory_traces(
         self,
