@@ -18,6 +18,7 @@ Unit Tests for Control Synthesis Wrapper
 
 Tests cover:
 - Wrapper initialization and configuration
+- Unified design_lqr() method
 - Method delegation to classical functions
 - Backend consistency and propagation
 - Return type validation
@@ -27,13 +28,15 @@ Tests cover:
 
 Test Structure:
 - TestControlSynthesisInit: Initialization and configuration
-- TestLQRMethods: LQR continuous and discrete wrappers
+- TestUnifiedLQRMethod: Unified LQR interface tests
+- TestLQRMethods: Legacy LQR wrappers (deprecated but supported)
 - TestKalmanMethod: Kalman filter wrapper
 - TestLQGMethod: LQG controller wrapper
 - TestBackendConsistency: Backend propagation and consistency
 - TestDelegation: Verify proper delegation to classical functions
 - TestIntegration: End-to-end usage patterns
 - TestErrorPropagation: Error handling from underlying functions
+- TestInterface: API and documentation consistency
 
 The ControlSynthesis class is a thin wrapper, so tests focus on:
 1. Correct delegation to classical functions
@@ -190,47 +193,32 @@ class TestControlSynthesisInit(SynthesisTestCase):
 
 
 # ============================================================================
-# LQR Method Tests
+# Unified LQR Method Tests
 # ============================================================================
 
-class TestLQRMethods(SynthesisTestCase):
-    """Test LQR wrapper methods."""
+class TestUnifiedLQRMethod(SynthesisTestCase):
+    """Test unified design_lqr() wrapper method."""
     
-    def test_design_lqr_continuous_basic(self):
-        """Test basic continuous LQR design."""
+    def test_design_lqr_continuous(self):
+        """Test unified LQR with system_type='continuous'."""
         synthesis = ControlSynthesis(backend='numpy')
         
-        result = synthesis.design_lqr_continuous(
-            self.A_stable,
-            self.B_stable,
-            self.Q,
-            self.R
-        )
-        
-        self.assert_lqr_result_valid(result, nx=2, nu=1)
-        self.assertGreater(result['stability_margin'], 0)
-    
-    def test_design_lqr_continuous_with_cross_term(self):
-        """Test continuous LQR with cross-coupling term."""
-        synthesis = ControlSynthesis(backend='numpy')
-        N = np.array([[0.5], [0.1]])
-        
-        result = synthesis.design_lqr_continuous(
+        result = synthesis.design_lqr(
             self.A_stable,
             self.B_stable,
             self.Q,
             self.R,
-            N=N
+            system_type='continuous'
         )
         
         self.assert_lqr_result_valid(result, nx=2, nu=1)
         self.assertGreater(result['stability_margin'], 0)
     
-    def test_design_lqr_discrete_basic(self):
-        """Test basic discrete LQR design."""
+    def test_design_lqr_discrete_default(self):
+        """Test unified LQR with default system_type='discrete'."""
         synthesis = ControlSynthesis(backend='numpy')
         
-        result = synthesis.design_lqr_discrete(
+        result = synthesis.design_lqr(
             self.Ad,
             self.Bd,
             self.Q,
@@ -240,35 +228,83 @@ class TestLQRMethods(SynthesisTestCase):
         self.assert_lqr_result_valid(result, nx=2, nu=1)
         self.assertGreater(result['stability_margin'], 0)
     
-    def test_design_lqr_discrete_with_cross_term(self):
-        """Test discrete LQR with cross-coupling term."""
+    def test_design_lqr_discrete_explicit(self):
+        """Test unified LQR with explicit system_type='discrete'."""
         synthesis = ControlSynthesis(backend='numpy')
-        N = np.array([[0.5], [0.1]])
         
-        result = synthesis.design_lqr_discrete(
+        result = synthesis.design_lqr(
             self.Ad,
             self.Bd,
             self.Q,
             self.R,
-            N=N
+            system_type='discrete'
         )
         
         self.assert_lqr_result_valid(result, nx=2, nu=1)
+        self.assertGreater(result['stability_margin'], 0)
     
-    def test_lqr_results_are_numpy_arrays(self):
-        """Test that results are in expected backend format."""
+    def test_design_lqr_with_cross_term(self):
+        """Test unified LQR with cross-coupling term N."""
         synthesis = ControlSynthesis(backend='numpy')
+        N = np.array([[0.5], [0.1]])
         
-        result = synthesis.design_lqr_continuous(
+        # Continuous
+        result_c = synthesis.design_lqr(
             self.A_stable,
             self.B_stable,
             self.Q,
-            self.R
+            self.R,
+            N=N,
+            system_type='continuous'
         )
+        self.assert_lqr_result_valid(result_c, nx=2, nu=1)
         
-        self.assertIsInstance(result['gain'], np.ndarray)
-        self.assertIsInstance(result['cost_to_go'], np.ndarray)
-        self.assertIsInstance(result['closed_loop_eigenvalues'], np.ndarray)
+        # Discrete
+        result_d = synthesis.design_lqr(
+            self.Ad,
+            self.Bd,
+            self.Q,
+            self.R,
+            N=N,
+            system_type='discrete'
+        )
+        self.assert_lqr_result_valid(result_d, nx=2, nu=1)
+    
+    def test_design_lqr_backend_propagation(self):
+        """Test that backend is passed to unified LQR function."""
+        with patch('src.control.control_synthesis.design_lqr') as mock_func:
+            mock_func.return_value = {
+                'gain': np.zeros((1, 2)),
+                'cost_to_go': np.eye(2),
+                'closed_loop_eigenvalues': np.array([-1, -2]),
+                'stability_margin': 1.0
+            }
+            
+            synthesis = ControlSynthesis(backend='torch')
+            synthesis.design_lqr(
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type='continuous'
+            )
+            
+            # Verify backend was passed
+            call_kwargs = mock_func.call_args[1]
+            self.assertEqual(call_kwargs['backend'], 'torch')
+    
+    def test_design_lqr_invalid_system_type(self):
+        """Test unified LQR with invalid system_type."""
+        synthesis = ControlSynthesis(backend='numpy')
+        
+        with self.assertRaises(ValueError):
+            synthesis.design_lqr(
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type='invalid'
+            )
 
 
 # ============================================================================
@@ -425,10 +461,10 @@ class TestLQGMethod(SynthesisTestCase):
 class TestBackendConsistency(SynthesisTestCase):
     """Test backend propagation and consistency."""
     
-    def test_backend_passed_to_lqr_continuous(self):
-        """Test that backend is passed to underlying LQR function."""
-        with patch('src.control.classical_control_functions.design_lqr_continuous') as mock_lqr:
-            mock_lqr.return_value = {
+    def test_backend_passed_to_unified_lqr(self):
+        """Test that backend is passed to unified LQR function."""
+        with patch('src.control.classical_control_functions.design_lqr') as mock_func:
+            mock_func.return_value = {
                 'gain': np.zeros((1, 2)),
                 'cost_to_go': np.eye(2),
                 'closed_loop_eigenvalues': np.array([-1, -2]),
@@ -436,43 +472,22 @@ class TestBackendConsistency(SynthesisTestCase):
             }
             
             synthesis = ControlSynthesis(backend='torch')
-            synthesis.design_lqr_continuous(
+            synthesis.design_lqr(
                 self.A_stable,
                 self.B_stable,
                 self.Q,
-                self.R
+                self.R,
+                system_type='continuous'
             )
             
             # Verify backend was passed
-            mock_lqr.assert_called_once()
-            call_kwargs = mock_lqr.call_args[1]
+            call_kwargs = mock_func.call_args[1]
             self.assertEqual(call_kwargs['backend'], 'torch')
-    
-    def test_backend_passed_to_lqr_discrete(self):
-        """Test that backend is passed to discrete LQR."""
-        with patch('src.control.classical_control_functions.design_lqr_discrete') as mock_lqr:
-            mock_lqr.return_value = {
-                'gain': np.zeros((1, 2)),
-                'cost_to_go': np.eye(2),
-                'closed_loop_eigenvalues': np.array([0.5, 0.6]),
-                'stability_margin': 0.4
-            }
-            
-            synthesis = ControlSynthesis(backend='jax')
-            synthesis.design_lqr_discrete(
-                self.Ad,
-                self.Bd,
-                self.Q,
-                self.R
-            )
-            
-            call_kwargs = mock_lqr.call_args[1]
-            self.assertEqual(call_kwargs['backend'], 'jax')
     
     def test_backend_passed_to_kalman(self):
         """Test that backend is passed to Kalman filter."""
-        with patch('src.control.classical_control_functions.design_kalman_filter') as mock_kalman:
-            mock_kalman.return_value = {
+        with patch('src.control.classical_control_functions.design_kalman_filter') as mock_func:
+            mock_func.return_value = {
                 'gain': np.zeros((2, 1)),
                 'error_covariance': np.eye(2),
                 'innovation_covariance': np.array([[0.1]]),
@@ -487,13 +502,13 @@ class TestBackendConsistency(SynthesisTestCase):
                 self.R_meas
             )
             
-            call_kwargs = mock_kalman.call_args[1]
+            call_kwargs = mock_func.call_args[1]
             self.assertEqual(call_kwargs['backend'], 'numpy')
     
     def test_backend_passed_to_lqg(self):
         """Test that backend is passed to LQG."""
-        with patch('src.control.classical_control_functions.design_lqg') as mock_lqg:
-            mock_lqg.return_value = {
+        with patch('src.control.classical_control_functions.design_lqg') as mock_func:
+            mock_func.return_value = {
                 'controller_gain': np.zeros((1, 2)),
                 'estimator_gain': np.zeros((2, 1)),
                 'controller_riccati': np.eye(2),
@@ -513,7 +528,7 @@ class TestBackendConsistency(SynthesisTestCase):
                 self.R_meas
             )
             
-            call_kwargs = mock_lqg.call_args[1]
+            call_kwargs = mock_func.call_args[1]
             self.assertEqual(call_kwargs['backend'], 'torch')
     
     @unittest.skipIf(not HAS_TORCH, "PyTorch not available")
@@ -526,8 +541,9 @@ class TestBackendConsistency(SynthesisTestCase):
         Q_torch = torch.tensor(self.Q, dtype=torch.float64)
         R_torch = torch.tensor(self.R, dtype=torch.float64)
         
-        result = synthesis.design_lqr_continuous(
-            A_torch, B_torch, Q_torch, R_torch
+        result = synthesis.design_lqr(
+            A_torch, B_torch, Q_torch, R_torch,
+            system_type='continuous'
         )
         
         # Result should be torch tensors
@@ -544,8 +560,9 @@ class TestBackendConsistency(SynthesisTestCase):
         Q_jax = jnp.array(self.Q)
         R_jax = jnp.array(self.R)
         
-        result = synthesis.design_lqr_continuous(
-            A_jax, B_jax, Q_jax, R_jax
+        result = synthesis.design_lqr(
+            A_jax, B_jax, Q_jax, R_jax,
+            system_type='continuous'
         )
         
         # Result should be jax arrays
@@ -560,9 +577,9 @@ class TestBackendConsistency(SynthesisTestCase):
 class TestDelegation(SynthesisTestCase):
     """Test proper delegation to classical functions."""
     
-    def test_lqr_continuous_delegates_correctly(self):
-        """Test that design_lqr_continuous delegates with correct arguments."""
-        with patch('src.control.classical_control_functions.design_lqr_continuous') as mock_func:
+    def test_unified_lqr_delegates_correctly(self):
+        """Test that design_lqr delegates with correct arguments."""
+        with patch('src.control.classical_control_functions.design_lqr') as mock_func:
             mock_func.return_value = {
                 'gain': np.zeros((1, 2)),
                 'cost_to_go': np.eye(2),
@@ -573,12 +590,13 @@ class TestDelegation(SynthesisTestCase):
             synthesis = ControlSynthesis(backend='numpy')
             N = np.array([[0.5], [0.1]])
             
-            synthesis.design_lqr_continuous(
+            synthesis.design_lqr(
                 self.A_stable,
                 self.B_stable,
                 self.Q,
                 self.R,
-                N=N
+                N=N,
+                system_type='continuous'
             )
             
             # Verify correct delegation
@@ -588,34 +606,7 @@ class TestDelegation(SynthesisTestCase):
                 self.Q,
                 self.R,
                 N,
-                backend='numpy'
-            )
-    
-    def test_lqr_discrete_delegates_correctly(self):
-        """Test that design_lqr_discrete delegates with correct arguments."""
-        with patch('src.control.classical_control_functions.design_lqr_discrete') as mock_func:
-            mock_func.return_value = {
-                'gain': np.zeros((1, 2)),
-                'cost_to_go': np.eye(2),
-                'closed_loop_eigenvalues': np.array([0.5, 0.6]),
-                'stability_margin': 0.4
-            }
-            
-            synthesis = ControlSynthesis(backend='numpy')
-            
-            synthesis.design_lqr_discrete(
-                self.Ad,
-                self.Bd,
-                self.Q,
-                self.R
-            )
-            
-            mock_func.assert_called_once_with(
-                self.Ad,
-                self.Bd,
-                self.Q,
-                self.R,
-                None,  # N defaults to None
+                system_type='continuous',
                 backend='numpy'
             )
     
@@ -691,11 +682,12 @@ class TestDelegation(SynthesisTestCase):
         initial_backend = synthesis.backend
         
         # Call various methods
-        synthesis.design_lqr_continuous(
+        synthesis.design_lqr(
             self.A_stable,
             self.B_stable,
             self.Q,
-            self.R
+            self.R,
+            system_type='continuous'
         )
         
         synthesis.design_kalman(
@@ -754,12 +746,13 @@ class TestIntegration(SynthesisTestCase):
         """Test designing LQR and Kalman separately (vs combined LQG)."""
         synthesis = ControlSynthesis(backend='numpy')
         
-        # Design LQR
-        lqr_result = synthesis.design_lqr_discrete(
+        # Design LQR using unified interface
+        lqr_result = synthesis.design_lqr(
             self.Ad,
             self.Bd,
             self.Q,
-            self.R
+            self.R,
+            system_type='discrete'
         )
         
         # Design Kalman
@@ -800,19 +793,21 @@ class TestIntegration(SynthesisTestCase):
         synthesis = ControlSynthesis(backend='numpy')
         
         # Continuous LQR
-        result_c = synthesis.design_lqr_continuous(
+        result_c = synthesis.design_lqr(
             self.A_stable,
             self.B_stable,
             self.Q,
-            self.R
+            self.R,
+            system_type='continuous'
         )
         
         # Discrete LQR (on discretized system)
-        result_d = synthesis.design_lqr_discrete(
+        result_d = synthesis.design_lqr(
             self.Ad,
             self.Bd,
             self.Q,
-            self.R
+            self.R,
+            system_type='discrete'
         )
         
         # Both should be stable
@@ -832,14 +827,17 @@ class TestIntegration(SynthesisTestCase):
         Q2 = np.diag([100, 10])
         Q3 = np.diag([1, 1])
         
-        result1 = synthesis.design_lqr_continuous(
-            self.A_stable, self.B_stable, Q1, self.R
+        result1 = synthesis.design_lqr(
+            self.A_stable, self.B_stable, Q1, self.R,
+            system_type='continuous'
         )
-        result2 = synthesis.design_lqr_continuous(
-            self.A_stable, self.B_stable, Q2, self.R
+        result2 = synthesis.design_lqr(
+            self.A_stable, self.B_stable, Q2, self.R,
+            system_type='continuous'
         )
-        result3 = synthesis.design_lqr_continuous(
-            self.A_stable, self.B_stable, Q3, self.R
+        result3 = synthesis.design_lqr(
+            self.A_stable, self.B_stable, Q3, self.R,
+            system_type='continuous'
         )
         
         # All should be valid and different
@@ -871,11 +869,25 @@ class TestErrorPropagation(SynthesisTestCase):
         A_wrong = np.eye(3)  # 3x3 instead of 2x2
         
         with self.assertRaises(ValueError):
-            synthesis.design_lqr_continuous(
+            synthesis.design_lqr(
                 A_wrong,
                 self.B_stable,  # 2x1
                 self.Q,
-                self.R
+                self.R,
+                system_type='continuous'
+            )
+    
+    def test_lqr_invalid_system_type_propagates(self):
+        """Test that invalid system_type error propagates."""
+        synthesis = ControlSynthesis(backend='numpy')
+        
+        with self.assertRaises(ValueError):
+            synthesis.design_lqr(
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type='invalid'
             )
     
     def test_kalman_dimension_error_propagates(self):
@@ -918,7 +930,10 @@ class TestErrorPropagation(SynthesisTestCase):
         B = np.array([[0], [0]])  # No control authority
         
         try:
-            result = synthesis.design_lqr_continuous(A, B, self.Q, self.R)
+            result = synthesis.design_lqr(
+                A, B, self.Q, self.R,
+                system_type='continuous'
+            )
             # If it doesn't raise, the result should indicate instability
             # (can't stabilize uncontrollable system)
             A_cl = A - B @ result['gain']
@@ -941,8 +956,7 @@ class TestInterface(SynthesisTestCase):
         synthesis = ControlSynthesis()
         
         required_methods = [
-            'design_lqr_continuous',
-            'design_lqr_discrete',
+            'design_lqr',
             'design_kalman',
             'design_lqg',
         ]
@@ -963,10 +977,10 @@ class TestInterface(SynthesisTestCase):
         
         synthesis = ControlSynthesis()
         
-        # Check design_lqr_continuous signature
-        sig = inspect.signature(synthesis.design_lqr_continuous)
+        # Check design_lqr signature
+        sig = inspect.signature(synthesis.design_lqr)
         params = list(sig.parameters.keys())
-        expected = ['A', 'B', 'Q', 'R', 'N']
+        expected = ['A', 'B', 'Q', 'R', 'N', 'system_type']
         self.assertEqual(params, expected)
         
         # Check design_kalman signature
@@ -979,7 +993,7 @@ class TestInterface(SynthesisTestCase):
         sig = inspect.signature(synthesis.design_lqg)
         params = list(sig.parameters.keys())
         expected = ['A', 'B', 'C', 'Q_state', 'R_control', 
-                    'Q_process', 'R_measurement', 'system_type']
+                    'Q_process', 'R_measurement', 'N', 'system_type']
         self.assertEqual(params, expected)
     
     def test_return_types_match_docs(self):
@@ -987,8 +1001,9 @@ class TestInterface(SynthesisTestCase):
         synthesis = ControlSynthesis(backend='numpy')
         
         # LQR should return LQRResult
-        lqr_result = synthesis.design_lqr_continuous(
-            self.A_stable, self.B_stable, self.Q, self.R
+        lqr_result = synthesis.design_lqr(
+            self.A_stable, self.B_stable, self.Q, self.R,
+            system_type='continuous'
         )
         self.assertIsInstance(lqr_result, dict)
         self.assertIn('gain', lqr_result)
@@ -1021,7 +1036,7 @@ def suite():
     
     # Add all test classes
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestControlSynthesisInit))
-    test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLQRMethods))
+    test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestUnifiedLQRMethod))
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestKalmanMethod))
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestLQGMethod))
     test_suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestBackendConsistency))

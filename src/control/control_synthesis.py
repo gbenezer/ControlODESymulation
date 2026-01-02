@@ -19,8 +19,9 @@ Control Synthesis Wrapper
 Thin wrapper around classical control functions for system composition.
 
 Provides backend consistency with parent system while delegating to
-pure functions in classical.py. This is NOT a heavy utility - it simply
-routes to stateless algorithms with the appropriate backend setting.
+pure functions in classical_control_functions.py. This is NOT a heavy 
+utility - it simply routes to stateless algorithms with the appropriate 
+backend setting.
 
 Design Philosophy
 -----------------
@@ -34,7 +35,7 @@ Architecture
 ------------
 ControlSynthesis is a lightweight utility that:
 1. Stores only the backend setting from parent system
-2. Delegates all work to pure functions in classical.py
+2. Delegates all work to pure functions in classical_control_functions.py
 3. Provides clean method names for composition
 
 Usage
@@ -49,13 +50,14 @@ Usage
 >>> Q = np.diag([10, 1])
 >>> R = np.array([[0.1]])
 >>>
->>> result = synthesis.design_lqr_continuous(A, B, Q, R)
+>>> # Unified interface (recommended)
+>>> result = synthesis.design_lqr(A, B, Q, R, system_type='continuous')
 >>> K = result['gain']
 >>>
 >>> # Typical usage - via system composition
 >>> system = Pendulum()
 >>> A, B = system.linearize(x_eq, u_eq)
->>> result = system.control.design_lqr_continuous(A, B, Q, R)
+>>> result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 """
 
 from typing import Optional
@@ -81,7 +83,7 @@ class ControlSynthesis:
     maintaining backend consistency with parent system.
 
     This class holds minimal state (just backend setting) and delegates
-    all computation to pure functions in classical.py.
+    all computation to pure functions in classical_control_functions.py.
 
     Attributes
     ----------
@@ -93,12 +95,13 @@ class ControlSynthesis:
     >>> # Via system composition (typical usage)
     >>> system = Pendulum()
     >>>
-    >>> # Design LQR controller
+    >>> # Design LQR controller (unified interface)
     >>> Q = np.diag([10, 1])
     >>> R = np.array([[0.1]])
-    >>> result = system.control.design_lqr_continuous(
+    >>> result = system.control.design_lqr(
     ...     *system.linearize(x_eq, u_eq),
-    ...     Q, R
+    ...     Q, R,
+    ...     system_type='continuous'
     ... )
     >>> K = result['gain']
     >>>
@@ -120,7 +123,7 @@ class ControlSynthesis:
 
     Notes
     -----
-    This is a thin wrapper - all algorithms are in classical.py.
+    This is a thin wrapper - all algorithms are in classical_control_functions.py.
     The wrapper only provides:
     1. Backend consistency with parent system
     2. Clean composition interface
@@ -142,21 +145,27 @@ class ControlSynthesis:
         """
         self.backend = backend
 
-    def design_lqr_continuous(
+    def design_lqr(
         self,
         A: StateMatrix,
         B: InputMatrix,
         Q: StateMatrix,
         R: InputMatrix,
         N: Optional[InputMatrix] = None,
+        system_type: str = "discrete",
     ) -> LQRResult:
         """
-        Design continuous-time LQR controller.
+        Design LQR controller (unified interface).
 
-        Routes to classical.design_lqr_continuous() with system backend.
+        Routes to classical.design_lqr() with system backend.
 
-        Minimizes: J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
-        Control law: u = -Kx
+        Minimizes cost functional:
+            Continuous: J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
+            Discrete:   J = Σₖ₌₀^∞ (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])
+
+        Control law:
+            Continuous: u = -Kx
+            Discrete:   u[k] = -Kx[k]
 
         Args:
             A: State matrix (nx, nx)
@@ -164,91 +173,43 @@ class ControlSynthesis:
             Q: State cost matrix (nx, nx), Q ≥ 0
             R: Control cost matrix (nu, nu), R > 0
             N: Cross-coupling matrix (nx, nu), optional
+            system_type: 'continuous' or 'discrete', default 'discrete'
 
         Returns:
             LQRResult with gain, cost-to-go, eigenvalues, stability margin
 
         Examples
         --------
-        >>> # Via system
+        >>> # Via system - continuous
         >>> A, B = system.linearize(x_eq, u_eq)
-        >>> Q = np.diag([10, 1])  # Penalize position more
+        >>> Q = np.diag([10, 1])
         >>> R = np.array([[0.1]])
         >>>
-        >>> result = system.control.design_lqr_continuous(A, B, Q, R)
+        >>> result = system.control.design_lqr(
+        ...     A, B, Q, R,
+        ...     system_type='continuous'
+        ... )
         >>> K = result['gain']
-        >>> print(f"Gain shape: {K.shape}")  # (nu, nx)
-        >>> print(f"Stable: {result['stability_margin'] > 0}")
         >>>
-        >>> # Apply control
-        >>> def control_policy(x):
-        ...     return -K @ (x - x_eq)
+        >>> # Via system - discrete (default)
+        >>> result = discrete_system.control.design_lqr(A, B, Q, R)
+        >>> K = result['gain']
         >>>
-        >>> # Simulate closed-loop
-        >>> result = system.integrate(
-        ...     x0,
-        ...     u_func=lambda t, x: control_policy(x),
-        ...     t_span=(0, 10)
+        >>> # With cross-coupling term
+        >>> N = np.array([[0.5], [0.1]])
+        >>> result = system.control.design_lqr(
+        ...     A, B, Q, R, N=N,
+        ...     system_type='continuous'
         ... )
 
         See Also
         --------
-        design_lqr_discrete : Discrete-time LQR
+        design_kalman : Kalman filter design
         design_lqg : Combined LQR + Kalman filter
         """
-        from src.control.classical_control_functions import design_lqr_continuous
+        from src.control.classical_control_functions import design_lqr
 
-        return design_lqr_continuous(A, B, Q, R, N, backend=self.backend)
-
-    def design_lqr_discrete(
-        self,
-        A: StateMatrix,
-        B: InputMatrix,
-        Q: StateMatrix,
-        R: InputMatrix,
-        N: Optional[InputMatrix] = None,
-    ) -> LQRResult:
-        """
-        Design discrete-time LQR controller.
-
-        Routes to classical.design_lqr_discrete() with system backend.
-
-        Minimizes: J = Σₖ₌₀^∞ (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])
-        Control law: u[k] = -Kx[k]
-
-        Args:
-            A: State matrix (nx, nx)
-            B: Input matrix (nx, nu)
-            Q: State cost matrix (nx, nx), Q ≥ 0
-            R: Control cost matrix (nu, nu), R > 0
-            N: Cross-coupling matrix (nx, nu), optional
-
-        Returns:
-            LQRResult with gain, cost-to-go, eigenvalues, stability margin
-
-        Examples
-        --------
-        >>> # For discrete system
-        >>> A, B = discrete_system.linearize(x_eq, u_eq)
-        >>> Q = np.diag([10, 1])
-        >>> R = np.array([[0.1]])
-        >>>
-        >>> result = discrete_system.control.design_lqr_discrete(A, B, Q, R)
-        >>> K = result['gain']
-        >>>
-        >>> # Apply in simulation
-        >>> x = x0
-        >>> for k in range(100):
-        ...     u = -K @ (x - x_eq)
-        ...     x = discrete_system.step(x, u)
-
-        See Also
-        --------
-        design_lqr_continuous : Continuous-time LQR
-        """
-        from src.control.classical_control_functions import design_lqr_discrete
-
-        return design_lqr_discrete(A, B, Q, R, N, backend=self.backend)
+        return design_lqr(A, B, Q, R, N, system_type=system_type, backend=self.backend)
 
     def design_kalman(
         self,
@@ -326,6 +287,7 @@ class ControlSynthesis:
         R_control: InputMatrix,
         Q_process: StateMatrix,
         R_measurement: OutputMatrix,
+        N: Optional[InputMatrix] = None,
         system_type: str = "discrete",
     ) -> LQGResult:
         """
@@ -347,6 +309,7 @@ class ControlSynthesis:
             R_control: LQR control cost matrix (nu, nu)
             Q_process: Process noise covariance (nx, nx)
             R_measurement: Measurement noise covariance (ny, ny)
+            N: Cross-coupling matrix (nx, nu), optional
             system_type: 'continuous' or 'discrete'
 
         Returns:
@@ -377,20 +340,15 @@ class ControlSynthesis:
         >>> K = lqg['controller_gain']  # LQR gain
         >>> L = lqg['estimator_gain']   # Kalman gain
         >>>
-        >>> # Implementation
-        >>> x_hat = np.zeros(2)
-        >>> for k in range(N):
-        ...     # Control based on estimate
-        ...     u = -K @ (x_hat - x_ref)
-        ...
-        ...     # State estimation
-        ...     x_hat_pred = A @ x_hat + B @ u
-        ...     innovation = y[k] - C @ x_hat_pred
-        ...     x_hat = x_hat_pred + L @ innovation
-        >>>
-        >>> # Check closed-loop stability
-        >>> ctrl_stable = lqg['closed_loop_eigenvalues']
-        >>> obs_stable = lqg['observer_eigenvalues']
+        >>> # With cross-coupling term
+        >>> N = np.array([[0.5], [0.1]])
+        >>> lqg = system.control.design_lqg(
+        ...     A, B, C,
+        ...     Q_state, R_control,
+        ...     Q_process, R_measurement,
+        ...     N=N,
+        ...     system_type='discrete'
+        ... )
 
         Notes
         -----
@@ -402,8 +360,7 @@ class ControlSynthesis:
 
         See Also
         --------
-        design_lqr_continuous : LQR controller only
-        design_lqr_discrete : Discrete LQR controller only
+        design_lqr : Unified LQR controller design
         design_kalman : Kalman filter only
         """
         from src.control.classical_control_functions import design_lqg
@@ -416,6 +373,7 @@ class ControlSynthesis:
             R_control,
             Q_process,
             R_measurement,
+            N,
             system_type,
             backend=self.backend,
         )
