@@ -25,6 +25,8 @@ Key Features
 - Riccati convergence: Monitor solver convergence
 - Gramian visualization: Controllability/observability heatmaps
 - Step response: Closed-loop response with metrics
+- Frequency analysis: Bode plots, Nyquist diagrams, root locus
+- Consistent theming: Integrates with centralized themes module
 
 Main Class
 ----------
@@ -33,6 +35,7 @@ ControlPlotter : Control system analysis visualization
     plot_gain_comparison() : Compare feedback gains
     plot_riccati_convergence() : Riccati equation solver convergence
     plot_controllability_gramian() : Gramian heatmap
+    plot_observability_gramian() : Observability Gramian heatmap
     plot_step_response() : Step response with performance metrics
     plot_impulse_response() : Impulse response with decay analysis
     plot_frequency_response() : Bode plot (magnitude and phase)
@@ -46,20 +49,25 @@ Usage
 >>> # Create plotter
 >>> plotter = ControlPlotter()
 >>> 
->>> # Eigenvalue map
+>>> # Eigenvalue map with custom theme
 >>> lqr_result = system.design_lqr(Q, R)
 >>> fig = plotter.plot_eigenvalue_map(
 ...     lqr_result['closed_loop_eigenvalues'],
-...     system_type='continuous'
+...     system_type='continuous',
+...     theme='publication'
 ... )
 >>> fig.show()
 >>> 
->>> # Compare gains
+>>> # Compare gains with colorblind-safe palette
 >>> gains = {
 ...     'Q=10': design_lqr(10*np.eye(2), R)['gain'],
 ...     'Q=100': design_lqr(100*np.eye(2), R)['gain'],
 ... }
->>> fig = plotter.plot_gain_comparison(gains)
+>>> fig = plotter.plot_gain_comparison(
+...     gains,
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
 """
 
 from typing import Dict, List, Optional
@@ -68,6 +76,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
 
 
@@ -82,6 +91,8 @@ class ControlPlotter:
     ----------
     backend : Backend
         Default computational backend for array conversion
+    default_theme : str
+        Default plot theme to apply
 
     Examples
     --------
@@ -91,7 +102,8 @@ class ControlPlotter:
     >>> result = system.design_lqr(Q, R)
     >>> fig = plotter.plot_eigenvalue_map(
     ...     result['closed_loop_eigenvalues'],
-    ...     system_type='continuous'
+    ...     system_type='continuous',
+    ...     theme='publication'
     ... )
     >>> fig.show()
 
@@ -101,10 +113,14 @@ class ControlPlotter:
     ...     'Light Q': K1,
     ...     'Heavy Q': K2,
     ... }
-    >>> fig = plotter.plot_gain_comparison(gains)
+    >>> fig = plotter.plot_gain_comparison(
+    ...     gains,
+    ...     color_scheme='colorblind_safe',
+    ...     theme='dark'
+    ... )
     """
 
-    def __init__(self, backend: Backend = "numpy"):
+    def __init__(self, backend: Backend = "numpy", default_theme: str = "default"):
         """
         Initialize control plotter.
 
@@ -112,12 +128,17 @@ class ControlPlotter:
         ----------
         backend : Backend
             Default backend for array conversion ('numpy', 'torch', 'jax')
+        default_theme : str
+            Default theme to apply to plots
+            Options: 'default', 'publication', 'dark', 'presentation'
 
         Examples
         --------
         >>> plotter = ControlPlotter(backend='numpy')
+        >>> plotter = ControlPlotter(backend='torch', default_theme='publication')
         """
         self.backend = backend
+        self.default_theme = default_theme
 
     # =========================================================================
     # Main Plotting Methods
@@ -129,6 +150,7 @@ class ControlPlotter:
         system_type: str = "continuous",
         title: str = "Closed-Loop Eigenvalues",
         show_stability_margin: bool = True,
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -150,6 +172,10 @@ class ControlPlotter:
             Plot title
         show_stability_margin : bool
             If True, annotate stability margin
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -160,19 +186,21 @@ class ControlPlotter:
 
         Examples
         --------
-        >>> # Continuous system
+        >>> # Continuous system with publication theme
         >>> lqr = system.design_lqr(Q, R)
         >>> fig = plotter.plot_eigenvalue_map(
         ...     lqr['closed_loop_eigenvalues'],
-        ...     system_type='continuous'
+        ...     system_type='continuous',
+        ...     theme='publication'
         ... )
         >>> print(f"Margin: {lqr['stability_margin']:.3f}")
         >>>
-        >>> # Discrete system
+        >>> # Discrete system with dark theme
         >>> lqr_d = discrete_system.design_lqr(Q, R)
         >>> fig = plotter.plot_eigenvalue_map(
         ...     lqr_d['closed_loop_eigenvalues'],
-        ...     system_type='discrete'
+        ...     system_type='discrete',
+        ...     theme='dark'
         ... )
 
         Notes
@@ -183,6 +211,10 @@ class ControlPlotter:
         - Unstable region shown in red
         - Eigenvalues plotted as blue circles
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         eigs = self._to_numpy(eigenvalues)
 
@@ -192,7 +224,9 @@ class ControlPlotter:
         # Draw stability region
         self._draw_stability_region(fig, system_type)
 
-        # Plot eigenvalues
+        # Plot eigenvalues (use ColorSchemes for consistency)
+        eigenvalue_color = ColorSchemes.PLOTLY[0]
+        
         fig.add_trace(
             go.Scatter(
                 x=np.real(eigs),
@@ -200,7 +234,7 @@ class ControlPlotter:
                 mode="markers",
                 name="Eigenvalues",
                 marker=dict(
-                    color="#636EFA",
+                    color=eigenvalue_color,
                     size=12,
                     symbol="circle",
                     line=dict(color="white", width=2),
@@ -266,7 +300,6 @@ class ControlPlotter:
             title=title,
             xaxis_title="Real Part" if system_type == "continuous" else "Real",
             yaxis_title="Imaginary Part" if system_type == "continuous" else "Imaginary",
-            template="plotly_white",
             width=700,
             height=600,
             xaxis=dict(range=[real_min, real_max], zeroline=True),
@@ -277,6 +310,9 @@ class ControlPlotter:
         # Equal aspect ratio
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
 
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
+
         return fig
 
     def plot_gain_comparison(
@@ -284,6 +320,8 @@ class ControlPlotter:
         gains: Dict[str, np.ndarray],
         labels: Optional[List[str]] = None,
         title: str = "Feedback Gain Comparison",
+        color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -302,6 +340,14 @@ class ControlPlotter:
             If None, uses generic labels
         title : str
             Plot title
+        color_scheme : str
+            Color scheme name for bar charts
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -312,19 +358,24 @@ class ControlPlotter:
 
         Examples
         --------
-        >>> # Compare different Q weights
+        >>> # Compare different Q weights with colorblind-safe colors
         >>> gains = {
         ...     'Q=10*I': system.design_lqr(10*np.eye(2), R)['gain'],
         ...     'Q=100*I': system.design_lqr(100*np.eye(2), R)['gain'],
         ...     'Q=1000*I': system.design_lqr(1000*np.eye(2), R)['gain'],
         ... }
-        >>> fig = plotter.plot_gain_comparison(gains)
+        >>> fig = plotter.plot_gain_comparison(
+        ...     gains,
+        ...     color_scheme='colorblind_safe',
+        ...     theme='publication'
+        ... )
         >>> fig.show()
         >>>
         >>> # With state labels
         >>> fig = plotter.plot_gain_comparison(
         ...     gains,
-        ...     labels=['Position', 'Velocity']
+        ...     labels=['Position', 'Velocity'],
+        ...     theme='dark'
         ... )
 
         Notes
@@ -333,6 +384,10 @@ class ControlPlotter:
         - Useful for parameter studies
         - Shows effect of Q/R tuning on gains
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert all gains to NumPy
         gains_np = {name: self._to_numpy(K) for name, K in gains.items()}
 
@@ -355,12 +410,16 @@ class ControlPlotter:
         elif len(labels) != nx:
             raise ValueError(f"labels length {len(labels)} != nx {nx}")
 
+        # Get colors from centralized color schemes
+        n_designs = len(gains_np)
+        colors = ColorSchemes.get_colors(color_scheme, n_designs)
+
         # Create figure
         if nu == 1:
             # Single control input: bar chart
             fig = go.Figure()
 
-            for name, K in gains_np.items():
+            for idx, (name, K) in enumerate(gains_np.items()):
                 fig.add_trace(
                     go.Bar(
                         name=name,
@@ -368,6 +427,7 @@ class ControlPlotter:
                         y=K.flatten(),
                         text=[f"{val:.3f}" for val in K.flatten()],
                         textposition="outside",
+                        marker=dict(color=colors[idx]),
                     )
                 )
 
@@ -376,13 +436,11 @@ class ControlPlotter:
                 xaxis_title="State",
                 yaxis_title="Gain Value",
                 barmode="group",
-                template="plotly_white",
                 width=max(500, 100 * nx),
                 height=500,
             )
         else:
             # Multiple controls: heatmap for each design
-            n_designs = len(gains_np)
             fig = make_subplots(
                 rows=1,
                 cols=n_designs,
@@ -409,10 +467,12 @@ class ControlPlotter:
 
             fig.update_layout(
                 title=title,
-                template="plotly_white",
                 width=max(600, 300 * n_designs),
                 height=400,
             )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -420,6 +480,7 @@ class ControlPlotter:
         self,
         P_history: List[np.ndarray],
         title: str = "Riccati Equation Convergence",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -434,6 +495,10 @@ class ControlPlotter:
             Each P: (nx, nx) array
         title : str
             Plot title
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -451,7 +516,10 @@ class ControlPlotter:
         ...     P = riccati_iteration(P, A, B, Q, R)
         ...     P_history.append(P.copy())
         >>>
-        >>> fig = plotter.plot_riccati_convergence(P_history)
+        >>> fig = plotter.plot_riccati_convergence(
+        ...     P_history,
+        ...     theme='publication'
+        ... )
         >>> fig.show()
 
         Notes
@@ -460,6 +528,10 @@ class ControlPlotter:
         - Shows convergence rate
         - Useful for debugging custom solvers
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         P_history_np = [self._to_numpy(P) for P in P_history]
 
@@ -481,6 +553,10 @@ class ControlPlotter:
             subplot_titles=("Riccati Matrix Norm", "Iteration-to-Iteration Change"),
         )
 
+        # Get colors
+        norm_color = ColorSchemes.PLOTLY[0]
+        diff_color = ColorSchemes.PLOTLY[1]
+
         # Plot norm
         fig.add_trace(
             go.Scatter(
@@ -488,7 +564,7 @@ class ControlPlotter:
                 y=norms,
                 mode="lines+markers",
                 name="||P||_F",
-                line=dict(color="#636EFA", width=2),
+                line=dict(color=norm_color, width=2),
             ),
             row=1,
             col=1,
@@ -501,7 +577,7 @@ class ControlPlotter:
                 y=diffs,
                 mode="lines+markers",
                 name="||P_k - P_{k-1}||_F",
-                line=dict(color="#EF553B", width=2),
+                line=dict(color=diff_color, width=2),
             ),
             row=1,
             col=2,
@@ -514,8 +590,11 @@ class ControlPlotter:
         fig.update_yaxes(title_text="Change", type="log", row=1, col=2)
 
         fig.update_layout(
-            title=title, template="plotly_white", width=1000, height=400, showlegend=False
+            title=title, width=1000, height=400, showlegend=False
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -524,6 +603,7 @@ class ControlPlotter:
         W_c: np.ndarray,
         state_names: Optional[List[str]] = None,
         title: str = "Controllability Gramian",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -540,6 +620,10 @@ class ControlPlotter:
             Names for states
         title : str
             Plot title
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -556,7 +640,8 @@ class ControlPlotter:
         >>>
         >>> fig = plotter.plot_controllability_gramian(
         ...     W_c,
-        ...     state_names=['Position', 'Velocity']
+        ...     state_names=['Position', 'Velocity'],
+        ...     theme='publication'
         ... )
         >>> fig.show()
 
@@ -567,6 +652,10 @@ class ControlPlotter:
         - Small eigenvalues → difficult to control
         - Can also visualize observability Gramian W_o
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         W_np = self._to_numpy(W_c)
 
@@ -601,10 +690,12 @@ class ControlPlotter:
             title=title,
             xaxis_title="State",
             yaxis_title="State",
-            template="plotly_white",
             width=max(500, 80 * nx),
             height=max(450, 80 * nx),
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -613,6 +704,7 @@ class ControlPlotter:
         W_o: np.ndarray,
         state_names: Optional[List[str]] = None,
         title: str = "Observability Gramian",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -628,6 +720,10 @@ class ControlPlotter:
             Names for states
         title : str
             Plot title
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -642,10 +738,13 @@ class ControlPlotter:
         >>> from scipy.linalg import solve_continuous_lyapunov
         >>> W_o = solve_continuous_lyapunov(A.T, -C.T @ C)
         >>>
-        >>> fig = plotter.plot_observability_gramian(W_o)
+        >>> fig = plotter.plot_observability_gramian(
+        ...     W_o,
+        ...     theme='publication'
+        ... )
         """
         # Just use controllability Gramian plotter with different title
-        return self.plot_controllability_gramian(W_o, state_names, title, **kwargs)
+        return self.plot_controllability_gramian(W_o, state_names, title, theme, **kwargs)
 
     def plot_step_response(
         self,
@@ -654,6 +753,7 @@ class ControlPlotter:
         reference: float = 1.0,
         show_metrics: bool = True,
         title: str = "Step Response",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -674,6 +774,10 @@ class ControlPlotter:
             If True, annotate performance metrics
         title : str
             Plot title
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -693,7 +797,8 @@ class ControlPlotter:
         ...     result['t'],
         ...     y,
         ...     reference=1.0,
-        ...     show_metrics=True
+        ...     show_metrics=True,
+        ...     theme='publication'
         ... )
 
         Notes
@@ -703,6 +808,10 @@ class ControlPlotter:
         - Overshoot: Peak value above reference
         - Steady-state error: Final value vs reference
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         t_np = self._to_numpy(t)
         y_np = self._to_numpy(y)
@@ -714,6 +823,9 @@ class ControlPlotter:
         # Create figure
         fig = go.Figure()
 
+        # Get colors
+        response_color = ColorSchemes.PLOTLY[0]
+
         # Plot response
         fig.add_trace(
             go.Scatter(
@@ -721,7 +833,7 @@ class ControlPlotter:
                 y=y_np,
                 mode="lines",
                 name="Response",
-                line=dict(color="#636EFA", width=2),
+                line=dict(color=response_color, width=2),
             )
         )
 
@@ -800,11 +912,13 @@ class ControlPlotter:
             title=title,
             xaxis_title="Time (s)",
             yaxis_title="Output",
-            template="plotly_white",
             width=800,
             height=500,
             showlegend=True,
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -814,6 +928,7 @@ class ControlPlotter:
         y: np.ndarray,
         show_metrics: bool = True,
         title: str = "Impulse Response",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -832,6 +947,10 @@ class ControlPlotter:
             If True, annotate performance metrics
         title : str
             Plot title
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -851,7 +970,8 @@ class ControlPlotter:
         >>>
         >>> fig = plotter.plot_impulse_response(
         ...     t, y,
-        ...     show_metrics=True
+        ...     show_metrics=True,
+        ...     theme='publication'
         ... )
         >>>
         >>> # For discrete systems: simulate with impulse at k=0
@@ -871,6 +991,10 @@ class ControlPlotter:
         - Settling time: Time to settle within 2% of zero
         - Energy: Integral of squared response (L2 norm)
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         t_np = self._to_numpy(t)
         y_np = self._to_numpy(y)
@@ -882,6 +1006,9 @@ class ControlPlotter:
         # Create figure
         fig = go.Figure()
 
+        # Get colors
+        response_color = ColorSchemes.PLOTLY[0]
+
         # Plot response
         fig.add_trace(
             go.Scatter(
@@ -889,7 +1016,7 @@ class ControlPlotter:
                 y=y_np,
                 mode="lines",
                 name="Impulse Response",
-                line=dict(color="#636EFA", width=2),
+                line=dict(color=response_color, width=2),
             )
         )
 
@@ -931,7 +1058,6 @@ class ControlPlotter:
             energy = np.sum(y_np**2) * dt
 
             # Estimate decay rate (if response decays exponentially)
-            # Fit y = A * exp(-alpha * t) to latter part of response
             decay_rate = None
             if len(t_np) > 20 and peak_idx < len(t_np) - 10:
                 # Use data after peak
@@ -994,11 +1120,13 @@ class ControlPlotter:
             title=title,
             xaxis_title="Time (s)",
             yaxis_title="Output",
-            template="plotly_white",
             width=800,
             height=500,
             showlegend=True,
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -1009,6 +1137,7 @@ class ControlPlotter:
         phase: np.ndarray,
         title: str = "Frequency Response (Bode Plot)",
         show_margins: bool = True,
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -1029,6 +1158,10 @@ class ControlPlotter:
             Plot title
         show_margins : bool
             If True, annotate gain and phase margins
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -1054,8 +1187,11 @@ class ControlPlotter:
         >>> mag_dB = 20 * np.log10(np.abs(H).flatten())
         >>> phase_deg = np.angle(H, deg=True).flatten()
         >>> 
-        >>> # Plot
-        >>> fig = plotter.plot_frequency_response(w, mag_dB, phase_deg)
+        >>> # Plot with publication theme
+        >>> fig = plotter.plot_frequency_response(
+        ...     w, mag_dB, phase_deg,
+        ...     theme='publication'
+        ... )
         >>> fig.show()
 
         Notes
@@ -1066,6 +1202,10 @@ class ControlPlotter:
         - Phase margin: Amount phase can decrease before instability
         - Crossover frequencies automatically detected
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         freq_np = self._to_numpy(frequencies)
         mag_np = self._to_numpy(magnitude)
@@ -1080,6 +1220,10 @@ class ControlPlotter:
             shared_xaxes=True,
         )
 
+        # Get colors
+        mag_color = ColorSchemes.PLOTLY[0]
+        phase_color = ColorSchemes.PLOTLY[1]
+
         # Magnitude plot
         fig.add_trace(
             go.Scatter(
@@ -1087,7 +1231,7 @@ class ControlPlotter:
                 y=mag_np,
                 mode="lines",
                 name="Magnitude",
-                line=dict(color="#636EFA", width=2),
+                line=dict(color=mag_color, width=2),
                 showlegend=False,
             ),
             row=1,
@@ -1101,7 +1245,7 @@ class ControlPlotter:
                 y=phase_np,
                 mode="lines",
                 name="Phase",
-                line=dict(color="#EF553B", width=2),
+                line=dict(color=phase_color, width=2),
                 showlegend=False,
             ),
             row=2,
@@ -1184,11 +1328,13 @@ class ControlPlotter:
         # Update layout
         fig.update_layout(
             title=title,
-            template="plotly_white",
             width=800,
             height=700,
             showlegend=False,
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -1199,6 +1345,7 @@ class ControlPlotter:
         frequencies: Optional[np.ndarray] = None,
         title: str = "Nyquist Plot",
         show_critical_point: bool = True,
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -1219,6 +1366,10 @@ class ControlPlotter:
             Plot title
         show_critical_point : bool
             If True, mark critical point (-1, 0j)
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -1240,9 +1391,10 @@ class ControlPlotter:
         >>> w, H = signal.freqresp(sys_ol, w)
         >>> H = H.flatten()
         >>> 
-        >>> # Plot Nyquist
+        >>> # Plot Nyquist with dark theme
         >>> fig = plotter.plot_nyquist(
-        ...     np.real(H), np.imag(H), frequencies=w
+        ...     np.real(H), np.imag(H), frequencies=w,
+        ...     theme='dark'
         ... )
         >>> fig.show()
 
@@ -1254,12 +1406,19 @@ class ControlPlotter:
         - Gain margin: Distance from curve to (-1, 0j)
         - Phase margin: Angle from curve to (-1, 0j)
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         real_np = self._to_numpy(real)
         imag_np = self._to_numpy(imag)
 
         # Create figure
         fig = go.Figure()
+
+        # Get colors
+        nyquist_color = ColorSchemes.PLOTLY[0]
 
         # Plot Nyquist curve (positive frequencies)
         fig.add_trace(
@@ -1268,7 +1427,7 @@ class ControlPlotter:
                 y=imag_np,
                 mode="lines+markers",
                 name="H(jω) (ω > 0)",
-                line=dict(color="#636EFA", width=2),
+                line=dict(color=nyquist_color, width=2),
                 marker=dict(size=4),
                 hovertemplate="Re: %{x:.3f}<br>Im: %{y:.3f}<extra></extra>",
             )
@@ -1281,7 +1440,7 @@ class ControlPlotter:
                 y=-imag_np,
                 mode="lines+markers",
                 name="H(jω) (ω < 0)",
-                line=dict(color="#636EFA", width=2, dash="dot"),
+                line=dict(color=nyquist_color, width=2, dash="dot"),
                 marker=dict(size=4),
                 hovertemplate="Re: %{x:.3f}<br>Im: %{y:.3f}<extra></extra>",
             )
@@ -1330,7 +1489,6 @@ class ControlPlotter:
             title=title,
             xaxis_title="Real Part",
             yaxis_title="Imaginary Part",
-            template="plotly_white",
             width=700,
             height=700,
             showlegend=True,
@@ -1338,6 +1496,9 @@ class ControlPlotter:
 
         # Equal aspect ratio
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -1347,6 +1508,8 @@ class ControlPlotter:
         title: str = "Root Locus",
         show_grid: bool = True,
         system_type: str = "continuous",
+        color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -1368,6 +1531,14 @@ class ControlPlotter:
             If True, show stability grid
         system_type : str
             'continuous' or 'discrete' (affects stability region)
+        color_scheme : str
+            Color scheme for pole branches
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -1395,7 +1566,9 @@ class ControlPlotter:
         >>> 
         >>> fig = plotter.plot_root_locus(
         ...     root_locus_data,
-        ...     system_type='continuous'
+        ...     system_type='continuous',
+        ...     color_scheme='colorblind_safe',
+        ...     theme='publication'
         ... )
         >>> fig.show()
 
@@ -1408,6 +1581,10 @@ class ControlPlotter:
         - Continuous: left half-plane (Re < 0)
         - Discrete: inside unit circle (|z| < 1)
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Extract data
         gains = self._to_numpy(root_locus_data["gains"])
         poles = self._to_numpy(root_locus_data["poles"])
@@ -1417,6 +1594,9 @@ class ControlPlotter:
             raise ValueError(f"poles must be 2D (n_gains, n_poles), got {poles.shape}")
 
         n_gains, n_poles = poles.shape
+
+        # Get colors for pole branches
+        colors = ColorSchemes.get_colors(color_scheme, n_poles)
 
         # Create figure
         fig = go.Figure()
@@ -1436,7 +1616,7 @@ class ControlPlotter:
                     y=np.imag(pole_branch),
                     mode="lines+markers",
                     name=f"Pole {pole_idx + 1}",
-                    line=dict(width=2),
+                    line=dict(color=colors[pole_idx], width=2),
                     marker=dict(size=4),
                     showlegend=(pole_idx < 5),  # Limit legend clutter
                 )
@@ -1488,7 +1668,6 @@ class ControlPlotter:
             title=title,
             xaxis_title="Real Part" if system_type == "continuous" else "Real",
             yaxis_title="Imaginary Part" if system_type == "continuous" else "Imaginary",
-            template="plotly_white",
             width=800,
             height=700,
             showlegend=True,
@@ -1497,6 +1676,9 @@ class ControlPlotter:
         # Equal aspect ratio
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
 
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
+
         return fig
 
     # =========================================================================
@@ -1504,7 +1686,19 @@ class ControlPlotter:
     # =========================================================================
 
     def _to_numpy(self, arr) -> np.ndarray:
-        """Convert array from any backend to NumPy."""
+        """
+        Convert array from any backend to NumPy.
+
+        Parameters
+        ----------
+        arr : array-like
+            Input array (any backend)
+
+        Returns
+        -------
+        np.ndarray
+            NumPy array
+        """
         if arr is None:
             return None
 
@@ -1603,6 +1797,56 @@ class ControlPlotter:
                 showarrow=False,
                 font=dict(size=12, color="red"),
             )
+
+    # =========================================================================
+    # Utility Methods
+    # =========================================================================
+
+    @staticmethod
+    def list_available_themes() -> List[str]:
+        """
+        List available plot themes.
+
+        Returns
+        -------
+        List[str]
+            Available theme names
+
+        Examples
+        --------
+        >>> themes = ControlPlotter.list_available_themes()
+        >>> print(themes)
+        ['default', 'publication', 'dark', 'presentation']
+        """
+        return ["default", "publication", "dark", "presentation"]
+
+    @staticmethod
+    def list_available_color_schemes() -> List[str]:
+        """
+        List available color schemes.
+
+        Returns
+        -------
+        List[str]
+            Available color scheme names
+
+        Examples
+        --------
+        >>> schemes = ControlPlotter.list_available_color_schemes()
+        >>> print(schemes)
+        ['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+        """
+        return [
+            "plotly",
+            "d3",
+            "colorblind_safe",
+            "tableau",
+            "sequential_blue",
+            "sequential_green",
+            "sequential_orange",
+            "diverging_red_blue",
+            "diverging_purple_green",
+        ]
 
 
 # ============================================================================

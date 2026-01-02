@@ -26,6 +26,7 @@ Key Features
 - Direction arrows: Show trajectory flow direction
 - Batched support: Multiple trajectories in same phase space
 - Interactive 3D: Rotate and zoom 3D phase portraits
+- Consistent theming: Integrates with centralized themes module
 
 Main Class
 ----------
@@ -49,20 +50,23 @@ Usage
 ... )
 >>> fig.show()
 >>> 
->>> # With vector field
+>>> # With vector field and custom theme
 >>> def dynamics(x1, x2):
 ...     return np.array([x2, -x1])
 >>> 
 >>> fig = plotter.plot_2d(
 ...     x=trajectory,
 ...     vector_field=dynamics,
-...     equilibria=[np.zeros(2)]
+...     equilibria=[np.zeros(2)],
+...     color_scheme='colorblind_safe',
+...     theme='publication'
 ... )
 >>> 
 >>> # 3D phase portrait
 >>> fig = plotter.plot_3d(
 ...     x=trajectory_3d,  # (T, 3)
-...     state_names=('x', 'y', 'z')
+...     state_names=('x', 'y', 'z'),
+...     theme='dark'
 ... )
 """
 
@@ -71,6 +75,7 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
+from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
 
 
@@ -85,6 +90,8 @@ class PhasePortraitPlotter:
     ----------
     backend : Backend
         Default computational backend for array conversion
+    default_theme : str
+        Default plot theme to apply
 
     Examples
     --------
@@ -104,18 +111,21 @@ class PhasePortraitPlotter:
     ...     x,
     ...     vector_field=f,
     ...     equilibria=[np.zeros(2)],
-    ...     show_direction=True
+    ...     show_direction=True,
+    ...     theme='publication'
     ... )
 
     3D phase portrait (Lorenz attractor):
 
     >>> fig = plotter.plot_3d(
     ...     x_lorenz,  # (T, 3)
-    ...     state_names=('x', 'y', 'z')
+    ...     state_names=('x', 'y', 'z'),
+    ...     color_scheme='tableau',
+    ...     theme='dark'
     ... )
     """
 
-    def __init__(self, backend: Backend = "numpy"):
+    def __init__(self, backend: Backend = "numpy", default_theme: str = "default"):
         """
         Initialize phase portrait plotter.
 
@@ -123,12 +133,17 @@ class PhasePortraitPlotter:
         ----------
         backend : Backend
             Default backend for array conversion ('numpy', 'torch', 'jax')
+        default_theme : str
+            Default theme to apply to plots
+            Options: 'default', 'publication', 'dark', 'presentation'
 
         Examples
         --------
         >>> plotter = PhasePortraitPlotter(backend='numpy')
+        >>> plotter = PhasePortraitPlotter(backend='jax', default_theme='dark')
         """
         self.backend = backend
+        self.default_theme = default_theme
 
     # =========================================================================
     # Main Plotting Methods
@@ -144,6 +159,7 @@ class PhasePortraitPlotter:
         equilibria: Optional[List[np.ndarray]] = None,
         title: str = "2D Phase Portrait",
         color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -173,6 +189,13 @@ class PhasePortraitPlotter:
             Plot title
         color_scheme : str
             Color scheme name
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau',
+                     'sequential_blue', 'diverging_red_blue', etc.
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional customization arguments
 
@@ -189,7 +212,7 @@ class PhasePortraitPlotter:
         >>> fig = plotter.plot_2d(x, state_names=('Position', 'Velocity'))
         >>> fig.show()
         >>>
-        >>> # With vector field (pendulum)
+        >>> # With vector field (pendulum) and publication theme
         >>> def pendulum_dynamics(x1, x2):
         ...     return np.array([x2, -np.sin(x1) - 0.1*x2])
         >>>
@@ -197,12 +220,14 @@ class PhasePortraitPlotter:
         ...     x,
         ...     vector_field=pendulum_dynamics,
         ...     equilibria=[np.array([0, 0]), np.array([np.pi, 0])],
-        ...     show_direction=True
+        ...     show_direction=True,
+        ...     color_scheme='colorblind_safe',
+        ...     theme='publication'
         ... )
         >>>
         >>> # Batched trajectories (multiple initial conditions)
         >>> x_batch = np.random.randn(5, 100, 2)
-        >>> fig = plotter.plot_2d(x_batch)
+        >>> fig = plotter.plot_2d(x_batch, theme='dark')
 
         Notes
         -----
@@ -211,6 +236,10 @@ class PhasePortraitPlotter:
         - Start point: green circle, End point: red square
         - Direction arrows added at regular intervals
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         x_np = self._to_numpy(x)
 
@@ -235,8 +264,8 @@ class PhasePortraitPlotter:
             # Reshape to (1, T, 2) for uniform processing
             x_np = x_np[np.newaxis, :, :]
 
-        # Get colors
-        colors = self._get_colors(color_scheme, n_batch)
+        # Get colors from centralized color schemes
+        colors = ColorSchemes.get_colors(color_scheme, n_batch)
 
         # Create figure
         fig = go.Figure()
@@ -301,7 +330,6 @@ class PhasePortraitPlotter:
             title=title,
             xaxis_title=state_names[0],
             yaxis_title=state_names[1],
-            template="plotly_white",
             width=700,
             height=600,
             showlegend=True,
@@ -309,6 +337,9 @@ class PhasePortraitPlotter:
 
         # Equal aspect ratio for phase portraits
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -320,6 +351,7 @@ class PhasePortraitPlotter:
         show_start_end: bool = True,
         title: str = "3D Phase Portrait",
         color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -343,6 +375,12 @@ class PhasePortraitPlotter:
             Plot title
         color_scheme : str
             Color scheme name
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional customization arguments
 
@@ -358,13 +396,18 @@ class PhasePortraitPlotter:
         >>> fig = plotter.plot_3d(
         ...     x_lorenz,
         ...     state_names=('x', 'y', 'z'),
-        ...     title='Lorenz Attractor'
+        ...     title='Lorenz Attractor',
+        ...     theme='dark'
         ... )
         >>> fig.show()
         >>>
-        >>> # Multiple trajectories
+        >>> # Multiple trajectories with colorblind-safe palette
         >>> x_batch = np.random.randn(3, 1000, 3)
-        >>> fig = plotter.plot_3d(x_batch)
+        >>> fig = plotter.plot_3d(
+        ...     x_batch,
+        ...     color_scheme='colorblind_safe',
+        ...     theme='publication'
+        ... )
 
         Notes
         -----
@@ -373,6 +416,10 @@ class PhasePortraitPlotter:
         - Start: green sphere, End: red cube
         - Direction shown via marker gradient
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         x_np = self._to_numpy(x)
 
@@ -396,8 +443,8 @@ class PhasePortraitPlotter:
             n_batch = 1
             x_np = x_np[np.newaxis, :, :]
 
-        # Get colors
-        colors = self._get_colors(color_scheme, n_batch)
+        # Get colors from centralized color schemes
+        colors = ColorSchemes.get_colors(color_scheme, n_batch)
 
         # Create figure
         fig = go.Figure()
@@ -479,11 +526,13 @@ class PhasePortraitPlotter:
                 zaxis_title=state_names[2],
                 camera=dict(eye=dict(x=1.5, y=1.5, z=1.5)),
             ),
-            template="plotly_white",
             width=800,
             height=700,
             showlegend=True,
         )
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -493,6 +542,8 @@ class PhasePortraitPlotter:
         state_names: Tuple[str, str] = ("x₁", "x₂"),
         period_estimate: Optional[float] = None,
         title: str = "Limit Cycle",
+        color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -513,6 +564,13 @@ class PhasePortraitPlotter:
             If None, attempts auto-detection
         title : str
             Plot title
+        color_scheme : str
+            Color scheme name
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -525,7 +583,11 @@ class PhasePortraitPlotter:
         --------
         >>> # Van der Pol oscillator
         >>> x_vdp = solve_van_der_pol(...)  # (T, 2)
-        >>> fig = plotter.plot_limit_cycle(x_vdp, period_estimate=100)
+        >>> fig = plotter.plot_limit_cycle(
+        ...     x_vdp,
+        ...     period_estimate=100,
+        ...     theme='publication'
+        ... )
         >>> fig.show()
 
         Notes
@@ -534,6 +596,10 @@ class PhasePortraitPlotter:
         - Works best with long trajectories (many periods)
         - Highlights the periodic attractor
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         x_np = self._to_numpy(x)
 
@@ -553,6 +619,8 @@ class PhasePortraitPlotter:
             show_direction=True,
             show_start_end=True,
             title=title,
+            color_scheme=color_scheme,
+            theme=theme,
         )
 
         # Add annotation
@@ -620,42 +688,6 @@ class PhasePortraitPlotter:
         if x is None:
             return False
         return x.ndim == 3
-
-    def _get_colors(self, scheme: str, n_colors: int) -> List[str]:
-        """
-        Get color palette.
-
-        Parameters
-        ----------
-        scheme : str
-            Color scheme name
-        n_colors : int
-            Number of colors needed
-
-        Returns
-        -------
-        List[str]
-            List of hex color codes
-        """
-        # Plotly default colors
-        plotly_colors = [
-            "#636EFA",
-            "#EF553B",
-            "#00CC96",
-            "#AB63FA",
-            "#FFA15A",
-            "#19D3F3",
-            "#FF6692",
-            "#B6E880",
-            "#FF97FF",
-            "#FECB52",
-        ]
-
-        colors = []
-        for i in range(n_colors):
-            colors.append(plotly_colors[i % len(plotly_colors)])
-
-        return colors
 
     def _add_vector_field_2d(
         self,
@@ -827,6 +859,56 @@ class PhasePortraitPlotter:
                 arrowwidth=2,
                 arrowcolor=color,
             )
+
+    # =========================================================================
+    # Utility Methods
+    # =========================================================================
+
+    @staticmethod
+    def list_available_themes() -> List[str]:
+        """
+        List available plot themes.
+
+        Returns
+        -------
+        List[str]
+            Available theme names
+
+        Examples
+        --------
+        >>> themes = PhasePortraitPlotter.list_available_themes()
+        >>> print(themes)
+        ['default', 'publication', 'dark', 'presentation']
+        """
+        return ["default", "publication", "dark", "presentation"]
+
+    @staticmethod
+    def list_available_color_schemes() -> List[str]:
+        """
+        List available color schemes.
+
+        Returns
+        -------
+        List[str]
+            Available color scheme names
+
+        Examples
+        --------
+        >>> schemes = PhasePortraitPlotter.list_available_color_schemes()
+        >>> print(schemes)
+        ['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+        """
+        return [
+            "plotly",
+            "d3",
+            "colorblind_safe",
+            "tableau",
+            "sequential_blue",
+            "sequential_green",
+            "sequential_orange",
+            "diverging_red_blue",
+            "diverging_purple_green",
+        ]
 
 
 # ============================================================================

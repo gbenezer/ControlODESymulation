@@ -25,6 +25,7 @@ Key Features
 - Adaptive layouts: Automatically determines optimal subplot arrangement
 - Interactive: Zoom, pan, hover tooltips via Plotly
 - Publication ready: Customizable styling and export to HTML
+- Consistent theming: Integrates with centralized themes module
 
 Main Class
 ----------
@@ -51,13 +52,21 @@ Usage
 >>> fig = plotter.plot_trajectory(t, x_batch)
 >>> fig.show()
 >>> 
+>>> # With custom theme and colors
+>>> fig = plotter.plot_trajectory(
+...     t, x_batch,
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>> 
 >>> # Via system integration
 >>> system = Pendulum()
 >>> result = system.integrate(x0, u=None, t_span=(0, 10))
 >>> fig = system.plotter.plot_trajectory(
 ...     result['t'], 
 ...     result['x'],
-...     state_names=['Angle', 'Angular Velocity']
+...     state_names=['Angle', 'Angular Velocity'],
+...     theme='dark'
 ... )
 """
 
@@ -68,6 +77,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
 
 
@@ -82,6 +92,8 @@ class TrajectoryPlotter:
     ----------
     backend : Backend
         Default computational backend for array conversion
+    default_theme : str
+        Default plot theme to apply
 
     Examples
     --------
@@ -100,14 +112,18 @@ class TrajectoryPlotter:
     >>> fig = plotter.plot_trajectory(t, x_batch)
     >>> fig.show()  # Shows all 3 trajectories
 
-    State and control:
+    State and control with publication theme:
 
     >>> u = 0.1 * np.random.randn(100, 1)
-    >>> fig = plotter.plot_state_and_control(t, x, u)
+    >>> fig = plotter.plot_state_and_control(
+    ...     t, x, u,
+    ...     theme='publication',
+    ...     color_scheme='colorblind_safe'
+    ... )
     >>> fig.show()
     """
 
-    def __init__(self, backend: Backend = "numpy"):
+    def __init__(self, backend: Backend = "numpy", default_theme: str = "default"):
         """
         Initialize trajectory plotter.
 
@@ -115,13 +131,17 @@ class TrajectoryPlotter:
         ----------
         backend : Backend
             Default backend for array conversion ('numpy', 'torch', 'jax')
+        default_theme : str
+            Default theme to apply to plots
+            Options: 'default', 'publication', 'dark', 'presentation'
 
         Examples
         --------
         >>> plotter = TrajectoryPlotter(backend='numpy')
-        >>> plotter = TrajectoryPlotter(backend='torch')
+        >>> plotter = TrajectoryPlotter(backend='torch', default_theme='publication')
         """
         self.backend = backend
+        self.default_theme = default_theme
 
     # =========================================================================
     # Main Plotting Methods
@@ -136,6 +156,7 @@ class TrajectoryPlotter:
         control_names: Optional[List[str]] = None,
         title: str = "State Trajectories",
         color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         show_legend: bool = True,
         **kwargs,
     ) -> go.Figure:
@@ -162,7 +183,14 @@ class TrajectoryPlotter:
         title : str
             Overall plot title
         color_scheme : str
-            Color scheme name (default: 'plotly')
+            Color scheme name
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau',
+                     'sequential_blue', 'diverging_red_blue', etc.
+            Default: 'plotly'
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         show_legend : bool
             Whether to show legend for batched trajectories
         **kwargs
@@ -181,9 +209,19 @@ class TrajectoryPlotter:
         >>> fig = plotter.plot_trajectory(t, x, state_names=['sin', 'cos'])
         >>> fig.show()
         >>>
-        >>> # Batched trajectories
+        >>> # Batched trajectories with colorblind-safe palette
         >>> x_batch = np.random.randn(5, 100, 2)
-        >>> fig = plotter.plot_trajectory(t, x_batch)
+        >>> fig = plotter.plot_trajectory(
+        ...     t, x_batch,
+        ...     color_scheme='colorblind_safe'
+        ... )
+        >>>
+        >>> # Publication-ready plot
+        >>> fig = plotter.plot_trajectory(
+        ...     t, x,
+        ...     theme='publication',
+        ...     color_scheme='colorblind_safe'
+        ... )
         >>>
         >>> # With control
         >>> u = 0.1 * np.random.randn(100, 1)
@@ -196,6 +234,10 @@ class TrajectoryPlotter:
         - Adaptive subplot layout based on number of states
         - Interactive: zoom, pan, hover tooltips
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         t_np = self._to_numpy(t)
         x_np = self._to_numpy(x)
@@ -228,8 +270,8 @@ class TrajectoryPlotter:
         elif len(state_names) != nx:
             raise ValueError(f"state_names length {len(state_names)} != nx {nx}")
 
-        # Get colors
-        colors = self._get_colors(color_scheme, n_batch)
+        # Get colors from centralized color schemes
+        colors = ColorSchemes.get_colors(color_scheme, n_batch)
 
         # Determine subplot layout
         n_rows, n_cols = self._determine_layout(nx)
@@ -253,7 +295,6 @@ class TrajectoryPlotter:
             title=title,
             showlegend=show_legend and is_batched,
             height=max(300, 200 * n_rows),
-            template="plotly_white",
         )
 
         # Update axes
@@ -262,6 +303,9 @@ class TrajectoryPlotter:
             col = i % n_cols + 1
             fig.update_xaxes(title_text="Time (s)", row=row, col=col)
             fig.update_yaxes(title_text=state_names[i], row=row, col=col)
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -274,6 +318,7 @@ class TrajectoryPlotter:
         control_names: Optional[List[str]] = None,
         title: str = "State and Control Trajectories",
         color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -298,6 +343,11 @@ class TrajectoryPlotter:
             Overall plot title
         color_scheme : str
             Color scheme name
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -314,10 +364,15 @@ class TrajectoryPlotter:
         >>> fig = plotter.plot_state_and_control(
         ...     t, x, u,
         ...     state_names=['Position', 'Velocity'],
-        ...     control_names=['Force']
+        ...     control_names=['Force'],
+        ...     theme='publication'
         ... )
         >>> fig.show()
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         t_np = self._to_numpy(t)
         x_np = self._to_numpy(x)
@@ -353,8 +408,8 @@ class TrajectoryPlotter:
         if control_names is None:
             control_names = [f"u_{i+1}" for i in range(nu)]
 
-        # Colors
-        colors = self._get_colors(color_scheme, n_batch)
+        # Get colors from centralized color schemes
+        colors = ColorSchemes.get_colors(color_scheme, n_batch)
 
         # Layout: nx states + nu controls
         n_total = nx + nu
@@ -386,7 +441,6 @@ class TrajectoryPlotter:
             title=title,
             showlegend=is_batched,
             height=max(400, 200 * n_rows),
-            template="plotly_white",
         )
 
         # Update axes
@@ -399,6 +453,9 @@ class TrajectoryPlotter:
             else:
                 fig.update_yaxes(title_text=control_names[i - nx], row=row, col=col)
 
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
+
         return fig
 
     def plot_comparison(
@@ -408,6 +465,8 @@ class TrajectoryPlotter:
         state_names: Optional[List[str]] = None,
         title: str = "Trajectory Comparison",
         mode: str = "overlay",
+        color_scheme: str = "plotly",
+        theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
         """
@@ -426,6 +485,13 @@ class TrajectoryPlotter:
             Overall plot title
         mode : str
             Comparison mode: 'overlay' or 'side-by-side'
+        color_scheme : str
+            Color scheme name
+            Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
+        theme : Optional[str]
+            Plot theme to apply
+            Options: 'default', 'publication', 'dark', 'presentation'
+            If None, uses self.default_theme
         **kwargs
             Additional arguments
 
@@ -441,9 +507,18 @@ class TrajectoryPlotter:
         ...     'Controlled': x_controlled,
         ...     'Uncontrolled': x_uncontrolled,
         ... }
-        >>> fig = plotter.plot_comparison(t, trajectories, mode='overlay')
+        >>> fig = plotter.plot_comparison(
+        ...     t, trajectories,
+        ...     mode='overlay',
+        ...     color_scheme='colorblind_safe',
+        ...     theme='publication'
+        ... )
         >>> fig.show()
         """
+        # Use default theme if not specified
+        if theme is None:
+            theme = self.default_theme
+
         # Convert to NumPy
         t_np = self._to_numpy(t)
         trajectories_np = {label: self._to_numpy(x) for label, x in trajectories.items()}
@@ -470,7 +545,7 @@ class TrajectoryPlotter:
 
         # Get colors (one per trajectory)
         n_traj = len(trajectories)
-        colors = self._get_colors("plotly", n_traj)
+        colors = ColorSchemes.get_colors(color_scheme, n_traj)
 
         # Determine layout
         n_rows, n_cols = self._determine_layout(nx)
@@ -509,7 +584,6 @@ class TrajectoryPlotter:
             title=title,
             showlegend=True,
             height=max(400, 200 * n_rows),
-            template="plotly_white",
         )
 
         # Update axes
@@ -518,6 +592,9 @@ class TrajectoryPlotter:
             col = i % n_cols + 1
             fig.update_xaxes(title_text="Time (s)", row=row, col=col)
             fig.update_yaxes(title_text=state_names[i], row=row, col=col)
+
+        # Apply theme
+        fig = PlotThemes.apply_theme(fig, theme=theme)
 
         return fig
 
@@ -650,48 +727,6 @@ class TrajectoryPlotter:
             n_rows = math.ceil(n_plots / n_cols)
             return (n_rows, n_cols)
 
-    def _get_colors(self, scheme: str, n_colors: int) -> List[str]:
-        """
-        Get color palette.
-
-        Parameters
-        ----------
-        scheme : str
-            Color scheme name
-        n_colors : int
-            Number of colors needed
-
-        Returns
-        -------
-        List[str]
-            List of hex color codes
-
-        Notes
-        -----
-        Currently uses Plotly default colors. In future, will integrate
-        with themes.py for more schemes.
-        """
-        # Plotly default color sequence
-        plotly_colors = [
-            "#636EFA",
-            "#EF553B",
-            "#00CC96",
-            "#AB63FA",
-            "#FFA15A",
-            "#19D3F3",
-            "#FF6692",
-            "#B6E880",
-            "#FF97FF",
-            "#FECB52",
-        ]
-
-        # Cycle through colors if more needed
-        colors = []
-        for i in range(n_colors):
-            colors.append(plotly_colors[i % len(plotly_colors)])
-
-        return colors
-
     def _add_trajectory_traces(
         self,
         fig: go.Figure,
@@ -771,6 +806,56 @@ class TrajectoryPlotter:
                     row=row,
                     col=col,
                 )
+
+    # =========================================================================
+    # Utility Methods
+    # =========================================================================
+
+    @staticmethod
+    def list_available_themes() -> List[str]:
+        """
+        List available plot themes.
+
+        Returns
+        -------
+        List[str]
+            Available theme names
+
+        Examples
+        --------
+        >>> themes = TrajectoryPlotter.list_available_themes()
+        >>> print(themes)
+        ['default', 'publication', 'dark', 'presentation']
+        """
+        return ["default", "publication", "dark", "presentation"]
+
+    @staticmethod
+    def list_available_color_schemes() -> List[str]:
+        """
+        List available color schemes.
+
+        Returns
+        -------
+        List[str]
+            Available color scheme names
+
+        Examples
+        --------
+        >>> schemes = TrajectoryPlotter.list_available_color_schemes()
+        >>> print(schemes)
+        ['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+        """
+        return [
+            "plotly",
+            "d3",
+            "colorblind_safe",
+            "tableau",
+            "sequential_blue",
+            "sequential_green",
+            "sequential_orange",
+            "diverging_red_blue",
+            "diverging_purple_green",
+        ]
 
 
 # ============================================================================
