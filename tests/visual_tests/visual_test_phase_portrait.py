@@ -34,9 +34,9 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import numpy as np
-from pathlib import Path
 
 from src.visualization.phase_portrait import PhasePortraitPlotter
+
 
 def setup_output_directory():
     """Create output directory for visual tests."""
@@ -238,8 +238,8 @@ def test_6_limit_cycle(output_dir):
 
 
 def test_7_batched_trajectories(output_dir):
-    """Test 7: Multiple initial conditions."""
-    print("Generating Test 7: Batched trajectories...")
+    """Test 7: Multiple initial conditions with custom names."""
+    print("Generating Test 7: Batched trajectories with custom names...")
     
     plotter = PhasePortraitPlotter()
     t = np.linspace(0, 30, 1000)
@@ -258,6 +258,15 @@ def test_7_batched_trajectories(output_dir):
         for theta0, omega0 in initial_conditions
     ])
     
+    # Custom trajectory names
+    trajectory_names = [
+        'θ₀=0.5 rad',
+        'θ₀=1.0 rad', 
+        'θ₀=1.5 rad',
+        'θ₀=2.0 rad',
+        'θ₀=2.5 rad'
+    ]
+    
     def damped_pendulum_dynamics(theta, omega):
         return np.array([omega, -np.sin(theta) - 0.15*omega])
     
@@ -266,9 +275,10 @@ def test_7_batched_trajectories(output_dir):
     fig = plotter.plot_2d(
         x_batch,
         state_names=('θ (rad)', 'ω (rad/s)'),
+        trajectory_names=trajectory_names,
         vector_field=damped_pendulum_dynamics,
         equilibria=equilibria,
-        title='Test 7: Multiple Initial Conditions',
+        title='Test 7: Multiple Initial Conditions (Custom Names)',
         color_scheme='colorblind_safe'
     )
     
@@ -298,8 +308,8 @@ def test_8_lorenz_attractor(output_dir):
 
 
 def test_9_lorenz_batched(output_dir):
-    """Test 9: Lorenz attractor with multiple ICs."""
-    print("Generating Test 9: Lorenz with multiple ICs...")
+    """Test 9: Lorenz attractor with multiple ICs and custom names."""
+    print("Generating Test 9: Lorenz with multiple ICs (custom names)...")
     
     plotter = PhasePortraitPlotter()
     t = np.linspace(0, 20, 3000)
@@ -316,11 +326,19 @@ def test_9_lorenz_batched(output_dir):
         for x0, y0, z0 in initial_conditions
     ])
     
+    # Custom trajectory names
+    trajectory_names = [
+        'IC: (1.00, 1.00, 1.00)',
+        'IC: (1.01, 1.00, 1.00)',
+        'IC: (1.00, 1.01, 1.00)'
+    ]
+    
     fig = plotter.plot_3d(
         x_batch,
         state_names=('x', 'y', 'z'),
+        trajectory_names=trajectory_names,
         title='Test 9: Lorenz Sensitivity to ICs',
-        show_direction=True,
+        show_direction=False,  # Solid colors for batched
         color_scheme='colorblind_safe',
         theme='publication'
     )
@@ -684,8 +702,8 @@ def test_21_color_schemes(output_dir):
 
 
 def test_22_spiral_gallery(output_dir):
-    """Test 22: Gallery of different spiral types."""
-    print("Generating Test 22: Spiral gallery...")
+    """Test 22: Gallery of different spiral types with custom names."""
+    print("Generating Test 22: Spiral gallery (custom names)...")
     
     plotter = PhasePortraitPlotter()
     
@@ -698,9 +716,18 @@ def test_22_spiral_gallery(output_dir):
         for d in dampings
     ])
     
+    # Custom names showing damping ratios
+    trajectory_names = [
+        'ζ=0.05 (Light)',
+        'ζ=0.1 (Medium)',
+        'ζ=0.2 (Heavy)',
+        'ζ=0.4 (Critical)'
+    ]
+    
     fig = plotter.plot_2d(
         x_batch,
         state_names=('θ', 'ω'),
+        trajectory_names=trajectory_names,
         title='Test 22: Effect of Damping on Phase Portrait',
         show_direction=False,
         color_scheme='colorblind_safe',
@@ -761,6 +788,15 @@ def test_24_separatrix(output_dir):
         for theta0, omega0 in initial_conditions
     ])
     
+    # Custom names indicating behavior
+    trajectory_names = [
+        'Oscillation (θ₀=0.5)',
+        'Oscillation (θ₀=1.5)',
+        'Oscillation (θ₀=2.5)',
+        'Near Separatrix (θ₀=3.0)',
+        'Rotation (θ₀=3.5)'
+    ]
+    
     def pendulum_dynamics(theta, omega):
         return np.array([omega, -np.sin(theta)])
     
@@ -773,6 +809,7 @@ def test_24_separatrix(output_dir):
     fig = plotter.plot_2d(
         x_batch,
         state_names=('θ (rad)', 'ω (rad/s)'),
+        trajectory_names=trajectory_names,
         vector_field=pendulum_dynamics,
         equilibria=equilibria,
         title='Test 24: Pendulum Separatrix',
@@ -782,6 +819,126 @@ def test_24_separatrix(output_dir):
     
     fig.write_html(output_dir / "24_separatrix.html")
     print("  ✓ Saved: 24_separatrix.html")
+
+
+def test_25_3d_colorscales(output_dir):
+    """Test 25: 3D colorscale comparison."""
+    print("Generating Test 25: 3D colorscale comparison...")
+    
+    t = np.linspace(0, 25, 5000)
+    x_lorenz = solve_lorenz(t, x0=1.0, y0=1.0, z0=1.0)
+    
+    colorscales = [
+        ('Viridis', 'Purple-green-yellow'),
+        ('Plasma', 'Purple-orange-yellow'),
+        ('Inferno', 'Black-red-yellow'),
+        ('Turbo', 'Rainbow vivid'),
+        ('Rainbow', 'Classic rainbow'),
+        ('Jet', 'Blue to red')
+    ]
+    
+    for i, (scale, desc) in enumerate(colorscales, start=1):
+        plotter = PhasePortraitPlotter()
+        
+        fig = plotter.plot_3d(
+            x_lorenz,
+            state_names=('x', 'y', 'z'),
+            title=f'Test 25.{i}: Colorscale "{scale}" - {desc}',
+            show_direction=True,
+            direction_colorscale=scale,
+            theme='default'  # Changed from 'dark' to 'default' for white background
+        )
+        
+        fig.write_html(output_dir / f"25_{i}_colorscale_{scale.lower()}.html")
+        print(f"  ✓ Saved: 25_{i}_colorscale_{scale.lower()}.html")
+
+
+def test_26_3d_gradient_vs_solid(output_dir):
+    """Test 26: 3D gradient (single) vs solid colors (batched)."""
+    print("Generating Test 26: 3D gradient vs solid comparison...")
+    
+    plotter = PhasePortraitPlotter()
+    t = np.linspace(0, 4*np.pi, 800)
+    
+    # Helix trajectory
+    x_single = np.column_stack([
+        np.cos(t),
+        np.sin(t),
+        t * 0.2
+    ])
+    
+    # Test single with gradient
+    fig_single = plotter.plot_3d(
+        x_single,
+        state_names=('x', 'y', 'z'),
+        title='Test 26a: Single Trajectory (Time Gradient)',
+        show_direction=True,
+        direction_colorscale='Plasma',
+        theme='default'
+    )
+    fig_single.write_html(output_dir / "26a_3d_single_gradient.html")
+    print("  ✓ Saved: 26a_3d_single_gradient.html")
+    
+    # Test batched with solid colors
+    x_batch = np.stack([
+        np.column_stack([
+            (1 + 0.3*i) * np.cos(t),
+            (1 + 0.3*i) * np.sin(t),
+            t * 0.2
+        ]) for i in range(3)
+    ])
+    
+    fig_batch = plotter.plot_3d(
+        x_batch,
+        state_names=('x', 'y', 'z'),
+        trajectory_names=['Inner Helix', 'Middle Helix', 'Outer Helix'],
+        title='Test 26b: Batched Trajectories (Solid Colors)',
+        show_direction=False,
+        color_scheme='colorblind_safe',
+        theme='default'
+    )
+    fig_batch.write_html(output_dir / "26b_3d_batched_solid.html")
+    print("  ✓ Saved: 26b_3d_batched_solid.html")
+
+
+def test_27_3d_custom_names_hover(output_dir):
+    """Test 27: 3D custom names with hover text debugging."""
+    print("Generating Test 27: 3D custom names hover debugging...")
+    
+    plotter = PhasePortraitPlotter()
+    t = np.linspace(0, 10, 1000)
+    
+    # Three different amplitude helixes
+    amplitudes = [0.5, 1.0, 1.5]
+    x_batch = np.stack([
+        np.column_stack([
+            A * np.cos(t),
+            A * np.sin(t),
+            t * 0.3
+        ]) for A in amplitudes
+    ])
+    
+    # Custom names to test hover text
+    trajectory_names = [
+        'Small Amplitude (A=0.5)',
+        'Medium Amplitude (A=1.0)',
+        'Large Amplitude (A=1.5)'
+    ]
+    
+    fig = plotter.plot_3d(
+        x_batch,
+        state_names=('x', 'y', 'z'),
+        trajectory_names=trajectory_names,
+        title='Test 27: Custom Names with Hover Text (Check Start/End Markers)',
+        show_direction=False,
+        show_start_end=True,
+        color_scheme='tableau',
+        theme='publication'
+    )
+    
+    fig.write_html(output_dir / "27_3d_custom_names_hover.html")
+    print("  ✓ Saved: 27_3d_custom_names_hover.html")
+    print("  → Hover over start/end markers to verify trajectory names appear!")
 
 
 def generate_index_html(output_dir):
@@ -906,7 +1063,7 @@ def generate_index_html(output_dir):
     
     <div class="stats">
         <div class="stat-item">
-            <div class="stat-number">28</div>
+            <div class="stat-number">35</div>
             <div class="stat-label">Test Cases</div>
         </div>
         <div class="stat-item">
@@ -914,12 +1071,12 @@ def generate_index_html(output_dir):
             <div class="stat-label">Dynamical Systems</div>
         </div>
         <div class="stat-item">
-            <div class="stat-number">4</div>
-            <div class="stat-label">Themes</div>
+            <div class="stat-number">6</div>
+            <div class="stat-label">3D Colorscales</div>
         </div>
         <div class="stat-item">
             <div class="stat-number">4</div>
-            <div class="stat-label">Color Schemes</div>
+            <div class="stat-label">Themes</div>
         </div>
     </div>
 """
@@ -940,19 +1097,24 @@ def generate_index_html(output_dir):
         'Limit Cycles & Special Behaviors': [
             (6, 'Limit cycle detection', ['2D']),
             (16, 'Saddle point dynamics', ['2D', 'Vector']),
-            (24, 'Pendulum separatrix', ['2D', 'Vector']),
+            (24, 'Pendulum separatrix with custom names', ['2D', 'Vector']),
         ],
         '3D Phase Portraits': [
-            (8, 'Lorenz attractor', ['3D']),
-            (9, 'Lorenz with multiple ICs', ['3D']),
+            (8, 'Lorenz attractor (time gradient)', ['3D']),
+            (9, 'Lorenz with custom trajectory names', ['3D']),
             (13, '3D helix', ['3D']),
             (14, 'Rössler attractor', ['3D']),
             (23, '3D torus', ['3D']),
+            (27, 'Custom names hover text debugging', ['3D']),
         ],
         'Batched Trajectories': [
-            (7, 'Multiple initial conditions', ['2D', 'Vector']),
+            (7, 'Multiple ICs with custom names', ['2D', 'Vector']),
             (15, 'Concentric circles', ['2D']),
-            (22, 'Effect of damping', ['2D']),
+            (22, 'Damping comparison with custom names', ['2D']),
+        ],
+        '3D Colorscales': [
+            (25, '6 colorscales on white background', ['3D']),
+            (26, 'Single (gradient) vs Batched (solid)', ['3D']),
         ],
         'Themes & Colors': [
             (17, 'Default theme', ['2D']),
@@ -976,9 +1138,14 @@ def generate_index_html(output_dir):
             badges = test_info[2] if len(test_info) > 2 else []
             
             # Find matching files
-            if test_num in [21]:
-                # Multiple files for color scheme comparison
-                pattern = f"{test_num:02d}_*"
+            if test_num in [21, 25, 26, 27]:
+                # Multiple files for these tests
+                if test_num == 26:
+                    pattern = f"{test_num}*"
+                elif test_num == 27:
+                    pattern = f"{test_num}_*"
+                else:
+                    pattern = f"{test_num:02d}_*"
                 matching_files = sorted(output_dir.glob(f"{pattern}.html"))
                 for file in matching_files:
                     if file.name == "index.html":
@@ -1071,6 +1238,9 @@ def main():
     test_22_spiral_gallery(output_dir)
     test_23_3d_torus(output_dir)
     test_24_separatrix(output_dir)
+    test_25_3d_colorscales(output_dir)
+    test_26_3d_gradient_vs_solid(output_dir)
+    test_27_3d_custom_names_hover(output_dir)
     
     # Generate index
     generate_index_html(output_dir)

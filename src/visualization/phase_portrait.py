@@ -75,8 +75,8 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
-from src.types.backends import Backend
 from src.visualization.themes import ColorSchemes, PlotThemes
+from src.types.backends import Backend
 
 
 class PhasePortraitPlotter:
@@ -153,6 +153,7 @@ class PhasePortraitPlotter:
         self,
         x: np.ndarray,
         state_names: Tuple[str, str] = ("x₁", "x₂"),
+        trajectory_names: Optional[List[str]] = None,
         show_direction: bool = True,
         show_start_end: bool = True,
         vector_field: Optional[Callable] = None,
@@ -176,6 +177,10 @@ class PhasePortraitPlotter:
         state_names : Tuple[str, str]
             Names for horizontal and vertical axes
             Default: ('x₁', 'x₂')
+        trajectory_names : Optional[List[str]]
+            Custom names for each trajectory (for batched trajectories)
+            If None, uses "Trajectory 1", "Trajectory 2", etc.
+            Length must equal number of batches
         show_direction : bool
             If True, add arrows showing trajectory direction
         show_start_end : bool
@@ -227,7 +232,11 @@ class PhasePortraitPlotter:
         >>>
         >>> # Batched trajectories (multiple initial conditions)
         >>> x_batch = np.random.randn(5, 100, 2)
-        >>> fig = plotter.plot_2d(x_batch, theme='dark')
+        >>> fig = plotter.plot_2d(
+        ...     x_batch,
+        ...     trajectory_names=['IC 1', 'IC 2', 'IC 3', 'IC 4', 'IC 5'],
+        ...     theme='dark'
+        ... )
 
         Notes
         -----
@@ -246,7 +255,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 2:
             raise ValueError(
-                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)",
+                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)"
             )
 
         # Detect batching
@@ -267,18 +276,52 @@ class PhasePortraitPlotter:
         # Get colors from centralized color schemes
         colors = ColorSchemes.get_colors(color_scheme, n_batch)
 
+        # Generate trajectory names if not provided
+        if trajectory_names is None:
+            trajectory_names = [f"Trajectory {i + 1}" for i in range(n_batch)]
+        elif len(trajectory_names) != n_batch:
+            raise ValueError(f"trajectory_names length {len(trajectory_names)} != n_batch {n_batch}")
+
         # Create figure
         fig = go.Figure()
+
+        # Add start/end markers first (for legend ordering)
+        if show_start_end and n_batch > 0:
+            # Add start marker (will be first in legend)
+            fig.add_trace(
+                go.Scatter(
+                    x=[x_np[0, 0, 0]],
+                    y=[x_np[0, 0, 1]],
+                    mode="markers",
+                    name="Start",
+                    marker=dict(color="green", size=10, symbol="circle"),
+                    showlegend=True,
+                    hovertemplate=f"<b>Start: {trajectory_names[0]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
+                )
+            )
+            
+            # Add end marker (will be second in legend)
+            fig.add_trace(
+                go.Scatter(
+                    x=[x_np[0, -1, 0]],
+                    y=[x_np[0, -1, 1]],
+                    mode="markers",
+                    name="End",
+                    marker=dict(color="red", size=10, symbol="square"),
+                    showlegend=True,
+                    hovertemplate=f"<b>End: {trajectory_names[0]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
+                )
+            )
+
+        # Add equilibria if provided (third in legend)
+        if equilibria is not None:
+            self._add_equilibria_markers(fig, equilibria)
 
         # Add vector field if provided
         if vector_field is not None:
             self._add_vector_field_2d(fig, vector_field, x_np, grid_density=15)
 
-        # Add equilibria if provided
-        if equilibria is not None:
-            self._add_equilibria_markers(fig, equilibria)
-
-        # Add trajectories
+        # Add trajectories (last in legend)
         for batch_idx in range(n_batch):
             x_traj = x_np[batch_idx]  # (T, 2)
 
@@ -288,41 +331,42 @@ class PhasePortraitPlotter:
                     x=x_traj[:, 0],
                     y=x_traj[:, 1],
                     mode="lines",
-                    name=f"Trajectory {batch_idx + 1}" if is_batched else "Trajectory",
+                    name=trajectory_names[batch_idx],
                     line=dict(color=colors[batch_idx], width=2),
                     showlegend=True,
-                ),
+                )
             )
 
-            # Start marker (green circle)
-            if show_start_end:
+            # Add start/end markers for additional trajectories (beyond first)
+            if show_start_end and batch_idx > 0:
+                # Start marker (not in legend)
                 fig.add_trace(
                     go.Scatter(
                         x=[x_traj[0, 0]],
                         y=[x_traj[0, 1]],
                         mode="markers",
-                        name="Start" if batch_idx == 0 else None,
                         marker=dict(color="green", size=10, symbol="circle"),
-                        showlegend=(batch_idx == 0),
-                    ),
+                        showlegend=False,
+                        hovertemplate=f"<b>Start: {trajectory_names[batch_idx]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
+                    )
                 )
 
-                # End marker (red square)
+                # End marker (not in legend)
                 fig.add_trace(
                     go.Scatter(
                         x=[x_traj[-1, 0]],
                         y=[x_traj[-1, 1]],
                         mode="markers",
-                        name="End" if batch_idx == 0 else None,
                         marker=dict(color="red", size=10, symbol="square"),
-                        showlegend=(batch_idx == 0),
-                    ),
+                        showlegend=False,
+                        hovertemplate=f"<b>End: {trajectory_names[batch_idx]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
+                    )
                 )
 
             # Direction arrows
             if show_direction and T > 10:
                 self._add_direction_arrows_2d(
-                    fig, x_traj, colors[batch_idx], n_arrows=5,
+                    fig, x_traj, colors[batch_idx], n_arrows=5
                 )
 
         # Update layout
@@ -347,10 +391,12 @@ class PhasePortraitPlotter:
         self,
         x: np.ndarray,
         state_names: Tuple[str, str, str] = ("x₁", "x₂", "x₃"),
+        trajectory_names: Optional[List[str]] = None,
         show_direction: bool = True,
         show_start_end: bool = True,
         title: str = "3D Phase Portrait",
         color_scheme: str = "plotly",
+        direction_colorscale: str = "Viridis",
         theme: Optional[str] = None,
         **kwargs,
     ) -> go.Figure:
@@ -367,8 +413,12 @@ class PhasePortraitPlotter:
         state_names : Tuple[str, str, str]
             Names for x, y, z axes
             Default: ('x₁', 'x₂', 'x₃')
+        trajectory_names : Optional[List[str]]
+            Custom names for each trajectory (for batched trajectories)
+            If None, uses "Trajectory 1", "Trajectory 2", etc.
+            Length must equal number of batches
         show_direction : bool
-            If True, add markers showing trajectory direction
+            If True, show temporal direction via line color gradient (single trajectory only)
         show_start_end : bool
             If True, mark initial and final points
         title : str
@@ -377,6 +427,13 @@ class PhasePortraitPlotter:
             Color scheme name
             Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.
             Default: 'plotly'
+            Note: Only used for batched trajectories; single trajectories use direction_colorscale
+        direction_colorscale : str
+            Colorscale for temporal gradient (single trajectory only)
+            Options: 'Viridis', 'Plasma', 'Inferno', 'Magma', 'Cividis',
+                     'Turbo', 'Rainbow', 'Jet', 'Hot', 'Cool', 'Blues', 'Reds',
+                     'Greens', 'Portland', 'Picnic', 'Electric', 'Blackbody'
+            Default: 'Viridis'
         theme : Optional[str]
             Plot theme to apply
             Options: 'default', 'publication', 'dark', 'presentation'
@@ -391,20 +448,22 @@ class PhasePortraitPlotter:
 
         Examples
         --------
-        >>> # Lorenz attractor
+        >>> # Lorenz attractor with temporal gradient
         >>> x_lorenz = solve_lorenz(...)  # (T, 3)
         >>> fig = plotter.plot_3d(
         ...     x_lorenz,
         ...     state_names=('x', 'y', 'z'),
         ...     title='Lorenz Attractor',
+        ...     show_direction=True,
         ...     theme='dark'
         ... )
         >>> fig.show()
         >>>
-        >>> # Multiple trajectories with colorblind-safe palette
+        >>> # Multiple trajectories with custom names
         >>> x_batch = np.random.randn(3, 1000, 3)
         >>> fig = plotter.plot_3d(
         ...     x_batch,
+        ...     trajectory_names=['Low Energy', 'Medium Energy', 'High Energy'],
         ...     color_scheme='colorblind_safe',
         ...     theme='publication'
         ... )
@@ -413,8 +472,9 @@ class PhasePortraitPlotter:
         -----
         - Interactive: Click and drag to rotate
         - Scroll to zoom
+        - Single trajectory: Line color shows time progression (dark→light)
+        - Batched trajectories: Each trajectory has distinct solid color
         - Start: green sphere, End: red cube
-        - Direction shown via marker gradient
         """
         # Use default theme if not specified
         if theme is None:
@@ -426,7 +486,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 3:
             raise ValueError(
-                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)",
+                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)"
             )
 
         # Detect batching
@@ -449,72 +509,105 @@ class PhasePortraitPlotter:
         # Create figure
         fig = go.Figure()
 
-        # Add trajectories
+        # Add start/end markers first (for legend ordering)
+        if show_start_end and n_batch > 0:
+            # Add start marker (will be first in legend)
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[x_np[0, 0, 0]],
+                    y=[x_np[0, 0, 1]],
+                    z=[x_np[0, 0, 2]],
+                    mode="markers",
+                    name="Start",
+                    marker=dict(color="green", size=8, symbol="circle"),
+                    showlegend=True,
+                )
+            )
+            
+            # Add end marker (will be second in legend)
+            fig.add_trace(
+                go.Scatter3d(
+                    x=[x_np[0, -1, 0]],
+                    y=[x_np[0, -1, 1]],
+                    z=[x_np[0, -1, 2]],
+                    mode="markers",
+                    name="End",
+                    marker=dict(color="red", size=8, symbol="square"),
+                    showlegend=True,
+                )
+            )
+
+        # Add trajectories (last in legend)
         for batch_idx in range(n_batch):
             x_traj = x_np[batch_idx]  # (T, 3)
 
-            # Main trajectory
-            fig.add_trace(
-                go.Scatter3d(
-                    x=x_traj[:, 0],
-                    y=x_traj[:, 1],
-                    z=x_traj[:, 2],
-                    mode="lines",
-                    name=f"Trajectory {batch_idx + 1}" if is_batched else "Trajectory",
-                    line=dict(color=colors[batch_idx], width=3),
-                    showlegend=True,
-                ),
-            )
+            # For single trajectory, use color gradient to show time
+            # For batched, use solid colors to distinguish trajectories
+            if n_batch == 1 and show_direction:
+                # Single trajectory: gradient shows temporal evolution
+                time_points = np.linspace(0, 1, T)
+                
+                fig.add_trace(
+                    go.Scatter3d(
+                        x=x_traj[:, 0],
+                        y=x_traj[:, 1],
+                        z=x_traj[:, 2],
+                        mode="lines",
+                        name="Trajectory",
+                        line=dict(
+                            color=time_points,
+                            colorscale=direction_colorscale,
+                            width=4,
+                            showscale=True,
+                            colorbar=dict(
+                                title="Time",
+                                x=-0.15,  # Position on left side
+                                xanchor="right",
+                                len=0.75,
+                                thickness=15
+                            )
+                        ),
+                        showlegend=True,
+                    )
+                )
+            else:
+                # Batched trajectories: use solid colors
+                fig.add_trace(
+                    go.Scatter3d(
+                        x=x_traj[:, 0],
+                        y=x_traj[:, 1],
+                        z=x_traj[:, 2],
+                        mode="lines",
+                        name=f"Trajectory {batch_idx + 1}" if is_batched else "Trajectory",
+                        line=dict(color=colors[batch_idx], width=3),
+                        showlegend=True,
+                    )
+                )
 
-            # Start marker (green sphere)
-            if show_start_end:
+            # Add start/end markers for additional trajectories (beyond first)
+            if show_start_end and batch_idx > 0:
+                # Start marker (not in legend)
                 fig.add_trace(
                     go.Scatter3d(
                         x=[x_traj[0, 0]],
                         y=[x_traj[0, 1]],
                         z=[x_traj[0, 2]],
                         mode="markers",
-                        name="Start" if batch_idx == 0 else None,
                         marker=dict(color="green", size=8, symbol="circle"),
-                        showlegend=(batch_idx == 0),
-                    ),
+                        showlegend=False,
+                    )
                 )
 
-                # End marker (red cube)
+                # End marker (not in legend)
                 fig.add_trace(
                     go.Scatter3d(
                         x=[x_traj[-1, 0]],
                         y=[x_traj[-1, 1]],
                         z=[x_traj[-1, 2]],
                         mode="markers",
-                        name="End" if batch_idx == 0 else None,
                         marker=dict(color="red", size=8, symbol="square"),
-                        showlegend=(batch_idx == 0),
-                    ),
-                )
-
-            # Direction markers (color gradient)
-            if show_direction and T > 20:
-                # Add markers at intervals with color gradient
-                n_markers = 10
-                indices = np.linspace(0, T - 1, n_markers, dtype=int)
-                marker_colors = np.linspace(0, 1, n_markers)
-
-                fig.add_trace(
-                    go.Scatter3d(
-                        x=x_traj[indices, 0],
-                        y=x_traj[indices, 1],
-                        z=x_traj[indices, 2],
-                        mode="markers",
-                        marker=dict(
-                            color=marker_colors,
-                            colorscale="Viridis",
-                            size=4,
-                            showscale=(batch_idx == 0),
-                        ),
-                        name="Direction" if batch_idx == 0 else None,
                         showlegend=False,
-                    ),
+                    )
                 )
 
         # Update layout
@@ -540,6 +633,7 @@ class PhasePortraitPlotter:
         self,
         x: np.ndarray,
         state_names: Tuple[str, str] = ("x₁", "x₂"),
+        trajectory_names: Optional[List[str]] = None,
         period_estimate: Optional[float] = None,
         title: str = "Limit Cycle",
         color_scheme: str = "plotly",
@@ -559,6 +653,9 @@ class PhasePortraitPlotter:
             Should contain at least one full period
         state_names : Tuple[str, str]
             Names for axes
+        trajectory_names : Optional[List[str]]
+            Custom names for trajectories
+            If None, uses "Trajectory 1"
         period_estimate : Optional[float]
             Estimated period (in samples)
             If None, attempts auto-detection
@@ -616,6 +713,7 @@ class PhasePortraitPlotter:
         fig = self.plot_2d(
             x_np,
             state_names=state_names,
+            trajectory_names=trajectory_names,
             show_direction=True,
             show_start_end=True,
             title=title,
@@ -764,7 +862,7 @@ class PhasePortraitPlotter:
                     pass
 
     def _add_equilibria_markers(
-        self, fig: go.Figure, equilibria: List[np.ndarray],
+        self, fig: go.Figure, equilibria: List[np.ndarray]
     ) -> None:
         """
         Add markers for equilibrium points.
@@ -800,7 +898,7 @@ class PhasePortraitPlotter:
                         line=dict(color="black", width=2),
                     ),
                     showlegend=True,
-                ),
+                )
             )
         elif ndim == 3:
             # 3D equilibria
@@ -817,11 +915,11 @@ class PhasePortraitPlotter:
                     name="Equilibria",
                     marker=dict(color="black", size=8, symbol="x"),
                     showlegend=True,
-                ),
+                )
             )
 
     def _add_direction_arrows_2d(
-        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5,
+        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5
     ) -> None:
         """
         Add direction arrows to 2D trajectory.
