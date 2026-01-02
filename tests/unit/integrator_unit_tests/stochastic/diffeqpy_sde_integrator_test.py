@@ -58,8 +58,6 @@ from src.systems.base.numerical_integration.stochastic.diffeqpy_sde_integrator i
     list_julia_sde_algorithms,
 )
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
-    ConvergenceType,
-    SDEType,
     StepMode,
 )
 from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem

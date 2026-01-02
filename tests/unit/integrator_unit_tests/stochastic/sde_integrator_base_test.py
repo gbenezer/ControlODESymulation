@@ -39,10 +39,10 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
     ConvergenceType,
     SDEIntegrationResult,
     SDEIntegratorBase,
-    SDEType,
     StepMode,
     get_trajectory_statistics,
 )
+from src.types.backends import SDEType
 from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # ============================================================================

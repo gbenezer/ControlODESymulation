@@ -59,11 +59,9 @@ pytestmark = pytest.mark.skipif(
     reason="diffeqpy not installed. Install Julia + DifferentialEquations.jl + diffeqpy",
 )
 
-
 # ============================================================================
 # Mock System for Testing
 # ============================================================================
-
 
 class SimpleLinearSystem:
     """Simple linear system for testing: dx/dt = A*x + B*u"""

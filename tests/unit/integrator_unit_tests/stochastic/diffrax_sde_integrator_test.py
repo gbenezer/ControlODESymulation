@@ -66,7 +66,7 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
 from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # Import types from centralized type system
-from src.types.backends import ConvergenceType, SDEType
+from src.types.backends import SDEType
 
 # ============================================================================
 # Skip Tests if JAX/Diffrax Not Available
