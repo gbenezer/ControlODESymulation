@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **7 focused modules** totaling ~6,500 lines that define over **200 type aliases** and **structured dictionaries**.
+The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** totaling ~7,000 lines that define over **200 type aliases** and **structured dictionaries**.
 
 ## Architecture Philosophy
 
@@ -49,6 +49,7 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 │  │  • trajectories.py   - Time series results      │       │
 │  │  • linearization.py  - Jacobian tuples          │       │
 │  │  • symbolic.py       - SymPy types              │       │
+│  │  • control_classical.py - Control design results│       │
 │  └─────────────────────────────────────────────────┘       │
 │                                                              │
 │  ┌─────────────────────────────────────────────────┐       │
@@ -416,6 +417,164 @@ SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 
 ---
 
+#### control_classical.py
+**File:** `control_classical.py` (542 lines)
+
+**Purpose:** Classical control theory result types
+
+**Categories:**
+
+**1. System Analysis Results**
+```python
+class StabilityInfo(TypedDict):
+    """Stability analysis result.
+    
+    Stability Criteria:
+    - Continuous: All Re(λ) < 0 (left half-plane)
+    - Discrete: All |λ| < 1 (inside unit circle)
+    """
+    eigenvalues: np.ndarray          # Complex eigenvalues
+    magnitudes: np.ndarray           # |λ| values
+    max_magnitude: float             # Spectral radius
+    spectral_radius: float           # Same as max_magnitude
+    is_stable: bool                  # Asymptotically stable
+    is_marginally_stable: bool       # On stability boundary
+    is_unstable: bool                # Unstable
+
+class ControllabilityInfo(TypedDict, total=False):
+    """Controllability analysis result.
+    
+    Test: rank(C) = nx where C = [B AB A²B ... Aⁿ⁻¹B]
+    """
+    controllability_matrix: ControllabilityMatrix  # (nx, nx*nu)
+    rank: int                        # Rank of C
+    is_controllable: bool            # rank == nx
+    uncontrollable_modes: Optional[np.ndarray]  # Eigenvalues
+
+class ObservabilityInfo(TypedDict, total=False):
+    """Observability analysis result.
+    
+    Test: rank(O) = nx where O = [C; CA; CA²; ...; CAⁿ⁻¹]
+    """
+    observability_matrix: ObservabilityMatrix  # (nx*ny, nx)
+    rank: int                        # Rank of O
+    is_observable: bool              # rank == nx
+    unobservable_modes: Optional[np.ndarray]  # Eigenvalues
+```
+
+**2. Control Design Results**
+```python
+class LQRResult(TypedDict):
+    """Linear Quadratic Regulator result.
+    
+    Minimizes: J = ∫(x'Qx + u'Ru)dt  (continuous)
+               J = Σ(x'Qx + u'Ru)     (discrete)
+    
+    Control law: u = -Kx
+    """
+    gain: GainMatrix                 # Feedback gain K (nu, nx)
+    cost_to_go: CovarianceMatrix     # Riccati solution P (nx, nx)
+    closed_loop_eigenvalues: np.ndarray  # eig(A - BK)
+    stability_margin: float          # Phase/gain margin
+
+class KalmanFilterResult(TypedDict):
+    """Kalman Filter (optimal estimator) result.
+    
+    System:
+        x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0,Q)
+        y[k] = Cx[k] + v[k],            v ~ N(0,R)
+    
+    Estimator: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+    """
+    gain: GainMatrix                 # Kalman gain L (nx, ny)
+    error_covariance: CovarianceMatrix  # Error cov P (nx, nx)
+    innovation_covariance: CovarianceMatrix  # Innovation S (ny, ny)
+    observer_eigenvalues: np.ndarray  # eig(A - LC)
+
+class LQGResult(TypedDict):
+    """Linear Quadratic Gaussian controller result.
+    
+    Combines LQR (optimal control) + Kalman (optimal estimation)
+    via separation principle.
+    
+    Controller: u = -Kx̂
+    Estimator: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+    """
+    control_gain: GainMatrix         # LQR gain K (nu, nx)
+    estimator_gain: GainMatrix       # Kalman gain L (nx, ny)
+    control_cost_to_go: CovarianceMatrix  # Controller Riccati P
+    estimation_error_covariance: CovarianceMatrix  # Estimator Riccati P
+    separation_verified: bool        # Separation principle holds
+    closed_loop_stable: bool         # Overall stability
+    controller_eigenvalues: np.ndarray  # eig(A - BK)
+    estimator_eigenvalues: np.ndarray   # eig(A - LC)
+```
+
+**3. Additional Controllers**
+```python
+class PolePlacementResult(TypedDict):
+    """Pole placement (eigenvalue assignment) result.
+    
+    Design K such that eig(A - BK) = desired poles
+    """
+    gain: GainMatrix                 # State feedback gain K
+    desired_poles: np.ndarray        # Desired eigenvalues
+    achieved_poles: np.ndarray       # Actual eig(A - BK)
+    is_controllable: bool            # Arbitrary placement possible
+
+class LuenbergerObserverResult(TypedDict):
+    """Luenberger observer (deterministic estimator) result.
+    
+    Observer: x̂˙ = Ax̂ + Bu + L(y - Cx̂)
+    Error dynamics: e˙ = (A - LC)e
+    """
+    gain: GainMatrix                 # Observer gain L (nx, ny)
+    desired_poles: np.ndarray        # Desired observer poles
+    achieved_poles: np.ndarray       # Actual eig(A - LC)
+    is_observable: bool              # Arbitrary placement possible
+```
+
+**Usage Examples:**
+```python
+# Stability analysis
+stability: StabilityInfo = analyze_stability(A, system_type='continuous')
+if stability['is_stable']:
+    print(f"Stable with spectral radius {stability['spectral_radius']:.3f}")
+
+# LQR design
+lqr: LQRResult = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+K = lqr['gain']
+closed_loop_A = A - B @ K
+
+# Kalman filter design
+kalman: KalmanFilterResult = system.control.design_kalman(
+    A, C, Q_process, R_measurement, system_type='discrete'
+)
+L = kalman['gain']
+
+# LQG controller (combined)
+lqg: LQGResult = system.control.design_lqg(
+    A, B, C, Q, R, Q_process, R_measurement, system_type='discrete'
+)
+K = lqg['control_gain']
+L = lqg['estimator_gain']
+
+# Controllability check
+ctrl: ControllabilityInfo = analyze_controllability(A, B)
+if ctrl['is_controllable']:
+    print(f"System is controllable with rank {ctrl['rank']}")
+```
+
+**Key Design:**
+- **TypedDict results** - Structured, type-safe returns
+- **Mathematical clarity** - Names match control theory
+- **Complete information** - All relevant analysis data
+- **Separation principle** - LQG designed independently
+- **Stability guarantees** - Eigenvalues included
+- **IDE support** - Autocomplete for all fields
+
+---
+
 ### Structural Types
 
 #### protocols.py
@@ -711,9 +870,10 @@ class ScipyIntegrator(IntegratorBase):
 | trajectories.py | 879 | Time series, results | Simulation data |
 | linearization.py | 502 | Jacobians, tuples | Linearization |
 | symbolic.py | 646 | SymPy types | Symbolic math |
+| control_classical.py | 542 | Control design, analysis | Classical control |
 | protocols.py | 1,086 | Abstract interfaces | Contracts |
 | utilities.py | 1,132 | Helpers, guards | Runtime support |
-| **TOTAL** | **6,481** | **200+ types** | **Complete system** |
+| **TOTAL** | **7,023** | **200+ types** | **Complete system** |
 
 ## Key Strengths
 
