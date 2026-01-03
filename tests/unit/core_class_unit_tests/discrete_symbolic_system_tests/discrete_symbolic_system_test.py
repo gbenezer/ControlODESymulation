@@ -1044,7 +1044,11 @@ class TestContinuousVsDiscrete:
 
         # Integrate continuous
         result_cont = cont.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01,
+            x0=np.array([1.0]),
+            u=None,
+            t_span=(0.0, 0.1),
+            method="rk4",
+            dt=0.01,
         )
 
         # Simulate discrete

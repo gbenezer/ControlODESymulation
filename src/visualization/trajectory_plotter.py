@@ -297,7 +297,14 @@ class TrajectoryPlotter:
 
         # Add trajectory traces
         self._add_trajectory_traces(
-            fig, t_np, x_np, state_names, colors, is_batched, n_rows, n_cols,
+            fig,
+            t_np,
+            x_np,
+            state_names,
+            colors,
+            is_batched,
+            n_rows,
+            n_cols,
         )
 
         # Update layout

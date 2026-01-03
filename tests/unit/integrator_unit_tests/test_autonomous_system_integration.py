@@ -330,7 +330,11 @@ class TestAutonomousFixedStepIntegrators:
     def test_fixed_step_consistency(self, van_der_pol_autonomous, initial_state):
         """Test that manual stepping matches full integration"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="rk4", dt=0.1, step_mode=StepMode.FIXED,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=0.1,
+            step_mode=StepMode.FIXED,
         )
 
         # Manual stepping
@@ -343,7 +347,10 @@ class TestAutonomousFixedStepIntegrators:
         # Full integration
         t_eval = np.linspace(0, 1.0, n_steps + 1)
         result = integrator.integrate(
-            x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 1.0), t_eval=t_eval,
+            x0=initial_state,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 1.0),
+            t_eval=t_eval,
         )
 
         # Should match to high precision
@@ -362,7 +369,11 @@ class TestAutonomousScipyIntegrator:
     def test_scipy_methods(self, van_der_pol_autonomous, initial_state, method):
         """Test all scipy methods with autonomous system"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method=method, rtol=1e-8, atol=1e-10,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method=method,
+            rtol=1e-8,
+            atol=1e-10,
         )
 
         result = integrator.integrate(x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0))
@@ -375,12 +386,19 @@ class TestAutonomousScipyIntegrator:
     def test_scipy_adaptive_step_size(self, van_der_pol_autonomous, initial_state):
         """Test that adaptive stepping works (variable time points)"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="RK45", rtol=1e-6, atol=1e-8,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="RK45",
+            rtol=1e-6,
+            atol=1e-8,
         )
 
         # No t_eval specified - let solver choose points
         result = integrator.integrate(
-            x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0), t_eval=None,
+            x0=initial_state,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 5.0),
+            t_eval=None,
         )
 
         assert result["success"]
@@ -392,12 +410,17 @@ class TestAutonomousScipyIntegrator:
     def test_scipy_with_specified_times(self, van_der_pol_autonomous, initial_state):
         """Test scipy with specified evaluation times"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="LSODA",
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="LSODA",
         )
 
         t_eval = np.linspace(0, 5, 101)
         result = integrator.integrate(
-            x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0), t_eval=t_eval,
+            x0=initial_state,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 5.0),
+            t_eval=t_eval,
         )
 
         assert result["success"]
@@ -406,7 +429,11 @@ class TestAutonomousScipyIntegrator:
     def test_scipy_tight_tolerances(self, linear_autonomous, initial_state):
         """Test high-accuracy integration matches analytical solution"""
         integrator = IntegratorFactory.create(
-            linear_autonomous, backend="numpy", method="DOP853", rtol=1e-12, atol=1e-14,
+            linear_autonomous,
+            backend="numpy",
+            method="DOP853",
+            rtol=1e-12,
+            atol=1e-14,
         )
 
         t_final = 2.0
@@ -436,7 +463,10 @@ class TestAutonomousTorchDiffEq:
     def test_torchdiffeq_methods(self, van_der_pol_autonomous, method):
         """Test all TorchDiffEq methods with autonomous system"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="torch", method=method, dt=0.01,
+            van_der_pol_autonomous,
+            backend="torch",
+            method=method,
+            dt=0.01,
         )
 
         x0 = torch.tensor([1.0, 0.0])
@@ -451,7 +481,10 @@ class TestAutonomousTorchDiffEq:
     def test_torchdiffeq_single_step(self, van_der_pol_autonomous):
         """Test single step with PyTorch"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="torch", method="dopri5", dt=0.01,
+            van_der_pol_autonomous,
+            backend="torch",
+            method="dopri5",
+            dt=0.01,
         )
 
         x0 = torch.tensor([1.0, 0.0])
@@ -469,7 +502,9 @@ class TestAutonomousTorchDiffEq:
         van_der_pol_autonomous.set_default_backend("torch", device="cuda")
 
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="torch", method="dopri5",
+            van_der_pol_autonomous,
+            backend="torch",
+            method="dopri5",
         )
 
         x0 = torch.tensor([1.0, 0.0], device="cuda")
@@ -510,12 +545,18 @@ class TestAutonomousDiffrax:
     """Test Diffrax integrator with autonomous systems"""
 
     @pytest.mark.parametrize(
-        "solver", ["tsit5", "dopri5", "dopri8", "bosh3", "midpoint", "heun"],
+        "solver",
+        ["tsit5", "dopri5", "dopri8", "bosh3", "midpoint", "heun"],
     )  # Remove 'euler' - too unstable for Van der Pol
     def test_diffrax_solvers(self, van_der_pol_autonomous, solver):
         """Test Diffrax solvers with autonomous system"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="jax", solver=solver, dt=0.01, rtol=1e-6, atol=1e-8,
+            van_der_pol_autonomous,
+            backend="jax",
+            solver=solver,
+            dt=0.01,
+            rtol=1e-6,
+            atol=1e-8,
         )
 
         x0 = jnp.array([1.0, 0.0])
@@ -539,7 +580,9 @@ class TestAutonomousDiffrax:
         x0 = jnp.array([1.0, 0.0])
 
         result = integrator.integrate(
-            x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.5),  # Shorter time span
+            x0=x0,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 0.5),  # Shorter time span
         )
 
         assert result["success"], f"Diffrax euler failed: {result['message']}"
@@ -548,7 +591,10 @@ class TestAutonomousDiffrax:
     def test_diffrax_single_step(self, van_der_pol_autonomous):
         """Test single step with JAX"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="jax", solver="tsit5", dt=0.01,
+            van_der_pol_autonomous,
+            backend="jax",
+            solver="tsit5",
+            dt=0.01,
         )
 
         x0 = jnp.array([1.0, 0.0])
@@ -562,7 +608,10 @@ class TestAutonomousDiffrax:
     def test_diffrax_jit_compilation(self, van_der_pol_autonomous):
         """Test that JIT compilation works with autonomous systems"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="jax", solver="tsit5", dt=0.01,
+            van_der_pol_autonomous,
+            backend="jax",
+            solver="tsit5",
+            dt=0.01,
         )
 
         # Get JIT-compiled step function
@@ -583,7 +632,10 @@ class TestAutonomousDiffrax:
     def test_diffrax_gradient_computation(self, linear_autonomous):
         """Test gradient computation through integration"""
         integrator = IntegratorFactory.create(
-            linear_autonomous, backend="jax", solver="tsit5", rtol=1e-8,
+            linear_autonomous,
+            backend="jax",
+            solver="tsit5",
+            rtol=1e-8,
         )
 
         def loss_fn(x0):
@@ -620,11 +672,17 @@ class TestAutonomousDiffEqPy:
     def test_diffeqpy_nonstiff_algorithms(self, van_der_pol_autonomous, algorithm):
         """Test Julia non-stiff algorithms (these work reliably)"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method=algorithm, rtol=1e-8, atol=1e-10,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method=algorithm,
+            rtol=1e-8,
+            atol=1e-10,
         )
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 5.0),
         )
 
         assert result["success"], f"Julia {algorithm} failed: {result['message']}"
@@ -648,11 +706,17 @@ class TestAutonomousDiffEqPy:
         - Tsit5, DP5, DP8: Standard explicit methods
         """
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method=algorithm, rtol=1e-6, atol=1e-8,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method=algorithm,
+            rtol=1e-6,
+            atol=1e-8,
         )
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 3.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 3.0),
         )
 
         assert result["success"], f"Julia {algorithm} failed: {result['message']}"
@@ -701,11 +765,15 @@ class TestAutonomousDiffEqPy:
     def test_diffeqpy_auto_switching(self, van_der_pol_autonomous):
         """Test Julia auto-switching algorithm"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="AutoTsit5(Rosenbrock23())",
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="AutoTsit5(Rosenbrock23())",
         )
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 5.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 5.0),
         )
 
         assert result["success"], f"Auto-switching failed: {result['message']}"
@@ -714,7 +782,11 @@ class TestAutonomousDiffEqPy:
     def test_diffeqpy_high_accuracy(self, linear_autonomous):
         """Test very high accuracy with Julia Vern9"""
         integrator = IntegratorFactory.create(
-            linear_autonomous, backend="numpy", method="Vern9", rtol=1e-12, atol=1e-14,
+            linear_autonomous,
+            backend="numpy",
+            method="Vern9",
+            rtol=1e-12,
+            atol=1e-14,
         )
 
         t_final = 2.0
@@ -740,7 +812,10 @@ class TestAutonomousVsControlledEquivalence:
     """Test that autonomous system matches controlled system with u=0"""
 
     def test_forward_dynamics_equivalence(
-        self, van_der_pol_autonomous, van_der_pol_controlled, initial_state,
+        self,
+        van_der_pol_autonomous,
+        van_der_pol_controlled,
+        initial_state,
     ):
         """Test that autonomous system matches controlled with u=0"""
         # Autonomous system
@@ -754,7 +829,10 @@ class TestAutonomousVsControlledEquivalence:
         np.testing.assert_allclose(dx_auto, dx_controlled, rtol=1e-14, atol=1e-16)
 
     def test_integration_trajectory_equivalence(
-        self, van_der_pol_autonomous, van_der_pol_controlled, initial_state,
+        self,
+        van_der_pol_autonomous,
+        van_der_pol_controlled,
+        initial_state,
     ):
         """Test that integration trajectories match"""
         # Common evaluation times for fair comparison
@@ -762,20 +840,34 @@ class TestAutonomousVsControlledEquivalence:
 
         # Autonomous integration
         integrator_auto = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="RK45", rtol=1e-10, atol=1e-12,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="RK45",
+            rtol=1e-10,
+            atol=1e-12,
         )
 
         result_auto = integrator_auto.integrate(
-            x0=initial_state, u_func=lambda t, x: None, t_span=(0.0, 5.0), t_eval=t_eval,
+            x0=initial_state,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 5.0),
+            t_eval=t_eval,
         )
 
         # Controlled integration with u=0
         integrator_controlled = IntegratorFactory.create(
-            van_der_pol_controlled, backend="numpy", method="RK45", rtol=1e-10, atol=1e-12,
+            van_der_pol_controlled,
+            backend="numpy",
+            method="RK45",
+            rtol=1e-10,
+            atol=1e-12,
         )
 
         result_controlled = integrator_controlled.integrate(
-            x0=initial_state, u_func=lambda t, x: np.array([0.0]), t_span=(0.0, 5.0), t_eval=t_eval,
+            x0=initial_state,
+            u_func=lambda t, x: np.array([0.0]),
+            t_span=(0.0, 5.0),
+            t_eval=t_eval,
         )
 
         # Trajectories should match
@@ -802,15 +894,26 @@ class TestAutonomousCrossBackendConsistency:
 
         # NumPy
         integrator_np = IntegratorFactory.create(
-            linear_autonomous, backend="numpy", method="rk4", dt=0.01, step_mode=StepMode.FIXED,
+            linear_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=0.01,
+            step_mode=StepMode.FIXED,
         )
         result_np = integrator_np.integrate(
-            x0=x0_np, u_func=lambda t, x: None, t_span=t_span, t_eval=t_eval,
+            x0=x0_np,
+            u_func=lambda t, x: None,
+            t_span=t_span,
+            t_eval=t_eval,
         )
 
         # PyTorch
         integrator_torch = IntegratorFactory.create(
-            linear_autonomous, backend="torch", method="rk4", dt=0.01, step_mode=StepMode.FIXED,
+            linear_autonomous,
+            backend="torch",
+            method="rk4",
+            dt=0.01,
+            step_mode=StepMode.FIXED,
         )
         result_torch = integrator_torch.integrate(
             x0=x0_torch,
@@ -823,7 +926,10 @@ class TestAutonomousCrossBackendConsistency:
         # (Increased rtol from 1e-10 and atol from 1e-12 because RK4 just
         # isn't accurate enough)
         np.testing.assert_allclose(
-            result_np["x"], result_torch["x"].cpu().numpy(), rtol=1e-4, atol=1e-7,
+            result_np["x"],
+            result_torch["x"].cpu().numpy(),
+            rtol=1e-4,
+            atol=1e-7,
         )
 
     def test_adaptive_solvers_consistency(self, linear_autonomous):
@@ -840,7 +946,11 @@ class TestAutonomousCrossBackendConsistency:
 
         for method in methods:
             integrator = IntegratorFactory.create(
-                linear_autonomous, backend="numpy", method=method, rtol=1e-10, atol=1e-12,
+                linear_autonomous,
+                backend="numpy",
+                method=method,
+                rtol=1e-10,
+                atol=1e-12,
             )
             result = integrator.integrate(
                 x0=x0,
@@ -874,7 +984,9 @@ class TestAutonomousFactoryMethods:
         integrator = IntegratorFactory.auto(van_der_pol_autonomous)
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 2.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 2.0),
         )
 
         assert result["success"]
@@ -885,7 +997,9 @@ class TestAutonomousFactoryMethods:
         integrator = IntegratorFactory.for_production(van_der_pol_autonomous, rtol=1e-9, atol=1e-11)
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 3.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 3.0),
         )
 
         assert result["success"]
@@ -897,7 +1011,9 @@ class TestAutonomousFactoryMethods:
         integrator = IntegratorFactory.for_julia(van_der_pol_autonomous, algorithm="Tsit5")
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 2.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 2.0),
         )
 
         assert result["success"]
@@ -909,7 +1025,9 @@ class TestAutonomousFactoryMethods:
         integrator = IntegratorFactory.for_simple(van_der_pol_autonomous, backend="numpy", dt=0.01)
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"]
@@ -946,7 +1064,10 @@ class TestAutonomousEdgeCases:
     def test_zero_time_span(self, van_der_pol_autonomous):
         """Test integration with zero time span"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="rk4", dt=0.01,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=0.01,
         )
 
         x0 = np.array([1.0, 0.0])
@@ -986,11 +1107,17 @@ class TestAutonomousEdgeCases:
     def test_very_small_time_step(self, van_der_pol_autonomous):
         """Test integration with very small time step"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="rk4", dt=1e-6, step_mode=StepMode.FIXED,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=1e-6,
+            step_mode=StepMode.FIXED,
         )
 
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1e-3),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 1e-3),
         )
 
         assert result["success"]
@@ -999,14 +1126,19 @@ class TestAutonomousEdgeCases:
     def test_large_state_values(self, linear_autonomous):
         """Test integration with large initial states"""
         integrator = IntegratorFactory.create(
-            linear_autonomous, backend="numpy", method="RK45", rtol=1e-6,
+            linear_autonomous,
+            backend="numpy",
+            method="RK45",
+            rtol=1e-6,
         )
 
         # Large initial state
         x0 = np.array([1e6, -1e6])
 
         result = integrator.integrate(
-            x0=x0, u_func=lambda t, x: None, t_span=(0.0, 0.1),  # Short time to stay finite
+            x0=x0,
+            u_func=lambda t, x: None,
+            t_span=(0.0, 0.1),  # Short time to stay finite
         )
 
         assert result["success"]
@@ -1024,7 +1156,10 @@ class TestAutonomousPerformanceStats:
     def test_statistics_tracking(self, van_der_pol_autonomous):
         """Test that integration statistics are tracked correctly"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="rk4", dt=0.01,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=0.01,
         )
 
         # Reset stats
@@ -1035,7 +1170,9 @@ class TestAutonomousPerformanceStats:
 
         # Integrate
         result = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 1.0),
         )
 
         # Check stats updated
@@ -1048,20 +1185,27 @@ class TestAutonomousPerformanceStats:
     def test_multiple_integrations_accumulate_stats(self, van_der_pol_autonomous):
         """Test that statistics accumulate across multiple integrations"""
         integrator = IntegratorFactory.create(
-            van_der_pol_autonomous, backend="numpy", method="rk4", dt=0.01,
+            van_der_pol_autonomous,
+            backend="numpy",
+            method="rk4",
+            dt=0.01,
         )
 
         integrator.reset_stats()
 
         # First integration
         result1 = integrator.integrate(
-            x0=np.array([1.0, 0.0]), u_func=lambda t, x: None, t_span=(0.0, 0.5),
+            x0=np.array([1.0, 0.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 0.5),
         )
         stats_after_first = integrator.get_stats()
 
         # Second integration
         result2 = integrator.integrate(
-            x0=np.array([0.5, 0.5]), u_func=lambda t, x: None, t_span=(0.0, 0.5),
+            x0=np.array([0.5, 0.5]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 0.5),
         )
         stats_after_second = integrator.get_stats()
 

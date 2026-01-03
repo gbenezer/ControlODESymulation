@@ -85,13 +85,13 @@ from typing import Callable, List, Optional
 import numpy as np
 from typing_extensions import TypedDict
 
+from src.types.core import InputMatrix  # B matrix (nx, nu)
 from src.types.core import (
     ArrayLike,
     ControllabilityMatrix,
     CovarianceMatrix,
     DiffusionMatrix,
     FeedthroughMatrix,
-    InputMatrix,  # B matrix (nx, nu)
     ObservabilityMatrix,
     OutputMatrix,
     StateMatrix,

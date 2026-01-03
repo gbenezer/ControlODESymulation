@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import numpy as np
 import sympy as sp
-from typing import Optional
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 

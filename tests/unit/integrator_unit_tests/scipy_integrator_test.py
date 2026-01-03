@@ -182,7 +182,9 @@ class TestAdaptiveStepSize:
         integrator = ScipyIntegrator(system, method="RK45", rtol=1e-6)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 10.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 10.0),
         )
 
         # For smooth exponential decay, steps should vary
@@ -200,11 +202,15 @@ class TestAdaptiveStepSize:
         tight = ScipyIntegrator(system, method="RK45", rtol=1e-9)
 
         result_loose = loose.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         result_tight = tight.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Tighter tolerance should use more steps/evaluations
@@ -216,7 +222,9 @@ class TestAdaptiveStepSize:
         integrator = ScipyIntegrator(system, method="DOP853", rtol=1e-12, atol=1e-14)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         x_exact = system.analytical_solution(1.0, 1.0)
@@ -241,7 +249,9 @@ class TestSolverMethods:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"] is True
@@ -253,7 +263,9 @@ class TestSolverMethods:
         integrator = ScipyIntegrator(system, method="RK23")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"] is True
@@ -264,7 +276,9 @@ class TestSolverMethods:
         integrator = ScipyIntegrator(system, method="DOP853", rtol=1e-10)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Should be very accurate
@@ -290,7 +304,9 @@ class TestStiffSystems:
         integrator = ScipyIntegrator(system, method="BDF", rtol=1e-6, atol=1e-8)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.1),
         )
 
         assert result["success"] is True
@@ -303,7 +319,9 @@ class TestStiffSystems:
         integrator = ScipyIntegrator(system, method="Radau", rtol=1e-6)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.1),
         )
 
         assert result["success"] is True
@@ -316,7 +334,9 @@ class TestStiffSystems:
         integrator = ScipyIntegrator(system, method="LSODA")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"] is True
@@ -330,7 +350,9 @@ class TestStiffSystems:
         integrator = ScipyIntegrator(system, method="BDF", rtol=1e-5, atol=1e-7)
 
         result = integrator.integrate(
-            x0=np.array([2.0, 0.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 10.0),
+            x0=np.array([2.0, 0.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 10.0),
         )
 
         # Should complete (explicit methods would fail or be extremely slow)
@@ -353,13 +375,17 @@ class TestEfficiencyComparison:
         # Fixed-step RK4 (small dt for accuracy)
         fixed = RK4Integrator(system, dt=0.01, backend="numpy")
         result_fixed = fixed.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 10.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 10.0),
         )
 
         # Adaptive RK45 (similar accuracy)
         adaptive = ScipyIntegrator(system, method="RK45", rtol=1e-6)
         result_adaptive = adaptive.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 10.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 10.0),
         )
 
         # Verify similar accuracy
@@ -384,7 +410,9 @@ class TestEfficiencyComparison:
         # Adaptive BDF (designed for stiff)
         adaptive = ScipyIntegrator(system, method="BDF", rtol=1e-5)
         result_adaptive = adaptive.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.1),
         )
 
         # Fixed-step would need dt ~ 1e-6 or smaller for stability
@@ -410,7 +438,9 @@ class TestAccuracyVerification:
         integrator = ScipyIntegrator(system, method="RK45", rtol=1e-9, atol=1e-11)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 2.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 2.0),
         )
 
         x_exact = system.analytical_solution(1.0, 2.0)
@@ -426,13 +456,17 @@ class TestAccuracyVerification:
         # Loose tolerance
         loose = ScipyIntegrator(system, method="RK45", rtol=1e-3, atol=1e-5)
         result_loose = loose.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Tight tolerance
         tight = ScipyIntegrator(system, method="RK45", rtol=1e-9, atol=1e-11)
         result_tight = tight.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         x_exact = system.analytical_solution(1.0, 1.0)
@@ -459,7 +493,9 @@ class TestIntegrationResult:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # TypedDict is dict at runtime
@@ -477,7 +513,9 @@ class TestIntegrationResult:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"] is True
@@ -488,7 +526,9 @@ class TestIntegrationResult:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # result["x"] should be (T, nx)
@@ -514,7 +554,10 @@ class TestCustomTimeEvaluation:
         t_eval = np.linspace(0, 1, 11)  # 0, 0.1, 0.2, ..., 1.0
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval,
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            t_eval=t_eval,
         )
 
         # Should match requested times
@@ -530,7 +573,10 @@ class TestCustomTimeEvaluation:
         t_eval = np.linspace(0, 1, 1001)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval,
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            t_eval=t_eval,
         )
 
         assert result["success"] is True
@@ -554,7 +600,9 @@ class TestControlIntegration:
         u_const = np.array([0.5])
 
         result = integrator.integrate(
-            x0=np.array([0.0]), u_func=lambda t, x: u_const, t_span=(0.0, 5.0),
+            x0=np.array([0.0]),
+            u_func=lambda t, x: u_const,
+            t_span=(0.0, 5.0),
         )
 
         assert result["success"] is True
@@ -603,7 +651,9 @@ class TestAutonomousSystems:
 
         # u_func returns None for autonomous
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: None, t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: None,
+            t_span=(0.0, 1.0),
         )
 
         assert result["success"] is True
@@ -786,7 +836,10 @@ class TestSingleStep:
 
         # Integrate over same interval
         result = integrator.integrate(
-            x0=x0, u_func=lambda t, x: u, t_span=(0.0, 1.0), t_eval=np.array([0.0, 1.0]),
+            x0=x0,
+            u_func=lambda t, x: u,
+            t_span=(0.0, 1.0),
+            t_eval=np.array([0.0, 1.0]),
         )
 
         # Should be similar (not exact due to adaptive vs fixed)
@@ -808,7 +861,9 @@ class TestEdgeCases:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.0),
         )
 
         # Should return just initial state
@@ -821,7 +876,9 @@ class TestEdgeCases:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1e-6),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1e-6),
         )
 
         assert result["success"] is True
@@ -832,7 +889,9 @@ class TestEdgeCases:
         integrator = ScipyIntegrator(system, method="RK45", rtol=1e-6)
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 100.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 100.0),
         )
 
         assert result["success"] is True
@@ -891,7 +950,9 @@ class TestTypedDictResults:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # TypedDict is dict at runtime
@@ -904,7 +965,9 @@ class TestTypedDictResults:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Required fields
@@ -930,7 +993,9 @@ class TestTypedDictResults:
         integrator = ScipyIntegrator(system, method="BDF")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.1),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.1),
         )
 
         # Optional fields may or may not be present
@@ -947,7 +1012,9 @@ class TestTypedDictResults:
         integrator = ScipyIntegrator(system, method="RK45")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Test dict methods

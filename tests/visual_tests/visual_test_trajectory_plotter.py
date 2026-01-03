@@ -189,7 +189,11 @@ def test_6_themes_default(output_dir):
     x = np.column_stack([np.sin(t), np.cos(t)])
 
     fig = plotter.plot_trajectory(
-        t, x, state_names=["sin(t)", "cos(t)"], title="Test 6: Default Theme", theme="default",
+        t,
+        x,
+        state_names=["sin(t)", "cos(t)"],
+        title="Test 6: Default Theme",
+        theme="default",
     )
 
     fig.write_html(output_dir / "06_theme_default.html")
@@ -226,7 +230,11 @@ def test_8_themes_dark(output_dir):
     x = np.column_stack([np.sin(t), np.cos(t)])
 
     fig = plotter.plot_trajectory(
-        t, x, state_names=["sin(t)", "cos(t)"], title="Test 8: Dark Theme", theme="dark",
+        t,
+        x,
+        state_names=["sin(t)", "cos(t)"],
+        title="Test 8: Dark Theme",
+        theme="dark",
     )
 
     fig.write_html(output_dir / "08_theme_dark.html")
@@ -304,7 +312,10 @@ def test_11_large_state_space(output_dir):
     state_names = [f"x_{i+1}" for i in range(8)]
 
     fig = plotter.plot_trajectory(
-        t, x, state_names=state_names, title="Test 11: Large State Space (8 states)",
+        t,
+        x,
+        state_names=state_names,
+        title="Test 11: Large State Space (8 states)",
     )
 
     fig.write_html(output_dir / "11_large_state_space.html")
@@ -354,7 +365,10 @@ def test_13_step_response(output_dir):
     x_step = 1 - np.exp(-t / tau)
 
     fig = plotter.plot_trajectory(
-        t, x_step[:, None], state_names=["Output"], title="Test 13: Step Response (τ=1.0s)",
+        t,
+        x_step[:, None],
+        state_names=["Output"],
+        title="Test 13: Step Response (τ=1.0s)",
     )
 
     fig.write_html(output_dir / "13_step_response.html")
@@ -384,7 +398,10 @@ def test_14_phase_plane_data(output_dir):
     x = np.column_stack([x1, x2])
 
     fig = plotter.plot_trajectory(
-        t, x, state_names=["Position", "Velocity"], title="Test 14: Van der Pol Oscillator (μ=1.0)",
+        t,
+        x,
+        state_names=["Position", "Velocity"],
+        title="Test 14: Van der Pol Oscillator (μ=1.0)",
     )
 
     fig.write_html(output_dir / "14_phase_plane_data.html")

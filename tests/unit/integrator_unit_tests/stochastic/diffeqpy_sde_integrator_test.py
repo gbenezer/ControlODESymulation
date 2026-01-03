@@ -67,7 +67,8 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
 # ============================================================================
 
 pytestmark = pytest.mark.skipif(
-    not DIFFEQPY_AVAILABLE, reason="diffeqpy not installed. Install: pip install diffeqpy",
+    not DIFFEQPY_AVAILABLE,
+    reason="diffeqpy not installed. Install: pip install diffeqpy",
 )
 
 
@@ -772,7 +773,9 @@ class TestAlgorithmSelection:
     def test_recommend_algorithm_additive(self):
         """Test algorithm recommendation for additive noise."""
         alg = DiffEqPySDEIntegrator.recommend_algorithm(
-            noise_type="additive", stiffness="none", accuracy="high",
+            noise_type="additive",
+            stiffness="none",
+            accuracy="high",
         )
 
         assert alg == "SRA3"
@@ -780,7 +783,9 @@ class TestAlgorithmSelection:
     def test_recommend_algorithm_diagonal(self):
         """Test algorithm recommendation for diagonal noise."""
         alg = DiffEqPySDEIntegrator.recommend_algorithm(
-            noise_type="diagonal", stiffness="none", accuracy="high",
+            noise_type="diagonal",
+            stiffness="none",
+            accuracy="high",
         )
 
         # Returns SRIW1 but it won't work via diffeqpy
@@ -790,7 +795,9 @@ class TestAlgorithmSelection:
     def test_recommend_algorithm_stiff(self):
         """Test algorithm recommendation for stiff systems."""
         alg = DiffEqPySDEIntegrator.recommend_algorithm(
-            noise_type="any", stiffness="severe", accuracy="medium",
+            noise_type="any",
+            stiffness="severe",
+            accuracy="medium",
         )
 
         assert alg == "ImplicitEM"
@@ -798,7 +805,9 @@ class TestAlgorithmSelection:
     def test_recommend_algorithm_general_medium(self):
         """Test recommendation for general noise, medium accuracy."""
         alg = DiffEqPySDEIntegrator.recommend_algorithm(
-            noise_type="general", stiffness="none", accuracy="medium",
+            noise_type="general",
+            stiffness="none",
+            accuracy="medium",
         )
 
         assert alg == "LambaEM"

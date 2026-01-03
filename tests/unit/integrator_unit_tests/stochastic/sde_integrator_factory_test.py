@@ -130,7 +130,11 @@ class MockSDESystem(StochasticDynamicalSystem):
         """Required abstract method - mock implementation."""
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
+        self,
+        x: StateVector,
+        u: ControlVector,
+        t: ScalarLike = 0.0,
+        backend: Backend = "numpy",
     ) -> StateVector:
         """Mock drift function: f(x, u) = -x + u
 
@@ -205,7 +209,10 @@ class MockSDESystem(StochasticDynamicalSystem):
         return self._sde_type
 
     def get_drift_matrix(
-        self, x: StateVector, u: ControlVector, backend: Backend = "numpy",
+        self,
+        x: StateVector,
+        u: ControlVector,
+        backend: Backend = "numpy",
     ) -> StateVector:
         """Alias for drift() - some integrators may use this name."""
         return self.drift(x, u, backend)
@@ -222,7 +229,11 @@ class MockAutonomousSDESystem(MockSDESystem):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
+        self,
+        x: StateVector,
+        u: ControlVector,
+        t: ScalarLike = 0.0,
+        backend: Backend = "numpy",
     ) -> StateVector:
         """Autonomous drift: f(x) = -x
 
@@ -242,7 +253,11 @@ class MockPureDiffusionSystem(MockSDESystem):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
+        self,
+        x: StateVector,
+        u: ControlVector,
+        t: ScalarLike = 0.0,
+        backend: Backend = "numpy",
     ) -> StateVector:
         """Zero drift
 
@@ -415,7 +430,9 @@ class TestFactoryBasics:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="SRIW1",
+                controlled_sde_system,
+                backend="numpy",
+                method="SRIW1",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -490,7 +507,9 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="EM",
+                controlled_sde_system,
+                backend="numpy",
+                method="EM",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -500,7 +519,9 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="torch", method="euler",
+                controlled_sde_system,
+                backend="torch",
+                method="euler",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -510,7 +531,9 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="jax", method="Euler",
+                controlled_sde_system,
+                backend="jax",
+                method="Euler",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -584,7 +607,8 @@ class TestUseCaseHelpers:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.for_monte_carlo(
-                additive_noise_system, noise_type="additive",
+                additive_noise_system,
+                noise_type="additive",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -792,7 +816,9 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", dt=0.001,
+                controlled_sde_system,
+                backend="numpy",
+                dt=0.001,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -807,7 +833,9 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", seed=12345,
+                controlled_sde_system,
+                backend="numpy",
+                seed=12345,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -822,7 +850,9 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", convergence_type=ConvergenceType.WEAK,
+                controlled_sde_system,
+                backend="numpy",
+                convergence_type=ConvergenceType.WEAK,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -837,7 +867,11 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", rtol=1e-6, atol=1e-8, custom_option="value",
+                controlled_sde_system,
+                backend="numpy",
+                rtol=1e-6,
+                atol=1e-8,
+                custom_option="value",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -864,7 +898,11 @@ class TestEndToEndIntegration:
         ):
             # Create via factory
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="EM", dt=0.01, seed=42,
+                controlled_sde_system,
+                backend="numpy",
+                method="EM",
+                dt=0.01,
+                seed=42,
             )
 
             # Set up control
@@ -919,7 +957,10 @@ class TestEndToEndIntegration:
         ):
             # Create via factory
             integrator = SDEIntegratorFactory.create(
-                pure_diffusion_system, backend="numpy", dt=0.01, seed=42,
+                pure_diffusion_system,
+                backend="numpy",
+                dt=0.01,
+                seed=42,
             )
 
             # No control

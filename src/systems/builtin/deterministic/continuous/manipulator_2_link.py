@@ -18,6 +18,7 @@ import sympy as sp
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
+
 class Manipulator2Link(ContinuousSymbolicSystem):
     """
     Two-link planar robotic manipulator - second-order formulation.
@@ -287,20 +288,20 @@ class Manipulator2Link(ContinuousSymbolicSystem):
         # method to add equilibria to the system automatically after initialization
         # adds the hanging and inverted equilibria (I didn't care to calculate the torque
         # for the horizontal one)
-        
+
         self.add_equilibrium(
-            'stable hanging',
+            "stable hanging",
             x_eq=np.array([np.pi, 0.0, 0.0, 0.0]),
             u_eq=np.array([0.0, 0.0]),
             verify=True,
-            stability='stable'
-            )
+            stability="stable",
+        )
 
         self.add_equilibrium(
-            'unstable upright',
-            x_eq=np.array([np.pi/2, 0.0, 0.0, 0.0]),
+            "unstable upright",
+            x_eq=np.array([np.pi / 2, 0.0, 0.0, 0.0]),
             u_eq=np.array([0.0, 0.0]),
-            stability='unstable',
-            )
-        
+            stability="unstable",
+        )
+
         self.set_default_equilibrium(name="unstable upright")

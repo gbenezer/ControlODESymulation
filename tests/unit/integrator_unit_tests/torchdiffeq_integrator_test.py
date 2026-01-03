@@ -110,7 +110,10 @@ class MockExponentialSystem:
         return dx
 
     def analytical_solution(
-        self, x0: ScalarLike, t: ScalarLike, u_const: ScalarLike = 0.0,
+        self,
+        x0: ScalarLike,
+        t: ScalarLike,
+        u_const: ScalarLike = 0.0,
     ) -> ScalarLike:
         """
         Analytical solution.
@@ -184,7 +187,10 @@ class MockAutonomousSystem:
         self.nu = 0
 
     def __call__(
-        self, x: StateVector, u: Optional[ControlVector], backend: str = "torch",
+        self,
+        x: StateVector,
+        u: Optional[ControlVector],
+        backend: str = "torch",
     ) -> StateVector:
         """Evaluate autonomous dynamics."""
         x_torch = torch.as_tensor(x)
@@ -348,7 +354,11 @@ class TestSolverMethods:
             dt = 0.01
 
         integrator = TorchDiffEqIntegrator(
-            system, dt=dt, step_mode=step_mode, backend="torch", method=method,
+            system,
+            dt=dt,
+            step_mode=step_mode,
+            backend="torch",
+            method=method,
         )
 
         x0 = torch.tensor([1.0])
@@ -403,7 +413,11 @@ class TestStepModes:
     def test_fixed_step_mode(self, system):
         """Test fixed step mode."""
         integrator = TorchDiffEqIntegrator(
-            system, dt=0.05, step_mode=StepMode.FIXED, backend="torch", method="rk4",
+            system,
+            dt=0.05,
+            step_mode=StepMode.FIXED,
+            backend="torch",
+            method="rk4",
         )
 
         x0 = torch.tensor([1.0])
@@ -498,7 +512,11 @@ class TestMultiDimensional:
     @pytest.fixture
     def integrator(self, system):
         return TorchDiffEqIntegrator(
-            system, dt=0.01, backend="torch", method="dopri5", adjoint=False,
+            system,
+            dt=0.01,
+            backend="torch",
+            method="dopri5",
+            adjoint=False,
         )
 
     def test_2d_system_integration(self, integrator, system):
@@ -581,7 +599,11 @@ class TestGradientComputation:
     @pytest.fixture
     def integrator(self, system):
         return TorchDiffEqIntegrator(
-            system, dt=0.01, backend="torch", method="dopri5", adjoint=False,
+            system,
+            dt=0.01,
+            backend="torch",
+            method="dopri5",
+            adjoint=False,
         )
 
     def test_gradient_wrt_initial_condition(self, integrator):

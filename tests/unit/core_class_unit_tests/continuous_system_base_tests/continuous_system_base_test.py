@@ -62,7 +62,12 @@ class SimpleContinuousSystem(ContinuousSystemBase):
         return self.A @ x + self.B @ u  # Explicit and clear
 
     def integrate(
-        self, x0: StateVector, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs,
+        self,
+        x0: StateVector,
+        u=None,
+        t_span=(0.0, 1.0),
+        method="RK45",
+        **kwargs,
     ) -> IntegrationResult:
         """Simple Euler integration returning IntegrationResult."""
         t_start, t_end = t_span

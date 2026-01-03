@@ -571,9 +571,9 @@ class TestPureDiffusionSystems:
         # Test 1: Mean should be close to 0
         empirical_mean = final_states.mean()
         mean_tolerance = 0.20
-        assert abs(empirical_mean) < mean_tolerance, (
-            f"Mean {empirical_mean:.4f} should be near 0 (99.9% CI: ±{mean_tolerance:.2f})"
-        )
+        assert (
+            abs(empirical_mean) < mean_tolerance
+        ), f"Mean {empirical_mean:.4f} should be near 0 (99.9% CI: ±{mean_tolerance:.2f})"
 
         # Test 2: Variance should be close to σ²t = 0.25
         empirical_var = final_states.var()

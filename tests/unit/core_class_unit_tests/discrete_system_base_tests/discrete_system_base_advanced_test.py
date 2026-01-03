@@ -783,7 +783,9 @@ class TestCheckpointing(unittest.TestCase):
 
         # Final states should match (TIME-MAJOR)
         np.testing.assert_allclose(
-            result2["states"][-1, :], result_full["states"][-1, :], rtol=1e-10,
+            result2["states"][-1, :],
+            result_full["states"][-1, :],
+            rtol=1e-10,
         )
 
     def test_serialize_system_state(self):
@@ -804,7 +806,9 @@ class TestCheckpointing(unittest.TestCase):
 
             # Recreate system
             restored_system = ParametricDiscrete(
-                alpha=loaded_dict["alpha"], beta=loaded_dict["beta"], dt=loaded_dict["dt"],
+                alpha=loaded_dict["alpha"],
+                beta=loaded_dict["beta"],
+                dt=loaded_dict["dt"],
             )
 
             self.assertEqual(restored_system.alpha, system.alpha)

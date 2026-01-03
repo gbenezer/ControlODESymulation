@@ -695,7 +695,10 @@ class TestRealisticUsagePatterns:
         """Test Kalman filter type usage."""
 
         def kalman_update(
-            x_pred: StateVector, y: OutputVector, C: OutputMatrix, L: GainMatrix,
+            x_pred: StateVector,
+            y: OutputVector,
+            C: OutputMatrix,
+            L: GainMatrix,
         ) -> StateVector:
             innovation = y - C @ x_pred
             return x_pred + L @ innovation

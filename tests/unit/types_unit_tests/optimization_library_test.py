@@ -85,7 +85,10 @@ class TestScipyOptimizeIntegration:
 
         # Optimize
         scipy_result = opt.minimize(
-            rosenbrock, x0=np.array([0.0, 0.0]), method="BFGS", jac=rosenbrock_grad,
+            rosenbrock,
+            x0=np.array([0.0, 0.0]),
+            method="BFGS",
+            jac=rosenbrock_grad,
         )
 
         # Convert to our type
@@ -122,7 +125,10 @@ class TestScipyOptimizeIntegration:
 
         # Optimize
         scipy_result = opt.minimize(
-            objective, x0=np.array([1.0, 1.0]), method="SLSQP", constraints=constraint,
+            objective,
+            x0=np.array([1.0, 1.0]),
+            method="SLSQP",
+            constraints=constraint,
         )
 
         # Convert to our type
@@ -161,7 +167,10 @@ class TestScipyOptimizeIntegration:
 
         # Optimize
         scipy_result = opt.minimize(
-            objective, x0=np.array([0.5, 1.0]), method="L-BFGS-B", bounds=scipy_bounds,
+            objective,
+            x0=np.array([0.5, 1.0]),
+            method="L-BFGS-B",
+            bounds=scipy_bounds,
         )
 
         # Convert to our type
@@ -506,7 +515,9 @@ class TestCasADiIntegration:
         # Check initial conditions are enforced
         # Note: Due to numerical tolerances, we check they're close to intended values
         assert np.isclose(theta_opt[0], theta_0, atol=0.1) or np.isclose(
-            theta_opt[0], 0.0, atol=0.1,
+            theta_opt[0],
+            0.0,
+            atol=0.1,
         )
         # Final state should be closer to upright than hanging
         assert np.abs(theta_opt[-1]) < np.abs(theta_opt[-1] - np.pi)

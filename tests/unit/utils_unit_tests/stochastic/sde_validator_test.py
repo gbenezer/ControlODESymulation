@@ -232,7 +232,10 @@ class TestValidationResult:
     def test_valid_result_creation(self):
         """Test creating valid ValidationResult."""
         result = SymbolicValidationResult(
-            is_valid=True, errors=[], warnings=[], info={"nx": 2, "nw": 1},
+            is_valid=True,
+            errors=[],
+            warnings=[],
+            info={"nx": 2, "nw": 1},
         )
 
         assert result.is_valid
@@ -256,7 +259,10 @@ class TestValidationResult:
     def test_has_errors(self):
         """Test checking for errors."""
         result = SymbolicValidationResult(
-            is_valid=False, errors=["Error 1", "Error 2"], warnings=[], info={},
+            is_valid=False,
+            errors=["Error 1", "Error 2"],
+            warnings=[],
+            info={},
         )
 
         assert not result.is_valid

@@ -17,6 +17,7 @@ import sympy as sp
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
+
 class VanDerPolOscillator(ContinuousSymbolicSystem):
     """
     Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle.
@@ -179,7 +180,8 @@ class VanDerPolOscillator(ContinuousSymbolicSystem):
         # method to add equilibria to the system automatically after initialization
         # origin is always added regardless, so nothing needs to be done
         pass
-    
+
+
 class ControlledVanDerPolOscillator(ContinuousSymbolicSystem):
     """
     Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle and forcing term

@@ -130,7 +130,10 @@ class TestValidationResult:
     def test_invalid_result_creation(self):
         """Test creating invalid ValidationResult."""
         result = ValidationResult(
-            valid=False, errors=["Dimension mismatch"], warnings=["Unusual order"], info={},
+            valid=False,
+            errors=["Dimension mismatch"],
+            warnings=["Unusual order"],
+            info={},
         )
 
         assert not result["valid"]

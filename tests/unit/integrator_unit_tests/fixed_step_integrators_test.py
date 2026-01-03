@@ -182,7 +182,9 @@ class TestExplicitEuler:
         integrator = ExplicitEulerIntegrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 0.5),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 0.5),
         )
 
         # Verify required fields exist (dict access)
@@ -410,7 +412,9 @@ class TestIntegrationWithControl:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Should match uncontrolled dynamics
@@ -459,7 +463,10 @@ class TestCustomTimeEvaluation:
         t_eval = np.linspace(0, 1, 101)  # Uniform grid
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval,
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            t_eval=t_eval,
         )
 
         # Should match requested points
@@ -475,7 +482,10 @@ class TestCustomTimeEvaluation:
         t_eval = np.concatenate([np.linspace(0, 0.1, 50), np.linspace(0.1, 1.0, 20)])
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0), t_eval=t_eval,
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
+            t_eval=t_eval,
         )
 
         assert result["success"] is True
@@ -608,7 +618,9 @@ class TestPerformanceStatistics:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Verify result has required fields
@@ -632,7 +644,9 @@ class TestTypedDictResults:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # TypedDict is dict at runtime
@@ -645,7 +659,9 @@ class TestTypedDictResults:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Required fields from IntegrationResult TypedDict
@@ -669,7 +685,9 @@ class TestTypedDictResults:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Test dict methods
@@ -684,7 +702,9 @@ class TestTypedDictResults:
         integrator = RK4Integrator(system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t, x: np.zeros(1), t_span=(0.0, 1.0),
+            x0=np.array([1.0]),
+            u_func=lambda t, x: np.zeros(1),
+            t_span=(0.0, 1.0),
         )
 
         # Unpack specific fields

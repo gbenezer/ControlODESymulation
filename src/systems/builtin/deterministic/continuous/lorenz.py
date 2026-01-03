@@ -168,7 +168,10 @@ class Lorenz(ContinuousSymbolicSystem):
     """
 
     def define_system(
-        self, sigma_val: float = 10.0, rho_val: float = 28.0, beta_val: float = 8.0 / 3.0
+        self,
+        sigma_val: float = 10.0,
+        rho_val: float = 28.0,
+        beta_val: float = 8.0 / 3.0,
     ):
         x, y, z = sp.symbols("x y z", real=True)
         sigma, rho, beta = sp.symbols("sigma rho beta", real=True, positive=True)
@@ -351,7 +354,10 @@ class ControlledLorenz(ContinuousSymbolicSystem):
     """
 
     def define_system(
-        self, sigma_val: float = 10.0, rho_val: float = 28.0, beta_val: float = 8.0 / 3.0
+        self,
+        sigma_val: float = 10.0,
+        rho_val: float = 28.0,
+        beta_val: float = 8.0 / 3.0,
     ):
         x, y, z = sp.symbols("x y z", real=True)
         u = sp.symbols("u", real=True)

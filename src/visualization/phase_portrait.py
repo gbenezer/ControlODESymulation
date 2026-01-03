@@ -929,7 +929,11 @@ class PhasePortraitPlotter:
             )
 
     def _add_direction_arrows_2d(
-        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5,
+        self,
+        fig: go.Figure,
+        x_traj: np.ndarray,
+        color: str,
+        n_arrows: int = 5,
     ) -> None:
         """
         Add direction arrows to 2D trajectory.

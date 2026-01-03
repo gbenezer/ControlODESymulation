@@ -349,7 +349,9 @@ class TestIntegrationResult:
     def test_result_field_types(self, integrator):
         """Test result field types."""
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t: np.array([0.0]), t_span=(0, 0.5),
+            x0=np.array([1.0]),
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0.5),
         )
 
         assert isinstance(result["t"], np.ndarray)
@@ -423,7 +425,11 @@ class TestInitializationAndValidation:
     def test_initialization_with_optional_params(self, mock_system):
         """Test initialization with optional parameters."""
         integrator = ConcreteTestIntegrator(
-            mock_system, dt=0.01, backend="numpy", rtol=1e-8, atol=1e-10,
+            mock_system,
+            dt=0.01,
+            backend="numpy",
+            rtol=1e-8,
+            atol=1e-10,
         )
 
         assert integrator.rtol == 1e-8
@@ -607,7 +613,9 @@ class TestBackendConsistency:
         integrator = ConcreteTestIntegrator(mock_system, dt=0.01, backend="numpy")
 
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t: np.array([0.0]), t_span=(0, 0.5),
+            x0=np.array([1.0]),
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0.5),
         )
 
         assert result["success"]
@@ -621,7 +629,9 @@ class TestBackendConsistency:
 
         # Note: Our mock integrator still uses NumPy internally
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t: np.array([0.0]), t_span=(0, 0.5),
+            x0=np.array([1.0]),
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0.5),
         )
 
         assert result["success"]
@@ -634,7 +644,9 @@ class TestBackendConsistency:
 
         # Note: Our mock integrator still uses NumPy internally
         result = integrator.integrate(
-            x0=np.array([1.0]), u_func=lambda t: np.array([0.0]), t_span=(0, 0.5),
+            x0=np.array([1.0]),
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0.5),
         )
 
         assert result["success"]
@@ -662,7 +674,9 @@ class TestArrayDimensionValidation:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 1),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 1),
         )
 
         assert result["success"]
@@ -673,7 +687,9 @@ class TestArrayDimensionValidation:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 1),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 1),
         )
 
         assert result["x"].shape[0] == len(result["t"])
@@ -693,7 +709,9 @@ class TestControlFunctionHandling:
         u_const = np.array([0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=np.array([0.0, 0.0]), u_func=lambda t: u_const, t_span=(0, 0.5),
+            x0=np.array([0.0, 0.0]),
+            u_func=lambda t: u_const,
+            t_span=(0, 0.5),
         )
 
         assert result["success"]
@@ -705,7 +723,9 @@ class TestControlFunctionHandling:
             return np.array([np.sin(t)])
 
         result = integrator_with_equilibria.integrate(
-            x0=np.array([0.0, 0.0]), u_func=u_func, t_span=(0, 1),
+            x0=np.array([0.0, 0.0]),
+            u_func=u_func,
+            t_span=(0, 1),
         )
 
         assert result["success"]
@@ -713,7 +733,9 @@ class TestControlFunctionHandling:
     def test_none_control_autonomous(self, integrator_autonomous):
         """Test that None control works for autonomous systems."""
         result = integrator_autonomous.integrate(
-            x0=np.array([1.0, 0.5]), u_func=None, t_span=(0, 1),
+            x0=np.array([1.0, 0.5]),
+            u_func=None,
+            t_span=(0, 1),
         )
 
         assert result["success"]
@@ -727,7 +749,9 @@ class TestControlFunctionHandling:
             return np.array([0.0])
 
         result = integrator_with_equilibria.integrate(
-            x0=np.array([0.0, 0.0]), u_func=u_func, t_span=(0, 1),
+            x0=np.array([0.0, 0.0]),
+            u_func=u_func,
+            t_span=(0, 1),
         )
 
         assert result["success"]
@@ -747,7 +771,9 @@ class TestTimeSpanValidation:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(1, 0),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(1, 0),
         )
 
         assert result is not None
@@ -757,7 +783,9 @@ class TestTimeSpanValidation:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 0),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0),
         )
 
         assert result["success"]
@@ -769,7 +797,9 @@ class TestTimeSpanValidation:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 0.001),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 0.001),
         )
 
         assert result["success"]
@@ -799,7 +829,9 @@ class TestIntegrationTermination:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 1),
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 1),
         )
 
         assert result["success"]
@@ -819,7 +851,10 @@ class TestDenseOutput:
         x0 = np.array([1.0, 0.5])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 1), dense_output=True,
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 1),
+            dense_output=True,
         )
 
         assert result["success"]
@@ -830,7 +865,10 @@ class TestDenseOutput:
         t_eval = np.array([0, 0.5, 1.0])
 
         result = integrator_with_equilibria.integrate(
-            x0=x0, u_func=lambda t: np.array([0.0]), t_span=(0, 1), t_eval=t_eval,
+            x0=x0,
+            u_func=lambda t: np.array([0.0]),
+            t_span=(0, 1),
+            t_eval=t_eval,
         )
 
         assert result["success"]
@@ -899,7 +937,9 @@ class TestErrorHandling:
 
             try:
                 result = integrator_with_equilibria.integrate(
-                    x0=x0_nan, u_func=lambda t: np.array([0.0]), t_span=(0, 0.1),
+                    x0=x0_nan,
+                    u_func=lambda t: np.array([0.0]),
+                    t_span=(0, 0.1),
                 )
                 assert np.any(np.isnan(result["x"]))
             except (ValueError, RuntimeError):
@@ -914,7 +954,9 @@ class TestErrorHandling:
 
             try:
                 result = integrator_with_equilibria.integrate(
-                    x0=x0_inf, u_func=lambda t: np.array([0.0]), t_span=(0, 0.1),
+                    x0=x0_inf,
+                    u_func=lambda t: np.array([0.0]),
+                    t_span=(0, 0.1),
                 )
                 assert np.any(np.isinf(result["x"]))
             except (ValueError, RuntimeError):
@@ -924,7 +966,9 @@ class TestErrorHandling:
         """Test handling of None initial condition."""
         with pytest.raises((ValueError, TypeError, AttributeError)):
             integrator_with_equilibria.integrate(
-                x0=None, u_func=lambda t: np.array([0.0]), t_span=(0, 0.1),
+                x0=None,
+                u_func=lambda t: np.array([0.0]),
+                t_span=(0, 0.1),
             )
 
 

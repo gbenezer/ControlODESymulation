@@ -110,7 +110,9 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
         }
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """Already linear, return (Ad, Bd) tuple."""
         return (self.Ad, self.Bd)

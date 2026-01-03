@@ -399,7 +399,8 @@ class TestBackendConversion:
         assert np.allclose(x_numpy, np.array([1.0, 2.0]))
 
     @pytest.mark.skipif(
-        not (torch_available and jax_available), reason="Both PyTorch and JAX required",
+        not (torch_available and jax_available),
+        reason="Both PyTorch and JAX required",
     )
     def test_torch_to_jax(self):
         """Test PyTorch to JAX conversion (via NumPy)"""
@@ -879,7 +880,8 @@ class TestIntegration:
             back_to_numpy = mgr.convert(converted, "numpy")
 
             assert np.allclose(
-                original, back_to_numpy,
+                original,
+                back_to_numpy,
             ), f"Values changed during {backend} round-trip"
 
     def test_type_safe_workflow(self):
@@ -1126,7 +1128,8 @@ class TestEnsureType:
         assert x_ensured.dtype == torch.float64  # Default for non-numpy input
 
     @pytest.mark.skipif(
-        not torch_available or not torch.cuda.is_available(), reason="CUDA not available",
+        not torch_available or not torch.cuda.is_available(),
+        reason="CUDA not available",
     )
     def test_ensure_type_torch_device_placement(self):
         """Test that tensors are moved to preferred device"""
@@ -1143,7 +1146,8 @@ class TestEnsureType:
         assert torch.allclose(x_ensured.cpu(), x_cpu)
 
     @pytest.mark.skipif(
-        not torch_available or not torch.cuda.is_available(), reason="CUDA not available",
+        not torch_available or not torch.cuda.is_available(),
+        reason="CUDA not available",
     )
     def test_ensure_type_torch_already_on_correct_device(self):
         """Test that tensors already on correct device are returned as-is"""

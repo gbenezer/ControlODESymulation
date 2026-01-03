@@ -69,7 +69,7 @@ class LinearSystem(ContinuousSymbolicSystem):
         self._f_sym = sp.Matrix([[-a_sym * x + b_sym * u]])
         self.parameters = {a_sym: a, b_sym: b}
         self.order = 1
-        
+
     def setup_equilibria(self):
         # need to check this system, but the origin is probably
         # an equilibrium
@@ -107,7 +107,7 @@ class AutonomousLinearSystem(ContinuousSymbolicSystem):
         self._f_sym = sp.Matrix([[-a_sym * x]])
         self.parameters = {a_sym: a}
         self.order = 1
-        
+
     def setup_equilibria(self):
         # need to check this system, but the origin is probably
         # an equilibrium
@@ -181,7 +181,7 @@ class LinearSystem2D(ContinuousSymbolicSystem):
             b2_sym: b2,
         }
         self.order = 1
-        
+
     def setup_equilibria(self):
         # need to check this system, but the origin is probably
         # an equilibrium

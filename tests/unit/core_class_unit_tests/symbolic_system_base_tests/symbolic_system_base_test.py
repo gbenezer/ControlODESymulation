@@ -747,7 +747,12 @@ class TestEquilibriumManagement:
         u_eq = np.array([0.0])
 
         system.add_equilibrium(
-            "stable_point", x_eq, u_eq, verify=False, stability="stable", notes="Test equilibrium",
+            "stable_point",
+            x_eq,
+            u_eq,
+            verify=False,
+            stability="stable",
+            notes="Test equilibrium",
         )
 
         metadata = system.get_equilibrium_metadata("stable_point")

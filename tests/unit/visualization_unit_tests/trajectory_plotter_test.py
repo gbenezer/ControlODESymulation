@@ -259,7 +259,11 @@ class TestPlotStateAndControl:
         control_names = ["Torque"]
 
         fig = plotter.plot_state_and_control(
-            t, x, u, state_names=state_names, control_names=control_names,
+            t,
+            x,
+            u,
+            state_names=state_names,
+            control_names=control_names,
         )
 
         assert isinstance(fig, go.Figure)
@@ -482,11 +486,20 @@ class TestIntegration:
 
         # Create plots
         fig1 = plotter.plot_trajectory(
-            t, x, state_names=["sin", "cos"], color_scheme="colorblind_safe", theme="publication",
+            t,
+            x,
+            state_names=["sin", "cos"],
+            color_scheme="colorblind_safe",
+            theme="publication",
         )
 
         fig2 = plotter.plot_state_and_control(
-            t, x, u, state_names=["sin", "cos"], control_names=["noise"], theme="publication",
+            t,
+            x,
+            u,
+            state_names=["sin", "cos"],
+            control_names=["noise"],
+            theme="publication",
         )
 
         # Both should be valid figures

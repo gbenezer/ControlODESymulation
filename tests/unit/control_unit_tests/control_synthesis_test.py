@@ -207,7 +207,11 @@ class TestUnifiedLQRMethod(SynthesisTestCase):
         synthesis = ControlSynthesis(backend="numpy")
 
         result = synthesis.design_lqr(
-            self.A_stable, self.B_stable, self.Q, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.Q,
+            self.R,
+            system_type="continuous",
         )
 
         self.assert_lqr_result_valid(result, nx=2, nu=1)
@@ -238,13 +242,23 @@ class TestUnifiedLQRMethod(SynthesisTestCase):
 
         # Continuous
         result_c = synthesis.design_lqr(
-            self.A_stable, self.B_stable, self.Q, self.R, N=N, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.Q,
+            self.R,
+            N=N,
+            system_type="continuous",
         )
         self.assert_lqr_result_valid(result_c, nx=2, nu=1)
 
         # Discrete
         result_d = synthesis.design_lqr(
-            self.Ad, self.Bd, self.Q, self.R, N=N, system_type="discrete",
+            self.Ad,
+            self.Bd,
+            self.Q,
+            self.R,
+            N=N,
+            system_type="discrete",
         )
         self.assert_lqr_result_valid(result_d, nx=2, nu=1)
 
@@ -260,7 +274,11 @@ class TestUnifiedLQRMethod(SynthesisTestCase):
 
             synthesis = ControlSynthesis(backend="torch")
             synthesis.design_lqr(
-                self.A_stable, self.B_stable, self.Q, self.R, system_type="continuous",
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type="continuous",
             )
 
             # Verify backend was passed
@@ -273,7 +291,11 @@ class TestUnifiedLQRMethod(SynthesisTestCase):
 
         with self.assertRaises(ValueError):
             synthesis.design_lqr(
-                self.A_stable, self.B_stable, self.Q, self.R, system_type="invalid",
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type="invalid",
             )
 
 
@@ -290,7 +312,11 @@ class TestKalmanMethod(SynthesisTestCase):
         synthesis = ControlSynthesis(backend="numpy")
 
         result = synthesis.design_kalman(
-            self.Ad, self.C, self.Q_process, self.R_meas, system_type="discrete",
+            self.Ad,
+            self.C,
+            self.Q_process,
+            self.R_meas,
+            system_type="discrete",
         )
 
         self.assert_kalman_result_valid(result, nx=2, ny=1)
@@ -300,7 +326,11 @@ class TestKalmanMethod(SynthesisTestCase):
         synthesis = ControlSynthesis(backend="numpy")
 
         result = synthesis.design_kalman(
-            self.A_stable, self.C_stable, self.Q_process, self.R_meas, system_type="continuous",
+            self.A_stable,
+            self.C_stable,
+            self.Q_process,
+            self.R_meas,
+            system_type="continuous",
         )
 
         self.assert_kalman_result_valid(result, nx=2, ny=1)
@@ -319,7 +349,11 @@ class TestKalmanMethod(SynthesisTestCase):
         synthesis = ControlSynthesis(backend="numpy")
 
         result = synthesis.design_kalman(
-            self.Ad, self.C, self.Q_process, self.R_meas, system_type="discrete",
+            self.Ad,
+            self.C,
+            self.Q_process,
+            self.R_meas,
+            system_type="discrete",
         )
 
         # Observer should be stable (|λ| < 1)
@@ -374,7 +408,13 @@ class TestLQGMethod(SynthesisTestCase):
         synthesis = ControlSynthesis(backend="numpy")
 
         result = synthesis.design_lqg(
-            self.Ad, self.Bd, self.C, self.Q, self.R, self.Q_process, self.R_meas,
+            self.Ad,
+            self.Bd,
+            self.C,
+            self.Q,
+            self.R,
+            self.Q_process,
+            self.R_meas,
         )
 
         self.assert_lqg_result_valid(result, nx=2, nu=1, ny=1)
@@ -423,7 +463,11 @@ class TestBackendConsistency(SynthesisTestCase):
 
             synthesis = ControlSynthesis(backend="torch")
             synthesis.design_lqr(
-                self.A_stable, self.B_stable, self.Q, self.R, system_type="continuous",
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type="continuous",
             )
 
             # Verify backend was passed
@@ -460,7 +504,13 @@ class TestBackendConsistency(SynthesisTestCase):
 
             synthesis = ControlSynthesis(backend="torch")
             synthesis.design_lqg(
-                self.Ad, self.Bd, self.C, self.Q, self.R, self.Q_process, self.R_meas,
+                self.Ad,
+                self.Bd,
+                self.C,
+                self.Q,
+                self.R,
+                self.Q_process,
+                self.R_meas,
             )
 
             call_kwargs = mock_func.call_args[1]
@@ -521,7 +571,12 @@ class TestDelegation(SynthesisTestCase):
             N = np.array([[0.5], [0.1]])
 
             synthesis.design_lqr(
-                self.A_stable, self.B_stable, self.Q, self.R, N=N, system_type="continuous",
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                N=N,
+                system_type="continuous",
             )
 
             # Verify correct delegation
@@ -548,11 +603,20 @@ class TestDelegation(SynthesisTestCase):
             synthesis = ControlSynthesis(backend="numpy")
 
             synthesis.design_kalman(
-                self.Ad, self.C, self.Q_process, self.R_meas, system_type="discrete",
+                self.Ad,
+                self.C,
+                self.Q_process,
+                self.R_meas,
+                system_type="discrete",
             )
 
             mock_func.assert_called_once_with(
-                self.Ad, self.C, self.Q_process, self.R_meas, "discrete", backend="numpy",
+                self.Ad,
+                self.C,
+                self.Q_process,
+                self.R_meas,
+                "discrete",
+                backend="numpy",
             )
 
     def test_lqg_delegates_correctly(self):
@@ -659,7 +723,11 @@ class TestIntegration(SynthesisTestCase):
 
         # Design Kalman
         kalman_result = synthesis.design_kalman(
-            self.Ad, self.C, self.Q_process, self.R_meas, system_type="discrete",
+            self.Ad,
+            self.C,
+            self.Q_process,
+            self.R_meas,
+            system_type="discrete",
         )
 
         # Design LQG (combined)
@@ -676,10 +744,16 @@ class TestIntegration(SynthesisTestCase):
 
         # Separation principle: gains should match
         assert_allclose(
-            lqg_result["controller_gain"], lqr_result["gain"], rtol=self.rtol, atol=self.atol,
+            lqg_result["controller_gain"],
+            lqr_result["gain"],
+            rtol=self.rtol,
+            atol=self.atol,
         )
         assert_allclose(
-            lqg_result["estimator_gain"], kalman_result["gain"], rtol=self.rtol, atol=self.atol,
+            lqg_result["estimator_gain"],
+            kalman_result["gain"],
+            rtol=self.rtol,
+            atol=self.atol,
         )
 
     def test_continuous_vs_discrete_consistency(self):
@@ -688,7 +762,11 @@ class TestIntegration(SynthesisTestCase):
 
         # Continuous LQR
         result_c = synthesis.design_lqr(
-            self.A_stable, self.B_stable, self.Q, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.Q,
+            self.R,
+            system_type="continuous",
         )
 
         # Discrete LQR (on discretized system)
@@ -712,13 +790,25 @@ class TestIntegration(SynthesisTestCase):
         Q3 = np.diag([1, 1])
 
         result1 = synthesis.design_lqr(
-            self.A_stable, self.B_stable, Q1, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            Q1,
+            self.R,
+            system_type="continuous",
         )
         result2 = synthesis.design_lqr(
-            self.A_stable, self.B_stable, Q2, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            Q2,
+            self.R,
+            system_type="continuous",
         )
         result3 = synthesis.design_lqr(
-            self.A_stable, self.B_stable, Q3, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            Q3,
+            self.R,
+            system_type="continuous",
         )
 
         # All should be valid and different
@@ -752,7 +842,11 @@ class TestErrorPropagation(SynthesisTestCase):
 
         with self.assertRaises(ValueError):
             synthesis.design_lqr(
-                A_wrong, self.B_stable, self.Q, self.R, system_type="continuous",  # 2x1
+                A_wrong,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type="continuous",  # 2x1
             )
 
     def test_lqr_invalid_system_type_propagates(self):
@@ -761,7 +855,11 @@ class TestErrorPropagation(SynthesisTestCase):
 
         with self.assertRaises(ValueError):
             synthesis.design_lqr(
-                self.A_stable, self.B_stable, self.Q, self.R, system_type="invalid",
+                self.A_stable,
+                self.B_stable,
+                self.Q,
+                self.R,
+                system_type="invalid",
             )
 
     def test_kalman_dimension_error_propagates(self):
@@ -872,7 +970,11 @@ class TestInterface(SynthesisTestCase):
 
         # LQR should return LQRResult
         lqr_result = synthesis.design_lqr(
-            self.A_stable, self.B_stable, self.Q, self.R, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.Q,
+            self.R,
+            system_type="continuous",
         )
         self.assertIsInstance(lqr_result, dict)
         self.assertIn("gain", lqr_result)
@@ -884,7 +986,13 @@ class TestInterface(SynthesisTestCase):
 
         # LQG should return LQGResult
         lqg_result = synthesis.design_lqg(
-            self.Ad, self.Bd, self.C, self.Q, self.R, self.Q_process, self.R_meas,
+            self.Ad,
+            self.Bd,
+            self.C,
+            self.Q,
+            self.R,
+            self.Q_process,
+            self.R_meas,
         )
         self.assertIsInstance(lqg_result, dict)
         self.assertIn("controller_gain", lqg_result)

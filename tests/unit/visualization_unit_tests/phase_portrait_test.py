@@ -181,13 +181,18 @@ class TestPlot2D:
         assert isinstance(fig, go.Figure)
 
     def test_with_vector_field_and_equilibria(
-        self, plotter, spiral_trajectory_2d, simple_vector_field,
+        self,
+        plotter,
+        spiral_trajectory_2d,
+        simple_vector_field,
     ):
         """Test with both vector field and equilibria."""
         equilibria = [np.array([0.0, 0.0])]
 
         fig = plotter.plot_2d(
-            spiral_trajectory_2d, vector_field=simple_vector_field, equilibria=equilibria,
+            spiral_trajectory_2d,
+            vector_field=simple_vector_field,
+            equilibria=equilibria,
         )
 
         assert isinstance(fig, go.Figure)
@@ -467,7 +472,9 @@ class TestVectorField:
         equilibria = [np.array([0.0, 0.0])]
 
         fig = plotter.plot_2d(
-            spiral_trajectory_2d, vector_field=simple_vector_field, equilibria=equilibria,
+            spiral_trajectory_2d,
+            vector_field=simple_vector_field,
+            equilibria=equilibria,
         )
 
         assert isinstance(fig, go.Figure)

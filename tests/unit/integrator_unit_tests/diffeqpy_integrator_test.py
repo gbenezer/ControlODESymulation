@@ -153,7 +153,11 @@ def stiff_system():
 def default_integrator(simple_system):
     """Default DiffEqPy integrator with Tsit5"""
     return DiffEqPyIntegrator(
-        simple_system, backend="numpy", algorithm="Tsit5", rtol=1e-6, atol=1e-8,
+        simple_system,
+        backend="numpy",
+        algorithm="Tsit5",
+        rtol=1e-6,
+        atol=1e-8,
     )
 
 
@@ -185,7 +189,10 @@ class TestInitialization:
     def test_fixed_step_mode(self, simple_system):
         """Test fixed-step mode initialization"""
         integrator = DiffEqPyIntegrator(
-            simple_system, dt=0.01, step_mode=StepMode.FIXED, backend="numpy",
+            simple_system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="numpy",
         )
         assert integrator.step_mode == StepMode.FIXED
         assert integrator.dt == 0.01
@@ -223,7 +230,9 @@ class TestInitialization:
         """Test that auto-switching algorithms are validated correctly"""
         # Should not raise error - auto-switching algorithm in known list
         integrator = DiffEqPyIntegrator(
-            simple_system, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())",
+            simple_system,
+            backend="numpy",
+            algorithm="AutoTsit5(Rosenbrock23())",
         )
         assert integrator.algorithm == "AutoTsit5(Rosenbrock23())"
         assert "Auto" in integrator.name
@@ -368,7 +377,10 @@ class TestFixedStepIntegration:
         """Test basic fixed-step integration"""
         dt = 0.01
         integrator = DiffEqPyIntegrator(
-            simple_system, dt=dt, step_mode=StepMode.FIXED, backend="numpy",
+            simple_system,
+            dt=dt,
+            step_mode=StepMode.FIXED,
+            backend="numpy",
         )
 
         x0 = np.array([1.0, 0.0])
@@ -384,7 +396,10 @@ class TestFixedStepIntegration:
     def test_fixed_step_with_t_eval(self, simple_system):
         """Test fixed-step with custom evaluation times"""
         integrator = DiffEqPyIntegrator(
-            simple_system, dt=0.01, step_mode=StepMode.FIXED, backend="numpy",
+            simple_system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="numpy",
         )
 
         x0 = np.array([1.0, 0.0])
@@ -400,7 +415,10 @@ class TestFixedStepIntegration:
         """Test that dt is required for fixed-step mode"""
         with pytest.raises(ValueError, match="required"):
             integrator = DiffEqPyIntegrator(
-                simple_system, dt=None, step_mode=StepMode.FIXED, backend="numpy",
+                simple_system,
+                dt=None,
+                step_mode=StepMode.FIXED,
+                backend="numpy",
             )
             x0 = np.array([1.0, 0.0])
             integrator.integrate(x0, lambda t, x: np.zeros(1), (0, 1))
@@ -489,7 +507,11 @@ class TestAlgorithms:
     def test_vern7_high_accuracy(self, simple_system):
         """Test Vern7 high-accuracy algorithm"""
         integrator = DiffEqPyIntegrator(
-            simple_system, backend="numpy", algorithm="Vern7", rtol=1e-10, atol=1e-12,
+            simple_system,
+            backend="numpy",
+            algorithm="Vern7",
+            rtol=1e-10,
+            atol=1e-12,
         )
 
         x0 = np.array([1.0, 0.0])
@@ -502,7 +524,11 @@ class TestAlgorithms:
     def test_rosenbrock23_stiff(self, stiff_system):
         """Test Rosenbrock23 on stiff system"""
         integrator = DiffEqPyIntegrator(
-            stiff_system, backend="numpy", algorithm="Rosenbrock23", rtol=1e-6, atol=1e-8,
+            stiff_system,
+            backend="numpy",
+            algorithm="Rosenbrock23",
+            rtol=1e-6,
+            atol=1e-8,
         )
 
         x0 = np.array([2.0, 0.0])
@@ -519,7 +545,9 @@ class TestAlgorithms:
     def test_auto_switching_algorithm(self, simple_system):
         """Test auto-switching algorithm"""
         integrator = DiffEqPyIntegrator(
-            simple_system, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())",
+            simple_system,
+            backend="numpy",
+            algorithm="AutoTsit5(Rosenbrock23())",
         )
 
         x0 = np.array([1.0, 0.0])
@@ -720,7 +748,10 @@ class TestUtilityFunctions:
     def test_create_diffeqpy_integrator(self, simple_system):
         """Test factory function"""
         integrator = create_diffeqpy_integrator(
-            simple_system, algorithm="Vern7", rtol=1e-8, atol=1e-10,
+            simple_system,
+            algorithm="Vern7",
+            rtol=1e-8,
+            atol=1e-10,
         )
 
         assert isinstance(integrator, DiffEqPyIntegrator)
@@ -759,7 +790,9 @@ class TestValidation:
         """Test that auto-switching algorithms in known list are validated"""
         # Should work - in the known list
         integrator = DiffEqPyIntegrator(
-            simple_system, backend="numpy", algorithm="AutoTsit5(Rosenbrock23())",
+            simple_system,
+            backend="numpy",
+            algorithm="AutoTsit5(Rosenbrock23())",
         )
         assert integrator.algorithm == "AutoTsit5(Rosenbrock23())"
 
@@ -901,7 +934,11 @@ class TestIntegratorProperties:
     def test_repr(self, simple_system):
         """Test __repr__ method"""
         integrator = DiffEqPyIntegrator(
-            simple_system, backend="numpy", algorithm="Vern7", rtol=1e-9, atol=1e-11,
+            simple_system,
+            backend="numpy",
+            algorithm="Vern7",
+            rtol=1e-9,
+            atol=1e-11,
         )
 
         repr_str = repr(integrator)
@@ -938,7 +975,11 @@ class TestCorrectness:
 
         system = ExponentialDecay(lambda_val=2.0)
         integrator = DiffEqPyIntegrator(
-            system, backend="numpy", algorithm="Vern9", rtol=1e-10, atol=1e-12,
+            system,
+            backend="numpy",
+            algorithm="Vern9",
+            rtol=1e-10,
+            atol=1e-12,
         )
 
         x0 = np.array([1.0])
@@ -969,14 +1010,21 @@ class TestCorrectness:
         omega = 2.0
         system = HarmonicOscillator(omega=omega)
         integrator = DiffEqPyIntegrator(
-            system, backend="numpy", algorithm="Vern9", rtol=1e-10, atol=1e-12,
+            system,
+            backend="numpy",
+            algorithm="Vern9",
+            rtol=1e-10,
+            atol=1e-12,
         )
 
         x0 = np.array([1.0, 0.0])  # [position, velocity]
         t_eval = np.linspace(0, 2 * np.pi / omega, 100)
 
         result = integrator.integrate(
-            x0, lambda t, x: np.zeros(1), (0, 2 * np.pi / omega), t_eval=t_eval,
+            x0,
+            lambda t, x: np.zeros(1),
+            (0, 2 * np.pi / omega),
+            t_eval=t_eval,
         )
 
         assert result["success"], f"Integration failed: {result['message']}"

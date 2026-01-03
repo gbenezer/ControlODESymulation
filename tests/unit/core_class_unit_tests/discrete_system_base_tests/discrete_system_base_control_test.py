@@ -210,10 +210,12 @@ class TestControlProperty(unittest.TestCase):
         required_methods = ["design_lqr", "design_kalman", "design_lqg"]
         for method_name in required_methods:
             self.assertTrue(
-                hasattr(control, method_name), f"ControlSynthesis should have {method_name} method",
+                hasattr(control, method_name),
+                f"ControlSynthesis should have {method_name} method",
             )
             self.assertTrue(
-                callable(getattr(control, method_name)), f"{method_name} should be callable",
+                callable(getattr(control, method_name)),
+                f"{method_name} should be callable",
             )
 
 
@@ -313,10 +315,12 @@ class TestAnalysisProperty(unittest.TestCase):
         ]
         for method_name in required_methods:
             self.assertTrue(
-                hasattr(analysis, method_name), f"SystemAnalysis should have {method_name} method",
+                hasattr(analysis, method_name),
+                f"SystemAnalysis should have {method_name} method",
             )
             self.assertTrue(
-                callable(getattr(analysis, method_name)), f"{method_name} should be callable",
+                callable(getattr(analysis, method_name)),
+                f"{method_name} should be callable",
             )
 
 
@@ -349,7 +353,11 @@ class TestControlIntegration(unittest.TestCase):
     def test_design_lqr_discrete(self):
         """Test LQR design via system.control for discrete-time system."""
         result = self.system.control.design_lqr(
-            self.Ad, self.Bd, self.Q, self.R, system_type="discrete",
+            self.Ad,
+            self.Bd,
+            self.Q,
+            self.R,
+            system_type="discrete",
         )
 
         # Check result structure
@@ -375,7 +383,12 @@ class TestControlIntegration(unittest.TestCase):
         N = np.array([[0.5], [0.1]])
 
         result = self.system.control.design_lqr(
-            self.Ad, self.Bd, self.Q, self.R, N=N, system_type="discrete",
+            self.Ad,
+            self.Bd,
+            self.Q,
+            self.R,
+            N=N,
+            system_type="discrete",
         )
 
         self.assertIn("gain", result)
@@ -384,7 +397,11 @@ class TestControlIntegration(unittest.TestCase):
     def test_design_kalman_discrete(self):
         """Test Kalman filter design via system.control."""
         result = self.system.control.design_kalman(
-            self.Ad, self.C, self.Q_proc, self.R_meas, system_type="discrete",
+            self.Ad,
+            self.C,
+            self.Q_proc,
+            self.R_meas,
+            system_type="discrete",
         )
 
         # Check result structure
@@ -434,10 +451,14 @@ class TestControlIntegration(unittest.TestCase):
         obs_eigs = result["observer_eigenvalues"]
 
         self.assertLess(
-            np.max(np.abs(ctrl_eigs)), 1.0, "Controller eigenvalues should be inside unit circle",
+            np.max(np.abs(ctrl_eigs)),
+            1.0,
+            "Controller eigenvalues should be inside unit circle",
         )
         self.assertLess(
-            np.max(np.abs(obs_eigs)), 1.0, "Observer eigenvalues should be inside unit circle",
+            np.max(np.abs(obs_eigs)),
+            1.0,
+            "Observer eigenvalues should be inside unit circle",
         )
 
     def test_control_backend_numpy(self):
@@ -460,7 +481,11 @@ class TestControlIntegration(unittest.TestCase):
         R_torch = torch.from_numpy(self.R)
 
         result = system.control.design_lqr(
-            Ad_torch, Bd_torch, Q_torch, R_torch, system_type="discrete",
+            Ad_torch,
+            Bd_torch,
+            Q_torch,
+            R_torch,
+            system_type="discrete",
         )
 
         # Result should be torch tensors
@@ -541,7 +566,9 @@ class TestAnalysisIntegration(unittest.TestCase):
         # System should be controllable
         self.assertTrue(result["is_controllable"], "Test system should be controllable")
         self.assertEqual(
-            result["rank"], self.system.nx, "Controllability matrix should have full rank",
+            result["rank"],
+            self.system.nx,
+            "Controllability matrix should have full rank",
         )
 
     def test_observability_analysis(self):
@@ -556,13 +583,18 @@ class TestAnalysisIntegration(unittest.TestCase):
         # System should be observable (measure position, can infer velocity)
         self.assertTrue(result["is_observable"], "Test system should be observable")
         self.assertEqual(
-            result["rank"], self.system.nx, "Observability matrix should have full rank",
+            result["rank"],
+            self.system.nx,
+            "Observability matrix should have full rank",
         )
 
     def test_analyze_linearization_comprehensive(self):
         """Test comprehensive linearization analysis."""
         result = self.system.analysis.analyze_linearization(
-            self.Ad, self.Bd, self.C, system_type="discrete",
+            self.Ad,
+            self.Bd,
+            self.C,
+            system_type="discrete",
         )
 
         # Check result structure
@@ -653,7 +685,9 @@ class TestAnalysisIntegration(unittest.TestCase):
         Ad_marginal = np.array([[0, 1], [-1, 0]])  # Eigenvalues: ±j (|λ| = 1)
 
         result = self.system.analysis.stability(
-            Ad_marginal, system_type="discrete", tolerance=1e-10,
+            Ad_marginal,
+            system_type="discrete",
+            tolerance=1e-10,
         )
 
         self.assertTrue(result["is_marginally_stable"])
@@ -744,7 +778,11 @@ class TestAllBackends(unittest.TestCase):
         system = MockDiscreteSystem(dt=0.1, backend="numpy")
 
         result = system.control.design_lqr(
-            self.Ad_np, self.Bd_np, self.Q_np, self.R_np, system_type="discrete",
+            self.Ad_np,
+            self.Bd_np,
+            self.Q_np,
+            self.R_np,
+            system_type="discrete",
         )
 
         # Verify result types
@@ -761,7 +799,11 @@ class TestAllBackends(unittest.TestCase):
         system = MockDiscreteSystem(dt=0.1, backend="numpy")
 
         result = system.control.design_kalman(
-            self.Ad_np, self.C_np, self.Q_proc_np, self.R_meas_np, system_type="discrete",
+            self.Ad_np,
+            self.C_np,
+            self.Q_proc_np,
+            self.R_meas_np,
+            system_type="discrete",
         )
 
         # Verify result types
@@ -805,7 +847,11 @@ class TestAllBackends(unittest.TestCase):
         R_torch = torch.from_numpy(self.R_np)
 
         result = system.control.design_lqr(
-            Ad_torch, Bd_torch, Q_torch, R_torch, system_type="discrete",
+            Ad_torch,
+            Bd_torch,
+            Q_torch,
+            R_torch,
+            system_type="discrete",
         )
 
         # Verify result types (should be torch tensors)
@@ -832,7 +878,11 @@ class TestAllBackends(unittest.TestCase):
         R_meas_torch = torch.from_numpy(self.R_meas_np)
 
         result = system.control.design_kalman(
-            Ad_torch, C_torch, Q_proc_torch, R_meas_torch, system_type="discrete",
+            Ad_torch,
+            C_torch,
+            Q_proc_torch,
+            R_meas_torch,
+            system_type="discrete",
         )
 
         # Verify result types
@@ -951,7 +1001,11 @@ class TestAllBackends(unittest.TestCase):
         R_meas_jax = jnp.array(self.R_meas_np)
 
         result = system.control.design_kalman(
-            Ad_jax, C_jax, Q_proc_jax, R_meas_jax, system_type="discrete",
+            Ad_jax,
+            C_jax,
+            Q_proc_jax,
+            R_meas_jax,
+            system_type="discrete",
         )
 
         # Verify result types
@@ -984,7 +1038,14 @@ class TestAllBackends(unittest.TestCase):
         R_meas_jax = jnp.array(self.R_meas_np)
 
         result = system.control.design_lqg(
-            Ad_jax, Bd_jax, C_jax, Q_jax, R_jax, Q_proc_jax, R_meas_jax, system_type="discrete",
+            Ad_jax,
+            Bd_jax,
+            C_jax,
+            Q_jax,
+            R_jax,
+            Q_proc_jax,
+            R_meas_jax,
+            system_type="discrete",
         )
 
         # Verify result types

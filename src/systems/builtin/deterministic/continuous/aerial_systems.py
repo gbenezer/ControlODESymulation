@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import numpy as np
 import sympy as sp
-from typing import Optional
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
@@ -113,10 +114,10 @@ class SymbolicQuadrotor2D(ContinuousSymbolicSystem):
         # define the equilibrium hover position if specified
         # and catch misspecification
         if x_hover is not None and y_hover is None:
-            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
-        elif x_hover is None and y_hover is not None:
-            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
-        elif x_hover is not None and y_hover is not None:
+            raise ValueError("if x_hover is specified, y_hover must also be specified")
+        if x_hover is None and y_hover is not None:
+            raise ValueError("if y_hover is specified, x_hover must also be specified")
+        if x_hover is not None and y_hover is not None:
             self.x_hover = x_hover
             self.y_hover = y_hover
 
@@ -252,10 +253,10 @@ class SymbolicQuadrotor2DLidar(ContinuousSymbolicSystem):
         # define the equilibrium hover position if specified
         # and catch misspecification
         if x_hover is not None and y_hover is None:
-            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
-        elif x_hover is None and y_hover is not None:
-            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
-        elif x_hover is not None and y_hover is not None:
+            raise ValueError("if x_hover is specified, y_hover must also be specified")
+        if x_hover is None and y_hover is not None:
+            raise ValueError("if y_hover is specified, x_hover must also be specified")
+        if x_hover is not None and y_hover is not None:
             self.x_hover = x_hover
             self.y_hover = y_hover
 
@@ -467,10 +468,10 @@ class PVTOL(ContinuousSymbolicSystem):
         # define the equilibrium hover position if specified
         # and catch misspecification
         if x_hover is not None and y_hover is None:
-            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
-        elif x_hover is None and y_hover is not None:
-            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
-        elif x_hover is not None and y_hover is not None:
+            raise ValueError("if x_hover is specified, y_hover must also be specified")
+        if x_hover is None and y_hover is not None:
+            raise ValueError("if y_hover is specified, x_hover must also be specified")
+        if x_hover is not None and y_hover is not None:
             self.x_hover = x_hover
             self.y_hover = y_hover
 

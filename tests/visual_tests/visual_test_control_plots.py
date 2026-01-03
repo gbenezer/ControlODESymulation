@@ -149,7 +149,10 @@ def test_5_gain_comparison_mimo(output_dir):
     }
 
     fig = plotter.plot_gain_comparison(
-        gains, labels=["x₁", "x₂", "x₃"], title="Test 5: MIMO Feedback Gains", theme="default",
+        gains,
+        labels=["x₁", "x₂", "x₃"],
+        title="Test 5: MIMO Feedback Gains",
+        theme="default",
     )
 
     fig.write_html(output_dir / "05_gain_comparison_mimo.html")
@@ -181,7 +184,9 @@ def test_6_riccati_convergence(output_dir):
         P_history.append(P.copy())
 
     fig = plotter.plot_riccati_convergence(
-        P_history, title="Test 6: Riccati Equation Convergence", theme="publication",
+        P_history,
+        title="Test 6: Riccati Equation Convergence",
+        theme="publication",
     )
 
     fig.write_html(output_dir / "06_riccati_convergence.html")
@@ -305,7 +310,11 @@ def test_11_impulse_response(output_dir):
     )
 
     fig = plotter.plot_impulse_response(
-        t, y, show_metrics=True, title="Test 11: Impulse Response (ζ=0.1)", theme="publication",
+        t,
+        y,
+        show_metrics=True,
+        title="Test 11: Impulse Response (ζ=0.1)",
+        theme="publication",
     )
 
     fig.write_html(output_dir / "11_impulse_response.html")

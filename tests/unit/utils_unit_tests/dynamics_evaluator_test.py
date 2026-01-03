@@ -1113,7 +1113,8 @@ class TestIntegration:
         assert stats["calls"] == 5
 
     @pytest.mark.skipif(
-        not (torch_available and jax_available), reason="Both PyTorch and JAX required",
+        not (torch_available and jax_available),
+        reason="Both PyTorch and JAX required",
     )
     def test_multi_backend_workflow(self):
         """Test switching between backends"""

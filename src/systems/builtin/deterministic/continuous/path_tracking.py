@@ -126,7 +126,7 @@ class PathTracking(ContinuousSymbolicSystem):
         self.control_vars = [delta]
         self.output_vars = [d_e, theta_e]
         self.order = 1
-        
+
         # Storing value for equilibrium control
         self.eq_control = length_val / radius_val
 
@@ -143,13 +143,13 @@ class PathTracking(ContinuousSymbolicSystem):
 
         self._f_sym = sp.Matrix([d_e_dot, theta_e_dot])
         self._h_sym = sp.Matrix([d_e, theta_e])
-        
+
     def setup_equilibria(self):
         # method to add equilibria to the system automatically after initialization
 
         self.add_equilibrium(
-            'center',
+            "center",
             x_eq=np.array([0.0, 0.0]),
             u_eq=np.array([self.eq_control]),
-            verify=True
-            )
+            verify=True,
+        )

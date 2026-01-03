@@ -18,6 +18,7 @@ import sympy as sp
 
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
+
 class SymbolicPendulum(ContinuousSymbolicSystem):
     """
     Simple inverted pendulum system - first-order state-space formulation.
@@ -94,26 +95,27 @@ class SymbolicPendulum(ContinuousSymbolicSystem):
             [theta_dot, (-beta / ml2) * theta_dot + (g / l) * sp.sin(theta) + u / ml2],
         )
         self._h_sym = sp.Matrix([theta])  # Output is theta (partial observability)
-        
+
     def setup_equilibria(self):
         # method to add equilibria to the system automatically after initialization
 
         # add the stable equilibrium where the pendulum is hanging down
         self.add_equilibrium(
-            'downward',
+            "downward",
             x_eq=np.array([0.0, 0.0]),
             u_eq=np.array([0.0]),
-            verify=True
-            )
+            verify=True,
+        )
 
         # add the unstable equilibrium where the pendulum is inverted
         self.add_equilibrium(
-            'inverted',
+            "inverted",
             x_eq=np.array([np.pi, 0.0]),
             u_eq=np.array([0.0]),
-            stability='unstable',
-            notes='Requires active control'
-            )
+            stability="unstable",
+            notes="Requires active control",
+        )
+        self.set_default_equilibrium(name="inverted")
 
 
 class SymbolicPendulum2ndOrder(ContinuousSymbolicSystem):
@@ -184,7 +186,6 @@ class SymbolicPendulum2ndOrder(ContinuousSymbolicSystem):
         self.parameters = {m: m_val, l: l_val, beta: beta_val, g: g_val}
         self.state_vars = [theta, theta_dot]
         self.control_vars = [u]
-        self.output_vars = [theta]  # Observe angle only
         self.order = 2  # Mark as second-order
 
         # Second-order system: return ONLY acceleration
@@ -193,23 +194,24 @@ class SymbolicPendulum2ndOrder(ContinuousSymbolicSystem):
 
         self._f_sym = sp.Matrix([theta_ddot])  # Single element
         self._h_sym = sp.Matrix([theta])
-        
+
     def setup_equilibria(self):
         # method to add equilibria to the system automatically after initialization
 
         # add the stable equilibrium where the pendulum is hanging down
         self.add_equilibrium(
-            'downward',
+            "downward",
             x_eq=np.array([0.0, 0.0]),
             u_eq=np.array([0.0]),
-            verify=True
-            )
+            verify=True,
+        )
 
         # add the unstable equilibrium where the pendulum is inverted
         self.add_equilibrium(
-            'inverted',
+            "inverted",
             x_eq=np.array([np.pi, 0.0]),
             u_eq=np.array([0.0]),
-            stability='unstable',
-            notes='Requires active control'
-            )
+            stability="unstable",
+            notes="Requires active control",
+        )
+        self.set_default_equilibrium(name="inverted")

@@ -148,7 +148,10 @@ class MockExponentialSystem:
         return dx
 
     def analytical_solution(
-        self, x0: ScalarLike, t: ScalarLike, u_const: ScalarLike = 0.0,
+        self,
+        x0: ScalarLike,
+        t: ScalarLike,
+        u_const: ScalarLike = 0.0,
     ) -> ScalarLike:
         """
         Analytical solution.
@@ -315,7 +318,11 @@ class TestBasicIntegration:
     @pytest.fixture
     def integrator(self, system):
         return DiffraxIntegrator(
-            system, dt=0.01, step_mode=StepMode.FIXED, backend="jax", solver="tsit5",
+            system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="jax",
+            solver="tsit5",
         )
 
     def test_single_step(self, integrator, system):
@@ -426,7 +433,11 @@ class TestExplicitSolvers:
     def test_explicit_solvers(self, system, solver):
         """Test all explicit RK solvers."""
         integrator = DiffraxIntegrator(
-            system, dt=0.01, step_mode=StepMode.FIXED, backend="jax", solver=solver,
+            system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="jax",
+            solver=solver,
         )
 
         x0 = jnp.array([1.0])
@@ -645,7 +656,10 @@ class TestIMEXSolvers:
 
         try:
             integrator = DiffraxIntegrator(
-                semistiff_system, dt=0.01, backend="jax", solver="kencarp4",
+                semistiff_system,
+                dt=0.01,
+                backend="jax",
+                solver="kencarp4",
             )
             name = integrator.name
             assert "IMEX" in name
@@ -671,7 +685,11 @@ class TestStepModes:
     def test_fixed_step_mode(self, system):
         """Test fixed step mode integration."""
         integrator = DiffraxIntegrator(
-            system, dt=0.01, step_mode=StepMode.FIXED, backend="jax", solver="dopri5",
+            system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="jax",
+            solver="dopri5",
         )
 
         x0 = jnp.array([1.0])
@@ -686,7 +704,11 @@ class TestStepModes:
     def test_adaptive_step_mode(self, system):
         """Test adaptive step mode integration."""
         integrator = DiffraxIntegrator(
-            system, dt=0.01, step_mode=StepMode.ADAPTIVE, backend="jax", solver="dopri5",
+            system,
+            dt=0.01,
+            step_mode=StepMode.ADAPTIVE,
+            backend="jax",
+            solver="dopri5",
         )
 
         x0 = jnp.array([1.0])
@@ -737,7 +759,10 @@ class TestAutonomousSystems:
             self.nu = 0
 
         def __call__(
-            self, x: StateVector, u: Optional[ControlVector], backend: str = "jax",
+            self,
+            x: StateVector,
+            u: Optional[ControlVector],
+            backend: str = "jax",
         ) -> StateVector:
             """Evaluate autonomous dynamics."""
             x_jax = jnp.asarray(x)
@@ -750,7 +775,11 @@ class TestAutonomousSystems:
     @pytest.fixture
     def integrator(self, autonomous_system):
         return DiffraxIntegrator(
-            autonomous_system, dt=0.01, step_mode=StepMode.FIXED, backend="jax", solver="dopri5",
+            autonomous_system,
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            backend="jax",
+            solver="dopri5",
         )
 
     def test_autonomous_single_step(self, integrator):
@@ -830,7 +859,11 @@ class TestGradientComputation:
     def test_adjoint_methods(self, system, adjoint):
         """Test different adjoint methods for gradient computation."""
         integrator = DiffraxIntegrator(
-            system, dt=0.01, backend="jax", solver="dopri5", adjoint=adjoint,
+            system,
+            dt=0.01,
+            backend="jax",
+            solver="dopri5",
+            adjoint=adjoint,
         )
 
         x0 = jnp.array([1.0])

@@ -159,7 +159,9 @@ class TestPlotEigenvalueMap:
     def test_continuous_unstable(self, plotter, unstable_eigenvalues_continuous):
         """Test continuous unstable eigenvalues."""
         fig = plotter.plot_eigenvalue_map(
-            unstable_eigenvalues_continuous, system_type="continuous", show_stability_margin=True,
+            unstable_eigenvalues_continuous,
+            system_type="continuous",
+            show_stability_margin=True,
         )
 
         assert isinstance(fig, go.Figure)
@@ -186,7 +188,8 @@ class TestPlotEigenvalueMap:
     def test_no_stability_margin(self, plotter, stable_eigenvalues_continuous):
         """Test without stability margin annotation."""
         fig = plotter.plot_eigenvalue_map(
-            stable_eigenvalues_continuous, show_stability_margin=False,
+            stable_eigenvalues_continuous,
+            show_stability_margin=False,
         )
 
         assert isinstance(fig, go.Figure)
@@ -386,7 +389,8 @@ class TestPlotObservabilityGramian:
     def test_basic_observability_gramian(self, plotter, controllability_gramian):
         """Test observability Gramian (uses controllability plotter)."""
         fig = plotter.plot_observability_gramian(
-            controllability_gramian, title="Observability Gramian",
+            controllability_gramian,
+            title="Observability Gramian",
         )
 
         assert isinstance(fig, go.Figure)

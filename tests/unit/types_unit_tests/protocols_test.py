@@ -135,7 +135,9 @@ class LinearizableDiscreteSystem(MinimalDiscreteSystem):
     """Extends minimal with linearization."""
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """Linear system: Ad = 0.9*I, Bd = 0.1*I"""
         Ad = 0.9 * np.eye(self.nx)
@@ -155,7 +157,9 @@ class SymbolicDiscreteSystem(LinearizableDiscreteSystem):
         self.parameters = {sp.symbols("a"): 0.9, sp.symbols("b"): 0.1}
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False,
+        self,
+        backends: Optional[List[str]] = None,
+        verbose: bool = False,
     ) -> Dict[str, float]:
         """Mock compilation"""
         backends = backends or ["numpy"]
@@ -209,7 +213,10 @@ class MinimalContinuousSystem:
         return self._nu
 
     def __call__(
-        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        t: float = 0.0,
     ) -> StateVector:
         """Simple linear dynamics: dx/dt = -x + u"""
         u = u if u is not None else np.zeros(self.nu)

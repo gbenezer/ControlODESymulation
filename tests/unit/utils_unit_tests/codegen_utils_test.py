@@ -600,7 +600,9 @@ class TestMatrixExpressions:
             for backend, result in results.items():
                 if backend != "numpy":
                     assert np.allclose(
-                        base, result, rtol=1e-5,
+                        base,
+                        result,
+                        rtol=1e-5,
                     ), f"Backend {backend} differs from NumPy: {base} vs {result}"
 
 
@@ -786,7 +788,9 @@ class TestDynamicalSystemExample:
             for backend, result in results.items():
                 if backend != "numpy":
                     assert np.allclose(
-                        base, result, rtol=1e-5,
+                        base,
+                        result,
+                        rtol=1e-5,
                     ), f"Pendulum dynamics differ: {backend} vs NumPy\n  NumPy: {base}\n  {backend}: {result}"
 
 
@@ -1339,7 +1343,8 @@ class TestMinMaxUseCases:
                 f_torch = generate_torch_function(expr, [x, thresh])
                 result_torch = f_torch(torch.tensor(x_val), torch.tensor(t_val))
                 assert torch.allclose(
-                    result_torch, torch.tensor(expected),
+                    result_torch,
+                    torch.tensor(expected),
                 ), f"PyTorch failed for x={x_val}"
 
             # JAX

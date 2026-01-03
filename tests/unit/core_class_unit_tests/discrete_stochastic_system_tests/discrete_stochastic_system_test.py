@@ -519,7 +519,9 @@ class TestDiffusionEvaluation(unittest.TestCase):
 
         # Check values: σ*x for each sample
         np.testing.assert_allclose(
-            g[:, 0, 0], np.array([0.2, 0.4, 0.6]), rtol=1e-10,  # 0.2*[1, 2, 3]
+            g[:, 0, 0],
+            np.array([0.2, 0.4, 0.6]),
+            rtol=1e-10,  # 0.2*[1, 2, 3]
         )
 
 
@@ -647,7 +649,11 @@ class TestStochasticSimulation(unittest.TestCase):
         n_paths = 50
 
         result = self.system.simulate_stochastic(
-            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42,
+            x0=x0,
+            u_sequence=None,
+            n_steps=n_steps,
+            n_paths=n_paths,
+            seed=42,
         )
 
         # Check shape: (n_paths, n_steps+1, nx)
@@ -1188,7 +1194,11 @@ class TestMultiplicativeNoiseSimulation(unittest.TestCase):
         n_paths = 100
 
         result = system.simulate_stochastic(
-            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42,
+            x0=x0,
+            u_sequence=None,
+            n_steps=n_steps,
+            n_paths=n_paths,
+            seed=42,
         )
 
         self.assertEqual(result["states"].shape, (n_paths, n_steps + 1, 2))

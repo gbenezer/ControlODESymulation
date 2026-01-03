@@ -431,7 +431,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
         analyzer = SystemAnalysis(backend="numpy")
 
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         # Check structure
@@ -450,7 +453,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
         analyzer = SystemAnalysis(backend="numpy")
 
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         summary = result["summary"]
@@ -476,7 +482,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
 
         # Controllable system
         result = analyzer.analyze_linearization(
-            self.A_ctrl, self.B_ctrl, self.C_obs, system_type="continuous",
+            self.A_ctrl,
+            self.B_ctrl,
+            self.C_obs,
+            system_type="continuous",
         )
 
         self.assertTrue(result["summary"]["ready_for_lqr"])
@@ -488,7 +497,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
 
         # Observable system
         result = analyzer.analyze_linearization(
-            self.A_obs, self.B_stable, self.C_obs, system_type="continuous",
+            self.A_obs,
+            self.B_stable,
+            self.C_obs,
+            system_type="continuous",
         )
 
         self.assertTrue(result["summary"]["ready_for_kalman"])
@@ -500,7 +512,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
 
         # System that is both controllable and observable
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         is_ctrl = result["controllability"]["is_controllable"]
@@ -515,7 +530,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
         analyzer = SystemAnalysis(backend="numpy")
 
         result = analyzer.analyze_linearization(
-            self.Ad_stable, self.Bd_stable, self.C_stable, system_type="discrete",
+            self.Ad_stable,
+            self.Bd_stable,
+            self.C_stable,
+            system_type="discrete",
         )
 
         # Should work for discrete systems
@@ -537,7 +555,10 @@ class TestAnalyzeLinearization(AnalysisTestCase):
 
         # Comprehensive analysis
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         # Individual analyses
@@ -548,7 +569,8 @@ class TestAnalyzeLinearization(AnalysisTestCase):
         # Should match
         self.assertEqual(result["stability"]["is_stable"], stability_indiv["is_stable"])
         self.assertEqual(
-            result["controllability"]["is_controllable"], ctrl_indiv["is_controllable"],
+            result["controllability"]["is_controllable"],
+            ctrl_indiv["is_controllable"],
         )
         self.assertEqual(result["observability"]["is_observable"], obs_indiv["is_observable"])
 
@@ -717,7 +739,10 @@ class TestDelegation(AnalysisTestCase):
             }
 
             analyzer.analyze_linearization(
-                self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+                self.A_stable,
+                self.B_stable,
+                self.C_stable,
+                system_type="continuous",
             )
 
             # Verify all methods were called
@@ -755,7 +780,10 @@ class TestIntegration(AnalysisTestCase):
 
         # Perform comprehensive analysis
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         # Use results for decision making
@@ -783,7 +811,10 @@ class TestIntegration(AnalysisTestCase):
 
         # Comprehensive
         result = analyzer.analyze_linearization(
-            self.A_stable, self.B_stable, self.C_stable, system_type="continuous",
+            self.A_stable,
+            self.B_stable,
+            self.C_stable,
+            system_type="continuous",
         )
 
         # Should match
@@ -825,7 +856,10 @@ class TestIntegration(AnalysisTestCase):
 
         # Unstable and uncontrollable - bad combination
         result = analyzer.analyze_linearization(
-            A_unstable_unctrl, B_only_second, self.C_stable, system_type="continuous",
+            A_unstable_unctrl,
+            B_only_second,
+            self.C_stable,
+            system_type="continuous",
         )
 
         # Should detect problems

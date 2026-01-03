@@ -526,7 +526,11 @@ class TestEventDetection(unittest.TestCase):
         from scipy.integrate import solve_ivp
 
         result = solve_ivp(
-            lambda t, x: system(x, u(t), t), (0, 100), x0, events=event_max_position, method="RK45",
+            lambda t, x: system(x, u(t), t),
+            (0, 100),
+            x0,
+            events=event_max_position,
+            method="RK45",
         )
 
         # Should stop early
@@ -1057,7 +1061,8 @@ class TestTrajectoryOptimization(unittest.TestCase):
         # Larger control should move state more from origin
         # With u, equilibrium is at x_eq = u/k, so larger u → larger x_eq
         self.assertGreater(
-            np.linalg.norm(final_states[-1] - x0), np.linalg.norm(final_states[0] - x0),
+            np.linalg.norm(final_states[-1] - x0),
+            np.linalg.norm(final_states[0] - x0),
         )
 
 
@@ -1207,7 +1212,9 @@ class TestCheckpointing(unittest.TestCase):
 
             # Recreate system
             restored_system = MassSpringDamper(
-                m=loaded_dict["m"], k=loaded_dict["k"], c=loaded_dict["c"],
+                m=loaded_dict["m"],
+                k=loaded_dict["k"],
+                c=loaded_dict["c"],
             )
 
             # Verify parameters match

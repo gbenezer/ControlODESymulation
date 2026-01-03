@@ -73,7 +73,8 @@ from src.types.backends import SDEType
 # ============================================================================
 
 pytestmark = pytest.mark.skipif(
-    not JAX_AVAILABLE, reason="JAX or Diffrax not installed. Install: pip install jax diffrax",
+    not JAX_AVAILABLE,
+    reason="JAX or Diffrax not installed. Install: pip install jax diffrax",
 )
 
 
@@ -276,7 +277,10 @@ class TestDiffraxSDEInitialization:
         """Test that Milstein solvers require levy_area."""
         # Should raise without levy_area
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="ItoMilstein", levy_area="none",
+            ou_system,
+            dt=0.01,
+            solver="ItoMilstein",
+            levy_area="none",
         )
 
         # Should fail when trying to get solver instance
@@ -286,7 +290,10 @@ class TestDiffraxSDEInitialization:
     def test_milstein_with_levy_area_works(self, ou_system):
         """Test that Milstein works with levy_area."""
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time",
+            ou_system,
+            dt=0.01,
+            solver="ItoMilstein",
+            levy_area="space-time",
         )
 
         # Should not raise
@@ -991,7 +998,11 @@ class TestLevyArea:
     def test_levy_area_none(self, ou_system):
         """Test that standard solvers work with levy_area='none'."""
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="Euler", levy_area="none", seed=42,
+            ou_system,
+            dt=0.01,
+            solver="Euler",
+            levy_area="none",
+            seed=42,
         )
 
         x0 = jnp.array([1.0])
@@ -1004,7 +1015,11 @@ class TestLevyArea:
         # Check if ItoMilstein is available
         try:
             integrator = DiffraxSDEIntegrator(
-                ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time", seed=42,
+                ou_system,
+                dt=0.01,
+                solver="ItoMilstein",
+                levy_area="space-time",
+                seed=42,
             )
         except ValueError:
             pytest.skip("ItoMilstein not available in this Diffrax version")
@@ -1040,7 +1055,10 @@ class TestEdgeCasesErrorHandling:
         """Test that fixed mode without dt raises error."""
         with pytest.raises(ValueError):
             integrator = DiffraxSDEIntegrator(
-                ou_system, dt=None, step_mode=StepMode.FIXED, solver="Euler",
+                ou_system,
+                dt=None,
+                step_mode=StepMode.FIXED,
+                solver="Euler",
             )
             integrator.step(jnp.array([1.0]), None)
 

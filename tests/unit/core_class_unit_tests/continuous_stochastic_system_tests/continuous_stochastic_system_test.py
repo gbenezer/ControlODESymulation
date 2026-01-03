@@ -40,8 +40,10 @@ import pytest
 import sympy as sp
 
 from src.systems.base.core.continuous_stochastic_system import (
-    ContinuousStochasticSystem,
     StochasticDynamicalSystem,  # Backward compatibility alias
+)
+from src.systems.base.core.continuous_stochastic_system import (
+    ContinuousStochasticSystem,
 )
 from src.systems.base.utils.stochastic.noise_analysis import NoiseType
 
@@ -821,7 +823,8 @@ class TestSDEIntegration:
         assert callable(system.integrate)
 
     @pytest.mark.parametrize(
-        "method,backend", [("EM", "numpy"), ("euler", "torch"), ("Euler", "jax")],
+        "method,backend",
+        [("EM", "numpy"), ("euler", "torch"), ("Euler", "jax")],
     )
     def test_single_path_integration(self, method, backend):
         """Test single trajectory integration with backend-appropriate methods."""
@@ -842,7 +845,12 @@ class TestSDEIntegration:
 
         try:
             result = system.integrate(
-                x0=x0, u=None, t_span=(0.0, 0.5), method=method, dt=0.01, seed=42,
+                x0=x0,
+                u=None,
+                t_span=(0.0, 0.5),
+                method=method,
+                dt=0.01,
+                seed=42,
             )
 
             # Check basic result structure - be flexible about success
@@ -915,7 +923,12 @@ class TestSDEIntegration:
                 u_const = np.array([0.5])
 
                 result = system.integrate(
-                    x0=x0, u=u_const, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
+                    x0=x0,
+                    u=u_const,
+                    t_span=(0.0, 0.2),
+                    method=method,
+                    dt=0.01,
+                    seed=42,
                 )
 
                 assert result.get("success", True)
@@ -946,7 +959,12 @@ class TestSDEIntegration:
                     return np.array([np.sin(t)])
 
                 result = system.integrate(
-                    x0=x0, u=u_func, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
+                    x0=x0,
+                    u=u_func,
+                    t_span=(0.0, 0.2),
+                    method=method,
+                    dt=0.01,
+                    seed=42,
                 )
 
                 assert result.get("success", True)
@@ -974,7 +992,12 @@ class TestSDEIntegration:
                 x0 = np.array([0.0])
 
                 result = system.integrate(
-                    x0=x0, u=None, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
+                    x0=x0,
+                    u=None,
+                    t_span=(0.0, 0.2),
+                    method=method,
+                    dt=0.01,
+                    seed=42,
                 )
 
                 assert result.get("success", True)
