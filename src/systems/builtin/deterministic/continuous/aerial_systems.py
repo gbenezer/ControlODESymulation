@@ -15,12 +15,12 @@
 
 import numpy as np
 import sympy as sp
-import torch
+from typing import Optional
 
-from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
+from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
 
-class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
+class SymbolicQuadrotor2D(ContinuousSymbolicSystem):
     """
     Planar quadrotor (quadcopter) - second-order formulation.
 
@@ -88,7 +88,7 @@ class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
 
     Default Physical Parameters:
     -----------------------------------
-    - Mass: 0.027 kg (27 grams)
+    - Mass: 0.025 kg (25 grams)
     - Length: 0.046 m (rotor arm)
     - Inertia: 0.00383 kg⋅m²
     - Gravity: 9.81 m/s²
@@ -100,16 +100,29 @@ class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
     CartPole : Another underactuated 2D system
     """
 
-    def __init__(
+    def define_system(
         self,
-        length: float = 0.25,
-        mass: float = 0.486,
-        inertia: float = 0.00383,
-        gravity: float = 9.81,
+        length_val: float = 0.25,
+        mass_val: float = 0.486,
+        inertia_val: float = 0.00383,
+        gravity_val: float = 9.81,
+        x_hover: Optional[float] = None,
+        y_hover: Optional[float] = None,
     ):
-        super().__init__(length, mass, inertia, gravity)
 
-    def define_system(self, length_val, mass_val, inertia_val, gravity_val):
+        # define the equilibrium hover position if specified
+        # and catch misspecification
+        if x_hover is not None and y_hover is None:
+            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
+        elif x_hover is None and y_hover is not None:
+            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
+        elif x_hover is not None and y_hover is not None:
+            self.x_hover = x_hover
+            self.y_hover = y_hover
+
+        # get equilibrium thruster force
+        self.u_eq = (mass_val * gravity_val) / 2
+
         x, y, theta, x_dot, y_dot, theta_dot = sp.symbols(
             "x y theta x_dot y_dot theta_dot",
             real=True,
@@ -120,7 +133,7 @@ class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
         self.parameters = {L: length_val, m: mass_val, I: inertia_val, g: gravity_val}
         self.state_vars = [x, y, theta, x_dot, y_dot, theta_dot]
         self.control_vars = [u1, u2]
-        self.output_vars = [x, y, theta]
+        self.output_vars = []
         self.order = 2
 
         # For second-order system, forward() returns acceleration
@@ -131,13 +144,30 @@ class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
         self._f_sym = sp.Matrix([dx_dot, dy_dot, dtheta_dot])
         self._h_sym = sp.Matrix([x, y, theta])
 
-    @property
-    def u_equilibrium(self) -> torch.Tensor:
-        mg = self.mass_val * self.gravity_val
-        return torch.tensor([mg / 2, mg / 2])
+    def setup_equilibria(self):
+        # method to add equilibria to the system automatically after initialization
+
+        # If the user specified a particular location for the equilibrium
+        # set that to be the default equilibrium, otherwise origin and non-zero force
+        if self.x_hover is not None and self.y_hover is not None:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([self.x_hover, self.y_hover, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+        else:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+
+        self.set_default_equilibrium(name="hover position")
 
 
-class SymbolicQuadrotor2DLidar(SymbolicDynamicalSystem):
+class SymbolicQuadrotor2DLidar(ContinuousSymbolicSystem):
     """
     Symbolic representation of a planar (2D) quadrotor with lidar-based partial observations.
 
@@ -205,30 +235,33 @@ class SymbolicQuadrotor2DLidar(SymbolicDynamicalSystem):
         differentiability for automatic Jacobian computation.
     """
 
-    def __init__(
-        self,
-        length: float = 0.25,
-        mass: float = 0.486,
-        inertia: float = 0.00383,
-        gravity: float = 9.81,
-        b: float = 0.0,
-        H: float = 5.0,
-        angle_max: float = 0.149 * np.pi,
-        origin_height: float = 1.0,
-    ):
-        super().__init__(length, mass, inertia, gravity, b, H, angle_max, origin_height)
-
     def define_system(
         self,
-        length_val,
-        mass_val,
-        inertia_val,
-        gravity_val,
-        b_val,
-        H_val,
-        angle_max_val,
-        origin_height_val,
+        length_val: float = 0.25,
+        mass_val: float = 0.486,
+        inertia_val: float = 0.00383,
+        gravity_val: float = 9.81,
+        b_val: float = 0.0,
+        H_val: float = 5.0,
+        angle_max_val: float = 0.149 * np.pi,
+        origin_height_val: float = 1.0,
+        x_hover: Optional[float] = None,
+        y_hover: Optional[float] = None,
     ):
+
+        # define the equilibrium hover position if specified
+        # and catch misspecification
+        if x_hover is not None and y_hover is None:
+            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
+        elif x_hover is None and y_hover is not None:
+            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
+        elif x_hover is not None and y_hover is not None:
+            self.x_hover = x_hover
+            self.y_hover = y_hover
+
+        # get equilibrium thruster force
+        self.u_eq = (mass_val * gravity_val) / 2
+
         y, theta, y_dot, theta_dot = sp.symbols("y theta y_dot theta_dot", real=True)
         u1, u2 = sp.symbols("u1 u2", real=True)
         L, m, I, g, b = sp.symbols("L m I g b", real=True, positive=True)
@@ -284,13 +317,30 @@ class SymbolicQuadrotor2DLidar(SymbolicDynamicalSystem):
         self._h_sym = sp.Matrix(lidar_rays)
         self.output_vars = [sp.Symbol(f"lidar_{i}", real=True) for i in range(ny)]  # ny = 4
 
-    @property
-    def u_equilibrium(self) -> torch.Tensor:
-        mg = self.mass_val * self.gravity_val
-        return torch.tensor([mg / 2, mg / 2])
+    def setup_equilibria(self):
+        # method to add equilibria to the system automatically after initialization
+
+        # If the user specified a particular location for the equilibrium
+        # set that to be the default equilibrium, otherwise origin and non-zero force
+        if self.x_hover is not None and self.y_hover is not None:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([self.x_hover, self.y_hover, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+        else:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+
+        self.set_default_equilibrium(name="hover position")
 
 
-class PVTOL(SymbolicDynamicalSystem):
+class PVTOL(ContinuousSymbolicSystem):
     """
     Planar Vertical Take-Off and Landing (PVTOL) aircraft - second-order formulation.
 
@@ -403,17 +453,30 @@ class PVTOL(SymbolicDynamicalSystem):
     Manipulator2Link : Multi-body system with coupling
     """
 
-    def __init__(
+    def define_system(
         self,
-        length: float = 0.25,
-        mass: float = 4.0,
-        inertia: float = 0.0475,
-        gravity: float = 9.8,
-        dist: float = 0.25,
+        length_val: float = 0.25,
+        mass_val: float = 4.0,
+        inertia_val: float = 0.0475,
+        gravity_val: float = 9.8,
+        dist_val: float = 0.25,
+        x_hover: Optional[float] = None,
+        y_hover: Optional[float] = None,
     ):
-        super().__init__(length, mass, inertia, gravity, dist)
 
-    def define_system(self, length_val, mass_val, inertia_val, gravity_val, dist_val):
+        # define the equilibrium hover position if specified
+        # and catch misspecification
+        if x_hover is not None and y_hover is None:
+            raise ValueError(f"if x_hover is specified, y_hover must also be specified")
+        elif x_hover is None and y_hover is not None:
+            raise ValueError(f"if y_hover is specified, x_hover must also be specified")
+        elif x_hover is not None and y_hover is not None:
+            self.x_hover = x_hover
+            self.y_hover = y_hover
+
+        # get equilibrium thruster force
+        self.u_eq = (mass_val * gravity_val) / 2
+
         # State variables (position and velocity in body frame)
         x, y, theta, x_dot, y_dot, theta_dot = sp.symbols(
             "x y theta x_dot y_dot theta_dot",
@@ -455,10 +518,24 @@ class PVTOL(SymbolicDynamicalSystem):
         self._f_sym = sp.Matrix([x_ddot, y_ddot, theta_ddot])
         self._h_sym = sp.Matrix([x, y, theta])
 
-    @property
-    def x_equilibrium(self) -> torch.Tensor:
-        return torch.zeros(6)
+    def setup_equilibria(self):
+        # method to add equilibria to the system automatically after initialization
 
-    @property
-    def u_equilibrium(self) -> torch.Tensor:
-        return torch.full((2,), self.mass_val * self.gravity_val / 2)
+        # If the user specified a particular location for the equilibrium
+        # set that to be the default equilibrium, otherwise origin and non-zero force
+        if self.x_hover is not None and self.y_hover is not None:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([self.x_hover, self.y_hover, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+        else:
+            self.add_equilibrium(
+                "hover position",
+                x_eq=np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+                u_eq=np.array([self.u_eq, self.u_eq]),
+                stability="stable",
+            )
+
+        self.set_default_equilibrium(name="hover position")

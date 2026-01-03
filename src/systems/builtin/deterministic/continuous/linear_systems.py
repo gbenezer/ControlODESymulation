@@ -31,10 +31,10 @@ All systems have analytical solutions for verification.
 
 import sympy as sp
 
-from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
+from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
 
-class LinearSystem(SymbolicDynamicalSystem):
+class LinearSystem(ContinuousSymbolicSystem):
     """
     First-order linear system: dx/dt = -a*x + b*u
 
@@ -69,13 +69,14 @@ class LinearSystem(SymbolicDynamicalSystem):
         self._f_sym = sp.Matrix([[-a_sym * x + b_sym * u]])
         self.parameters = {a_sym: a, b_sym: b}
         self.order = 1
+        
+    def setup_equilibria(self):
+        # need to check this system, but the origin is probably
+        # an equilibrium
+        pass
 
-        # NOTE: Don't add equilibrium in define_system()!
-        # The EquilibriumHandler is not initialized yet during define_system()
-        # Users should add equilibria AFTER system creation if needed
 
-
-class AutonomousLinearSystem(SymbolicDynamicalSystem):
+class AutonomousLinearSystem(ContinuousSymbolicSystem):
     """
     Autonomous first-order linear system: dx/dt = -a*x
 
@@ -106,9 +107,14 @@ class AutonomousLinearSystem(SymbolicDynamicalSystem):
         self._f_sym = sp.Matrix([[-a_sym * x]])
         self.parameters = {a_sym: a}
         self.order = 1
+        
+    def setup_equilibria(self):
+        # need to check this system, but the origin is probably
+        # an equilibrium
+        pass
 
 
-class LinearSystem2D(SymbolicDynamicalSystem):
+class LinearSystem2D(ContinuousSymbolicSystem):
     """
     Two-dimensional linear system.
 
@@ -175,6 +181,11 @@ class LinearSystem2D(SymbolicDynamicalSystem):
             b2_sym: b2,
         }
         self.order = 1
+        
+    def setup_equilibria(self):
+        # need to check this system, but the origin is probably
+        # an equilibrium
+        pass
 
 
 # ============================================================================

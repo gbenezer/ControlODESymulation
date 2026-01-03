@@ -1,0 +1,353 @@
+# Copyright (C) 2025 Gil Benezer
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import sympy as sp
+
+from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
+
+class VanDerPolOscillator(ContinuousSymbolicSystem):
+    """
+    Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle.
+
+    Physical System:
+    ---------------
+    Originally meant to model electronic oscillator circuits. The system exhibits self-sustained
+    oscillations.
+
+    The key feature is **nonlinear damping**:
+    - Near origin: negative damping (pumps energy in)
+    - Far from origin: positive damping (dissipates energy)
+    - Result: stable limit cycle (periodic orbit)
+
+    State Space:
+    -----------
+    State: x = [x, y]
+        - x: Primary variable [V or dimensionless]
+          * In electrical circuit: voltage or current
+          * In general: oscillating quantity
+
+        - y: Derivative-related variable [V/s or dimensionless]
+          * y ≈ ẋ for μ → 0
+          * Not exactly velocity for μ > 0 (includes nonlinear term)
+
+    Output: y_out = [x]
+        - Measures only x (the oscillating variable)
+        - Partial observation (y not directly measured)
+
+    Dynamics:
+    --------
+    The Van der Pol equation in standard form:
+
+        ẋ = y
+        ẏ = μ(1 - x²)y - x
+
+    Or as a second-order ODE:
+        ẍ - μ(1 - x²)ẋ + x = 0
+
+    **First equation**: Simply defines y ≈ ẋ
+
+    **Second equation**:
+    - μ(1 - x²)y: Nonlinear damping (Van der Pol term)
+      * When |x| < 1: (1 - x²) > 0 → negative damping (adds energy)
+      * When |x| > 1: (1 - x²) < 0 → positive damping (removes energy)
+      * Balance creates stable limit cycle
+
+    - -x: Linear restoring force (like harmonic oscillator)
+      * Provides natural frequency ω₀ ≈ 1
+
+    Parameters:
+    ----------
+    mu : float, default=1.0
+        Nonlinearity parameter [dimensionless].
+        Controls strength of nonlinear damping and oscillation shape:
+
+        - **μ → 0**: Nearly sinusoidal (harmonic oscillator)
+          * Period T ≈ 2π
+          * Smooth, sinusoidal limit cycle
+
+        - **μ = 1**: Standard Van der Pol
+          * Period T ≈ 6.7
+          * Mildly distorted sinusoid
+
+        - **μ >> 1**: Relaxation oscillations
+          * Period T ≈ (3 - 2ln(2))μ ≈ 1.614μ
+          * Sharp "fast" and "slow" phases
+          * Almost discontinuous (spikes and plateaus)
+
+    Behavior Regimes:
+    ----------------
+    **1. Small μ (μ < 0.1): Harmonic-like**
+    - Nearly sinusoidal oscillations
+    - Frequency ≈ 1 rad/s
+    - Smooth limit cycle
+    - Weak nonlinearity
+
+    **2. Moderate μ (0.1 < μ < 3): Nonlinear oscillations**
+    - Visible waveform distortion
+    - Frequency slightly reduced
+    - Standard Van der Pol behavior
+
+    **3. Large μ (μ > 3): Relaxation oscillations**
+    - Two-timescale dynamics
+    - Fast jumps between slow plateaus
+    - Very non-sinusoidal
+    - Period proportional to μ
+
+    Equilibrium:
+    -----------
+    **Origin (unstable)**:
+        x_eq = [0, 0]
+
+    The origin is:
+    - Unstable focus (spiral): trajectories spiral outward
+    - All trajectories (except origin) approach the limit cycle
+    - Eigenvalues: λ = μ/2 ± i√(4-μ²)/2
+      * Real part positive (unstable)
+      * Imaginary part gives oscillation frequency
+
+    Limit Cycle:
+    -----------
+    The system has a unique **stable limit cycle**:
+
+    **Properties**:
+    - Globally attracting (except from origin)
+    - Isolated (no nearby periodic orbits)
+    - Amplitude ≈ 2 for all μ (approximately)
+    - Period depends on μ:
+      * μ → 0: T → 2π (harmonic)
+      * μ = 1: T ≈ 6.7
+      * μ >> 1: T ≈ 1.614μ
+
+    **Basin of attraction**: Entire plane except origin
+    - Any non-zero initial condition → limit cycle
+    - Time to converge depends on distance from cycle
+
+    Relaxation Oscillations (μ >> 1):
+    ---------------------------------
+    For large μ, the system exhibits relaxation oscillations:
+
+    **Mechanism**:
+    1. **Slow phase**: x grows slowly along stable manifold
+    2. **Jump**: At x ≈ 1, rapid transition (fast manifold)
+    3. **Slow phase**: x decreases slowly along stable manifold
+    4. **Jump**: At x ≈ -1, rapid transition back
+    5. Repeat
+
+    **Characteristics**:
+    - Distinct timescales (ε = 1/μ is small parameter)
+    - Almost piecewise linear trajectory
+    - Useful model for on-off systems (heart beats, neurons)
+
+    See Also:
+    --------
+    DuffingOscillator : Another nonlinear oscillator (can be chaotic)
+    Lorenz : 3D system that exhibits chaos
+    NonlinearChainSystem : Multiple coupled oscillators
+    """
+
+    def define_system(self, mu_val: float = 1.0):
+        x, y = sp.symbols("x y", real=True)
+        mu = sp.symbols("mu", real=True, positive=True)
+
+        self.parameters = {mu: mu_val}
+        self.state_vars = [x, y]
+        self.control_vars = []
+        self.output_vars = []
+        self.order = 1
+
+        # Van der Pol dynamics: d²x/dt² - μ(1-x²)dx/dt + x = 0
+        # Rewritten as first-order system
+        dx = y
+        dy = mu * (1 - x**2) * y - x
+
+        self._f_sym = sp.Matrix([dx, dy])
+        self._h_sym = sp.Matrix([x])
+
+    def setup_equilibria(self):
+        # method to add equilibria to the system automatically after initialization
+        # origin is always added regardless, so nothing needs to be done
+        pass
+    
+class ControlledVanDerPolOscillator(ContinuousSymbolicSystem):
+    """
+    Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle and forcing term
+
+    Physical System:
+    ---------------
+    Originally meant to model electronic oscillator circuits. The system exhibits self-sustained
+    oscillations.
+
+    The key feature is **nonlinear damping**:
+    - Near origin: negative damping (pumps energy in)
+    - Far from origin: positive damping (dissipates energy)
+    - Result: stable limit cycle (periodic orbit)
+
+    State Space:
+    -----------
+    State: x = [x, y]
+        - x: Primary variable [V or dimensionless]
+          * In electrical circuit: voltage or current
+          * In general: oscillating quantity
+
+        - y: Derivative-related variable [V/s or dimensionless]
+          * y ≈ ẋ for μ → 0
+          * Not exactly velocity for μ > 0 (includes nonlinear term)
+
+    Control: u = [u]
+        - u: External forcing/input [V or dimensionless]
+        - Can perturb the natural oscillation
+        - Can be used for synchronization or frequency control
+
+    Output: y_out = [x]
+        - Measures only x (the oscillating variable)
+        - Partial observation (y not directly measured)
+
+    Dynamics:
+    --------
+    The Van der Pol equation in standard form:
+
+        ẋ = y
+        ẏ = μ(1 - x²)y - x + u
+
+    Or as a second-order ODE:
+        ẍ - μ(1 - x²)ẋ + x = u
+
+    **First equation**: Simply defines y ≈ ẋ
+
+    **Second equation**:
+    - μ(1 - x²)y: Nonlinear damping (Van der Pol term)
+      * When |x| < 1: (1 - x²) > 0 → negative damping (adds energy)
+      * When |x| > 1: (1 - x²) < 0 → positive damping (removes energy)
+      * Balance creates stable limit cycle
+
+    - -x: Linear restoring force (like harmonic oscillator)
+      * Provides natural frequency ω₀ ≈ 1
+
+    - u: External forcing/control
+
+    Parameters:
+    ----------
+    mu : float, default=1.0
+        Nonlinearity parameter [dimensionless].
+        Controls strength of nonlinear damping and oscillation shape:
+
+        - **μ → 0**: Nearly sinusoidal (harmonic oscillator)
+          * Period T ≈ 2π
+          * Smooth, sinusoidal limit cycle
+
+        - **μ = 1**: Standard Van der Pol
+          * Period T ≈ 6.7
+          * Mildly distorted sinusoid
+
+        - **μ >> 1**: Relaxation oscillations
+          * Period T ≈ (3 - 2ln(2))μ ≈ 1.614μ
+          * Sharp "fast" and "slow" phases
+          * Almost discontinuous (spikes and plateaus)
+
+    Behavior Regimes:
+    ----------------
+    **1. Small μ (μ < 0.1): Harmonic-like**
+    - Nearly sinusoidal oscillations
+    - Frequency ≈ 1 rad/s
+    - Smooth limit cycle
+    - Weak nonlinearity
+
+    **2. Moderate μ (0.1 < μ < 3): Nonlinear oscillations**
+    - Visible waveform distortion
+    - Frequency slightly reduced
+    - Standard Van der Pol behavior
+
+    **3. Large μ (μ > 3): Relaxation oscillations**
+    - Two-timescale dynamics
+    - Fast jumps between slow plateaus
+    - Very non-sinusoidal
+    - Period proportional to μ
+
+    Equilibrium:
+    -----------
+    **Origin (unstable)**:
+        x_eq = [0, 0]
+        u_eq = 0
+
+    For u = 0, the origin is:
+    - Unstable focus (spiral): trajectories spiral outward
+    - All trajectories (except origin) approach the limit cycle
+    - Eigenvalues: λ = μ/2 ± i√(4-μ²)/2
+      * Real part positive (unstable)
+      * Imaginary part gives oscillation frequency
+
+    Limit Cycle:
+    -----------
+    For u = 0, the system has a unique **stable limit cycle**:
+
+    **Properties**:
+    - Globally attracting (except from origin)
+    - Isolated (no nearby periodic orbits)
+    - Amplitude ≈ 2 for all μ (approximately)
+    - Period depends on μ:
+      * μ → 0: T → 2π (harmonic)
+      * μ = 1: T ≈ 6.7
+      * μ >> 1: T ≈ 1.614μ
+
+    **Basin of attraction**: Entire plane except origin
+    - Any non-zero initial condition → limit cycle
+    - Time to converge depends on distance from cycle
+
+    Relaxation Oscillations (μ >> 1):
+    ---------------------------------
+    For large μ, the system exhibits relaxation oscillations:
+
+    **Mechanism**:
+    1. **Slow phase**: x grows slowly along stable manifold
+    2. **Jump**: At x ≈ 1, rapid transition (fast manifold)
+    3. **Slow phase**: x decreases slowly along stable manifold
+    4. **Jump**: At x ≈ -1, rapid transition back
+    5. Repeat
+
+    **Characteristics**:
+    - Distinct timescales (ε = 1/μ is small parameter)
+    - Almost piecewise linear trajectory
+    - Useful model for on-off systems (heart beats, neurons)
+
+    See Also:
+    --------
+    DuffingOscillator : Another nonlinear oscillator (can be chaotic)
+    Lorenz : 3D system that exhibits chaos
+    NonlinearChainSystem : Multiple coupled oscillators
+    """
+
+    def define_system(self, mu_val: float = 1.0):
+        x, y = sp.symbols("x y", real=True)
+        u = sp.symbols("u", real=True)
+        mu = sp.symbols("mu", real=True, positive=True)
+
+        self.parameters = {mu: mu_val}
+        self.state_vars = [x, y]
+        self.control_vars = [u]
+        self.output_vars = []
+        self.order = 1
+
+        # Van der Pol dynamics: d²x/dt² - μ(1-x²)dx/dt + x = u
+        # Rewritten as first-order system
+        dx = y
+        dy = mu * (1 - x**2) * y - x + u
+
+        self._f_sym = sp.Matrix([dx, dy])
+        self._h_sym = sp.Matrix([x])
+
+    def setup_equilibria(self):
+        # method to add equilibria to the system automatically after initialization
+        # origin is always added regardless, so nothing needs to be done
+        pass

@@ -14,12 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import sympy as sp
-import torch
 
-from src.systems.base.symbolic_dynamical_system import SymbolicDynamicalSystem
+from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 
 
-class VanDerPolOscillator(SymbolicDynamicalSystem):
+class VanDerPolOscillator(ContinuousSymbolicSystem):
     """
     Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle.
 
@@ -198,7 +197,7 @@ class VanDerPolOscillator(SymbolicDynamicalSystem):
         return torch.zeros(1)
 
 
-class Lorenz(SymbolicDynamicalSystem):
+class Lorenz(ContinuousSymbolicSystem):
     """
     Lorenz system - famous chaotic dynamical system from atmospheric convection.
 
@@ -387,7 +386,7 @@ class Lorenz(SymbolicDynamicalSystem):
         return torch.zeros(1)
 
 
-class DuffingOscillator(SymbolicDynamicalSystem):
+class DuffingOscillator(ContinuousSymbolicSystem):
     """
     Duffing oscillator - nonlinear oscillator with cubic stiffness term.
 
