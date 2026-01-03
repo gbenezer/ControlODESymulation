@@ -227,7 +227,7 @@ exclude = ["tests*", "docs*"]
 [tool.setuptools.package-data]
 src = ["py.typed", "*.pyi"]
 
-# Dynamic version from __version__.py
+# Dynamic version from src/__init__.py
 [tool.setuptools.dynamic]
 version = {attr = "src.__version__"}
 
