@@ -343,7 +343,11 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
         return getattr(self.de, algorithm, None)
 
     def _setup_julia_problem(
-        self, x0: np.ndarray, u_func: Callable, t_span: Tuple[float, float], noise_process=None,
+        self,
+        x0: np.ndarray,
+        u_func: Callable,
+        t_span: Tuple[float, float],
+        noise_process=None,
     ):
         """
         Setup Julia SDE problem.
@@ -594,7 +598,10 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
         # Setup problem for single step
         problem = self._setup_julia_problem(
-            x, u_func, (0.0, step_size), noise_process=noise_process,
+            x,
+            u_func,
+            (0.0, step_size),
+            noise_process=noise_process,
         )
 
         # Create algorithm instance
@@ -1022,7 +1029,9 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
     @staticmethod
     def recommend_algorithm(
-        noise_type: str, stiffness: str = "none", accuracy: str = "medium",
+        noise_type: str,
+        stiffness: str = "none",
+        accuracy: str = "medium",
     ) -> str:
         """
         Recommend Julia SDE algorithm based on problem characteristics.
@@ -1098,7 +1107,10 @@ class DiffEqPySDEIntegrator(SDEIntegratorBase):
 
 
 def create_diffeqpy_sde_integrator(
-    sde_system: "ContinuousStochasticSystem", algorithm: str = "EM", dt: float = 0.01, **options,
+    sde_system: "ContinuousStochasticSystem",
+    algorithm: str = "EM",
+    dt: float = 0.01,
+    **options,
 ) -> DiffEqPySDEIntegrator:
     """
     Quick factory for Julia SDE integrators.

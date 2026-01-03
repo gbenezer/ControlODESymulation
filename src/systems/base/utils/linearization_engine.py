@@ -202,7 +202,9 @@ class LinearizationEngine:
 
     # TODO: Symbolic TypedDict Return-Type?
     def compute_symbolic(
-        self, x_eq: Optional[sp.Matrix] = None, u_eq: Optional[sp.Matrix] = None,
+        self,
+        x_eq: Optional[sp.Matrix] = None,
+        u_eq: Optional[sp.Matrix] = None,
     ) -> Tuple[sp.Matrix, sp.Matrix]:
         """
         Compute symbolic linearization A = ∂f/∂x, B = ∂f/∂u.
@@ -398,7 +400,8 @@ class LinearizationEngine:
                 if self.system.nu > 0:
                     u_np = np.atleast_1d(u[i])
                     A_sym, B_sym = self.compute_symbolic(
-                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
+                        sp.Matrix(x_np.reshape(-1, 1)),
+                        sp.Matrix(u_np.reshape(-1, 1)),
                     )
                 else:
                     # Autonomous: pass None for u_eq
@@ -422,7 +425,9 @@ class LinearizationEngine:
         return A_batch, B_batch
 
     def _compute_dynamics_torch(
-        self, x: "torch.Tensor", u: "torch.Tensor",
+        self,
+        x: "torch.Tensor",
+        u: "torch.Tensor",
     ) -> DeterministicLinearization:
         """
         PyTorch implementation using cached functions or symbolic evaluation.
@@ -465,10 +470,18 @@ class LinearizationEngine:
         dtype = x.dtype
 
         A_batch = torch.zeros(
-            batch_size, self.system.nx, self.system.nx, dtype=dtype, device=device,
+            batch_size,
+            self.system.nx,
+            self.system.nx,
+            dtype=dtype,
+            device=device,
         )
         B_batch = torch.zeros(
-            batch_size, self.system.nx, self.system.nu, dtype=dtype, device=device,
+            batch_size,
+            self.system.nx,
+            self.system.nu,
+            dtype=dtype,
+            device=device,
         )
 
         # Try to get cached Jacobian functions
@@ -506,17 +519,22 @@ class LinearizationEngine:
                     u_np = np.atleast_1d(u_np)
 
                     A_sym, B_sym = self.compute_symbolic(
-                        sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
+                        sp.Matrix(x_np.reshape(-1, 1)),
+                        sp.Matrix(u_np.reshape(-1, 1)),
                     )
                 else:
                     # Autonomous: pass None for u_eq
                     A_sym, B_sym = self.compute_symbolic(sp.Matrix(x_np.reshape(-1, 1)), u_eq=None)
 
                 A_batch[i] = torch.tensor(
-                    np.array(A_sym, dtype=np.float64), dtype=dtype, device=device,
+                    np.array(A_sym, dtype=np.float64),
+                    dtype=dtype,
+                    device=device,
                 )
                 B_batch[i] = torch.tensor(
-                    np.array(B_sym, dtype=np.float64), dtype=dtype, device=device,
+                    np.array(B_sym, dtype=np.float64),
+                    dtype=dtype,
+                    device=device,
                 )
 
         if squeeze_output:
@@ -534,7 +552,9 @@ class LinearizationEngine:
         return A_batch, B_batch
 
     def _compute_dynamics_jax(
-        self, x: "jnp.ndarray", u: "jnp.ndarray",
+        self,
+        x: "jnp.ndarray",
+        u: "jnp.ndarray",
     ) -> DeterministicLinearization:
         """
         JAX implementation using automatic differentiation.
@@ -690,7 +710,10 @@ class LinearizationEngine:
         return self._verify_jacobians_jax(x, u, tol)
 
     def _verify_jacobians_torch(
-        self, x: ArrayLike, u: ArrayLike, tol: float,
+        self,
+        x: ArrayLike,
+        u: ArrayLike,
+        tol: float,
     ) -> Dict[str, Union[bool, float]]:
         """
         PyTorch-based Jacobian verification.
@@ -754,14 +777,20 @@ class LinearizationEngine:
             for i in range(n_outputs):
                 if fx[0, i].requires_grad:
                     grad_x = torch.autograd.grad(
-                        fx[0, i], x_grad, retain_graph=True, create_graph=False,
+                        fx[0, i],
+                        x_grad,
+                        retain_graph=True,
+                        create_graph=False,
                     )[0]
                     A_num[0, i] = grad_x[0]
 
                     # Only compute B gradient for non-autonomous
                     if self.system.nu > 0:
                         grad_u = torch.autograd.grad(
-                            fx[0, i], u_grad, retain_graph=True, create_graph=False,
+                            fx[0, i],
+                            u_grad,
+                            retain_graph=True,
+                            create_graph=False,
                         )[0]
                         B_num[0, i] = grad_u[0]
         else:
@@ -769,7 +798,10 @@ class LinearizationEngine:
             for i in range(n_outputs):
                 if fx[0, i].requires_grad:
                     grad_x = torch.autograd.grad(
-                        fx[0, i], x_grad, retain_graph=True, create_graph=False,
+                        fx[0, i],
+                        x_grad,
+                        retain_graph=True,
+                        create_graph=False,
                     )[0]
 
                     row_idx = (self.system.order - 1) * self.system.nq + i
@@ -778,7 +810,10 @@ class LinearizationEngine:
                     # Only compute B gradient for non-autonomous
                     if self.system.nu > 0:
                         grad_u = torch.autograd.grad(
-                            fx[0, i], u_grad, retain_graph=True, create_graph=False,
+                            fx[0, i],
+                            u_grad,
+                            retain_graph=True,
+                            create_graph=False,
                         )[0]
                         B_num[0, row_idx] = grad_u[0]
 
@@ -805,7 +840,10 @@ class LinearizationEngine:
         }
 
     def _verify_jacobians_jax(
-        self, x: ArrayLike, u: ArrayLike, tol: float,
+        self,
+        x: ArrayLike,
+        u: ArrayLike,
+        tol: float,
     ) -> Dict[str, Union[bool, float]]:
         """
         JAX-based Jacobian verification.
@@ -838,7 +876,8 @@ class LinearizationEngine:
         if self.system.nu > 0:
             u_np = np.array(u_2d[0])
             A_sym, B_sym = self.compute_symbolic(
-                sp.Matrix(x_np.reshape(-1, 1)), sp.Matrix(u_np.reshape(-1, 1)),
+                sp.Matrix(x_np.reshape(-1, 1)),
+                sp.Matrix(u_np.reshape(-1, 1)),
             )
         else:
             # Autonomous: pass None for u_eq

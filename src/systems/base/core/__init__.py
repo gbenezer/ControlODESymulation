@@ -215,7 +215,7 @@ Layer 3 - Stochastic Systems:
             Check if diffusion depends on particular variables
         compile_diffusion, compile_all, reset_diffusion_cache, reset_all_caches
             Companion methods to pre-compile diffusion functions or both functions and reset them
-            
+
 Layer 4 - Discretized Systems (Bridge):
 
     DiscretizedSystem(DiscreteSystemBase):
@@ -259,33 +259,33 @@ License
 GNU Affero General Public License v3.0
 """
 
-# Layer 1: Abstract base classes
-from .continuous_system_base import ContinuousSystemBase
-from .discrete_system_base import DiscreteSystemBase
-from .symbolic_system_base import SymbolicSystemBase
+# Layer 3: Stochastic systems
+from .continuous_stochastic_system import ContinuousStochasticSystem, StochasticDynamicalSystem
 
 # Layer 2: Deterministic symbolic systems
 from .continuous_symbolic_system import (
-    ContinuousSymbolicSystem,
     ContinuousDynamicalSystem,
+    ContinuousSymbolicSystem,
     SymbolicDynamicalSystem,
 )
-from .discrete_symbolic_system import DiscreteSymbolicSystem, DiscreteDynamicalSystem
 
-# Layer 3: Stochastic systems
-from .continuous_stochastic_system import ContinuousStochasticSystem, StochasticDynamicalSystem
+# Layer 1: Abstract base classes
+from .continuous_system_base import ContinuousSystemBase
 from .discrete_stochastic_system import DiscreteStochasticSystem
+from .discrete_symbolic_system import DiscreteDynamicalSystem, DiscreteSymbolicSystem
+from .discrete_system_base import DiscreteSystemBase
 
 # Layer 4: Discretized systems (bridge)
 from .discretized_system import (
     DiscretizationMode,
     DiscretizedSystem,
+    analyze_discretization_error,
+    compute_discretization_quality,
     discretize,
     discretize_batch,
-    analyze_discretization_error,
     recommend_dt,
-    compute_discretization_quality,
 )
+from .symbolic_system_base import SymbolicSystemBase
 
 # Export public API
 __all__ = [

@@ -21,7 +21,6 @@ design result types.
 """
 
 import numpy as np
-import pytest
 
 from src.types.control_classical import (
     ControllabilityInfo,

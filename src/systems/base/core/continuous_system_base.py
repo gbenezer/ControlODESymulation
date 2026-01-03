@@ -32,6 +32,7 @@ from src.types.trajectories import IntegrationResult, SimulationResult, TimeSpan
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
+
     from src.control.control_synthesis import ControlSynthesis
     from src.control.system_analysis import SystemAnalysis
     from src.visualization.control_plots import ControlPlotter
@@ -379,7 +380,9 @@ class ContinuousSystemBase(ABC):
 
     @abstractmethod
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute linearized dynamics around an equilibrium point.
@@ -858,7 +861,12 @@ class ContinuousSystemBase(ABC):
         """
         # Call simulate() with same functionality
         result = self.simulate(
-            x0=x0, controller=policy, t_span=t_span, dt=dt, method=method, **kwargs,
+            x0=x0,
+            controller=policy,
+            t_span=t_span,
+            dt=dt,
+            method=method,
+            **kwargs,
         )
 
         # Add closed_loop flag to metadata for consistency with discrete systems
@@ -974,8 +982,7 @@ class ContinuousSystemBase(ABC):
             self._system_analysis = SystemAnalysis(backend=backend_str)
 
         return self._system_analysis
-    
-    
+
     # =========================================================================
     # Plotting Framework Integration
     # =========================================================================
@@ -1213,7 +1220,7 @@ class ContinuousSystemBase(ABC):
         Continuous system stability:
         - **Continuous: Re(λ) < 0 (left half-plane)** ← Use system_type='continuous'
         - Discrete: |λ| < 1 (inside unit circle)
-        
+
         Always specify `system_type='continuous'` for continuous systems!
         """
         if not hasattr(self, "_control_plotter"):
@@ -1307,7 +1314,7 @@ class ContinuousSystemBase(ABC):
         - Extracts time and state from result dictionary
         - Calls plotter.plot_trajectory() with appropriate arguments
         - Returns Plotly figure for further customization
-        
+
         For more control over plotting, use plotter methods directly.
         """
         return self.plotter.plot_trajectory(

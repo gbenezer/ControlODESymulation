@@ -51,14 +51,13 @@ except ImportError:
 from src.systems.base.utils.backend_manager import BackendManager
 
 # Import types for type safety tests
-from src.types import ArrayLike
 from src.types.backends import (
-    Backend,
-    Device,
-    BackendConfig,
     DEFAULT_BACKEND,
     DEFAULT_DEVICE,
     VALID_BACKENDS,
+    Backend,
+    BackendConfig,
+    Device,
     validate_backend,
     validate_device,
 )
@@ -98,7 +97,6 @@ class TestTypeSystemIntegration:
 
     def test_validate_device_numpy_cpu_only(self):
         """Test that NumPy backend only accepts CPU."""
-        from src.types.backends import validate_device
 
         # NumPy with CPU - should work
         assert validate_device("cpu", "numpy") == "cpu"
@@ -113,7 +111,6 @@ class TestTypeSystemIntegration:
 
     def test_validate_device_cuda_requires_gpu_backend(self):
         """Test that CUDA device requires GPU-capable backend."""
-        from src.types.backends import validate_device
 
         # CUDA with torch/jax - should work
         assert validate_device("cuda", "torch") == "cuda"
@@ -125,7 +122,6 @@ class TestTypeSystemIntegration:
 
     def test_validate_device_mps_requires_torch(self):
         """Test that MPS device requires torch backend."""
-        from src.types.backends import validate_device
 
         # MPS with torch - should work
         assert validate_device("mps", "torch") == "mps"
@@ -403,7 +399,7 @@ class TestBackendConversion:
         assert np.allclose(x_numpy, np.array([1.0, 2.0]))
 
     @pytest.mark.skipif(
-        not (torch_available and jax_available), reason="Both PyTorch and JAX required"
+        not (torch_available and jax_available), reason="Both PyTorch and JAX required",
     )
     def test_torch_to_jax(self):
         """Test PyTorch to JAX conversion (via NumPy)"""
@@ -433,7 +429,6 @@ class TestBackendConversion:
 
         # If we try to use an unavailable backend, should get clear error
         # (This would only trigger if we could somehow make torch unavailable)
-        pass
 
     def test_convert_preserves_dtype(self):
         """Test that conversion preserves data type when possible"""
@@ -884,7 +879,7 @@ class TestIntegration:
             back_to_numpy = mgr.convert(converted, "numpy")
 
             assert np.allclose(
-                original, back_to_numpy
+                original, back_to_numpy,
             ), f"Values changed during {backend} round-trip"
 
     def test_type_safe_workflow(self):
@@ -1131,7 +1126,7 @@ class TestEnsureType:
         assert x_ensured.dtype == torch.float64  # Default for non-numpy input
 
     @pytest.mark.skipif(
-        not torch_available or not torch.cuda.is_available(), reason="CUDA not available"
+        not torch_available or not torch.cuda.is_available(), reason="CUDA not available",
     )
     def test_ensure_type_torch_device_placement(self):
         """Test that tensors are moved to preferred device"""
@@ -1148,7 +1143,7 @@ class TestEnsureType:
         assert torch.allclose(x_ensured.cpu(), x_cpu)
 
     @pytest.mark.skipif(
-        not torch_available or not torch.cuda.is_available(), reason="CUDA not available"
+        not torch_available or not torch.cuda.is_available(), reason="CUDA not available",
     )
     def test_ensure_type_torch_already_on_correct_device(self):
         """Test that tensors already on correct device are returned as-is"""

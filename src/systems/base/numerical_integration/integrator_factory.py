@@ -348,7 +348,12 @@ class IntegratorFactory:
                 )
 
                 return DiffEqPyIntegrator(
-                    system, dt=dt, step_mode=step_mode, backend="numpy", algorithm=method, **options,
+                    system,
+                    dt=dt,
+                    step_mode=step_mode,
+                    backend="numpy",
+                    algorithm=method,
+                    **options,
                 )
             except ImportError as e:
                 raise ImportError(
@@ -471,7 +476,12 @@ class IntegratorFactory:
 
         # Always use TorchDiffEq for torch backend
         return TorchDiffEqIntegrator(
-            system, dt=dt, step_mode=step_mode, backend="torch", method=method, **options,
+            system,
+            dt=dt,
+            step_mode=step_mode,
+            backend="torch",
+            method=method,
+            **options,
         )
 
     @classmethod
@@ -516,7 +526,10 @@ class IntegratorFactory:
 
     @classmethod
     def auto(
-        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options,
+        cls,
+        system: "ContinuousSystemBase",
+        prefer_backend: Optional[Backend] = None,
+        **options,
     ) -> IntegratorBase:
         """
         Automatically select best integrator for system.
@@ -581,7 +594,10 @@ class IntegratorFactory:
 
     @classmethod
     def for_production(
-        cls, system: "ContinuousSystemBase", use_julia: bool = False, **options,
+        cls,
+        system: "ContinuousSystemBase",
+        use_julia: bool = False,
+        **options,
     ) -> IntegratorBase:
         """
         Create integrator for production use.
@@ -655,7 +671,10 @@ class IntegratorFactory:
 
     @classmethod
     def for_optimization(
-        cls, system: "ContinuousSystemBase", prefer_backend: Optional[Backend] = None, **options,
+        cls,
+        system: "ContinuousSystemBase",
+        prefer_backend: Optional[Backend] = None,
+        **options,
     ) -> IntegratorBase:
         """
         Create integrator optimized for gradient-based optimization.
@@ -721,7 +740,10 @@ class IntegratorFactory:
 
     @classmethod
     def for_neural_ode(
-        cls, system: "ContinuousSystemBase", use_adjoint: bool = True, **options,
+        cls,
+        system: "ContinuousSystemBase",
+        use_adjoint: bool = True,
+        **options,
     ) -> IntegratorBase:
         """
         Create integrator for Neural ODE training.
@@ -844,7 +866,12 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_simple(autonomous_system)
         """
         return cls.create(
-            system, backend=backend, method="rk4", dt=dt, step_mode=StepMode.FIXED, **options,
+            system,
+            backend=backend,
+            method="rk4",
+            dt=dt,
+            step_mode=StepMode.FIXED,
+            **options,
         )
 
     @classmethod
@@ -884,7 +911,12 @@ class IntegratorFactory:
         >>> integrator = IntegratorFactory.for_educational(autonomous_system)
         """
         return cls.create(
-            system, backend=backend, method="euler", dt=dt, step_mode=StepMode.FIXED, **options,
+            system,
+            backend=backend,
+            method="euler",
+            dt=dt,
+            step_mode=StepMode.FIXED,
+            **options,
         )
 
     # ========================================================================
@@ -1218,7 +1250,8 @@ class IntegratorFactory:
         }
 
         return method_info.get(
-            method, {"name": method, "description": "No information available", "backend": backend},
+            method,
+            {"name": method, "description": "No information available", "backend": backend},
         )
 
 

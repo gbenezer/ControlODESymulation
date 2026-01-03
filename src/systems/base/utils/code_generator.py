@@ -345,7 +345,8 @@ class CodeGenerator:
 
     # TODO: Change to a TypedDict-based return?
     def get_jacobians(
-        self, backend: Backend,
+        self,
+        backend: Backend,
     ) -> Tuple[Optional[Callable], Optional[Callable], Optional[Callable]]:
         """
         Get cached Jacobian functions without generating.

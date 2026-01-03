@@ -19,8 +19,8 @@ Control Synthesis Wrapper
 Thin wrapper around classical control functions for system composition.
 
 Provides backend consistency with parent system while delegating to
-pure functions in classical_control_functions.py. This is NOT a heavy 
-utility - it simply routes to stateless algorithms with the appropriate 
+pure functions in classical_control_functions.py. This is NOT a heavy
+utility - it simply routes to stateless algorithms with the appropriate
 backend setting.
 
 Design Philosophy

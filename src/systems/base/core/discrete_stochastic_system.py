@@ -975,7 +975,7 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
     def is_scalar_noise(self) -> bool:
         """Check if system has single noise source."""
         return self.noise_characteristics.is_scalar
-    
+
     def is_pure_diffusion(self) -> bool:
         """Check if system is pure diffusion (zero deterministic part)."""
         return all(expr == 0 for expr in self._f_sym)
@@ -1050,13 +1050,19 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
     # ========================================================================
 
     def compile_diffusion(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
+        self,
+        backends: Optional[List[Backend]] = None,
+        verbose: bool = False,
+        **kwargs,
     ) -> Dict[Backend, float]:
         """Pre-compile diffusion functions for specified backends."""
         return self.diffusion_handler.compile_all(backends=backends, verbose=verbose, **kwargs)
 
     def compile_all(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
+        self,
+        backends: Optional[List[Backend]] = None,
+        verbose: bool = False,
+        **kwargs,
     ) -> Dict[Backend, Dict[str, float]]:
         """
         Compile both deterministic and diffusion for all backends.
@@ -1080,7 +1086,9 @@ class DiscreteStochasticSystem(DiscreteSymbolicSystem):
 
             # Compile diffusion
             diffusion_timings = self.compile_diffusion(
-                backends=[backend], verbose=verbose, **kwargs,
+                backends=[backend],
+                verbose=verbose,
+                **kwargs,
             )
 
             results[backend] = {

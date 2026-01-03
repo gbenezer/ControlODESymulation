@@ -21,7 +21,6 @@ for the symbolic mathematics module.
 """
 
 import numpy as np
-import pytest
 import sympy as sp
 
 from src.types.symbolic import (
@@ -162,7 +161,7 @@ class TestSystemEquationTypes:
         m, l, g, b = sp.symbols("m l g b", positive=True)
 
         f: SymbolicStateEquations = sp.Matrix(
-            [omega, -(g / l) * sp.sin(theta) - (b / m) * omega + u / (m * l**2)]
+            [omega, -(g / l) * sp.sin(theta) - (b / m) * omega + u / (m * l**2)],
         )
 
         assert f.shape == (2, 1)
@@ -178,7 +177,7 @@ class TestSystemEquationTypes:
         # Compute Jacobian (A matrix for linearization)
         A = f.jacobian([x, y])
         assert A.shape == (2, 2)
-        assert A == sp.Matrix([[0, 1], [-1, 0]])
+        assert sp.Matrix([[0, 1], [-1, 0]]) == A
 
     def test_symbolic_output_equations_partial(self):
         """Test partial state observation."""
@@ -209,7 +208,7 @@ class TestSystemEquationTypes:
 
         # Polar coordinates from Cartesian
         h: SymbolicOutputEquations = sp.Matrix(
-            [sp.sqrt(x**2 + y**2), sp.atan2(y, x)]  # Distance  # Angle
+            [sp.sqrt(x**2 + y**2), sp.atan2(y, x)],  # Distance  # Angle
         )
 
         assert h.shape == (2, 1)
@@ -518,7 +517,7 @@ class TestDocumentationExamples:
         m, l, g, b = sp.symbols("m l g b", positive=True)
 
         f: SymbolicStateEquations = sp.Matrix(
-            [omega, -(g / l) * sp.sin(theta) - (b / m) * omega + u / (m * l**2)]
+            [omega, -(g / l) * sp.sin(theta) - (b / m) * omega + u / (m * l**2)],
         )
 
         assert f.shape == (2, 1)
@@ -568,7 +567,7 @@ class TestPracticalUseCases:
 
         # State equations
         f: SymbolicStateEquations = sp.Matrix(
-            [omega, -(g / l) * sp.sin(theta) - (b / (m * l**2)) * omega + u / (m * l**2)]
+            [omega, -(g / l) * sp.sin(theta) - (b / (m * l**2)) * omega + u / (m * l**2)],
         )
 
         # Output (measure angle only)

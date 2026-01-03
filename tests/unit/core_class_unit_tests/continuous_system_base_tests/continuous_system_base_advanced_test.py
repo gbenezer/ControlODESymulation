@@ -63,23 +63,15 @@ Run specific category:
     pytest test_continuous_system_base_advanced.py::TestEventDetection -v
 """
 
-import copy
 import json
-import pickle
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Optional, Tuple, Callable
-from unittest.mock import Mock, patch
 
 import numpy as np
-import pytest
 from scipy import linalg, signal
 from scipy.interpolate import CubicSpline
 
-from src.types.core import ControlVector, StateVector
-from src.types.linearization import ContinuousLinearization
-from src.types.trajectories import IntegrationResult, SimulationResult
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 
 # Conditional imports for backends
@@ -138,7 +130,7 @@ class MassSpringDamper(ContinuousSystemBase):
                 elif len(sig.parameters) == 2:
                     u_val = u(t, x)  # State-feedback ← Now passes x from rhs!
                 else:
-                    raise ValueError(f"Control function must have 1 or 2 parameters")
+                    raise ValueError("Control function must have 1 or 2 parameters")
             else:
                 u_val = u  # Constant array
 
@@ -205,7 +197,7 @@ class DoublePendulum(ContinuousSystemBase):
                 elif len(sig.parameters) == 2:
                     u_val = u(t, x)  # State-feedback ← Now passes x from rhs!
                 else:
-                    raise ValueError(f"Control function must have 1 or 2 parameters")
+                    raise ValueError("Control function must have 1 or 2 parameters")
             else:
                 u_val = u  # Constant array
 
@@ -232,7 +224,7 @@ class DoublePendulum(ContinuousSystemBase):
                 [0, 0, 0, 1],
                 [-self.g / self.l1 * np.cos(theta1), 0, -0.1, 0],
                 [0, -self.g / self.l2 * np.cos(theta2), 0, -0.1],
-            ]
+            ],
         )
         B = np.zeros((4, 0))
         return (A, B)
@@ -271,7 +263,7 @@ class SystemWithOutput(ContinuousSystemBase):
                 elif len(sig.parameters) == 2:
                     u_val = u(t, x)  # State-feedback ← Now passes x from rhs!
                 else:
-                    raise ValueError(f"Control function must have 1 or 2 parameters")
+                    raise ValueError("Control function must have 1 or 2 parameters")
             else:
                 u_val = u  # Constant array
 
@@ -329,7 +321,7 @@ class ParametricSystem(ContinuousSystemBase):
                 elif len(sig.parameters) == 2:
                     u_val = u(t, x)  # State-feedback ← Now passes x from rhs!
                 else:
-                    raise ValueError(f"Control function must have 1 or 2 parameters")
+                    raise ValueError("Control function must have 1 or 2 parameters")
             else:
                 u_val = u  # Constant array
 
@@ -378,9 +370,8 @@ class SwitchedSystem(ContinuousSystemBase):
         if self.mode == 0:
             # Mode 0: stable
             return np.array([-x[0] + u[0], -2 * x[1]])
-        else:
-            # Mode 1: different dynamics
-            return np.array([-2 * x[0], -x[1] + u[0]])
+        # Mode 1: different dynamics
+        return np.array([-2 * x[0], -x[1] + u[0]])
 
     def check_switch_condition(self, x, t):
         """Check if mode switch should occur."""
@@ -389,7 +380,7 @@ class SwitchedSystem(ContinuousSystemBase):
             self.mode = 1
             self.switch_count += 1
             return True
-        elif self.mode == 1 and x[0] > 0:
+        if self.mode == 1 and x[0] > 0:
             self.mode = 0
             self.switch_count += 1
             return True
@@ -411,7 +402,7 @@ class SwitchedSystem(ContinuousSystemBase):
                 elif len(sig.parameters) == 2:
                     u_val = u(t, x)  # State-feedback ← Now passes x from rhs!
                 else:
-                    raise ValueError(f"Control function must have 1 or 2 parameters")
+                    raise ValueError("Control function must have 1 or 2 parameters")
             else:
                 u_val = u  # Constant array
 
@@ -535,7 +526,7 @@ class TestEventDetection(unittest.TestCase):
         from scipy.integrate import solve_ivp
 
         result = solve_ivp(
-            lambda t, x: system(x, u(t), t), (0, 100), x0, events=event_max_position, method="RK45"
+            lambda t, x: system(x, u(t), t), (0, 100), x0, events=event_max_position, method="RK45",
         )
 
         # Should stop early
@@ -1066,7 +1057,7 @@ class TestTrajectoryOptimization(unittest.TestCase):
         # Larger control should move state more from origin
         # With u, equilibrium is at x_eq = u/k, so larger u → larger x_eq
         self.assertGreater(
-            np.linalg.norm(final_states[-1] - x0), np.linalg.norm(final_states[0] - x0)
+            np.linalg.norm(final_states[-1] - x0), np.linalg.norm(final_states[0] - x0),
         )
 
 
@@ -1211,12 +1202,12 @@ class TestCheckpointing(unittest.TestCase):
                 json.dump(system_dict, f)
 
             # Load
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 loaded_dict = json.load(f)
 
             # Recreate system
             restored_system = MassSpringDamper(
-                m=loaded_dict["m"], k=loaded_dict["k"], c=loaded_dict["c"]
+                m=loaded_dict["m"], k=loaded_dict["k"], c=loaded_dict["c"],
             )
 
             # Verify parameters match

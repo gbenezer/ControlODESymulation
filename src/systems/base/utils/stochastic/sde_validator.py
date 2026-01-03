@@ -49,7 +49,6 @@ class ValidationError(Exception):
     """Raised when SDE validation fails."""
 
 
-
 class SDEValidationInfo(TypedDict):
     """
     Type-safe info dictionary for SDE validation results.

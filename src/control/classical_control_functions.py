@@ -154,6 +154,7 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
 # LQR - Linear Quadratic Regulator
 # ============================================================================
 
+
 def design_lqr(
     A: StateMatrix,
     B: InputMatrix,
@@ -217,46 +218,46 @@ def design_lqr(
     Examples
     --------
     Continuous-time double integrator:
-    
+
     >>> A = np.array([[0, 1], [0, 0]])
     >>> B = np.array([[0], [1]])
     >>> Q = np.diag([10, 1])  # Penalize position more
     >>> R = np.array([[0.1]])
-    >>> 
+    >>>
     >>> result = design_lqr(A, B, Q, R, system_type='continuous')
     >>> K = result['gain']
     >>> print(f"Gain: {K}")
     >>> print(f"Stable: {result['stability_margin'] > 0}")
-    
+
     Discrete-time system:
-    
+
     >>> Ad = np.array([[1, 0.1], [0, 1]])
     >>> Bd = np.array([[0.005], [0.1]])
     >>> Q = np.diag([10, 1])
     >>> R = np.array([[0.1]])
-    >>> 
+    >>>
     >>> result = design_lqr(Ad, Bd, Q, R, system_type='discrete')
     >>> K = result['gain']
-    >>> 
+    >>>
     >>> # Apply control in simulation
     >>> x = np.array([1.0, 0.0])
     >>> for k in range(100):
     ...     u = -K @ x
     ...     x = Ad @ x + Bd @ u
-    
+
     With cross-coupling term:
-    
+
     >>> N = np.array([[0.5], [0.1]])
     >>> result = design_lqr(A, B, Q, R, N=N, system_type='continuous')
-    
+
     Using PyTorch backend:
-    
+
     >>> import torch
     >>> A_torch = torch.tensor(A, dtype=torch.float64)
     >>> B_torch = torch.tensor(B, dtype=torch.float64)
     >>> Q_torch = torch.tensor(Q, dtype=torch.float64)
     >>> R_torch = torch.tensor(R, dtype=torch.float64)
-    >>> 
+    >>>
     >>> result = design_lqr(
     ...     A_torch, B_torch, Q_torch, R_torch,
     ...     system_type='continuous',
@@ -269,22 +270,22 @@ def design_lqr(
     **Controllability Requirements:**
     - Full controllability: (A, B) must be controllable for arbitrary pole placement
     - Stabilizability: Unstable modes must be controllable (weaker, sufficient for LQR)
-    
+
     **Cost Matrix Requirements:**
     - Q must be positive semi-definite (all eigenvalues ≥ 0)
     - R must be positive definite (all eigenvalues > 0)
     - (Q, A) should be detectable for finite-horizon convergence
-    
+
     **Stability:**
     - Continuous: Closed-loop stable if all Re(λ) < 0 (left half-plane)
     - Discrete: Closed-loop stable if all |λ| < 1 (inside unit circle)
     - stability_margin > 0 indicates asymptotic stability
-    
+
     **Cross-Coupling Term N:**
     - Allows non-standard quadratic costs
     - Useful for systems with control-state coupling
     - Set to None (default) for standard LQR
-    
+
     **Numerical Considerations:**
     - Uses scipy's solve_continuous_are / solve_discrete_are
     - Numerical issues may arise for ill-conditioned systems

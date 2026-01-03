@@ -107,7 +107,11 @@ class ExplicitEulerIntegrator(IntegratorBase):
     """
 
     def __init__(
-        self, system: "ContinuousSystemBase", dt: ScalarLike, backend: Backend = "numpy", **options,
+        self,
+        system: "ContinuousSystemBase",
+        dt: ScalarLike,
+        backend: Backend = "numpy",
+        **options,
     ):
         """
         Initialize Explicit Euler integrator.
@@ -124,7 +128,10 @@ class ExplicitEulerIntegrator(IntegratorBase):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one Euler step: x_{k+1} = x_k + dt * f(x_k, u_k).
@@ -318,12 +325,19 @@ class MidpointIntegrator(IntegratorBase):
     """
 
     def __init__(
-        self, system: "ContinuousSystemBase", dt: ScalarLike, backend: Backend = "numpy", **options,
+        self,
+        system: "ContinuousSystemBase",
+        dt: ScalarLike,
+        backend: Backend = "numpy",
+        **options,
     ):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one midpoint step.
@@ -527,7 +541,11 @@ class RK4Integrator(IntegratorBase):
     """
 
     def __init__(
-        self, system: "ContinuousSystemBase", dt: ScalarLike, backend: Backend = "numpy", **options,
+        self,
+        system: "ContinuousSystemBase",
+        dt: ScalarLike,
+        backend: Backend = "numpy",
+        **options,
     ):
         """
         Initialize RK4 integrator.
@@ -544,7 +562,10 @@ class RK4Integrator(IntegratorBase):
         super().__init__(system, dt, StepMode.FIXED, backend, **options)
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one RK4 step using four function evaluations.
@@ -708,7 +729,10 @@ class RK4Integrator(IntegratorBase):
 
 
 def create_fixed_step_integrator(
-    method: str, system: "ContinuousSystemBase", dt: float, backend: Backend = "numpy",
+    method: str,
+    system: "ContinuousSystemBase",
+    dt: float,
+    backend: Backend = "numpy",
 ) -> IntegratorBase:
     """
     Quick factory for fixed-step integrators.

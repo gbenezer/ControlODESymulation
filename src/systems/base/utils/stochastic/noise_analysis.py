@@ -399,7 +399,10 @@ class NoiseCharacterizer:
 
         # Determine overall noise type (FIXED LOGIC)
         noise_type = self._classify_noise_type(
-            is_additive, is_multiplicative, is_diagonal, is_scalar,
+            is_additive,
+            is_multiplicative,
+            is_diagonal,
+            is_scalar,
         )
 
         return NoiseCharacteristics(
@@ -453,7 +456,11 @@ class NoiseCharacterizer:
         return True
 
     def _classify_noise_type(
-        self, is_additive: bool, is_multiplicative: bool, is_diagonal: bool, is_scalar: bool,
+        self,
+        is_additive: bool,
+        is_multiplicative: bool,
+        is_diagonal: bool,
+        is_scalar: bool,
     ) -> NoiseType:
         """
         Classify noise type with CORRECTED hierarchy.

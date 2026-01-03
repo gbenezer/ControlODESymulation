@@ -223,7 +223,10 @@ class ScipyIntegrator(IntegratorBase):
             )
 
     def step(
-        self, x: StateVector, u: Optional[ControlVector] = None, dt: Optional[ScalarLike] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one integration step (uses integrate() internally).
@@ -257,7 +260,11 @@ class ScipyIntegrator(IntegratorBase):
         u_func = lambda t, x_cur: u  # May be None for autonomous
 
         result = self.integrate(
-            x0=x, u_func=u_func, t_span=(0.0, dt), t_eval=np.array([0.0, dt]), dense_output=False,
+            x0=x,
+            u_func=u_func,
+            t_span=(0.0, dt),
+            t_eval=np.array([0.0, dt]),
+            dense_output=False,
         )
 
         # Return final state

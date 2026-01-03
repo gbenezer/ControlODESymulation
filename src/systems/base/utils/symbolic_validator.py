@@ -52,7 +52,6 @@ class ValidationError(ValueError):
     """Raised when system validation fails"""
 
 
-
 # ============================================================================
 # Symbolic Validator
 # ============================================================================
@@ -675,7 +674,8 @@ class SymbolicValidator:
 
     @staticmethod
     def validate_system(
-        system: "SymbolicDynamicalSystem", raise_on_error: bool = True,
+        system: "SymbolicDynamicalSystem",
+        raise_on_error: bool = True,
     ) -> SymbolicValidationResult:
         """
         Static convenience method for one-off validation.

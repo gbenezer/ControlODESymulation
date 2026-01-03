@@ -70,7 +70,11 @@ class SymbolicPendulum(SymbolicDynamicalSystem):
     """
 
     def define_system(
-        self, m_val: float = 1.0, l_val: float = 1.0, beta_val: float = 1.0, g_val: float = 9.81,
+        self,
+        m_val: float = 1.0,
+        l_val: float = 1.0,
+        beta_val: float = 1.0,
+        g_val: float = 9.81,
     ):
         theta, theta_dot = sp.symbols("theta theta_dot", real=True)
         u = sp.symbols("u", real=True)

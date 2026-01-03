@@ -404,14 +404,9 @@ class SystemAnalysis:
             "is_observable": observability["is_observable"],
             "ready_for_lqr": controllability["is_controllable"],
             "ready_for_kalman": observability["is_observable"],
-            "ready_for_lqg": controllability["is_controllable"]
-            and observability["is_observable"],
-            "stabilizable": controllability[
-                "is_controllable"
-            ],  # TODO: proper stabilizability test
-            "detectable": observability[
-                "is_observable"
-            ],  # TODO: proper detectability test
+            "ready_for_lqg": controllability["is_controllable"] and observability["is_observable"],
+            "stabilizable": controllability["is_controllable"],  # TODO: proper stabilizability test
+            "detectable": observability["is_observable"],  # TODO: proper detectability test
         }
 
         return {

@@ -34,7 +34,6 @@ Test Coverage:
 - Factory function behavior
 """
 
-import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
@@ -49,7 +48,7 @@ except ImportError:
     JAX_AVAILABLE = False
 
 pytestmark = pytest.mark.skipif(
-    not JAX_AVAILABLE, reason="JAX or Diffrax not installed. Install: pip install jax diffrax"
+    not JAX_AVAILABLE, reason="JAX or Diffrax not installed. Install: pip install jax diffrax",
 )
 
 from src.systems.base.numerical_integration.stochastic.custom_brownian import (
@@ -454,7 +453,7 @@ class TestFactoryFunction:
 
         # Custom noise
         brownian_custom = create_custom_or_random_brownian(
-            key, 0.0, 0.01, (1,), dW=jnp.array([0.5])
+            key, 0.0, 0.01, (1,), dW=jnp.array([0.5]),
         )
 
         # Random noise

@@ -55,6 +55,7 @@ try:
 except ImportError:
     JAX_AVAILABLE = False
 
+from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 from src.systems.base.numerical_integration.stochastic.diffrax_sde_integrator import (
     DiffraxSDEIntegrator,
     create_diffrax_sde_integrator,
@@ -63,7 +64,6 @@ from src.systems.base.numerical_integration.stochastic.diffrax_sde_integrator im
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     StepMode,
 )
-from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # Import types from centralized type system
 from src.types.backends import SDEType
@@ -73,7 +73,7 @@ from src.types.backends import SDEType
 # ============================================================================
 
 pytestmark = pytest.mark.skipif(
-    not JAX_AVAILABLE, reason="JAX or Diffrax not installed. Install: pip install jax diffrax"
+    not JAX_AVAILABLE, reason="JAX or Diffrax not installed. Install: pip install jax diffrax",
 )
 
 
@@ -276,7 +276,7 @@ class TestDiffraxSDEInitialization:
         """Test that Milstein solvers require levy_area."""
         # Should raise without levy_area
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="ItoMilstein", levy_area="none"
+            ou_system, dt=0.01, solver="ItoMilstein", levy_area="none",
         )
 
         # Should fail when trying to get solver instance
@@ -286,7 +286,7 @@ class TestDiffraxSDEInitialization:
     def test_milstein_with_levy_area_works(self, ou_system):
         """Test that Milstein works with levy_area."""
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time"
+            ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time",
         )
 
         # Should not raise
@@ -425,7 +425,7 @@ class TestCustomNoiseSupport:
     def test_zero_noise_short_trajectory_matches_deterministic(self, ou_system):
         """
         Test that a short trajectory with zero noise matches deterministic evolution.
-        
+
         Uses fewer steps to avoid accumulation of numerical integration error.
         """
         integrator = DiffraxSDEIntegrator(ou_system, dt=0.01, solver="Euler")
@@ -455,7 +455,7 @@ class TestCustomNoiseSupport:
     def test_zero_noise_verifies_drift_only_dynamics(self, ou_system):
         """
         Test that zero noise produces drift-only dynamics using trajectory comparison.
-        
+
         Compares SDE trajectory with zero noise against manually computed
         Euler discretization of the drift term only.
         """
@@ -991,7 +991,7 @@ class TestLevyArea:
     def test_levy_area_none(self, ou_system):
         """Test that standard solvers work with levy_area='none'."""
         integrator = DiffraxSDEIntegrator(
-            ou_system, dt=0.01, solver="Euler", levy_area="none", seed=42
+            ou_system, dt=0.01, solver="Euler", levy_area="none", seed=42,
         )
 
         x0 = jnp.array([1.0])
@@ -1004,7 +1004,7 @@ class TestLevyArea:
         # Check if ItoMilstein is available
         try:
             integrator = DiffraxSDEIntegrator(
-                ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time", seed=42
+                ou_system, dt=0.01, solver="ItoMilstein", levy_area="space-time", seed=42,
             )
         except ValueError:
             pytest.skip("ItoMilstein not available in this Diffrax version")
@@ -1040,7 +1040,7 @@ class TestEdgeCasesErrorHandling:
         """Test that fixed mode without dt raises error."""
         with pytest.raises(ValueError):
             integrator = DiffraxSDEIntegrator(
-                ou_system, dt=None, step_mode=StepMode.FIXED, solver="Euler"
+                ou_system, dt=None, step_mode=StepMode.FIXED, solver="Euler",
             )
             integrator.step(jnp.array([1.0]), None)
 

@@ -111,7 +111,8 @@ class SymbolicQuadrotor2D(SymbolicDynamicalSystem):
 
     def define_system(self, length_val, mass_val, inertia_val, gravity_val):
         x, y, theta, x_dot, y_dot, theta_dot = sp.symbols(
-            "x y theta x_dot y_dot theta_dot", real=True,
+            "x y theta x_dot y_dot theta_dot",
+            real=True,
         )
         u1, u2 = sp.symbols("u1 u2", real=True)
         L, m, I, g = sp.symbols("L m I g", real=True, positive=True)
@@ -415,7 +416,8 @@ class PVTOL(SymbolicDynamicalSystem):
     def define_system(self, length_val, mass_val, inertia_val, gravity_val, dist_val):
         # State variables (position and velocity in body frame)
         x, y, theta, x_dot, y_dot, theta_dot = sp.symbols(
-            "x y theta x_dot y_dot theta_dot", real=True,
+            "x y theta x_dot y_dot theta_dot",
+            real=True,
         )
         u1, u2 = sp.symbols("u1 u2", real=True)
 

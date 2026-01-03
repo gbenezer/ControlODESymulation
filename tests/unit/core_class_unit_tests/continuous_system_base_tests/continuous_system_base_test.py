@@ -14,15 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
-from typing import Optional
-from unittest.mock import Mock, MagicMock
 
 import numpy as np
 
-from src.types.core import ControlVector, StateVector
-from src.types.linearization import ContinuousLinearization
-from src.types.trajectories import IntegrationResult, SimulationResult
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
+from src.types.core import StateVector
+from src.types.trajectories import IntegrationResult
 
 # Conditional imports for backends
 torch_available = True
@@ -65,12 +62,12 @@ class SimpleContinuousSystem(ContinuousSystemBase):
         return self.A @ x + self.B @ u  # Explicit and clear
 
     def integrate(
-        self, x0: StateVector, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs
+        self, x0: StateVector, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs,
     ) -> IntegrationResult:
         """Simple Euler integration returning IntegrationResult."""
         t_start, t_end = t_span
         dt_integrator = kwargs.get("max_step", 0.01)
-        t_eval = kwargs.get("t_eval", None)  # Support requested time points
+        t_eval = kwargs.get("t_eval")  # Support requested time points
 
         # Handle backward integration
         if t_end < t_start:
@@ -165,7 +162,7 @@ class TimeVaryingSystem(ContinuousSystemBase):
         return -t * x + u
 
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs):
-        t_eval = kwargs.get("t_eval", None)
+        t_eval = kwargs.get("t_eval")
 
         if t_eval is not None:
             t_points = np.array(t_eval)
@@ -214,7 +211,7 @@ class StochasticSystem(ContinuousSystemBase):
         return -x + u
 
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="EM", **kwargs):
-        t_eval = kwargs.get("t_eval", None)
+        t_eval = kwargs.get("t_eval")
 
         if t_eval is not None:
             t_points = np.array(t_eval)
@@ -266,7 +263,7 @@ class NonlinearPendulum(ContinuousSystemBase):
         return np.array([theta_dot, -self.g / self.L * np.sin(theta) + u_val])
 
     def integrate(self, x0, u=None, t_span=(0.0, 1.0), method="RK45", **kwargs):
-        t_eval = kwargs.get("t_eval", None)
+        t_eval = kwargs.get("t_eval")
 
         if t_eval is not None:
             t_points = np.array(t_eval)
@@ -559,8 +556,7 @@ class TestContinuousSystemBase(unittest.TestCase):
         def u_piecewise(t, x):
             if t < 0.5:
                 return np.array([1.0])
-            else:
-                return np.array([-1.0])
+            return np.array([-1.0])
 
         result = self.system.integrate(x0, u_piecewise, t_span=(0.0, 1.0))
 

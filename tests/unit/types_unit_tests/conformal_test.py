@@ -265,20 +265,20 @@ class TestAdaptiveConformalResult:
         """Test coverage converges to target."""
         # Set random seed for reproducibility
         np.random.seed(42)
-        
+
         # Simulate adaptive process
         T = 200
         target_alpha = 0.1
         target_coverage = 1 - target_alpha  # 0.9
-        
+
         # Coverage should converge to 1 - α
         # Exponential convergence with noise
         coverage_hist = 0.9 + 0.1 * np.exp(-np.arange(T) / 50)
         coverage_hist += np.random.randn(T) * 0.02
-        
+
         # Clip to valid range [0, 1]
         coverage_hist = np.clip(coverage_hist, 0, 1)
-        
+
         result: AdaptiveConformalResult = {
             "threshold": 0.5,
             "coverage_history": coverage_hist,
@@ -287,46 +287,49 @@ class TestAdaptiveConformalResult:
             "adaptation_rate": 0.01,
             "effective_sample_size": 100,
         }
-        
+
         # Test 1: Statistical test - is final coverage significantly different from target?
         final_coverage = coverage_hist[-1]
         n_samples = result["effective_sample_size"]
-        
+
         # Simulate coverage as binomial: n_covered ~ Binomial(n_total, p=final_coverage)
         # Under H0: true coverage = target_coverage
         # Under H1: true coverage ≠ target_coverage
         n_covered = int(final_coverage * n_samples)
         n_total = n_samples
-        
+
         from scipy.stats import binomtest
-        test_result = binomtest(n_covered, n_total, target_coverage, alternative='two-sided')
-        
+
+        test_result = binomtest(n_covered, n_total, target_coverage, alternative="two-sided")
+
         # p > 0.05 means we cannot reject H0 (coverage matches target)
         # This is what we want - coverage is statistically indistinguishable from target
-        assert test_result.pvalue > 0.05, \
-            f"Coverage {final_coverage:.4f} significantly different from target {target_coverage} " \
+        assert test_result.pvalue > 0.05, (
+            f"Coverage {final_coverage:.4f} significantly different from target {target_coverage} "
             f"(p={test_result.pvalue:.4f})"
-        
+        )
+
         # Test 2: Verify convergence (coverage error decreases over time)
         # Compare early vs late coverage error
         early_error = abs(coverage_hist[:50].mean() - target_coverage)
         late_error = abs(coverage_hist[-50:].mean() - target_coverage)
-        
-        assert late_error < early_error, \
-            f"Coverage should improve over time: early_error={early_error:.4f}, late_error={late_error:.4f}"
-        
+
+        assert (
+            late_error < early_error
+        ), f"Coverage should improve over time: early_error={early_error:.4f}, late_error={late_error:.4f}"
+
         # Test 3: Final coverage should be in reasonable range
-        assert 0.7 < final_coverage < 1.0, \
-            f"Final coverage {final_coverage:.4f} outside reasonable range [0.7, 1.0]"
-        
+        assert (
+            0.7 < final_coverage < 1.0
+        ), f"Final coverage {final_coverage:.4f} outside reasonable range [0.7, 1.0]"
+
         # Test 4: Convergence trend - fit exponential and verify decay
         # coverage_error(t) should decay exponentially
         coverage_error = np.abs(coverage_hist - target_coverage)
-        
+
         # Check that late-stage error is small
         late_stage_error = coverage_error[-50:].mean()
-        assert late_stage_error < 0.05, \
-            f"Late-stage error {late_stage_error:.4f} should be < 0.05"
+        assert late_stage_error < 0.05, f"Late-stage error {late_stage_error:.4f} should be < 0.05"
 
 
 class TestPracticalUseCases:

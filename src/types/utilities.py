@@ -103,7 +103,10 @@ class LinearizableProtocol(Protocol):
     """
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None, **kwargs,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
+        **kwargs,
     ) -> Any:  # Returns LinearizationResult
         """
         Compute linearization at equilibrium.

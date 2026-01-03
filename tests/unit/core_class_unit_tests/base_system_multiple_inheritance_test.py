@@ -40,10 +40,9 @@ import pytest
 import sympy as sp
 from scipy.integrate import solve_ivp
 
-from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 from src.systems.base.core.discrete_system_base import DiscreteSystemBase
-from src.systems.base.utils.symbolic_validator import ValidationError
+from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
 
 # Conditional imports for backends
 torch_available = True
@@ -93,7 +92,7 @@ class MockContinuousSystem(SymbolicSystemBase, ContinuousSystemBase):
         print("=" * 70)
         print(f"{self.__class__.__name__} (Continuous)")
         print("=" * 70)
-        print(f"Dynamics: dx/dt = f(x, u)")
+        print("Dynamics: dx/dt = f(x, u)")
         for var, expr in zip(self.state_vars, self._f_sym):
             expr_sub = self.substitute_parameters(expr)
             if simplify:
@@ -182,7 +181,7 @@ class MockDiscreteSystem(SymbolicSystemBase, DiscreteSystemBase):
         print("=" * 70)
         print(f"{self.__class__.__name__} (Discrete, dt={self.dt})")
         print("=" * 70)
-        print(f"Dynamics: x[k+1] = f(x[k], u[k])")
+        print("Dynamics: x[k+1] = f(x[k], u[k])")
         for var, expr in zip(self.state_vars, self._f_sym):
             expr_sub = self.substitute_parameters(expr)
             if simplify:

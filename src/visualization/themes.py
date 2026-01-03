@@ -42,10 +42,10 @@ PlotThemes : Complete theme configurations
 Usage
 -----
 >>> from src.plotting.themes import ColorSchemes, PlotThemes
->>> 
+>>>
 >>> # Get color palette
 >>> colors = ColorSchemes.get_colors('colorblind_safe', n_colors=5)
->>> 
+>>>
 >>> # Apply theme to figure
 >>> fig = plotter.plot_trajectory(t, x)
 >>> fig = PlotThemes.apply_theme(fig, theme='publication')
@@ -285,7 +285,9 @@ class ColorSchemes:
 
     @staticmethod
     def interpolate_colors(
-        color1: str, color2: str, n_steps: int = 10,
+        color1: str,
+        color2: str,
+        n_steps: int = 10,
     ) -> List[str]:
         """
         Generate color gradient between two colors.

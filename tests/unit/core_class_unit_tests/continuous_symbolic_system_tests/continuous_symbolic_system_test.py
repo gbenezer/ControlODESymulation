@@ -65,10 +65,11 @@ Notes
 - Checks time-major (T, nx) convention
 """
 
+from unittest.mock import patch
+
 import numpy as np
 import pytest
 import sympy as sp
-from unittest.mock import Mock, patch, MagicMock
 
 # Conditional imports for backends
 torch_available = True
@@ -85,14 +86,13 @@ except ImportError:
     jax_available = False
 
 from src.systems.base.core.continuous_symbolic_system import (
-    ContinuousSymbolicSystem,
     ContinuousDynamicalSystem,
+    ContinuousSymbolicSystem,
     SymbolicDynamicalSystem,
 )
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
 from src.systems.base.utils.symbolic_validator import ValidationError
-
 
 # ============================================================================
 # Test System Implementations
@@ -144,7 +144,7 @@ class PendulumContinuous(ContinuousSymbolicSystem):
                 -(g_sym / l_sym) * sp.sin(theta)
                 - (b_sym / (m_sym * l_sym**2)) * omega
                 + u / (m_sym * l_sym**2),
-            ]
+            ],
         )
         self.parameters = {m_sym: m, l_sym: l, g_sym: g, b_sym: b}
         self.order = 1
@@ -346,7 +346,7 @@ class TestIntegration:
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01,
         )
 
         assert result["success"]
@@ -370,7 +370,7 @@ class TestIntegration:
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="RK45", rtol=1e-9, atol=1e-11
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="RK45", rtol=1e-9, atol=1e-11,
         )
 
         assert result["success"]
@@ -612,7 +612,7 @@ class TestLinearization:
         assert isinstance(A_sym, sp.Matrix)
 
     @pytest.mark.skipif(
-        not torch_available, reason="Requires PyTorch for autodiff"  # requires torch
+        not torch_available, reason="Requires PyTorch for autodiff",  # requires torch
     )
     def test_verify_jacobians_torch(self):
         """Verify Jacobians against PyTorch autodiff."""
@@ -967,7 +967,7 @@ class TestEdgeCases:
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), rtol=1e-12, atol=1e-14
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), rtol=1e-12, atol=1e-14,
         )
 
         assert result["success"]
@@ -1155,7 +1155,7 @@ class TestEndToEndWorkflows:
 
         # 3. Add equilibrium
         system.add_equilibrium(
-            "downward", x_eq=np.array([0.0, 0.0]), u_eq=np.array([0.0]), verify=True
+            "downward", x_eq=np.array([0.0, 0.0]), u_eq=np.array([0.0]), verify=True,
         )
 
         # 4. Integrate
@@ -1203,7 +1203,7 @@ class TestEndToEndWorkflows:
 
         # Simulate closed-loop
         result = system.integrate(
-            x0=np.array([1.0]), u=controller, t_span=(0.0, 5.0), method="rk4", dt=0.01
+            x0=np.array([1.0]), u=controller, t_span=(0.0, 5.0), method="rk4", dt=0.01,
         )
 
         assert result["success"]
@@ -1251,7 +1251,7 @@ class TestComparisonWithOld:
         x_analytical = x0 * np.exp(-1.0 * t_final)
 
         result = system.integrate(
-            x0=np.array([x0]), u=None, t_span=(0.0, t_final), method="RK45", rtol=1e-9
+            x0=np.array([x0]), u=None, t_span=(0.0, t_final), method="RK45", rtol=1e-9,
         )
 
         x_numerical = result["x"][-1, 0]
@@ -1325,7 +1325,7 @@ class TestIntegrationResultConvention:
         system = LinearContinuous()
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.1
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.1,
         )
 
         # Access state at each time
@@ -1354,7 +1354,7 @@ class TestParametrizedScenarios:
         kwargs = {"dt": 0.01} if method == "rk4" else {}
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method=method, **kwargs
+            x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method=method, **kwargs,
         )
 
         assert result["success"], f"Method {method} failed"
@@ -1506,10 +1506,10 @@ class TestMultiComponentIntegration:
         system = LinearContinuous()
 
         with patch.object(
-            IntegratorFactory, "create", wraps=IntegratorFactory.create
+            IntegratorFactory, "create", wraps=IntegratorFactory.create,
         ) as mock_create:
             result = system.integrate(
-                x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
+                x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01,
             )
 
             # Should have called factory
@@ -1539,7 +1539,7 @@ class TestMultiComponentIntegration:
         system._dynamics.evaluate = wrapped_evaluate
 
         result = system.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01,
         )
 
         # Should have evaluated dynamics multiple times
@@ -1551,7 +1551,7 @@ class TestMultiComponentIntegration:
 
         # Track what actually gets called - the DynamicsEvaluator
         with patch.object(
-            system._dynamics, "evaluate", wraps=system._dynamics.evaluate
+            system._dynamics, "evaluate", wraps=system._dynamics.evaluate,
         ) as mock_eval:
             # Verify equilibrium
             is_valid = system._verify_equilibrium_numpy(np.array([1.0]), np.array([1.0]), tol=1e-6)
@@ -1706,7 +1706,7 @@ class TestPerformanceBenchmarks:
 
         def run_integration():
             return system.integrate(
-                x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01
+                x0=np.array([1.0]), u=None, t_span=(0.0, 1.0), method="rk4", dt=0.01,
             )
 
         result = benchmark(run_integration)

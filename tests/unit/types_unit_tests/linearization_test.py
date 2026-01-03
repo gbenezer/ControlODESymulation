@@ -30,7 +30,6 @@ Tests cover:
 - Documentation example correctness
 """
 
-from typing import get_args
 
 import numpy as np
 import pytest

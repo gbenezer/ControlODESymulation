@@ -160,7 +160,10 @@ class LinearSystem2D(SymbolicDynamicalSystem):
 
         # Dynamics
         self._f_sym = sp.Matrix(
-            [[a11_sym * x1 + a12_sym * x2 + b1_sym * u], [a21_sym * x1 + a22_sym * x2 + b2_sym * u]],
+            [
+                [a11_sym * x1 + a12_sym * x2 + b1_sym * u],
+                [a21_sym * x1 + a22_sym * x2 + b2_sym * u],
+            ],
         )
 
         self.parameters = {

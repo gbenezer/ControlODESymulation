@@ -34,20 +34,12 @@ Run with:
     pytest test_sde_integrator_factory.py -v
 """
 
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
 
-# Import from centralized type system
-from src.types.backends import (
-    Backend,
-    SDEType,
-    ConvergenceType,
-    NoiseType,
-)
-from src.types.trajectories import SDEIntegrationResult
-from src.types.core import StateVector, ControlVector, ScalarLike
+from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # Import base classes and utilities
 from src.systems.base.numerical_integration.integrator_base import StepMode
@@ -58,11 +50,19 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
 # Import factory and base classes
 from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import (
     SDEIntegratorFactory,
-    SDEIntegratorType,
     auto_sde_integrator,
     create_sde_integrator,
 )
-from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
+
+# Import from centralized type system
+from src.types.backends import (
+    Backend,
+    ConvergenceType,
+    NoiseType,
+    SDEType,
+)
+from src.types.core import ControlVector, ScalarLike, StateVector
+from src.types.trajectories import SDEIntegrationResult
 
 # ============================================================================
 # Mock SDE Systems for Testing
@@ -128,10 +128,9 @@ class MockSDESystem(StochasticDynamicalSystem):
 
     def define_system(self):
         """Required abstract method - mock implementation."""
-        pass
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
     ) -> StateVector:
         """Mock drift function: f(x, u) = -x + u
 
@@ -141,11 +140,11 @@ class MockSDESystem(StochasticDynamicalSystem):
             return -x  # Autonomous
         if backend == "numpy":
             return -x + np.asarray(u)[: self.nx]
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             return -x + torch.as_tensor(u)[: self.nx]
-        elif backend == "jax":
+        if backend == "jax":
             import jax.numpy as jnp
 
             return -x + jnp.asarray(u)[: self.nx]
@@ -156,26 +155,25 @@ class MockSDESystem(StochasticDynamicalSystem):
             # Constant diffusion
             if backend == "numpy":
                 return 0.1 * np.ones((self.nx, self.nw))
-            elif backend == "torch":
+            if backend == "torch":
                 import torch
 
                 return 0.1 * torch.ones((self.nx, self.nw))
-            elif backend == "jax":
+            if backend == "jax":
                 import jax.numpy as jnp
 
                 return 0.1 * jnp.ones((self.nx, self.nw))
-        else:
-            # State-dependent diffusion
-            if backend == "numpy":
-                return 0.1 * np.diag(np.abs(x))[:, : self.nw]
-            elif backend == "torch":
-                import torch
+        # State-dependent diffusion
+        elif backend == "numpy":
+            return 0.1 * np.diag(np.abs(x))[:, : self.nw]
+        elif backend == "torch":
+            import torch
 
-                return 0.1 * torch.diag(torch.abs(x))[:, : self.nw]
-            elif backend == "jax":
-                import jax.numpy as jnp
+            return 0.1 * torch.diag(torch.abs(x))[:, : self.nw]
+        elif backend == "jax":
+            import jax.numpy as jnp
 
-                return 0.1 * jnp.diag(jnp.abs(x))[:, : self.nw]
+            return 0.1 * jnp.diag(jnp.abs(x))[:, : self.nw]
 
     def is_additive_noise(self) -> bool:
         return self._noise_type == "additive"
@@ -193,10 +191,9 @@ class MockSDESystem(StochasticDynamicalSystem):
         """Return noise type using centralized NoiseType enum."""
         if self._noise_type == "additive":
             return NoiseType.ADDITIVE
-        elif self._noise_type == "diagonal":
+        if self._noise_type == "diagonal":
             return NoiseType.DIAGONAL
-        else:
-            return NoiseType.GENERAL
+        return NoiseType.GENERAL
 
     def get_constant_noise(self, backend: Backend = "numpy"):
         if self._noise_type == "additive":
@@ -208,7 +205,7 @@ class MockSDESystem(StochasticDynamicalSystem):
         return self._sde_type
 
     def get_drift_matrix(
-        self, x: StateVector, u: ControlVector, backend: Backend = "numpy"
+        self, x: StateVector, u: ControlVector, backend: Backend = "numpy",
     ) -> StateVector:
         """Alias for drift() - some integrators may use this name."""
         return self.drift(x, u, backend)
@@ -225,7 +222,7 @@ class MockAutonomousSDESystem(MockSDESystem):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
     ) -> StateVector:
         """Autonomous drift: f(x) = -x
 
@@ -245,7 +242,7 @@ class MockPureDiffusionSystem(MockSDESystem):
         super().__init__(nx=nx, nu=0, nw=nw, noise_type=noise_type)
 
     def drift(
-        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy"
+        self, x: StateVector, u: ControlVector, t: ScalarLike = 0.0, backend: Backend = "numpy",
     ) -> StateVector:
         """Zero drift
 
@@ -253,11 +250,11 @@ class MockPureDiffusionSystem(MockSDESystem):
         """
         if backend == "numpy":
             return np.zeros_like(x)
-        elif backend == "torch":
+        if backend == "torch":
             import torch
 
             return torch.zeros_like(x)
-        elif backend == "jax":
+        if backend == "jax":
             import jax.numpy as jnp
 
             return jnp.zeros_like(x)
@@ -418,7 +415,7 @@ class TestFactoryBasics:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="SRIW1"
+                controlled_sde_system, backend="numpy", method="SRIW1",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -493,7 +490,7 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="EM"
+                controlled_sde_system, backend="numpy", method="EM",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -503,7 +500,7 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="torch", method="euler"
+                controlled_sde_system, backend="torch", method="euler",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -513,7 +510,7 @@ class TestMethodRouting:
             return_value=mock_integrator,
         ):
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="jax", method="Euler"
+                controlled_sde_system, backend="jax", method="Euler",
             )
             assert isinstance(integrator, SDEIntegratorBase)
 
@@ -587,7 +584,7 @@ class TestUseCaseHelpers:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.for_monte_carlo(
-                additive_noise_system, noise_type="additive"
+                additive_noise_system, noise_type="additive",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -795,7 +792,7 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", dt=0.001
+                controlled_sde_system, backend="numpy", dt=0.001,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -810,7 +807,7 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", seed=12345
+                controlled_sde_system, backend="numpy", seed=12345,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -825,7 +822,7 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", convergence_type=ConvergenceType.WEAK
+                controlled_sde_system, backend="numpy", convergence_type=ConvergenceType.WEAK,
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -840,7 +837,7 @@ class TestOptionsPropagation:
             return_value=mock_integrator,
         ) as mock_class:
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", rtol=1e-6, atol=1e-8, custom_option="value"
+                controlled_sde_system, backend="numpy", rtol=1e-6, atol=1e-8, custom_option="value",
             )
 
             call_kwargs = mock_class.call_args[1]
@@ -867,7 +864,7 @@ class TestEndToEndIntegration:
         ):
             # Create via factory
             integrator = SDEIntegratorFactory.create(
-                controlled_sde_system, backend="numpy", method="EM", dt=0.01, seed=42
+                controlled_sde_system, backend="numpy", method="EM", dt=0.01, seed=42,
             )
 
             # Set up control
@@ -922,7 +919,7 @@ class TestEndToEndIntegration:
         ):
             # Create via factory
             integrator = SDEIntegratorFactory.create(
-                pure_diffusion_system, backend="numpy", dt=0.01, seed=42
+                pure_diffusion_system, backend="numpy", dt=0.01, seed=42,
             )
 
             # No control

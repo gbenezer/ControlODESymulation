@@ -36,24 +36,24 @@ Authors
 Gil Benezer
 """
 
-import pytest
-import numpy as np
 import time
-from unittest.mock import Mock, MagicMock
 
+import numpy as np
+import pytest
+
+from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
+from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
+from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 from src.systems.base.core.discretized_system import (
     DiscretizationMode,
     DiscretizedSystem,
+    analyze_discretization_error,
+    compute_discretization_quality,
+    detect_sde_integrator,
     discretize,
     discretize_batch,
-    analyze_discretization_error,
     recommend_dt,
-    detect_sde_integrator,
-    compute_discretization_quality,
 )
-from src.systems.base.core.continuous_system_base import ContinuousSystemBase
-from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
-from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
 # Conditional imports for backends
 torch_available = True
@@ -73,11 +73,12 @@ except ImportError:
 def _has_full_sde_support():
     """Check if full SDE support is available."""
     try:
+        import sympy
+
+        from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
         from src.systems.base.numerical_integration.stochastic.sde_integrator_factory import (
             SDEIntegratorFactory,
         )
-        from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
-        import sympy
 
         return True
     except ImportError:
@@ -111,12 +112,11 @@ class MockContinuousSystem(ContinuousSystemBase):
         # Handle zero control dimension
         if self.nu == 0:
             return -x
-        else:
-            # Ensure u is the right shape for broadcasting
-            u_array = np.asarray(u)
-            if u_array.size == 0:
-                return -x
-            return -x + u_array
+        # Ensure u is the right shape for broadcasting
+        u_array = np.asarray(u)
+        if u_array.size == 0:
+            return -x
+        return -x + u_array
 
     def integrate(self, x0, u, t_span, method="RK45", **kwargs):
         """Mock integration using scipy."""
@@ -230,7 +230,7 @@ class TestDiscretizedSystemInit:
         """Can explicitly override mode selection."""
         continuous = MockContinuousSystem()
         discrete = DiscretizedSystem(
-            continuous, dt=0.01, method="rk4", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="rk4", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
 
         assert discrete.mode == DiscretizationMode.BATCH_INTERPOLATION
@@ -255,7 +255,7 @@ class TestDiscretizedSystemInit:
 
         with pytest.raises(ValueError, match="Cannot use adaptive method"):
             DiscretizedSystem(
-                continuous, dt=0.01, method="RK45", mode=DiscretizationMode.FIXED_STEP
+                continuous, dt=0.01, method="RK45", mode=DiscretizationMode.FIXED_STEP,
             )
 
     def test_invalid_continuous_system_raises(self):
@@ -420,7 +420,7 @@ class TestStepMethodDenseOutput:
         """step() works in DENSE_OUTPUT mode."""
         continuous = MockContinuousSystem(nx=2, nu=1)
         discrete = DiscretizedSystem(
-            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.DENSE_OUTPUT
+            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.DENSE_OUTPUT,
         )
 
         x = np.array([1.0, 0.0])
@@ -470,7 +470,7 @@ class TestStepMethodBatch:
         """step() raises NotImplementedError in BATCH mode."""
         continuous = MockContinuousSystem()
         discrete = DiscretizedSystem(
-            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
 
         with pytest.raises(NotImplementedError, match="BATCH_INTERPOLATION"):
@@ -544,7 +544,7 @@ class TestSimulateMethod:
         """Simulate in BATCH_INTERPOLATION mode."""
         continuous = MockContinuousSystem(nx=2, nu=1)
         discrete = DiscretizedSystem(
-            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
 
         x0 = np.array([1.0, 0.0])
@@ -557,7 +557,7 @@ class TestSimulateMethod:
         """BATCH mode rejects state-feedback control."""
         continuous = MockContinuousSystem()
         discrete = DiscretizedSystem(
-            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
 
         def controller(x, k):
@@ -926,7 +926,7 @@ class TestHelperFunctions:
         dt_values = [0.01, 0.05, 0.1]
 
         analysis = analyze_discretization_error(
-            continuous, x0, None, dt_values, method="rk4", n_steps=20
+            continuous, x0, None, dt_values, method="rk4", n_steps=20,
         )
 
         assert "dt_values" in analysis
@@ -997,7 +997,7 @@ class TestStochasticDiscretization:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             discrete = DiscretizedSystem(
-                stochastic, dt=0.01, method="rk4", auto_detect_sde=False  # Use unambiguous method
+                stochastic, dt=0.01, method="rk4", auto_detect_sde=False,  # Use unambiguous method
             )
 
         assert discrete.is_stochastic is True
@@ -1146,7 +1146,6 @@ class TestRealSystemIntegration:
 
         TODO: Implement when SDEIntegratorFactory integration is complete.
         """
-        pass
         # Skip for now as it requires more complex infrastructure
 
 
@@ -1295,7 +1294,7 @@ class TestNumericalAccuracy:
 
         dt_values = [0.1, 0.05, 0.025]
         analysis = analyze_discretization_error(
-            continuous, x0, None, dt_values, method="euler", n_steps=20
+            continuous, x0, None, dt_values, method="euler", n_steps=20,
         )
 
         # Should show O(dt) convergence (rate ≈ 1)
@@ -1310,10 +1309,10 @@ class TestNumericalAccuracy:
         dt_values = [0.1, 0.05, 0.025]
 
         euler_analysis = analyze_discretization_error(
-            continuous, x0, None, dt_values, method="euler", n_steps=20
+            continuous, x0, None, dt_values, method="euler", n_steps=20,
         )
         rk4_analysis = analyze_discretization_error(
-            continuous, x0, None, dt_values, method="rk4", n_steps=20
+            continuous, x0, None, dt_values, method="rk4", n_steps=20,
         )
 
         # RK4 should have better (more negative) convergence rate than Euler
@@ -1322,7 +1321,7 @@ class TestNumericalAccuracy:
             np.mean(rk4_analysis["errors"]) < np.mean(euler_analysis["errors"])
             or rk4_analysis["convergence_rate"] > euler_analysis["convergence_rate"]
         )
-        assert rk4_better, f"RK4 should be more accurate than Euler"
+        assert rk4_better, "RK4 should be more accurate than Euler"
 
     def test_adaptive_more_accurate_than_fixed(self):
         """Adaptive methods generally more accurate."""
@@ -1398,7 +1397,7 @@ class TestPerformance:
 
         # Batch
         discrete_batch = DiscretizedSystem(
-            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
         start = time.time()
         discrete_batch.simulate(np.array([1.0, 0.0]), None, n_steps=500)
@@ -1491,7 +1490,7 @@ def discrete_dense(mock_continuous):
 def discrete_batch(mock_continuous):
     """Fixture for BATCH_INTERPOLATION discretized system."""
     return DiscretizedSystem(
-        mock_continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION
+        mock_continuous, dt=0.01, method="LSODA", mode=DiscretizationMode.BATCH_INTERPOLATION,
     )
 
 
@@ -1583,7 +1582,7 @@ class TestConsistency:
         fixed = DiscretizedSystem(continuous, dt=0.01, method="rk4")
         dense = DiscretizedSystem(continuous, dt=0.01, method="RK45")
         batch = DiscretizedSystem(
-            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.BATCH_INTERPOLATION
+            continuous, dt=0.01, method="RK45", mode=DiscretizationMode.BATCH_INTERPOLATION,
         )
 
         # Use smaller n_steps to avoid interpolation boundary issues
@@ -1843,7 +1842,7 @@ class TestStochasticSimulation:
         # Even with SDE method, if integrator not available, should raise
         # This tests the case where method is in _SDE_METHODS but integrator fails
         discrete = DiscretizedSystem(
-            stochastic, dt=0.01, sde_method="euler_maruyama", auto_detect_sde=False
+            stochastic, dt=0.01, sde_method="euler_maruyama", auto_detect_sde=False,
         )
 
         # If SDE integrator is actually available, skip this test
@@ -1854,7 +1853,7 @@ class TestStochasticSimulation:
             discrete.simulate_stochastic(x0=np.array([1.0, 0.0]), n_steps=10, n_trajectories=10)
 
     @pytest.mark.skipif(
-        not _has_full_sde_support(), reason="Requires sympy and ContinuousStochasticSystem"
+        not _has_full_sde_support(), reason="Requires sympy and ContinuousStochasticSystem",
     )
     def test_simulate_stochastic_returns_correct_structure(self):
         """simulate_stochastic() returns proper Monte Carlo structure."""

@@ -43,7 +43,6 @@ from src.types.utilities import (  # Protocols; Type guards; Converters; Validat
     Metadata,
     PerformanceMetrics,
     SimulatableProtocol,
-    StochasticProtocol,
     ValidationResult,
     check_control_shape,
     check_state_shape,
@@ -784,13 +783,12 @@ class TestRealisticUsage:
             if key in cache_dict:
                 cache_stats["cache_hits"] += 1
                 return cache_dict[key]
-            else:
-                cache_stats["cache_misses"] += 1
-                cache_stats["computes"] += 1
-                result = x @ x.T  # Expensive operation
-                cache_dict[key] = result
-                cache_stats["cache_size"] = len(cache_dict)
-                return result
+            cache_stats["cache_misses"] += 1
+            cache_stats["computes"] += 1
+            result = x @ x.T  # Expensive operation
+            cache_dict[key] = result
+            cache_stats["cache_size"] = len(cache_dict)
+            return result
 
         # First call - cache miss
         x = np.random.randn(10, 10)

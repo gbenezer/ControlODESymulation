@@ -45,10 +45,10 @@ ControlPlotter : Control system analysis visualization
 Usage
 -----
 >>> from src.plotting import ControlPlotter
->>> 
+>>>
 >>> # Create plotter
 >>> plotter = ControlPlotter()
->>> 
+>>>
 >>> # Eigenvalue map with custom theme
 >>> lqr_result = system.design_lqr(Q, R)
 >>> fig = plotter.plot_eigenvalue_map(
@@ -57,7 +57,7 @@ Usage
 ...     theme='publication'
 ... )
 >>> fig.show()
->>> 
+>>>
 >>> # Compare gains with colorblind-safe palette
 >>> gains = {
 ...     'Q=10': design_lqr(10*np.eye(2), R)['gain'],
@@ -395,7 +395,9 @@ class ControlPlotter:
         first_gain = list(gains_np.values())[0]
         if first_gain.ndim == 1:
             first_gain = first_gain[np.newaxis, :]
-            gains_np = {name: K[np.newaxis, :] if K.ndim == 1 else K for name, K in gains_np.items()}
+            gains_np = {
+                name: K[np.newaxis, :] if K.ndim == 1 else K for name, K in gains_np.items()
+            }
 
         nu, nx = first_gain.shape
 
@@ -590,7 +592,10 @@ class ControlPlotter:
         fig.update_yaxes(title_text="Change", type="log", row=1, col=2)
 
         fig.update_layout(
-            title=title, width=1000, height=400, showlegend=False,
+            title=title,
+            width=1000,
+            height=400,
+            showlegend=False,
         )
 
         # Apply theme
@@ -1174,19 +1179,19 @@ class ControlPlotter:
         --------
         >>> # Compute frequency response
         >>> from scipy import signal
-        >>> 
+        >>>
         >>> # Closed-loop transfer function
         >>> A_cl = A - B @ K
         >>> sys = signal.StateSpace(A_cl, B, C, D)
-        >>> 
+        >>>
         >>> # Frequency response
         >>> w = np.logspace(-2, 2, 1000)  # rad/s
         >>> w, H = signal.freqresp(sys, w)
-        >>> 
+        >>>
         >>> # Convert to dB and degrees
         >>> mag_dB = 20 * np.log10(np.abs(H).flatten())
         >>> phase_deg = np.angle(H, deg=True).flatten()
-        >>> 
+        >>>
         >>> # Plot with publication theme
         >>> fig = plotter.plot_frequency_response(
         ...     w, mag_dB, phase_deg,
@@ -1254,12 +1259,22 @@ class ControlPlotter:
 
         # Add 0 dB line to magnitude plot
         fig.add_hline(
-            y=0, line_dash="dash", line_color="gray", row=1, col=1, opacity=0.5,
+            y=0,
+            line_dash="dash",
+            line_color="gray",
+            row=1,
+            col=1,
+            opacity=0.5,
         )
 
         # Add -180° line to phase plot
         fig.add_hline(
-            y=-180, line_dash="dash", line_color="gray", row=2, col=1, opacity=0.5,
+            y=-180,
+            line_dash="dash",
+            line_color="gray",
+            row=2,
+            col=1,
+            opacity=0.5,
         )
 
         # Calculate and annotate margins
@@ -1382,15 +1397,15 @@ class ControlPlotter:
         --------
         >>> # Compute open-loop frequency response
         >>> from scipy import signal
-        >>> 
+        >>>
         >>> # Open-loop system: G(s) = C(sI - A)^(-1)B
         >>> sys_ol = signal.StateSpace(A, B, C, D)
-        >>> 
+        >>>
         >>> # Frequency response
         >>> w = np.logspace(-2, 2, 1000)
         >>> w, H = signal.freqresp(sys_ol, w)
         >>> H = H.flatten()
-        >>> 
+        >>>
         >>> # Plot Nyquist with dark theme
         >>> fig = plotter.plot_nyquist(
         ...     np.real(H), np.imag(H), frequencies=w,
@@ -1401,7 +1416,7 @@ class ControlPlotter:
         Notes
         -----
         - Nyquist plot: H(jω) in complex plane as ω varies
-        - Critical point: (-1, 0j) 
+        - Critical point: (-1, 0j)
         - Stability: Number of encirclements of (-1, 0j) determines stability
         - Gain margin: Distance from curve to (-1, 0j)
         - Phase margin: Angle from curve to (-1, 0j)
@@ -1551,19 +1566,19 @@ class ControlPlotter:
         --------
         >>> # Compute root locus for LQR as Q varies
         >>> from scipy import signal
-        >>> 
+        >>>
         >>> gains = np.logspace(-1, 3, 50)  # Q weight values
         >>> poles_list = []
-        >>> 
+        >>>
         >>> for q in gains:
         ...     lqr = system.design_lqr(q * np.eye(nx), R)
         ...     poles_list.append(lqr['closed_loop_eigenvalues'])
-        >>> 
+        >>>
         >>> root_locus_data = {
         ...     'gains': gains,
         ...     'poles': np.array(poles_list)
         ... }
-        >>> 
+        >>>
         >>> fig = plotter.plot_root_locus(
         ...     root_locus_data,
         ...     system_type='continuous',
@@ -1629,7 +1644,10 @@ class ControlPlotter:
                     y=[np.imag(pole_branch[0])],
                     mode="markers",
                     marker=dict(
-                        color="green", size=10, symbol="circle", line=dict(width=2),
+                        color="green",
+                        size=10,
+                        symbol="circle",
+                        line=dict(width=2),
                     ),
                     showlegend=(pole_idx == 0),
                     name="K=0" if pole_idx == 0 else None,
@@ -1643,7 +1661,10 @@ class ControlPlotter:
                     y=[np.imag(pole_branch[-1])],
                     mode="markers",
                     marker=dict(
-                        color="red", size=10, symbol="square", line=dict(width=2),
+                        color="red",
+                        size=10,
+                        symbol="square",
+                        line=dict(width=2),
                     ),
                     showlegend=(pole_idx == 0),
                     name="K→∞" if pole_idx == 0 else None,

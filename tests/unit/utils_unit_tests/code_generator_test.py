@@ -26,7 +26,6 @@ Tests cover:
 7. Information retrieval
 """
 
-import numpy as np
 import pytest
 import sympy as sp
 
@@ -44,10 +43,10 @@ try:
 except ImportError:
     jax_available = False
 
+from src.systems.base.utils.code_generator import CodeGenerator
+
 # Import from centralized type system
 from src.types.backends import Backend
-
-from src.systems.base.utils.code_generator import CodeGenerator
 
 # ============================================================================
 # Mock System for Testing

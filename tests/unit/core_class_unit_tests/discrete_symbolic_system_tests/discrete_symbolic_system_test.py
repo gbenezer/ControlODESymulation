@@ -56,18 +56,17 @@ pytest test_discrete_symbolic_system.py::TestSimulation -v
 pytest test_discrete_symbolic_system.py --cov
 """
 
+
 import numpy as np
 import pytest
 import sympy as sp
-from unittest.mock import patch
 
 from src.systems.base.core.discrete_symbolic_system import (
-    DiscreteSymbolicSystem,
     DiscreteDynamicalSystem,
+    DiscreteSymbolicSystem,
 )
 from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 from src.systems.base.core.symbolic_system_base import SymbolicSystemBase
-from src.systems.base.utils.symbolic_validator import ValidationError
 
 # Conditional imports for backends
 torch_available = True
@@ -132,7 +131,7 @@ class DiscreteTwoState(DiscreteSymbolicSystem):
         self.state_vars = [x1, x2]
         self.control_vars = [u]
         self._f_sym = sp.Matrix(
-            [a11_sym * x1 + a12_sym * x2 + b1_sym * u, a21_sym * x1 + a22_sym * x2 + b2_sym * u]
+            [a11_sym * x1 + a12_sym * x2 + b1_sym * u, a21_sym * x1 + a22_sym * x2 + b2_sym * u],
         )
         self.parameters = {
             a11_sym: a11,
@@ -1045,7 +1044,7 @@ class TestContinuousVsDiscrete:
 
         # Integrate continuous
         result_cont = cont.integrate(
-            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01
+            x0=np.array([1.0]), u=None, t_span=(0.0, 0.1), method="rk4", dt=0.01,
         )
 
         # Simulate discrete

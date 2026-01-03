@@ -124,14 +124,14 @@ class TestBasicCreation:
         """Test that fixed-step methods require dt parameter."""
         with pytest.raises(ValueError, match="requires dt"):
             IntegratorFactory.create(
-                mock_system, backend="numpy", method="rk4", step_mode=StepMode.FIXED
+                mock_system, backend="numpy", method="rk4", step_mode=StepMode.FIXED,
             )
 
     def test_create_fixed_step_with_dt(self, mock_system):
         """Test creating fixed-step integrator with dt (ScalarLike)."""
         dt: ScalarLike = 0.01  # Type hint for clarity
         integrator = IntegratorFactory.create(
-            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED
+            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED,
         )
 
         assert integrator.dt == 0.01
@@ -140,7 +140,7 @@ class TestBasicCreation:
     def test_create_with_options(self, mock_system):
         """Test creating integrator with additional options."""
         integrator = IntegratorFactory.create(
-            mock_system, backend="numpy", method="RK45", rtol=1e-9, atol=1e-11
+            mock_system, backend="numpy", method="RK45", rtol=1e-9, atol=1e-11,
         )
 
         assert integrator.rtol == 1e-9
@@ -197,7 +197,7 @@ class TestMethodBackendCompatibility:
         """Test scipy methods require numpy backend."""
         with pytest.raises(ValueError, match="requires backend"):
             IntegratorFactory.create(
-                mock_system, backend="torch", method="RK45"  # Scipy-only method
+                mock_system, backend="torch", method="RK45",  # Scipy-only method
             )
 
     def test_universal_methods_work_with_any_backend(self, mock_system):
@@ -208,7 +208,7 @@ class TestMethodBackendCompatibility:
             try:
                 dt: ScalarLike = 0.01
                 integrator = IntegratorFactory.create(
-                    mock_system, backend="numpy", method=method, dt=dt, step_mode=StepMode.FIXED
+                    mock_system, backend="numpy", method=method, dt=dt, step_mode=StepMode.FIXED,
                 )
                 assert integrator is not None
             except Exception as e:
@@ -574,7 +574,7 @@ class TestErrorHandling:
         """Test clear error when dt missing for fixed-step."""
         with pytest.raises(ValueError) as exc_info:
             IntegratorFactory.create(
-                mock_system, backend="numpy", method="rk4", step_mode=StepMode.FIXED
+                mock_system, backend="numpy", method="rk4", step_mode=StepMode.FIXED,
             )
 
         assert "requires dt" in str(exc_info.value).lower()
@@ -583,7 +583,7 @@ class TestErrorHandling:
         """Test error when Julia method used with wrong backend."""
         with pytest.raises(ValueError, match="requires backend"):
             IntegratorFactory.create(
-                mock_system, backend="jax", method="Tsit5"  # Julia method, needs numpy
+                mock_system, backend="jax", method="Tsit5",  # Julia method, needs numpy
             )
 
 
@@ -720,7 +720,7 @@ class TestScalarLikeTypeUsage:
         """Test dt parameter accepts float (basic ScalarLike)."""
         dt: ScalarLike = 0.01
         integrator = IntegratorFactory.create(
-            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED
+            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED,
         )
 
         assert integrator.dt == 0.01
@@ -729,7 +729,7 @@ class TestScalarLikeTypeUsage:
         """Test dt parameter accepts int (also ScalarLike)."""
         dt: ScalarLike = 1
         integrator = IntegratorFactory.create(
-            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED
+            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED,
         )
 
         assert integrator.dt == 1
@@ -738,7 +738,7 @@ class TestScalarLikeTypeUsage:
         """Test dt parameter accepts numpy scalar."""
         dt: ScalarLike = np.float64(0.01)
         integrator = IntegratorFactory.create(
-            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED
+            mock_system, backend="numpy", method="rk4", dt=dt, step_mode=StepMode.FIXED,
         )
 
         assert integrator.dt == 0.01

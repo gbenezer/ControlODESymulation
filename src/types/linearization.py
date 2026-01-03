@@ -367,7 +367,11 @@ Examples
 """
 
 FullStochasticLinearization = Tuple[
-    StateMatrix, InputMatrix, DiffusionMatrix, OutputMatrix, FeedthroughMatrix,
+    StateMatrix,
+    InputMatrix,
+    DiffusionMatrix,
+    OutputMatrix,
+    FeedthroughMatrix,
 ]
 """
 Complete stochastic linearization: (A, B, G, C, D).

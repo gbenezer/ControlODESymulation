@@ -19,17 +19,16 @@ Unit Tests for Plotting Themes Module
 Tests color schemes, plot themes, and color manipulation utilities.
 """
 
-import pytest
 import plotly.graph_objects as go
+import pytest
 
 from src.visualization.themes import (
     ColorSchemes,
     PlotThemes,
     hex_to_rgb,
-    rgb_to_hex,
     lighten_color,
+    rgb_to_hex,
 )
-
 
 # ============================================================================
 # ColorSchemes Tests
@@ -88,7 +87,7 @@ class TestColorSchemes:
             ColorSchemes.DIVERGING_RED_BLUE,
             ColorSchemes.DIVERGING_PURPLE_GREEN,
         ]
-        
+
         for palette in palettes:
             for color in palette:
                 assert color.startswith("#"), f"Color {color} missing #"
@@ -303,9 +302,9 @@ class TestPlotThemes:
         """Test apply_theme with default theme."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         result = PlotThemes.apply_theme(fig, theme="default")
-        
+
         assert isinstance(result, go.Figure)
         assert result.layout.template.layout.plot_bgcolor == "white"
 
@@ -313,9 +312,9 @@ class TestPlotThemes:
         """Test apply_theme with publication theme."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         result = PlotThemes.apply_theme(fig, theme="publication")
-        
+
         assert isinstance(result, go.Figure)
         assert result.layout.font.size == 14
         assert "Times New Roman" in result.layout.font.family
@@ -324,9 +323,9 @@ class TestPlotThemes:
         """Test apply_theme with dark theme."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         result = PlotThemes.apply_theme(fig, theme="dark")
-        
+
         assert isinstance(result, go.Figure)
         # Dark theme should have dark background
         assert result.layout.template.layout.plot_bgcolor != "white"
@@ -335,9 +334,9 @@ class TestPlotThemes:
         """Test apply_theme with presentation theme."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         result = PlotThemes.apply_theme(fig, theme="presentation")
-        
+
         assert isinstance(result, go.Figure)
         assert result.layout.font.size == 18
 
@@ -346,26 +345,26 @@ class TestPlotThemes:
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
         result1 = PlotThemes.apply_theme(fig1, theme="DEFAULT")
-        
+
         fig2 = go.Figure()
         fig2.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
         result2 = PlotThemes.apply_theme(fig2, theme="default")
-        
+
         assert result1.layout.template == result2.layout.template
 
     def test_apply_theme_custom_dict(self):
         """Test apply_theme with custom theme dictionary."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         custom_theme = {
             "template": "plotly_white",
             "font_family": "Helvetica",
             "font_size": 20,
         }
-        
+
         result = PlotThemes.apply_theme(fig, theme=custom_theme)
-        
+
         assert result.layout.font.size == 20
         assert "Helvetica" in result.layout.font.family
 
@@ -373,40 +372,40 @@ class TestPlotThemes:
         """Test apply_theme updates line widths."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3], mode="lines"))
-        
+
         result = PlotThemes.apply_theme(fig, theme="publication")
-        
+
         assert result.data[0].line.width == 2.5
 
     def test_apply_theme_updates_marker_size(self):
         """Test apply_theme updates marker sizes."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3], mode="markers"))
-        
+
         result = PlotThemes.apply_theme(fig, theme="presentation")
-        
+
         assert result.data[0].marker.size == 12
 
     def test_apply_theme_updates_legend(self):
         """Test apply_theme updates legend visibility."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3], name="Test"))
-        
+
         result = PlotThemes.apply_theme(fig, theme="publication")
-        
+
         assert result.layout.showlegend is True
 
     def test_apply_theme_invalid_theme_name(self):
         """Test apply_theme raises ValueError for invalid theme name."""
         fig = go.Figure()
-        
+
         with pytest.raises(ValueError, match="Unknown theme"):
             PlotThemes.apply_theme(fig, theme="invalid_theme")
 
     def test_apply_theme_invalid_theme_type(self):
         """Test apply_theme raises TypeError for invalid theme type."""
         fig = go.Figure()
-        
+
         with pytest.raises(TypeError, match="theme must be str or dict"):
             PlotThemes.apply_theme(fig, theme=123)
 
@@ -414,18 +413,18 @@ class TestPlotThemes:
         """Test apply_theme modifies figure in place."""
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3]))
-        
+
         original_id = id(fig)
         result = PlotThemes.apply_theme(fig, theme="default")
-        
+
         assert id(result) == original_id
 
     def test_apply_theme_empty_figure(self):
         """Test apply_theme works with empty figure."""
         fig = go.Figure()
-        
+
         result = PlotThemes.apply_theme(fig, theme="default")
-        
+
         assert isinstance(result, go.Figure)
 
     def test_apply_theme_multiple_traces(self):
@@ -433,16 +432,16 @@ class TestPlotThemes:
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2], y=[1, 2], mode="lines"))
         fig.add_trace(go.Scatter(x=[1, 2], y=[2, 1], mode="lines"))
-        
+
         result = PlotThemes.apply_theme(fig, theme="publication")
-        
+
         assert result.data[0].line.width == 2.5
         assert result.data[1].line.width == 2.5
 
     def test_get_line_styles(self):
         """Test get_line_styles returns expected styles."""
         styles = PlotThemes.get_line_styles()
-        
+
         assert isinstance(styles, list)
         assert len(styles) == 6
         assert "solid" in styles
@@ -597,10 +596,10 @@ class TestColorManipulation:
         """Test lighten_color preserves color ratios approximately."""
         original = "#FF8000"  # Orange
         lightened = lighten_color(original, factor=0.3)
-        
+
         r_orig, g_orig, b_orig = hex_to_rgb(original)
         r_light, g_light, b_light = hex_to_rgb(lightened)
-        
+
         # Lightened color should still have more red than green
         assert r_light > g_light
         assert g_light > b_light
@@ -632,13 +631,13 @@ class TestIntegration:
         # Create figure
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=[1, 2, 3], y=[1, 2, 3], mode="lines+markers"))
-        
+
         # Apply theme
         fig = PlotThemes.apply_theme(fig, theme="publication")
-        
+
         # Get colors for legend
         colors = ColorSchemes.get_colors("colorblind_safe", n_colors=3)
-        
+
         # Verify everything works together
         assert isinstance(fig, go.Figure)
         assert len(colors) == 3
@@ -649,14 +648,14 @@ class TestIntegration:
         base_color = "#0000FF"
         light_color = lighten_color(base_color, factor=0.3)
         dark_color = lighten_color(base_color, factor=-0.3)
-        
+
         # Create gradient
         gradient = ColorSchemes.interpolate_colors(dark_color, light_color, n_steps=5)
-        
+
         # Use in custom theme
         custom_theme = PlotThemes.DEFAULT.copy()
         custom_theme["font_size"] = 16
-        
+
         fig = go.Figure()
         for i, color in enumerate(gradient):
             fig.add_trace(
@@ -664,11 +663,11 @@ class TestIntegration:
                     x=[1, 2, 3],
                     y=[i, i + 1, i + 2],
                     line=dict(color=color),
-                )
+                ),
             )
-        
+
         fig = PlotThemes.apply_theme(fig, theme=custom_theme)
-        
+
         assert len(fig.data) == 5
         assert fig.layout.font.size == 16
 

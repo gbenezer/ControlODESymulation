@@ -188,7 +188,11 @@ class DiscreteSystemBase(ABC):
 
     @abstractmethod
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
+        self,
+        x0: StateVector,
+        u_sequence: DiscreteControlInput = None,
+        n_steps: int = 100,
+        **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Simulate system for multiple discrete time steps.
@@ -257,7 +261,9 @@ class DiscreteSystemBase(ABC):
 
     @abstractmethod
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """
         Compute linearized discrete dynamics around an equilibrium point.
@@ -768,7 +774,7 @@ class DiscreteSystemBase(ABC):
         Discrete system stability:
         - Continuous: Re(λ) < 0 (left half-plane)
         - **Discrete: |λ| < 1 (inside unit circle)** ← Use system_type='discrete'
-        
+
         Always specify `system_type='discrete'` for discrete systems!
         """
         if not hasattr(self, "_control_plotter"):
@@ -862,7 +868,7 @@ class DiscreteSystemBase(ABC):
         - Extracts time and state from result dictionary
         - Calls plotter.plot_trajectory() with appropriate arguments
         - Returns Plotly figure for further customization
-        
+
         For more control over plotting, use plotter methods directly.
         """
         return self.plotter.plot_trajectory(

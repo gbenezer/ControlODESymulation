@@ -282,7 +282,7 @@ class TestConstants:
 
     def test_default_dtype(self):
         """Test default dtype is float64."""
-        assert DEFAULT_DTYPE == np.float64
+        assert np.float64 == DEFAULT_DTYPE
 
 
 # ============================================================================
@@ -709,7 +709,7 @@ class TestDefaultValues:
 
     def test_default_dtype_is_precise(self):
         """Test default dtype is double precision."""
-        assert DEFAULT_DTYPE == np.float64
+        assert np.float64 == DEFAULT_DTYPE
         # Control/scientific computing needs precision
 
 

@@ -528,7 +528,11 @@ class ObservationEngine:
         dtype = x.dtype
 
         C_batch = torch.zeros(
-            batch_size, self.system.ny, self.system.nx, dtype=dtype, device=device,
+            batch_size,
+            self.system.ny,
+            self.system.nx,
+            dtype=dtype,
+            device=device,
         )
 
         # Try to get cached Jacobian function
@@ -549,7 +553,9 @@ class ObservationEngine:
 
                 C_sym = self.compute_symbolic(sp.Matrix(x_np))
                 C_batch[i] = torch.tensor(
-                    np.array(C_sym, dtype=np.float64), dtype=dtype, device=device,
+                    np.array(C_sym, dtype=np.float64),
+                    dtype=dtype,
+                    device=device,
                 )
 
         if squeeze_output:

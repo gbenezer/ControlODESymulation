@@ -154,7 +154,9 @@ class EquilibriumHandler:
         self._equilibria[name] = {"x": x_eq, "u": u_eq, "metadata": metadata}
 
     def get_x(
-        self, name: Optional[EquilibriumName] = None, backend: Backend = "numpy",
+        self,
+        name: Optional[EquilibriumName] = None,
+        backend: Backend = "numpy",
     ) -> EquilibriumState:
         """Get equilibrium state in specified backend"""
         name = name or self._default
@@ -167,7 +169,9 @@ class EquilibriumHandler:
         return self._convert_to_backend(x_eq, backend)
 
     def get_u(
-        self, name: Optional[EquilibriumName] = None, backend: Backend = "numpy",
+        self,
+        name: Optional[EquilibriumName] = None,
+        backend: Backend = "numpy",
     ) -> EquilibriumControl:
         """Get equilibrium control in specified backend"""
         name = name or self._default
@@ -179,7 +183,9 @@ class EquilibriumHandler:
         return self._convert_to_backend(u_eq, backend)
 
     def get_both(
-        self, name: Optional[EquilibriumName] = None, backend: Backend = "numpy",
+        self,
+        name: Optional[EquilibriumName] = None,
+        backend: Backend = "numpy",
     ) -> EquilibriumPoint:
         """Get both state and control equilibria"""
         return self.get_x(name, backend), self.get_u(name, backend)

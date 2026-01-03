@@ -37,7 +37,7 @@ from src.systems.base.utils.symbolic_validator import (
     SymbolicValidator,
     ValidationError,
 )
-from src.types.utilities import ValidationResult, SymbolicValidationResult
+from src.types.utilities import SymbolicValidationResult, ValidationResult
 
 # ============================================================================
 # Mock System Classes for Testing
@@ -130,7 +130,7 @@ class TestValidationResult:
     def test_invalid_result_creation(self):
         """Test creating invalid ValidationResult."""
         result = ValidationResult(
-            valid=False, errors=["Dimension mismatch"], warnings=["Unusual order"], info={}
+            valid=False, errors=["Dimension mismatch"], warnings=["Unusual order"], info={},
         )
 
         assert not result["valid"]

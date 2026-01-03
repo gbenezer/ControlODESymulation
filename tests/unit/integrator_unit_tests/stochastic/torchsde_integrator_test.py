@@ -41,14 +41,15 @@ except ImportError:
     TORCH_AVAILABLE = False
     CUDA_AVAILABLE = False
 
-# Import from centralized type system
-from src.types.backends import SDEType
+from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 from src.systems.base.numerical_integration.stochastic.torchsde_integrator import (
     TorchSDEIntegrator,
     create_torchsde_integrator,
     list_torchsde_methods,
 )
-from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
+
+# Import from centralized type system
+from src.types.backends import SDEType
 
 # ============================================================================
 # Skip Tests if PyTorch/torchsde Not Available
@@ -116,11 +117,10 @@ class OrnsteinUhlenbeck(StochasticDynamicalSystem):
                 x = torch.tensor(x, dtype=torch.float32)
             # Return constant diffusion matrix
             return torch.tensor([[sigma]], dtype=x.dtype, device=x.device)
-        elif backend == "numpy":
+        if backend == "numpy":
             sigma = list(self.parameters.values())[1]
             return np.array([[sigma]])
-        else:
-            raise ValueError(f"Unsupported backend: {backend}")
+        raise ValueError(f"Unsupported backend: {backend}")
 
 
 class BrownianMotion(StochasticDynamicalSystem):
@@ -154,11 +154,10 @@ class BrownianMotion(StochasticDynamicalSystem):
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
             return torch.tensor([[sigma]], dtype=x.dtype, device=x.device)
-        elif backend == "numpy":
+        if backend == "numpy":
             sigma = list(self.parameters.values())[0]
             return np.array([[sigma]])
-        else:
-            raise ValueError(f"Unsupported backend: {backend}")
+        raise ValueError(f"Unsupported backend: {backend}")
 
 
 class ControlledOU(StochasticDynamicalSystem):
@@ -194,11 +193,10 @@ class ControlledOU(StochasticDynamicalSystem):
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
             return torch.tensor([[sigma]], dtype=x.dtype, device=x.device)
-        elif backend == "numpy":
+        if backend == "numpy":
             sigma = list(self.parameters.values())[1]
             return np.array([[sigma]])
-        else:
-            raise ValueError(f"Unsupported backend: {backend}")
+        raise ValueError(f"Unsupported backend: {backend}")
 
 
 class TwoDimensionalOU(StochasticDynamicalSystem):
@@ -236,12 +234,11 @@ class TwoDimensionalOU(StochasticDynamicalSystem):
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.float32)
             return torch.tensor([[sigma1, 0.0], [0.0, sigma2]], dtype=x.dtype, device=x.device)
-        elif backend == "numpy":
+        if backend == "numpy":
             params = list(self.parameters.values())
             sigma1, sigma2 = params[1], params[2]
             return np.array([[sigma1, 0.0], [0.0, sigma2]])
-        else:
-            raise ValueError(f"Unsupported backend: {backend}")
+        raise ValueError(f"Unsupported backend: {backend}")
 
 
 # ============================================================================
@@ -575,7 +572,7 @@ class TestPureDiffusionSystems:
         empirical_mean = final_states.mean()
         mean_tolerance = 0.20
         assert abs(empirical_mean) < mean_tolerance, (
-            f"Mean {empirical_mean:.4f} should be near 0 " f"(99.9% CI: ±{mean_tolerance:.2f})"
+            f"Mean {empirical_mean:.4f} should be near 0 (99.9% CI: ±{mean_tolerance:.2f})"
         )
 
         # Test 2: Variance should be close to σ²t = 0.25

@@ -199,7 +199,7 @@ class TestTrajectoryPlanningResult:
                 np.sin(t),
                 np.cos(t),
                 t / 3,
-            ]
+            ],
         )
 
         result: TrajectoryPlanningResult = {
@@ -293,7 +293,7 @@ class TestPracticalUseCases:
                 radius * np.sin(omega * t),  # y
                 height * np.ones(N + 1),  # z
                 omega * t,  # ψ (yaw)
-            ]
+            ],
         )
 
         result: TrajectoryPlanningResult = {
@@ -321,7 +321,7 @@ class TestPracticalUseCases:
             [
                 t,  # x
                 np.sin(2 * np.pi * t / 3),  # y
-            ]
+            ],
         )
 
         result: TrajectoryPlanningResult = {

@@ -20,7 +20,6 @@ Tests code generation, caching, optimization, and integration with NoiseCharacte
 Mirrors test structure from test_code_generator.py for consistency.
 """
 
-from typing import Dict
 
 import numpy as np
 import pytest
@@ -538,7 +537,6 @@ class TestCodeGenerationJAX:
     def test_jax_jit_compilation(self, additive_noise_2d):
         """Test JAX JIT compilation option."""
         pytest.importorskip("jax")
-        import jax
         import jax.numpy as jnp
 
         handler = DiffusionHandler(

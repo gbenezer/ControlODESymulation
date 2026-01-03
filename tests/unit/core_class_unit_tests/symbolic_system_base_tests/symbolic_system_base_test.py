@@ -69,8 +69,7 @@ Notes
 import json
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -748,7 +747,7 @@ class TestEquilibriumManagement:
         u_eq = np.array([0.0])
 
         system.add_equilibrium(
-            "stable_point", x_eq, u_eq, verify=False, stability="stable", notes="Test equilibrium"
+            "stable_point", x_eq, u_eq, verify=False, stability="stable", notes="Test equilibrium",
         )
 
         metadata = system.get_equilibrium_metadata("stable_point")
@@ -914,7 +913,7 @@ class TestConfigurationPersistence:
             system.save_config(str(filepath))
 
             # Load and verify
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config = json.load(f)
 
             assert config["class_name"] == "MinimalSystem"
@@ -929,7 +928,7 @@ class TestConfigurationPersistence:
 
             system.save_config(str(filepath))
 
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config = json.load(f)
 
             assert "m" in config["parameters"]
@@ -948,7 +947,7 @@ class TestConfigurationPersistence:
             system1.save_config(str(filepath))
 
             # Load
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config = json.load(f)
 
             # Verify consistency
@@ -1398,7 +1397,7 @@ class TestIntegration:
             assert filepath.exists()
 
             # Load and check
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 config = json.load(f)
 
             assert config["backend"] == "torch"

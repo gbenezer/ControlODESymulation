@@ -64,9 +64,7 @@ import gc
 import sys
 import tempfile
 import threading
-import warnings
 from pathlib import Path
-from typing import Dict, List
 from unittest.mock import patch
 
 import numpy as np

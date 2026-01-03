@@ -28,10 +28,11 @@ Tests cover:
 9. Type system integration
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
 import pytest
 import sympy as sp
-from typing import Optional, Tuple
 
 # Type system imports
 from src.types import ArrayLike

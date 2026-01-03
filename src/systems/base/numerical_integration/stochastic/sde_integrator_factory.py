@@ -314,15 +314,36 @@ class SDEIntegratorFactory:
         # Create integrator based on backend
         if backend == "numpy":
             return cls._create_diffeqpy(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
+                sde_system,
+                method,
+                dt,
+                step_mode,
+                sde_type,
+                convergence_type,
+                seed,
+                **options,
             )
         if backend == "torch":
             return cls._create_torchsde(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
+                sde_system,
+                method,
+                dt,
+                step_mode,
+                sde_type,
+                convergence_type,
+                seed,
+                **options,
             )
         if backend == "jax":
             return cls._create_diffrax(
-                sde_system, method, dt, step_mode, sde_type, convergence_type, seed, **options,
+                sde_system,
+                method,
+                dt,
+                step_mode,
+                sde_type,
+                convergence_type,
+                seed,
+                **options,
             )
         raise ValueError(f"Unknown backend: {backend}")
 
@@ -433,7 +454,10 @@ class SDEIntegratorFactory:
 
     @classmethod
     def auto(
-        cls, sde_system: "ContinuousStochasticSystem", seed: Optional[int] = None, **options,
+        cls,
+        sde_system: "ContinuousStochasticSystem",
+        seed: Optional[int] = None,
+        **options,
     ) -> SDEIntegratorBase:
         """
         Automatically select best available SDE integrator.
@@ -536,7 +560,10 @@ class SDEIntegratorFactory:
 
     @classmethod
     def for_neural_sde(
-        cls, sde_system: "ContinuousStochasticSystem", adjoint: bool = True, **options,
+        cls,
+        sde_system: "ContinuousStochasticSystem",
+        adjoint: bool = True,
+        **options,
     ) -> SDEIntegratorBase:
         """
         Create SDE integrator for neural SDEs.

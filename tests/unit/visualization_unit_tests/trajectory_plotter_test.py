@@ -21,11 +21,10 @@ trajectories, theme integration, and layout determination.
 """
 
 import numpy as np
-import pytest
 import plotly.graph_objects as go
+import pytest
 
 from src.visualization.trajectory_plotter import TrajectoryPlotter
-
 
 # ============================================================================
 # Fixtures
@@ -35,7 +34,7 @@ from src.visualization.trajectory_plotter import TrajectoryPlotter
 @pytest.fixture
 def plotter():
     """Create default trajectory plotter."""
-    return TrajectoryPlotter(backend='numpy')
+    return TrajectoryPlotter(backend="numpy")
 
 
 @pytest.fixture
@@ -58,10 +57,9 @@ def multi_state_trajectory():
 def batched_trajectory():
     """Create batched trajectories."""
     t = np.linspace(0, 10, 100)
-    x_batch = np.stack([
-        np.column_stack([np.sin(t + phi), np.cos(t + phi)])
-        for phi in [0, 0.5, 1.0]
-    ])  # (3, 100, 2)
+    x_batch = np.stack(
+        [np.column_stack([np.sin(t + phi), np.cos(t + phi)]) for phi in [0, 0.5, 1.0]],
+    )  # (3, 100, 2)
     return t, x_batch
 
 
@@ -83,27 +81,27 @@ class TestInitialization:
     def test_default_initialization(self):
         """Test default initialization."""
         plotter = TrajectoryPlotter()
-        assert plotter.backend == 'numpy'
-        assert plotter.default_theme == 'default'
+        assert plotter.backend == "numpy"
+        assert plotter.default_theme == "default"
 
     def test_backend_initialization(self):
         """Test initialization with different backends."""
-        plotter_numpy = TrajectoryPlotter(backend='numpy')
-        assert plotter_numpy.backend == 'numpy'
-        
-        plotter_torch = TrajectoryPlotter(backend='torch')
-        assert plotter_torch.backend == 'torch'
-        
-        plotter_jax = TrajectoryPlotter(backend='jax')
-        assert plotter_jax.backend == 'jax'
+        plotter_numpy = TrajectoryPlotter(backend="numpy")
+        assert plotter_numpy.backend == "numpy"
+
+        plotter_torch = TrajectoryPlotter(backend="torch")
+        assert plotter_torch.backend == "torch"
+
+        plotter_jax = TrajectoryPlotter(backend="jax")
+        assert plotter_jax.backend == "jax"
 
     def test_theme_initialization(self):
         """Test initialization with different default themes."""
-        plotter_pub = TrajectoryPlotter(default_theme='publication')
-        assert plotter_pub.default_theme == 'publication'
-        
-        plotter_dark = TrajectoryPlotter(default_theme='dark')
-        assert plotter_dark.default_theme == 'dark'
+        plotter_pub = TrajectoryPlotter(default_theme="publication")
+        assert plotter_pub.default_theme == "publication"
+
+        plotter_dark = TrajectoryPlotter(default_theme="dark")
+        assert plotter_dark.default_theme == "dark"
 
 
 # ============================================================================
@@ -118,7 +116,7 @@ class TestPlotTrajectory:
         """Test plotting simple 1D trajectory."""
         t, x = simple_trajectory
         fig = plotter.plot_trajectory(t, x)
-        
+
         assert isinstance(fig, go.Figure)
         assert len(fig.data) > 0
         assert fig.layout.title.text == "State Trajectories"
@@ -127,7 +125,7 @@ class TestPlotTrajectory:
         """Test plotting multi-state trajectory."""
         t, x = multi_state_trajectory
         fig = plotter.plot_trajectory(t, x)
-        
+
         assert isinstance(fig, go.Figure)
         # Should have 2 traces (one per state)
         assert len(fig.data) == 2
@@ -136,7 +134,7 @@ class TestPlotTrajectory:
         """Test plotting batched trajectories."""
         t, x_batch = batched_trajectory
         fig = plotter.plot_trajectory(t, x_batch)
-        
+
         assert isinstance(fig, go.Figure)
         # Should have 6 traces (3 batches × 2 states)
         assert len(fig.data) == 6
@@ -145,59 +143,58 @@ class TestPlotTrajectory:
     def test_custom_state_names(self, plotter, multi_state_trajectory):
         """Test with custom state names."""
         t, x = multi_state_trajectory
-        state_names = ['Position', 'Velocity']
+        state_names = ["Position", "Velocity"]
         fig = plotter.plot_trajectory(t, x, state_names=state_names)
-        
+
         assert isinstance(fig, go.Figure)
         # Check subplot titles contain custom names
-        subplot_titles = [anno.text for anno in fig.layout.annotations 
-                         if hasattr(anno, 'text')]
-        assert 'Position' in subplot_titles
-        assert 'Velocity' in subplot_titles
+        subplot_titles = [anno.text for anno in fig.layout.annotations if hasattr(anno, "text")]
+        assert "Position" in subplot_titles
+        assert "Velocity" in subplot_titles
 
     def test_custom_title(self, plotter, simple_trajectory):
         """Test with custom title."""
         t, x = simple_trajectory
         custom_title = "My Custom Trajectory"
         fig = plotter.plot_trajectory(t, x, title=custom_title)
-        
+
         assert fig.layout.title.text == custom_title
 
     def test_color_scheme(self, plotter, batched_trajectory):
         """Test with different color schemes."""
         t, x_batch = batched_trajectory
-        
+
         # Test colorblind safe
-        fig = plotter.plot_trajectory(t, x_batch, color_scheme='colorblind_safe')
+        fig = plotter.plot_trajectory(t, x_batch, color_scheme="colorblind_safe")
         assert isinstance(fig, go.Figure)
-        
+
         # Test tableau
-        fig = plotter.plot_trajectory(t, x_batch, color_scheme='tableau')
+        fig = plotter.plot_trajectory(t, x_batch, color_scheme="tableau")
         assert isinstance(fig, go.Figure)
 
     def test_theme_application(self, plotter, simple_trajectory):
         """Test theme application."""
         t, x = simple_trajectory
-        
+
         # Test default theme
-        fig_default = plotter.plot_trajectory(t, x, theme='default')
+        fig_default = plotter.plot_trajectory(t, x, theme="default")
         assert isinstance(fig_default, go.Figure)
-        
+
         # Test publication theme
-        fig_pub = plotter.plot_trajectory(t, x, theme='publication')
+        fig_pub = plotter.plot_trajectory(t, x, theme="publication")
         assert isinstance(fig_pub, go.Figure)
         assert fig_pub.layout.font.size == 14  # Publication font size
-        
+
         # Test dark theme
-        fig_dark = plotter.plot_trajectory(t, x, theme='dark')
+        fig_dark = plotter.plot_trajectory(t, x, theme="dark")
         assert isinstance(fig_dark, go.Figure)
 
     def test_default_theme_fallback(self):
         """Test that default_theme is used when theme not specified."""
-        plotter = TrajectoryPlotter(default_theme='publication')
+        plotter = TrajectoryPlotter(default_theme="publication")
         t = np.linspace(0, 10, 100)
         x = np.sin(t)[:, None]
-        
+
         fig = plotter.plot_trajectory(t, x)
         assert fig.layout.font.size == 14  # Publication theme font
 
@@ -205,22 +202,22 @@ class TestPlotTrajectory:
         """Test disabling legend."""
         t, x_batch = batched_trajectory
         fig = plotter.plot_trajectory(t, x_batch, show_legend=False)
-        
+
         assert fig.layout.showlegend is False
 
     def test_incompatible_time_shape(self, plotter):
         """Test error on incompatible time shape."""
         t = np.linspace(0, 10, 50)  # 50 points
         x = np.random.randn(100, 2)  # 100 points
-        
+
         with pytest.raises(ValueError, match="Time shape"):
             plotter.plot_trajectory(t, x)
 
     def test_state_names_length_mismatch(self, plotter, multi_state_trajectory):
         """Test error on state_names length mismatch."""
         t, x = multi_state_trajectory
-        state_names = ['Position']  # Only 1 name for 2 states
-        
+        state_names = ["Position"]  # Only 1 name for 2 states
+
         with pytest.raises(ValueError, match="state_names length"):
             plotter.plot_trajectory(t, x, state_names=state_names)
 
@@ -228,7 +225,7 @@ class TestPlotTrajectory:
         """Test that 1D arrays are converted to 2D."""
         t = np.linspace(0, 10, 100)
         x = np.sin(t)  # 1D array
-        
+
         fig = plotter.plot_trajectory(t, x)
         assert isinstance(fig, go.Figure)
         assert len(fig.data) == 1
@@ -246,9 +243,9 @@ class TestPlotStateAndControl:
         """Test plotting states and controls."""
         t, x = multi_state_trajectory
         u = control_input
-        
+
         fig = plotter.plot_state_and_control(t, x, u)
-        
+
         assert isinstance(fig, go.Figure)
         # Should have traces for 2 states + 1 control
         assert len(fig.data) == 3
@@ -257,25 +254,23 @@ class TestPlotStateAndControl:
         """Test with custom state and control names."""
         t, x = multi_state_trajectory
         u = control_input
-        
-        state_names = ['θ', 'ω']
-        control_names = ['Torque']
-        
+
+        state_names = ["θ", "ω"]
+        control_names = ["Torque"]
+
         fig = plotter.plot_state_and_control(
-            t, x, u,
-            state_names=state_names,
-            control_names=control_names
+            t, x, u, state_names=state_names, control_names=control_names,
         )
-        
+
         assert isinstance(fig, go.Figure)
 
     def test_batched_state_and_control(self, plotter, batched_trajectory):
         """Test batched states and controls."""
         t, x_batch = batched_trajectory
         u_batch = 0.1 * np.random.randn(3, 100, 1)
-        
+
         fig = plotter.plot_state_and_control(t, x_batch, u_batch)
-        
+
         assert isinstance(fig, go.Figure)
         assert fig.layout.showlegend is True
 
@@ -283,7 +278,7 @@ class TestPlotStateAndControl:
         """Test error when batching doesn't match."""
         t, x_batch = batched_trajectory  # Batched (3, 100, 2)
         u = control_input  # Not batched (100, 1)
-        
+
         with pytest.raises(ValueError, match="both be batched"):
             plotter.plot_state_and_control(t, x_batch, u)
 
@@ -291,12 +286,9 @@ class TestPlotStateAndControl:
         """Test theme application."""
         t, x = multi_state_trajectory
         u = control_input
-        
-        fig = plotter.plot_state_and_control(
-            t, x, u,
-            theme='publication'
-        )
-        
+
+        fig = plotter.plot_state_and_control(t, x, u, theme="publication")
+
         assert fig.layout.font.size == 14
 
 
@@ -313,14 +305,14 @@ class TestPlotComparison:
         t = np.linspace(0, 10, 100)
         x1 = np.column_stack([np.sin(t), np.cos(t)])
         x2 = np.column_stack([np.sin(t + 0.5), np.cos(t + 0.5)])
-        
+
         trajectories = {
-            'Trajectory 1': x1,
-            'Trajectory 2': x2,
+            "Trajectory 1": x1,
+            "Trajectory 2": x2,
         }
-        
+
         fig = plotter.plot_comparison(t, trajectories)
-        
+
         assert isinstance(fig, go.Figure)
         # Should have 4 traces (2 states × 2 trajectories)
         assert len(fig.data) == 4
@@ -331,12 +323,12 @@ class TestPlotComparison:
         t = np.linspace(0, 10, 100)
         x1 = np.column_stack([np.sin(t), np.cos(t)])
         x2 = np.column_stack([np.sin(t + 0.5), np.cos(t + 0.5)])
-        
-        trajectories = {'Controlled': x1, 'Uncontrolled': x2}
-        state_names = ['Position', 'Velocity']
-        
+
+        trajectories = {"Controlled": x1, "Uncontrolled": x2}
+        state_names = ["Position", "Velocity"]
+
         fig = plotter.plot_comparison(t, trajectories, state_names=state_names)
-        
+
         assert isinstance(fig, go.Figure)
 
     def test_comparison_shape_mismatch(self, plotter):
@@ -344,9 +336,9 @@ class TestPlotComparison:
         t = np.linspace(0, 10, 100)
         x1 = np.random.randn(100, 2)
         x2 = np.random.randn(100, 3)  # Different number of states
-        
-        trajectories = {'Traj1': x1, 'Traj2': x2}
-        
+
+        trajectories = {"Traj1": x1, "Traj2": x2}
+
         with pytest.raises(ValueError, match="shape"):
             plotter.plot_comparison(t, trajectories)
 
@@ -355,9 +347,9 @@ class TestPlotComparison:
         t = np.linspace(0, 10, 100)
         x1 = np.sin(t)
         x2 = np.cos(t)
-        
-        trajectories = {'Sin': x1, 'Cos': x2}
-        
+
+        trajectories = {"Sin": x1, "Cos": x2}
+
         fig = plotter.plot_comparison(t, trajectories)
         assert isinstance(fig, go.Figure)
 
@@ -366,15 +358,11 @@ class TestPlotComparison:
         t = np.linspace(0, 10, 100)
         x1 = np.sin(t)[:, None]
         x2 = np.cos(t)[:, None]
-        
-        trajectories = {'A': x1, 'B': x2}
-        
-        fig = plotter.plot_comparison(
-            t, trajectories,
-            color_scheme='colorblind_safe',
-            theme='dark'
-        )
-        
+
+        trajectories = {"A": x1, "B": x2}
+
+        fig = plotter.plot_comparison(t, trajectories, color_scheme="colorblind_safe", theme="dark")
+
         assert isinstance(fig, go.Figure)
 
 
@@ -456,25 +444,25 @@ class TestUtilityMethods:
     def test_list_available_themes(self):
         """Test listing available themes."""
         themes = TrajectoryPlotter.list_available_themes()
-        
+
         assert isinstance(themes, list)
         assert len(themes) == 4
-        assert 'default' in themes
-        assert 'publication' in themes
-        assert 'dark' in themes
-        assert 'presentation' in themes
+        assert "default" in themes
+        assert "publication" in themes
+        assert "dark" in themes
+        assert "presentation" in themes
 
     def test_list_available_color_schemes(self):
         """Test listing available color schemes."""
         schemes = TrajectoryPlotter.list_available_color_schemes()
-        
+
         assert isinstance(schemes, list)
         assert len(schemes) == 9
-        assert 'plotly' in schemes
-        assert 'colorblind_safe' in schemes
-        assert 'tableau' in schemes
-        assert 'sequential_blue' in schemes
-        assert 'diverging_red_blue' in schemes
+        assert "plotly" in schemes
+        assert "colorblind_safe" in schemes
+        assert "tableau" in schemes
+        assert "sequential_blue" in schemes
+        assert "diverging_red_blue" in schemes
 
 
 # ============================================================================
@@ -491,26 +479,20 @@ class TestIntegration:
         t = np.linspace(0, 10, 100)
         x = np.column_stack([np.sin(t), np.cos(t)])
         u = 0.1 * np.random.randn(100, 1)
-        
+
         # Create plots
         fig1 = plotter.plot_trajectory(
-            t, x,
-            state_names=['sin', 'cos'],
-            color_scheme='colorblind_safe',
-            theme='publication'
+            t, x, state_names=["sin", "cos"], color_scheme="colorblind_safe", theme="publication",
         )
-        
+
         fig2 = plotter.plot_state_and_control(
-            t, x, u,
-            state_names=['sin', 'cos'],
-            control_names=['noise'],
-            theme='publication'
+            t, x, u, state_names=["sin", "cos"], control_names=["noise"], theme="publication",
         )
-        
+
         # Both should be valid figures
         assert isinstance(fig1, go.Figure)
         assert isinstance(fig2, go.Figure)
-        
+
         # Both should have publication theme applied
         assert fig1.layout.font.size == 14
         assert fig2.layout.font.size == 14
@@ -519,15 +501,14 @@ class TestIntegration:
         """Test workflow with batched trajectories."""
         # Generate batched data
         t = np.linspace(0, 10, 100)
-        x_batch = np.stack([
-            np.column_stack([np.sin(t + phi), np.cos(t + phi)])
-            for phi in np.linspace(0, 1, 5)
-        ])
-        
+        x_batch = np.stack(
+            [np.column_stack([np.sin(t + phi), np.cos(t + phi)]) for phi in np.linspace(0, 1, 5)],
+        )
+
         # Plot with different themes
-        fig_default = plotter.plot_trajectory(t, x_batch, theme='default')
-        fig_dark = plotter.plot_trajectory(t, x_batch, theme='dark')
-        
+        fig_default = plotter.plot_trajectory(t, x_batch, theme="default")
+        fig_dark = plotter.plot_trajectory(t, x_batch, theme="dark")
+
         assert isinstance(fig_default, go.Figure)
         assert isinstance(fig_dark, go.Figure)
 
@@ -536,14 +517,14 @@ class TestIntegration:
         t = np.linspace(0, 10, 100)
         x = np.sin(t)[:, None]
         u = 0.1 * np.random.randn(100, 1)
-        
+
         # Create different plot types with same theme
-        fig1 = plotter.plot_trajectory(t, x, theme='publication')
-        fig2 = plotter.plot_state_and_control(t, x, u, theme='publication')
-        
-        trajectories = {'A': x, 'B': x * 0.5}
-        fig3 = plotter.plot_comparison(t, trajectories, theme='publication')
-        
+        fig1 = plotter.plot_trajectory(t, x, theme="publication")
+        fig2 = plotter.plot_state_and_control(t, x, u, theme="publication")
+
+        trajectories = {"A": x, "B": x * 0.5}
+        fig3 = plotter.plot_comparison(t, trajectories, theme="publication")
+
         # All should have consistent font size
         assert fig1.layout.font.size == 14
         assert fig2.layout.font.size == 14
@@ -562,7 +543,7 @@ class TestEdgeCases:
         """Test with single time point."""
         t = np.array([0.0])
         x = np.array([[1.0]])
-        
+
         fig = plotter.plot_trajectory(t, x)
         assert isinstance(fig, go.Figure)
 
@@ -570,7 +551,7 @@ class TestEdgeCases:
         """Test with large batch size."""
         t = np.linspace(0, 10, 100)
         x_batch = np.random.randn(20, 100, 2)  # 20 batches
-        
+
         fig = plotter.plot_trajectory(t, x_batch)
         assert isinstance(fig, go.Figure)
         # Should have 40 traces (20 batches × 2 states)
@@ -580,7 +561,7 @@ class TestEdgeCases:
         """Test with many state variables."""
         t = np.linspace(0, 10, 100)
         x = np.random.randn(100, 10)  # 10 states
-        
+
         fig = plotter.plot_trajectory(t, x)
         assert isinstance(fig, go.Figure)
         assert len(fig.data) == 10
@@ -589,7 +570,7 @@ class TestEdgeCases:
         """Test comparison with empty dict should handle gracefully."""
         t = np.linspace(0, 10, 100)
         trajectories = {}
-        
+
         # Should handle empty dict without crashing
         # (actual behavior depends on implementation)
         try:

@@ -1706,7 +1706,10 @@ class DiscretizedSystem(DiscreteSystemBase):
         )
 
         result = integrator.integrate(
-            x0=x, u_func=lambda t, xv: u, t_span=(t_start, t_end), dense_output=True,
+            x0=x,
+            u_func=lambda t, xv: u,
+            t_span=(t_start, t_end),
+            dense_output=True,
         )
 
         if "sol" in result and result["sol"] is not None:
@@ -1716,7 +1719,11 @@ class DiscretizedSystem(DiscreteSystemBase):
         return result["x"][-1, :] if "x" in result else result["y"][:, -1]
 
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
+        self,
+        x0: StateVector,
+        u_sequence: DiscreteControlInput = None,
+        n_steps: int = 100,
+        **kwargs,
     ) -> DiscreteSimulationResult:
         return (
             self._simulate_batch(x0, u_sequence, n_steps)
@@ -2337,7 +2344,9 @@ class DiscretizedSystem(DiscreteSystemBase):
         return y_regular
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         lin_result = self._continuous_system.linearize(x_eq, u_eq)
         A, B = lin_result[:2]  # Handle both (A,B) and (A,B,G)
@@ -3000,64 +3009,64 @@ class DiscretizedSystem(DiscreteSystemBase):
     def _get_method_selection_description(self) -> str:
         """
         Get human-readable description of how the integration method was selected.
-        
+
         Used by get_info() to provide context about method selection decisions,
         particularly important for stochastic systems where method selection
         involves complex logic (auto-detection, fallbacks, explicit specification).
-        
+
         Returns
         -------
         str
             Human-readable description explaining method selection
-            
+
         Method Selection Sources
         -----------------------
         The description is based on self._method_source, which can be:
-        
+
         - 'explicit': sde_method explicitly provided and successfully used
             Example: "Explicitly set via sde_method='EM'"
-            
+
         - 'explicit_unavailable': sde_method requested but integrator unavailable
             Example: "SDE method 'euler_maruyama' requested but unavailable, using 'rk4'"
-            
+
         - 'deterministic_fallback': Stochastic system but using deterministic method
             Example: "Deterministic fallback (SDE integrator unavailable)"
-            
+
         - 'user_specified': User explicitly chose method or disabled auto-detection
             Example: "User-specified method 'rk4' (auto-detection disabled)"
-            
+
         - 'deterministic_system': System is deterministic (no special handling)
             Example: "Deterministic system"
-            
+
         Examples
         --------
         >>> # Deterministic system
         >>> discrete = DiscretizedSystem(det_system, dt=0.01, method='rk4')
         >>> discrete._get_method_selection_description()
         'Deterministic system'
-        
+
         >>> # Stochastic with explicit SDE method
         >>> discrete = DiscretizedSystem(sde_system, dt=0.01, sde_method='euler_maruyama')
         >>> discrete._get_method_selection_description()
         "Explicitly set via sde_method='euler_maruyama'"
-        
+
         >>> # Stochastic with deterministic method (auto-detection disabled)
-        >>> discrete = DiscretizedSystem(sde_system, dt=0.01, method='rk4', 
+        >>> discrete = DiscretizedSystem(sde_system, dt=0.01, method='rk4',
         ...                              auto_detect_sde=False)
         >>> discrete._get_method_selection_description()
         "User-specified method 'rk4' (auto-detection disabled)"
-        
+
         >>> # Stochastic with deterministic method (integrator unavailable)
         >>> discrete = DiscretizedSystem(sde_system, dt=0.01, method='rk4')
         >>> discrete._get_method_selection_description()
         'Deterministic fallback (SDE integrator unavailable)'
-        
+
         Notes
         -----
         - This method is called by get_info() - line 1490 in discretized_system.py
         - The description helps users understand complex method selection logic
         - Particularly useful for debugging stochastic discretization issues
-        
+
         See Also
         --------
         get_info : Uses this method to populate 'method_selection' field
@@ -3073,8 +3082,10 @@ class DiscretizedSystem(DiscreteSystemBase):
 
         if source == "explicit_unavailable":
             # sde_method requested but integrator not available
-            return (f"SDE method '{self._original_method}' requested but unavailable, "
-                    f"using '{self._method}'")
+            return (
+                f"SDE method '{self._original_method}' requested but unavailable, "
+                f"using '{self._method}'"
+            )
 
         if source == "deterministic_fallback":
             # Stochastic system but using deterministic method
@@ -3595,7 +3606,13 @@ def discretize_batch(continuous_system, dt, method="LSODA", **kwargs):
 
 
 def analyze_discretization_error(
-    continuous_system, x0, u_sequence, dt_values, method="rk4", n_steps=100, reference_dt=None,
+    continuous_system,
+    x0,
+    u_sequence,
+    dt_values,
+    method="rk4",
+    n_steps=100,
+    reference_dt=None,
 ):
     """
     Analyze discretization error vs time step for convergence study.
@@ -3931,7 +3948,12 @@ def analyze_discretization_error(
 
 
 def recommend_dt(
-    continuous_system, x0, target_error=1e-6, method="rk4", dt_range=(1e-4, 0.1), n_test=10,
+    continuous_system,
+    x0,
+    target_error=1e-6,
+    method="rk4",
+    dt_range=(1e-4, 0.1),
+    n_test=10,
 ):
     """
         Recommend optimal time step for target discretization accuracy.

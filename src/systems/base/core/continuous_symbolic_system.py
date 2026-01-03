@@ -235,7 +235,7 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         self._observation = ObservationEngine(self, self._code_gen, self.backend)
         """Evaluates output: y = h(x) and C = ∂h/∂x"""
-        
+
         # call setup_equilibria after _dynamics exists
         if self._auto_add_equilibria and hasattr(self, "setup_equilibria"):
             self.setup_equilibria()
@@ -624,16 +624,25 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
 
         # Create integrator via factory (no state stored - created on demand)
         integrator = IntegratorFactory.create(
-            system=self, backend=self._default_backend, method=method, **integrator_kwargs,
+            system=self,
+            backend=self._default_backend,
+            method=method,
+            **integrator_kwargs,
         )
 
         # Delegate to integrator
         return integrator.integrate(
-            x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval, dense_output=dense_output,
+            x0=x0,
+            u_func=u_func,
+            t_span=t_span,
+            t_eval=t_eval,
+            dense_output=dense_output,
         )
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute linearization of continuous dynamics: A = ∂f/∂x, B = ∂f/∂u.
@@ -738,7 +747,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
+        self,
+        x_eq: np.ndarray,
+        u_eq: np.ndarray,
+        tol: ScalarLike,
     ) -> bool:
         """
         Verify continuous equilibrium condition: ||f(x_eq, u_eq)|| < tol.
@@ -787,7 +799,8 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def _prepare_control_input(
-        self, u: ControlInput,
+        self,
+        u: ControlInput,
     ) -> Callable[[float, StateVector], Optional[ControlVector]]:
         """
         Convert various control input formats to standard function.
@@ -913,7 +926,10 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     # ========================================================================
 
     def forward(
-        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Alias for dynamics evaluation with explicit backend specification.
@@ -1128,7 +1144,9 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         return self._observation.evaluate(x, backend)
 
     def linearized_observation(
-        self, x: StateVector, backend: Optional[Backend] = None,
+        self,
+        x: StateVector,
+        backend: Optional[Backend] = None,
     ) -> OutputMatrix:
         """
         Compute linearized observation matrix: C = ∂h/∂x.

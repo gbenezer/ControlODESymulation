@@ -317,9 +317,9 @@ class BrownianMotionWithDrift(GeometricBrownianMotion):
     """
 
 
-
 def create_stock_price_model(
-    expected_return: float = 0.07, annual_volatility: float = 0.20,
+    expected_return: float = 0.07,
+    annual_volatility: float = 0.20,
 ) -> GeometricBrownianMotion:
     """
     Create GBM model for stock price dynamics.

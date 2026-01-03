@@ -28,11 +28,9 @@ from src.types.identification import (
     ERAResult,
     HankelMatrix,
     KoopmanResult,
-    MarkovParameters,
     SINDyResult,
     SubspaceIDResult,
     SystemIDResult,
-    ToeplitzMatrix,
     TrajectoryMatrix,
 )
 
@@ -49,7 +47,7 @@ class TestTypeAliases:
                 [data[0], data[1], data[2]],
                 [data[1], data[2], data[3]],
                 [data[2], data[3], data[4]],
-            ]
+            ],
         )
 
         assert H.shape == (3, 3)
@@ -280,7 +278,7 @@ class TestSINDyResult:
                 [
                     [1.0, 0.0, -0.5],  # dx1/dt = x1 - 0.5*x3
                     [0.0, 0.8, 0.0],  # dx2/dt = 0.8*x2
-                ]
+                ],
             ),
             "active_terms": ["x1", "x2", "x1*x2"],
             "library_functions": [lambda x: x, lambda x: x**2],
@@ -300,7 +298,7 @@ class TestSINDyResult:
                 [1.0, 0.0, 0.0, -2.0, 0.0],
                 [0.0, 1.5, 0.0, 0.0, 0.0],
                 [0.0, 0.0, 0.8, 0.0, 0.0],
-            ]
+            ],
         )
 
         # Count zeros
@@ -408,7 +406,7 @@ class TestPracticalUseCases:
                 [
                     np.exp(1j * 2 * np.pi * 0.1),  # f=1 Hz
                     np.exp(1j * 2 * np.pi * 0.2),  # f=2 Hz
-                ]
+                ],
             ),
             "amplitudes": np.array([1.0, 0.5]),
             "frequencies": np.array([2 * np.pi, 4 * np.pi]),

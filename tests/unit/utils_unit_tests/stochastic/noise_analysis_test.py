@@ -39,8 +39,6 @@ from src.systems.base.utils.stochastic.noise_analysis import (
     NoiseType,
     analyze_noise_structure,
 )
-from src.types.backends import SDEType
-
 
 # ============================================================================
 # Fixtures - Test Diffusion Expressions
@@ -1033,7 +1031,7 @@ class TestEdgeCases:
         n = 10
         state_vars = sp.symbols(f"x0:{n}")
         diffusion = sp.Matrix(
-            [[sp.Symbol(f"s{i}") if i == j else 0 for j in range(n)] for i in range(n)]
+            [[sp.Symbol(f"s{i}") if i == j else 0 for j in range(n)] for i in range(n)],
         )
 
         char = NoiseCharacterizer(diffusion, list(state_vars), [])

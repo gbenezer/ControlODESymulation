@@ -719,7 +719,10 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
+        self,
+        x_eq: np.ndarray,
+        u_eq: np.ndarray,
+        tol: ScalarLike,
     ) -> bool:
         """
         Verify equilibrium condition (hook method for concrete classes).
@@ -958,7 +961,9 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def set_default_backend(
-        self, backend: Backend, device: Optional[Device] = None,
+        self,
+        backend: Backend,
+        device: Optional[Device] = None,
     ) -> "SymbolicSystemBase":
         """
         Set default backend and optionally device for this system.
@@ -1150,7 +1155,10 @@ class SymbolicSystemBase(ABC):
     # ========================================================================
 
     def compile(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
+        self,
+        backends: Optional[List[Backend]] = None,
+        verbose: bool = False,
+        **kwargs,
     ) -> Dict[str, float]:
         """
         Pre-compile dynamics functions for specified backends.
@@ -1357,19 +1365,19 @@ class SymbolicSystemBase(ABC):
     def setup_equilibria(self):
         """
         Optional hook to add equilibria after system initialization.
-        
+
         This method is called automatically after the system is fully
         initialized if auto_add_equilibria=True (default).
-        
+
         Override this method in subclasses to add standard equilibria.
         Can access self.parameters for parameter-dependent equilibria.
-        
+
         Examples
         --------
         Parameter-independent:
         >>> def setup_equilibria(self):
         ...     self.equilibria.add('origin', np.zeros(self.nx), np.zeros(self.nu))
-        
+
         Parameter-dependent:
         >>> def setup_equilibria(self):
         ...     g = self.parameters[self._g_sym]  # Access parameter value
@@ -1522,7 +1530,9 @@ class SymbolicSystemBase(ABC):
         return self
 
     def get_equilibrium(
-        self, name: Optional[EquilibriumName] = None, backend: Optional[Backend] = None,
+        self,
+        name: Optional[EquilibriumName] = None,
+        backend: Optional[Backend] = None,
     ) -> Tuple[EquilibriumState, EquilibriumControl]:
         """
         Get equilibrium state and control in specified backend.

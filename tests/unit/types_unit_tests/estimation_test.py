@@ -175,7 +175,7 @@ class TestUKFResult:
                 x_true + np.array([0.0, 1.0]),
                 x_true - np.array([1.0, 0.0]),
                 x_true - np.array([0.0, 1.0]),
-            ]
+            ],
         )
 
         # Uniform weights
@@ -274,7 +274,7 @@ class TestParticleFilterResult:
                 [1.0, 0.0],
                 [0.0, 1.0],
                 [1.0, 1.0],
-            ]
+            ],
         )
 
         # Weights favor first particle

@@ -35,6 +35,7 @@ Tests the abstract base class for SDE integrators, including:
 import numpy as np
 import pytest
 
+from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 from src.systems.base.numerical_integration.stochastic.sde_integrator_base import (
     ConvergenceType,
     SDEIntegrationResult,
@@ -43,7 +44,6 @@ from src.systems.base.numerical_integration.stochastic.sde_integrator_base impor
     get_trajectory_statistics,
 )
 from src.types.backends import SDEType
-from src.systems.base.core.continuous_stochastic_system import StochasticDynamicalSystem
 
 # ============================================================================
 # Helper Functions
@@ -471,7 +471,7 @@ class TestSDEIntegratorInitialization:
         """Test that FIXED mode requires dt to be specified."""
         with pytest.raises(ValueError, match="Time step dt is required"):
             ConcreteSDEIntegrator(
-                mock_sde_system, dt=None, step_mode=StepMode.FIXED, backend="numpy"
+                mock_sde_system, dt=None, step_mode=StepMode.FIXED, backend="numpy",
             )
 
     def test_sde_type_inheritance(self, mock_sde_system):
@@ -484,7 +484,7 @@ class TestSDEIntegratorInitialization:
     def test_sde_type_override(self, mock_sde_system):
         """Test that SDE type can be overridden."""
         integrator = ConcreteSDEIntegrator(
-            mock_sde_system, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH
+            mock_sde_system, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH,
         )
 
         assert integrator.sde_type == SDEType.STRATONOVICH
@@ -498,7 +498,7 @@ class TestSDEIntegratorInitialization:
     def test_convergence_type_custom(self, mock_sde_system):
         """Test custom convergence type."""
         integrator = ConcreteSDEIntegrator(
-            mock_sde_system, dt=0.01, backend="numpy", convergence_type=ConvergenceType.WEAK
+            mock_sde_system, dt=0.01, backend="numpy", convergence_type=ConvergenceType.WEAK,
         )
 
         assert integrator.convergence_type == ConvergenceType.WEAK
@@ -556,12 +556,12 @@ class TestRandomNumberGeneration:
 
         n_samples = 10000
         noise1 = np.array(
-            [integrator_numpy._generate_noise((1,), dt1)[0] for _ in range(n_samples)]
+            [integrator_numpy._generate_noise((1,), dt1)[0] for _ in range(n_samples)],
         )
 
         integrator_numpy.set_seed(42)
         noise2 = np.array(
-            [integrator_numpy._generate_noise((1,), dt2)[0] for _ in range(n_samples)]
+            [integrator_numpy._generate_noise((1,), dt2)[0] for _ in range(n_samples)],
         )
 
         var1 = np.var(noise1)
@@ -773,7 +773,7 @@ class TestMonteCarloSimulation:
         n_paths = 10
 
         result = integrator_numpy.integrate_monte_carlo(
-            x0, u_func, t_span, n_paths, store_paths=True
+            x0, u_func, t_span, n_paths, store_paths=True,
         )
 
         assert result["success"]
@@ -984,7 +984,7 @@ class TestErrorHandling:
     def test_stratonovich_correction_additive_is_zero(self, mock_sde_system):
         """Test that Stratonovich correction is zero for additive noise."""
         integrator = ConcreteSDEIntegrator(
-            mock_sde_system, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH
+            mock_sde_system, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH,
         )
 
         x = np.array([1.0])
@@ -1002,7 +1002,7 @@ class TestErrorHandling:
         # So correction should be 0.5*σ²*x
 
         integrator = ConcreteSDEIntegrator(
-            mock_sde_multiplicative, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH
+            mock_sde_multiplicative, dt=0.01, backend="numpy", sde_type=SDEType.STRATONOVICH,
         )
 
         x = np.array([2.0])  # State value
@@ -1241,7 +1241,7 @@ class TestSDEEquilibriumIntegration:
     def test_integrate_from_custom_equilibrium(self, mock_sde_controlled):
         """Test integration from non-origin equilibrium."""
         mock_sde_controlled.add_equilibrium(
-            "custom", x_eq=np.array([1.0]), u_eq=np.array([1.0]), verify=True, tol=1e-10
+            "custom", x_eq=np.array([1.0]), u_eq=np.array([1.0]), verify=True, tol=1e-10,
         )
 
         x_eq, u_eq = mock_sde_controlled.get_equilibrium("custom")

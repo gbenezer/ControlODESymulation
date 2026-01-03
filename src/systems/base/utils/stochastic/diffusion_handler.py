@@ -218,7 +218,10 @@ class DiffusionHandler:
 
         # REUSE: Use codegen_utils.generate_function()
         base_func = generate_function(
-            expr=diffusion_with_params, symbols=all_vars, backend=backend, **kwargs,
+            expr=diffusion_with_params,
+            symbols=all_vars,
+            backend=backend,
+            **kwargs,
         )
 
         # Verify callable (mirrors CodeGenerator)
@@ -721,7 +724,10 @@ class DiffusionHandler:
     # ========================================================================
 
     def compile_all(
-        self, backends: Optional[List[Backend]] = None, verbose: bool = False, **kwargs,
+        self,
+        backends: Optional[List[Backend]] = None,
+        verbose: bool = False,
+        **kwargs,
     ) -> Dict[str, float]:
         """
         Pre-compile diffusion functions for multiple backends.

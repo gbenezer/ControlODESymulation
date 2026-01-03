@@ -26,8 +26,6 @@ import pytest
 from src.types.learning import (
     Dataset,
     ImitationLearningResult,
-    LearningRate,
-    LossValue,
     NeuralDynamicsResult,
     NeuralNetworkConfig,
     OnlineAdaptationResult,

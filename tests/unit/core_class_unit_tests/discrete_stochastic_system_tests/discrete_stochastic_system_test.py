@@ -41,16 +41,14 @@ AGPL-3.0
 """
 
 import unittest
-from typing import Tuple
 
 import numpy as np
 import sympy as sp
 
 from src.systems.base.core.discrete_stochastic_system import DiscreteStochasticSystem
-from src.systems.base.utils.stochastic.sde_validator import ValidationError
 from src.systems.base.utils.stochastic.noise_analysis import NoiseType
+from src.systems.base.utils.stochastic.sde_validator import ValidationError
 from src.types.backends import SDEType
-
 
 # ============================================================================
 # Test System Definitions
@@ -207,7 +205,7 @@ class MultiplicativeNoise2D(DiscreteStochasticSystem):
             [
                 [sigma1_sym * x1, 0],  # First noise scales with x1
                 [0, sigma2_sym * x2],  # Second noise scales with x2
-            ]
+            ],
         )
         self.sde_type = "ito"
 
@@ -239,7 +237,7 @@ class FullyMultiplicativeNoise(DiscreteStochasticSystem):
             [
                 [s1 * x1, s2 * x1],  # Both noise sources scale with x1
                 [s3 * x2, s4 * x2],  # Both noise sources scale with x2
-            ]
+            ],
         )
         self.sde_type = "ito"
 
@@ -273,7 +271,7 @@ class StateAndControlDependentNoise(DiscreteStochasticSystem):
             [
                 [sigma1_sym * x1 * u],  # Depends on state AND control
                 [sigma2_sym * x2],  # Depends only on state
-            ]
+            ],
         )
         self.sde_type = "ito"
 
@@ -299,7 +297,7 @@ class ThreeNoiseSourcesMultiplicative(DiscreteStochasticSystem):
 
         # 3 noise sources (nw=3 > nx=2)
         self.diffusion_expr = sp.Matrix(
-            [[sigma1 * x1, sigma2 * x1, 0], [0, sigma3 * x2, sigma3 * x2]]
+            [[sigma1 * x1, sigma2 * x1, 0], [0, sigma3 * x2, sigma3 * x2]],
         )
         self.sde_type = "ito"
 
@@ -521,7 +519,7 @@ class TestDiffusionEvaluation(unittest.TestCase):
 
         # Check values: σ*x for each sample
         np.testing.assert_allclose(
-            g[:, 0, 0], np.array([0.2, 0.4, 0.6]), rtol=1e-10  # 0.2*[1, 2, 3]
+            g[:, 0, 0], np.array([0.2, 0.4, 0.6]), rtol=1e-10,  # 0.2*[1, 2, 3]
         )
 
 
@@ -649,7 +647,7 @@ class TestStochasticSimulation(unittest.TestCase):
         n_paths = 50
 
         result = self.system.simulate_stochastic(
-            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42
+            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42,
         )
 
         # Check shape: (n_paths, n_steps+1, nx)
@@ -1190,7 +1188,7 @@ class TestMultiplicativeNoiseSimulation(unittest.TestCase):
         n_paths = 100
 
         result = system.simulate_stochastic(
-            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42
+            x0=x0, u_sequence=None, n_steps=n_steps, n_paths=n_paths, seed=42,
         )
 
         self.assertEqual(result["states"].shape, (n_paths, n_steps + 1, 2))

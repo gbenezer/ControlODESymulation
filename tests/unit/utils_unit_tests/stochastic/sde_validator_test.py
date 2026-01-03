@@ -24,12 +24,11 @@ import numpy as np
 import pytest
 import sympy as sp
 
-from src.systems.base.utils.stochastic.noise_analysis import NoiseType
 from src.systems.base.utils.stochastic.sde_validator import (
     SDEValidator,
     ValidationError,
 )
-from src.types.utilities import ValidationResult, SymbolicValidationResult
+from src.types.utilities import SymbolicValidationResult
 
 # ============================================================================
 # Fixtures - Test Systems
@@ -233,7 +232,7 @@ class TestValidationResult:
     def test_valid_result_creation(self):
         """Test creating valid ValidationResult."""
         result = SymbolicValidationResult(
-            is_valid=True, errors=[], warnings=[], info={"nx": 2, "nw": 1}
+            is_valid=True, errors=[], warnings=[], info={"nx": 2, "nw": 1},
         )
 
         assert result.is_valid
@@ -257,7 +256,7 @@ class TestValidationResult:
     def test_has_errors(self):
         """Test checking for errors."""
         result = SymbolicValidationResult(
-            is_valid=False, errors=["Error 1", "Error 2"], warnings=[], info={}
+            is_valid=False, errors=["Error 1", "Error 2"], warnings=[], info={},
         )
 
         assert not result.is_valid
@@ -564,7 +563,7 @@ class TestZeroDiffusionDetection:
         result = validator.validate(raise_on_error=False)
 
         # Debug: Show what we got
-        print(f"\nZero diffusion test:")
+        print("\nZero diffusion test:")
         print(f"Is valid: {result.is_valid}")
         print(f"Errors: {result.errors}")
         print(f"Warnings: {result.warnings}")
@@ -773,7 +772,7 @@ class TestComprehensiveValidation:
         result = validator.validate(raise_on_error=False)
 
         # Debug output
-        print(f"\nValid with warnings test:")
+        print("\nValid with warnings test:")
         print(f"Is valid: {result.is_valid}")
         print(f"Errors: {result.errors}")
         print(f"Warnings: {result.warnings}")

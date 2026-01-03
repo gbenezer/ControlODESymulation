@@ -203,7 +203,10 @@ class IntegratorBase(ABC):
 
     @abstractmethod
     def step(
-        self, x: ArrayLike, u: Optional[ControlVector], dt: Optional[ScalarLike] = None,
+        self,
+        x: ArrayLike,
+        u: Optional[ControlVector],
+        dt: Optional[ScalarLike] = None,
     ) -> StateVector:
         """
         Take one integration step: x(t) → x(t + dt).

@@ -14,13 +14,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import unittest
-from typing import Optional, Sequence, Union, Callable
+from collections.abc import Sequence
+from typing import Callable, Optional, Union
 
 import numpy as np
 
+from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 from src.types.core import ControlVector, StateVector
 from src.types.linearization import DiscreteLinearization
-from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 
 # Conditional imports for backends
 torch_available = True
@@ -109,7 +110,7 @@ class SimpleDiscreteSystem(DiscreteSystemBase):
         }
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """Already linear, return (Ad, Bd) tuple."""
         return (self.Ad, self.Bd)
@@ -165,12 +166,11 @@ class TimeVaryingDiscreteSystem(DiscreteSystemBase):
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
-        elif callable(u_sequence):
+        if callable(u_sequence):
             return u_sequence(k)
-        elif isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
+        if isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
             return u_sequence
-        else:
-            return u_sequence[k]
+        return u_sequence[k]
 
 
 class UnstableDiscreteSystem(DiscreteSystemBase):
@@ -217,12 +217,11 @@ class UnstableDiscreteSystem(DiscreteSystemBase):
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
-        elif callable(u_sequence):
+        if callable(u_sequence):
             return u_sequence(k)
-        elif isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
+        if isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
             return u_sequence
-        else:
-            return u_sequence[k]
+        return u_sequence[k]
 
 
 class NonlinearDiscreteSystem(DiscreteSystemBase):
@@ -270,12 +269,11 @@ class NonlinearDiscreteSystem(DiscreteSystemBase):
     def _get_control(self, u_sequence, k):
         if u_sequence is None:
             return None
-        elif callable(u_sequence):
+        if callable(u_sequence):
             return u_sequence(k)
-        elif isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
+        if isinstance(u_sequence, np.ndarray) and u_sequence.ndim == 1:
             return u_sequence
-        else:
-            return u_sequence[k]
+        return u_sequence[k]
 
 
 # =============================================================================

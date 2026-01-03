@@ -29,7 +29,6 @@ Tests cover:
 - Edge cases and realistic usage
 """
 
-from typing import Optional
 
 import numpy as np
 import pytest

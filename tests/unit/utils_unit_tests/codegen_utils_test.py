@@ -31,10 +31,6 @@ import numpy as np
 import pytest
 import sympy as sp
 
-# Import from centralized type system
-from src.types.backends import Backend
-from src.types.symbolic import SymbolicExpressionInput
-
 from src.systems.base.utils.codegen_utils import (
     _jax_matrix_handler,
     _jax_max,
@@ -50,6 +46,10 @@ from src.systems.base.utils.codegen_utils import (
     generate_numpy_function,
     generate_torch_function,
 )
+
+# Import from centralized type system
+from src.types.backends import Backend
+from src.types.symbolic import SymbolicExpressionInput
 
 # Conditional imports
 torch_available = False
@@ -271,7 +271,7 @@ class TestTrigonometricFunctions:
 
         # Calculate expected values
         expected_values = torch.tensor(
-            [torch.sin(x_val).item(), torch.cos(x_val).item(), torch.tan(x_val).item()]
+            [torch.sin(x_val).item(), torch.cos(x_val).item(), torch.tan(x_val).item()],
         )
 
         # Handle different possible shapes
@@ -447,7 +447,7 @@ class TestComplexExpressions:
         result = f(torch.tensor(2.0))
 
         expected_values = torch.tensor(
-            [torch.exp(torch.tensor(2.0)).item(), torch.log(torch.tensor(3.0)).item()]
+            [torch.exp(torch.tensor(2.0)).item(), torch.log(torch.tensor(3.0)).item()],
         )
 
         # Handle different possible shapes
@@ -600,7 +600,7 @@ class TestMatrixExpressions:
             for backend, result in results.items():
                 if backend != "numpy":
                     assert np.allclose(
-                        base, result, rtol=1e-5
+                        base, result, rtol=1e-5,
                     ), f"Backend {backend} differs from NumPy: {base} vs {result}"
 
 
@@ -615,7 +615,6 @@ class TestJAXSpecificFeatures:
 
     def test_jax_jit_enabled(self):
         """Test JAX function with JIT enabled"""
-        import jax
         import jax.numpy as jnp
 
         x = sp.Symbol("x")
@@ -787,7 +786,7 @@ class TestDynamicalSystemExample:
             for backend, result in results.items():
                 if backend != "numpy":
                     assert np.allclose(
-                        base, result, rtol=1e-5
+                        base, result, rtol=1e-5,
                     ), f"Pendulum dynamics differ: {backend} vs NumPy\n  NumPy: {base}\n  {backend}: {result}"
 
 
@@ -1178,7 +1177,7 @@ class TestMinMaxConsistency:
             jax_result = f_jax(*input_vals)
             # Handle scalar or array result
             results["jax"] = float(
-                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item()
+                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item(),
             )
 
         # All should return 3.0
@@ -1210,7 +1209,7 @@ class TestMinMaxConsistency:
             f_jax = generate_jax_function(expr, [x, y])
             jax_result = f_jax(*input_vals)
             results["jax"] = float(
-                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item()
+                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item(),
             )
 
         # All should return 5.0
@@ -1242,7 +1241,7 @@ class TestMinMaxConsistency:
             f_jax = generate_jax_function(expr, [x, y, z])
             jax_result = f_jax(*input_vals)
             results["jax"] = float(
-                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item()
+                jax_result.item() if hasattr(jax_result, "item") else np.array(jax_result).item(),
             )
 
         # All should return 3.0
@@ -1340,7 +1339,7 @@ class TestMinMaxUseCases:
                 f_torch = generate_torch_function(expr, [x, thresh])
                 result_torch = f_torch(torch.tensor(x_val), torch.tensor(t_val))
                 assert torch.allclose(
-                    result_torch, torch.tensor(expected)
+                    result_torch, torch.tensor(expected),
                 ), f"PyTorch failed for x={x_val}"
 
             # JAX

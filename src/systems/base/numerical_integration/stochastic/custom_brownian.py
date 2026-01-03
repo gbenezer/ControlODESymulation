@@ -130,7 +130,11 @@ class CustomBrownianPath(dfx.AbstractPath):
 
 
 def create_custom_or_random_brownian(
-    key, t0: ScalarLike, t1: ScalarLike, shape: Tuple[int, ...], dW: Optional[ArrayLike] = None,
+    key,
+    t0: ScalarLike,
+    t1: ScalarLike,
+    shape: Tuple[int, ...],
+    dW: Optional[ArrayLike] = None,
 ):
     """
     Create either custom or random Brownian motion for Diffrax.

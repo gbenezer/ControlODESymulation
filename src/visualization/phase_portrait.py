@@ -38,10 +38,10 @@ PhasePortraitPlotter : Phase space visualization
 Usage
 -----
 >>> from src.plotting import PhasePortraitPlotter
->>> 
+>>>
 >>> # Create plotter
 >>> plotter = PhasePortraitPlotter()
->>> 
+>>>
 >>> # 2D phase portrait
 >>> fig = plotter.plot_2d(
 ...     x=trajectory,  # (T, 2)
@@ -49,11 +49,11 @@ Usage
 ...     show_direction=True
 ... )
 >>> fig.show()
->>> 
+>>>
 >>> # With vector field and custom theme
 >>> def dynamics(x1, x2):
 ...     return np.array([x2, -x1])
->>> 
+>>>
 >>> fig = plotter.plot_2d(
 ...     x=trajectory,
 ...     vector_field=dynamics,
@@ -61,7 +61,7 @@ Usage
 ...     color_scheme='colorblind_safe',
 ...     theme='publication'
 ... )
->>> 
+>>>
 >>> # 3D phase portrait
 >>> fig = plotter.plot_3d(
 ...     x=trajectory_3d,  # (T, 3)
@@ -75,8 +75,8 @@ from typing import Callable, List, Optional, Tuple
 import numpy as np
 import plotly.graph_objects as go
 
-from src.visualization.themes import ColorSchemes, PlotThemes
 from src.types.backends import Backend
+from src.visualization.themes import ColorSchemes, PlotThemes
 
 
 class PhasePortraitPlotter:
@@ -106,7 +106,7 @@ class PhasePortraitPlotter:
 
     >>> def f(x1, x2):
     ...     return np.array([x2, -x1 - 0.1*x2])
-    >>> 
+    >>>
     >>> fig = plotter.plot_2d(
     ...     x,
     ...     vector_field=f,
@@ -255,7 +255,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 2:
             raise ValueError(
-                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)"
+                f"plot_2d requires 2D state, got shape {x_np.shape} (last dim should be 2)",
             )
 
         # Detect batching
@@ -280,7 +280,9 @@ class PhasePortraitPlotter:
         if trajectory_names is None:
             trajectory_names = [f"Trajectory {i + 1}" for i in range(n_batch)]
         elif len(trajectory_names) != n_batch:
-            raise ValueError(f"trajectory_names length {len(trajectory_names)} != n_batch {n_batch}")
+            raise ValueError(
+                f"trajectory_names length {len(trajectory_names)} != n_batch {n_batch}",
+            )
 
         # Create figure
         fig = go.Figure()
@@ -297,9 +299,9 @@ class PhasePortraitPlotter:
                     marker=dict(color="green", size=10, symbol="circle"),
                     showlegend=True,
                     hovertemplate=f"<b>Start: {trajectory_names[0]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
-                )
+                ),
             )
-            
+
             # Add end marker (will be second in legend)
             fig.add_trace(
                 go.Scatter(
@@ -310,7 +312,7 @@ class PhasePortraitPlotter:
                     marker=dict(color="red", size=10, symbol="square"),
                     showlegend=True,
                     hovertemplate=f"<b>End: {trajectory_names[0]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
-                )
+                ),
             )
 
         # Add equilibria if provided (third in legend)
@@ -334,7 +336,7 @@ class PhasePortraitPlotter:
                     name=trajectory_names[batch_idx],
                     line=dict(color=colors[batch_idx], width=2),
                     showlegend=True,
-                )
+                ),
             )
 
             # Add start/end markers for additional trajectories (beyond first)
@@ -348,7 +350,7 @@ class PhasePortraitPlotter:
                         marker=dict(color="green", size=10, symbol="circle"),
                         showlegend=False,
                         hovertemplate=f"<b>Start: {trajectory_names[batch_idx]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
-                    )
+                    ),
                 )
 
                 # End marker (not in legend)
@@ -360,14 +362,12 @@ class PhasePortraitPlotter:
                         marker=dict(color="red", size=10, symbol="square"),
                         showlegend=False,
                         hovertemplate=f"<b>End: {trajectory_names[batch_idx]}</b><br>x₁: %{{x:.3f}}<br>x₂: %{{y:.3f}}<extra></extra>",
-                    )
+                    ),
                 )
 
             # Direction arrows
             if show_direction and T > 10:
-                self._add_direction_arrows_2d(
-                    fig, x_traj, colors[batch_idx], n_arrows=5
-                )
+                self._add_direction_arrows_2d(fig, x_traj, colors[batch_idx], n_arrows=5)
 
         # Update layout
         fig.update_layout(
@@ -486,7 +486,7 @@ class PhasePortraitPlotter:
         # Validate dimensions
         if x_np.shape[-1] != 3:
             raise ValueError(
-                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)"
+                f"plot_3d requires 3D state, got shape {x_np.shape} (last dim should be 3)",
             )
 
         # Detect batching
@@ -510,7 +510,9 @@ class PhasePortraitPlotter:
         if trajectory_names is None:
             trajectory_names = [f"Trajectory {i + 1}" for i in range(n_batch)]
         elif len(trajectory_names) != n_batch:
-            raise ValueError(f"trajectory_names length {len(trajectory_names)} != n_batch {n_batch}")
+            raise ValueError(
+                f"trajectory_names length {len(trajectory_names)} != n_batch {n_batch}",
+            )
 
         # Create figure
         fig = go.Figure()
@@ -528,9 +530,9 @@ class PhasePortraitPlotter:
                     marker=dict(color="green", size=8, symbol="circle"),
                     showlegend=True,
                     hovertemplate=f"<b>Start: {trajectory_names[0]}</b><br>{state_names[0]}: %{{x:.3f}}<br>{state_names[1]}: %{{y:.3f}}<br>{state_names[2]}: %{{z:.3f}}<extra></extra>",
-                )
+                ),
             )
-            
+
             # Add end marker (will be second in legend)
             fig.add_trace(
                 go.Scatter3d(
@@ -542,7 +544,7 @@ class PhasePortraitPlotter:
                     marker=dict(color="red", size=8, symbol="square"),
                     showlegend=True,
                     hovertemplate=f"<b>End: {trajectory_names[0]}</b><br>{state_names[0]}: %{{x:.3f}}<br>{state_names[1]}: %{{y:.3f}}<br>{state_names[2]}: %{{z:.3f}}<extra></extra>",
-                )
+                ),
             )
 
         # Add trajectories (last in legend)
@@ -554,7 +556,7 @@ class PhasePortraitPlotter:
             if n_batch == 1 and show_direction:
                 # Single trajectory: gradient shows temporal evolution
                 time_points = np.linspace(0, 1, T)
-                
+
                 fig.add_trace(
                     go.Scatter3d(
                         x=x_traj[:, 0],
@@ -572,11 +574,11 @@ class PhasePortraitPlotter:
                                 x=-0.15,  # Position on left side
                                 xanchor="right",
                                 len=0.75,
-                                thickness=15
-                            )
+                                thickness=15,
+                            ),
                         ),
                         showlegend=True,
-                    )
+                    ),
                 )
             else:
                 # Batched trajectories: use solid colors
@@ -589,7 +591,7 @@ class PhasePortraitPlotter:
                         name=trajectory_names[batch_idx],
                         line=dict(color=colors[batch_idx], width=3),
                         showlegend=True,
-                    )
+                    ),
                 )
 
             # Add start/end markers for additional trajectories (beyond first)
@@ -604,7 +606,7 @@ class PhasePortraitPlotter:
                         marker=dict(color="green", size=8, symbol="circle"),
                         showlegend=False,
                         hovertemplate=f"<b>Start: {trajectory_names[batch_idx]}</b><br>{state_names[0]}: %{{x:.3f}}<br>{state_names[1]}: %{{y:.3f}}<br>{state_names[2]}: %{{z:.3f}}<extra></extra>",
-                    )
+                    ),
                 )
 
                 # End marker (not in legend)
@@ -617,7 +619,7 @@ class PhasePortraitPlotter:
                         marker=dict(color="red", size=8, symbol="square"),
                         showlegend=False,
                         hovertemplate=f"<b>End: {trajectory_names[batch_idx]}</b><br>{state_names[0]}: %{{x:.3f}}<br>{state_names[1]}: %{{y:.3f}}<br>{state_names[2]}: %{{z:.3f}}<extra></extra>",
-                    )
+                    ),
                 )
 
         # Update layout
@@ -871,9 +873,7 @@ class PhasePortraitPlotter:
                     # Skip points where dynamics evaluation fails
                     pass
 
-    def _add_equilibria_markers(
-        self, fig: go.Figure, equilibria: List[np.ndarray]
-    ) -> None:
+    def _add_equilibria_markers(self, fig: go.Figure, equilibria: List[np.ndarray]) -> None:
         """
         Add markers for equilibrium points.
 
@@ -887,8 +887,8 @@ class PhasePortraitPlotter:
         if not equilibria:
             return
 
-        # Determine dimensionality from first equilibrium
-        ndim = equilibria[0].shape[0]
+        # Determine dimensionality from first equilibrium state vector
+        ndim = equilibria[0][0].shape[0]
 
         if ndim == 2:
             # 2D equilibria
@@ -908,7 +908,7 @@ class PhasePortraitPlotter:
                         line=dict(color="black", width=2),
                     ),
                     showlegend=True,
-                )
+                ),
             )
         elif ndim == 3:
             # 3D equilibria
@@ -925,11 +925,11 @@ class PhasePortraitPlotter:
                     name="Equilibria",
                     marker=dict(color="black", size=8, symbol="x"),
                     showlegend=True,
-                )
+                ),
             )
 
     def _add_direction_arrows_2d(
-        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5
+        self, fig: go.Figure, x_traj: np.ndarray, color: str, n_arrows: int = 5,
     ) -> None:
         """
         Add direction arrows to 2D trajectory.

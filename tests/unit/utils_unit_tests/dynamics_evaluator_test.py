@@ -29,10 +29,11 @@ Tests cover:
 10. Type system integration
 """
 
+from typing import Optional
+
 import numpy as np
 import pytest
 import sympy as sp
-from typing import Optional
 
 # Type system imports
 from src.types import ArrayLike
@@ -1112,7 +1113,7 @@ class TestIntegration:
         assert stats["calls"] == 5
 
     @pytest.mark.skipif(
-        not (torch_available and jax_available), reason="Both PyTorch and JAX required"
+        not (torch_available and jax_available), reason="Both PyTorch and JAX required",
     )
     def test_multi_backend_workflow(self):
         """Test switching between backends"""

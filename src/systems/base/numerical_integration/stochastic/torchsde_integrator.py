@@ -509,7 +509,11 @@ class TorchSDEIntegrator(SDEIntegratorBase):
         ts = torch.tensor([0.0, step_size], dtype=x.dtype, device=self.device)
 
         ys = (self.torchsde.sdeint_adjoint if self.use_adjoint else self.torchsde.sdeint)(
-            sde, x, ts, method=self.method, dt=step_size,
+            sde,
+            x,
+            ts,
+            method=self.method,
+            dt=step_size,
         )
 
         x_next = ys[-1]
@@ -586,7 +590,11 @@ class TorchSDEIntegrator(SDEIntegratorBase):
             # torchsde expects batch dimension: (batch, nx)
             y0 = x0.unsqueeze(0) if x0.ndim == 1 else x0
             ys = (self.torchsde.sdeint_adjoint if self.use_adjoint else self.torchsde.sdeint)(
-                sde, y0, ts, method=self.method, dt=self.dt,
+                sde,
+                y0,
+                ts,
+                method=self.method,
+                dt=self.dt,
             )
 
             # Remove batch dimension if single trajectory
@@ -815,7 +823,10 @@ class TorchSDEIntegrator(SDEIntegratorBase):
 
 
 def create_torchsde_integrator(
-    sde_system: "ContinuousStochasticSystem", method="euler", dt=0.01, **options,
+    sde_system: "ContinuousStochasticSystem",
+    method="euler",
+    dt=0.01,
+    **options,
 ):
     """Quick factory for TorchSDE integrators."""
     return TorchSDEIntegrator(sde_system, dt=dt, method=method, backend="torch", **options)

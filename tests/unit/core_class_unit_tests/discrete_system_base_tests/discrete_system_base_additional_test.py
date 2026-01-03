@@ -62,14 +62,10 @@ Run specific category:
 import gc
 import time
 import unittest
-from typing import Optional
 
 import numpy as np
 import pytest
 
-from src.types.core import ControlVector, StateVector
-from src.types.linearization import DiscreteLinearization
-from src.types.trajectories import DiscreteSimulationResult
 from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 
 # Conditional imports for backends
@@ -161,7 +157,7 @@ class StableMarginallyUnstable(DiscreteSystemBase):
         # Rotation + scaling
         theta = 0.1
         A = self.eigenvalue * np.array(
-            [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+            [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]],
         )
         B = np.array([[0.1], [0.1]])
         return A @ x + B @ u
@@ -190,7 +186,7 @@ class StableMarginallyUnstable(DiscreteSystemBase):
     def linearize(self, x_eq, u_eq=None):
         theta = 0.1
         A = self.eigenvalue * np.array(
-            [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+            [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]],
         )
         B = np.array([[0.1], [0.1]])
         return (A, B)
@@ -701,8 +697,7 @@ class TestComplexPolicies(unittest.TestCase):
             """Switch control at k=50."""
             if k < 50:
                 return np.array([1.0])
-            else:
-                return np.array([-1.0])
+            return np.array([-1.0])
 
         result = system.rollout(x0, policy=switching_policy, n_steps=100)
 

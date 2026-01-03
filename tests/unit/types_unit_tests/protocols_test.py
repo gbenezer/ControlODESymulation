@@ -54,29 +54,28 @@ License
 AGPL-3.0
 """
 
-import pytest
+from typing import Dict, List, Optional
+
 import numpy as np
+import pytest
 import sympy as sp
-from typing import Optional, List, Dict
 
-from src.types.protocols import (
-    DiscreteSystemProtocol,
-    LinearizableDiscreteProtocol,
-    SymbolicDiscreteProtocol,
-    ContinuousSystemProtocol,
-    LinearizableContinuousProtocol,
-    SymbolicContinuousProtocol,
-    StochasticSystemProtocol,
-    CompilableSystemProtocol,
-    ParametricSystemProtocol,
-)
-
-from src.types.core import StateVector, ControlVector
-from src.types.linearization import DiscreteLinearization
-from src.types.trajectories import DiscreteSimulationResult
 from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
 from src.systems.base.core.discrete_symbolic_system import DiscreteSymbolicSystem
-
+from src.types.core import ControlVector, StateVector
+from src.types.linearization import DiscreteLinearization
+from src.types.protocols import (
+    CompilableSystemProtocol,
+    ContinuousSystemProtocol,
+    DiscreteSystemProtocol,
+    LinearizableContinuousProtocol,
+    LinearizableDiscreteProtocol,
+    ParametricSystemProtocol,
+    StochasticSystemProtocol,
+    SymbolicContinuousProtocol,
+    SymbolicDiscreteProtocol,
+)
+from src.types.trajectories import DiscreteSimulationResult
 
 # ============================================================================
 # Mock Implementations for Testing Protocols
@@ -111,8 +110,7 @@ class MinimalDiscreteSystem:
         # Handle zero control dimension
         if self.nu == 0:
             return 0.9 * x
-        else:
-            return 0.9 * x + 0.1 * u
+        return 0.9 * x + 0.1 * u
 
     def simulate(self, x0: StateVector, u_sequence, n_steps: int) -> DiscreteSimulationResult:
         """Minimal simulation"""
@@ -137,7 +135,7 @@ class LinearizableDiscreteSystem(MinimalDiscreteSystem):
     """Extends minimal with linearization."""
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None
+        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
     ) -> DiscreteLinearization:
         """Linear system: Ad = 0.9*I, Bd = 0.1*I"""
         Ad = 0.9 * np.eye(self.nx)
@@ -157,19 +155,19 @@ class SymbolicDiscreteSystem(LinearizableDiscreteSystem):
         self.parameters = {sp.symbols("a"): 0.9, sp.symbols("b"): 0.1}
 
     def compile(
-        self, backends: Optional[List[str]] = None, verbose: bool = False
+        self, backends: Optional[List[str]] = None, verbose: bool = False,
     ) -> Dict[str, float]:
         """Mock compilation"""
         backends = backends or ["numpy"]
-        return {backend: 0.001 for backend in backends}
+        return dict.fromkeys(backends, 0.001)
 
     def reset_caches(self, backends: Optional[List[str]] = None):
         """Mock cache reset"""
-        pass  # No-op for mock
+        # No-op for mock
 
     def print_equations(self, simplify: bool = True):
         """Mock equation printing"""
-        print(f"x[k+1] = 0.9*x[k] + 0.1*u[k]")
+        print("x[k+1] = 0.9*x[k] + 0.1*u[k]")
 
     def substitute_parameters(self, expr):
         """Mock substitution"""
@@ -211,7 +209,7 @@ class MinimalContinuousSystem:
         return self._nu
 
     def __call__(
-        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0
+        self, x: StateVector, u: Optional[ControlVector] = None, t: float = 0.0,
     ) -> StateVector:
         """Simple linear dynamics: dx/dt = -x + u"""
         u = u if u is not None else np.zeros(self.nu)
@@ -742,8 +740,7 @@ class TestRuntimeTypeChecking:
             """Compile if symbolic, skip otherwise."""
             if isinstance(system, SymbolicDiscreteProtocol):
                 return system.compile(backends=["numpy"])
-            else:
-                return {}  # No compilation needed
+            return {}  # No compilation needed
 
         # Symbolic system gets compiled
         sys1 = SymbolicDiscreteSystem(nx=2, nu=1)
@@ -823,9 +820,10 @@ class TestRealSystemIntegration:
     def test_discretized_system_satisfies_linearizable_protocol(self):
         """Real DiscretizedSystem should satisfy LinearizableDiscreteProtocol but NOT Symbolic."""
         try:
+            import sympy as sp
+
             from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
             from src.systems.base.core.discretized_system import DiscretizedSystem
-            import sympy as sp
 
             # Create continuous system
             class SimpleContinuous(ContinuousSymbolicSystem):

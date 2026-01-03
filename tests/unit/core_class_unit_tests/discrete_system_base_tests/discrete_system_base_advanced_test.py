@@ -63,21 +63,14 @@ Run specific category:
     pytest test_discrete_system_base_advanced.py::TestModelPredictiveControl -v
 """
 
-import copy
 import json
-import pickle
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
-import pytest
 from scipy import linalg
 
-from src.types.core import ControlVector, StateVector
-from src.types.linearization import DiscreteLinearization
-from src.types.trajectories import DiscreteSimulationResult
 from src.systems.base.core.discrete_system_base import DiscreteSystemBase
 
 # Conditional imports for backends
@@ -168,7 +161,7 @@ class DiscreteOscillator(DiscreteSystemBase):
             [
                 [np.cos(omega_d * dt), np.sin(omega_d * dt) / omega_d],
                 [-omega_d * np.sin(omega_d * dt), np.cos(omega_d * dt)],
-            ]
+            ],
         )
         self.B = np.array([[0.1 * dt], [0.1]])
 
@@ -299,7 +292,7 @@ class SwitchedDiscrete(DiscreteSystemBase):
             self.mode = 1
             self.switch_count += 1
             return True
-        elif x[0] > 0 and self.mode == 1:
+        if x[0] > 0 and self.mode == 1:
             self.mode = 0
             self.switch_count += 1
             return True
@@ -790,7 +783,7 @@ class TestCheckpointing(unittest.TestCase):
 
         # Final states should match (TIME-MAJOR)
         np.testing.assert_allclose(
-            result2["states"][-1, :], result_full["states"][-1, :], rtol=1e-10
+            result2["states"][-1, :], result_full["states"][-1, :], rtol=1e-10,
         )
 
     def test_serialize_system_state(self):
@@ -806,12 +799,12 @@ class TestCheckpointing(unittest.TestCase):
                 json.dump(system_dict, f)
 
             # Load
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 loaded_dict = json.load(f)
 
             # Recreate system
             restored_system = ParametricDiscrete(
-                alpha=loaded_dict["alpha"], beta=loaded_dict["beta"], dt=loaded_dict["dt"]
+                alpha=loaded_dict["alpha"], beta=loaded_dict["beta"], dt=loaded_dict["dt"],
             )
 
             self.assertEqual(restored_system.alpha, system.alpha)

@@ -47,7 +47,7 @@ class TestSetRepresentations:
                 [1, 0],
                 [1, 1],
                 [0, 1],
-            ]
+            ],
         )
 
         assert vertices.shape == (4, 2)
@@ -202,7 +202,7 @@ class TestVerificationResult:
                 [0.5, 0.5],
                 [1.0, 1.0],
                 [2.0, 2.0],  # Violates safety
-            ]
+            ],
         )
 
         result: VerificationResult = {

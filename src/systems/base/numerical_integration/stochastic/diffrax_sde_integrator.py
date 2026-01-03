@@ -953,7 +953,9 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
 
     @staticmethod
     def recommend_solver(
-        noise_type: str, accuracy: str = "medium", has_derivatives: bool = False,
+        noise_type: str,
+        accuracy: str = "medium",
+        has_derivatives: bool = False,
     ) -> str:
         """
         Recommend Diffrax solver based on problem characteristics.
@@ -1003,7 +1005,10 @@ class DiffraxSDEIntegrator(SDEIntegratorBase):
 
 
 def create_diffrax_sde_integrator(
-    sde_system: "ContinuousStochasticSystem", solver: str = "Euler", dt: float = 0.01, **options,
+    sde_system: "ContinuousStochasticSystem",
+    solver: str = "Euler",
+    dt: float = 0.01,
+    **options,
 ) -> DiffraxSDEIntegrator:
     """
     Quick factory for Diffrax SDE integrators.

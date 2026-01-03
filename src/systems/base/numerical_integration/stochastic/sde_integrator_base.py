@@ -296,7 +296,9 @@ class SDEIntegratorBase(IntegratorBase):
             dummy_x = np.zeros(sde_system.nx)
             dummy_u = np.zeros(sde_system.nu) if sde_system.nu > 0 else None
             self._cached_diffusion = sde_system.get_diffusion_matrix(
-                dummy_x, dummy_u, backend=backend,
+                dummy_x,
+                dummy_u,
+                backend=backend,
             )
 
     def _initialize_rng(self, backend: str, seed: Optional[int]):
@@ -318,7 +320,9 @@ class SDEIntegratorBase(IntegratorBase):
         return None
 
     def _generate_noise(
-        self, shape: Tuple[int, ...], dt: Optional[ScalarLike] = None,
+        self,
+        shape: Tuple[int, ...],
+        dt: Optional[ScalarLike] = None,
     ) -> NoiseVector:
         """
         Generate Brownian motion increments.
@@ -359,7 +363,9 @@ class SDEIntegratorBase(IntegratorBase):
         return dW
 
     def _evaluate_diffusion(
-        self, x: StateVector, u: Optional[ControlVector] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
     ) -> DiffusionMatrix:
         """
         Evaluate diffusion matrix with caching for additive noise.
@@ -877,7 +883,11 @@ class SDEIntegratorBase(IntegratorBase):
         return {**base_stats, **sde_stats}
 
     def _apply_stratonovich_correction(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, dt: ScalarLike,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector],
+        g: DiffusionMatrix,
+        dt: ScalarLike,
     ) -> ArrayLike:
         """
         Apply Stratonovich correction term.
@@ -941,7 +951,12 @@ class SDEIntegratorBase(IntegratorBase):
         raise ValueError(f"Unknown backend: {self.backend}")
 
     def _stratonovich_correction_numpy(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector],
+        g: DiffusionMatrix,
+        nx: int,
+        nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using finite differences (NumPy)."""
         import numpy as np
@@ -981,7 +996,12 @@ class SDEIntegratorBase(IntegratorBase):
         return correction
 
     def _stratonovich_correction_torch(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector],
+        g: DiffusionMatrix,
+        nx: int,
+        nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using autograd (PyTorch)."""
         import torch
@@ -1026,7 +1046,12 @@ class SDEIntegratorBase(IntegratorBase):
         return correction.detach().numpy()
 
     def _stratonovich_correction_jax(
-        self, x: StateVector, u: Optional[ControlVector], g: DiffusionMatrix, nx: int, nw: int,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector],
+        g: DiffusionMatrix,
+        nx: int,
+        nw: int,
     ) -> ArrayLike:
         """Compute Stratonovich correction using jax.jacobian (JAX)."""
         import jax
@@ -1074,6 +1099,4 @@ class SDEIntegratorBase(IntegratorBase):
     def __str__(self) -> str:
         """Human-readable string."""
         noise_str = " (additive)" if self._is_additive else " (multiplicative)"
-        return (
-            f"{self.name} (dt={self.dt:.4f}, {self.backend}, {self.sde_type.value}{noise_str})"
-        )
+        return f"{self.name} (dt={self.dt:.4f}, {self.backend}, {self.sde_type.value}{noise_str})"

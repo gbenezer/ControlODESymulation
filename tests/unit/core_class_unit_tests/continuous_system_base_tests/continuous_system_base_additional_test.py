@@ -60,19 +60,13 @@ Run specific category:
     pytest test_continuous_system_base_additional.py::TestStiffSystems -v
 """
 
-import sys
+import gc
 import time
 import unittest
-from typing import Optional
-from unittest.mock import Mock, patch
-import gc
 
 import numpy as np
 import pytest
 
-from src.types.core import ControlVector, StateVector
-from src.types.linearization import ContinuousLinearization
-from src.types.trajectories import IntegrationResult, SimulationResult
 from src.systems.base.core.continuous_system_base import ContinuousSystemBase
 
 # Conditional imports for backends
@@ -188,7 +182,7 @@ class StiffChemicalReaction(ContinuousSystemBase):
                 [-self.k1, self.k3 * y3, self.k3 * y2],
                 [self.k1, -self.k3 * y3 - 2 * self.k2 * y2, -self.k3 * y2],
                 [0, 2 * self.k2 * y2, 0],
-            ]
+            ],
         )
         B = np.zeros((3, 0))
         return (A, B)

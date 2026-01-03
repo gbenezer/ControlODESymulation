@@ -44,10 +44,10 @@ from src.systems.base.core.continuous_stochastic_system import (
     StochasticDynamicalSystem,  # Backward compatibility alias
 )
 from src.systems.base.utils.stochastic.noise_analysis import NoiseType
-from src.types.backends import SDEType
 
 # from src.systems.base.utils.symbolic_validator import
 from src.systems.base.utils.stochastic.sde_validator import ValidationError
+from src.types.backends import SDEType
 
 # Conditional imports for backends
 torch_available = True
@@ -821,7 +821,7 @@ class TestSDEIntegration:
         assert callable(system.integrate)
 
     @pytest.mark.parametrize(
-        "method,backend", [("EM", "numpy"), ("euler", "torch"), ("Euler", "jax")]
+        "method,backend", [("EM", "numpy"), ("euler", "torch"), ("Euler", "jax")],
     )
     def test_single_path_integration(self, method, backend):
         """Test single trajectory integration with backend-appropriate methods."""
@@ -842,7 +842,7 @@ class TestSDEIntegration:
 
         try:
             result = system.integrate(
-                x0=x0, u=None, t_span=(0.0, 0.5), method=method, dt=0.01, seed=42
+                x0=x0, u=None, t_span=(0.0, 0.5), method=method, dt=0.01, seed=42,
             )
 
             # Check basic result structure - be flexible about success
@@ -852,7 +852,7 @@ class TestSDEIntegration:
                 # Check if it's a known issue
                 message = result.get("message", "")
                 if "unsqueeze" in message or "numpy.ndarray" in message:
-                    pytest.skip(f"Known TorchSDE compatibility issue: NumPy/Torch conversion")
+                    pytest.skip("Known TorchSDE compatibility issue: NumPy/Torch conversion")
                 else:
                     # Unknown failure
                     pytest.fail(f"Integration failed: {message}")
@@ -915,7 +915,7 @@ class TestSDEIntegration:
                 u_const = np.array([0.5])
 
                 result = system.integrate(
-                    x0=x0, u=u_const, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
+                    x0=x0, u=u_const, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
                 )
 
                 assert result.get("success", True)
@@ -946,7 +946,7 @@ class TestSDEIntegration:
                     return np.array([np.sin(t)])
 
                 result = system.integrate(
-                    x0=x0, u=u_func, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
+                    x0=x0, u=u_func, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
                 )
 
                 assert result.get("success", True)
@@ -974,7 +974,7 @@ class TestSDEIntegration:
                 x0 = np.array([0.0])
 
                 result = system.integrate(
-                    x0=x0, u=None, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42
+                    x0=x0, u=None, t_span=(0.0, 0.2), method=method, dt=0.01, seed=42,
                 )
 
                 assert result.get("success", True)

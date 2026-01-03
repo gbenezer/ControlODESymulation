@@ -210,7 +210,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
 
         self._observation = ObservationEngine(self, self._code_gen, self.backend)
         """Evaluates output: y[k] = h(x[k])"""
-        
+
         # call setup_equilibria after _dynamics exists
         if self._auto_add_equilibria and hasattr(self, "setup_equilibria"):
             self.setup_equilibria()
@@ -274,7 +274,11 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         return self._dynamics.evaluate(x, u, backend=backend)
 
     def simulate(
-        self, x0: StateVector, u_sequence: DiscreteControlInput = None, n_steps: int = 100, **kwargs,
+        self,
+        x0: StateVector,
+        u_sequence: DiscreteControlInput = None,
+        n_steps: int = 100,
+        **kwargs,
     ) -> DiscreteSimulationResult:
         """
         Simulate discrete system for multiple steps.
@@ -356,7 +360,9 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         }
 
     def linearize(
-        self, x_eq: StateVector, u_eq: Optional[ControlVector] = None,
+        self,
+        x_eq: StateVector,
+        u_eq: Optional[ControlVector] = None,
     ) -> LinearizationResult:
         """
         Compute discrete linearization: Ad = ∂f/∂x, Bd = ∂f/∂u.
@@ -447,7 +453,10 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def _verify_equilibrium_numpy(
-        self, x_eq: np.ndarray, u_eq: np.ndarray, tol: ScalarLike,
+        self,
+        x_eq: np.ndarray,
+        u_eq: np.ndarray,
+        tol: ScalarLike,
     ) -> bool:
         """
         Verify discrete equilibrium condition: ||f(x_eq, u_eq) - x_eq|| < tol.
@@ -492,7 +501,9 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def _prepare_control_sequence(
-        self, u_sequence: DiscreteControlInput, n_steps: int,
+        self,
+        u_sequence: DiscreteControlInput,
+        n_steps: int,
     ) -> Callable[[StateVector, int], Optional[ControlVector]]:
         """
         Convert various control sequence formats to standard function.
@@ -744,7 +755,10 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
     # ========================================================================
 
     def forward(
-        self, x: StateVector, u: Optional[ControlVector] = None, backend: Optional[Backend] = None,
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        backend: Optional[Backend] = None,
     ) -> StateVector:
         """
         Alias for step() with explicit backend specification.
@@ -913,7 +927,7 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
             Output y[k]
         """
         return self._observation.evaluate(x, backend)
-    
+
     def linearized_observation_symbolic(self, x_eq: Optional[sp.Matrix] = None) -> sp.Matrix:
         """
         Compute symbolic observation Jacobian: C = ∂h/∂x.
@@ -936,7 +950,9 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
         return self._observation.compute_symbolic(x_eq)
 
     def linearized_observation(
-        self, x: StateVector, backend: Optional[Backend] = None,
+        self,
+        x: StateVector,
+        backend: Optional[Backend] = None,
     ) -> OutputMatrix:
         """
         Compute C = ∂h/∂x.

@@ -28,7 +28,7 @@ Tests cover:
 - Documentation completeness
 """
 
-from typing import Callable, Optional, get_type_hints
+from typing import Optional, get_type_hints
 
 import numpy as np
 import pytest
@@ -72,7 +72,6 @@ from src.types.core import (  # Arrays; Vectors; Matrices; Dimensions; Equilibri
     GainMatrix,
     IntegerLike,
     IntegrationCallback,
-    JaxArray,
     MatrixT,
     NoiseVector,
     NumpyArray,
@@ -91,7 +90,6 @@ from src.types.core import (  # Arrays; Vectors; Matrices; Dimensions; Equilibri
     StateVector,
     SystemDimensions,
     T,
-    TorchTensor,
 )
 
 # ============================================================================
@@ -148,7 +146,7 @@ def example_simulation_callback(k: int, x: StateVector, u: ControlVector) -> Non
 
 def example_optimization_callback(x: ArrayLike) -> None:
     """Example optimization callback for testing."""
-    pass  # Would monitor convergence
+    # Would monitor convergence
 
 
 # ============================================================================
@@ -697,7 +695,7 @@ class TestRealisticUsagePatterns:
         """Test Kalman filter type usage."""
 
         def kalman_update(
-            x_pred: StateVector, y: OutputVector, C: OutputMatrix, L: GainMatrix
+            x_pred: StateVector, y: OutputVector, C: OutputMatrix, L: GainMatrix,
         ) -> StateVector:
             innovation = y - C @ x_pred
             return x_pred + L @ innovation
@@ -1043,7 +1041,7 @@ class TestImportPatterns:
 
     def test_import_all_from_core(self):
         """Test importing all from core."""
-        import src.types.core as core
+        from src.types import core
 
         # Should have all exported types
         assert hasattr(core, "StateVector")
