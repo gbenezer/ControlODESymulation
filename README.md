@@ -162,21 +162,22 @@ dx_jax = pendulum(x_jax, jnp.array([0.0]))
 
 ### Quick Reference Guides
 
-- **[UI Framework Quick Reference](docs/UI_Framework_Quick_Reference.md)** - System definition and usage patterns
-- **[Integration Framework Quick Reference](docs/Integration_Framework_Quick_Reference.md)** - Solver selection and configuration
-- **[Type System Quick Reference](docs/Type_System_Quick_Reference.md)** - TypedDict definitions and type safety
-- **[Visualization Framework Quick Reference](docs/Visualization_Framework_Quick_Reference.md)** - Plotting and analysis
-- **[Control Framework Quick Reference](docs/Control_Framework_Quick_Reference.md)** - Controller design
-- **[Delegation Layer Quick Reference](docs/Delegation_Layer_Quick_Reference.md)** - Low-level numerical operations
+- **[UI Framework Quick Reference](docs/api/ui_framework/UI_Framework_Quick_Reference.md)** - System definition and usage patterns
+- **[Integration Framework Quick Reference](docs/api/integration_framework/Integration_Framework_Quick_Reference.md)** - Solver selection and configuration
+- **[Type System Quick Reference](docs/api/type_system/Type_System_Quick_Reference.md)** - TypedDict definitions and type safety
+- **[Visualization Framework Quick Reference](docs/api/visualization_framework/Visualization_Framework_Quick_Reference.md)** - Plotting and analysis
+- **[Control Framework Quick Reference](docs/api/control_framework/Control_Framework_Quick_Reference.md)** - Controller design
+- **[Delegation Layer Quick Reference](docs/api/delegation_layer/Delegation_Layer_Quick_Reference.md)** - Low-level numerical operations
 
 ### Architecture Documentation
 
-- **[UI Framework Architecture](docs/UI_Framework_Architecture.md)** - System class hierarchy and design
-- **[Integration Framework Architecture](docs/Integration_Framework_Architecture.md)** - Numerical integration infrastructure
-- **[Type System Architecture](docs/Type_System_Architecture.md)** - Type definitions and validation
-- **[Control Framework Architecture](docs/Control_Framework_Architecture.md)** - Control system utilities
-- **[Delegation Layer Architecture](docs/Delegation_Layer_Architecture.md)** - Backend abstraction layer
-- **[Design Philosophy](docs/ControlDESymulation_Design_Philosophy.md)** - Core design principles
+- **[UI Framework Architecture](docs/api/ui_framework/UI_Framework_Architecture.md)** - System class hierarchy and design
+- **[Integration Framework Architecture](docs/api/integration_framework/Integration_Framework_Architecture.md)** - Numerical integration infrastructure
+- **[Type System Architecture](docs/api/type_system/Type_System_Architecture.md)** - Type definitions and validation
+- **[Visualization Framework Architecture](docs/api/visualization_framework/Visualization_Framework_Architecture.md)** - Plotting and analysis
+- **[Control Framework Architecture](docs/api/control_framework/Control_Framework_Architecture.md)** - Control system utilities
+- **[Delegation Layer Architecture](docs/api/delegation_layer/Delegation_Layer_Architecture.md)** - Backend abstraction layer
+- **[Design Philosophy](docs/api/ControlDESymulation_Design_Philosophy.md)** - Core design principles
 
 ## 🏗️ Architecture Overview
 
