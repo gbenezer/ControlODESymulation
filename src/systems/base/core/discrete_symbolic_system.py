@@ -909,6 +909,27 @@ class DiscreteSymbolicSystem(SymbolicSystemBase, DiscreteSystemBase):
             Output y[k]
         """
         return self._observation.evaluate(x, backend)
+    
+    def linearized_observation_symbolic(self, x_eq: Optional[sp.Matrix] = None) -> sp.Matrix:
+        """
+        Compute symbolic observation Jacobian: C = ∂h/∂x.
+
+        Parameters
+        ----------
+        x_eq : Optional[sp.Matrix]
+            Equilibrium state (symbolic), None = zeros
+
+        Returns
+        -------
+        sp.Matrix
+            Symbolic C matrix
+
+        Examples
+        --------
+        >>> C_sym = system.linearized_observation_symbolic()
+        >>> print(C_sym)
+        """
+        return self._observation.compute_symbolic(x_eq)
 
     def linearized_observation(
         self, x: StateVector, backend: Optional[Backend] = None,
