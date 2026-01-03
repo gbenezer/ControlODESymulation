@@ -60,6 +60,7 @@ class System:
 ```
 
 **Benefits:**
+
 - **Single Responsibility:** Each utility does one thing well
 - **Testability:** Test utilities in isolation
 - **Reusability:** Use BackendManager anywhere
@@ -88,6 +89,7 @@ system.set_default_device('cuda:0')
 ```
 
 **Architectural Implications:**
+
 1. **ArrayLike Union Type:** All array types accept `Union[np.ndarray, torch.Tensor, jnp.ndarray]`
 2. **BackendManager Utility:** Centralized backend detection and conversion
 3. **Per-Backend Caching:** Code generated once per backend, then cached
@@ -104,6 +106,7 @@ system.set_default_device('cuda:0')
 We eliminated ~1,800 lines of duplication between continuous and discrete systems through **strategic abstraction**:
 
 **Before:** Continuous and discrete systems each had:
+
 - Parameter handling (200 lines × 2)
 - Backend management (250 lines × 2)
 - Code generation (300 lines × 2)
@@ -111,6 +114,7 @@ We eliminated ~1,800 lines of duplication between continuous and discrete system
 - Configuration persistence (200 lines × 2)
 
 **After:** SymbolicSystemBase provides shared functionality:
+
 - All parameter logic: **ONE** implementation
 - All backend logic: **ONE** BackendManager
 - All code generation: **ONE** CodeGenerator
@@ -121,6 +125,7 @@ We eliminated ~1,800 lines of duplication between continuous and discrete system
 Layer 0: SymbolicSystemBase (shared foundation)
 Layer 1: ContinuousSystemBase, DiscreteSystemBase (time-domain specific)
 Layer 2: ContinuousSymbolicSystem, DiscreteSymbolicSystem (multiple inheritance)
+Layer 3: ContinuousStochasticSystem, DiscreteStochasticSystem (add stochasticity)
 ```
 
 This isn't inheritance for convenience—it's **strategic abstraction to eliminate duplication while maintaining clarity**.
@@ -149,6 +154,7 @@ def integrate() -> IntegrationResult:
 ```
 
 **Benefits:**
+
 - Type checker ensures all required fields present
 - IDE autocompletes field names
 - Documentation embedded in type definition
@@ -156,6 +162,7 @@ def integrate() -> IntegrationResult:
 - Refactoring safe (rename propagates)
 
 **Used Throughout:**
+
 - `IntegrationResult` - ODE integration
 - `SDEIntegrationResult` - SDE integration  
 - `ExecutionStats` - Performance metrics
@@ -201,6 +208,7 @@ system: DynamicalSystemProtocol = MySystem()  # Type checker approves!
 ```
 
 **Benefits:**
+
 - No inheritance coupling
 - Structural subtyping (like Go interfaces)
 - Easy to implement interfaces
@@ -235,6 +243,7 @@ integrator = IntegratorFactory.for_neural_ode(system)
 ```
 
 **Factory Methods:**
+
 - `auto()` - Best for system/backend
 - `for_production()` - LSODA/AutoTsit5
 - `for_optimization()` - JAX tsit5
@@ -251,12 +260,14 @@ integrator = IntegratorFactory.for_neural_ode(system)
 **Principle:** *Names should convey mathematical meaning, not implementation details.*
 
 **Good Semantic Names:**
+
 - `StateVector` not `ArrayLike` - conveys it's a state
 - `GainMatrix` not `Matrix` - conveys it's for feedback control
 - `DynamicsEvaluator` not `FunctionCaller` - conveys purpose
 - `LinearizationEngine` not `JacobianComputer` - conveys operation
 
 **Bad Implementation Names:**
+
 - `data` - what data?
 - `arr1`, `arr2` - meaningless
 - `compute()` - compute what?
@@ -317,6 +328,7 @@ result = integrator.integrate(
 ```
 
 **Principle Applied:**
+
 - Default arguments for common cases
 - Progressive power through optional parameters
 - Expert features available but not mandatory
@@ -334,6 +346,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 **Files:** 7 modules, 6,481 lines, 200+ types
 
 **Key Components:**
+
 - `core.py` - Vectors, matrices, functions
 - `backends.py` - Backend enums, configs
 - `trajectories.py` - Time series results
@@ -343,6 +356,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 - `utilities.py` - Type guards, helpers
 
 **Design Principles:**
+
 - Semantic over structural naming
 - Backend-agnostic unions
 - TypedDict for all results
@@ -361,25 +375,30 @@ The library consists of 4 distinct architectural layers, each with clear respons
 **Key Components:**
 
 **Core Utilities:**
+
 - `BackendManager` (545 lines) - Multi-backend support
 - `CodeGenerator` (565 lines) - Symbolic → numerical
 - `EquilibriumHandler` (221 lines) - Named equilibria
 - `SymbolicValidator` (718 lines) - System validation
 
 **Deterministic Services:**
+
 - `DynamicsEvaluator` (576 lines) - Forward dynamics
 - `LinearizationEngine` (907 lines) - Jacobians
 - `ObservationEngine` (628 lines) - Output evaluation
 
 **Stochastic Services:**
+
 - `DiffusionHandler` (1,069 lines) - SDE diffusion
 - `NoiseCharacterizer` (692 lines) - Noise analysis
 - `SDEValidator` (544 lines) - SDE validation
 
 **Low-Level:**
+
 - `codegen_utils` (733 lines) - SymPy code generation
 
 **Design Principles:**
+
 - Single responsibility per utility
 - Composition not inheritance
 - Dependency injection
@@ -398,6 +417,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 **Key Components:**
 
 **Deterministic (ODE):**
+
 - `IntegratorBase` (512 lines) - Abstract interface
 - `IntegratorFactory` (1,267 lines) - Creation
 - `ScipyIntegrator` (~620 lines) - NumPy scipy
@@ -407,6 +427,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 - `FixedStepIntegrators` (~600 lines) - Manual methods
 
 **Stochastic (SDE):**
+
 - `SDEIntegratorBase` (1,080 lines) - SDE interface
 - `SDEIntegratorFactory` (~1,000 lines) - SDE creation
 - `TorchSDEIntegrator` (~800 lines) - PyTorch SDE
@@ -415,6 +436,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 - `CustomBrownianPath` (160 lines) - Custom noise
 
 **Design Principles:**
+
 - Factory pattern for creation
 - Unified result types (TypedDict)
 - Backend abstraction
@@ -435,6 +457,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 **Key Components:**
 
 **Layer 0 - Foundation:**
+
 - `SymbolicSystemBase` (1,678 lines) - Time-agnostic base
   - Symbolic variables/parameters
   - Code generation orchestration
@@ -443,21 +466,26 @@ The library consists of 4 distinct architectural layers, each with clear respons
   - Config persistence
 
 **Layer 1 - Time-Domain Bases:**
+
 - `ContinuousSystemBase` (915 lines) - Continuous interface
 - `DiscreteSystemBase` (487 lines) - Discrete interface
 
 **Layer 2 - Concrete Implementations:**
+
 - `ContinuousSymbolicSystem` (1,318 lines) - Continuous ODE
 - `DiscreteSymbolicSystem` (1,020 lines) - Discrete map
 
 **Layer 3 - Stochastic Extensions:**
+
 - `ContinuousStochasticSystem` (1,103 lines) - Continuous SDE
 - `DiscreteStochasticSystem` (1,383 lines) - Discrete stochastic
 
 **Special:**
+
 - `DiscretizedSystem` (4,916 lines) - Continuous → discrete
 
 **Design Principles:**
+
 - Cooperative multiple inheritance (strategic, not arbitrary)
 - Zero code duplication
 - Template method pattern
@@ -682,22 +710,18 @@ Noise types:
 ### Numerical Methods
 
 **ODE Solvers (40+ methods):**
+
 - Explicit RK: RK45, Tsit5, Vern9, dopri5
 - Implicit: Radau, BDF, Rodas5
 - Auto-stiffness: LSODA, AutoTsit5
 - Fixed-step: Euler, RK4, Midpoint
 
 **SDE Solvers:**
+
 - Euler-Maruyama (strong 0.5)
 - Milstein (strong 1.0, diagonal)
 - Heun (strong 1.0, additive)
 - Stochastic RK methods
-
-**Discretization:**
-- Exact (matrix exponential)
-- Tustin (bilinear transform)
-- Forward/backward Euler
-- Zero-order hold
 
 ---
 
@@ -706,6 +730,7 @@ Noise types:
 ### 1. Caching Strategy
 
 **Three-Level Cache:**
+
 1. **Symbolic Cache:** Jacobians computed once symbolically
 2. **Per-Backend Cache:** Compiled functions per backend
 3. **Equilibrium Cache:** Linearizations at equilibria
@@ -722,17 +747,20 @@ A, B = system.linearize(x_eq, u_eq)  # ~0.001ms (100,000x faster!)
 ### 2. Backend Optimization
 
 **NumPy:**
+
 - Common subexpression elimination (CSE)
 - Fast numerical modules
 - Vectorized operations
 
 **PyTorch:**
+
 - Symbolic simplification before codegen
 - GPU tensor operations
 - Automatic differentiation
 - Adjoint method for memory
 
 **JAX:**
+
 - JIT compilation via `jax.jit`
 - XLA optimization
 - Pure functional style
@@ -1085,6 +1113,7 @@ def generate_function(expr, vars, backend):
 **Decision:** Use cooperative multiple inheritance ONLY in UI framework Layer 2
 
 **Rationale:**
+
 - **Pro:** Eliminates ~1,800 lines of duplication
 - **Pro:** Clean interfaces (ContinuousSymbolicSystem has both symbolic and continuous capabilities)
 - **Pro:** Python's MRO handles it correctly with `super()`
@@ -1098,6 +1127,7 @@ def generate_function(expr, vars, backend):
 **Decision:** Use TypedDict for results, not dataclass
 
 **Rationale:**
+
 - **Pro:** Compatible with plain dictionaries (gradual typing)
 - **Pro:** No runtime overhead
 - **Pro:** Works with JSON serialization
@@ -1111,6 +1141,7 @@ def generate_function(expr, vars, backend):
 **Decision:** Support NumPy, PyTorch, JAX (not TensorFlow)
 
 **Rationale:**
+
 - **NumPy:** Universal, stable, CPU
 - **PyTorch:** Neural networks, GPU, mature ecosystem
 - **JAX:** Functional, JIT, XLA, research-friendly
@@ -1123,6 +1154,7 @@ def generate_function(expr, vars, backend):
 **Decision:** Use SymPy (not custom symbolic engine)
 
 **Rationale:**
+
 - **Pro:** Mature, well-tested symbolic math
 - **Pro:** Excellent documentation
 - **Pro:** Large community
@@ -1136,6 +1168,7 @@ def generate_function(expr, vars, backend):
 **Decision:** pytest (not unittest)
 
 **Rationale:**
+
 - **Pro:** Less boilerplate
 - **Pro:** Better fixtures
 - **Pro:** Parametrized tests
@@ -1150,12 +1183,14 @@ def generate_function(expr, vars, backend):
 ### Features Actively Being Worked On Prior to Release
 
 1. **Classical Control Theory**
+
     - Stability, controllability, and observability metrics
     - Kalman Filter, Luenberger Observer design
     - Linear Quadratic (Gaussian) Regulator control design
     - Callable controllers
 
 2. **Visualization**
+
     - Plotting using Plotly
         - Trajectory visualization across all variables
         - Phase portrait visualization in two or three dimensions
@@ -1163,13 +1198,23 @@ def generate_function(expr, vars, backend):
 ### Planned Features
 
 1. **RL Environment Synthesis**
+
     - Interfaces that satisfy Gymnasium library conventions
     - Export of Gymnasium and/or PyBullet environments from symbolically defined dynamics
 
 2. **Synthetic Data Generation**
+
     - Classes and methods for the generation and export of synthetic physical data in standard formats
 
-3. **Parameter and Uncertainty Estimation**
+3. **Discretization:**
+
+    - Exact (matrix exponential)
+    - Tustin (bilinear transform)
+    - Forward/backward Euler
+    - Zero-order hold
+
+4. **Parameter and Uncertainty Estimation**
+
    - System identification
    - Bayesian inference
    - Adaptive control
@@ -1177,46 +1222,54 @@ def generate_function(expr, vars, backend):
    - Sobol indices
    - Morris screening
 
-3. **Neural Controller Design**
+5. **Neural Controller Design**
+
     - Protocol interface for backend-agnostic functionality
     - Neural controller training
     - Neural certificate function construction and verification 
         - Lyapunov, barrier, contraction metric
     - Forward and backward reachability analysis
 
-4. **Model Predictive Control (MPC)**
+6. **Model Predictive Control (MPC)**
+
    - Receding horizon optimization
    - Constraint handling
    - Real-time capable
    - Integration with do-mpc, CasADi, acados
 
-5. **Advanced Stochastic**
+7. **Advanced Stochastic**
+
    - Particle filters
    - Stochastic MPC
    - Noisy measurement models
    - Other robust and/or stochastic control
 
-6. **System Composition**
+8. **System Composition**
+
     - Connector protocol interfaces to couple multiple subsystems
 
 ### Potential Future Extensions
 
 1. Hybrid Systems
+
     - Switched dynamics
     - Hybrid automata
     - Jump/flow dynamics
 
 2. Distributed Systems
+
     - Multi-agent dynamics
     - Network topology
     - Consensus protocols
 
 3. Delay Systems
+
     - Time-delayed feedback
     - DDE integration
     - Delayed stability analysis
 
 3. PDE Systems
+
     - Spatiotemporal dynamics
     - Finite/discrete element methods
     - Spectral methods
@@ -1237,6 +1290,7 @@ def generate_function(expr, vars, backend):
 8. **Semantic Naming** - Code reads like math
 
 The result is a library where:
+
 - **Control theorists** find familiar mathematics
 - **Software engineers** find clean architecture
 - **ML researchers** find GPU acceleration
@@ -1244,59 +1298,3 @@ The result is a library where:
 - **Experts** find power and flexibility
 
 **36,500 lines of code organized into 4 architectural layers, implementing 200+ types and 40+ integration methods—all serving a single vision: symbolic dynamical systems done right.**
-
----
-
-## Appendix: Statistics Summary
-
-### Code Distribution
-
-| Layer | Files | Lines | Purpose |
-|-------|-------|-------|---------|
-| Type System | 7 | 6,481 | Foundational types |
-| Delegation Layer | 11 | 7,198 | Service composition |
-| Integration Framework | 13 | ~10,000 | Numerical methods |
-| UI Framework | 8 | 12,820 | User interface |
-| **TOTAL** | **39** | **~36,500** | **Complete system** |
-
-### Type Distribution
-
-| Category | Count | Examples |
-|----------|-------|----------|
-| Vector Types | 15+ | StateVector, ControlVector |
-| Matrix Types | 30+ | StateMatrix, GainMatrix |
-| Function Types | 10+ | DynamicsFunction, ControlPolicy |
-| Backend Types | 20+ | Backend, Device, NoiseType |
-| Trajectory Types | 15+ | StateTrajectory, IntegrationResult |
-| Linearization Types | 15+ | DeterministicLinearization |
-| Symbolic Types | 10+ | SymbolicExpression |
-| Protocol Types | 20+ | DynamicalSystemProtocol |
-| Utility Types | 20+ | ExecutionStats, TypeGuards |
-| TypedDict Results | 15+ | IntegrationResult |
-| **TOTAL** | **200+** | **Complete type system** |
-
-### Integration Methods
-
-| Category | Count | Examples |
-|----------|-------|----------|
-| NumPy (scipy) | 6 | RK45, LSODA, BDF, Radau |
-| NumPy (Julia) | 20+ | Tsit5, Vern9, Rodas5, AutoTsit5 |
-| PyTorch | 8 | dopri5, dopri8, adaptive_heun |
-| JAX | 8 | tsit5, dopri5, heun, ralston |
-| Fixed-step | 3 | euler, midpoint, rk4 |
-| SDE Methods | 10+ | euler-maruyama, milstein, heun |
-| **TOTAL** | **55+** | **Comprehensive coverage** |
-
-### Design Patterns
-
-| Pattern | Count | Where Used |
-|---------|-------|------------|
-| Template Method | 8 | All system base classes |
-| Factory Method | 2 | Integrator/SDE factories |
-| Strategy | 55+ | All integration methods |
-| Dependency Injection | 11 | All delegation utilities |
-| Lazy Initialization | 7 | Code generation, caching |
-| Observer | 5 | Performance statistics |
-| Protocol | 20+ | All structural interfaces |
-
-**The numbers tell the story: a comprehensive, well-architected library built on solid design principles.**

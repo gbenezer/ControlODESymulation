@@ -19,6 +19,7 @@ self.equilibria = EquilibriumHandler(nx, nu)
 ```
 
 This design provides:
+
 - **Single Responsibility** - Each class does one thing well
 - **Reusability** - Utilities can be used independently
 - **Testability** - Each component tested in isolation
@@ -76,6 +77,7 @@ This design provides:
 **Purpose:** Multi-backend array handling and device management
 
 **Responsibilities:**
+
 - Backend detection from array types
 - Array conversion between backends (NumPy ↔ PyTorch ↔ JAX)
 - Backend availability checking
@@ -102,6 +104,7 @@ with mgr.use_backend('jax'):
 ```
 
 **Supported Backends:**
+
 - **NumPy:** CPU-based, universal compatibility
 - **PyTorch:** GPU acceleration, autograd, neural networks
 - **JAX:** XLA compilation, functional programming, optimization
@@ -121,6 +124,7 @@ mgr.available_backends  # List of available backends
 **Purpose:** Orchestrates symbolic → numerical code generation with caching
 
 **Responsibilities:**
+
 - Generate dynamics functions: f(x, u) → dx/dt
 - Generate output functions: h(x) → y
 - Generate Jacobian functions: A, B, C
@@ -148,12 +152,14 @@ timings = code_gen.compile_all(backends=['numpy', 'torch', 'jax'])
 ```
 
 **Caching Strategy:**
+
 - Functions cached per backend
 - Symbolic Jacobians computed once, then compiled per backend
 - Cache invalidated on parameter changes
 - Automatic recompilation when needed
 
 **Backend-Specific Optimizations:**
+
 - **NumPy:** Uses `lambdify` with CSE (common subexpression elimination)
 - **PyTorch:** Simplifies expressions before generation
 - **JAX:** JIT compilation via `jax.jit`
@@ -166,6 +172,7 @@ timings = code_gen.compile_all(backends=['numpy', 'torch', 'jax'])
 **Purpose:** Manages multiple named equilibrium points
 
 **Responsibilities:**
+
 - Store equilibria as NumPy arrays (backend-neutral)
 - Convert to any backend on demand
 - Named equilibrium management
@@ -203,6 +210,7 @@ print(meta['stability'])  # 'unstable'
 ```
 
 **Automatic Features:**
+
 - Origin equilibrium always present
 - Dimension validation on add
 - Finite value checking (no NaN/Inf)
@@ -216,6 +224,7 @@ print(meta['stability'])  # 'unstable'
 **Purpose:** Validates symbolic system definitions
 
 **Responsibilities:**
+
 - Check state/control variable consistency
 - Validate symbolic expression dimensions
 - Verify parameter keys (Symbol, not string)
@@ -263,6 +272,7 @@ self._f_sym = sp.Matrix([x, y, z])  # ✓ nx=3
 **Purpose:** Forward dynamics evaluation across backends
 
 **Responsibilities:**
+
 - Evaluate dx/dt = f(x, u) for controlled systems
 - Evaluate dx/dt = f(x) for autonomous systems (u=None)
 - Handle batched vs single evaluation
@@ -290,6 +300,7 @@ print(f"Average time: {stats['avg_time']:.6f}s")
 ```
 
 **Backend Dispatch:**
+
 - Automatically detects input backend
 - Uses cached compiled functions
 - Handles shape mismatches gracefully
@@ -314,6 +325,7 @@ print(f"Average time: {stats['avg_time']:.6f}s")
 **Purpose:** Compute linearizations (Jacobians) at equilibria
 
 **Responsibilities:**
+
 - Compute continuous Jacobians: A = ∂f/∂x, B = ∂f/∂u
 - Compute discrete Jacobians: Ad = ∂f/∂x, Bd = ∂f/∂u
 - Handle higher-order systems (order > 1)
@@ -362,7 +374,9 @@ B_sym = engine.get_symbolic_B()
 ```
 
 **Higher-Order Handling:**
+
 For `order=n` systems where state is `[q, q̇, ..., q^(n-1)]` and only `q^(n)` is returned:
+
 1. Automatically constructs full state derivative
 2. Computes Jacobian of full state-space form
 3. Returns proper (nx × nx) and (nx × nu) matrices
@@ -375,6 +389,7 @@ For `order=n` systems where state is `[q, q̇, ..., q^(n-1)]` and only `q^(n)` i
 **Purpose:** Output function evaluation and linearization
 
 **Responsibilities:**
+
 - Evaluate output: y = h(x)
 - Compute output Jacobian: C = ∂h/∂x
 - Batched output evaluation
@@ -411,6 +426,7 @@ if engine.has_output():
 ```
 
 **Validation:**
+
 - Ensures h(x) doesn't depend on control u
 - Checks dimension consistency
 - Validates symbolic expressions
@@ -425,6 +441,7 @@ if engine.has_output():
 **Purpose:** Generate and cache diffusion functions for SDEs
 
 **Responsibilities:**
+
 - Generate diffusion matrix: g(x, u) ∈ ℝ^(nx × nw)
 - Automatic noise structure detection
 - Specialized functions for additive/diagonal/scalar noise
@@ -469,8 +486,10 @@ if handler.is_additive():
 ```
 
 **Noise Structure Exploitation:**
+
 - **Additive (constant):** Returns constant matrix, no recomputation needed
 - **Multiplicative types:**
+
   - **Diagonal:** Independent noise channels, specialized handling
   - **Scalar:** Single Wiener process (nw=1), simplified operations
   - **General:** Full matrix coupling, complete computation
@@ -483,6 +502,7 @@ if handler.is_additive():
 **Purpose:** Automatic noise structure analysis
 
 **Responsibilities:**
+
 - Detect noise types (additive, multiplicative, etc.)
 - Identify noise structure (diagonal, scalar, general)
 - Recommend optimal SDE solvers
@@ -538,6 +558,7 @@ if not characteristics.is_valid:
 **Purpose:** SDE-specific validation
 
 **Responsibilities:**
+
 - Validate diffusion matrix dimensions
 - Check SDE type (Itô vs Stratonovich)
 - Ensure compatibility with drift
@@ -578,6 +599,7 @@ self.sde_type = 'ito'  # ✓
 **Purpose:** Low-level SymPy → executable code conversion
 
 **Responsibilities:**
+
 - SymPy Matrix → callable function
 - Backend-specific code generation
 - Common subexpression elimination (CSE)
@@ -606,16 +628,19 @@ func_jax = generate_function(expr, vars, backend='jax', jit=True)
 **Optimization Strategies:**
 
 **NumPy:**
+
 - Common subexpression elimination (CSE)
 - Fast numerical modules ('numpy', 'scipy')
 - Matrix operations optimization
 
 **PyTorch:**
+
 - Symbolic simplification before generation
 - Automatic differentiation compatibility
 - GPU tensor operations
 
 **JAX:**
+
 - JIT compilation via `jax.jit`
 - Pure functional style
 - XLA optimization
@@ -677,45 +702,12 @@ self.noise_characteristics = NoiseCharacterizer().analyze(self.diffusion_expr)
 self._sde_validator = SDEValidator()
 ```
 
-## File Size Summary
-
-### Core Utilities
-| File | Lines | Purpose |
-|------|-------|---------|
-| backend_manager.py | 545 | Multi-backend support |
-| code_generator.py | 565 | Symbolic → numerical |
-| equilibrium_handler.py | 221 | Equilibrium management |
-| symbolic_validator.py | 718 | System validation |
-| **Subtotal** | **2,049** | **Core services** |
-
-### Deterministic Evaluation
-| File | Lines | Purpose |
-|------|-------|---------|
-| dynamics_evaluator.py | 576 | Forward dynamics |
-| linearization_engine.py | 907 | Jacobian computation |
-| observation_engine.py | 628 | Output evaluation |
-| **Subtotal** | **2,111** | **Deterministic** |
-
-### Stochastic Support
-| File | Lines | Purpose |
-|------|-------|---------|
-| diffusion_handler.py | 1,069 | Diffusion generation |
-| noise_analysis.py | 692 | Noise characterization |
-| sde_validator.py | 544 | SDE validation |
-| **Subtotal** | **2,305** | **Stochastic** |
-
-### Low-Level Utilities
-| File | Lines | Purpose |
-|------|-------|---------|
-| codegen_utils.py | 733 | Code generation |
-| **Subtotal** | **733** | **Low-level** |
-
-**Total: 7,198 lines** of delegation layer code
-
 ## Design Principles
 
 ### 1. Single Responsibility
+
 Each class has one clear purpose:
+
 - BackendManager → Backend management ONLY
 - CodeGenerator → Code generation ONLY
 - DynamicsEvaluator → Dynamics evaluation ONLY
@@ -736,7 +728,9 @@ DynamicsEvaluator(system, code_gen, backend_mgr)
 ```
 
 ### 4. Interface Segregation
+
 Each utility has focused, minimal interface:
+
 - BackendManager: detect, convert, to_backend
 - CodeGenerator: generate_dynamics, generate_jacobian_A/B/C
 - DynamicsEvaluator: evaluate

@@ -95,6 +95,7 @@ fig.show()
 **Purpose:** Centralized color palettes and plot styling
 
 **Design Philosophy:**
+
 - Single source of truth for all colors and styles
 - Easy customization and extension
 - Accessibility (colorblind-safe options)
@@ -294,6 +295,7 @@ def interpolate_colors(color1: str, color2: str, n: int) -> List[str]:
 ```
 
 **Key Design Features:**
+
 - **Accessibility** - Colorblind-safe palettes (Wong palette)
 - **Variety** - Categorical, sequential, diverging schemes
 - **Consistency** - All plotters use same theme system
@@ -310,6 +312,7 @@ def interpolate_colors(color1: str, color2: str, n: int) -> List[str]:
 **Purpose:** Time-domain visualization (state and control vs time)
 
 **Design Philosophy:**
+
 - Backend agnostic (NumPy/PyTorch/JAX)
 - Automatic batch handling (Monte Carlo simulations)
 - Adaptive layouts (optimal subplot arrangement)
@@ -462,6 +465,7 @@ def plot_comparison(
 ```
 
 **Key Features:**
+
 - ✅ Backend conversion handled automatically
 - ✅ Batch dimension detected and processed
 - ✅ Adaptive subplot layouts (optimal rows×cols)
@@ -477,6 +481,7 @@ def plot_comparison(
 **Purpose:** State space visualization (phase portraits)
 
 **Design Philosophy:**
+
 - Visualize dynamics in state space (not time domain)
 - Support 2D and 3D phase portraits
 - Optional vector field overlays
@@ -626,6 +631,7 @@ def plot_limit_cycle(
 ```
 
 **Key Features:**
+
 - ✅ 2D and 3D phase space visualization
 - ✅ Vector field overlays (quiver plots)
 - ✅ Equilibrium point markers (color-coded by stability)
@@ -641,6 +647,7 @@ def plot_limit_cycle(
 **Purpose:** Control-specific visualizations
 
 **Design Philosophy:**
+
 - Specialized plots for control analysis
 - Frequency domain analysis (Bode, Nyquist)
 - Stability analysis (eigenvalue maps, root locus)
@@ -927,6 +934,7 @@ def plot_root_locus(
 ```
 
 **Key Features:**
+
 - ✅ 10 specialized control analysis plots
 - ✅ Frequency domain (Bode, Nyquist)
 - ✅ Time domain (step, impulse)
@@ -1039,6 +1047,7 @@ class GoodPlotter:
 ```
 
 **Benefits:**
+
 - ✅ Consistent colors across all plots
 - ✅ Easy to switch themes globally
 - ✅ Accessibility (colorblind-safe)
@@ -1115,22 +1124,6 @@ def _process_batch(self, x: np.ndarray) -> Tuple[np.ndarray, bool]:
     else:
         raise ValueError(f"Invalid shape: {x.shape}")
 ```
-
----
-
-## File Size Summary
-
-| Module | Lines | Purpose |
-|--------|-------|---------|
-| **THEMING LAYER** | | |
-| themes.py | 623 | Color schemes and plot themes |
-| **PLOTTER LAYER** | | |
-| trajectory_plotter.py | 914 | Time-domain visualization |
-| phase_portrait.py | 1,027 | State space visualization |
-| control_plots.py | 1,858 | Control-specific plots |
-| **TOTAL** | **4,422** | **Complete framework** |
-
----
 
 ## Key Strengths
 

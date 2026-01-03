@@ -31,6 +31,7 @@ Layer 3: ContinuousStochasticSystem  DiscreteStochasticSystem
 **Purpose:** Time-domain agnostic symbolic machinery
 
 **Responsibilities:**
+
 - Symbolic variable management (state_vars, control_vars, output_vars)
 - Parameter handling and substitution
 - Code generation via CodeGenerator (multi-backend)
@@ -41,11 +42,13 @@ Layer 3: ContinuousStochasticSystem  DiscreteStochasticSystem
 - Abstract methods: `define_system()`, `print_equations()`
 
 **Key Design:**
+
 - Uses **composition** for utilities (BackendManager, CodeGenerator, EquilibriumHandler, SymbolicValidator)
 - Template method pattern: `__init__` orchestrates define → validate → initialize
 - Makes NO assumptions about continuous vs discrete time
 
 **What it does NOT provide:**
+
 - Forward dynamics evaluation (`__call__`, `step`)
 - Time integration (`integrate`, `simulate`)
 - Linearization computation
@@ -74,6 +77,7 @@ dx/dt = f(x, u, t)  # Continuous dynamics
 ```
 
 **Key Features:**
+
 - Flexible control input handling (None, arrays, callables)
 - Multi-backend integration support
 - Dense output and adaptive stepping
@@ -101,6 +105,7 @@ x[k+1] = f(x[k], u[k], k)  # Discrete dynamics
 ```
 
 **Key Features:**
+
 - Time-major array convention: (n_steps, nx)
 - State-feedback policy support
 - Sampling frequency properties
@@ -117,6 +122,7 @@ x[k+1] = f(x[k], u[k], k)  # Discrete dynamics
 **Purpose:** Combines symbolic machinery with continuous-time execution
 
 **Key Components:**
+
 - **DynamicsEvaluator:** Evaluates dx/dt = f(x, u)
 - **LinearizationEngine:** Computes A = ∂f/∂x, B = ∂f/∂u
 - **ObservationEngine:** Evaluates y = h(x), C = ∂h/∂x
@@ -140,6 +146,7 @@ class MySystem(ContinuousSymbolicSystem):
 **Purpose:** Combines symbolic machinery with discrete-time execution
 
 **Key Components:**
+
 - **DynamicsEvaluator:** Evaluates x[k+1] = f(x[k], u[k])
 - **LinearizationEngine:** Computes Ad = ∂f/∂x, Bd = ∂f/∂u
 - **ObservationEngine:** Evaluates y[k] = h(x[k])
@@ -179,12 +186,14 @@ where:
 ```
 
 **Key Components:**
+
 - **DiffusionHandler:** Generates and caches diffusion functions
 - **NoiseCharacterizer:** Automatic noise structure analysis
 - **SDEValidator:** SDE-specific validation
 - **SDEIntegratorFactory:** Stochastic integration methods
 
 **Noise Types (Auto-Detected):**
+
 - ADDITIVE: g(x,u,t) = constant
 - MULTIPLICATIVE: g(x,u,t) depends on state
 - DIAGONAL: Independent noise sources
@@ -230,6 +239,7 @@ where:
 **Purpose:** Creates discrete-time approximations from continuous systems
 
 **Key Features:**
+
 - Multiple discretization methods (Euler, RK4, Tustin, etc.)
 - Preserves symbolic structure when possible
 - Handles both deterministic and stochastic systems
@@ -240,12 +250,14 @@ where:
 ## Design Principles
 
 ### 1. Cooperative Multiple Inheritance
+
 - **Layer 2** uses multiple inheritance to combine:
   - Symbolic machinery (SymbolicSystemBase)
   - Time-domain interface (ContinuousSystemBase or DiscreteSystemBase)
 - Uses `super().__init__()` for proper MRO (Method Resolution Order)
 
 ### 2. Composition Over Inheritance
+
 - Specialized functionality delegated to utility classes:
   - BackendManager
   - CodeGenerator
@@ -255,17 +267,20 @@ where:
   - ObservationEngine
 
 ### 3. Template Method Pattern
+
 - Base classes define workflow
 - Subclasses fill in specific implementations
 - `define_system()` is the key extension point
 
 ### 4. Separation of Concerns
+
 - **Layer 0:** Symbolic manipulation (time-agnostic)
 - **Layer 1:** Time-domain semantics (abstract)
 - **Layer 2:** Concrete execution (symbolic + time-domain)
 - **Layer 3:** Specialized extensions (stochastic)
 
 ### 5. Zero Code Duplication
+
 - The ~1,800 lines previously duplicated between continuous and discrete are now in SymbolicSystemBase
 - Stochastic systems extend deterministic via single inheritance
 - No repeated code for backend management, code generation, etc.
@@ -317,6 +332,7 @@ All systems provide:
 ## Backend Support
 
 All systems support multi-backend execution:
+
 - **NumPy:** Default, CPU-based
 - **PyTorch:** GPU acceleration, automatic differentiation
 - **JAX:** XLA compilation, automatic differentiation
@@ -325,12 +341,14 @@ All systems support multi-backend execution:
 ## Integration Methods
 
 ### Continuous Systems (via IntegratorFactory)
+
 - **scipy:** RK45, RK23, DOP853, Radau, BDF, LSODA
 - **Julia (DiffEqPy):** Tsit5, Vern7, Vern9, Rodas5, etc.
 - **JAX (diffrax):** dopri5, tsit5, heun, etc.
 - **PyTorch (torchdiffeq):** dopri5, euler, rk4, etc.
 
 ### Stochastic Systems (via SDEIntegratorFactory)
+
 - **sdeint:** euler-maruyama, milstein, etc.
 - **torchsde:** euler, heun, srk, reversible_heun
 - **JAX implementations:** euler-maruyama with noise analysis
@@ -412,21 +430,6 @@ system = OrnsteinUhlenbeck(alpha=2.0, sigma=0.3)
 print(system.is_additive_noise())  # True
 result = system.integrate(x0, u=None, t_span=(0, 10), method='euler-maruyama')
 ```
-
-## File Size Summary
-
-| File | Lines | Purpose |
-|------|-------|---------|
-| symbolic_system_base.py | 1,678 | Foundation (Layer 0) |
-| continuous_system_base.py | 915 | Continuous interface (Layer 1) |
-| discrete_system_base.py | 487 | Discrete interface (Layer 1) |
-| continuous_symbolic_system.py | 1,318 | Continuous concrete (Layer 2) |
-| discrete_symbolic_system.py | 1,020 | Discrete concrete (Layer 2) |
-| continuous_stochastic_system.py | 1,103 | Continuous SDE (Layer 3) |
-| discrete_stochastic_system.py | 1,383 | Discrete stochastic (Layer 3) |
-| discretized_system.py | 4,916 | Discretization utility |
-
-**Total: ~12,820 lines** of production-ready code with comprehensive documentation
 
 ## Strengths of This Architecture
 

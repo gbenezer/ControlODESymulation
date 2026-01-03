@@ -377,22 +377,29 @@ print(times)  # Compare performance
 ## Troubleshooting
 
 ### Issue: "System must define self._dt"
+
 **Solution:** For discrete systems, add `self._dt = dt` in `define_system()`
 
 ### Issue: "diffusion_expr is None"
+
 **Solution:** For stochastic systems, add `self.diffusion_expr = sp.Matrix([...])` in `define_system()`
 
 ### Issue: NumPy boolean comparison warning
+
 **Solution:** This is handled internally. If you see it, ensure you're using the latest version.
 
 ### Issue: Integration fails
+
 **Possible causes:**
+
 - Stiff dynamics → Try stiff solver: `method='Radau'` or `method='BDF'`
 - Too tight tolerances → Relax: `rtol=1e-6, atol=1e-8`
 - Bad initial condition → Check `x0` is physically reasonable
 
 ### Issue: Linearization returns NaN
+
 **Possible causes:**
+
 - Equilibrium is not valid → Verify `f(x_eq, u_eq) ≈ 0` (or `= x_eq` for discrete)
 - Symbolic expressions have division by zero → Check parameter values
 

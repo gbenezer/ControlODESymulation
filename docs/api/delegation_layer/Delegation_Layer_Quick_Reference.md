@@ -82,6 +82,7 @@ code_gen.invalidate_cache()
 ```
 
 **Caching:**
+
 - Functions cached per backend
 - Automatic on first call
 - Invalidated on parameter changes
@@ -142,6 +143,7 @@ print(meta.get('verified', False))  # True if verified
 ```
 
 **Automatic Features:**
+
 - Origin always present at (0, 0)
 - Dimension validation on add
 - Finite value checking (no NaN/Inf)

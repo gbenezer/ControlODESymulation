@@ -477,16 +477,19 @@ fig = plotter.plot_trajectory(
 ### Available Color Schemes
 
 **Categorical (for distinct categories):**
+
 - `'plotly'` - Default Plotly colors (10 colors)
 - `'d3'` - D3.js Category10 (10 colors)
 - `'colorblind_safe'` - Wong palette (8 colors, accessible)
 - `'tableau'` - Tableau 10 palette (10 colors)
 
 **Sequential (for heatmaps):**
+
 - `'sequential_blue'` - Blue gradient (9 colors)
 - `'sequential_green'` - Green gradient (9 colors)
 
 **Diverging (for signed data):**
+
 - `'diverging_red_blue'` - Red-blue scale (11 colors)
 - `'diverging_purple_green'` - Purple-green scale (11 colors)
 
@@ -730,6 +733,7 @@ fig = system_jax.plotter.plot_trajectory(
 ### Issue: Plot appears blank
 
 **Possible Causes:**
+
 - Data shape incorrect
 - All NaN/Inf values
 - Empty arrays

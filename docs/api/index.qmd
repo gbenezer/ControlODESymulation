@@ -7,7 +7,7 @@ title: "API Structural Reference"
 ## Quick Reference Guides
 - [UI Framework](ui_framework/UI_Framework_Quick_Reference.md)
 - [Delegation Layer](delegation_layer/Delegation_Layer_Quick_Reference.md)
-- [Integration Framework](integration_framework/Integration_Framework_Quick_Reference)
+- [Integration Framework](integration_framework/Integration_Framework_Quick_Reference.md)
 - [Control Framework](control_framework/Control_Framework_Quick_Reference.md)
 - [Visualization Framework](visualization_framework/Visualization_Framework_Quick_Reference.md)
 - [Type System](type_system/Type_System_Quick_Reference.md)
@@ -15,7 +15,7 @@ title: "API Structural Reference"
 ## Architecture
 - [UI Framework](ui_framework/UI_Framework_Architecture.md)
 - [Delegation Layer](delegation_layer/Delegation_Layer_Architecture.md)
-- [Integration Framework](integration_framework/Integration_Framework_Architecture)
+- [Integration Framework](integration_framework/Integration_Framework_Architecture.md)
 - [Control Framework](control_framework/Control_Framework_Architecture.md)
 - [Visualization Framework](visualization_framework/Visualization_Framework_Architecture.md)
 - [Type System](type_system/Type_System_Architecture.md)

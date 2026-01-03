@@ -37,6 +37,7 @@ Track 2: Stochastic SDE Integration
 **Purpose:** Abstract base class for all numerical integrators
 
 **Key Features:**
+
 - Defines unified interface for all integrators
 - StepMode enum (FIXED vs ADAPTIVE)
 - Performance statistics tracking
@@ -67,6 +68,7 @@ Track 2: Stochastic SDE Integration
 **Purpose:** Factory for creating appropriate integrators
 
 **Key Features:**
+
 - Automatic backend/method selection
 - Method-to-backend routing
 - Use case-specific helpers
@@ -121,6 +123,7 @@ jax(system, method='tsit5', **opts) → DiffraxIntegrator
 **Purpose:** Adaptive integration using scipy.integrate.solve_ivp
 
 **Supported Methods:**
+
 - **RK45** (default): Dormand-Prince 5(4) - general purpose
 - **RK23**: Bogacki-Shampine 3(2) - fast, low accuracy
 - **DOP853**: Dormand-Prince 8(5,3) - high accuracy
@@ -129,6 +132,7 @@ jax(system, method='tsit5', **opts) → DiffraxIntegrator
 - **LSODA**: Auto stiffness detection
 
 **Key Features:**
+
 - Professional-grade adaptive stepping
 - Error control (rtol/atol)
 - Dense output (interpolation)
@@ -154,6 +158,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** PyTorch integration with GPU acceleration and autograd
 
 **Supported Methods:**
+
 - **dopri5**: Dormand-Prince 5(4)
 - **dopri8**: Dormand-Prince 8
 - **adaptive_heun**: Heun's method
@@ -162,6 +167,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 - **explicit_adams**, **implicit_adams**: Multi-step methods
 
 **Key Features:**
+
 - GPU acceleration
 - Automatic differentiation
 - Adjoint method for memory efficiency
@@ -186,6 +192,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** JAX integration with XLA compilation and autograd
 
 **Supported Methods:**
+
 - **tsit5**: Tsitouras 5(4) - recommended
 - **dopri5**: Dormand-Prince 5(4)
 - **dopri8**: Dormand-Prince 8
@@ -194,6 +201,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 - **reversible_heun**: Reversible Heun
 
 **Key Features:**
+
 - XLA compilation
 - JAX transformations (jit, vmap, grad)
 - Efficient for optimization
@@ -217,6 +225,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** Julia's DifferentialEquations.jl via Python bindings
 
 **Supported Methods:**
+
 Extensive Julia solver ecosystem:
 - **Explicit RK:** Tsit5, Vern6, Vern7, Vern8, Vern9, DP5, DP8
 - **Rosenbrock:** Rosenbrock23, Rosenbrock32, Rodas4, Rodas5
@@ -227,6 +236,7 @@ Extensive Julia solver ecosystem:
 - **Auto-switching:** AutoTsit5(Rosenbrock23()), AutoVern7(Rodas5())
 
 **Key Features:**
+
 - Highest performance
 - Automatic stiffness detection
 - Extensive method library
@@ -252,11 +262,13 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** Manual implementation of fixed-step methods
 
 **Supported Methods:**
+
 - **euler**: Forward Euler (order 1)
 - **midpoint**: Midpoint method (order 2)
 - **rk4**: Runge-Kutta 4 (order 4)
 
 **Key Features:**
+
 - Backend-agnostic (NumPy, PyTorch, JAX)
 - Simple, transparent implementations
 - Educational value
@@ -291,6 +303,7 @@ where:
 - dW: Brownian motion increments
 
 **Key Differences from ODE:**
+
 - Random noise generation
 - Weak vs strong convergence
 - Noise structure exploitation
@@ -353,12 +366,14 @@ for_monte_carlo(sde_system, n_paths) → SDEIntegratorBase
 **Purpose:** PyTorch SDE integration with torchsde
 
 **Supported Methods:**
+
 - **euler**: Euler-Maruyama (strong order 0.5)
 - **heun**: Heun's method (strong order 1.0 for additive)
 - **srk**: Stochastic Runge-Kutta
 - **reversible_heun**: Reversible Heun (strong order 1.0)
 
 **Key Features:**
+
 - GPU acceleration
 - Adaptive stepping
 - Noise structure exploitation
@@ -383,11 +398,13 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** JAX SDE integration with diffrax
 
 **Supported Methods:**
+
 - **euler**: Euler-Maruyama
 - **heun**: Heun's method
 - **reversible_heun**: Reversible Heun
 
 **Key Features:**
+
 - JAX transformations
 - XLA compilation
 - Custom noise support
@@ -413,12 +430,14 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** Julia SDE solvers via DiffEqPy
 
 **Supported Methods:**
+
 - Euler-Maruyama variants
 - Milstein
 - Stochastic Rosenbrock
 - Advanced Julia SDE methods
 
 **Key Features:**
+
 - Production-grade SDE solvers
 - Automatic noise structure detection
 - High-performance algorithms
@@ -431,6 +450,7 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 **Purpose:** Custom Brownian motion for deterministic testing
 
 **Key Features:**
+
 - User-provided noise increments
 - Diffrax AbstractPath interface
 - Deterministic testing support
@@ -453,26 +473,33 @@ brownian = create_custom_or_random_brownian(
 ## Design Principles
 
 ### 1. Backend Abstraction
+
 All integrators work across backends:
+
 - **NumPy:** CPU, scipy, Julia integration
 - **PyTorch:** GPU, autograd, neural ODEs
 - **JAX:** XLA, functional, optimization
 
 ### 2. Factory Pattern
+
 IntegratorFactory and SDEIntegratorFactory provide:
+
 - Automatic method selection
 - Backend-specific routing
 - Convenience constructors
 - Use case optimization
 
 ### 3. Unified Result Types
+
 All integrators return TypedDict results:
+
 - **IntegrationResult** for ODEs
 - **SDEIntegrationResult** for SDEs
 - Consistent fields across backends
 - Optional fields for extra diagnostics
 
 ### 4. Composition Not Inheritance
+
 - Integrators compose with systems
 - No deep inheritance hierarchies
 - Clear separation of concerns
@@ -687,31 +714,6 @@ result = integrator.integrate(
 | Real-time | RK4, euler (fixed-step) |
 | Additive noise SDE | Heun (strong order 1.0) |
 | General SDE | Euler-Maruyama |
-
-## File Size Summary
-
-### Deterministic Track
-| File | Lines | Purpose |
-|------|-------|---------|
-| integrator_base.py | 512 | Abstract base |
-| integrator_factory.py | 1,267 | Factory pattern |
-| scipy_integrator.py | ~620 | NumPy (scipy) |
-| torchdiffeq_integrator.py | ~800 | PyTorch |
-| diffrax_integrator.py | ~700 | JAX |
-| diffeqpy_integrator.py | ~900 | Julia |
-| fixed_step_integrators.py | ~600 | Manual methods |
-
-### Stochastic Track
-| File | Lines | Purpose |
-|------|-------|---------|
-| sde_integrator_base.py | 1,080 | SDE abstract base |
-| sde_integrator_factory.py | ~1,000 | SDE factory |
-| torchsde_integrator.py | ~800 | PyTorch SDE |
-| diffrax_sde_integrator.py | ~750 | JAX SDE |
-| diffeqpy_sde_integrator.py | ~850 | Julia SDE |
-| custom_brownian.py | 160 | Custom noise |
-
-**Total: ~10,000+ lines** of production-ready integration code
 
 ## Key Strengths
 

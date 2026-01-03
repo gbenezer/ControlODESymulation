@@ -125,6 +125,7 @@ phase_portrait = pendulum.phase_plotter.plot_2d(
                 downward_point]
 )
 phase_portrait.show()
+# TODO: fix issue with lack of equilibrium markers
 ```
 
 ## Next Steps

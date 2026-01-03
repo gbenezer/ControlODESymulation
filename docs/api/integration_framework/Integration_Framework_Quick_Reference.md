@@ -412,33 +412,43 @@ result = {
 ## Troubleshooting
 
 ### Issue: Integration fails with "maximum steps exceeded"
+
 **Solutions:**
+
 - Stiff system → Use stiff solver: `method='BDF'` or `method='Radau'`
 - Increase max steps: `max_steps=100000`
 - Loosen tolerances: `rtol=1e-5, atol=1e-7`
 
 ### Issue: Integration too slow
+
 **Solutions:**
+
 - Use Julia: `IntegratorFactory.for_julia(system, 'Tsit5')`
 - Use GPU: `backend='torch'` with `device='cuda:0'`
 - Loosen tolerances: `rtol=1e-4, atol=1e-6`
 - Try fixed-step: `method='rk4', dt=0.01`
 
 ### Issue: Integration not accurate enough
+
 **Solutions:**
+
 - Tighten tolerances: `rtol=1e-9, atol=1e-11`
 - Use high-order method: `method='Vern9'` or `method='DOP853'`
 - Provide `t_eval` with dense grid
 
 ### Issue: SDE results vary too much
+
 **Solutions:**
+
 - Increase Monte Carlo paths: `n_paths=10000`
 - Reduce time step: `dt=0.001`
 - Use higher-order method: `method='heun'` (for additive noise)
 - Set seed for reproducibility: `seed=42`
 
 ### Issue: Out of memory (GPU)
+
 **Solutions:**
+
 - Use adjoint method: `adjoint=True` (PyTorch)
 - Reduce batch size / number of paths
 - Use checkpointing (if available)

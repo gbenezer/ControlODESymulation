@@ -143,6 +143,7 @@ EquilibriumName     # str - Named equilibrium
 ```
 
 **Key Design:**
+
 - **Semantic naming** - Type names encode mathematical meaning
 - **Multi-backend** - All types support NumPy/PyTorch/JAX
 - **Composition** - Types compose into higher-level structures
@@ -222,6 +223,7 @@ class SystemConfig(TypedDict, total=False):
 ```
 
 **Key Design:**
+
 - **Type-safe enums** - Literal types prevent typos
 - **Structured configs** - TypedDict for configuration
 - **Extensible** - Easy to add new methods
@@ -299,6 +301,7 @@ class BatchSimulationResult(TypedDict):
 ```
 
 **Key Design:**
+
 - **Time-major ordering** - (T, nx) not (nx, T)
 - **TypedDict results** - Structured, type-safe dictionaries
 - **Optional fields** - Use `total=False` for flexibility
@@ -366,6 +369,7 @@ DiffusionJacobian = DiffusionMatrix  # G = ∂g/∂x
 ```
 
 **Key Design:**
+
 - **Tuple returns** - Natural unpacking: `A, B = linearize()`
 - **Polymorphic types** - Union handles deterministic/stochastic
 - **Semantic aliases** - Time-domain context clear
@@ -410,6 +414,7 @@ SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 ```
 
 **Key Design:**
+
 - **SymPy integration** - Bridge symbolic ↔ numerical
 - **Type annotations** - Clarify SymPy usage
 - **Code generation** - Input to compilation pipeline
@@ -566,6 +571,7 @@ if ctrl['is_controllable']:
 ```
 
 **Key Design:**
+
 - **TypedDict results** - Structured, type-safe returns
 - **Mathematical clarity** - Names match control theory
 - **Complete information** - All relevant analysis data
@@ -644,6 +650,7 @@ class FeedbackControllerProtocol(ControllerProtocol, Protocol):
 ```
 
 **Key Design:**
+
 - **Structural subtyping** - Duck typing with type safety
 - **Interface documentation** - Clear contracts
 - **Composition** - Protocols compose naturally
@@ -710,6 +717,7 @@ class ValidationResult(TypedDict):
 ```
 
 **Key Design:**
+
 - **Runtime utilities** - Complement static types
 - **Type guards** - Enable type narrowing
 - **Performance tracking** - Structured metrics
@@ -860,20 +868,6 @@ class ScipyIntegrator(IntegratorBase):
         
         return result
 ```
-
-## File Size Summary
-
-| Module | Lines | Categories | Purpose |
-|--------|-------|------------|---------|
-| core.py | 1,501 | Vectors, matrices, functions | Fundamental types |
-| backends.py | 735 | Backends, methods, configs | Configuration |
-| trajectories.py | 879 | Time series, results | Simulation data |
-| linearization.py | 502 | Jacobians, tuples | Linearization |
-| symbolic.py | 646 | SymPy types | Symbolic math |
-| control_classical.py | 542 | Control design, analysis | Classical control |
-| protocols.py | 1,086 | Abstract interfaces | Contracts |
-| utilities.py | 1,132 | Helpers, guards | Runtime support |
-| **TOTAL** | **7,023** | **200+ types** | **Complete system** |
 
 ## Key Strengths
 

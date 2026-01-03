@@ -69,6 +69,7 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 **Purpose:** Stateless algorithms for control design and system analysis
 
 **Design Philosophy:**
+
 - Pure functions (no side effects, no state)
 - Works like scipy - takes matrices in, returns TypedDict
 - Backend conversion handled internally
@@ -382,6 +383,7 @@ def analyze_observability(
 ```
 
 **Key Design Features:**
+
 - **Pure functions** - No state, no side effects
 - **Scipy-like API** - Familiar interface for control engineers
 - **Backend agnostic** - Internal conversion to/from NumPy
@@ -409,6 +411,7 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
 **Purpose:** Thin wrapper for control design algorithms
 
 **Design Philosophy:**
+
 - **Composition not inheritance** - Utility held by system, not base class
 - **No state** - Only stores backend setting from parent
 - **No caching** - Delegates immediately to pure functions
@@ -480,6 +483,7 @@ u = -K @ (x - x_eq)
 **Purpose:** Thin wrapper for system analysis algorithms
 
 **Design Philosophy:**
+
 - **Identical to ControlSynthesis** - Same thin wrapper pattern
 - **Separation of concerns** - Analysis separate from synthesis
 - **Consistent interface** - Matches control_synthesis.py design
@@ -560,6 +564,7 @@ if controllability['is_controllable'] and observability['is_observable']:
 See `Type_System_Architecture.md` for complete documentation.
 
 **Key Types:**
+
 - `LQRResult` - LQR controller design result
 - `KalmanFilterResult` - Kalman filter design result
 - `LQGResult` - LQG controller design result
@@ -602,6 +607,7 @@ def control(self) -> ControlSynthesis:
 ```
 
 **Benefits:**
+
 - ✅ **Single Responsibility** - Pure functions do one thing
 - ✅ **Testability** - Functions easy to unit test
 - ✅ **Reusability** - Functions work standalone
@@ -671,6 +677,7 @@ def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
 ```
 
 **Benefits:**
+
 - ✅ Single function for both cases
 - ✅ Less code duplication
 - ✅ Easier to maintain
@@ -757,6 +764,7 @@ e[k+1] = (A - LC)e[k] + w[k] - Lv[k]
 ### LQG Controller
 
 **Separation Principle:**
+
 1. Design LQR assuming full state feedback: `u = -Kx`
 2. Design Kalman filter for state estimation: `x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])`
 3. Combine: `u = -Kx̂` (certainty equivalence)
@@ -768,11 +776,13 @@ e[k+1] = (A - LC)e[k] + w[k] - Lv[k]
 ```
 
 **Eigenvalues:**
+
 - Controller poles: eig(A - BK)
 - Observer poles: eig(A - LC)
 - Combined poles: eig(A - BK) ∪ eig(A - LC)
 
 **Optimality:**
+
 - Optimal for linear systems with Gaussian noise
 - Minimizes steady-state error covariance
 - Separation holds for linear systems
@@ -944,21 +954,6 @@ else:
 if ctrl['is_controllable'] and obs['is_observable']:
     print("✓ System is minimal - can design LQG controller")
 ```
-
----
-
-## File Size Summary
-
-| Module | Lines | Purpose |
-|--------|-------|---------|
-| classical_control_functions.py | 967 | Pure stateless algorithms |
-| control_synthesis.py | 388 | Control design wrapper |
-| system_analysis.py | 431 | System analysis wrapper |
-| **TOTAL** | **1,786** | **Complete framework** |
-
-**Types:** control_classical.py (542 lines) - documented in Type System
-
----
 
 ## Key Strengths
 

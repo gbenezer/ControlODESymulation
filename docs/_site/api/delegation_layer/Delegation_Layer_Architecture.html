@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>delegation_layer_architecture – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-22cd43280d3b981a42c7e16961ed7eeb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../tutorials/index.html"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../examples/index.qmd"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#controldesymulation-delegation-layer-architecture" id="toc-controldesymulation-delegation-layer-architecture" class="nav-link active" data-scroll-target="#controldesymulation-delegation-layer-architecture">ControlDESymulation Delegation Layer Architecture</a>
+  <ul class="collapse">
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#architecture-philosophy" id="toc-architecture-philosophy" class="nav-link" data-scroll-target="#architecture-philosophy">Architecture Philosophy</a></li>
+  <li><a href="#architecture-layers" id="toc-architecture-layers" class="nav-link" data-scroll-target="#architecture-layers">Architecture Layers</a></li>
+  <li><a href="#component-breakdown" id="toc-component-breakdown" class="nav-link" data-scroll-target="#component-breakdown">Component Breakdown</a>
+  <ul class="collapse">
+  <li><a href="#core-utilities-universal" id="toc-core-utilities-universal" class="nav-link" data-scroll-target="#core-utilities-universal">Core Utilities (Universal)</a></li>
+  <li><a href="#deterministic-evaluation" id="toc-deterministic-evaluation" class="nav-link" data-scroll-target="#deterministic-evaluation">Deterministic Evaluation</a></li>
+  <li><a href="#stochastic-support" id="toc-stochastic-support" class="nav-link" data-scroll-target="#stochastic-support">Stochastic Support</a></li>
+  <li><a href="#low-level-utilities" id="toc-low-level-utilities" class="nav-link" data-scroll-target="#low-level-utilities">Low-Level Utilities</a></li>
+  </ul></li>
+  <li><a href="#composition-patterns" id="toc-composition-patterns" class="nav-link" data-scroll-target="#composition-patterns">Composition Patterns</a>
+  <ul class="collapse">
+  <li><a href="#pattern-1-core-system-utilities" id="toc-pattern-1-core-system-utilities" class="nav-link" data-scroll-target="#pattern-1-core-system-utilities">Pattern 1: Core System Utilities</a></li>
+  <li><a href="#pattern-2-deterministic-extensions" id="toc-pattern-2-deterministic-extensions" class="nav-link" data-scroll-target="#pattern-2-deterministic-extensions">Pattern 2: Deterministic Extensions</a></li>
+  <li><a href="#pattern-3-stochastic-extensions" id="toc-pattern-3-stochastic-extensions" class="nav-link" data-scroll-target="#pattern-3-stochastic-extensions">Pattern 3: Stochastic Extensions</a></li>
+  </ul></li>
+  <li><a href="#design-principles" id="toc-design-principles" class="nav-link" data-scroll-target="#design-principles">Design Principles</a>
+  <ul class="collapse">
+  <li><a href="#single-responsibility" id="toc-single-responsibility" class="nav-link" data-scroll-target="#single-responsibility">1. Single Responsibility</a></li>
+  <li><a href="#composition-not-inheritance" id="toc-composition-not-inheritance" class="nav-link" data-scroll-target="#composition-not-inheritance">2. Composition Not Inheritance</a></li>
+  <li><a href="#dependency-injection" id="toc-dependency-injection" class="nav-link" data-scroll-target="#dependency-injection">3. Dependency Injection</a></li>
+  <li><a href="#interface-segregation" id="toc-interface-segregation" class="nav-link" data-scroll-target="#interface-segregation">4. Interface Segregation</a></li>
+  <li><a href="#lazy-initialization" id="toc-lazy-initialization" class="nav-link" data-scroll-target="#lazy-initialization">5. Lazy Initialization</a></li>
+  <li><a href="#backend-agnosticism" id="toc-backend-agnosticism" class="nav-link" data-scroll-target="#backend-agnosticism">6. Backend Agnosticism</a></li>
+  </ul></li>
+  <li><a href="#usage-examples" id="toc-usage-examples" class="nav-link" data-scroll-target="#usage-examples">Usage Examples</a>
+  <ul class="collapse">
+  <li><a href="#example-1-creating-a-system-with-full-delegation" id="toc-example-1-creating-a-system-with-full-delegation" class="nav-link" data-scroll-target="#example-1-creating-a-system-with-full-delegation">Example 1: Creating a System with Full Delegation</a></li>
+  <li><a href="#example-2-backend-switching" id="toc-example-2-backend-switching" class="nav-link" data-scroll-target="#example-2-backend-switching">Example 2: Backend Switching</a></li>
+  <li><a href="#example-3-code-generation-and-caching" id="toc-example-3-code-generation-and-caching" class="nav-link" data-scroll-target="#example-3-code-generation-and-caching">Example 3: Code Generation and Caching</a></li>
+  <li><a href="#example-4-stochastic-system-with-full-delegation" id="toc-example-4-stochastic-system-with-full-delegation" class="nav-link" data-scroll-target="#example-4-stochastic-system-with-full-delegation">Example 4: Stochastic System with Full Delegation</a></li>
+  <li><a href="#example-5-performance-tracking" id="toc-example-5-performance-tracking" class="nav-link" data-scroll-target="#example-5-performance-tracking">Example 5: Performance Tracking</a></li>
+  </ul></li>
+  <li><a href="#key-strengths" id="toc-key-strengths" class="nav-link" data-scroll-target="#key-strengths">Key Strengths</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="controldesymulation-delegation-layer-architecture" class="level1">
+<h1>ControlDESymulation Delegation Layer Architecture</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>The <strong>Delegation Layer</strong> (also called the <strong>Support Framework</strong>) provides <strong>specialized services</strong> to the UI framework through <strong>composition rather than inheritance</strong>. This layer consists of <strong>11 focused utility classes</strong> totaling ~7,200 lines that handle backend management, code generation, dynamics evaluation, and stochastic analysis.</p>
+</section>
+<section id="architecture-philosophy" class="level2">
+<h2 class="anchored" data-anchor-id="architecture-philosophy">Architecture Philosophy</h2>
+<p><strong>Composition Over Inheritance</strong> - Instead of creating deep inheritance hierarchies, the UI framework composes these specialized utilities:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In ContinuousSymbolicSystem.__init__():</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.backend <span class="op">=</span> BackendManager(default_backend, default_device)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._code_gen <span class="op">=</span> CodeGenerator(<span class="va">self</span>, <span class="va">self</span>.backend)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._dynamics <span class="op">=</span> DynamicsEvaluator(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._linearization <span class="op">=</span> LinearizationEngine(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._observation <span class="op">=</span> ObservationEngine(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.equilibria <span class="op">=</span> EquilibriumHandler(nx, nu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This design provides:</p>
+<ul>
+<li><strong>Single Responsibility</strong> - Each class does one thing well</li>
+<li><strong>Reusability</strong> - Utilities can be used independently</li>
+<li><strong>Testability</strong> - Each component tested in isolation</li>
+<li><strong>Flexibility</strong> - Easy to swap implementations</li>
+<li><strong>Clarity</strong> - Clear separation of concerns</li>
+</ul>
+</section>
+<section id="architecture-layers" class="level2">
+<h2 class="anchored" data-anchor-id="architecture-layers">Architecture Layers</h2>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+│                     UI FRAMEWORK                              │
+│  (SymbolicSystemBase, ContinuousSymbolicSystem, etc.)        │
+└────────────────────┬─────────────────────────────────────────┘
+                     │ uses (composition)
+                     ↓
+┌──────────────────────────────────────────────────────────────┐
+│                  DELEGATION LAYER                             │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  CORE UTILITIES (Universal)                         │    │
+│  │  • BackendManager      - Multi-backend support      │    │
+│  │  • CodeGenerator       - Symbolic → numerical       │    │
+│  │  • EquilibriumHandler  - Equilibrium management     │    │
+│  │  • SymbolicValidator   - System validation          │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  DETERMINISTIC EVALUATION (ODE Systems)             │    │
+│  │  • DynamicsEvaluator    - Forward dynamics          │    │
+│  │  • LinearizationEngine  - Jacobian computation      │    │
+│  │  • ObservationEngine    - Output evaluation         │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  STOCHASTIC SUPPORT (SDE Systems)                   │    │
+│  │  • DiffusionHandler    - Diffusion generation       │    │
+│  │  • NoiseCharacterizer  - Noise analysis             │    │
+│  │  • SDEValidator        - SDE validation             │    │
+│  └─────────────────────────────────────────────────────┘    │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  LOW-LEVEL UTILITIES                                │    │
+│  │  • codegen_utils       - SymPy code generation      │    │
+│  └─────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘</code></pre>
+</section>
+<section id="component-breakdown" class="level2">
+<h2 class="anchored" data-anchor-id="component-breakdown">Component Breakdown</h2>
+<section id="core-utilities-universal" class="level3">
+<h3 class="anchored" data-anchor-id="core-utilities-universal">Core Utilities (Universal)</h3>
+<section id="backendmanager" class="level4">
+<h4 class="anchored" data-anchor-id="backendmanager">BackendManager</h4>
+<p><strong>File:</strong> <code>backend_manager.py</code> (545 lines)</p>
+<p><strong>Purpose:</strong> Multi-backend array handling and device management</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Backend detection from array types</li>
+<li>Array conversion between backends (NumPy ↔︎ PyTorch ↔︎ JAX)</li>
+<li>Backend availability checking</li>
+<li>Device management (CPU, CUDA, TPU)</li>
+<li>Default backend configuration</li>
+<li>Temporary backend switching (context manager)</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Detect backend from array</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>backend <span class="op">=</span> mgr.detect(array)  <span class="co"># Returns 'numpy', 'torch', or 'jax'</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert between backends</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>x_torch <span class="op">=</span> mgr.to_backend(x_numpy, <span class="st">'torch'</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>x_jax <span class="op">=</span> mgr.to_backend(x_torch, <span class="st">'jax'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Device placement</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>x_cuda <span class="op">=</span> mgr.to_device(x, <span class="st">'cuda:0'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Temporary backend switching</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> mgr.use_backend(<span class="st">'jax'</span>):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Operations use JAX</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> compute()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Supported Backends:</strong></p>
+<ul>
+<li><strong>NumPy:</strong> CPU-based, universal compatibility</li>
+<li><strong>PyTorch:</strong> GPU acceleration, autograd, neural networks</li>
+<li><strong>JAX:</strong> XLA compilation, functional programming, optimization</li>
+</ul>
+<p><strong>Properties:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mgr.default_backend     <span class="co"># Current default backend</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>mgr.preferred_device    <span class="co"># Current device (cpu, cuda:0, etc.)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>mgr.available_backends  <span class="co"># List of available backends</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="codegenerator" class="level4">
+<h4 class="anchored" data-anchor-id="codegenerator">CodeGenerator</h4>
+<p><strong>File:</strong> <code>code_generator.py</code> (565 lines)</p>
+<p><strong>Purpose:</strong> Orchestrates symbolic → numerical code generation with caching</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Generate dynamics functions: f(x, u) → dx/dt</li>
+<li>Generate output functions: h(x) → y</li>
+<li>Generate Jacobian functions: A, B, C</li>
+<li>Per-backend function caching</li>
+<li>Compilation and warmup</li>
+<li>Cache invalidation on parameter changes</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate dynamics function (cached)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>f_numpy <span class="op">=</span> code_gen.generate_dynamics(<span class="st">'numpy'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>f_torch <span class="op">=</span> code_gen.generate_dynamics(<span class="st">'torch'</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>f_jax <span class="op">=</span> code_gen.generate_dynamics(<span class="st">'jax'</span>, jit<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate Jacobians</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>A_func <span class="op">=</span> code_gen.generate_jacobian_A(<span class="st">'numpy'</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>B_func <span class="op">=</span> code_gen.generate_jacobian_B(<span class="st">'numpy'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Output function</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>h_func <span class="op">=</span> code_gen.generate_output(<span class="st">'numpy'</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>C_func <span class="op">=</span> code_gen.generate_jacobian_C(<span class="st">'numpy'</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile all backends at once</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>timings <span class="op">=</span> code_gen.compile_all(backends<span class="op">=</span>[<span class="st">'numpy'</span>, <span class="st">'torch'</span>, <span class="st">'jax'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Caching Strategy:</strong></p>
+<ul>
+<li>Functions cached per backend</li>
+<li>Symbolic Jacobians computed once, then compiled per backend</li>
+<li>Cache invalidated on parameter changes</li>
+<li>Automatic recompilation when needed</li>
+</ul>
+<p><strong>Backend-Specific Optimizations:</strong></p>
+<ul>
+<li><strong>NumPy:</strong> Uses <code>lambdify</code> with CSE (common subexpression elimination)</li>
+<li><strong>PyTorch:</strong> Simplifies expressions before generation</li>
+<li><strong>JAX:</strong> JIT compilation via <code>jax.jit</code></li>
+</ul>
+<hr>
+</section>
+<section id="equilibriumhandler" class="level4">
+<h4 class="anchored" data-anchor-id="equilibriumhandler">EquilibriumHandler</h4>
+<p><strong>File:</strong> <code>equilibrium_handler.py</code> (221 lines)</p>
+<p><strong>Purpose:</strong> Manages multiple named equilibrium points</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Store equilibria as NumPy arrays (backend-neutral)</li>
+<li>Convert to any backend on demand</li>
+<li>Named equilibrium management</li>
+<li>Equilibrium verification</li>
+<li>Metadata storage (stability, description, etc.)</li>
+<li>Default equilibrium selection</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add equilibrium with verification</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>equilibria.add(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'upright'</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    x_eq<span class="op">=</span>np.array([np.pi, <span class="dv">0</span>]),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    u_eq<span class="op">=</span>np.zeros(<span class="dv">1</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    verify_fn<span class="op">=</span><span class="kw">lambda</span> x, u: system(x, u),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    metadata<span class="op">=</span>{<span class="st">'stability'</span>: <span class="st">'unstable'</span>}</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Get in any backend</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>x_eq_numpy <span class="op">=</span> equilibria.get_x(<span class="st">'upright'</span>, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>x_eq_torch <span class="op">=</span> equilibria.get_x(<span class="st">'upright'</span>, backend<span class="op">=</span><span class="st">'torch'</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Set default</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>equilibria.set_default(<span class="st">'upright'</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Get both state and control</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>x_eq, u_eq <span class="op">=</span> equilibria.get_both(<span class="st">'upright'</span>, backend<span class="op">=</span><span class="st">'jax'</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># List all</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> equilibria.list_names()  <span class="co"># ['origin', 'upright', ...]</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Get metadata</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>meta <span class="op">=</span> equilibria.get_metadata(<span class="st">'upright'</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(meta[<span class="st">'stability'</span>])  <span class="co"># 'unstable'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Automatic Features:</strong></p>
+<ul>
+<li>Origin equilibrium always present</li>
+<li>Dimension validation on add</li>
+<li>Finite value checking (no NaN/Inf)</li>
+<li>Optional verification with tolerance</li>
+</ul>
+<hr>
+</section>
+<section id="symbolicvalidator" class="level4">
+<h4 class="anchored" data-anchor-id="symbolicvalidator">SymbolicValidator</h4>
+<p><strong>File:</strong> <code>symbolic_validator.py</code> (718 lines)</p>
+<p><strong>Purpose:</strong> Validates symbolic system definitions</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Check state/control variable consistency</li>
+<li>Validate symbolic expression dimensions</li>
+<li>Verify parameter keys (Symbol, not string)</li>
+<li>Check system order compatibility</li>
+<li>Ensure output function validity</li>
+<li>Detect common errors early</li>
+</ul>
+<p><strong>Validation Checks:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Required validations</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>✓ state_vars <span class="kw">is</span> <span class="bu">list</span> of sp.Symbol</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>✓ control_vars <span class="kw">is</span> <span class="bu">list</span> of sp.Symbol  </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>✓ _f_sym <span class="kw">is</span> sp.Matrix <span class="cf">with</span> correct dimensions</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>✓ parameters keys are sp.Symbol (<span class="kw">not</span> strings)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>✓ order divides nx evenly (nx <span class="op">%</span> order <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Output function validations (if defined)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>✓ _h_sym <span class="kw">is</span> sp.Matrix</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>✓ _h_sym only depends on state_vars (<span class="kw">not</span> control)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>✓ output_vars matches _h_sym dimensions</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Error messages are clear and actionable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Example Errors Caught:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bad: String keys</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.parameters <span class="op">=</span> {<span class="st">'m'</span>: <span class="fl">1.0</span>}  <span class="co"># ❌ String key</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Good: Symbol keys  </span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.parameters <span class="op">=</span> {m_sym: <span class="fl">1.0</span>}  <span class="co"># ✓ Symbol key</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Bad: Wrong dimensions</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix([x, y])  <span class="co"># nx=2, but system has nx=3</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Good: Correct dimensions</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix([x, y, z])  <span class="co"># ✓ nx=3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="deterministic-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="deterministic-evaluation">Deterministic Evaluation</h3>
+<section id="dynamicsevaluator" class="level4">
+<h4 class="anchored" data-anchor-id="dynamicsevaluator">DynamicsEvaluator</h4>
+<p><strong>File:</strong> <code>dynamics_evaluator.py</code> (576 lines)</p>
+<p><strong>Purpose:</strong> Forward dynamics evaluation across backends</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Evaluate dx/dt = f(x, u) for controlled systems</li>
+<li>Evaluate dx/dt = f(x) for autonomous systems (u=None)</li>
+<li>Handle batched vs single evaluation</li>
+<li>Backend-specific dispatch</li>
+<li>Input shape validation</li>
+<li>Performance tracking</li>
+</ul>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Single evaluation</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>dx <span class="op">=</span> evaluator.evaluate(x, u, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Autonomous system (u=None)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dx <span class="op">=</span> evaluator.evaluate(x, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Batched evaluation</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>x_batch <span class="op">=</span> np.random.randn(<span class="dv">100</span>, nx)  <span class="co"># (batch, nx)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>u_batch <span class="op">=</span> np.random.randn(<span class="dv">100</span>, nu)  <span class="co"># (batch, nu)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>dx_batch <span class="op">=</span> evaluator.evaluate(x_batch, u_batch)  <span class="co"># (batch, nx)</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Get performance stats</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>stats <span class="op">=</span> evaluator.get_stats()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total evaluations: </span><span class="sc">{</span>stats[<span class="st">'count'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average time: </span><span class="sc">{</span>stats[<span class="st">'avg_time'</span>]<span class="sc">:.6f}</span><span class="ss">s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Backend Dispatch:</strong></p>
+<ul>
+<li>Automatically detects input backend</li>
+<li>Uses cached compiled functions</li>
+<li>Handles shape mismatches gracefully</li>
+<li>Converts outputs to match input backend</li>
+</ul>
+<p><strong>Performance Tracking:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'count'</span>: <span class="bu">int</span>,        <span class="co"># Number of evaluations</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'total_time'</span>: <span class="bu">float</span>, <span class="co"># Total time (seconds)</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'avg_time'</span>: <span class="bu">float</span>,   <span class="co"># Average per evaluation</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'min_time'</span>: <span class="bu">float</span>,   <span class="co"># Fastest evaluation</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'max_time'</span>: <span class="bu">float</span>,   <span class="co"># Slowest evaluation</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="linearizationengine" class="level4">
+<h4 class="anchored" data-anchor-id="linearizationengine">LinearizationEngine</h4>
+<p><strong>File:</strong> <code>linearization_engine.py</code> (907 lines)</p>
+<p><strong>Purpose:</strong> Compute linearizations (Jacobians) at equilibria</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Compute continuous Jacobians: A = ∂f/∂x, B = ∂f/∂u</li>
+<li>Compute discrete Jacobians: Ad = ∂f/∂x, Bd = ∂f/∂u</li>
+<li>Handle higher-order systems (order &gt; 1)</li>
+<li>Automatic state-space construction</li>
+<li>Symbolic and numerical Jacobians</li>
+<li>Backend-agnostic evaluation</li>
+</ul>
+<p><strong>Mathematical Forms:</strong></p>
+<p><strong>Continuous Systems:</strong></p>
+<pre><code>Linearization at (x_eq, u_eq):
+δẋ = A·δx + B·δu
+
+where:
+A = ∂f/∂x|(x_eq, u_eq)  ∈ ℝ^(nx × nx)
+B = ∂f/∂u|(x_eq, u_eq)  ∈ ℝ^(nx × nu)</code></pre>
+<p><strong>Discrete Systems:</strong></p>
+<pre><code>Linearization at (x_eq, u_eq):
+δx[k+1] = Ad·δx[k] + Bd·δu[k]
+
+where:
+Ad = ∂f/∂x|(x_eq, u_eq)  ∈ ℝ^(nx × nx)
+Bd = ∂f/∂u|(x_eq, u_eq)  ∈ ℝ^(nx × nu)</code></pre>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Continuous linearization</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>A, B <span class="op">=</span> engine.linearize_continuous(x_eq, u_eq, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Discrete linearization</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>Ad, Bd <span class="op">=</span> engine.linearize_discrete(x_eq, u_eq, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Higher-order systems (automatic state-space)</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># For order=2 system: q̈ = f(q, q̇, u)</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Automatically constructs: [q̇, q̈]ᵀ = A[q, q̇]ᵀ + Bu</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>A, B <span class="op">=</span> engine.linearize_continuous(x_eq, u_eq)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Get symbolic Jacobians (one-time computation)</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>A_sym <span class="op">=</span> engine.get_symbolic_A()</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>B_sym <span class="op">=</span> engine.get_symbolic_B()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Higher-Order Handling:</strong></p>
+<p>For <code>order=n</code> systems where state is <code>[q, q̇, ..., q^(n-1)]</code> and only <code>q^(n)</code> is returned:</p>
+<ol type="1">
+<li>Automatically constructs full state derivative</li>
+<li>Computes Jacobian of full state-space form</li>
+<li>Returns proper (nx × nx) and (nx × nu) matrices</li>
+</ol>
+<hr>
+</section>
+<section id="observationengine" class="level4">
+<h4 class="anchored" data-anchor-id="observationengine">ObservationEngine</h4>
+<p><strong>File:</strong> <code>observation_engine.py</code> (628 lines)</p>
+<p><strong>Purpose:</strong> Output function evaluation and linearization</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Evaluate output: y = h(x)</li>
+<li>Compute output Jacobian: C = ∂h/∂x</li>
+<li>Batched output evaluation</li>
+<li>Multi-backend support</li>
+<li>Performance tracking</li>
+</ul>
+<p><strong>Mathematical Form:</strong></p>
+<pre><code>Output equation:
+y = h(x)
+
+Output linearization:
+δy = C·δx
+
+where:
+C = ∂h/∂x|(x_eq)  ∈ ℝ^(ny × nx)</code></pre>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate output</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> engine.observe(x, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Batched evaluation</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>x_batch <span class="op">=</span> np.random.randn(<span class="dv">100</span>, nx)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>y_batch <span class="op">=</span> engine.observe(x_batch)  <span class="co"># (100, ny)</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Output Jacobian</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> engine.linearize_output(x_eq, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check if output defined</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> engine.has_output():</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> engine.observe(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Validation:</strong></p>
+<ul>
+<li>Ensures h(x) doesn’t depend on control u</li>
+<li>Checks dimension consistency</li>
+<li>Validates symbolic expressions</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="stochastic-support" class="level3">
+<h3 class="anchored" data-anchor-id="stochastic-support">Stochastic Support</h3>
+<section id="diffusionhandler" class="level4">
+<h4 class="anchored" data-anchor-id="diffusionhandler">DiffusionHandler</h4>
+<p><strong>File:</strong> <code>diffusion_handler.py</code> (1,069 lines)</p>
+<p><strong>Purpose:</strong> Generate and cache diffusion functions for SDEs</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Generate diffusion matrix: g(x, u) ∈ ℝ^(nx × nw)</li>
+<li>Automatic noise structure detection</li>
+<li>Specialized functions for additive/diagonal/scalar noise</li>
+<li>Multi-backend diffusion compilation</li>
+<li>Stratonovich correction computation</li>
+<li>Performance optimization</li>
+</ul>
+<p><strong>Mathematical Form:</strong></p>
+<pre><code>SDE: dx = f(x, u)dt + g(x, u)dW
+
+Diffusion matrix g(x, u):
+- Shape: (nx, nw)
+- nx: state dimension
+- nw: number of independent Wiener processes
+
+Noise types (auto-detected):
+- ADDITIVE: g(x, u) = constant
+- MULTIPLICATIVE: g depends on x or u
+- DIAGONAL: g is diagonal (independent noise)
+- SCALAR: nw = 1 (single Wiener process)</code></pre>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate diffusion function</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>g_func <span class="op">=</span> handler.generate_diffusion(<span class="st">'numpy'</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Evaluate diffusion</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>g_matrix <span class="op">=</span> handler.evaluate_diffusion(x, u, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Automatic noise detection</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>noise_type <span class="op">=</span> handler.get_noise_type()</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Returns: ADDITIVE, MULTIPLICATIVE_DIAGONAL, etc.</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Stratonovich correction</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>correction <span class="op">=</span> handler.compute_stratonovich_correction(x, u)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimized for additive noise</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> handler.is_additive():</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    g_const <span class="op">=</span> handler.get_additive_matrix()  <span class="co"># Constant matrix</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Noise Structure Exploitation:</strong></p>
+<ul>
+<li><p><strong>Additive (constant):</strong> Returns constant matrix, no recomputation needed</p></li>
+<li><p><strong>Multiplicative types:</strong></p>
+<ul>
+<li><strong>Diagonal:</strong> Independent noise channels, specialized handling</li>
+<li><strong>Scalar:</strong> Single Wiener process (nw=1), simplified operations</li>
+<li><strong>General:</strong> Full matrix coupling, complete computation</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="noisecharacterizer" class="level4">
+<h4 class="anchored" data-anchor-id="noisecharacterizer">NoiseCharacterizer</h4>
+<p><strong>File:</strong> <code>noise_analysis.py</code> (692 lines)</p>
+<p><strong>Purpose:</strong> Automatic noise structure analysis</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Detect noise types (additive, multiplicative, etc.)</li>
+<li>Identify noise structure (diagonal, scalar, general)</li>
+<li>Recommend optimal SDE solvers</li>
+<li>Compute noise statistics</li>
+<li>Validate noise properties</li>
+</ul>
+<p><strong>Noise Classification:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>NoiseType:</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>├─ ADDITIVE               <span class="co"># g(x,u) = constant</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>├─ MULTIPLICATIVE         <span class="co"># g depends on x or u</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>│  ├─ DIAGONAL            <span class="co"># Independent noise sources</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>│  ├─ SCALAR              <span class="co"># Single Wiener process</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>│  └─ GENERAL             <span class="co"># Full coupling</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>└─ UNKNOWN                <span class="co"># Cannot determine</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Key Features:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Automatic characterization</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>characteristics <span class="op">=</span> characterizer.analyze()</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Access properties</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>noise_type <span class="op">=</span> characteristics.noise_type</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>is_additive <span class="op">=</span> characteristics.is_additive</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>is_diagonal <span class="op">=</span> characteristics.is_diagonal</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>nw <span class="op">=</span> characteristics.nw  <span class="co"># Number of Wiener processes</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Solver recommendations</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>solvers <span class="op">=</span> characteristics.recommend_solvers(<span class="st">'torch'</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Returns: ['heun', 'reversible_heun'] for additive</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Returns: ['euler-maruyama'] for multiplicative</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Validation</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> characteristics.is_valid:</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(characteristics.validation_message)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Solver Recommendations:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Noise Type</th>
+<th>Backend</th>
+<th>Recommended Solvers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Additive</td>
+<td>PyTorch</td>
+<td>heun, reversible_heun</td>
+</tr>
+<tr class="even">
+<td>Additive</td>
+<td>JAX</td>
+<td>heun, reversible_heun</td>
+</tr>
+<tr class="odd">
+<td>Multiplicative Diagonal</td>
+<td>NumPy</td>
+<td>milstein</td>
+</tr>
+<tr class="even">
+<td>General</td>
+<td>All</td>
+<td>euler-maruyama</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="sdevalidator" class="level4">
+<h4 class="anchored" data-anchor-id="sdevalidator">SDEValidator</h4>
+<p><strong>File:</strong> <code>sde_validator.py</code> (544 lines)</p>
+<p><strong>Purpose:</strong> SDE-specific validation</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Validate diffusion matrix dimensions</li>
+<li>Check SDE type (Itô vs Stratonovich)</li>
+<li>Ensure compatibility with drift</li>
+<li>Verify noise structure claims</li>
+<li>Validate stochastic system definition</li>
+</ul>
+<p><strong>Validation Checks:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>✓ diffusion_expr <span class="kw">is</span> sp.Matrix</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>✓ Dimensions: (nx, nw) where nw ≥ <span class="dv">1</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>✓ diffusion_expr only uses state_vars <span class="kw">and</span> control_vars</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>✓ sde_type <span class="kw">is</span> <span class="st">'ito'</span> <span class="kw">or</span> <span class="st">'stratonovich'</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>✓ Compatibility <span class="cf">with</span> drift _f_sym</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>✓ No division by zero <span class="kw">in</span> diffusion terms</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>✓ Finite symbolic expressions</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Example Errors Caught:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bad: Wrong dimensions</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.diffusion_expr <span class="op">=</span> sp.Matrix([[sigma]])  <span class="co"># nx=2, but only 1 row</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Good: Correct dimensions</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.diffusion_expr <span class="op">=</span> sp.Matrix([[sigma], [<span class="dv">0</span>]])  <span class="co"># (2, 1)</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Bad: Invalid SDE type</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.sde_type <span class="op">=</span> <span class="st">'unknown'</span>  <span class="co"># ❌</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Good: Valid type</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.sde_type <span class="op">=</span> <span class="st">'ito'</span>  <span class="co"># ✓</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="low-level-utilities" class="level3">
+<h3 class="anchored" data-anchor-id="low-level-utilities">Low-Level Utilities</h3>
+<section id="codegen_utils" class="level4">
+<h4 class="anchored" data-anchor-id="codegen_utils">codegen_utils</h4>
+<p><strong>File:</strong> <code>codegen_utils.py</code> (733 lines)</p>
+<p><strong>Purpose:</strong> Low-level SymPy → executable code conversion</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>SymPy Matrix → callable function</li>
+<li>Backend-specific code generation</li>
+<li>Common subexpression elimination (CSE)</li>
+<li>Symbolic simplification strategies</li>
+<li>NumPy/PyTorch/JAX code generation</li>
+<li>Function signature handling</li>
+</ul>
+<p><strong>Key Functions:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Main generation function</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>func <span class="op">=</span> generate_function(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    expr,           <span class="co"># sp.Matrix symbolic expression</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    input_vars,     <span class="co"># List of sp.Symbol variables</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>, <span class="co"># Target backend</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    simplify<span class="op">=</span><span class="va">True</span>,  <span class="co"># Apply simplification</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    cse<span class="op">=</span><span class="va">True</span>,       <span class="co"># Common subexpression elimination</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    jit<span class="op">=</span><span class="va">False</span>       <span class="co"># JIT compile (JAX only)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Backend-specific optimizations</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>func_numpy <span class="op">=</span> generate_function(expr, <span class="bu">vars</span>, backend<span class="op">=</span><span class="st">'numpy'</span>, cse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>func_torch <span class="op">=</span> generate_function(expr, <span class="bu">vars</span>, backend<span class="op">=</span><span class="st">'torch'</span>, simplify<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>func_jax <span class="op">=</span> generate_function(expr, <span class="bu">vars</span>, backend<span class="op">=</span><span class="st">'jax'</span>, jit<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Optimization Strategies:</strong></p>
+<p><strong>NumPy:</strong></p>
+<ul>
+<li>Common subexpression elimination (CSE)</li>
+<li>Fast numerical modules (‘numpy’, ‘scipy’)</li>
+<li>Matrix operations optimization</li>
+</ul>
+<p><strong>PyTorch:</strong></p>
+<ul>
+<li>Symbolic simplification before generation</li>
+<li>Automatic differentiation compatibility</li>
+<li>GPU tensor operations</li>
+</ul>
+<p><strong>JAX:</strong></p>
+<ul>
+<li>JIT compilation via <code>jax.jit</code></li>
+<li>Pure functional style</li>
+<li>XLA optimization</li>
+<li>Automatic vectorization</li>
+</ul>
+<p><strong>Generated Function Signatures:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamics function</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>f(x, u) → dx<span class="op">/</span>dt</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># where x: array(nx,), u: array(nu,) → array(nx,)</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Jacobian function</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>A(x, u) → matrix(nx, nx)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>B(x, u) → matrix(nx, nu)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Output function</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>h(x) → y</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="co"># where x: array(nx,) → array(ny,)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+</section>
+<section id="composition-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="composition-patterns">Composition Patterns</h2>
+<section id="pattern-1-core-system-utilities" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-1-core-system-utilities">Pattern 1: Core System Utilities</h3>
+<p><strong>Used by:</strong> All symbolic systems</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In SymbolicSystemBase.__init__():</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.backend <span class="op">=</span> BackendManager(default_backend, default_device)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._code_gen <span class="op">=</span> CodeGenerator(<span class="va">self</span>, <span class="va">self</span>.backend)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._validator <span class="op">=</span> SymbolicValidator()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.equilibria <span class="op">=</span> EquilibriumHandler(nx, nu)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="pattern-2-deterministic-extensions" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-2-deterministic-extensions">Pattern 2: Deterministic Extensions</h3>
+<p><strong>Used by:</strong> ContinuousSymbolicSystem, DiscreteSymbolicSystem</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In ContinuousSymbolicSystem.__init__():</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)  <span class="co"># Sets up core utilities</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add deterministic evaluators</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._dynamics <span class="op">=</span> DynamicsEvaluator(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._linearization <span class="op">=</span> LinearizationEngine(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._observation <span class="op">=</span> ObservationEngine(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="pattern-3-stochastic-extensions" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-3-stochastic-extensions">Pattern 3: Stochastic Extensions</h3>
+<p><strong>Used by:</strong> ContinuousStochasticSystem, DiscreteStochasticSystem</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In ContinuousStochasticSystem.__init__():</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)  <span class="co"># Sets up deterministic utilities</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Add stochastic support</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.diffusion_handler <span class="op">=</span> DiffusionHandler(<span class="va">self</span>, <span class="va">self</span>._code_gen, <span class="va">self</span>.backend)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.noise_characteristics <span class="op">=</span> NoiseCharacterizer().analyze(<span class="va">self</span>.diffusion_expr)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>._sde_validator <span class="op">=</span> SDEValidator()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="design-principles" class="level2">
+<h2 class="anchored" data-anchor-id="design-principles">Design Principles</h2>
+<section id="single-responsibility" class="level3">
+<h3 class="anchored" data-anchor-id="single-responsibility">1. Single Responsibility</h3>
+<p>Each class has one clear purpose:</p>
+<ul>
+<li>BackendManager → Backend management ONLY</li>
+<li>CodeGenerator → Code generation ONLY</li>
+<li>DynamicsEvaluator → Dynamics evaluation ONLY</li>
+</ul>
+</section>
+<section id="composition-not-inheritance" class="level3">
+<h3 class="anchored" data-anchor-id="composition-not-inheritance">2. Composition Not Inheritance</h3>
+<p>Systems compose utilities rather than inherit:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># NOT: class System(BackendManager, CodeGenerator, ...)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># YES: class System:</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co">#          self.backend = BackendManager()</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co">#          self._code_gen = CodeGenerator()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="dependency-injection" class="level3">
+<h3 class="anchored" data-anchor-id="dependency-injection">3. Dependency Injection</h3>
+<p>Utilities receive dependencies via constructor:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>DynamicsEvaluator(system, code_gen, backend_mgr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="interface-segregation" class="level3">
+<h3 class="anchored" data-anchor-id="interface-segregation">4. Interface Segregation</h3>
+<p>Each utility has focused, minimal interface:</p>
+<ul>
+<li>BackendManager: detect, convert, to_backend</li>
+<li>CodeGenerator: generate_dynamics, generate_jacobian_A/B/C</li>
+<li>DynamicsEvaluator: evaluate</li>
+</ul>
+</section>
+<section id="lazy-initialization" class="level3">
+<h3 class="anchored" data-anchor-id="lazy-initialization">5. Lazy Initialization</h3>
+<p>Functions generated and cached on first use:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First call: generates and caches</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> code_gen.generate_dynamics(<span class="st">'numpy'</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Subsequent calls: returns cached</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>f_again <span class="op">=</span> code_gen.generate_dynamics(<span class="st">'numpy'</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> f <span class="kw">is</span> f_again  <span class="co"># Same object</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="backend-agnosticism" class="level3">
+<h3 class="anchored" data-anchor-id="backend-agnosticism">6. Backend Agnosticism</h3>
+<p>Utilities work with all backends transparently:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Same interface, different backends</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>dx_numpy <span class="op">=</span> evaluator.evaluate(x_np, u_np, backend<span class="op">=</span><span class="st">'numpy'</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>dx_torch <span class="op">=</span> evaluator.evaluate(x_torch, u_torch, backend<span class="op">=</span><span class="st">'torch'</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>dx_jax <span class="op">=</span> evaluator.evaluate(x_jax, u_jax, backend<span class="op">=</span><span class="st">'jax'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="usage-examples" class="level2">
+<h2 class="anchored" data-anchor-id="usage-examples">Usage Examples</h2>
+<section id="example-1-creating-a-system-with-full-delegation" class="level3">
+<h3 class="anchored" data-anchor-id="example-1-creating-a-system-with-full-delegation">Example 1: Creating a System with Full Delegation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.systems.base <span class="im">import</span> ContinuousSymbolicSystem</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MySystem(ContinuousSymbolicSystem):</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> define_system(<span class="va">self</span>, m<span class="op">=</span><span class="fl">1.0</span>, k<span class="op">=</span><span class="fl">10.0</span>):</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        x, v <span class="op">=</span> sp.symbols(<span class="st">'x v'</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> sp.symbols(<span class="st">'u'</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>        m_sym, k_sym <span class="op">=</span> sp.symbols(<span class="st">'m k'</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.state_vars <span class="op">=</span> [x, v]</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.control_vars <span class="op">=</span> [u]</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix([v, <span class="op">-</span>k_sym<span class="op">*</span>x<span class="op">/</span>m_sym <span class="op">+</span> u<span class="op">/</span>m_sym])</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.parameters <span class="op">=</span> {m_sym: m, k_sym: k}</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co"># System automatically sets up:</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>system <span class="op">=</span> MySystem()</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="co"># system.backend         (BackendManager)</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># system._code_gen       (CodeGenerator)</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a><span class="co"># system._dynamics       (DynamicsEvaluator)</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a><span class="co"># system._linearization  (LinearizationEngine)</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a><span class="co"># system.equilibria      (EquilibriumHandler)</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the delegated functionality</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>])</span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.array([<span class="fl">0.5</span>])</span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Dynamics (via DynamicsEvaluator)</span></span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>dx <span class="op">=</span> system(x, u)</span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Linearization (via LinearizationEngine)</span></span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>A, B <span class="op">=</span> system.linearize(np.zeros(<span class="dv">2</span>), np.zeros(<span class="dv">1</span>))</span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Equilibria (via EquilibriumHandler)</span></span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>system.add_equilibrium(<span class="st">'test'</span>, x_eq<span class="op">=</span>np.zeros(<span class="dv">2</span>), u_eq<span class="op">=</span>np.zeros(<span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-2-backend-switching" class="level3">
+<h3 class="anchored" data-anchor-id="example-2-backend-switching">Example 2: Backend Switching</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Switch backend for entire system</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>system.set_default_backend(<span class="st">'torch'</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>system.set_default_device(<span class="st">'cuda:0'</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Backend manager handles conversions</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>x_torch <span class="op">=</span> torch.tensor([[<span class="fl">1.0</span>, <span class="fl">0.0</span>]], device<span class="op">=</span><span class="st">'cuda:0'</span>)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>u_torch <span class="op">=</span> torch.tensor([[<span class="fl">0.5</span>]], device<span class="op">=</span><span class="st">'cuda:0'</span>)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Automatically uses PyTorch backend</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>dx_torch <span class="op">=</span> system(x_torch, u_torch)</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Equilibria converted on demand</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>x_eq_torch <span class="op">=</span> system.equilibria.get_x(<span class="st">'origin'</span>, backend<span class="op">=</span><span class="st">'torch'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-3-code-generation-and-caching" class="level3">
+<h3 class="anchored" data-anchor-id="example-3-code-generation-and-caching">Example 3: Code Generation and Caching</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First call: generates and caches</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.time()</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>f_numpy <span class="op">=</span> system._code_gen.generate_dynamics(<span class="st">'numpy'</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> time.time() <span class="op">-</span> start</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"First generation: </span><span class="sc">{</span>t1<span class="sc">:.3f}</span><span class="ss">s"</span>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Second call: returns cached (instant)</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.time()</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>f_numpy_again <span class="op">=</span> system._code_gen.generate_dynamics(<span class="st">'numpy'</span>)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> time.time() <span class="op">-</span> start</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Cached retrieval: </span><span class="sc">{</span>t2<span class="sc">:.6f}</span><span class="ss">s"</span>)  <span class="co"># ~0.000001s</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> f_numpy <span class="kw">is</span> f_numpy_again  <span class="co"># Same function object</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-4-stochastic-system-with-full-delegation" class="level3">
+<h3 class="anchored" data-anchor-id="example-4-stochastic-system-with-full-delegation">Example 4: Stochastic System with Full Delegation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.systems.base <span class="im">import</span> ContinuousStochasticSystem</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> StochasticOscillator(ContinuousStochasticSystem):</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> define_system(<span class="va">self</span>, k<span class="op">=</span><span class="fl">10.0</span>, sigma<span class="op">=</span><span class="fl">0.5</span>):</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>        x, v <span class="op">=</span> sp.symbols(<span class="st">'x v'</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> sp.symbols(<span class="st">'u'</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        k_sym, sigma_sym <span class="op">=</span> sp.symbols(<span class="st">'k sigma'</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Drift</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.state_vars <span class="op">=</span> [x, v]</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.control_vars <span class="op">=</span> [u]</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix([v, <span class="op">-</span>k_sym<span class="op">*</span>x <span class="op">+</span> u])</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.parameters <span class="op">=</span> {k_sym: k, sigma_sym: sigma}</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Diffusion (additive noise)</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.diffusion_expr <span class="op">=</span> sp.Matrix([[<span class="dv">0</span>], [sigma_sym]])</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sde_type <span class="op">=</span> <span class="st">'ito'</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="co"># System sets up additional stochastic delegation:</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>sde_system <span class="op">=</span> StochasticOscillator()</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co"># sde_system.diffusion_handler       (DiffusionHandler)</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="co"># sde_system.noise_characteristics   (NoiseCharacteristics)</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a><span class="co"># (plus all deterministic utilities)</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Use stochastic functionality</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>])</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.array([<span class="fl">0.5</span>])</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Drift (via DynamicsEvaluator)</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> sde_system.drift(x, u)</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Diffusion (via DiffusionHandler)</span></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> sde_system.diffusion(x, u)</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Noise analysis (automatic)</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Noise type: </span><span class="sc">{</span>sde_system<span class="sc">.</span>noise_characteristics<span class="sc">.</span>noise_type<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Additive: </span><span class="sc">{</span>sde_system<span class="sc">.</span>is_additive_noise()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recommended solvers: </span><span class="sc">{</span>sde_system<span class="sc">.</span>recommend_solvers(<span class="st">'torch'</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="example-5-performance-tracking" class="level3">
+<h3 class="anchored" data-anchor-id="example-5-performance-tracking">Example 5: Performance Tracking</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DynamicsEvaluator tracks performance</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1000</span>):</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    dx <span class="op">=</span> system(np.random.randn(<span class="dv">2</span>), np.zeros(<span class="dv">1</span>))</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Get statistics</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>stats <span class="op">=</span> system._dynamics.get_stats()</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Evaluations: </span><span class="sc">{</span>stats[<span class="st">'count'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average time: </span><span class="sc">{</span>stats[<span class="st">'avg_time'</span>]<span class="sc">:.6f}</span><span class="ss">s"</span>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total time: </span><span class="sc">{</span>stats[<span class="st">'total_time'</span>]<span class="sc">:.3f}</span><span class="ss">s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="key-strengths" class="level2">
+<h2 class="anchored" data-anchor-id="key-strengths">Key Strengths</h2>
+<ol type="1">
+<li><strong>Clean Separation</strong> - Each utility has one responsibility</li>
+<li><strong>Reusability</strong> - Can use utilities independently</li>
+<li><strong>Testability</strong> - Easy to test in isolation</li>
+<li><strong>Flexibility</strong> - Easy to add new utilities</li>
+<li><strong>Performance</strong> - Caching and lazy initialization</li>
+<li><strong>Multi-Backend</strong> - Seamless backend switching</li>
+<li><strong>Type Safety</strong> - TypedDict and semantic types</li>
+<li><strong>Documentation</strong> - Clear purpose and interface</li>
+<li><strong>Maintainability</strong> - Easy to understand and modify</li>
+<li><strong>Extensibility</strong> - Composition enables new features</li>
+</ol>
+<p>This delegation layer is the foundation that makes the UI framework clean, powerful, and maintainable!</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
