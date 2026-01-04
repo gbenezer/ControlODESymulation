@@ -888,7 +888,7 @@ class PhasePortraitPlotter:
             return
 
         # Determine dimensionality from first equilibrium state vector
-        ndim = equilibria[0].shape[0]
+        ndim = len(equilibria[0])
 
         if ndim == 2:
             # 2D equilibria
