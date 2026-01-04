@@ -204,7 +204,7 @@ from cdesym.types.backends import Backend, SDEIntegrationMethod, SDEType
 
 # Type imports
 from cdesym.types.core import ControlInput, ControlVector, ScalarLike, StateVector
-from cdesym.types.trajectories import TimePoints, TimeSpan
+from cdesym.types.trajectories import TimePoints, TimeSpan, SDEIntegrationResult
 
 
 class ContinuousStochasticSystem(ContinuousSymbolicSystem):
@@ -430,7 +430,7 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         n_paths: int = 1,
         seed: Optional[int] = None,
         **integrator_kwargs,
-    ):
+    ) -> SDEIntegrationResult:
         """
         Integrate stochastic system using SDE solver.
 
@@ -561,12 +561,16 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
         # Stack all paths
         x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
+        
+        # get the noise type to satisfy the output
+        noise_type = self.get_noise_type()
 
         # Return combined result
         return {
             **result,  # Use last result for metadata
             "x": x_all,
             "n_paths": n_paths,
+            "noise_type": noise_type,
             "message": f"Monte Carlo with {n_paths} paths (manual mode)",
         }
 
