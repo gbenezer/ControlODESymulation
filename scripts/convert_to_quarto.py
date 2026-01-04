@@ -200,7 +200,7 @@ def add_executable_setup_blocks(content: str, doc_type: str) -> str:
 def convert_file(qmd_file: Path) -> None:
     """Convert single .qmd file in-place."""
     
-    print(f"Converting: {qmd_file.relative_to(Path.cwd())}")
+    print(f"Converting: {qmd_file}")
     
     # Read content
     content = qmd_file.read_text()
