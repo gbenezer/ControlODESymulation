@@ -16,7 +16,7 @@ First, import the necessary modules:
 ```{python}
 import numpy as np
 import sympy as sp
-from cdesys import ContinuousSymbolicSystem
+from cdesym import ContinuousSymbolicSystem
 
 # Set random seed for reproducibility
 np.random.seed(42)
