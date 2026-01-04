@@ -88,9 +88,9 @@ Now simulate the system:
 # relevant arguments
 pendulum_integration_result = pendulum.integrate(
         x0=x0,
-        t_span = (0.0, 200.0)
+        t_span = (0.0, 20.0)
     )
-print(pendulum_integration_result['x'])
+print(pendulum_integration_result)
 ```
 
 ## Visualization
@@ -109,17 +109,16 @@ trajectory_plot.show()
 
 Plot the 2D phase portrait
 ```{python}
-upright_point = pendulum.get_equilibrium('inverted')
-downward_point = pendulum.get_equilibrium('downward')
+upright_state, _ = pendulum.get_equilibrium('inverted')
+downward_state, _ = pendulum.get_equilibrium('downward')
 phase_portrait = pendulum.phase_plotter.plot_2d(
     x=pendulum_integration_result['x'],
     state_names = STATE_NAMES,
     show_direction = True,
-    equilibria=[upright_point, 
-                downward_point]
+    equilibria=[upright_state, 
+                downward_state]
 )
 phase_portrait.show()
-# TODO: fix issue with lack of equilibrium markers
 ```
 
 ## Next Steps
