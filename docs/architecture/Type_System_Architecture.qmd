@@ -14,11 +14,11 @@ execute:
   warning: false  # Suppress warnings
 ---
 
-## Overview
+## Overview {#sec-overview}
 
 The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** totaling ~7,000 lines that define over **200 type aliases** and **structured dictionaries**.
 
-## Architecture Philosophy
+## Architecture Philosophy {#sec-architecture-philosophy}
 
 **Type-Driven Design** - The type system enables:
 
@@ -29,8 +29,21 @@ The **Type System** is the **foundational layer** that provides semantic types, 
 5. **Structured Results** - TypedDict for dictionaries (not plain `dict`)
 6. **Self-Documenting** - Types encode constraints and invariants
 
-```python
+```{python}
+#| output: false
 # Compare:
+
+```{python}
+#| label: setup-imports
+#| output: false
+#| echo: false
+
+# Setup for all code examples in this document
+from typing import Optional, Tuple, Dict, List, Union
+from cdesym import ContinuousSymbolicSystem
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+```
+
 def bad(x, u):  # What are x and u? Arrays? Scalars? Dimensions?
     return x + u
 
@@ -40,7 +53,7 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
     return x + u
 ```
 
-## Type System Layers
+## Type System Layers {#sec-type-system-layers}
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -74,11 +87,11 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 └────────────────────────────────────────────────────────────┘
 ```
 
-## Module Breakdown
+## Module Breakdown {#sec-module-breakdown}
 
-### Foundational Types
+### Foundational Types {#sec-foundational-types}
 
-#### core.py
+#### core.py {#sec-corepy}
 **File:** `core.py` (1,501 lines)
 
 **Purpose:** Fundamental building blocks for all other types
@@ -86,7 +99,8 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 **Categories:**
 
 **1. Multi-Backend Arrays (20+ types)**
-```python
+```{python}
+#| output: false
 ArrayLike = Union[np.ndarray, torch.Tensor, jnp.ndarray]
 NumpyArray = np.ndarray
 TorchTensor = torch.Tensor
@@ -96,7 +110,8 @@ IntegerLike = Union[int, np.integer]
 ```
 
 **2. Semantic Vector Types (15+ types)**
-```python
+```{python}
+#| output: false
 StateVector         # x ∈ ℝⁿˣ - State
 ControlVector       # u ∈ ℝⁿᵘ - Control input
 OutputVector        # y ∈ ℝⁿʸ - Measured output
@@ -109,7 +124,8 @@ ControlIncrement    # δu - Control deviation
 ```
 
 **3. Matrix Types (30+ types)**
-```python
+```{python}
+#| output: false
 # Dynamics matrices
 StateMatrix         # A ∈ ℝⁿˣˣⁿˣ - ∂f/∂x
 InputMatrix         # B ∈ ℝⁿˣˣⁿᵘ - ∂f/∂u  
@@ -136,7 +152,8 @@ GramianMatrix      # Controllability/observability
 ```
 
 **4. Function Signatures (10+ types)**
-```python
+```{python}
+#| output: false
 DynamicsFunction    # (x, u) → dx/dt
 OutputFunction      # (x) → y
 ControlPolicy       # (t, x) → u
@@ -145,7 +162,8 @@ ObserverFunction    # (y, u) → x_hat
 ```
 
 **5. System Properties (15+ types)**
-```python
+```{python}
+#| output: false
 StateDimension      # nx - Number of states
 ControlDimension    # nu - Number of controls
 OutputDimension     # ny - Number of outputs
@@ -165,7 +183,7 @@ EquilibriumName     # str - Named equilibrium
 
 ---
 
-#### backends.py
+#### backends.py {#sec-backendspy}
 **File:** `backends.py` (735 lines)
 
 **Purpose:** Backend configuration and method selection types
@@ -173,7 +191,8 @@ EquilibriumName     # str - Named equilibrium
 **Categories:**
 
 **1. Backend Types**
-```python
+```{python}
+#| output: false
 Backend = Literal["numpy", "torch", "jax"]
 Device = str  # 'cpu', 'cuda:0', 'mps', 'tpu'
 
@@ -184,7 +203,8 @@ class BackendConfig(TypedDict, total=False):
 ```
 
 **2. Integration Methods**
-```python
+```{python}
+#| output: false
 IntegrationMethod = str  # 'RK45', 'dopri5', 'tsit5', etc.
 
 # Specific categories
@@ -195,7 +215,8 @@ AdaptiveMethod = str     # Adaptive methods
 ```
 
 **3. Discretization Methods**
-```python
+```{python}
+#| output: false
 DiscretizationMethod = Literal[
     "exact",      # Matrix exponential
     "euler",      # Forward Euler
@@ -206,7 +227,8 @@ DiscretizationMethod = Literal[
 ```
 
 **4. SDE Types**
-```python
+```{python}
+#| output: false
 SDEType = Literal["ito", "stratonovich"]
 
 class NoiseType(Enum):
@@ -223,7 +245,8 @@ class ConvergenceType(Enum):
 ```
 
 **5. System Configuration**
-```python
+```{python}
+#| output: false
 class SystemConfig(TypedDict, total=False):
     """Complete system configuration."""
     nx: int              # State dimension
@@ -245,9 +268,9 @@ class SystemConfig(TypedDict, total=False):
 
 ---
 
-### Domain Types
+### Domain Types {#sec-domain-types}
 
-#### trajectories.py
+#### trajectories.py {#sec-trajectoriespy}
 **File:** `trajectories.py** (879 lines)
 
 **Purpose:** Time series data and simulation results
@@ -255,7 +278,8 @@ class SystemConfig(TypedDict, total=False):
 **Categories:**
 
 **1. Trajectory Types**
-```python
+```{python}
+#| output: false
 StateTrajectory = ArrayLike      # (T, nx) or (T, batch, nx)
 ControlSequence = ArrayLike      # (T, nu) or (T, batch, nu)
 OutputSequence = ArrayLike       # (T, ny)
@@ -263,14 +287,16 @@ NoiseSequence = ArrayLike        # (T, nw)
 ```
 
 **2. Time Types**
-```python
+```{python}
+#| output: false
 TimePoints = ArrayLike           # (T,) - Time grid
 TimeSpan = Tuple[float, float]   # (t0, tf) - Interval
 TimeStep = float                 # dt - Step size
 ```
 
 **3. Integration Results (TypedDict)**
-```python
+```{python}
+#| output: false
 class IntegrationResult(TypedDict, total=False):
     """ODE integration result."""
     t: TimePoints              # Time points
@@ -291,7 +317,8 @@ class IntegrationResult(TypedDict, total=False):
 ```
 
 **4. SDE Integration Results**
-```python
+```{python}
+#| output: false
 class SDEIntegrationResult(TypedDict, total=False):
     """SDE integration result (extends IntegrationResult)."""
     # All IntegrationResult fields, plus:
@@ -304,7 +331,8 @@ class SDEIntegrationResult(TypedDict, total=False):
 ```
 
 **5. Batch Results**
-```python
+```{python}
+#| output: false
 class BatchSimulationResult(TypedDict):
     """Batched simulation result."""
     t: TimePoints                    # (T,)
@@ -323,7 +351,7 @@ class BatchSimulationResult(TypedDict):
 
 ---
 
-#### linearization.py
+#### linearization.py {#sec-linearizationpy}
 **File:** `linearization.py` (502 lines)
 
 **Purpose:** Linearization results and Jacobian types
@@ -331,7 +359,8 @@ class BatchSimulationResult(TypedDict):
 **Categories:**
 
 **1. Basic Linearization**
-```python
+```{python}
+#| output: false
 DeterministicLinearization = Tuple[StateMatrix, InputMatrix]
 # Returns: (A, B) where
 #   A = ∂f/∂x - State Jacobian
@@ -348,7 +377,8 @@ LinearizationResult = Union[DeterministicLinearization, StochasticLinearization]
 ```
 
 **2. Output Linearization**
-```python
+```{python}
+#| output: false
 ObservationLinearization = Tuple[OutputMatrix, FeedthroughMatrix]
 # Returns: (C, D) where
 #   C = ∂h/∂x - Output Jacobian
@@ -356,7 +386,8 @@ ObservationLinearization = Tuple[OutputMatrix, FeedthroughMatrix]
 ```
 
 **3. Full State-Space**
-```python
+```{python}
+#| output: false
 FullLinearization = Tuple[StateMatrix, InputMatrix, OutputMatrix, FeedthroughMatrix]
 # Returns: (A, B, C, D)
 
@@ -367,7 +398,8 @@ FullStochasticLinearization = Tuple[
 ```
 
 **4. Time-Domain Aliases**
-```python
+```{python}
+#| output: false
 ContinuousLinearization = DeterministicLinearization
 DiscreteLinearization = DeterministicLinearization
 ContinuousStochasticLinearization = StochasticLinearization
@@ -375,7 +407,8 @@ DiscreteStochasticLinearization = StochasticLinearization
 ```
 
 **5. Jacobian-Specific**
-```python
+```{python}
+#| output: false
 StateJacobian = StateMatrix       # A = ∂f/∂x
 ControlJacobian = InputMatrix     # B = ∂f/∂u
 OutputJacobian = OutputMatrix     # C = ∂h/∂x
@@ -391,7 +424,7 @@ DiffusionJacobian = DiffusionMatrix  # G = ∂g/∂x
 
 ---
 
-#### symbolic.py
+#### symbolic.py {#sec-symbolicpy}
 **File:** `symbolic.py` (646 lines)
 
 **Purpose:** SymPy symbolic types
@@ -399,7 +432,8 @@ DiffusionJacobian = DiffusionMatrix  # G = ∂g/∂x
 **Categories:**
 
 **1. Symbolic Variables**
-```python
+```{python}
+#| output: false
 SymbolicVariable = sp.Symbol        # Single variable
 SymbolicVector = sp.Matrix          # Vector of symbols
 SymbolicMatrix = sp.Matrix          # Matrix expression
@@ -407,7 +441,8 @@ SymbolicExpression = sp.Expr        # General expression
 ```
 
 **2. System Components**
-```python
+```{python}
+#| output: false
 DynamicsExpression = sp.Matrix      # f(x, u) symbolic
 OutputExpression = sp.Matrix        # h(x) symbolic
 DiffusionExpression = sp.Matrix     # g(x, u) symbolic
@@ -415,14 +450,16 @@ ParameterDict = Dict[sp.Symbol, float]  # Parameter values
 ```
 
 **3. Jacobian Expressions**
-```python
+```{python}
+#| output: false
 JacobianExpression = sp.Matrix      # ∂f/∂x symbolic
 HessianExpression = sp.Matrix       # ∂²f/∂x² symbolic
 GradientExpression = sp.Matrix      # ∇f symbolic
 ```
 
 **4. Substitution Types**
-```python
+```{python}
+#| output: false
 SubstitutionDict = Dict[sp.Symbol, Union[float, sp.Expr]]
 SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 ```
@@ -436,7 +473,7 @@ SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 
 ---
 
-#### control_classical.py
+#### control_classical.py {#sec-controlclassicalpy}
 **File:** `control_classical.py` (542 lines)
 
 **Purpose:** Classical control theory result types
@@ -444,7 +481,8 @@ SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 **Categories:**
 
 **1. System Analysis Results**
-```python
+```{python}
+#| output: false
 class StabilityInfo(TypedDict):
     """Stability analysis result.
     
@@ -482,7 +520,8 @@ class ObservabilityInfo(TypedDict, total=False):
 ```
 
 **2. Control Design Results**
-```python
+```{python}
+#| output: false
 class LQRResult(TypedDict):
     """Linear Quadratic Regulator result.
     
@@ -530,7 +569,8 @@ class LQGResult(TypedDict):
 ```
 
 **3. Additional Controllers**
-```python
+```{python}
+#| output: false
 class PolePlacementResult(TypedDict):
     """Pole placement (eigenvalue assignment) result.
     
@@ -554,7 +594,8 @@ class LuenbergerObserverResult(TypedDict):
 ```
 
 **Usage Examples:**
-```python
+```{python}
+#| output: false
 # Stability analysis
 stability: StabilityInfo = analyze_stability(A, system_type='continuous')
 if stability['is_stable']:
@@ -595,9 +636,9 @@ if ctrl['is_controllable']:
 
 ---
 
-### Structural Types
+### Structural Types {#sec-structural-types}
 
-#### protocols.py
+#### protocols.py {#sec-protocolspy}
 **File:** `protocols.py` (1,086 lines)
 
 **Purpose:** Abstract interfaces via Protocol
@@ -605,7 +646,8 @@ if ctrl['is_controllable']:
 **Categories:**
 
 **1. System Protocols**
-```python
+```{python}
+#| output: false
 class DynamicalSystemProtocol(Protocol):
     """Abstract interface for dynamical systems."""
     @property
@@ -644,7 +686,8 @@ class StochasticSystemProtocol(Protocol):
 ```
 
 **2. Observer Protocols**
-```python
+```{python}
+#| output: false
 class ObserverProtocol(Protocol):
     """State observer interface."""
     def observe(self, x: StateVector) -> OutputVector: ...
@@ -652,7 +695,8 @@ class ObserverProtocol(Protocol):
 ```
 
 **3. Controller Protocols**
-```python
+```{python}
+#| output: false
 class ControllerProtocol(Protocol):
     """Controller interface."""
     def compute_control(self, x: StateVector) -> ControlVector: ...
@@ -672,7 +716,7 @@ class FeedbackControllerProtocol(ControllerProtocol, Protocol):
 
 ---
 
-#### utilities.py
+#### utilities.py {#sec-utilitiespy}
 **File:** `utilities.py` (1,132 lines)
 
 **Purpose:** Helper types and utilities
@@ -680,7 +724,8 @@ class FeedbackControllerProtocol(ControllerProtocol, Protocol):
 **Categories:**
 
 **1. Type Guards**
-```python
+```{python}
+#| output: false
 def is_numpy(arr: ArrayLike) -> bool:
     """Check if array is NumPy."""
     return isinstance(arr, np.ndarray)
@@ -695,7 +740,8 @@ def is_jax(arr: ArrayLike) -> bool:
 ```
 
 **2. Shape Utilities**
-```python
+```{python}
+#| output: false
 def is_batched(arr: ArrayLike, expected_dims: int = 1) -> bool:
     """Check if array is batched."""
     return arr.ndim > expected_dims
@@ -710,7 +756,8 @@ def get_state_dim(x: StateVector) -> int:
 ```
 
 **3. Performance Types**
-```python
+```{python}
+#| output: false
 class ExecutionStats(TypedDict):
     """Performance statistics."""
     count: int              # Number of calls
@@ -721,7 +768,8 @@ class ExecutionStats(TypedDict):
 ```
 
 **4. Validation Types**
-```python
+```{python}
+#| output: false
 class ValidationResult(TypedDict):
     """Validation result."""
     valid: bool
@@ -739,10 +787,11 @@ class ValidationResult(TypedDict):
 
 ---
 
-## Type System Design Principles
+## Type System Design Principles {#sec-type-system-design-principles}
 
-### 1. Semantic Over Structural
-```python
+### 1. Semantic Over Structural {#sec-1-semantic-over-structural}
+```{python}
+#| output: false
 # Bad: Structural (what it is)
 def compute(arr1: np.ndarray, arr2: np.ndarray) -> np.ndarray:
     pass
@@ -752,16 +801,18 @@ def compute_control(x: StateVector, K: GainMatrix) -> ControlVector:
     pass
 ```
 
-### 2. Backend Agnosticism
-```python
+### 2. Backend Agnosticism {#sec-2-backend-agnosticism}
+```{python}
+#| eval: false
 # Same function signature works for all backends
 def dynamics(x: StateVector, u: ControlVector) -> StateVector:
     # Works with NumPy, PyTorch, JAX
     return f(x, u)
 ```
 
-### 3. TypedDict for Structured Results
-```python
+### 3. TypedDict for Structured Results {#sec-3-typeddict-for-structured-results}
+```{python}
+#| eval: false
 # Bad: Plain dict (no type safety)
 def integrate() -> dict:
     return {'t': t, 'x': x, 'success': True}
@@ -771,8 +822,9 @@ def integrate() -> IntegrationResult:
     return {'t': t, 'x': x, 'success': True, ...}
 ```
 
-### 4. Optional Fields with total=False
-```python
+### 4. Optional Fields with total=False {#sec-4-optional-fields-with-totalfalse}
+```{python}
+#| eval: false
 class IntegrationResult(TypedDict, total=False):
     # Required fields
     t: TimePoints
@@ -784,8 +836,9 @@ class IntegrationResult(TypedDict, total=False):
     sol: Any   # Dense output (optional)
 ```
 
-### 5. Polymorphic Types via Union
-```python
+### 5. Polymorphic Types via Union {#sec-5-polymorphic-types-via-union}
+```{python}
+#| output: false
 LinearizationResult = Union[
     Tuple[StateMatrix, InputMatrix],           # Deterministic
     Tuple[StateMatrix, InputMatrix, DiffusionMatrix]  # Stochastic
@@ -798,8 +851,9 @@ def analyze(result: LinearizationResult):
         G = result[2]  # Stochastic
 ```
 
-### 6. Protocol for Interfaces
-```python
+### 6. Protocol for Interfaces {#sec-6-protocol-for-interfaces}
+```{python}
+#| output: false
 # No inheritance needed - structural typing
 class MySystem:
     def __call__(self, x: StateVector, u: ControlVector) -> StateVector:
@@ -809,10 +863,11 @@ class MySystem:
 system: DynamicalSystemProtocol = MySystem()
 ```
 
-## Usage Throughout the Framework
+## Usage Throughout the Framework {#sec-usage-throughout-the-framework}
 
-### In UI Framework
-```python
+### In UI Framework {#sec-in-ui-framework}
+```{python}
+#| output: false
 class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
     def __call__(self, x: StateVector, u: Optional[ControlVector] = None) -> StateVector:
         """Evaluate dynamics."""
@@ -828,8 +883,9 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         return self._linearization.linearize_continuous(x_eq, u_eq, backend)
 ```
 
-### In Delegation Layer
-```python
+### In Delegation Layer {#sec-in-delegation-layer}
+```{python}
+#| output: false
 class DynamicsEvaluator:
     def evaluate(
         self,
@@ -852,8 +908,9 @@ class DynamicsEvaluator:
         }
 ```
 
-### In Integration Framework
-```python
+### In Integration Framework {#sec-in-integration-framework}
+```{python}
+#| output: false
 class ScipyIntegrator(IntegratorBase):
     def integrate(
         self,
@@ -883,7 +940,7 @@ class ScipyIntegrator(IntegratorBase):
         return result
 ```
 
-## Key Strengths
+## Key Strengths {#sec-key-strengths}
 
 1. **Semantic Clarity** - Names convey mathematical meaning
 2. **Type Safety** - Static checking prevents errors

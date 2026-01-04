@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Quick Start
+## Quick Start {#sec-quick-start}
 
-### 1. Automatic Integration (Easiest)
+### 1. Automatic Integration (Easiest) {#sec-1-automatic-integration-easiest}
 
-```python
+```{python}
 from src.systems.base.numerical_integration import IntegratorFactory
 
 # Let the factory choose the best integrator
@@ -35,9 +35,9 @@ print(f"Success: {result['success']}")
 print(f"Method: {result['solver']}")
 ```
 
-### 2. Specific Method Selection
+### 2. Specific Method Selection {#sec-2-specific-method-selection}
 
-```python
+```{python}
 # Create with specific method
 integrator = IntegratorFactory.create(
     system,
@@ -48,9 +48,9 @@ integrator = IntegratorFactory.create(
 )
 ```
 
-### 3. Use Case Helpers
+### 3. Use Case Helpers {#sec-3-use-case-helpers}
 
-```python
+```{python}
 # For production
 integrator = IntegratorFactory.for_production(system)
 
@@ -64,11 +64,11 @@ integrator = IntegratorFactory.for_neural_ode(system)
 integrator = IntegratorFactory.for_julia(system, algorithm='Vern9')
 ```
 
-## Available Methods
+## Available Methods {#sec-available-methods}
 
-### NumPy (scipy)
+### NumPy (scipy) {#sec-numpy-scipy}
 
-```python
+```{python}
 # Adaptive non-stiff
 IntegratorFactory.create(system, backend='numpy', method='RK45')   # General
 IntegratorFactory.create(system, backend='numpy', method='RK23')   # Fast
@@ -80,9 +80,9 @@ IntegratorFactory.create(system, backend='numpy', method='BDF')    # Very stiff
 IntegratorFactory.create(system, backend='numpy', method='LSODA')  # Auto-stiffness ⭐
 ```
 
-### NumPy (Julia via DiffEqPy)
+### NumPy (Julia via DiffEqPy) {#sec-numpy-julia-via-diffeqpy}
 
-```python
+```{python}
 # High-order explicit
 IntegratorFactory.create(system, backend='numpy', method='Tsit5')  # 5th order ⭐
 IntegratorFactory.create(system, backend='numpy', method='Vern9')  # 9th order
@@ -96,9 +96,9 @@ IntegratorFactory.create(system, backend='numpy', method='Rosenbrock23')
 IntegratorFactory.create(system, backend='numpy', method='AutoTsit5(Rosenbrock23())')
 ```
 
-### PyTorch (torchdiffeq)
+### PyTorch (torchdiffeq) {#sec-pytorch-torchdiffeq}
 
-```python
+```{python}
 # Adaptive methods
 IntegratorFactory.create(system, backend='torch', method='dopri5')  # 5(4) ⭐
 IntegratorFactory.create(system, backend='torch', method='dopri8')  # 8
@@ -112,29 +112,29 @@ integrator = TorchDiffEqIntegrator(
 )
 ```
 
-### JAX (diffrax)
+### JAX (diffrax) {#sec-jax-diffrax}
 
-```python
+```{python}
 # Adaptive methods
 IntegratorFactory.create(system, backend='jax', method='tsit5')   # Best ⭐
 IntegratorFactory.create(system, backend='jax', method='dopri5')  # Alternative
 IntegratorFactory.create(system, backend='jax', method='dopri8')  # High accuracy
 ```
 
-### Manual (Fixed-Step)
+### Manual (Fixed-Step) {#sec-manual-fixed-step}
 
-```python
+```{python}
 # Simple methods
 IntegratorFactory.create(system, backend='numpy', method='rk4', dt=0.01)
 IntegratorFactory.create(system, backend='numpy', method='euler', dt=0.01)
 IntegratorFactory.create(system, backend='numpy', method='midpoint', dt=0.01)
 ```
 
-## Stochastic SDE Integration
+## Stochastic SDE Integration {#sec-stochastic-sde-integration}
 
-### Create SDE Integrator
+### Create SDE Integrator {#sec-create-sde-integrator}
 
-```python
+```{python}
 from src.systems.base.numerical_integration.stochastic import SDEIntegratorFactory
 
 # Automatic selection based on noise type
@@ -150,9 +150,9 @@ integrator = SDEIntegratorFactory.create(
 )
 ```
 
-### Single Trajectory
+### Single Trajectory {#sec-single-trajectory}
 
-```python
+```{python}
 result = integrator.integrate(
     x0=np.array([1.0]),
     u_func=lambda t, x: None,  # Autonomous
@@ -164,9 +164,9 @@ print(f"Noise type: {result['noise_type']}")
 print(f"Diffusion evals: {result['diffusion_evals']}")
 ```
 
-### Monte Carlo Simulation
+### Monte Carlo Simulation {#sec-monte-carlo-simulation}
 
-```python
+```{python}
 # Multiple trajectories for statistics
 result = integrator.integrate_monte_carlo(
     x0=np.array([1.0]),
@@ -186,9 +186,9 @@ print(f"Std: {stats['std'][-1]}")
 print(f"Median: {stats['median'][-1]}")
 ```
 
-### Custom Noise (Deterministic Testing)
+### Custom Noise (Deterministic Testing) {#sec-custom-noise-deterministic-testing}
 
-```python
+```{python}
 import jax.numpy as jnp
 from src.systems.base.numerical_integration.stochastic.custom_brownian import (
     CustomBrownianPath
@@ -205,11 +205,11 @@ result = integrator.integrate(
 )
 ```
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: GPU Acceleration (PyTorch)
+### Pattern 1: GPU Acceleration (PyTorch) {#sec-pattern-1-gpu-acceleration-pytorch}
 
-```python
+```{python}
 import torch
 
 # Set system to use PyTorch backend
@@ -231,9 +231,9 @@ result = integrator.integrate(x0, u_func, t_span=(0, 10))
 assert result['x'].device.type == 'cuda'
 ```
 
-### Pattern 2: High Accuracy
+### Pattern 2: High Accuracy {#sec-pattern-2-high-accuracy}
 
-```python
+```{python}
 # Julia Vern9 with tight tolerances
 integrator = IntegratorFactory.for_julia(
     system,
@@ -246,9 +246,9 @@ result = integrator.integrate(x0, u_func, t_span=(0, 100))
 print(f"Function evaluations: {result['nfev']}")
 ```
 
-### Pattern 3: Stiff Systems
+### Pattern 3: Stiff Systems {#sec-pattern-3-stiff-systems}
 
-```python
+```{python}
 # Option 1: scipy BDF
 integrator = IntegratorFactory.create(
     system,
@@ -272,9 +272,9 @@ integrator = IntegratorFactory.create(
 )
 ```
 
-### Pattern 4: Dense Output (Interpolation)
+### Pattern 4: Dense Output (Interpolation) {#sec-pattern-4-dense-output-interpolation}
 
-```python
+```{python}
 # Request dense output
 result = integrator.integrate(
     x0, u_func, t_span=(0, 10),
@@ -287,9 +287,9 @@ if result.get('dense_output'):
     x_fine = result['sol'](t_fine)
 ```
 
-### Pattern 5: Specific Time Points
+### Pattern 5: Specific Time Points {#sec-pattern-5-specific-time-points}
 
-```python
+```{python}
 # Evaluate at specific times
 t_eval = np.linspace(0, 10, 1001)  # 1001 uniform points
 
@@ -301,9 +301,9 @@ result = integrator.integrate(
 assert len(result['t']) == 1001
 ```
 
-### Pattern 6: Controlled vs Autonomous Systems
+### Pattern 6: Controlled vs Autonomous Systems {#sec-pattern-6-controlled-vs-autonomous-systems}
 
-```python
+```{python}
 # Controlled system
 u_func = lambda t, x: -K @ x  # State feedback
 result = integrator.integrate(x0, u_func, t_span=(0, 10))
@@ -313,9 +313,9 @@ u_func = lambda t, x: None  # No control
 result = integrator.integrate(x0, u_func, t_span=(0, 10))
 ```
 
-### Pattern 7: Time-Varying Control
+### Pattern 7: Time-Varying Control {#sec-pattern-7-time-varying-control}
 
-```python
+```{python}
 # Time-varying control
 def u_func(t, x):
     return np.array([np.sin(t)])
@@ -323,9 +323,9 @@ def u_func(t, x):
 result = integrator.integrate(x0, u_func, t_span=(0, 10))
 ```
 
-### Pattern 8: Neural ODE Training
+### Pattern 8: Neural ODE Training {#sec-pattern-8-neural-ode-training}
 
-```python
+```{python}
 import torch
 from torch import nn
 
@@ -354,9 +354,9 @@ for epoch in range(100):
     optimizer.step()
 ```
 
-## Integrator Selection Guide
+## Integrator Selection Guide {#sec-integrator-selection-guide}
 
-### By System Type
+### By System Type {#sec-by-system-type}
 
 | System | Recommended |
 |--------|-------------|
@@ -368,7 +368,7 @@ for epoch in range(100):
 | Additive noise SDE | `heun` (strong order 1.0) |
 | General SDE | `euler-maruyama` |
 
-### By Backend
+### By Backend {#sec-by-backend}
 
 | Backend | Best For | Best Method |
 |---------|----------|-------------|
@@ -377,7 +377,7 @@ for epoch in range(100):
 | PyTorch | Neural ODEs | `dopri5` (adjoint) |
 | JAX | Optimization | `tsit5` |
 
-### By Use Case
+### By Use Case {#sec-by-use-case}
 
 | Use Case | Factory Method |
 |----------|----------------|
@@ -388,10 +388,10 @@ for epoch in range(100):
 | Highest accuracy | `IntegratorFactory.for_julia(system, 'Vern9')` |
 | Monte Carlo SDE | `SDEIntegratorFactory.for_monte_carlo(...)` |
 
-## Integration Result Fields
+## Integration Result Fields {#sec-integration-result-fields}
 
-### ODE Integration
-```python
+### ODE Integration {#sec-ode-integration}
+```{python}
 result = {
     't': array,              # Time points (T,)
     'x': array,              # State trajectory (T, nx)
@@ -410,8 +410,8 @@ result = {
 }
 ```
 
-### SDE Integration
-```python
+### SDE Integration {#sec-sde-integration}
+```{python}
 result = {
     # All ODE fields, plus:
     'diffusion_evals': int,     # Diffusion calls
@@ -423,9 +423,9 @@ result = {
 }
 ```
 
-## Troubleshooting
+## Troubleshooting {#sec-troubleshooting}
 
-### Issue: Integration fails with "maximum steps exceeded"
+### Issue: Integration fails with "maximum steps exceeded" {#sec-issue-integration-fails-with-maximum-steps-exceeded}
 
 **Solutions:**
 
@@ -433,7 +433,7 @@ result = {
 - Increase max steps: `max_steps=100000`
 - Loosen tolerances: `rtol=1e-5, atol=1e-7`
 
-### Issue: Integration too slow
+### Issue: Integration too slow {#sec-issue-integration-too-slow}
 
 **Solutions:**
 
@@ -442,7 +442,7 @@ result = {
 - Loosen tolerances: `rtol=1e-4, atol=1e-6`
 - Try fixed-step: `method='rk4', dt=0.01`
 
-### Issue: Integration not accurate enough
+### Issue: Integration not accurate enough {#sec-issue-integration-not-accurate-enough}
 
 **Solutions:**
 
@@ -450,7 +450,7 @@ result = {
 - Use high-order method: `method='Vern9'` or `method='DOP853'`
 - Provide `t_eval` with dense grid
 
-### Issue: SDE results vary too much
+### Issue: SDE results vary too much {#sec-issue-sde-results-vary-too-much}
 
 **Solutions:**
 
@@ -459,7 +459,7 @@ result = {
 - Use higher-order method: `method='heun'` (for additive noise)
 - Set seed for reproducibility: `seed=42`
 
-### Issue: Out of memory (GPU)
+### Issue: Out of memory (GPU) {#sec-issue-out-of-memory-gpu}
 
 **Solutions:**
 
@@ -468,11 +468,11 @@ result = {
 - Use checkpointing (if available)
 - Switch to CPU: `backend='numpy'`
 
-## Advanced Features
+## Advanced Features {#sec-advanced-features}
 
-### Event Detection (scipy only)
+### Event Detection (scipy only) {#sec-event-detection-scipy-only}
 
-```python
+```{python}
 def impact_event(t, x):
     """Detect when velocity crosses zero."""
     return x[1]  # velocity
@@ -489,9 +489,9 @@ if result.get('t_events'):
     print(f"Impact at t = {result['t_events'][0]}")
 ```
 
-### Custom Integration Options
+### Custom Integration Options {#sec-custom-integration-options}
 
-```python
+```{python}
 # Backend-specific options
 result = integrator.integrate(
     x0, u_func, t_span=(0, 10),
@@ -509,18 +509,18 @@ result = integrator.integrate(
 )
 ```
 
-### Performance Profiling
+### Performance Profiling {#sec-performance-profiling}
 
-```python
+```{python}
 # Check integrator statistics
 print(f"Function evaluations: {integrator._stats['total_fev']}")
 print(f"Total steps: {integrator._stats['total_steps']}")
 print(f"Total time: {integrator._stats['total_time']:.3f}s")
 ```
 
-## Testing Your Integration
+## Testing Your Integration {#sec-testing-your-integration}
 
-```python
+```{python}
 def test_integration():
     """Basic integration test."""
     system = MySystem()
@@ -546,7 +546,7 @@ def test_integration():
 test_integration()
 ```
 
-## References
+## References {#sec-references}
 
 - **Architecture:** See `Integration_Framework_Architecture.md`
 - **Type Definitions:** See `src/types/trajectories.py`

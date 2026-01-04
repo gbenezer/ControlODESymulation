@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Quick Start
+## Quick Start {#sec-quick-start}
 
-### 1. LQR Controller Design
+### 1. LQR Controller Design {#sec-1-lqr-controller-design}
 
-```python
+```{python}
 from src.systems.examples import Pendulum
 import numpy as np
 
@@ -48,9 +48,9 @@ print(f"Stable: {np.all(np.real(result['closed_loop_eigenvalues']) < 0)}")
 u = -K @ (x - x_eq)
 ```
 
-### 2. Kalman Filter Design
+### 2. Kalman Filter Design {#sec-2-kalman-filter-design}
 
-```python
+```{python}
 # Define measurement model
 C = np.array([[1, 0]])  # Measure position only
 
@@ -79,9 +79,9 @@ for k in range(N):
     x_hat = x_hat_pred + L @ innovation
 ```
 
-### 3. LQG Controller Design
+### 3. LQG Controller Design {#sec-3-lqg-controller-design}
 
-```python
+```{python}
 # Design combined LQR + Kalman filter
 lqg = system.control.design_lqg(
     A, B, C,
@@ -113,9 +113,9 @@ for k in range(N):
     x_hat = x_hat + L @ innovation
 ```
 
-### 4. System Analysis
+### 4. System Analysis {#sec-4-system-analysis}
 
-```python
+```{python}
 # Check stability
 stability = system.analysis.stability(A, system_type='continuous')
 print(f"Stable: {stability['is_stable']}")
@@ -133,11 +133,11 @@ print(f"Observable: {obs['is_observable']}")
 
 ---
 
-## Control Design Methods
+## Control Design Methods {#sec-control-design-methods}
 
-### LQR Controller
+### LQR Controller {#sec-lqr-controller}
 
-```python
+```{python}
 # Continuous-time LQR
 result = system.control.design_lqr(
     A, B,
@@ -174,9 +174,9 @@ is_stable_continuous = np.all(np.real(eigs) < 0)
 is_stable_discrete = np.all(np.abs(eigs) < 1)
 ```
 
-### Kalman Filter
+### Kalman Filter {#sec-kalman-filter}
 
-```python
+```{python}
 # Continuous-time Kalman filter
 kalman = system.control.design_kalman(
     A, C,
@@ -204,9 +204,9 @@ obs_stable_continuous = np.all(np.real(eigs) < 0)
 obs_stable_discrete = np.all(np.abs(eigs) < 1)
 ```
 
-### LQG Controller
+### LQG Controller {#sec-lqg-controller}
 
-```python
+```{python}
 # Design LQG (LQR + Kalman via separation principle)
 lqg = system.control.design_lqg(
     A, B, C,
@@ -234,11 +234,11 @@ print(f"Combined system stable: {stable}")
 
 ---
 
-## System Analysis Methods
+## System Analysis Methods {#sec-system-analysis-methods}
 
-### Stability Analysis
+### Stability Analysis {#sec-stability-analysis}
 
-```python
+```{python}
 # Continuous-time stability
 stability = system.analysis.stability(A, system_type='continuous')
 
@@ -264,9 +264,9 @@ else:
     print(f"Unstable eigenvalues: {eigs[np.abs(eigs) > 1]}")   # Discrete
 ```
 
-### Controllability Analysis
+### Controllability Analysis {#sec-controllability-analysis}
 
-```python
+```{python}
 # Check controllability
 ctrl = system.analysis.controllability(A, B)
 
@@ -288,9 +288,9 @@ else:
     print(f"Controllability rank: {rank} / {A.shape[0]}")
 ```
 
-### Observability Analysis
+### Observability Analysis {#sec-observability-analysis}
 
-```python
+```{python}
 # Check observability
 obs = system.analysis.observability(A, C)
 
@@ -314,11 +314,11 @@ else:
 
 ---
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: Full State Feedback LQR
+### Pattern 1: Full State Feedback LQR {#sec-pattern-1-full-state-feedback-lqr}
 
-```python
+```{python}
 # 1. Linearize at equilibrium
 A, B = system.linearize(x_eq, u_eq)
 
@@ -341,9 +341,9 @@ result_sim = system.simulate(
 )
 ```
 
-### Pattern 2: Observer-Based Control
+### Pattern 2: Observer-Based Control {#sec-pattern-2-observer-based-control}
 
-```python
+```{python}
 # 1. Design controller (assumes full state)
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])  # Partial measurement
@@ -375,9 +375,9 @@ for k in range(N):
     x_hat += dt * x_hat_dot
 ```
 
-### Pattern 3: LQG Controller
+### Pattern 3: LQG Controller {#sec-pattern-3-lqg-controller}
 
-```python
+```{python}
 # 1. Design combined LQG
 lqg = system.control.design_lqg(
     A, B, C,
@@ -408,9 +408,9 @@ for k in range(N):
     x_hat = x_hat + L @ innovation
 ```
 
-### Pattern 4: Discrete-Time Control
+### Pattern 4: Discrete-Time Control {#sec-pattern-4-discrete-time-control}
 
-```python
+```{python}
 # 1. Design discrete LQR
 Ad, Bd = discrete_system.linearize(x_eq, u_eq)
 result = discrete_system.control.design_lqr(
@@ -425,9 +425,9 @@ for k in range(N):
     x[k+1] = discrete_system.step(x[k], u[k])
 ```
 
-### Pattern 5: Tuning LQR Weights
+### Pattern 5: Tuning LQR Weights {#sec-pattern-5-tuning-lqr-weights}
 
-```python
+```{python}
 # Bryson's rule: Normalize by maximum acceptable values
 x_max = np.array([0.5, 2.0])  # Max acceptable deviation
 u_max = np.array([10.0])      # Max acceptable control
@@ -448,9 +448,9 @@ for q_scale in [1.0, 10.0, 100.0]:
     print(f"q_scale={q_scale}: poles = {closed_loop_poles}")
 ```
 
-### Pattern 6: Pre-Flight Checks
+### Pattern 6: Pre-Flight Checks {#sec-pattern-6-pre-flight-checks}
 
-```python
+```{python}
 # Before designing controllers, verify system properties
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])
@@ -477,9 +477,9 @@ if ctrl['is_controllable'] and obs['is_observable']:
     print("✓ LQG design successful")
 ```
 
-### Pattern 7: Multi-Backend Support
+### Pattern 7: Multi-Backend Support {#sec-pattern-7-multi-backend-support}
 
-```python
+```{python}
 import torch
 import jax.numpy as jnp
 
@@ -509,9 +509,9 @@ result_jax = system_jax.control.design_lqr(A_jax, B_jax, Q_jax, R_jax)
 
 ---
 
-## Troubleshooting
+## Troubleshooting {#sec-troubleshooting}
 
-### Issue: LQR design fails with "No stabilizing solution"
+### Issue: LQR design fails with "No stabilizing solution" {#sec-issue-lqr-design-fails-with-no-stabilizing-solution}
 
 **Possible Causes:**
 - System not controllable
@@ -519,7 +519,7 @@ result_jax = system_jax.control.design_lqr(A_jax, B_jax, Q_jax, R_jax)
 - Ill-conditioned matrices
 
 **Solutions:**
-```python
+```{python}
 # 1. Check controllability
 ctrl = system.analysis.controllability(A, B)
 if not ctrl['is_controllable']:
@@ -534,7 +534,7 @@ Q_regularized = Q + 1e-6 * np.eye(nx)
 # or |λ| < 1 (discrete)
 ```
 
-### Issue: Kalman filter design fails
+### Issue: Kalman filter design fails {#sec-issue-kalman-filter-design-fails}
 
 **Possible Causes:**
 - System not observable
@@ -542,7 +542,7 @@ Q_regularized = Q + 1e-6 * np.eye(nx)
 - Singular measurement noise R
 
 **Solutions:**
-```python
+```{python}
 # 1. Check observability
 obs = system.analysis.observability(A, C)
 if not obs['is_observable']:
@@ -560,7 +560,7 @@ R_regularized = R + 1e-6 * np.eye(ny)
 # All unobservable modes should be damped by process noise
 ```
 
-### Issue: Closed-loop unstable despite LQR design
+### Issue: Closed-loop unstable despite LQR design {#sec-issue-closed-loop-unstable-despite-lqr-design}
 
 **Possible Causes:**
 - Wrong system_type (continuous vs discrete)
@@ -568,7 +568,7 @@ R_regularized = R + 1e-6 * np.eye(ny)
 - Equilibrium not actually an equilibrium
 
 **Solutions:**
-```python
+```{python}
 # 1. Verify equilibrium
 f_eq = system(x_eq, u_eq)
 print(f"f(x_eq, u_eq) = {f_eq}")  # Should be near zero
@@ -589,13 +589,13 @@ elif isinstance(system, DiscreteSystemBase):
 result = system.control.design_lqr(A, B, Q, R, system_type=system_type)
 ```
 
-### Issue: LQG eigenvalues don't match individual designs
+### Issue: LQG eigenvalues don't match individual designs {#sec-issue-lqg-eigenvalues-dont-match-individual-designs}
 
 **This is expected!** 
 - LQG closed-loop has 2*nx eigenvalues
 - Should be: eig(A-BK) ∪ eig(A-LC)
 
-```python
+```{python}
 # Verify separation
 lqr = system.control.design_lqr(A, B, Q, R)
 kalman = system.control.design_kalman(A, C, Q_proc, R_meas)
@@ -618,11 +618,11 @@ assert np.allclose(sorted(combined), sorted(lqg_combined))
 
 ---
 
-## Direct Function Usage (Advanced)
+## Direct Function Usage (Advanced) {#sec-direct-function-usage-advanced}
 
 For cases where you need to use control functions without a system object:
 
-```python
+```{python}
 from src.control.classical_control_functions import (
     design_lqr,
     design_kalman_filter,
@@ -661,9 +661,9 @@ obs = analyze_observability(A, C, backend='numpy')
 
 ---
 
-## Testing Your Controller
+## Testing Your Controller {#sec-testing-your-controller}
 
-```python
+```{python}
 def test_lqr_design():
     """Test LQR controller design and stability."""
     # Create system
@@ -703,7 +703,7 @@ test_lqr_design()
 
 ---
 
-## References
+## References {#sec-references}
 
 - **Architecture:** See `Control_Framework_Architecture.md` for complete details
 - **Type Definitions:** See `Type_System_Architecture.md` for TypedDict documentation

@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Quick Start
+## Quick Start {#sec-quick-start}
 
-### 1. Time-Domain Trajectory Plot
+### 1. Time-Domain Trajectory Plot {#sec-1-time-domain-trajectory-plot}
 
-```python
+```{python}
 from src.systems.examples import Pendulum
 import numpy as np
 
@@ -45,9 +45,9 @@ fig.show()
 fig.write_html('trajectory.html')
 ```
 
-### 2. Phase Portrait (2D)
+### 2. Phase Portrait (2D) {#sec-2-phase-portrait-2d}
 
-```python
+```{python}
 # 2D phase portrait
 fig = system.phase_plotter.plot_2d(
     x=result['x'],
@@ -69,9 +69,9 @@ fig = system.phase_plotter.plot_2d(
 )
 ```
 
-### 3. Control Analysis (Eigenvalue Map)
+### 3. Control Analysis (Eigenvalue Map) {#sec-3-control-analysis-eigenvalue-map}
 
-```python
+```{python}
 # Linearize and design LQR
 x_eq = np.array([np.pi, 0])
 u_eq = np.zeros(1)
@@ -90,9 +90,9 @@ fig = system.control_plotter.plot_eigenvalue_map(
 fig.show()
 ```
 
-### 4. State and Control Together
+### 4. State and Control Together {#sec-4-state-and-control-together}
 
-```python
+```{python}
 # Simulate with controller
 def lqr_controller(x, t):
     return -lqr['gain'] @ (x - x_eq)
@@ -117,11 +117,11 @@ fig = system.plotter.plot_state_and_control(
 
 ---
 
-## Trajectory Plotting
+## Trajectory Plotting {#sec-trajectory-plotting}
 
-### Basic Trajectory Plot
+### Basic Trajectory Plot {#sec-basic-trajectory-plot}
 
-```python
+```{python}
 from src.visualization.trajectory_plotter import TrajectoryPlotter
 
 plotter = TrajectoryPlotter(backend='numpy')
@@ -138,9 +138,9 @@ fig = plotter.plot_trajectory(
 fig.show()
 ```
 
-### Batched Trajectories (Monte Carlo)
+### Batched Trajectories (Monte Carlo) {#sec-batched-trajectories-monte-carlo}
 
-```python
+```{python}
 # Multiple trajectories
 n_batch = 20
 x_batch = np.random.randn(n_batch, 100, 2)
@@ -155,9 +155,9 @@ fig = plotter.plot_trajectory(
 )
 ```
 
-### State and Control Combined
+### State and Control Combined {#sec-state-and-control-combined}
 
-```python
+```{python}
 # State + control subplots
 fig = plotter.plot_state_and_control(
     t=result['t'],
@@ -170,9 +170,9 @@ fig = plotter.plot_state_and_control(
 )
 ```
 
-### Comparing Multiple Runs
+### Comparing Multiple Runs {#sec-comparing-multiple-runs}
 
-```python
+```{python}
 # Compare different controllers
 results = {
     'LQR Q=10': system.simulate(...),
@@ -190,11 +190,11 @@ fig = plotter.plot_comparison(
 
 ---
 
-## Phase Portrait Plotting
+## Phase Portrait Plotting {#sec-phase-portrait-plotting}
 
-### 2D Phase Portrait
+### 2D Phase Portrait {#sec-2d-phase-portrait}
 
-```python
+```{python}
 from src.visualization.phase_portrait import PhasePortraitPlotter
 
 plotter = PhasePortraitPlotter(backend='numpy')
@@ -208,9 +208,9 @@ fig = plotter.plot_2d(
 fig.show()
 ```
 
-### With Direction Arrows
+### With Direction Arrows {#sec-with-direction-arrows}
 
-```python
+```{python}
 # Show trajectory direction
 fig = plotter.plot_2d(
     x=trajectory,
@@ -220,9 +220,9 @@ fig = plotter.plot_2d(
 )
 ```
 
-### With Vector Field
+### With Vector Field {#sec-with-vector-field}
 
-```python
+```{python}
 # Add vector field (quiver plot)
 def dynamics(x1, x2):
     """Return (dx1/dt, dx2/dt)"""
@@ -236,9 +236,9 @@ fig = plotter.plot_2d(
 )
 ```
 
-### With Equilibria
+### With Equilibria {#sec-with-equilibria}
 
-```python
+```{python}
 # Mark equilibrium points
 equilibria = [
     np.array([0, 0]),      # Stable equilibrium
@@ -254,9 +254,9 @@ fig = plotter.plot_2d(
 )
 ```
 
-### 3D Phase Portrait
+### 3D Phase Portrait {#sec-3d-phase-portrait}
 
-```python
+```{python}
 # 3D phase space
 fig = plotter.plot_3d(
     x=trajectory_3d,  # (T, 3)
@@ -274,9 +274,9 @@ fig = plotter.plot_3d(
 )
 ```
 
-### Limit Cycle Visualization
+### Limit Cycle Visualization {#sec-limit-cycle-visualization}
 
-```python
+```{python}
 # Highlight periodic orbits
 fig = plotter.plot_limit_cycle(
     x=vdp_trajectory,
@@ -288,11 +288,11 @@ fig = plotter.plot_limit_cycle(
 
 ---
 
-## Control Analysis Plots
+## Control Analysis Plots {#sec-control-analysis-plots}
 
-### Eigenvalue Map
+### Eigenvalue Map {#sec-eigenvalue-map}
 
-```python
+```{python}
 from src.visualization.control_plots import ControlPlotter
 
 plotter = ControlPlotter(backend='numpy')
@@ -313,9 +313,9 @@ fig = plotter.plot_eigenvalue_map(
 )
 ```
 
-### Gain Comparison
+### Gain Comparison {#sec-gain-comparison}
 
-```python
+```{python}
 # Compare LQR gains for different Q weights
 gains = {}
 for q_scale in [1, 10, 100, 1000]:
@@ -330,9 +330,9 @@ fig = plotter.plot_gain_comparison(
 )
 ```
 
-### Riccati Convergence
+### Riccati Convergence {#sec-riccati-convergence}
 
-```python
+```{python}
 # Monitor iterative Riccati solver
 P_history = []  # Collect P at each iteration
 
@@ -342,9 +342,9 @@ fig = plotter.plot_riccati_convergence(
 )
 ```
 
-### Controllability Gramian
+### Controllability Gramian {#sec-controllability-gramian}
 
-```python
+```{python}
 # Compute controllability Gramian
 from scipy.linalg import solve_continuous_lyapunov
 
@@ -357,9 +357,9 @@ fig = plotter.plot_controllability_gramian(
 )
 ```
 
-### Observability Gramian
+### Observability Gramian {#sec-observability-gramian}
 
-```python
+```{python}
 # Compute observability Gramian
 W_o = solve_continuous_lyapunov(A.T, -C.T @ C)
 
@@ -370,9 +370,9 @@ fig = plotter.plot_observability_gramian(
 )
 ```
 
-### Step Response
+### Step Response {#sec-step-response}
 
-```python
+```{python}
 from scipy import signal
 
 # Closed-loop system
@@ -390,9 +390,9 @@ fig = plotter.plot_step_response(
 )
 ```
 
-### Impulse Response
+### Impulse Response {#sec-impulse-response}
 
-```python
+```{python}
 t, y = signal.impulse(sys)
 
 fig = plotter.plot_impulse_response(
@@ -402,9 +402,9 @@ fig = plotter.plot_impulse_response(
 )
 ```
 
-### Bode Plot
+### Bode Plot {#sec-bode-plot}
 
-```python
+```{python}
 omega, mag, phase = signal.bode(sys)
 
 fig = plotter.plot_frequency_response(
@@ -414,9 +414,9 @@ fig = plotter.plot_frequency_response(
 )
 ```
 
-### Nyquist Diagram
+### Nyquist Diagram {#sec-nyquist-diagram}
 
-```python
+```{python}
 # Frequency response
 omega = np.logspace(-2, 2, 1000)
 s = 1j * omega
@@ -430,9 +430,9 @@ fig = plotter.plot_nyquist(
 )
 ```
 
-### Root Locus
+### Root Locus {#sec-root-locus}
 
-```python
+```{python}
 # Compute pole paths for varying gain
 gains = np.linspace(0, 10, 100)
 pole_paths = np.zeros((len(gains), 2), dtype=complex)
@@ -450,11 +450,11 @@ fig = plotter.plot_root_locus(
 
 ---
 
-## Theming and Customization
+## Theming and Customization {#sec-theming-and-customization}
 
-### Available Themes
+### Available Themes {#sec-available-themes}
 
-```python
+```{python}
 from src.visualization.themes import PlotThemes
 
 # Default theme (white background)
@@ -470,9 +470,9 @@ fig = plotter.plot_trajectory(t, x, theme='dark')
 fig = PlotThemes.apply_theme(fig, theme='publication')
 ```
 
-### Color Schemes
+### Color Schemes {#sec-color-schemes}
 
-```python
+```{python}
 from src.visualization.themes import ColorSchemes
 
 # Get colors from predefined scheme
@@ -488,7 +488,7 @@ fig = plotter.plot_trajectory(
 )
 ```
 
-### Available Color Schemes
+### Available Color Schemes {#sec-available-color-schemes}
 
 **Categorical (for distinct categories):**
 
@@ -507,9 +507,9 @@ fig = plotter.plot_trajectory(
 - `'diverging_red_blue'` - Red-blue scale (11 colors)
 - `'diverging_purple_green'` - Purple-green scale (11 colors)
 
-### Color Utilities
+### Color Utilities {#sec-color-utilities}
 
-```python
+```{python}
 from src.visualization.themes import lighten_color, darken_color, interpolate_colors
 
 # Lighten a color
@@ -524,11 +524,11 @@ gradient = interpolate_colors('#1f77b4', '#ff7f0e', n=10)
 
 ---
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: Publication-Ready Figure
+### Pattern 1: Publication-Ready Figure {#sec-pattern-1-publication-ready-figure}
 
-```python
+```{python}
 # Single configuration for publication
 fig = system.plotter.plot_trajectory(
     result['t'],
@@ -545,9 +545,9 @@ fig.write_image('figure.pdf')  # Requires kaleido
 fig.write_image('figure.png', width=1200, height=800, scale=2)
 ```
 
-### Pattern 2: Multi-Subplot Analysis
+### Pattern 2: Multi-Subplot Analysis {#sec-pattern-2-multi-subplot-analysis}
 
-```python
+```{python}
 from plotly.subplots import make_subplots
 
 # Create custom subplot layout
@@ -580,9 +580,9 @@ fig.add_trace(
 fig = PlotThemes.apply_theme(fig, theme='publication')
 ```
 
-### Pattern 3: Batch Visualization
+### Pattern 3: Batch Visualization {#sec-pattern-3-batch-visualization}
 
-```python
+```{python}
 # Monte Carlo simulation
 n_runs = 50
 x_batch = np.zeros((n_runs, len(t), 2))
@@ -616,9 +616,9 @@ for i in range(n_runs):
 fig = PlotThemes.apply_theme(fig, theme='publication')
 ```
 
-### Pattern 4: Interactive Dashboard
+### Pattern 4: Interactive Dashboard {#sec-pattern-4-interactive-dashboard}
 
-```python
+```{python}
 # Create interactive dashboard with multiple views
 from plotly.subplots import make_subplots
 
@@ -664,9 +664,9 @@ fig = PlotThemes.apply_theme(fig, theme='publication')
 fig.show()
 ```
 
-### Pattern 5: Animation (Time Evolution)
+### Pattern 5: Animation (Time Evolution) {#sec-pattern-5-animation-time-evolution}
 
-```python
+```{python}
 # Animated trajectory
 frames = []
 for i in range(0, len(t), 5):  # Every 5th point
@@ -701,9 +701,9 @@ fig.update_layout(
 fig = PlotThemes.apply_theme(fig, theme='dark')
 ```
 
-### Pattern 6: Backend-Agnostic Plotting
+### Pattern 6: Backend-Agnostic Plotting {#sec-pattern-6-backend-agnostic-plotting}
 
-```python
+```{python}
 import torch
 import jax.numpy as jnp
 
@@ -742,9 +742,9 @@ fig = system_jax.plotter.plot_trajectory(
 
 ---
 
-## Troubleshooting
+## Troubleshooting {#sec-troubleshooting}
 
-### Issue: Plot appears blank
+### Issue: Plot appears blank {#sec-issue-plot-appears-blank}
 
 **Possible Causes:**
 
@@ -753,7 +753,7 @@ fig = system_jax.plotter.plot_trajectory(
 - Empty arrays
 
 **Solutions:**
-```python
+```{python}
 # Check data
 print(f"t shape: {t.shape}")
 print(f"x shape: {x.shape}")
@@ -768,10 +768,10 @@ if x.ndim == 2:
     assert x.shape[0] == len(t), "First dimension must match time"
 ```
 
-### Issue: Theme not applying
+### Issue: Theme not applying {#sec-issue-theme-not-applying}
 
 **Problem:**
-```python
+```{python}
 # This doesn't work
 fig = plotter.plot_trajectory(t, x)
 PlotThemes.apply_theme(fig, theme='publication')  # Returns new figure!
@@ -779,7 +779,7 @@ fig.show()  # Shows old figure without theme
 ```
 
 **Solution:**
-```python
+```{python}
 # Correct: Capture returned figure
 fig = plotter.plot_trajectory(t, x)
 fig = PlotThemes.apply_theme(fig, theme='publication')
@@ -790,10 +790,10 @@ fig = plotter.plot_trajectory(t, x, theme='publication')
 fig.show()
 ```
 
-### Issue: Batched data not showing std bands
+### Issue: Batched data not showing std bands {#sec-issue-batched-data-not-showing-std-bands}
 
 **Check:**
-```python
+```{python}
 # Ensure show_std=True
 fig = plotter.plot_trajectory(
     t, x_batch,
@@ -805,12 +805,12 @@ print(f"Shape: {x_batch.shape}")
 # Should be (n_batch, T, nx), not (T, nx)
 ```
 
-### Issue: Colors cycling too fast
+### Issue: Colors cycling too fast {#sec-issue-colors-cycling-too-fast}
 
 **Problem:** Too many traces, colors repeat
 
 **Solution:**
-```python
+```{python}
 # Use larger color scheme
 fig = plotter.plot_comparison(
     many_results,
@@ -824,10 +824,10 @@ custom_colors = interpolate_colors('#1f77b4', '#ff7f0e', n=20)
 # Use in manual plotting
 ```
 
-### Issue: 3D plot not interactive
+### Issue: 3D plot not interactive {#sec-issue-3d-plot-not-interactive}
 
 **Check browser compatibility:**
-```python
+```{python}
 # Ensure using modern browser
 # Chrome, Firefox, Safari all support WebGL
 
@@ -836,10 +836,10 @@ fig.show(renderer='browser')  # Opens in default browser
 fig.show(renderer='notebook')  # For Jupyter
 ```
 
-### Issue: Export to PDF fails
+### Issue: Export to PDF fails {#sec-issue-export-to-pdf-fails}
 
 **Solution:**
-```python
+```{python}
 # Install kaleido
 # pip install kaleido
 
@@ -850,11 +850,11 @@ fig.write_image('figure.png', width=1200, height=800, scale=2)
 
 ---
 
-## Direct Plotter Usage (Without System)
+## Direct Plotter Usage (Without System) {#sec-direct-plotter-usage-without-system}
 
 For cases where you need plotting without a system object:
 
-```python
+```{python}
 from src.visualization.trajectory_plotter import TrajectoryPlotter
 from src.visualization.phase_portrait import PhasePortraitPlotter
 from src.visualization.control_plots import ControlPlotter
@@ -872,11 +872,11 @@ fig = control_plotter.plot_eigenvalue_map(eigenvalues, system_type='continuous')
 
 ---
 
-## Advanced Customization
+## Advanced Customization {#sec-advanced-customization}
 
-### Custom Color Scheme
+### Custom Color Scheme {#sec-custom-color-scheme}
 
-```python
+```{python}
 # Define custom colors
 CUSTOM_COLORS = [
     '#1B9E77',  # Teal
@@ -897,9 +897,9 @@ for i, (name, result) in enumerate(results.items()):
     ))
 ```
 
-### Custom Theme
+### Custom Theme {#sec-custom-theme}
 
-```python
+```{python}
 # Define custom theme dictionary
 CUSTOM_THEME = {
     'template': 'simple_white',
@@ -923,9 +923,9 @@ fig.update_layout(
 )
 ```
 
-### Subplot Customization
+### Subplot Customization {#sec-subplot-customization}
 
-```python
+```{python}
 # Fine-grained control over subplots
 fig = make_subplots(
     rows=2, cols=2,
@@ -943,11 +943,11 @@ fig.update_yaxes(title_text="Angle (rad)", row=1, col=1)
 
 ---
 
-## Best Practices
+## Best Practices {#sec-best-practices}
 
-### 1. Always Use Themes for Consistency
+### 1. Always Use Themes for Consistency {#sec-1-always-use-themes-for-consistency}
 
-```python
+```{python}
 # Good: Consistent theming
 fig1 = plotter.plot_trajectory(t, x, theme='publication')
 fig2 = plotter.plot_2d(x, theme='publication')
@@ -957,9 +957,10 @@ fig1 = plotter.plot_trajectory(t, x)  # Default theme
 fig2 = plotter.plot_2d(x, theme='dark')  # Different theme
 ```
 
-### 2. Use Colorblind-Safe Palettes
+### 2. Use Colorblind-Safe Palettes {#sec-2-use-colorblind-safe-palettes}
 
-```python
+```{python}
+#| eval: false
 # For publications and presentations
 fig = plotter.plot_comparison(
     results,
@@ -968,9 +969,10 @@ fig = plotter.plot_comparison(
 )
 ```
 
-### 3. Add Informative Labels
+### 3. Add Informative Labels {#sec-3-add-informative-labels}
 
-```python
+```{python}
+#| eval: false
 # Good: Clear labels
 fig = plotter.plot_trajectory(
     t, x,
@@ -982,9 +984,10 @@ fig = plotter.plot_trajectory(
 fig = plotter.plot_trajectory(t, x)  # x1, x2, etc.
 ```
 
-### 4. Export Multiple Formats
+### 4. Export Multiple Formats {#sec-4-export-multiple-formats}
 
-```python
+```{python}
+#| eval: false
 # Save interactive HTML
 fig.write_html('figure_interactive.html')
 
@@ -995,7 +998,7 @@ fig.write_image('figure.png', width=1200, height=800, scale=2)  # For slides
 
 ---
 
-## References
+## References {#sec-references}
 
 - **Architecture:** See `Visualization_Framework_Architecture.md` for complete details
 - **Theming:** See `src/visualization/themes.py`

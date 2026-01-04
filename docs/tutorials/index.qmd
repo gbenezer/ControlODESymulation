@@ -2,17 +2,17 @@
 title: "Tutorials"
 ---
 
-## Getting Started
+## Getting Started {#sec-getting-started}
 
 - [Installation](installation.qmd)
 - [Basic Usage](basic_usage.qmd)
 
-## Core Concepts
+## Core Concepts {#sec-core-concepts}
 
 - [Dynamical Systems](dynamical-systems.qmd)
 - [SDE Integration](sde-integration.qmd)
 - [Backend Selection](backends.qmd)
 
-## Advanced Topics
+## Advanced Topics {#sec-advanced-topics}
 
 - [Visualization Guide](visualization.qmd)

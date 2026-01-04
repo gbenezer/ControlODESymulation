@@ -14,11 +14,11 @@ execute:
   warning: false  # Suppress warnings
 ---
 
-## Overview
+## Overview {#sec-overview}
 
 The **Control Framework** provides classical control theory algorithms for analysis and synthesis of dynamical systems. It consists of **3 core modules** totaling ~1,786 lines organized into a clean **2-layer architecture**: pure stateless functions and thin composition wrappers.
 
-## Architecture Philosophy
+## Architecture Philosophy {#sec-architecture-philosophy}
 
 **Functional Design with Composition** - The control framework enables:
 
@@ -30,15 +30,27 @@ The **Control Framework** provides classical control theory algorithms for analy
 6. **Mathematical Rigor** - Implements classical control theory correctly
 7. **System Integration** - Clean `system.control` and `system.analysis` APIs
 
-```python
+```{python}
+#| output: false
 # Pure functions - stateless, reusable
+
+```{python}
+#| label: setup-imports
+#| output: false
+#| echo: false
+
+# Setup for all code examples in this document
+import numpy as np
+from typing import Optional, Tuple, Dict, List, Union
+```
+
 result = design_lqr(A, B, Q, R, system_type='continuous')
 
 # Composition wrappers - integrate with systems
 result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 ```
 
-## Framework Layers
+## Framework Layers {#sec-framework-layers}
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -73,11 +85,11 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 └────────────────────────────────────────────────────────────┘
 ```
 
-## Module Breakdown
+## Module Breakdown {#sec-module-breakdown}
 
-### Pure Function Layer
+### Pure Function Layer {#sec-pure-function-layer}
 
-#### classical_control_functions.py
+#### classical_control_functions.py {#sec-classicalcontrolfunctionspy}
 **File:** `classical_control_functions.py` (967 lines)
 
 **Purpose:** Stateless algorithms for control design and system analysis
@@ -94,7 +106,8 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 
 **1. Control Design Functions**
 
-```python
+```{python}
+#| output: false
 def design_lqr(
     A: StateMatrix,
     B: InputMatrix,
@@ -154,7 +167,8 @@ def design_lqr(
     """
 ```
 
-```python
+```{python}
+#| output: false
 def design_kalman_filter(
     A: StateMatrix,
     C: OutputMatrix,
@@ -206,7 +220,8 @@ def design_kalman_filter(
     """
 ```
 
-```python
+```{python}
+#| output: false
 def design_lqg(
     A: StateMatrix,
     B: InputMatrix,
@@ -278,7 +293,8 @@ def design_lqg(
 
 **2. System Analysis Functions**
 
-```python
+```{python}
+#| output: false
 def analyze_stability(
     A: StateMatrix,
     system_type: str = "continuous",
@@ -320,7 +336,8 @@ def analyze_stability(
     """
 ```
 
-```python
+```{python}
+#| output: false
 def analyze_controllability(
     A: StateMatrix,
     B: InputMatrix,
@@ -358,7 +375,8 @@ def analyze_controllability(
     """
 ```
 
-```python
+```{python}
+#| output: false
 def analyze_observability(
     A: StateMatrix,
     C: OutputMatrix,
@@ -407,7 +425,8 @@ def analyze_observability(
 - **TypedDict returns** - Type-safe structured results
 
 **Internal Utilities:**
-```python
+```{python}
+#| output: false
 def _to_numpy(arr, backend: Backend) -> np.ndarray:
     """Convert from any backend to NumPy for scipy."""
 
@@ -417,9 +436,9 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
 
 ---
 
-### Composition Wrapper Layer
+### Composition Wrapper Layer {#sec-composition-wrapper-layer}
 
-#### control_synthesis.py
+#### control_synthesis.py {#sec-controlsynthesispy}
 **File:** `control_synthesis.py` (388 lines)
 
 **Purpose:** Thin wrapper for control design algorithms
@@ -432,7 +451,8 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
 - **Clean API** - Methods match control theory terminology
 
 **Architecture:**
-```python
+```{python}
+#| output: false
 class ControlSynthesis:
     """
     Control synthesis wrapper for system composition.
@@ -464,7 +484,8 @@ class ControlSynthesis:
 ```
 
 **Integration with Systems:**
-```python
+```{python}
+#| output: false
 # In ContinuousSystemBase / DiscreteSystemBase
 @property
 def control(self) -> ControlSynthesis:
@@ -476,7 +497,8 @@ def control(self) -> ControlSynthesis:
 ```
 
 **Usage Pattern:**
-```python
+```{python}
+#| output: false
 # Via system composition (typical)
 system = Pendulum()
 A, B = system.linearize(x_eq, u_eq)
@@ -491,7 +513,7 @@ u = -K @ (x - x_eq)
 
 ---
 
-#### system_analysis.py
+#### system_analysis.py {#sec-systemanalysispy}
 **File:** `system_analysis.py` (431 lines)
 
 **Purpose:** Thin wrapper for system analysis algorithms
@@ -503,7 +525,8 @@ u = -K @ (x - x_eq)
 - **Consistent interface** - Matches control_synthesis.py design
 
 **Architecture:**
-```python
+```{python}
+#| output: false
 class SystemAnalysis:
     """
     System analysis wrapper for composition.
@@ -535,7 +558,8 @@ class SystemAnalysis:
 ```
 
 **Integration with Systems:**
-```python
+```{python}
+#| output: false
 # In ContinuousSystemBase / DiscreteSystemBase
 @property
 def analysis(self) -> SystemAnalysis:
@@ -547,7 +571,8 @@ def analysis(self) -> SystemAnalysis:
 ```
 
 **Usage Pattern:**
-```python
+```{python}
+#| output: false
 # Via system composition (typical)
 system = Pendulum()
 A, B = system.linearize(x_eq, u_eq)
@@ -568,9 +593,9 @@ if controllability['is_controllable'] and observability['is_observable']:
 
 ---
 
-### Type Layer
+### Type Layer {#sec-type-layer}
 
-#### control_classical.py
+#### control_classical.py {#sec-controlclassicalpy}
 **File:** `control_classical.py` (542 lines)
 
 **Purpose:** TypedDict result types for control algorithms
@@ -588,13 +613,14 @@ See `Type_System_Architecture.md` for complete documentation.
 
 ---
 
-## Design Patterns
+## Design Patterns {#sec-design-patterns}
 
-### Pattern 1: Pure Functions + Thin Wrappers
+### Pattern 1: Pure Functions + Thin Wrappers {#sec-pattern-1-pure-functions--thin-wrappers}
 
 **Why this architecture?**
 
-```python
+```{python}
+#| output: false
 # ANTI-PATTERN: Methods on system class (violates SRP)
 class ContinuousSystemBase:
     def design_lqr(self, Q, R):
@@ -628,9 +654,10 @@ def control(self) -> ControlSynthesis:
 - ✅ **Composition** - System uses utilities, doesn't inherit them
 - ✅ **Maintainability** - Changes isolated to function layer
 
-### Pattern 2: Backend Agnosticism
+### Pattern 2: Backend Agnosticism {#sec-pattern-2-backend-agnosticism}
 
-```python
+```{python}
+#| output: false
 def design_lqr(..., backend: Backend):
     """Works with NumPy, PyTorch, JAX transparently."""
     
@@ -649,9 +676,10 @@ def design_lqr(..., backend: Backend):
     return LQRResult(gain=K_result, cost_to_go=P_result, ...)
 ```
 
-### Pattern 3: TypedDict Results
+### Pattern 3: TypedDict Results {#sec-pattern-3-typeddict-results}
 
-```python
+```{python}
+#| output: false
 # All functions return structured TypedDict
 result: LQRResult = design_lqr(A, B, Q, R, system_type='continuous')
 
@@ -666,9 +694,10 @@ def apply_control(result: LQRResult) -> np.ndarray:
     return result['gain']  # ✓ Type checker verifies
 ```
 
-### Pattern 4: Unified Continuous/Discrete Interface
+### Pattern 4: Unified Continuous/Discrete Interface {#sec-pattern-4-unified-continuous-discrete-interface}
 
-```python
+```{python}
+#| output: false
 # Same function handles both continuous and discrete
 def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
     """Unified interface - system_type selects algorithm."""
@@ -699,9 +728,9 @@ def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
 
 ---
 
-## Mathematical Algorithms
+## Mathematical Algorithms {#sec-mathematical-algorithms}
 
-### LQR Design
+### LQR Design {#sec-lqr-design}
 
 **Continuous-Time LQR:**
 
@@ -747,7 +776,7 @@ K = (R + B'PB)⁻¹(B'PA + N')
 x[k+1] = (A - BK)x[k]
 ```
 
-### Kalman Filter Design
+### Kalman Filter Design {#sec-kalman-filter-design}
 
 **System Model:**
 ```
@@ -775,7 +804,7 @@ P = A(P - PC'(CPC' + R)⁻¹CP)A' + Q
 e[k+1] = (A - LC)e[k] + w[k] - Lv[k]
 ```
 
-### LQG Controller
+### LQG Controller {#sec-lqg-controller}
 
 **Separation Principle:**
 
@@ -803,11 +832,12 @@ e[k+1] = (A - LC)e[k] + w[k] - Lv[k]
 
 ---
 
-## Usage Workflows
+## Usage Workflows {#sec-usage-workflows}
 
-### Workflow 1: Design LQR Controller
+### Workflow 1: Design LQR Controller {#sec-workflow-1-design-lqr-controller}
 
-```python
+```{python}
+#| output: false
 from src.systems.examples import Pendulum
 import numpy as np
 
@@ -849,9 +879,10 @@ result_sim = system.simulate(
 )
 ```
 
-### Workflow 2: Design Kalman Filter
+### Workflow 2: Design Kalman Filter {#sec-workflow-2-design-kalman-filter}
 
-```python
+```{python}
+#| output: false
 # 1. Same system and linearization
 A, B = system.linearize(x_eq, u_eq)
 
@@ -885,9 +916,10 @@ for k in range(N):
     x_hat = x_hat_pred + L @ innovation
 ```
 
-### Workflow 3: Design LQG Controller
+### Workflow 3: Design LQG Controller {#sec-workflow-3-design-lqg-controller}
 
-```python
+```{python}
+#| output: false
 # 1. Define all matrices
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])  # Partial state measurement
@@ -928,9 +960,10 @@ for k in range(N):
     x_hat = x_hat + L @ innovation
 ```
 
-### Workflow 4: System Analysis
+### Workflow 4: System Analysis {#sec-workflow-4-system-analysis}
 
-```python
+```{python}
+#| output: false
 # 1. Linearize system
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])
@@ -969,7 +1002,7 @@ if ctrl['is_controllable'] and obs['is_observable']:
     print("✓ System is minimal - can design LQG controller")
 ```
 
-## Key Strengths
+## Key Strengths {#sec-key-strengths}
 
 1. **Pure Functional Core** - Stateless algorithms, easy to test
 2. **Thin Wrappers** - Minimal composition layer, no business logic

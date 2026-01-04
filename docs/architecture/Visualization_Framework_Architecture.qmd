@@ -14,11 +14,11 @@ execute:
   warning: false  # Suppress warnings
 ---
 
-## Overview
+## Overview {#sec-overview}
 
 The **Visualization Framework** provides interactive, publication-ready plotting for dynamical systems analysis. It consists of **4 core modules** totaling ~4,422 lines organized into a **2-layer architecture**: centralized theming + specialized plotters.
 
-## Architecture Philosophy
+## Architecture Philosophy {#sec-architecture-philosophy}
 
 **Themeable Interactive Visualization** - The visualization framework enables:
 
@@ -30,14 +30,26 @@ The **Visualization Framework** provides interactive, publication-ready plotting
 6. **System Integration** - Clean `system.plotter` and `system.control_plotter` APIs
 7. **Accessible Design** - Colorblind-safe palettes available
 
-```python
+```{python}
+#| output: false
 # Consistent theming across all plots
+
+```{python}
+#| label: setup-imports
+#| output: false
+#| echo: false
+
+# Setup for all code examples in this document
+import numpy as np
+from typing import Optional, Tuple, Dict, List, Union
+```
+
 plotter = TrajectoryPlotter()
 fig = plotter.plot_trajectory(t, x, theme='publication', color_scheme='colorblind_safe')
 fig.show()
 ```
 
-## Framework Layers
+## Framework Layers {#sec-framework-layers}
 
 ```
 ┌────────────────────────────────────────────────────────────┐
@@ -99,11 +111,11 @@ fig.show()
 └────────────────────────────────────────────────────────────┘
 ```
 
-## Module Breakdown
+## Module Breakdown {#sec-module-breakdown}
 
-### Theming Layer
+### Theming Layer {#sec-theming-layer}
 
-#### themes.py
+#### themes.py {#sec-themespy}
 **File:** `themes.py` (623 lines)
 
 **Purpose:** Centralized color palettes and plot styling
@@ -119,7 +131,8 @@ fig.show()
 
 **1. Color Schemes**
 
-```python
+```{python}
+#| output: false
 class ColorSchemes:
     """Predefined color palettes for plotting."""
     
@@ -209,7 +222,8 @@ class ColorSchemes:
 
 **2. Plot Themes**
 
-```python
+```{python}
+#| output: false
 class PlotThemes:
     """Complete theme configurations for plots."""
     
@@ -271,7 +285,8 @@ class PlotThemes:
 
 **3. Color Utilities**
 
-```python
+```{python}
+#| output: false
 def lighten_color(color: str, amount: float = 0.5) -> str:
     """
     Lighten a hex color.
@@ -318,9 +333,9 @@ def interpolate_colors(color1: str, color2: str, n: int) -> List[str]:
 
 ---
 
-### Plotter Layer
+### Plotter Layer {#sec-plotter-layer}
 
-#### trajectory_plotter.py
+#### trajectory_plotter.py {#sec-trajectoryplotterpy}
 **File:** `trajectory_plotter.py` (914 lines)
 
 **Purpose:** Time-domain visualization (state and control vs time)
@@ -334,7 +349,8 @@ def interpolate_colors(color1: str, color2: str, n: int) -> List[str]:
 
 **Architecture:**
 
-```python
+```{python}
+#| output: false
 class TrajectoryPlotter:
     """
     Time-domain trajectory visualization.
@@ -353,7 +369,8 @@ class TrajectoryPlotter:
 
 **1. plot_trajectory()**
 
-```python
+```{python}
+#| output: false
 def plot_trajectory(
     self,
     t: TimePoints,
@@ -405,7 +422,8 @@ def plot_trajectory(
 
 **2. plot_state_and_control()**
 
-```python
+```{python}
+#| output: false
 def plot_state_and_control(
     self,
     t: TimePoints,
@@ -447,7 +465,8 @@ def plot_state_and_control(
 
 **3. plot_comparison()**
 
-```python
+```{python}
+#| output: false
 def plot_comparison(
     self,
     results: Dict[str, Dict],
@@ -489,7 +508,7 @@ def plot_comparison(
 
 ---
 
-#### phase_portrait.py
+#### phase_portrait.py {#sec-phaseportraitpy}
 **File:** `phase_portrait.py` (1,027 lines)
 
 **Purpose:** State space visualization (phase portraits)
@@ -503,7 +522,8 @@ def plot_comparison(
 
 **Architecture:**
 
-```python
+```{python}
+#| output: false
 class PhasePortraitPlotter:
     """
     Phase space visualization.
@@ -522,7 +542,8 @@ class PhasePortraitPlotter:
 
 **1. plot_2d()**
 
-```python
+```{python}
+#| output: false
 def plot_2d(
     self,
     x: StateTrajectory,
@@ -574,7 +595,8 @@ def plot_2d(
 
 **2. plot_3d()**
 
-```python
+```{python}
+#| output: false
 def plot_3d(
     self,
     x: StateTrajectory,
@@ -612,7 +634,8 @@ def plot_3d(
 
 **3. plot_limit_cycle()**
 
-```python
+```{python}
+#| output: false
 def plot_limit_cycle(
     self,
     x: StateTrajectory,
@@ -655,7 +678,7 @@ def plot_limit_cycle(
 
 ---
 
-#### control_plots.py
+#### control_plots.py {#sec-controlplotspy}
 **File:** `control_plots.py` (1,858 lines)
 
 **Purpose:** Control-specific visualizations
@@ -669,7 +692,8 @@ def plot_limit_cycle(
 
 **Architecture:**
 
-```python
+```{python}
+#| output: false
 class ControlPlotter:
     """
     Control system analysis visualization.
@@ -688,7 +712,8 @@ class ControlPlotter:
 
 **1. plot_eigenvalue_map()**
 
-```python
+```{python}
+#| output: false
 def plot_eigenvalue_map(
     self,
     eigenvalues: np.ndarray,
@@ -722,7 +747,8 @@ def plot_eigenvalue_map(
 
 **2. plot_gain_comparison()**
 
-```python
+```{python}
+#| output: false
 def plot_gain_comparison(
     self,
     gains: Dict[str, np.ndarray],
@@ -751,7 +777,8 @@ def plot_gain_comparison(
 
 **3. plot_riccati_convergence()**
 
-```python
+```{python}
+#| output: false
 def plot_riccati_convergence(
     self,
     P_history: List[np.ndarray],
@@ -771,7 +798,8 @@ def plot_riccati_convergence(
 
 **4. plot_controllability_gramian()**
 
-```python
+```{python}
+#| output: false
 def plot_controllability_gramian(
     self,
     W_c: np.ndarray,
@@ -793,7 +821,8 @@ def plot_controllability_gramian(
 
 **5. plot_observability_gramian()**
 
-```python
+```{python}
+#| output: false
 def plot_observability_gramian(
     self,
     W_o: np.ndarray,
@@ -815,7 +844,8 @@ def plot_observability_gramian(
 
 **6. plot_step_response()**
 
-```python
+```{python}
+#| output: false
 def plot_step_response(
     self,
     t: TimePoints,
@@ -845,7 +875,8 @@ def plot_step_response(
 
 **7. plot_impulse_response()**
 
-```python
+```{python}
+#| output: false
 def plot_impulse_response(
     self,
     t: TimePoints,
@@ -869,7 +900,8 @@ def plot_impulse_response(
 
 **8. plot_frequency_response()**
 
-```python
+```{python}
+#| output: false
 def plot_frequency_response(
     self,
     omega: np.ndarray,
@@ -901,7 +933,8 @@ def plot_frequency_response(
 
 **9. plot_nyquist()**
 
-```python
+```{python}
+#| output: false
 def plot_nyquist(
     self,
     real: np.ndarray,
@@ -925,7 +958,8 @@ def plot_nyquist(
 
 **10. plot_root_locus()**
 
-```python
+```{python}
+#| output: false
 def plot_root_locus(
     self,
     pole_paths: np.ndarray,
@@ -959,13 +993,14 @@ def plot_root_locus(
 
 ---
 
-## Integration with Systems
+## Integration with Systems {#sec-integration-with-systems}
 
-### System Properties
+### System Properties {#sec-system-properties}
 
 All system classes (ContinuousSystemBase, DiscreteSystemBase) provide plotter access:
 
-```python
+```{python}
+#| output: false
 # In ContinuousSystemBase / DiscreteSystemBase
 
 @property
@@ -1002,9 +1037,10 @@ def control_plotter(self) -> ControlPlotter:
     return self._control_plotter
 ```
 
-### Usage Pattern
+### Usage Pattern {#sec-usage-pattern}
 
-```python
+```{python}
+#| output: false
 # Create system
 system = Pendulum()
 
@@ -1040,13 +1076,14 @@ fig.show()
 
 ---
 
-## Design Patterns
+## Design Patterns {#sec-design-patterns}
 
-### Pattern 1: Centralized Theming
+### Pattern 1: Centralized Theming {#sec-pattern-1-centralized-theming}
 
 **Why centralized themes?**
 
-```python
+```{python}
+#| output: false
 # ANTI-PATTERN: Hardcoded colors in each plotter
 class BadPlotter:
     def plot(self):
@@ -1067,9 +1104,10 @@ class GoodPlotter:
 - ✅ Accessibility (colorblind-safe)
 - ✅ Publication mode with one parameter
 
-### Pattern 2: Backend Agnostic Plotting
+### Pattern 2: Backend Agnostic Plotting {#sec-pattern-2-backend-agnostic-plotting}
 
-```python
+```{python}
+#| output: false
 def plot_trajectory(self, t, x, **kwargs):
     """Works with NumPy, PyTorch, JAX."""
     
@@ -1093,9 +1131,10 @@ def _to_numpy(self, arr):
         return arr
 ```
 
-### Pattern 3: Adaptive Layouts
+### Pattern 3: Adaptive Layouts {#sec-pattern-3-adaptive-layouts}
 
-```python
+```{python}
+#| output: false
 def _determine_subplot_layout(self, n_plots: int) -> Tuple[int, int]:
     """
     Determine optimal subplot grid.
@@ -1116,9 +1155,10 @@ def _determine_subplot_layout(self, n_plots: int) -> Tuple[int, int]:
         return rows, cols
 ```
 
-### Pattern 4: Batch Dimension Detection
+### Pattern 4: Batch Dimension Detection {#sec-pattern-4-batch-dimension-detection}
 
-```python
+```{python}
+#| output: false
 def _process_batch(self, x: np.ndarray) -> Tuple[np.ndarray, bool]:
     """
     Detect and process batch dimension.
@@ -1139,7 +1179,7 @@ def _process_batch(self, x: np.ndarray) -> Tuple[np.ndarray, bool]:
         raise ValueError(f"Invalid shape: {x.shape}")
 ```
 
-## Key Strengths
+## Key Strengths {#sec-key-strengths}
 
 1. **Centralized Theming** - Single source of truth for colors/styles
 2. **Backend Agnostic** - NumPy/PyTorch/JAX transparent

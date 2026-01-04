@@ -14,17 +14,17 @@ execute:
   warning: false
 ---
 
-## Overview
+## Overview {#sec-overview}
 
 The Delegation Layer provides specialized services through **composition**. Systems compose these utilities rather than inheriting from them.
 
-## Core Utilities
+## Core Utilities {#sec-core-utilities}
 
-### BackendManager
+### BackendManager {#sec-backendmanager}
 
 **Purpose:** Multi-backend array handling
 
-```python
+```{python}
 # Access via system
 mgr = system.backend
 
@@ -52,7 +52,7 @@ print(mgr.available_backends)  # ['numpy', 'torch', 'jax']
 ```
 
 **Properties:**
-```python
+```{python}
 mgr.default_backend     # Current default
 mgr.preferred_device    # Current device
 mgr.available_backends  # List of available
@@ -60,11 +60,11 @@ mgr.available_backends  # List of available
 
 ---
 
-### CodeGenerator
+### CodeGenerator {#sec-codegenerator}
 
 **Purpose:** Symbolic → numerical code generation with caching
 
-```python
+```{python}
 # Access via system (private)
 code_gen = system._code_gen
 
@@ -104,11 +104,11 @@ code_gen.invalidate_cache()
 
 ---
 
-### EquilibriumHandler
+### EquilibriumHandler {#sec-equilibriumhandler}
 
 **Purpose:** Named equilibrium management
 
-```python
+```{python}
 # Access via system
 eq = system.equilibria
 
@@ -165,11 +165,11 @@ print(meta.get('verified', False))  # True if verified
 
 ---
 
-### SymbolicValidator
+### SymbolicValidator {#sec-symbolicvalidator}
 
 **Purpose:** System definition validation
 
-```python
+```{python}
 # Access via system (used automatically)
 validator = system._validator
 
@@ -184,7 +184,7 @@ else:
 ```
 
 **What It Checks:**
-```python
+```{python}
 ✓ state_vars is list of sp.Symbol
 ✓ control_vars is list of sp.Symbol
 ✓ _f_sym is sp.Matrix
@@ -196,7 +196,7 @@ else:
 ```
 
 **Common Errors:**
-```python
+```{python}
 # ❌ String keys in parameters
 self.parameters = {'m': 1.0}  # WRONG!
 
@@ -212,13 +212,14 @@ self._f_sym = sp.Matrix([x, y, z])  # nx=3, correct
 
 ---
 
-## Deterministic Evaluation
+## Deterministic Evaluation {#sec-deterministic-evaluation}
 
-### DynamicsEvaluator
+### DynamicsEvaluator {#sec-dynamicsevaluator}
 
 **Purpose:** Forward dynamics evaluation
 
-```python
+```{python}
+#| eval: false
 # Access via system (private)
 dynamics = system._dynamics
 
@@ -241,7 +242,7 @@ print(f"Total time: {stats['total_time']:.3f}s")
 ```
 
 **Performance Tracking:**
-```python
+```{python}
 {
     'count': int,        # Number of evaluations
     'total_time': float, # Total time (seconds)
@@ -253,11 +254,11 @@ print(f"Total time: {stats['total_time']:.3f}s")
 
 ---
 
-### LinearizationEngine
+### LinearizationEngine {#sec-linearizationengine}
 
 **Purpose:** Jacobian computation
 
-```python
+```{python}
 # Access via system (private)
 lin = system._linearization
 
@@ -277,7 +278,7 @@ lin.print_symbolic_jacobians()
 
 **Higher-Order Systems:**
 For `order=2` systems where state is `[q, q̇]` but only `q̈` is returned:
-```python
+```{python}
 # System automatically constructs full state-space:
 # [q̇, q̈]ᵀ = A[q, q̇]ᵀ + Bu
 
@@ -288,11 +289,11 @@ A, B = system.linearize(x_eq, u_eq)
 
 ---
 
-### ObservationEngine
+### ObservationEngine {#sec-observationengine}
 
 **Purpose:** Output evaluation
 
-```python
+```{python}
 # Access via system (private)
 obs = system._observation
 
@@ -311,13 +312,13 @@ if obs.has_output():
 
 ---
 
-## Stochastic Support
+## Stochastic Support {#sec-stochastic-support}
 
-### DiffusionHandler
+### DiffusionHandler {#sec-diffusionhandler}
 
 **Purpose:** Diffusion matrix generation for SDEs
 
-```python
+```{python}
 # Access via stochastic system
 diffusion = system.diffusion_handler
 
@@ -347,11 +348,11 @@ nw = diffusion.nw
 
 ---
 
-### NoiseCharacterizer
+### NoiseCharacterizer {#sec-noisecharacterizer}
 
 **Purpose:** Automatic noise analysis
 
-```python
+```{python}
 # Access via stochastic system
 characteristics = system.noise_characteristics
 
@@ -385,11 +386,11 @@ MULTIPLICATIVE_GENERAL  # Full matrix
 
 ---
 
-### SDEValidator
+### SDEValidator {#sec-sdevalidator}
 
 **Purpose:** SDE-specific validation
 
-```python
+```{python}
 # Access via stochastic system (used automatically)
 sde_val = system._sde_validator
 
@@ -403,7 +404,7 @@ else:
 ```
 
 **What It Checks:**
-```python
+```{python}
 ✓ diffusion_expr is sp.Matrix
 ✓ Dimensions: (nx, nw)
 ✓ diffusion_expr uses only state_vars, control_vars
@@ -414,11 +415,11 @@ else:
 
 ---
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: Backend Switching
+### Pattern 1: Backend Switching {#sec-pattern-1-backend-switching}
 
-```python
+```{python}
 import torch
 
 # Switch backend for entire system
@@ -434,9 +435,9 @@ x_eq = system.equilibria.get_x('origin', backend='torch')
 # Returns: torch.Tensor on cuda:0
 ```
 
-### Pattern 2: Performance Profiling
+### Pattern 2: Performance Profiling {#sec-pattern-2-performance-profiling}
 
-```python
+```{python}
 # Run many evaluations
 for i in range(10000):
     x = np.random.randn(nx)
@@ -450,9 +451,9 @@ print(f"Average time: {stats['avg_time']*1e6:.1f} μs")
 print(f"Evaluations/sec: {stats['count']/stats['total_time']:.0f}")
 ```
 
-### Pattern 3: Compilation and Warmup
+### Pattern 3: Compilation and Warmup {#sec-pattern-3-compilation-and-warmup}
 
-```python
+```{python}
 # Compile all backends upfront
 timings = system._code_gen.compile_all(
     backends=['numpy', 'torch', 'jax']
@@ -467,9 +468,9 @@ for backend in ['numpy', 'torch', 'jax']:
 print("All backends compiled and warmed up")
 ```
 
-### Pattern 4: Equilibrium Management
+### Pattern 4: Equilibrium Management {#sec-pattern-4-equilibrium-management}
 
-```python
+```{python}
 # Add multiple equilibria
 equilibria_data = [
     ('origin', np.zeros(nx), np.zeros(nu), {'stability': 'unstable'}),
@@ -492,9 +493,9 @@ for name in system.list_equilibria():
     print(f"{name}: {'Stable' if stable else 'Unstable'}")
 ```
 
-### Pattern 5: Stochastic Noise Analysis
+### Pattern 5: Stochastic Noise Analysis {#sec-pattern-5-stochastic-noise-analysis}
 
-```python
+```{python}
 # Create stochastic system
 sde_system = MyStochasticSystem()
 
@@ -519,47 +520,49 @@ if sde_system.is_additive_noise():
     print(f"Constant diffusion matrix:\n{g_const}")
 ```
 
-## Troubleshooting
+## Troubleshooting {#sec-troubleshooting}
 
-### Issue: "Parameter keys must be Symbol, not str"
+### Issue: "Parameter keys must be Symbol, not str" {#sec-issue-parameter-keys-must-be-symbol-not-str}
 
 **Problem:**
-```python
+```{python}
 self.parameters = {'m': 1.0}  # ❌ String key
 ```
 
 **Solution:**
-```python
+```{python}
+#| eval: false
 m_sym = sp.symbols('m', positive=True)
 self.parameters = {m_sym: 1.0}  # ✓ Symbol key
 ```
 
-### Issue: Slow first call, fast subsequent calls
+### Issue: Slow first call, fast subsequent calls {#sec-issue-slow-first-call-fast-subsequent-calls}
 
 **Explanation:** This is normal - code generation and compilation happen on first call, then results are cached.
 
 **Solution:** Compile upfront if needed:
-```python
+```{python}
+#| eval: false
 system._code_gen.compile_all(backends=['numpy', 'torch', 'jax'])
 ```
 
-### Issue: Backend mismatch errors
+### Issue: Backend mismatch errors {#sec-issue-backend-mismatch-errors}
 
 **Problem:** Mixing backends in operations
 
 **Solution:** Convert to same backend:
-```python
+```{python}
 x_torch = system.backend.to_backend(x_numpy, 'torch')
 u_torch = system.backend.to_backend(u_numpy, 'torch')
 dx_torch = system(x_torch, u_torch)
 ```
 
-### Issue: Equilibrium verification fails
+### Issue: Equilibrium verification fails {#sec-issue-equilibrium-verification-fails}
 
 **Problem:** Equilibrium not actually at equilibrium
 
 **Check:**
-```python
+```{python}
 x_eq = np.array([...])
 u_eq = np.array([...])
 
@@ -572,11 +575,11 @@ x_next = system.step(x_eq, u_eq)
 print(f"Max |f(x,u) - x|: {np.abs(x_next - x_eq).max()}")
 ```
 
-## Advanced Usage
+## Advanced Usage {#sec-advanced-usage}
 
-### Custom Backend Configuration
+### Custom Backend Configuration {#sec-custom-backend-configuration}
 
-```python
+```{python}
 # Configure backend preferences
 system.backend.set_default('torch', device='cuda:0')
 
@@ -592,9 +595,9 @@ if 'torch' in system.backend.available_backends:
         system.backend.set_default('torch', device='cuda:0')
 ```
 
-### Symbolic Jacobian Analysis
+### Symbolic Jacobian Analysis {#sec-symbolic-jacobian-analysis}
 
-```python
+```{python}
 # Get symbolic Jacobians
 A_sym = system._linearization.get_symbolic_A()
 B_sym = system._linearization.get_symbolic_B()
@@ -611,9 +614,9 @@ from sympy import pprint
 pprint(A_sym)
 ```
 
-### Cache Management
+### Cache Management {#sec-cache-management}
 
-```python
+```{python}
 # Check what's cached
 has_numpy_f = system._code_gen.has_dynamics('numpy')
 has_torch_A = system._code_gen.has_jacobian_A('torch')
@@ -625,9 +628,9 @@ system._code_gen.invalidate_cache()
 system._code_gen._f_funcs['numpy'] = None  # Only NumPy
 ```
 
-## Testing Your Utilities
+## Testing Your Utilities {#sec-testing-your-utilities}
 
-```python
+```{python}
 def test_delegation_layer():
     """Test that delegation layer is properly set up."""
     system = MySystem()
@@ -658,7 +661,7 @@ def test_delegation_layer():
 test_delegation_layer()
 ```
 
-## References
+## References {#sec-references}
 
 - **Architecture:** See `Delegation_Layer_Architecture.md`
 - **Type Definitions:** See `src/types/`

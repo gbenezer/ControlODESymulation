@@ -14,11 +14,11 @@ execute:
   warning: false  # Suppress warnings
 ---
 
-## Overview
+## Overview {#sec-overview}
 
 The UI (User Interface) framework consists of **8 core files** organized into a 4-layer architecture that eliminates ~1,800 lines of code duplication while maintaining clean separation of concerns.
 
-## Architecture Layers
+## Architecture Layers {#sec-architecture-layers}
 
 ```
 Layer 0: SymbolicSystemBase (time-domain agnostic)
@@ -37,9 +37,9 @@ Layer 3: ContinuousStochasticSystem  DiscreteStochasticSystem
          (extends Layer 2)            (extends Layer 2)
 ```
 
-## Layer Breakdown
+## Layer Breakdown {#sec-layer-breakdown}
 
-### Layer 0: Foundation - SymbolicSystemBase
+### Layer 0: Foundation - SymbolicSystemBase {#sec-layer-0-foundation---symbolicsystembase}
 **File:** `symbolic_system_base.py`
 
 **Purpose:** Time-domain agnostic symbolic machinery
@@ -70,18 +70,32 @@ Layer 3: ContinuousStochasticSystem  DiscreteStochasticSystem
 
 ---
 
-### Layer 1: Time-Domain Bases
+### Layer 1: Time-Domain Bases {#sec-layer-1-time-domain-bases}
 
-#### ContinuousSystemBase
+#### ContinuousSystemBase {#sec-continuoussystembase}
 **File:** `continuous_system_base.py`
 
 **Purpose:** Abstract interface for continuous-time systems
 
 **Core Interface:**
-```python
+```{python}
+#| output: false
 dx/dt = f(x, u, t)  # Continuous dynamics
 
 # Abstract methods (must implement):
+
+```{python}
+#| label: setup-imports
+#| output: false
+#| echo: false
+
+# Setup for all code examples in this document
+import numpy as np
+import sympy as sp
+from cdesym import ContinuousSymbolicSystem
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+```
+
 - __call__(x, u, t) → dx/dt          # Evaluate dynamics
 - integrate(x0, u, t_span) → result  # Numerical integration
 - linearize(x_eq, u_eq) → (A, B)     # Jacobian matrices
@@ -97,13 +111,14 @@ dx/dt = f(x, u, t)  # Continuous dynamics
 - Dense output and adaptive stepping
 - Comprehensive solver diagnostics
 
-#### DiscreteSystemBase  
+#### DiscreteSystemBase   {#sec-discretesystembase--}
 **File:** `discrete_system_base.py`
 
 **Purpose:** Abstract interface for discrete-time systems
 
 **Core Interface:**
-```python
+```{python}
+#| output: false
 x[k+1] = f(x[k], u[k], k)  # Discrete dynamics
 
 # Abstract property:
@@ -126,9 +141,9 @@ x[k+1] = f(x[k], u[k], k)  # Discrete dynamics
 
 ---
 
-### Layer 2: Concrete Symbolic Implementations
+### Layer 2: Concrete Symbolic Implementations {#sec-layer-2-concrete-symbolic-implementations}
 
-#### ContinuousSymbolicSystem
+#### ContinuousSymbolicSystem {#sec-continuoussymbolicsystem}
 **File:** `continuous_symbolic_system.py`
 
 **Inheritance:** `SymbolicSystemBase + ContinuousSystemBase`
@@ -143,7 +158,8 @@ x[k+1] = f(x[k], u[k], k)  # Discrete dynamics
 - **IntegratorFactory:** Creates appropriate ODE solvers
 
 **Usage Pattern:**
-```python
+```{python}
+#| output: false
 class MySystem(ContinuousSymbolicSystem):
     def define_system(self, param1=1.0):
         # Define state_vars, control_vars
@@ -152,7 +168,7 @@ class MySystem(ContinuousSymbolicSystem):
         # Set self.order
 ```
 
-#### DiscreteSymbolicSystem
+#### DiscreteSymbolicSystem {#sec-discretesymbolicsystem}
 **File:** `discrete_symbolic_system.py` (1,020 lines)
 
 **Inheritance:** `SymbolicSystemBase + DiscreteSystemBase`
@@ -168,7 +184,8 @@ class MySystem(ContinuousSymbolicSystem):
 **Critical Requirement:** Must set `self._dt` in `define_system()`
 
 **Usage Pattern:**
-```python
+```{python}
+#| output: false
 class MyDiscreteSystem(DiscreteSymbolicSystem):
     def define_system(self, dt=0.01, param1=1.0):
         # Define state_vars, control_vars
@@ -180,9 +197,9 @@ class MyDiscreteSystem(DiscreteSymbolicSystem):
 
 ---
 
-### Layer 3: Stochastic Extensions
+### Layer 3: Stochastic Extensions {#sec-layer-3-stochastic-extensions}
 
-#### ContinuousStochasticSystem
+#### ContinuousStochasticSystem {#sec-continuousstochasticsystem}
 **File:** `continuous_stochastic_system.py` (1,103 lines)
 
 **Inheritance:** `ContinuousSymbolicSystem` (single inheritance)
@@ -215,7 +232,8 @@ where:
 - GENERAL: Full coupling
 
 **Usage Pattern:**
-```python
+```{python}
+#| output: false
 class MySDESystem(ContinuousStochasticSystem):
     def define_system(self, sigma=0.5):
         # Define drift (same as continuous symbolic)
@@ -226,7 +244,7 @@ class MySDESystem(ContinuousStochasticSystem):
         self.sde_type = 'ito'  # or 'stratonovich'
 ```
 
-#### DiscreteStochasticSystem
+#### DiscreteStochasticSystem {#sec-discretestochasticsystem}
 **File:** `discrete_stochastic_system.py` (1,383 lines)
 
 **Inheritance:** `DiscreteSymbolicSystem` (single inheritance)
@@ -247,7 +265,7 @@ where:
 
 ---
 
-### Special System: DiscretizedSystem
+### Special System: DiscretizedSystem {#sec-special-system-discretizedsystem}
 **File:** `discretized_system.py` (4,916 lines!)
 
 **Purpose:** Creates discrete-time approximations from continuous systems
@@ -261,16 +279,16 @@ where:
 
 ---
 
-## Design Principles
+## Design Principles {#sec-design-principles}
 
-### 1. Cooperative Multiple Inheritance
+### 1. Cooperative Multiple Inheritance {#sec-1-cooperative-multiple-inheritance}
 
 - **Layer 2** uses multiple inheritance to combine:
   - Symbolic machinery (SymbolicSystemBase)
   - Time-domain interface (ContinuousSystemBase or DiscreteSystemBase)
 - Uses `super().__init__()` for proper MRO (Method Resolution Order)
 
-### 2. Composition Over Inheritance
+### 2. Composition Over Inheritance {#sec-2-composition-over-inheritance}
 
 - Specialized functionality delegated to utility classes:
   - BackendManager
@@ -280,31 +298,32 @@ where:
   - LinearizationEngine
   - ObservationEngine
 
-### 3. Template Method Pattern
+### 3. Template Method Pattern {#sec-3-template-method-pattern}
 
 - Base classes define workflow
 - Subclasses fill in specific implementations
 - `define_system()` is the key extension point
 
-### 4. Separation of Concerns
+### 4. Separation of Concerns {#sec-4-separation-of-concerns}
 
 - **Layer 0:** Symbolic manipulation (time-agnostic)
 - **Layer 1:** Time-domain semantics (abstract)
 - **Layer 2:** Concrete execution (symbolic + time-domain)
 - **Layer 3:** Specialized extensions (stochastic)
 
-### 5. Zero Code Duplication
+### 5. Zero Code Duplication {#sec-5-zero-code-duplication}
 
 - The ~1,800 lines previously duplicated between continuous and discrete are now in SymbolicSystemBase
 - Stochastic systems extend deterministic via single inheritance
 - No repeated code for backend management, code generation, etc.
 
-## Key Abstractions
+## Key Abstractions {#sec-key-abstractions}
 
-### Abstract Methods Users Must Implement
+### Abstract Methods Users Must Implement {#sec-abstract-methods-users-must-implement}
 
 **In SymbolicSystemBase subclasses:**
-```python
+```{python}
+#| output: false
 def define_system(self, **params):
     """Define symbolic system.
     
@@ -323,10 +342,11 @@ def print_equations(self, simplify=True):
     """Print system equations in readable form."""
 ```
 
-### System Properties (Automatic)
+### System Properties (Automatic) {#sec-system-properties-automatic}
 
 All systems provide:
-```python
+```{python}
+#| output: false
 - nx: int          # State dimension
 - nu: int          # Control dimension  
 - ny: int          # Output dimension
@@ -343,7 +363,7 @@ All systems provide:
 - is_multiplicative_noise(): bool
 ```
 
-## Backend Support
+## Backend Support {#sec-backend-support}
 
 All systems support multi-backend execution:
 
@@ -352,25 +372,26 @@ All systems support multi-backend execution:
 - **JAX:** XLA compilation, automatic differentiation
 - **Julia (via DiffEqPy):** High-performance ODE/SDE solvers
 
-## Integration Methods
+## Integration Methods {#sec-integration-methods}
 
-### Continuous Systems (via IntegratorFactory)
+### Continuous Systems (via IntegratorFactory) {#sec-continuous-systems-via-integratorfactory}
 
 - **scipy:** RK45, RK23, DOP853, Radau, BDF, LSODA
 - **Julia (DiffEqPy):** Tsit5, Vern7, Vern9, Rodas5, etc.
 - **JAX (diffrax):** dopri5, tsit5, heun, etc.
 - **PyTorch (torchdiffeq):** dopri5, euler, rk4, etc.
 
-### Stochastic Systems (via SDEIntegratorFactory)
+### Stochastic Systems (via SDEIntegratorFactory) {#sec-stochastic-systems-via-sdeintegratorfactory}
 
 - **sdeint:** euler-maruyama, milstein, etc.
 - **torchsde:** euler, heun, srk, reversible_heun
 - **JAX implementations:** euler-maruyama with noise analysis
 
-## Usage Examples
+## Usage Examples {#sec-usage-examples}
 
-### Continuous Deterministic System
-```python
+### Continuous Deterministic System {#sec-continuous-deterministic-system}
+```{python}
+#| output: false
 from src.systems.base import ContinuousSymbolicSystem
 import sympy as sp
 import numpy as np
@@ -398,8 +419,9 @@ result = system.integrate(x, u=None, t_span=(0, 5), method='RK45')
 A, B = system.linearize(np.zeros(2), np.zeros(1))
 ```
 
-### Discrete System
-```python
+### Discrete System {#sec-discrete-system}
+```{python}
+#| output: false
 class DiscreteLinear(DiscreteSymbolicSystem):
     def define_system(self, a=0.9, b=0.1, dt=0.01):
         x = sp.symbols('x', real=True)
@@ -419,8 +441,9 @@ x_next = system.step(x, u)
 result = system.simulate(x0, u_sequence=None, n_steps=100)
 ```
 
-### Stochastic System (SDE)
-```python
+### Stochastic System (SDE) {#sec-stochastic-system-sde}
+```{python}
+#| output: false
 class OrnsteinUhlenbeck(ContinuousStochasticSystem):
     def define_system(self, alpha=1.0, sigma=0.5):
         x = sp.symbols('x', real=True)
@@ -445,7 +468,7 @@ print(system.is_additive_noise())  # True
 result = system.integrate(x0, u=None, t_span=(0, 10), method='euler-maruyama')
 ```
 
-## Strengths of This Architecture
+## Strengths of This Architecture {#sec-strengths-of-this-architecture}
 
 1. **Clean separation of concerns** - each layer has a single responsibility
 2. **Zero code duplication** - symbolic machinery shared across all systems

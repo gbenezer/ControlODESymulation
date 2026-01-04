@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Introduction
+## Introduction {#sec-introduction}
 
 This tutorial covers the basics of defining and simulating dynamical systems.
 
-## Setting Up
+## Setting Up {#sec-setting-up}
 
 First, import the necessary modules:
 
@@ -31,7 +31,7 @@ from cdesym import ContinuousSymbolicSystem
 np.random.seed(42)
 ```
 
-## Defining a Simple System
+## Defining a Simple System {#sec-defining-a-simple-system}
 
 Let's create a simple pendulum:
 ```{python}
@@ -89,7 +89,7 @@ pendulum = SymbolicPendulum()
 x0 = np.array([1.0, 0.0])
 ```
 
-## Simulation
+## Simulation {#sec-simulation}
 
 Now simulate the system:
 ```{python}
@@ -104,7 +104,7 @@ for k, v in pendulum_integration_result.items():
         print(k, " : ", v)
 ```
 
-## Visualization
+## Visualization {#sec-visualization}
 
 Plot the trajectory in 2D:
 ```{python}
@@ -116,7 +116,7 @@ trajectory_plot = pendulum.plot(
 trajectory_plot.show()
 ```
 
-## Phase Portrait
+## Phase Portrait {#sec-phase-portrait}
 
 Plot the 2D phase portrait
 ```{python}
@@ -132,7 +132,7 @@ phase_portrait = pendulum.phase_plotter.plot_2d(
 phase_portrait.show()
 ```
 
-## Next Steps
+## Next Steps {#sec-next-steps}
 
 - Learn about [stochastic systems](sde-integration.qmd) *not implemented*
 - Explore [different backends](backends.qmd) *not implemented*

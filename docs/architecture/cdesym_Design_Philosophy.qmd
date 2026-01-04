@@ -14,7 +14,7 @@ execute:
   warning: false  # Suppress warnings
 ---
 
-## Executive Summary
+## Executive Summary {#sec-executive-summary}
 
 **ControlDESymulation** is a Python library for symbolic specification and multi-backend simulation of nonlinear dynamical systems. It embodies a **type-driven, composition-based architecture** that achieves three seemingly contradictory goals simultaneously:
 
@@ -24,9 +24,9 @@ execute:
 
 The library consists of **~36,500 lines** across **39 core files** organized into **4 architectural layers**, serving researchers in control theory, robotics, and machine learning.
 
-## Core Design Philosophy
+## Core Design Philosophy {#sec-core-design-philosophy}
 
-### 1. Type-Driven Design
+### 1. Type-Driven Design {#sec-1-type-driven-design}
 
 **Principle:** *Types are not just annotations—they are the architecture.*
 
@@ -37,7 +37,7 @@ The entire framework is built on a **foundational type system** (6,500 lines, 20
 - **IDE Support:** Autocomplete knows `result['t']` exists and is `TimePoints`
 - **Self-Documentation:** Type signatures encode mathematical constraints
 
-```python
+```{python}
 # Compare:
 def bad(x, u):  # What are these? What dimensions? What backend?
     return x + u
@@ -52,13 +52,13 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 
 ---
 
-### 2. Composition Over Inheritance
+### 2. Composition Over Inheritance {#sec-2-composition-over-inheritance}
 
 **Principle:** *Systems compose specialized utilities rather than inheriting monolithic bases.*
 
 Traditional OOP would create deep inheritance hierarchies. We rejected this in favor of **composition via delegation**:
 
-```python
+```{python}
 # NOT this (deep inheritance):
 class System(BackendManager, CodeGenerator, DynamicsEvaluator, ...):
     pass  # 50 methods, unclear responsibilities
@@ -84,13 +84,13 @@ class System:
 
 ---
 
-### 3. Backend Agnosticism
+### 3. Backend Agnosticism {#sec-3-backend-agnosticism}
 
 **Principle:** *Write once, run on NumPy/PyTorch/JAX without code changes.*
 
 Supporting multiple backends is not a feature—it's a **design constraint** that forces better architecture:
 
-```python
+```{python}
 # Same code works with all backends
 def dynamics(x: StateVector, u: ControlVector) -> StateVector:
     # x can be np.ndarray, torch.Tensor, or jax.Array
@@ -111,7 +111,7 @@ system.set_default_device('cuda:0')
 
 ---
 
-### 4. Zero Code Duplication
+### 4. Zero Code Duplication {#sec-4-zero-code-duplication}
 
 **Principle:** *Every line of code should exist in exactly one place.*
 
@@ -141,11 +141,11 @@ This isn't inheritance for convenience—it's **strategic abstraction to elimina
 
 ---
 
-### 5. Structured Results via TypedDict
+### 5. Structured Results via TypedDict {#sec-5-structured-results-via-typeddict}
 
 **Principle:** *Never return plain dictionaries—use TypedDict for structure and safety.*
 
-```python
+```{python}
 # BAD: Plain dict (no IDE support, no type checking)
 def integrate() -> dict:
     return {'t': t, 'x': x, 'success': True}
@@ -178,13 +178,13 @@ def integrate() -> IntegrationResult:
 
 ---
 
-### 6. Protocol-Based Interfaces
+### 6. Protocol-Based Interfaces {#sec-6-protocol-based-interfaces}
 
 **Principle:** *Define interfaces via Protocol (structural typing) not inheritance.*
 
 Protocols enable **duck typing with type safety**:
 
-```python
+```{python}
 from typing import Protocol
 
 class DynamicalSystemProtocol(Protocol):
@@ -223,13 +223,13 @@ system: DynamicalSystemProtocol = MySystem()  # Type checker approves!
 
 ---
 
-### 7. Factory Pattern for Complex Creation
+### 7. Factory Pattern for Complex Creation {#sec-7-factory-pattern-for-complex-creation}
 
 **Principle:** *Hide complexity behind simple factory methods.*
 
 Creating integrators involves choosing backends, methods, and configurations. Factories simplify:
 
-```python
+```{python}
 # Instead of this complexity:
 if backend == 'numpy':
     if method == 'RK45':
@@ -260,7 +260,7 @@ integrator = IntegratorFactory.for_neural_ode(system)
 
 ---
 
-### 8. Semantic Naming
+### 8. Semantic Naming {#sec-8-semantic-naming}
 
 **Principle:** *Names should convey mathematical meaning, not implementation details.*
 
@@ -280,12 +280,12 @@ integrator = IntegratorFactory.for_neural_ode(system)
 
 ---
 
-### 9. Progressive Disclosure of Complexity
+### 9. Progressive Disclosure of Complexity {#sec-9-progressive-disclosure-of-complexity}
 
 **Principle:** *Simple things should be simple, complex things should be possible.*
 
 **Level 1 - Simple (Beginner):**
-```python
+```{python}
 from controldesymulation.examples import Pendulum
 
 system = Pendulum()
@@ -293,7 +293,7 @@ result = system.simulate(x0, u=None, t_span=(0, 10))
 ```
 
 **Level 2 - Intermediate:**
-```python
+```{python}
 from controldesymulation import ContinuousSymbolicSystem
 import sympy as sp
 
@@ -308,7 +308,7 @@ class MySystem(ContinuousSymbolicSystem):
 ```
 
 **Level 3 - Advanced (Expert):**
-```python
+```{python}
 # Multi-backend, custom integrator, GPU acceleration
 system.set_default_backend('torch')
 system.set_default_device('cuda:0')
@@ -337,11 +337,11 @@ result = integrator.integrate(
 
 ---
 
-## Architectural Layers
+## Architectural Layers {#sec-architectural-layers}
 
 The library consists of 4 distinct architectural layers, each with clear responsibilities:
 
-### Layer 0: Type System (Foundation)
+### Layer 0: Type System (Foundation) {#sec-layer-0-type-system-foundation}
 
 **Purpose:** Foundational types and structured results
 
@@ -366,7 +366,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 
 ---
 
-### Layer 1: Delegation Layer (Services)
+### Layer 1: Delegation Layer (Services) {#sec-layer-1-delegation-layer-services}
 
 **Purpose:** Specialized utilities via composition
 
@@ -403,7 +403,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 
 ---
 
-### Layer 2: Integration Framework (Numerical Methods)
+### Layer 2: Integration Framework (Numerical Methods) {#sec-layer-2-integration-framework-numerical-methods}
 
 **Purpose:** Multi-backend numerical integration
 
@@ -440,7 +440,7 @@ The library consists of 4 distinct architectural layers, each with clear respons
 
 ---
 
-### Layer 3: UI Framework (User-Facing Systems)
+### Layer 3: UI Framework (User-Facing Systems) {#sec-layer-3-ui-framework-user-facing-systems}
 
 **Purpose:** Symbolic system definition and high-level interface
 
@@ -481,15 +481,15 @@ The library consists of 4 distinct architectural layers, each with clear respons
 
 ---
 
-## Design Patterns Used
+## Design Patterns Used {#sec-design-patterns-used}
 
-### 1. Template Method Pattern
+### 1. Template Method Pattern {#sec-1-template-method-pattern}
 
 **Where:** All system base classes
 
 **How:** Base class defines workflow, subclasses fill in details
 
-```python
+```{python}
 class SymbolicSystemBase(ABC):
     def __init__(self, *args, **kwargs):
         # 1. Call user's define_system()
@@ -514,13 +514,13 @@ class SymbolicSystemBase(ABC):
 
 ---
 
-### 2. Factory Method Pattern
+### 2. Factory Method Pattern {#sec-2-factory-method-pattern}
 
 **Where:** IntegratorFactory, SDEIntegratorFactory
 
 **How:** Factory methods create appropriate concrete classes
 
-```python
+```{python}
 class IntegratorFactory:
     @classmethod
     def create(cls, system, backend, method, **opts):
@@ -546,13 +546,13 @@ class IntegratorFactory:
 
 ---
 
-### 3. Strategy Pattern
+### 3. Strategy Pattern {#sec-3-strategy-pattern}
 
 **Where:** Integration methods
 
 **How:** Different algorithms (strategies) with same interface
 
-```python
+```{python}
 # All integrators implement same interface
 class IntegratorBase(ABC):
     @abstractmethod
@@ -571,13 +571,13 @@ result = integrator.integrate(x0, u_func, t_span)
 
 ---
 
-### 4. Dependency Injection
+### 4. Dependency Injection {#sec-4-dependency-injection}
 
 **Where:** All delegation layer utilities
 
 **How:** Dependencies injected via constructor
 
-```python
+```{python}
 class DynamicsEvaluator:
     def __init__(
         self,
@@ -595,13 +595,13 @@ class DynamicsEvaluator:
 
 ---
 
-### 5. Lazy Initialization
+### 5. Lazy Initialization {#sec-5-lazy-initialization}
 
 **Where:** Code generation, function compilation
 
 **How:** Generate/compile on first use, cache result
 
-```python
+```{python}
 class CodeGenerator:
     def generate_dynamics(self, backend):
         # Check cache first
@@ -620,13 +620,13 @@ class CodeGenerator:
 
 ---
 
-### 6. Observer Pattern
+### 6. Observer Pattern {#sec-6-observer-pattern}
 
 **Where:** Performance statistics, validation
 
 **How:** Utilities track events and report statistics
 
-```python
+```{python}
 class DynamicsEvaluator:
     def evaluate(self, x, u):
         start = time.time()
@@ -647,9 +647,9 @@ class DynamicsEvaluator:
 
 ---
 
-## Mathematical Rigor
+## Mathematical Rigor {#sec-mathematical-rigor}
 
-### Control Theory Foundations
+### Control Theory Foundations {#sec-control-theory-foundations}
 
 The library implements proper control theory:
 
@@ -693,7 +693,7 @@ Noise types:
   - Scalar: Single Wiener process
 ```
 
-### Numerical Methods
+### Numerical Methods {#sec-numerical-methods}
 
 **ODE Solvers (40+ methods):**
 - Explicit RK: RK45, Tsit5, Vern9, dopri5
@@ -715,9 +715,9 @@ Noise types:
 
 ---
 
-## Performance Considerations
+## Performance Considerations {#sec-performance-considerations}
 
-### 1. Caching Strategy
+### 1. Caching Strategy {#sec-1-caching-strategy}
 
 **Three-Level Cache:**
 1. **Symbolic Cache:** Jacobians computed once symbolically
@@ -725,7 +725,7 @@ Noise types:
 3. **Equilibrium Cache:** Linearizations at equilibria
 
 **Example:**
-```python
+```{python}
 # First call: symbolic computation + compilation
 A, B = system.linearize(x_eq, u_eq)  # ~100ms
 
@@ -733,7 +733,7 @@ A, B = system.linearize(x_eq, u_eq)  # ~100ms
 A, B = system.linearize(x_eq, u_eq)  # ~0.001ms (100,000x faster!)
 ```
 
-### 2. Backend Optimization
+### 2. Backend Optimization {#sec-2-backend-optimization}
 
 **NumPy:**
 - Common subexpression elimination (CSE)
@@ -752,11 +752,11 @@ A, B = system.linearize(x_eq, u_eq)  # ~0.001ms (100,000x faster!)
 - Pure functional style
 - Automatic vectorization (vmap)
 
-### 3. Batching Support
+### 3. Batching Support {#sec-3-batching-support}
 
 All evaluators support batched operations:
 
-```python
+```{python}
 # Single evaluation
 dx = system(x, u)  # x: (nx,), u: (nu,) → dx: (nx,)
 
@@ -765,10 +765,10 @@ dx_batch = system(x_batch, u_batch)
 # x: (100, nx), u: (100, nu) → dx: (100, nx)
 ```
 
-### 4. GPU Acceleration
+### 4. GPU Acceleration {#sec-4-gpu-acceleration}
 
 **PyTorch:**
-```python
+```{python}
 system.set_default_backend('torch')
 system.set_default_device('cuda:0')
 
@@ -777,7 +777,7 @@ dx = system(x, u)  # Computed on GPU
 ```
 
 **JAX:**
-```python
+```{python}
 system.set_default_backend('jax')
 
 x = jnp.array([1.0, 0.0])
@@ -786,13 +786,13 @@ dx = jax.jit(system)(x, u)  # XLA compiled, GPU if available
 
 ---
 
-## Testing Philosophy
+## Testing Philosophy {#sec-testing-philosophy}
 
-### 1. Type-Driven Testing
+### 1. Type-Driven Testing {#sec-1-type-driven-testing}
 
 Types guide what to test:
 
-```python
+```{python}
 def test_dynamics_signature():
     """Type annotations specify contract."""
     x: StateVector = np.array([1.0, 0.0])
@@ -804,11 +804,11 @@ def test_dynamics_signature():
     assert dx.shape == (system.nx,)
 ```
 
-### 2. Property-Based Testing
+### 2. Property-Based Testing {#sec-2-property-based-testing}
 
 Test mathematical properties:
 
-```python
+```{python}
 def test_linearization_is_linear():
     """Linearization should be linear in δx and δu."""
     A, B = system.linearize(x_eq, u_eq)
@@ -825,11 +825,11 @@ def test_linearization_is_linear():
     np.testing.assert_allclose(lhs, rhs)
 ```
 
-### 3. Multi-Backend Consistency
+### 3. Multi-Backend Consistency {#sec-3-multi-backend-consistency}
 
 Same results across backends:
 
-```python
+```{python}
 def test_backend_consistency():
     """NumPy, PyTorch, JAX should agree."""
     x_np = np.array([1.0, 0.0])
@@ -842,11 +842,11 @@ def test_backend_consistency():
     np.testing.assert_allclose(dx_np, np.array(dx_jax))
 ```
 
-### 4. Regression Testing
+### 4. Regression Testing {#sec-4-regression-testing}
 
 Critical numerical values frozen:
 
-```python
+```{python}
 def test_pendulum_energy_conservation():
     """Known system should have expected behavior."""
     system = Pendulum(m=1.0, l=1.0, g=9.81)
@@ -861,13 +861,13 @@ def test_pendulum_energy_conservation():
 
 ---
 
-## Documentation Philosophy
+## Documentation Philosophy {#sec-documentation-philosophy}
 
-### 1. Self-Documenting Code
+### 1. Self-Documenting Code {#sec-1-self-documenting-code}
 
 Code should be readable without comments:
 
-```python
+```{python}
 # Bad
 def f(x, u, m):  # What is this?
     return x[1], -m*x[0] + u
@@ -895,11 +895,11 @@ def compute_dynamics(
     return np.array([velocity, acceleration])
 ```
 
-### 2. Examples in Docstrings
+### 2. Examples in Docstrings {#sec-2-examples-in-docstrings}
 
 Every public function has usage examples:
 
-```python
+```{python}
 def linearize(
     self,
     x_eq: EquilibriumState,
@@ -926,11 +926,11 @@ def linearize(
     """
 ```
 
-### 3. Mathematical Documentation
+### 3. Mathematical Documentation {#sec-3-mathematical-documentation}
 
 Explain theory behind code:
 
-```python
+```{python}
 """
 Linearization Engine for Dynamical Systems
 
@@ -954,19 +954,19 @@ This enables:
 """
 ```
 
-### 4. Architecture Documents
+### 4. Architecture Documents {#sec-4-architecture-documents}
 
 High-level guides (like this one!) explain design philosophy and patterns.
 
 ---
 
-## Error Handling Philosophy
+## Error Handling Philosophy {#sec-error-handling-philosophy}
 
-### 1. Fail Fast, Fail Clearly
+### 1. Fail Fast, Fail Clearly {#sec-1-fail-fast-fail-clearly}
 
 Detect errors as early as possible with clear messages:
 
-```python
+```{python}
 # Bad
 def compute(x):
     return x[5]  # IndexError: vague
@@ -981,11 +981,11 @@ def compute(state: StateVector) -> float:
     return state[5]
 ```
 
-### 2. Validation at Construction
+### 2. Validation at Construction {#sec-2-validation-at-construction}
 
 Catch errors during `__init__`, not during use:
 
-```python
+```{python}
 class System(SymbolicSystemBase):
     def define_system(self):
         # Bad parameter type
@@ -997,21 +997,21 @@ class System(SymbolicSystemBase):
 # Use: m_sym = sp.symbols('m'); parameters = {m_sym: 1.0}
 ```
 
-### 3. Type Checking Before Runtime
+### 3. Type Checking Before Runtime {#sec-3-type-checking-before-runtime}
 
 Use type annotations + mypy to catch errors before running:
 
-```bash
+```{bash}
 $ mypy src/
 error: Argument 1 to "compute" has incompatible type "List[float]"; 
 expected "ndarray[Any, dtype[Any]]"
 ```
 
-### 4. Helpful Error Messages
+### 4. Helpful Error Messages {#sec-4-helpful-error-messages}
 
 Include context and solutions:
 
-```python
+```{python}
 if x.shape[0] != self.nx:
     raise ValueError(
         f"State dimension mismatch.\n"
@@ -1024,13 +1024,13 @@ if x.shape[0] != self.nx:
 
 ---
 
-## Extension Points
+## Extension Points {#sec-extension-points}
 
 The architecture provides clear extension points:
 
-### 1. Add New System Type
+### 1. Add New System Type {#sec-1-add-new-system-type}
 
-```python
+```{python}
 class MyCustomSystem(SymbolicSystemBase):
     """Just implement define_system()."""
     def define_system(self, **params):
@@ -1040,9 +1040,9 @@ class MyCustomSystem(SymbolicSystemBase):
         self.parameters = {...}
 ```
 
-### 2. Add New Integrator
+### 2. Add New Integrator {#sec-2-add-new-integrator}
 
-```python
+```{python}
 class MyIntegrator(IntegratorBase):
     """Implement abstract methods."""
     def step(self, x, u, dt):
@@ -1054,9 +1054,9 @@ class MyIntegrator(IntegratorBase):
         return IntegrationResult(...)
 ```
 
-### 3. Add New Utility
+### 3. Add New Utility {#sec-3-add-new-utility}
 
-```python
+```{python}
 class MyUtility:
     """Independent utility via composition."""
     def __init__(self, system):
@@ -1070,9 +1070,9 @@ class MyUtility:
 system._my_utility = MyUtility(system)
 ```
 
-### 4. Add New Backend
+### 4. Add New Backend {#sec-4-add-new-backend}
 
-```python
+```{python}
 # 1. Add to Backend type
 Backend = Literal["numpy", "torch", "jax", "my_backend"]
 
@@ -1092,9 +1092,9 @@ def generate_function(expr, vars, backend):
 
 ---
 
-## Trade-offs and Decisions
+## Trade-offs and Decisions {#sec-trade-offs-and-decisions}
 
-### 1. Cooperative Multiple Inheritance
+### 1. Cooperative Multiple Inheritance {#sec-1-cooperative-multiple-inheritance}
 
 **Decision:** Use cooperative multiple inheritance ONLY in UI framework Layer 2
 
@@ -1107,7 +1107,7 @@ def generate_function(expr, vars, backend):
 
 **Why Limited Use:** We restrict it to where it provides genuine value—the top-level system classes that need to inherit both symbolic machinery and time-domain interfaces.
 
-### 2. TypedDict vs Dataclass
+### 2. TypedDict vs Dataclass {#sec-2-typeddict-vs-dataclass}
 
 **Decision:** Use TypedDict for results, not dataclass
 
@@ -1120,7 +1120,7 @@ def generate_function(expr, vars, backend):
 
 **Why TypedDict:** Integration results come from external libraries (scipy, etc.) as dictionaries. TypedDict lets us type them without conversion.
 
-### 3. Backend Support
+### 3. Backend Support {#sec-3-backend-support}
 
 **Decision:** Support NumPy, PyTorch, JAX (not TensorFlow)
 
@@ -1132,7 +1132,7 @@ def generate_function(expr, vars, backend):
 
 **Why These Three:** Cover 95% of use cases with minimal complexity.
 
-### 4. Symbolic Engine
+### 4. Symbolic Engine {#sec-4-symbolic-engine}
 
 **Decision:** Use SymPy (not custom symbolic engine)
 
@@ -1145,7 +1145,7 @@ def generate_function(expr, vars, backend):
 
 **Why SymPy:** Reinventing symbolic math is not our value proposition. SymPy is battle-tested.
 
-### 5. Testing Framework
+### 5. Testing Framework {#sec-5-testing-framework}
 
 **Decision:** pytest (not unittest)
 
@@ -1159,9 +1159,9 @@ def generate_function(expr, vars, backend):
 
 ---
 
-## Future Directions
+## Future Directions {#sec-future-directions}
 
-### Features Actively Being Worked On Prior to Release
+### Features Actively Being Worked On Prior to Release {#sec-features-actively-being-worked-on-prior-to-release}
 
 1. **Classical Control Theory**
     - Stability, controllability, and observability metrics
@@ -1174,7 +1174,7 @@ def generate_function(expr, vars, backend):
         - Trajectory visualization across all variables
         - Phase portrait visualization in two or three dimensions
 
-### Planned Features
+### Planned Features {#sec-planned-features}
 
 1. **RL Environment Synthesis**
     - Interfaces that satisfy Gymnasium library conventions
@@ -1213,7 +1213,7 @@ def generate_function(expr, vars, backend):
 6. **System Composition**
     - Connector protocol interfaces to couple multiple subsystems
 
-### Potential Future Extensions
+### Potential Future Extensions {#sec-potential-future-extensions}
 
 1. Hybrid Systems
     - Switched dynamics
@@ -1237,7 +1237,7 @@ def generate_function(expr, vars, backend):
 
 ---
 
-## Conclusion
+## Conclusion {#sec-conclusion}
 
 **ControlDESymulation** demonstrates that **mathematical rigor**, **software engineering excellence**, and **multi-backend performance** are not competing goals—they are mutually reinforcing when built on a foundation of:
 
@@ -1261,9 +1261,9 @@ The result is a library where:
 
 ---
 
-## Appendix: Statistics Summary
+## Appendix: Statistics Summary {#sec-appendix-statistics-summary}
 
-### Code Distribution
+### Code Distribution {#sec-code-distribution}
 
 | Layer | Files | Lines | Purpose |
 |-------|-------|-------|---------|
@@ -1273,7 +1273,7 @@ The result is a library where:
 | UI Framework | 8 | 12,820 | User interface |
 | **TOTAL** | **39** | **~36,500** | **Complete system** |
 
-### Type Distribution
+### Type Distribution {#sec-type-distribution}
 
 | Category | Count | Examples |
 |----------|-------|----------|
@@ -1289,7 +1289,7 @@ The result is a library where:
 | TypedDict Results | 15+ | IntegrationResult |
 | **TOTAL** | **200+** | **Complete type system** |
 
-### Integration Methods
+### Integration Methods {#sec-integration-methods}
 
 | Category | Count | Examples |
 |----------|-------|----------|
@@ -1301,7 +1301,7 @@ The result is a library where:
 | SDE Methods | 10+ | euler-maruyama, milstein, heun |
 | **TOTAL** | **55+** | **Comprehensive coverage** |
 
-### Design Patterns
+### Design Patterns {#sec-design-patterns}
 
 | Pattern | Count | Where Used |
 |---------|-------|------------|

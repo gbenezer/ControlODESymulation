@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Quick Start Guide
+## Quick Start Guide {#sec-quick-start-guide}
 
-### 1. Continuous Deterministic System
+### 1. Continuous Deterministic System {#sec-1-continuous-deterministic-system}
 
-```python
+```{python}
 from src.systems.base import ContinuousSymbolicSystem
 import sympy as sp
 import numpy as np
@@ -91,9 +91,9 @@ sim_result = system.simulate(
 )
 ```
 
-### 2. Discrete System
+### 2. Discrete System {#sec-2-discrete-system}
 
-```python
+```{python}
 from src.systems.base import DiscreteSymbolicSystem
 import sympy as sp
 import numpy as np
@@ -158,9 +158,9 @@ eigenvalues = np.linalg.eigvals(Ad)
 is_stable = np.all(np.abs(eigenvalues) < 1)
 ```
 
-### 3. Stochastic System (SDE)
+### 3. Stochastic System (SDE) {#sec-3-stochastic-system-sde}
 
-```python
+```{python}
 from src.systems.base import ContinuousStochasticSystem
 import sympy as sp
 import numpy as np
@@ -220,9 +220,9 @@ solvers = system.recommend_solvers(backend='jax')
 print(f"Recommended solvers: {solvers}")
 ```
 
-### 4. Higher-Order Systems
+### 4. Higher-Order Systems {#sec-4-higher-order-systems}
 
-```python
+```{python}
 class SecondOrderSystem(ContinuousSymbolicSystem):
     """Example: Double integrator (2nd order)."""
     
@@ -243,11 +243,11 @@ class SecondOrderSystem(ContinuousSymbolicSystem):
         self.order = 2  # Second-order system!
 ```
 
-## Common Operations
+## Common Operations {#sec-common-operations}
 
-### Backend Management
+### Backend Management {#sec-backend-management}
 
-```python
+```{python}
 # Set default backend
 system.set_default_backend('torch')  # 'numpy', 'torch', 'jax'
 
@@ -261,9 +261,9 @@ print(system._default_backend)
 x_torch = system.backend.to_backend(x_numpy, 'torch')
 ```
 
-### Equilibrium Management
+### Equilibrium Management {#sec-equilibrium-management}
 
-```python
+```{python}
 # Add equilibrium point
 system.add_equilibrium(
     'upright',
@@ -286,9 +286,9 @@ meta = system.get_equilibrium_metadata('upright')
 print(meta['stability'])  # 'unstable'
 ```
 
-### Configuration Persistence
+### Configuration Persistence {#sec-configuration-persistence}
 
-```python
+```{python}
 # Save configuration
 system.save_config('my_system_config.json')
 
@@ -297,9 +297,9 @@ config = system.get_config_dict()
 print(config['parameters'])
 ```
 
-### Performance Statistics
+### Performance Statistics {#sec-performance-statistics}
 
-```python
+```{python}
 # Get statistics
 stats = system.stats.summary()
 print(stats)
@@ -308,9 +308,9 @@ print(stats)
 system.stats.reset()
 ```
 
-### Code Compilation
+### Code Compilation {#sec-code-compilation}
 
-```python
+```{python}
 # Force recompilation (e.g., after parameter change)
 system.compile()
 
@@ -319,11 +319,11 @@ if system._is_compiled:
     print("System is compiled")
 ```
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: Parameter Study
+### Pattern 1: Parameter Study {#sec-pattern-1-parameter-study}
 
-```python
+```{python}
 # Create systems with different parameters
 systems = [MySystem(param1=p) for p in np.linspace(1, 10, 10)]
 
@@ -334,9 +334,9 @@ for sys in systems:
     results.append(result)
 ```
 
-### Pattern 2: Closed-Loop Control
+### Pattern 2: Closed-Loop Control {#sec-pattern-2-closed-loop-control}
 
-```python
+```{python}
 # Design LQR controller
 A, B = system.linearize(x_eq, u_eq)
 Q = np.eye(system.nx)
@@ -359,9 +359,9 @@ result = system.simulate(
 )
 ```
 
-### Pattern 3: Batch Evaluation
+### Pattern 3: Batch Evaluation {#sec-pattern-3-batch-evaluation}
 
-```python
+```{python}
 # Generate batch of initial conditions
 x_batch = np.random.randn(1000, system.nx)
 u_batch = np.zeros((1000, system.nu))
@@ -370,9 +370,9 @@ u_batch = np.zeros((1000, system.nu))
 dx_batch = system(x_batch, u_batch)  # Returns (1000, nx)
 ```
 
-### Pattern 4: Multi-Backend Comparison
+### Pattern 4: Multi-Backend Comparison {#sec-pattern-4-multi-backend-comparison}
 
-```python
+```{python}
 import time
 
 backends = ['numpy', 'torch', 'jax']
@@ -388,21 +388,21 @@ for backend in backends:
 print(times)  # Compare performance
 ```
 
-## Troubleshooting
+## Troubleshooting {#sec-troubleshooting}
 
-### Issue: "System must define self._dt"
+### Issue: "System must define self._dt" {#sec-issue-system-must-define-selfdt}
 
 **Solution:** For discrete systems, add `self._dt = dt` in `define_system()`
 
-### Issue: "diffusion_expr is None"
+### Issue: "diffusion_expr is None" {#sec-issue-diffusionexpr-is-none}
 
 **Solution:** For stochastic systems, add `self.diffusion_expr = sp.Matrix([...])` in `define_system()`
 
-### Issue: NumPy boolean comparison warning
+### Issue: NumPy boolean comparison warning {#sec-issue-numpy-boolean-comparison-warning}
 
 **Solution:** This is handled internally. If you see it, ensure you're using the latest version.
 
-### Issue: Integration fails
+### Issue: Integration fails {#sec-issue-integration-fails}
 
 **Possible causes:**
 
@@ -410,16 +410,16 @@ print(times)  # Compare performance
 - Too tight tolerances → Relax: `rtol=1e-6, atol=1e-8`
 - Bad initial condition → Check `x0` is physically reasonable
 
-### Issue: Linearization returns NaN
+### Issue: Linearization returns NaN {#sec-issue-linearization-returns-nan}
 
 **Possible causes:**
 
 - Equilibrium is not valid → Verify `f(x_eq, u_eq) ≈ 0` (or `= x_eq` for discrete)
 - Symbolic expressions have division by zero → Check parameter values
 
-## Testing Your System
+## Testing Your System {#sec-testing-your-system}
 
-```python
+```{python}
 def test_my_system():
     """Basic tests for custom system."""
     system = MySystem()
@@ -448,11 +448,11 @@ def test_my_system():
 test_my_system()
 ```
 
-## Advanced Features
+## Advanced Features {#sec-advanced-features}
 
-### Custom Output Functions
+### Custom Output Functions {#sec-custom-output-functions}
 
-```python
+```{python}
 def define_system(self):
     # ... state variables ...
     
@@ -468,17 +468,17 @@ y = system.observe(x)  # Evaluate output
 C = system.linearize_output(x_eq)  # Output Jacobian
 ```
 
-### Time-Varying Parameters
+### Time-Varying Parameters {#sec-time-varying-parameters}
 
-```python
+```{python}
 # This requires system to be time-varying
 # Currently, parameters are fixed at initialization
 # For time-varying, use control input u to modulate behavior
 ```
 
-### Hybrid Systems
+### Hybrid Systems {#sec-hybrid-systems}
 
-```python
+```{python}
 # Create continuous and discrete versions
 cont_sys = MyContinuousSystem()
 disc_sys = cont_sys.discretize(dt=0.01, method='rk4')
@@ -486,7 +486,7 @@ disc_sys = cont_sys.discretize(dt=0.01, method='rk4')
 # disc_sys is now a DiscreteSymbolicSystem
 ```
 
-## References
+## References {#sec-references}
 
 - **Architecture Doc:** See `UI_Framework_Architecture.md` for full details
 - **Type Definitions:** See `src/types/` for TypedDict definitions

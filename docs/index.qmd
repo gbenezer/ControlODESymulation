@@ -1,13 +1,16 @@
 ---
 title: "ControlDESymulation"
+subtitle: "Symbolic Dynamical Systems Framework for Control Theory"
+execute:
+  eval: true
 ---
 
-## Welcome to ControlDESymulation
+## Overview {#sec-overview}
 
-A comprehensive control systems simulation framework with symbolic dynamical systems and multi-backend numerical execution.
-*documentation is currently under construction*
+ControlDESymulation is a comprehensive Python framework for symbolic modeling, 
+simulation, and control of dynamical systems.
 
-### Key Benefits
+### Key Benefits {#sec-key-benefits}
 
 1. **Write Once, Run Anywhere**: Define systems symbolically, execute on any backend (NumPy/PyTorch/JAX)
 2. **No Backend Lock-in**: Switch between CPU, GPU, or TPU without changing your code
@@ -15,7 +18,7 @@ A comprehensive control systems simulation framework with symbolic dynamical sys
 4. **Type-Safe**: Comprehensive type hints for better IDE support and fewer bugs
 5. **Research to Production**: Prototype in NumPy, scale with JAX, integrate with PyTorch models
 
-### Features
+### Features {#sec-features}
 
 - **Symbolic Specification**: Define systems using SymPy with automatic code generation
 - **Multi-Backend Support**: Seamlessly switch between NumPy, PyTorch, JAX, and Julia
@@ -27,7 +30,7 @@ A comprehensive control systems simulation framework with symbolic dynamical sys
 - **Zero Code Duplication**: Clean 4-layer architecture with composition over inheritance
 - **Production Ready**: Extensive test coverage, comprehensive documentation, CI/CD workflows
 
-### Design Principles
+### Design Principles {#sec-design-principles}
 
 1. **Composition Over Inheritance** - Delegate to specialized utilities
 2. **Backend Agnosticism** - Write once, run on NumPy/PyTorch/JAX/Julia
@@ -36,12 +39,13 @@ A comprehensive control systems simulation framework with symbolic dynamical sys
 5. **Mathematical Rigor** - Proper handling of ODEs, SDEs, difference equations
 6. **Performance First** - Multi-backend support enables GPU and XLA acceleration
 
-### Getting Started
 
-- [Installation Guide](tutorials/installation.qmd)
-- [Basic Tutorial](tutorials/basic-usage.qmd)
-- [SDE Integration](tutorials/sde-integration.qmd) *(not yet written)*
+### Documentation Structure {#sec-documentation-structure}
 
-### Examples
+- **[Architecture Guides](architecture/index.qmd)**: Deep dives into framework design with working examples
+- **[Quick References](tutorials/index.qmd)**: Practical how-to guides with executable code
+- **[Examples Gallery](examples/index.qmd)**: Complete interactive demonstrations
 
-Browse our [examples gallery](examples/index.qmd) *(not yet written)* to see ControlDESymulation in action.
+### Installation {#sec-installation}
+
+- **[Installation Guide](tutorials/installation.qmd)**: Current installation guide

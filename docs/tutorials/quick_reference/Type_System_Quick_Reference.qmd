@@ -14,11 +14,11 @@ execute:
   warning: false
 ---
 
-## Quick Start
+## Quick Start {#sec-quick-start}
 
-### Import Types
+### Import Types {#sec-import-types}
 
-```python
+```{python}
 # Core types
 from src.types.core import (
     StateVector,
@@ -55,11 +55,11 @@ from src.types.control_classical import (
 )
 ```
 
-## Foundational Types
+## Foundational Types {#sec-foundational-types}
 
-### Vector Types
+### Vector Types {#sec-vector-types}
 
-```python
+```{python}
 # State vector (x)
 x: StateVector = np.array([1.0, 0.0])
 
@@ -84,9 +84,9 @@ dx: TimeDerivative = system(x, u)
 δu: ControlIncrement = u - u_eq
 ```
 
-### Matrix Types
+### Matrix Types {#sec-matrix-types}
 
-```python
+```{python}
 # Dynamics matrices
 A: StateMatrix = system.linearize(x_eq, u_eq)[0]  # ∂f/∂x (nx, nx)
 B: InputMatrix = system.linearize(x_eq, u_eq)[1]  # ∂f/∂u (nx, nu)
@@ -105,9 +105,9 @@ G: DiffusionMatrix = sde_system.diffusion(x, u)   # Noise (nx, nw)
 P: CovarianceMatrix = np.eye(nx)                  # Covariance (nx, nx)
 ```
 
-### Scalar Types
+### Scalar Types {#sec-scalar-types}
 
-```python
+```{python}
 # Time values
 t: ScalarLike = 0.0
 dt: ScalarLike = 0.01
@@ -122,11 +122,11 @@ nw: IntegerLike = 1
 order: int = 2  # Second-order system
 ```
 
-## Backend Types
+## Backend Types {#sec-backend-types}
 
-### Backend Selection
+### Backend Selection {#sec-backend-selection}
 
-```python
+```{python}
 # Backend type
 backend: Backend = 'numpy'  # or 'torch', 'jax'
 
@@ -141,9 +141,9 @@ config: BackendConfig = {
 }
 ```
 
-### Integration Methods
+### Integration Methods {#sec-integration-methods}
 
-```python
+```{python}
 # ODE methods
 method: IntegrationMethod = 'RK45'     # scipy
 method: IntegrationMethod = 'dopri5'   # torch/jax
@@ -159,9 +159,9 @@ fixed_method: str = 'rk4'
 fixed_method: str = 'euler'
 ```
 
-### Noise Types
+### Noise Types {#sec-noise-types}
 
-```python
+```{python}
 from src.types.backends import NoiseType, SDEType, ConvergenceType
 
 # Noise structure
@@ -177,11 +177,11 @@ convergence: ConvergenceType = ConvergenceType.STRONG
 convergence: ConvergenceType = ConvergenceType.WEAK
 ```
 
-## Domain Types
+## Domain Types {#sec-domain-types}
 
-### Trajectories
+### Trajectories {#sec-trajectories}
 
-```python
+```{python}
 # State trajectory
 trajectory: StateTrajectory = system.simulate(x0, u_seq, steps=100)
 # Shape: (101, nx) - includes t=0
@@ -206,9 +206,9 @@ position = trajectory[:, 0]  # First state component
 velocity = trajectory[:, 1]  # Second state component
 ```
 
-### Integration Results
+### Integration Results {#sec-integration-results}
 
-```python
+```{python}
 # ODE integration
 result: IntegrationResult = integrator.integrate(
     x0=np.array([1.0, 0.0]),
@@ -238,9 +238,9 @@ noise_samples: NoiseVector = sde_result['noise_samples']
 n_paths: int = sde_result['n_paths']
 ```
 
-### Linearization Results
+### Linearization Results {#sec-linearization-results}
 
-```python
+```{python}
 # Deterministic linearization
 A, B = system.linearize(x_eq, u_eq)
 # A: StateMatrix (nx, nx)
@@ -271,9 +271,9 @@ C, D = system.linearized_observation(x_eq, u_eq)
 A, B, C, D = system.full_linearization(x_eq, u_eq)
 ```
 
-### Control Design Results
+### Control Design Results {#sec-control-design-results}
 
-```python
+```{python}
 from src.types.control_classical import (
     LQRResult,
     KalmanFilterResult,
@@ -338,9 +338,9 @@ ctrl_eigs: np.ndarray = lqg['controller_eigenvalues']  # (A-BK) eigenvalues
 est_eigs: np.ndarray = lqg['estimator_eigenvalues']    # (A-LC) eigenvalues
 ```
 
-### System Analysis Results
+### System Analysis Results {#sec-system-analysis-results}
 
-```python
+```{python}
 # Stability analysis
 stability: StabilityInfo = analyze_stability(A, system_type='continuous')
 
@@ -374,9 +374,9 @@ if 'unobservable_modes' in obs:
     unobs_modes: np.ndarray = obs['unobservable_modes']  # Eigenvalues
 ```
 
-## Symbolic Types
+## Symbolic Types {#sec-symbolic-types}
 
-```python
+```{python}
 import sympy as sp
 from src.types.symbolic import (
     SymbolicVariable,
@@ -406,11 +406,11 @@ h_sym: OutputExpression = sp.Matrix([x])
 g_sym: DiffusionExpression = sp.Matrix([[0], [0.1]])
 ```
 
-## Structural Types
+## Structural Types {#sec-structural-types}
 
-### Protocols
+### Protocols {#sec-protocols}
 
-```python
+```{python}
 from src.types.protocols import (
     DynamicalSystemProtocol,
     ContinuousSystemProtocol,
@@ -442,9 +442,9 @@ system: DynamicalSystemProtocol = MySystem()
 analyze(system)  # Works!
 ```
 
-### Utilities
+### Utilities {#sec-utilities}
 
-```python
+```{python}
 from src.types.utilities import (
     is_numpy,
     is_torch,
@@ -475,11 +475,11 @@ stats: ExecutionStats = {
 }
 ```
 
-## Common Patterns
+## Common Patterns {#sec-common-patterns}
 
-### Pattern 1: Type-Safe Function Signatures
+### Pattern 1: Type-Safe Function Signatures {#sec-pattern-1-type-safe-function-signatures}
 
-```python
+```{python}
 def compute_control(
     x: StateVector,
     K: GainMatrix,
@@ -495,9 +495,9 @@ x_eq = np.zeros(2)
 u = compute_control(x, K, x_eq)  # Type-safe!
 ```
 
-### Pattern 2: Backend-Agnostic Code
+### Pattern 2: Backend-Agnostic Code {#sec-pattern-2-backend-agnostic-code}
 
-```python
+```{python}
 def dynamics(
     x: StateVector,
     u: ControlVector,
@@ -513,9 +513,9 @@ def dynamics(
         return np.sin(x) + u
 ```
 
-### Pattern 3: Structured Results
+### Pattern 3: Structured Results {#sec-pattern-3-structured-results}
 
-```python
+```{python}
 def integrate_and_analyze(
     system,
     x0: StateVector,
@@ -537,9 +537,9 @@ def integrate_and_analyze(
     }
 ```
 
-### Pattern 4: Polymorphic Linearization
+### Pattern 4: Polymorphic Linearization {#sec-pattern-4-polymorphic-linearization}
 
-```python
+```{python}
 def stability_analysis(
     system: Union[ContinuousSystemProtocol, StochasticSystemProtocol],
     x_eq: EquilibriumState,
@@ -564,9 +564,9 @@ def stability_analysis(
     return analysis
 ```
 
-### Pattern 5: Type Guards for Runtime Checks
+### Pattern 5: Type Guards for Runtime Checks {#sec-pattern-5-type-guards-for-runtime-checks}
 
-```python
+```{python}
 from src.types.utilities import is_batched
 
 def process(x: StateVector) -> StateVector:
@@ -582,11 +582,11 @@ def process(x: StateVector) -> StateVector:
     return result
 ```
 
-## Type Checking
+## Type Checking {#sec-type-checking}
 
-### With mypy
+### With mypy {#sec-with-mypy}
 
-```bash
+```{bash}
 # Install mypy
 pip install mypy
 
@@ -597,9 +597,9 @@ mypy src/
 mypy --strict src/systems/
 ```
 
-### With pyright
+### With pyright {#sec-with-pyright}
 
-```bash
+```{bash}
 # Install pyright
 npm install -g pyright
 
@@ -607,10 +607,10 @@ npm install -g pyright
 pyright src/
 ```
 
-### Common Type Errors
+### Common Type Errors {#sec-common-type-errors}
 
 **Error: Incompatible types**
-```python
+```{python}
 # Bad
 x: StateVector = [1.0, 0.0]  # List, not array
 
@@ -619,7 +619,7 @@ x: StateVector = np.array([1.0, 0.0])
 ```
 
 **Error: Missing required key**
-```python
+```{python}
 # Bad (missing 'success')
 result: IntegrationResult = {'t': t, 'x': x}
 
@@ -637,7 +637,7 @@ result: IntegrationResult = {
 ```
 
 **Error: Wrong shape**
-```python
+```{python}
 # Type hint documents expected shape
 def compute(A: StateMatrix, x: StateVector) -> StateVector:
     # A should be (nx, nx), x should be (nx,)
@@ -650,11 +650,11 @@ A = np.array([[1, 2]])  # (1, 2) - wrong shape!
 A = np.array([[1, 2], [3, 4]])  # (2, 2) - correct!
 ```
 
-## Advanced Usage
+## Advanced Usage {#sec-advanced-usage}
 
-### Custom TypedDict
+### Custom TypedDict {#sec-custom-typeddict}
 
-```python
+```{python}
 from typing_extensions import TypedDict
 
 class SimulationConfig(TypedDict, total=False):
@@ -673,9 +673,9 @@ config: SimulationConfig = {
 }
 ```
 
-### Generic Types
+### Generic Types {#sec-generic-types}
 
-```python
+```{python}
 from typing import TypeVar, Generic
 
 T = TypeVar('T', np.ndarray, torch.Tensor, jnp.ndarray)
@@ -693,9 +693,9 @@ np_traj = Trajectory[np.ndarray](np_data)
 torch_traj = Trajectory[torch.Tensor](torch_data)
 ```
 
-### Protocol Composition
+### Protocol Composition {#sec-protocol-composition}
 
-```python
+```{python}
 from src.types.protocols import (
     DynamicalSystemProtocol,
     ObservableSystemProtocol,
@@ -712,9 +712,9 @@ def process(system: FullSystem):
     y = system.observe(x)
 ```
 
-## Testing with Types
+## Testing with Types {#sec-testing-with-types}
 
-```python
+```{python}
 def test_dynamics_signature():
     """Test that dynamics has correct signature."""
     system = MySystem()
@@ -739,7 +739,7 @@ def test_integration_result():
     assert result['solver'] == 'RK45'
 ```
 
-## References
+## References {#sec-references}
 
 - **Architecture:** See `Type_System_Architecture.md`
 - **Core Types:** See `src/types/core.py`
