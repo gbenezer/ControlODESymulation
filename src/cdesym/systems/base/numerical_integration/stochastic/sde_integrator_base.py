@@ -116,17 +116,36 @@ def get_trajectory_statistics(result: SDEIntegrationResult) -> Dict[str, Any]:
             "note": "Single trajectory - no statistics available",
         }
 
-    # Multiple paths: compute statistics
-    # x has shape (n_paths, T, nx)
+    # Detect backend from array type
+    if hasattr(x, '__array__'):
+        # NumPy array or convertible
+        x_np = np.asarray(x)
+        backend = 'numpy'
+    elif hasattr(x, 'cpu'):
+        # PyTorch tensor
+        x_np = x.detach().cpu().numpy()
+        backend = 'torch'
+    elif hasattr(x, 'device'):
+        # JAX array
+        x_np = np.asarray(x)
+        backend = 'jax'
+    else:
+        # Fallback to NumPy conversion
+        x_np = np.asarray(x)
+        backend = 'numpy'
+
+    # Multiple paths: compute statistics on NumPy arrays
+    # x_np has shape (n_paths, T, nx)
     return {
-        "mean": np.mean(x, axis=0),  # (T, nx)
-        "std": np.std(x, axis=0),  # (T, nx)
-        "min": np.min(x, axis=0),
-        "max": np.max(x, axis=0),
-        "median": np.median(x, axis=0),
-        "q25": np.quantile(x, 0.25, axis=0),
-        "q75": np.quantile(x, 0.75, axis=0),
+        "mean": np.mean(x_np, axis=0),  # (T, nx)
+        "std": np.std(x_np, axis=0),  # (T, nx)
+        "min": np.min(x_np, axis=0),
+        "max": np.max(x_np, axis=0),
+        "median": np.median(x_np, axis=0),
+        "q25": np.quantile(x_np, 0.25, axis=0),
+        "q75": np.quantile(x_np, 0.75, axis=0),
         "n_paths": n_paths,
+        "backend": backend,
     }
 
 
