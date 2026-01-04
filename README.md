@@ -9,9 +9,7 @@ A Python library for defining, analyzing, and simulating nonlinear dynamical sys
 [![CI](https://img.shields.io/badge/CI-passing-brightgreen)](https://github.com/gbenezer/ControlDESymulation/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## Documentation
-
-[Read the docs](https://gbenezer.github.io/ControlDESymulation/)
+## Documentation [Here](https://gbenezer.github.io/ControlDESymulation/)
 
 ---
 
