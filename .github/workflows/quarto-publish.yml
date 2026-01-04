@@ -10,8 +10,13 @@ permissions:
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
     
     steps:
@@ -30,12 +35,22 @@ jobs:
           cache: 'pip'
       
       - name: Install dependencies
-        run: pip install -e ".[all]"
+        run: |
+          pip install -e ".[all]"  
       
-      - name: Publish to GitHub Pages
-        uses: quarto-dev/quarto-actions/publish@v2
+      - name: Render Quarto site
+        run: |
+          cd docs
+          quarto render
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          target: gh-pages
-          path: docs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: docs/_site
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
