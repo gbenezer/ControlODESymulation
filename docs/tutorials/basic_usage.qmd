@@ -14,15 +14,9 @@ This tutorial covers the basics of defining and simulating dynamical systems.
 First, import the necessary modules:
 
 ```{python}
-# TODO: Change once API regarding exports stabilizes
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path.cwd().parent.parent))
-
 import numpy as np
 import sympy as sp
-# need to adjust import once API stabilizes
-from src.systems.base.core.continuous_symbolic_system import ContinuousSymbolicSystem
+from cdesys import ContinuousSymbolicSystem
 
 # Set random seed for reproducibility
 np.random.seed(42)
