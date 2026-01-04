@@ -686,14 +686,15 @@ result = integrator.integrate(x0_sde_torch, u_func, t_span=(0, 10))
 # print(f"Noise type: {result['noise_type']}")
 print(f"SDE type: {result['sde_type']}")
 
-# typical UI
-result = sde_system.integrate(
-    backend='torch',
-    x0=x0_sde_torch,
-    method='adaptive_heun',
-    dt=0.01,
-    seed=SEED
-)
+# typical UI (also demonstrating temporary backend switching)
+with sde_system.use_backend('torch'):
+    result = sde_system.integrate(
+        x0=x0_sde_torch,
+        method='adaptive_heun',
+        dt=0.01,
+        seed=SEED
+    )
+
 print(f"Noise type: {result['noise_type']}")
 print(f"SDE type: {result['sde_type']}")
 ```
@@ -711,7 +712,7 @@ result = integrator.integrate_monte_carlo(
 
 # Get statistics
 
-from cdesym import get_trajectory_statistics
+from cdesym.systems.base.numerical_integration.stochastic import get_trajectory_statistics
 stats = get_trajectory_statistics(result)
 
 print(f"Mean at t=10: {stats['mean'][-1]}")
@@ -728,15 +729,34 @@ from cdesym.systems.base.numerical_integration.stochastic.custom_brownian import
 )
 
 # Zero noise for deterministic testing
+# NOTE: For integrate(), provide ONE dW that spans the ENTIRE integration
+# This is different from step() which uses per-step dW
 dW = jnp.zeros((nw,))
-brownian = CustomBrownianPath(0.0, 0.01, dW)
+brownian = CustomBrownianPath(0.0, 1.0, dW)  # t0=0, t1=1 matching t_span
 
-# Use in integration
+# need an integrator in JAX for this
+integrator = SDEIntegratorFactory.create(
+    sde_system,
+    backend='jax',
+    method='Heun',  # Use 'Euler' not 'Heun' (check available methods)
+    dt=0.01,
+    seed=SEED
+)
+
+# Use in integration with custom Brownian path
 result = integrator.integrate(
-    x0_sde_jax, u_func, t_span=(0, 1),
-    brownian_path=brownian
+    x0_sde_jax, 
+    u_func, 
+    t_span=(0, 1),
+    brownian_path=brownian  # Pass the custom path
 )
 ```
+
+**Important notes for custom Brownian paths:**
+
+1. **Time span matching**: The `CustomBrownianPath(t0, t1, dW)` should have `t0` and `t1` matching your integration `t_span`
+2. **Single dW for entire integration**: Unlike `step()` where you provide per-step `dW`, for `integrate()` you provide ONE `dW` representing the entire interval
+3. **Diffrax handles interpolation**: Diffrax will internally query the Brownian path at different times using the `evaluate()` method
 
 ## Integrator Selection Guide {#sec-integrator-selection-guide}
 
