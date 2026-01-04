@@ -107,10 +107,10 @@ True
 
 import sympy as sp
 
-from src.systems.base.stochastic_dynamical_system import StochasticDynamicalSystem
+from src.systems.base.core.continuous_stochastic_system import ContinuousStochasticSystem
 
 
-class BrownianMotion(StochasticDynamicalSystem):
+class BrownianMotion(ContinuousStochasticSystem):
     """
     Standard Brownian motion (Wiener process) - pure diffusion.
 
@@ -197,7 +197,7 @@ class BrownianMotion(StochasticDynamicalSystem):
         self.sde_type = "ito"
 
 
-class BrownianMotion2D(StochasticDynamicalSystem):
+class BrownianMotion2D(ContinuousStochasticSystem):
     """
     Two-dimensional Brownian motion with independent components.
 
@@ -249,7 +249,7 @@ class BrownianMotion2D(StochasticDynamicalSystem):
         self.sde_type = "ito"
 
 
-class BrownianBridge(StochasticDynamicalSystem):
+class BrownianBridge(ContinuousStochasticSystem):
     """
     Brownian bridge - Brownian motion conditioned on endpoints.
 
