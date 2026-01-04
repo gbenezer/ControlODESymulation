@@ -387,6 +387,9 @@ tests/visual_tests/control_plotter/
 tests/visual_tests/phase_portrait/
 tests/visual_tests/trajectory_plotter/
 
+# scratch file for ad-hoc formatting of code
+scripts/code_formatting_scratch.py
+
 # ============================================================================
 # Keep These (Negations)
 # ============================================================================
