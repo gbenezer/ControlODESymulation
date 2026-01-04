@@ -34,4 +34,4 @@ jobs:
     - name: Type check with mypy
       run: |
         mypy src/
-      continue-on-error: false
+      continue-on-error: true

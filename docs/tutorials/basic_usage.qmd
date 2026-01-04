@@ -90,7 +90,9 @@ pendulum_integration_result = pendulum.integrate(
         x0=x0,
         t_span = (0.0, 20.0)
     )
-print(pendulum_integration_result)
+for k, v in pendulum_integration_result.items():
+    if k != "x" and k != "t":
+        print(k, " : ", v)
 ```
 
 ## Visualization
