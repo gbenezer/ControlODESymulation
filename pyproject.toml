@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 # PROJECT METADATA
 # ============================================================================
 [project]
-name = "controldesymulation"
+name = "cdesym"
 dynamic = ["version"]
 description = "Symbolic dynamical systems with multi-backend numerical execution for control theory, RL environments, and synthetic data generation"
 readme = "README.md"
@@ -205,31 +205,25 @@ all = [
 Homepage = "https://github.com/gbenezer/ControlDESymulation"
 Repository = "https://github.com/gbenezer/ControlDESymulation"
 Issues = "https://github.com/gbenezer/ControlDESymulation/issues"
-Documentation = "https://github.com/gbenezer/ControlDESymulation"
-Changelog = "https://github.com/gbenezer/ControlDESymulation/blob/main/CHANGELOG.md"
+Documentation = "https://gbenezer.github.io/ControlDESymulation/"
 
 # ============================================================================
 # SETUPTOOLS CONFIGURATION
 # ============================================================================
 [tool.setuptools]
-# Don't specify packages directly, use packages.find instead
-
-[tool.setuptools.package-dir]
-"" = "."
+package-dir = {"" = "src"} 
 
 # Automatically find packages
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
-exclude = ["tests*", "docs*"]
+where = ["src"]
 
 # Include package data (type stubs, data files)
 [tool.setuptools.package-data]
-src = ["py.typed", "*.pyi"]
+cdesym = ["py.typed", "*.pyi"]
 
 # Dynamic version from src/__init__.py
 [tool.setuptools.dynamic]
-version = {attr = "src.__version__"}
+version = {attr = "cdesym.__version__"}
 
 # ============================================================================
 # PYTEST CONFIGURATION
