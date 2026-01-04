@@ -677,11 +677,23 @@ integrator = SDEIntegratorFactory.create(
     backend='torch',
     method='adaptive_heun',
     dt=0.01,
-    seed=42
+    seed=SEED
 )
 
 # Single trajectory
 result = integrator.integrate(x0_sde_torch, u_func, t_span=(0, 10))
+# Integrators do not return noise type, only sde_system.integrate() would
+# print(f"Noise type: {result['noise_type']}")
+print(f"SDE type: {result['sde_type']}")
+
+# typical UI
+result = sde_system.integrate(
+    backend='torch',
+    x0=x0_sde_torch,
+    method='adaptive_heun',
+    dt=0.01,
+    seed=SEED
+)
 print(f"Noise type: {result['noise_type']}")
 print(f"SDE type: {result['sde_type']}")
 ```
