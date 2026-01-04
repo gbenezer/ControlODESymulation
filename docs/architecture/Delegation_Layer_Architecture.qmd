@@ -6,9 +6,12 @@ date: today
 format:
   html:
     toc: true
-    code-fold: false
+    code-fold: show
     code-tools: true
-    theme: cosmo
+execute:
+  eval: true      # Execute all code blocks
+  cache: true     # Cache results
+  warning: false  # Suppress warnings
 ---
 
 

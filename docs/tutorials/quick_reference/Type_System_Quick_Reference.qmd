@@ -8,7 +8,10 @@ format:
     toc: true
     code-fold: false
     code-tools: true
-    theme: cosmo
+execute:
+  eval: true      # Execute by default
+  cache: true
+  warning: false
 ---
 
 ## Quick Start

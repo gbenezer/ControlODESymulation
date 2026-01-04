@@ -49,7 +49,7 @@ This installs the core library with NumPy support, suitable for most educational
 For neural network integration and GPU acceleration:
 
 ```bash
-pip install cdesym torch
+pip install "cdesym[torch]"
 ```
 
 For specific CUDA versions, install PyTorch first:
@@ -57,7 +57,7 @@ For specific CUDA versions, install PyTorch first:
 ```bash
 # Example: CUDA 11.8
 pip install torch --index-url https://download.pytorch.org/whl/cu118
-pip install cdesym
+pip install "cdesym[torch]"
 ```
 
 ### Installation with JAX Backend
@@ -65,17 +65,29 @@ pip install cdesym
 For high-performance computing and JIT compilation:
 
 ```bash
-pip install cdesym jax jaxlib
+pip install "cdesym[jax]"
 ```
 
 For GPU support with JAX:
 
 ```bash
 # CUDA 12
-pip install cdesym "jax[cuda12]"
+pip install "cdesym[jax]" "jax[cuda12]"
 
 # CUDA 11
-pip install cdesym "jax[cuda11]"
+pip install "cdesym[jax]" "jax[cuda11]"
+```
+
+### Installation with Julia DifferentialEquations.jl and DiffEqPy
+
+For support for Julia DifferentialEquations.jl support, 
+first install Julia and add it to the environment path so that it can be discovered. 
+Then, install and pre-compile DifferentialEquations.jl.
+
+Once that is done, then execute the following:
+
+```bash
+pip install "cdesym[julia]"
 ```
 
 ### Development Installation
@@ -92,11 +104,50 @@ The `-e` flag installs in editable mode, allowing you to modify the source code 
 
 ### Installing All Backends
 
-For full functionality with all backends:
+For full functionality with all backends (including Julia support):
+
+First install Julia and DifferentialEquations.jl, then
 
 ```bash
-pip install cdesym torch jax jaxlib
+pip install "cdesym[torch,jax,julia]"
 ```
+
+### Other options
+
+These flags will install core library dependencies PLUS
+
+```bash
+pip install "cdesym[viz]"
+```
+Plotly, matplotlib, and seaborn
+
+```bash
+pip install "cdesym[control]"
+```
+Python control library
+
+```bash
+pip install "cdesym[optimization]"
+```
+CVXPY, Clarabel, OSPQ, SCS, CasADi (for future functionality)
+
+```bash
+pip install "cdesym[dev]"
+```
+Pytest and many associated Pytest extensions,
+Coverage.py, Mutmut, Black, isort, ruff, mypy and extensions,
+flake8, pylint, bandit, safety, pre-commit, radon, pydeps
+types-requests, types-setuptools, build, twine, setuptools, and wheel
+
+```bash
+pip install "cdesym[docs]"
+```
+Sphinx and associated extensions, myst-parser
+
+```bash
+pip install "cdesym[notebooks]"
+```
+Jupyter, JupyterLab, IPyKernel, IPyWidgets, Notebook, and IPython
 
 ## Backend Configuration
 

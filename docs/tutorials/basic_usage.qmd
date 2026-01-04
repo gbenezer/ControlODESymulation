@@ -1,8 +1,17 @@
 ---
 title: "Basic Usage"
-format: html
+subtitle: "ControlDESymulation Tutorials"
+author: "Gil Benezer"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: false
+    code-tools: true
 execute:
-  eval: true
+  eval: true      # Execute by default
+  cache: true
+  warning: false
 ---
 
 ## Introduction
