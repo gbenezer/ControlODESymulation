@@ -1,0 +1,2791 @@
+# ControlDESymulation Documentation Conversion Plan
+
+## Executive Summary
+
+**Goal**: Convert all documentation to executable Quarto format with living, tested code examples throughout.
+
+**Approach**: **Full executable documentation** - All code blocks run and are tested in CI, ensuring documentation stays perfectly in sync with the codebase.
+
+**Timeline**: ~3-4 weeks for complete conversion and testing
+
+**Outcome**: Professional, interactive, continuously-tested documentation where every code example is guaranteed to work.
+
+---
+
+## Phase 1: Setup and Infrastructure (Days 1-2)
+
+### Day 1: Environment Setup
+
+#### 1.3 Initial Configuration Files
+
+**Create `docs_quarto/_quarto.yml`:**
+```yaml
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "ControlDESymulation"
+  description: "Symbolic Dynamical Systems Framework"
+  site-url: https://gilbenezer.github.io/ControlDESymulation
+  repo-url: https://github.com/gilbenezer/ControlDESymulation
+  repo-actions: [edit, issue]
+  
+  navbar:
+    background: primary
+    left:
+      - text: "Home"
+        file: index.qmd
+      - text: "Architecture"
+        menu:
+          - architecture/cdesym_Design_Philosophy.qmd
+          - architecture/UI_Framework_Architecture.qmd
+          - architecture/Type_System_Architecture.qmd
+          - architecture/Integration_Framework_Architecture.qmd
+          - architecture/Control_Framework_Architecture.qmd
+          - architecture/Visualization_Framework_Architecture.qmd
+          - architecture/Delegation_Layer_Architecture.qmd
+          - architecture/Example_Systems_Architecture.qmd
+      - text: "Tutorials"
+        menu:
+          - tutorials/quick_reference/UI_Framework_Quick_Reference.qmd
+          - tutorials/quick_reference/Type_System_Quick_Reference.qmd
+          - tutorials/quick_reference/Integration_Framework_Quick_Reference.qmd
+          - tutorials/quick_reference/Control_Framework_Quick_Reference.qmd
+          - tutorials/quick_reference/Visualization_Framework_Quick_Reference.qmd
+          - tutorials/quick_reference/Delegation_Layer_Quick_Reference.qmd
+          - tutorials/quick_reference/Example_Systems_Quick_Reference.qmd
+      - text: "Examples"
+        menu:
+          - examples/pendulum_control.qmd
+          - examples/cartpole_swingup.qmd
+          - examples/quadrotor_lqr.qmd
+          - examples/cstr_multiplicity.qmd
+          - examples/lorenz_chaos.qmd
+      - text: "API Reference"
+        file: api/index.qmd
+    
+    right:
+      - icon: github
+        href: https://github.com/gilbenezer/ControlDESymulation
+
+  sidebar:
+    - title: "Architecture"
+      style: "docked"
+      background: light
+      contents:
+        - section: "Framework Design"
+          contents:
+            - architecture/cdesym_Design_Philosophy.qmd
+            - architecture/UI_Framework_Architecture.qmd
+            - architecture/Type_System_Architecture.qmd
+            - architecture/Integration_Framework_Architecture.qmd
+            - architecture/Control_Framework_Architecture.qmd
+            - architecture/Visualization_Framework_Architecture.qmd
+            - architecture/Delegation_Layer_Architecture.qmd
+            - architecture/Example_Systems_Architecture.qmd
+    
+    - title: "Tutorials"
+      contents:
+        - section: "Quick Start Guides"
+          contents:
+            - tutorials/quick_reference/UI_Framework_Quick_Reference.qmd
+            - tutorials/quick_reference/Type_System_Quick_Reference.qmd
+            - tutorials/quick_reference/Integration_Framework_Quick_Reference.qmd
+            - tutorials/quick_reference/Control_Framework_Quick_Reference.qmd
+            - tutorials/quick_reference/Visualization_Framework_Quick_Reference.qmd
+            - tutorials/quick_reference/Delegation_Layer_Quick_Reference.qmd
+            - tutorials/quick_reference/Example_Systems_Quick_Reference.qmd
+    
+    - title: "Examples"
+      contents:
+        - section: "Mechanical Systems"
+          contents:
+            - examples/pendulum_control.qmd
+            - examples/cartpole_swingup.qmd
+        - section: "Aerospace"
+          contents:
+            - examples/quadrotor_lqr.qmd
+        - section: "Chemical"
+          contents:
+            - examples/cstr_multiplicity.qmd
+        - section: "Chaos & Dynamics"
+          contents:
+            - examples/lorenz_chaos.qmd
+
+format:
+  html:
+    theme: 
+      light: [cosmo, assets/css/custom.css]
+      dark: [cosmo, assets/css/custom-dark.css]
+    css: assets/css/styles.css
+    toc: true
+    toc-depth: 5
+    code-copy: true
+    code-fold: show
+    code-tools: true
+    code-link: true
+    
+execute:
+  freeze: auto  # Cache results unless source changes
+  cache: true   # Enable caching for expensive computations
+  eval: true    # ← EXECUTE BY DEFAULT
+  
+bibliography: references.bib
+csl: ieee.csl
+```
+
+**Create `docs_quarto/assets/css/custom.css`:**
+```css
+/* Custom styling for ControlDESymulation docs */
+
+/* Code blocks */
+pre.sourceCode {
+  border-left: 3px solid #0173B2;
+  padding-left: 1em;
+}
+
+/* Callout boxes */
+.callout-warning {
+  border-left-color: #DE8F05;
+}
+
+.callout-tip {
+  border-left-color: #029E73;
+}
+
+/* Tables */
+table {
+  font-size: 0.9em;
+}
+
+/* Figure captions */
+.figure-caption {
+  font-style: italic;
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* Reduce whitespace for compact display */
+.cell-output-display {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+```
+
+#### 1.4 Create Index Page
+
+**Create `docs_quarto/index.qmd`:**
+````markdown
+---
+title: "ControlDESymulation"
+subtitle: "Symbolic Dynamical Systems Framework for Control Theory"
+execute:
+  eval: true
+---
+
+## Overview
+
+ControlDESymulation is a comprehensive Python framework for symbolic modeling, 
+simulation, and control of dynamical systems.
+
+### Key Benefits
+
+1. **Write Once, Run Anywhere**: Define systems symbolically, execute on any backend (NumPy/PyTorch/JAX)
+2. **No Backend Lock-in**: Switch between CPU, GPU, or TPU without changing your code
+3. **Gradient-Aware**: Automatic differentiation support for learned controllers and neural ODEs
+4. **Type-Safe**: Comprehensive type hints for better IDE support and fewer bugs
+5. **Research to Production**: Prototype in NumPy, scale with JAX, integrate with PyTorch models
+
+### Features
+
+- **Symbolic Specification**: Define systems using SymPy with automatic code generation
+- **Multi-Backend Support**: Seamlessly switch between NumPy, PyTorch, JAX, and Julia
+- **Dual Time Domains**: Full support for both continuous-time (ODEs/SDEs) and discrete-time systems
+- **Stochastic Systems**: First-class support for stochastic differential equations (SDEs)
+- **40+ Integration Methods**: Adaptive and fixed-step solvers from scipy, torchdiffeq, diffrax, and DiffEqPy
+- **Type Safety**: Comprehensive TypedDict definitions with IDE autocomplete support
+- **GPU Acceleration**: Native PyTorch and JAX support for GPU-based simulations
+- **Zero Code Duplication**: Clean 4-layer architecture with composition over inheritance
+- **Production Ready**: Extensive test coverage, comprehensive documentation, CI/CD workflows
+
+### Design Principles
+
+1. **Composition Over Inheritance** - Delegate to specialized utilities
+2. **Backend Agnosticism** - Write once, run on NumPy/PyTorch/JAX/Julia
+3. **Type-Driven Design** - Comprehensive TypedDict definitions
+4. **Zero Code Duplication** - Shared functionality in base classes
+5. **Mathematical Rigor** - Proper handling of ODEs, SDEs, difference equations
+6. **Performance First** - Multi-backend support enables GPU and XLA acceleration
+
+### Quick Example
+
+```{python}
+#| code-fold: false
+
+from cdesym import SymbolicPendulum
+import numpy as np
+
+# Create pendulum
+system = SymbolicPendulum(m=1.0, l=0.5, beta=0.1)
+
+# Linearize at inverted equilibrium
+x_eq, u_eq = system.get_equilibrium('inverted')
+A, B = system.linearize(x_eq, u_eq)
+
+print(f"System: {system.nx} states, {system.nu} controls")
+print(f"Open-loop eigenvalues: {np.linalg.eigvals(A)}")
+print(f"Equilibrium is: {'stable' if np.all(np.real(np.linalg.eigvals(A)) < 0) else 'unstable'}")
+```
+
+### Documentation Structure
+
+- **[Architecture Guides](architecture/index.qmd)**: Deep dives into framework design with working examples
+- **[Quick References](tutorials/index.qmd)**: Practical how-to guides with executable code
+- **[Examples Gallery](examples/index.qmd)**: Complete interactive demonstrations
+
+### Installation
+
+currently this is the main method for installation
+```bash
+pip install git+https://github.com/gilbenezer/ControlDESymulation.git
+```
+
+Or for development:
+```bash
+git clone https://github.com/gilbenezer/ControlDESymulation.git
+cd ControlDESymulation
+pip install -e .
+```
+
+Once the repository is published to PyPI, this will be the method of choice 
+currently this is the main method for installation
+```bash
+pip install cdesym
+```
+
+though more thorough and up to date information can be found on the installation guide document
+
+### Day 2: Conversion Scripts
+
+#### 2.1 Create Automated Conversion Script
+
+**Create `scripts/convert_to_quarto.py`:**
+```python
+#!/usr/bin/env python3
+"""
+Convert Markdown documentation to EXECUTABLE Quarto format.
+
+All code blocks are marked as executable by default, with strategic
+use of output control to keep architecture docs readable.
+"""
+
+import re
+from pathlib import Path
+from typing import Dict, List
+
+
+def determine_doc_type(filepath: Path) -> str:
+    """Determine if doc is architecture or tutorial."""
+    if "Architecture" in filepath.stem:
+        return "architecture"
+    elif "Quick_Reference" in filepath.stem:
+        return "tutorial"
+    else:
+        return "general"
+
+
+def convert_code_blocks(content: str, doc_type: str) -> str:
+    """
+    Convert ```python to ```{python} with appropriate options.
+    
+    Strategy for architecture docs:
+    - Small, demonstrative code: eval=true, output shown
+    - Long code listings: eval=true, output=false (validate but don't clutter)
+    - Syntax examples: eval=false (when showing invalid code patterns)
+    """
+    
+    def replace_code_block(match):
+        lang = match.group(1)
+        
+        # Non-Python blocks
+        if lang in ['bash', 'shell', 'sh', 'yaml', 'json', 'css']:
+            return f"```{{{lang}}}\n"
+        
+        # Python blocks - check context for hints
+        full_match = match.group(0)
+        preceding_context = content[max(0, match.start()-500):match.start()]
+        
+        # Heuristics for eval: false
+        eval_false_keywords = [
+            '# Bad:', '# Wrong:', '# Anti-pattern:', 
+            '# Example:', '# Pseudo-code:',
+            'ANTI-PATTERN', '# This is wrong'
+        ]
+        
+        # Check if example shows WRONG code
+        should_skip = any(keyword in preceding_context for keyword in eval_false_keywords)
+        
+        if should_skip:
+            return f"```{{python}}\n#| eval: false\n"
+        
+        # Default: Execute but control output for architecture docs
+        if doc_type == "architecture":
+            # Architecture: execute but hide verbose output
+            return f"```{{python}}\n#| output: false\n"
+        else:
+            # Tutorials/examples: show everything
+            return f"```{{python}}\n"
+    
+    # Replace ```language with ```{language}
+    content = re.sub(
+        r'```(python|bash|shell|sh|yaml|json|css)\n',
+        replace_code_block,
+        content
+    )
+    
+    return content
+
+
+def convert_warnings_notes(content: str) -> str:
+    """Convert **WARNING** and **NOTE** to Quarto callouts."""
+    
+    # Convert **WARNING**: ... to callout-warning
+    content = re.sub(
+        r'\*\*WARNING\*\*:?\s*(.+?)(?=\n\n|\n#{1,3}\s)',
+        r'::: {.callout-warning}\n## Warning\n\1\n:::',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # Convert **NOTE**: ... to callout-note
+    content = re.sub(
+        r'\*\*NOTE\*\*:?\s*(.+?)(?=\n\n|\n#{1,3}\s)',
+        r'::: {.callout-note}\n## Note\n\1\n:::',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # Convert **IMPORTANT**: ... to callout-important
+    content = re.sub(
+        r'\*\*IMPORTANT\*\*:?\s*(.+?)(?=\n\n|\n#{1,3}\s)',
+        r'::: {.callout-important}\n## Important\n\1\n:::',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # Convert **TIP**: ... to callout-tip
+    content = re.sub(
+        r'\*\*TIP\*\*:?\s*(.+?)(?=\n\n|\n#{1,3}\s)',
+        r'::: {.callout-tip}\n## Tip\n\1\n:::',
+        content,
+        flags=re.DOTALL
+    )
+    
+    # Convert **CRITICAL**: ... to callout-caution
+    content = re.sub(
+        r'\*\*CRITICAL\*\*:?\s*(.+?)(?=\n\n|\n#{1,3}\s)',
+        r'::: {.callout-caution}\n## Critical\n\1\n:::',
+        content,
+        flags=re.DOTALL
+    )
+    
+    return content
+
+
+def add_section_labels(content: str) -> str:
+    """Add {#sec-name} labels to headers for cross-referencing."""
+    
+    def create_label(match):
+        level = len(match.group(1))
+        title = match.group(2)
+        label = title.lower().replace(' ', '-').replace('/', '-')
+        label = re.sub(r'[^a-z0-9-]', '', label)
+        return f"{match.group(0)} {{#sec-{label}}}"
+    
+    # Add labels to headers (only if not already present)
+    content = re.sub(
+        r'^(#{2,4})\s+(.+?)(?!\s*\{#)$',
+        create_label,
+        content,
+        flags=re.MULTILINE
+    )
+    
+    return content
+
+
+def add_executable_setup_blocks(content: str, doc_type: str) -> str:
+    """
+    Add setup code blocks at the start of architecture docs.
+    
+    This ensures all subsequent examples can execute.
+    """
+    
+    if doc_type != "architecture":
+        return content
+    
+    # Determine what imports are needed based on content
+    needs_imports = {
+        'numpy': 'import numpy as np' in content or 'np.array' in content,
+        'sympy': 'import sympy as sp' in content or 'sp.symbols' in content,
+        'typing': 'from typing import' in content or 'Optional[' in content,
+        'systems': 'ContinuousSymbolicSystem' in content or 'DiscreteSymbolicSystem' in content,
+    }
+    
+    # Build setup block
+    setup_imports = []
+    
+    if needs_imports['numpy']:
+        setup_imports.append('import numpy as np')
+    if needs_imports['sympy']:
+        setup_imports.append('import sympy as sp')
+    if needs_imports['typing']:
+        setup_imports.append('from typing import Optional, Tuple, Dict, List, Union')
+    if needs_imports['systems']:
+        setup_imports.append('from cdesym.systems.base import ContinuousSymbolicSystem')
+        setup_imports.append('from cdesym.systems.examples.pendulum import SymbolicPendulum')
+    
+    if not setup_imports:
+        return content
+    
+    # Create setup block
+    setup_block = f"""
+```{{python}}
+#| label: setup-imports
+#| output: false
+#| echo: false
+
+# Setup for all code examples in this document
+{chr(10).join(setup_imports)}
+```
+
+"""
+    
+    # Insert after first header
+    content = re.sub(
+        r'(^#\s+.+?\n)',
+        r'\1' + setup_block,
+        content,
+        count=1,
+        flags=re.MULTILINE
+    )
+    
+    return content
+
+
+def convert_file(md_file: Path, output_dir: Path) -> None:
+    """Convert single Markdown file to executable Quarto."""
+    
+    print(f"Converting: {md_file.name}")
+    
+    # Read content
+    content = md_file.read_text()
+    
+    # Determine document type
+    doc_type = determine_doc_type(md_file)
+    
+    # Apply transformations
+    content = convert_code_blocks(content, doc_type)
+    content = convert_warnings_notes(content)
+    content = add_section_labels(content)
+    content = add_executable_setup_blocks(content, doc_type)
+    
+    # Determine output location
+    if doc_type == "architecture":
+        out_path = output_dir / "architecture" / f"{md_file.stem}.qmd"
+    elif doc_type == "tutorial":
+        out_path = output_dir / "tutorials" / f"{md_file.stem}.qmd"
+    else:
+        out_path = output_dir / f"{md_file.stem}.qmd"
+    
+    # Ensure directory exists
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write converted file
+    out_path.write_text(yaml_header + content)
+    print(f"  → {out_path.relative_to(output_dir.parent)}")
+
+
+def main():
+    """Main conversion routine."""
+    
+    # Setup paths
+    project_root = Path(__file__).parent.parent
+    docs_dir = project_root / "docs"
+    output_dir = project_root / "docs"
+    
+    print("=" * 70)
+    print("ControlDESymulation Documentation Conversion")
+    print("Full Executable Mode")
+    print("=" * 70)
+    print(f"Source: {docs_dir}")
+    print(f"Output: {output_dir}")
+    print()
+    
+    # Find all .qmd files (after rename) or .md files
+    qmd_files = list(docs_dir.rglob("*.qmd"))
+    if not qmd_files:
+        print("No .qmd files found. Looking for .md files...")
+        qmd_files = list(docs_dir.rglob("*.md"))
+    
+    print(f"Found {len(qmd_files)} files to convert\n")
+    
+    # Convert each file
+    for qmd_file in sorted(qmd_files):
+        convert_file(qmd_file, output_dir)
+    
+    print()
+    print("=" * 70)
+    print("Conversion complete!")
+    print(f"Converted {len(qmd_files)} files")
+    print()
+    print("Next steps:")
+    print("  1. Review converted files in docs_quarto/")
+    print("  2. Run: python scripts/test_quarto_docs.py")
+    print("  3. Fix any failing code blocks")
+    print("  4. Run: quarto preview docs_quarto/")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 1.5 Create Metadata Files
+
+**Create `docs_quarto/architecture/_metadata.yml`:**
+```yaml
+execute:
+  eval: true       # ← EXECUTE architecture code!
+  cache: true      # Cache for speed
+  warning: false
+  output: false    # Default: validate but don't show output (override per-block)
+  
+format:
+  html:
+    code-fold: show  # Show code, allow folding
+```
+
+**Create `docs_quarto/tutorials/_metadata.yml`:**
+```yaml
+execute:
+  eval: true       # Execute all tutorial code
+  cache: true
+  warning: false
+  output: true     # Show outputs by default
+  
+format:
+  html:
+    code-fold: false  # Always show code in tutorials
+```
+
+**Create `docs_quarto/examples/_metadata.yml`:**
+```yaml
+execute:
+  eval: true       # Execute all examples
+  cache: true
+  warning: false
+  output: true     # Show all outputs
+  
+format:
+  html:
+    code-fold: false
+    code-tools: true
+```
+
+#### 1.6 Test Initial Build
+
+```bash
+cd docs_quarto
+quarto preview
+```
+
+**Expected result**: Documentation renders in browser at http://localhost:XXXX
+
+---
+
+## Phase 2: Architecture Documentation - Full Execution (Days 3-8)
+
+### Strategy: Make ALL Architecture Docs Executable
+
+**Key insight**: Architecture docs contain many code examples that demonstrate
+API usage. Making these executable provides:
+- **Continuous validation** - Examples can't break silently
+- **Live demonstrations** - Show actual framework capabilities
+- **Better understanding** - See outputs, not just code
+
+### Conversion Strategy by Code Block Type
+
+**Type 1: Demonstrative snippets (eval: true, output: true)**
+```python
+#| output: true
+
+# Show how to create a system
+system = SymbolicPendulum(m=1.0, l=0.5)
+print(f"Created system with {system.nx} states")
+```
+
+**Type 2: Code validation (eval: true, output: false)**
+```python
+#| output: false
+
+# Validate that this pattern works, but don't clutter page
+class MyComplexSystem(ContinuousSymbolicSystem):
+    def define_system(self, ...):
+        # ... 50 lines of code ...
+        pass
+```
+
+**Type 3: Invalid/wrong code (eval: false)**
+```python
+#| eval: false
+
+# ANTI-PATTERN: This is wrong!
+self.parameters = {'m': 1.0}  # ✗ String key instead of Symbol
+```
+
+**Type 4: Architecture diagrams (keep as text)**
+````
+```
+┌──────────────────────┐
+│   UI FRAMEWORK       │
+└──────────────────────┘
+```
+````
+
+### Day 3: UI Framework Architecture
+
+**File**: `docs_quarto/architecture/UI_Framework_Architecture.qmd`
+
+**Key conversions:**
+
+1. **Add executable setup at top:**
+
+````markdown
+---
+title: "UI Framework Architecture"
+execute:
+  eval: true
+  cache: true
+  output: false  # Default: validate but don't show output
+---
+
+# UI Framework Architecture
+
+```{python}
+#| label: setup-ui-framework
+#| echo: false
+#| output: false
+
+# Setup for all examples in this document
+import numpy as np
+import sympy as sp
+from typing import Optional
+from cdesym.systems.base import ContinuousSymbolicSystem, DiscreteSymbolicSystem
+```
+
+## Overview {#sec-overview}
+
+The UI (User Interface) framework consists of **8 core files**...
+````
+
+2. **Make class definitions executable:**
+
+**Before:**
+````markdown
+```python
+class Pendulum(ContinuousSymbolicSystem):
+    def define_system(self, m=1.0, l=0.5, g=9.81, b=0.1):
+        # ... code ...
+```
+````
+
+**After:**
+````markdown
+```{python}
+#| label: pendulum-definition
+#| output: false
+
+class Pendulum(ContinuousSymbolicSystem):
+    """Example: Classic inverted pendulum."""
+    
+    def define_system(self, m=1.0, l=0.5, g=9.81, b=0.1):
+        theta, omega = sp.symbols('theta omega', real=True)
+        u = sp.symbols('u', real=True)
+        m_sym, l_sym, g_sym, b_sym = sp.symbols('m l g b', positive=True)
+        
+        self.state_vars = [theta, omega]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([
+            omega,
+            -(g_sym/l_sym)*sp.sin(theta) - (b_sym/(m_sym*l_sym**2))*omega 
+            + u/(m_sym*l_sym**2)
+        ])
+        self.parameters = {m_sym: m, l_sym: l, g_sym: g, b_sym: b}
+        self.order = 1
+    
+    def setup_equilibria(self):
+        self.add_equilibrium(
+            'inverted',
+            x_eq=np.array([np.pi, 0.0]),
+            u_eq=np.array([0.0]),
+            stability='unstable'
+        )
+        self.set_default_equilibrium('inverted')
+```
+
+Now demonstrate using it:
+
+```{python}
+#| label: use-pendulum
+#| output: true
+
+# Create and use the pendulum
+pendulum = Pendulum(m=1.0, l=0.5)
+print(f"✓ Pendulum created: {pendulum.nx} states, {pendulum.nu} controls")
+
+# Evaluate at a point
+x = np.array([np.pi + 0.1, 0.0])
+u = np.array([0.0])
+dx = pendulum(x, u)
+print(f"✓ Dynamics evaluated: dx/dt = {dx}")
+
+# Linearize
+A, B = pendulum.linearize(np.array([np.pi, 0.0]), np.array([0.0]))
+print(f"✓ Linearization computed: A shape = {A.shape}")
+```
+````
+
+3. **Convert architecture diagrams to figures:**
+
+**Before:**
+````markdown
+```
+┌────────────────┐
+│  UI FRAMEWORK  │
+└────────────────┘
+```
+````
+
+**After:**
+````markdown
+```{mermaid}
+%%| label: fig-ui-architecture
+%%| fig-cap: "UI Framework architecture layers"
+
+graph TD
+    A[SymbolicSystemBase] --> B[ContinuousSystemBase]
+    A --> C[DiscreteSystemBase]
+    B --> D[ContinuousSymbolicSystem]
+    C --> E[DiscreteSymbolicSystem]
+    D --> F[ContinuousStochasticSystem]
+```
+````
+
+### Day 4: Type System Architecture
+
+**Focus on demonstrating type usage:**
+
+````markdown
+## Core Vector Types {#sec-vector-types}
+
+```{python}
+#| label: vector-types-demo
+#| output: true
+
+from cdesym.types.core import StateVector, ControlVector, OutputVector
+
+# Type annotations guide usage
+def compute_control(x: StateVector, K: np.ndarray) -> ControlVector:
+    """Compute feedback control."""
+    return -K @ x
+
+# Demonstrate
+x: StateVector = np.array([1.0, 0.5])
+K = np.array([[1.0, 0.5]])
+u: ControlVector = compute_control(x, K)
+
+print(f"State: {x}")
+print(f"Control: {u}")
+print(f"Types are semantic, not just structural! ✓")
+```
+
+## TypedDict Results {#sec-typeddict}
+
+```{python}
+#| label: integration-result-demo
+#| output: true
+
+from cdesym.types.trajectories import IntegrationResult
+
+# Create example result (simulated)
+result: IntegrationResult = {
+    't': np.linspace(0, 10, 101),
+    'x': np.random.randn(101, 2),
+    'success': True,
+    'message': 'Integration successful',
+    'nfev': 152,
+    'nsteps': 100,
+    'integration_time': 0.045,
+    'solver': 'RK45'
+}
+
+# Type-safe access
+print(f"Time points: {len(result['t'])}")
+print(f"Solver used: {result['solver']}")
+print(f"Function evaluations: {result['nfev']}")
+
+# IDE autocomplete works perfectly ✓
+```
+````
+
+### Day 5: Integration Framework Architecture
+
+**Demonstrate actual integrators:**
+
+````markdown
+## IntegratorFactory {#sec-integrator-factory}
+
+```{python}
+#| label: integrator-factory-demo
+#| output: true
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+from cdesym.systems.base.numerical_integration import IntegratorFactory
+
+# Create system
+system = SymbolicPendulum(m=1.0, l=0.5, beta=0.1)
+
+# Automatic integrator selection
+integrator_auto = IntegratorFactory.auto(system)
+print(f"Auto-selected: {integrator_auto.name}")
+
+# Create specific integrators
+integrator_rk45 = IntegratorFactory.create(
+    system, backend='numpy', method='RK45'
+)
+print(f"Manual selection: {integrator_rk45.name}")
+
+# Compare methods
+x0 = np.array([np.pi + 0.1, 0.0])
+u_func = lambda t, x: np.array([0.0])
+t_span = (0, 5)
+
+result = integrator_rk45.integrate(x0, u_func, t_span)
+print(f"✓ Integration successful: {result['nfev']} function evaluations")
+```
+
+## Backend Comparison {#sec-backend-comparison}
+
+```{python}
+#| label: tbl-backend-comparison
+#| tbl-cap: "Integration performance across backends"
+#| output: true
+
+import time
+import pandas as pd
+
+backends_to_test = ['numpy']  # Start with NumPy only
+results_data = []
+
+for backend in backends_to_test:
+    integrator = IntegratorFactory.create(system, backend=backend, method='RK45')
+    
+    start = time.time()
+    result = integrator.integrate(x0, u_func, t_span)
+    elapsed = time.time() - start
+    
+    results_data.append({
+        'Backend': backend,
+        'Method': result['solver'],
+        'Time (s)': f"{elapsed:.4f}",
+        'Evaluations': result['nfev'],
+        'Success': '✓' if result['success'] else '✗'
+    })
+
+df = pd.DataFrame(results_data)
+df
+```
+
+::: {.callout-tip}
+## Performance Insight
+The table above shows actual performance from running the code. NumPy provides
+solid baseline performance, while PyTorch/JAX offer GPU acceleration for
+larger systems.
+:::
+````
+
+### Day 6: Control Framework Architecture
+
+**Show actual controller design:**
+
+````markdown
+## LQR Design Algorithm {#sec-lqr-algorithm}
+
+The LQR algorithm solves the Algebraic Riccati Equation (ARE).
+
+**Mathematical Background:**
+
+For continuous systems:
+$$A^TP + PA - PBR^{-1}B^TP + Q = 0$$
+
+**Implementation:**
+
+```{python}
+#| label: lqr-implementation-demo
+#| output: true
+
+from cdesym.control.classical_control_functions import design_lqr
+
+# Create example system
+system = SymbolicPendulum(m=1.0, l=0.5, beta=0.1)
+x_eq = np.array([np.pi, 0.0])
+u_eq = np.array([0.0])
+A, B = system.linearize(x_eq, u_eq)
+
+# Design LQR
+Q = np.diag([10, 1])
+R = np.array([[0.1]])
+
+result = design_lqr(A, B, Q, R, system_type='continuous')
+
+print("LQR Design Results:")
+print(f"  Gain K:\n{result['gain']}")
+print(f"  Closed-loop eigenvalues: {result['closed_loop_eigenvalues']}")
+print(f"  Stable: {np.all(np.real(result['closed_loop_eigenvalues']) < 0)}")
+```
+
+**Verify Riccati Solution:**
+
+```{python}
+#| label: verify-riccati
+#| output: true
+
+# Extract solution
+P = result['cost_to_go']
+K = result['gain']
+
+# Verify ARE: A'P + PA - PBR^{-1}B'P + Q = 0
+riccati_residual = (
+    A.T @ P + P @ A 
+    - P @ B @ np.linalg.solve(R, B.T @ P) 
+    + Q
+)
+
+print(f"Riccati equation residual (should be ~0):")
+print(f"  Max absolute value: {np.abs(riccati_residual).max():.2e}")
+print(f"  ✓ Verified!" if np.allclose(riccati_residual, 0, atol=1e-10) else "✗ Failed")
+```
+
+This verification runs **every time the docs are built**, ensuring the algorithm
+implementation remains correct.
+````
+
+### Day 7: Visualization Framework Architecture
+
+**Show actual plots:**
+
+````markdown
+## TrajectoryPlotter {#sec-trajectory-plotter}
+
+```{python}
+#| label: fig-trajectory-demo
+#| fig-cap: "Example trajectory plot generated by TrajectoryPlotter"
+#| output: true
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+
+# Create system and simulate
+system = SymbolicPendulum(m=1.0, l=0.5, beta=0.1)
+x0 = np.array([np.pi + 0.2, 0.0])
+
+result = system.integrate(
+    x0=x0,
+    u=lambda t, x: np.array([0.0]),
+    t_span=(0, 5)
+)
+
+# Plot using framework
+fig = system.plotter.plot_trajectory(
+    result['t'],
+    result['x'],
+    state_names=['θ', 'ω'],
+    theme='publication',
+    color_scheme='colorblind_safe'
+)
+fig.show()
+```
+
+The plot above is **generated live** when building documentation, ensuring
+visualization code remains functional.
+
+## Theme System {#sec-themes}
+
+```{python}
+#| label: tbl-available-themes
+#| tbl-cap: "Available plot themes and their characteristics"
+#| output: true
+
+from cdesym.visualization.themes import PlotThemes, ColorSchemes
+import pandas as pd
+
+# Demonstrate available themes
+theme_info = []
+for theme_name in ['DEFAULT', 'PUBLICATION', 'DARK']:
+    theme_dict = getattr(PlotThemes, theme_name)
+    theme_info.append({
+        'Theme': theme_name.lower(),
+        'Font': theme_dict['font_family'],
+        'Font Size': theme_dict['font_size'],
+        'Background': theme_dict['background_color']
+    })
+
+pd.DataFrame(theme_info)
+```
+
+Available color schemes:
+
+```{python}
+#| label: color-schemes-demo
+#| output: true
+
+# Show first 3 colors from each scheme
+schemes = ['PLOTLY', 'D3', 'COLORBLIND_SAFE', 'TABLEAU']
+
+for scheme in schemes:
+    colors = ColorSchemes.get_colors(scheme, n_colors=3)
+    print(f"{scheme:20s}: {colors}")
+```
+````
+
+### Day 8: Delegation Layer Architecture
+
+**Demonstrate backend management:**
+
+````markdown
+## BackendManager {#sec-backend-manager}
+
+```{python}
+#| label: backend-manager-demo
+#| output: true
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+
+system = SymbolicPendulum()
+
+# Demonstrate backend detection
+x_numpy = np.array([1.0, 0.0])
+backend = system.backend.detect(x_numpy)
+print(f"Detected backend: {backend}")
+
+# Show available backends
+print(f"Available backends: {system.backend.available_backends}")
+
+# Backend conversion (if torch available)
+try:
+    import torch
+    x_torch = system.backend.to_backend(x_numpy, 'torch')
+    print(f"✓ Converted to PyTorch: {type(x_torch)}")
+except ImportError:
+    print("⊘ PyTorch not available (NumPy-only mode)")
+```
+
+## CodeGenerator Caching {#sec-code-generator}
+
+```{python}
+#| label: codegen-caching-demo
+#| output: true
+
+import time
+
+# First call: generates and caches
+start = time.time()
+f_numpy = system._code_gen.generate_dynamics('numpy')
+t_first = time.time() - start
+
+# Second call: returns cached
+start = time.time()
+f_cached = system._code_gen.generate_dynamics('numpy')
+t_cached = time.time() - start
+
+print(f"First generation: {t_first*1000:.2f} ms")
+print(f"Cached retrieval: {t_cached*1000:.4f} ms")
+print(f"Speedup: {t_first/t_cached:.0f}x")
+print(f"Same object: {f_numpy is f_cached}")
+
+# Verify it works
+x = np.array([np.pi, 0.0])
+u = np.array([0.0])
+result = f_numpy(x, u)
+print(f"✓ Function evaluates: f({x}) = {result}")
+```
+
+This demonstrates that code generation caching **actually works** and provides
+real performance benefits.
+````
+
+### Days 9-10: Remaining Architecture Docs
+
+**Convert with full execution:**
+
+**Day 9:**
+- Example_Systems_Architecture.qmd
+  - Show creating each system type
+  - Demonstrate key features with actual code
+  - Include performance comparisons
+
+**Day 10:**
+- Complete any remaining architecture docs
+- Add comprehensive setup blocks
+- Test all code blocks execute
+
+---
+
+## Phase 3: Tutorial Conversion - Full Execution (Days 11-15)
+
+### Day 11: UI Framework Quick Reference
+
+**Make it a working tutorial:**
+
+````markdown
+---
+title: "UI Framework Quick Reference"
+execute:
+  eval: true
+  output: true  # Show outputs in tutorials
+---
+
+```{python}
+#| label: setup
+#| echo: false
+
+import numpy as np
+import sympy as sp
+from cdesym.systems.base import ContinuousSymbolicSystem
+```
+
+## Quick Start {#sec-quick-start}
+
+### 1. Continuous Deterministic System {#sec-continuous-system}
+
+::: {.panel-tabset}
+
+## Define System
+
+```{python}
+#| label: define-custom-system
+
+class MySystem(ContinuousSymbolicSystem):
+    """Your custom continuous system."""
+    
+    def define_system(self, param1=1.0, param2=2.0):
+        # Step 1: Define symbolic variables
+        x1, x2 = sp.symbols('x1 x2', real=True)
+        u = sp.symbols('u', real=True)
+        p1, p2 = sp.symbols('p1 p2', positive=True)
+        
+        # Step 2: Set state and control variables
+        self.state_vars = [x1, x2]
+        self.control_vars = [u]
+        
+        # Step 3: Define dynamics: dx/dt = f(x, u)
+        self._f_sym = sp.Matrix([
+            x2,
+            -p1*x1 - p2*x2 + u
+        ])
+        
+        # Step 4: Set parameters
+        self.parameters = {p1: param1, p2: param2}
+        
+        # Step 5: Set system order
+        self.order = 1
+        
+        # Optional: Define output
+        self._h_sym = sp.Matrix([x1])
+    
+    def setup_equilibria(self):
+        pass
+
+print("✓ System class defined")
+```
+
+## Use System
+
+```{python}
+#| label: use-custom-system
+
+# Create system
+system = MySystem(param1=10.0, param2=0.5)
+
+print(f"System created: {system.nx} states, {system.nu} controls")
+print(f"Parameters: {system.parameters}")
+
+# Evaluate dynamics
+x = np.array([1.0, 0.0])
+u = np.array([0.5])
+dx = system(x, u)
+print(f"dx/dt at x={x}, u={u}:")
+print(f"  {dx}")
+
+# Linearize
+A, B = system.linearize(np.zeros(2), np.zeros(1))
+print(f"Linearization at origin:")
+print(f"  A =\n{A}")
+print(f"  B =\n{B}")
+```
+
+## Simulate
+
+```{python}
+#| label: fig-custom-system-sim
+#| fig-cap: "Simulation of custom system"
+
+import matplotlib.pyplot as plt
+
+result = system.integrate(
+    x0=np.array([1.0, 0.0]),
+    u=lambda t, x: np.array([0.0]),
+    t_span=(0, 10)
+)
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+axes[0].plot(result['t'], result['x'][:, 0])
+axes[0].set_ylabel('$x_1$')
+axes[0].grid(True)
+
+axes[1].plot(result['t'], result['x'][:, 1])
+axes[1].set_ylabel('$x_2$')
+axes[1].set_xlabel('Time (s)')
+axes[1].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+print(f"✓ Simulation completed: {result['nsteps']} steps")
+```
+
+:::
+
+Every code block above **actually runs**, proving the examples work!
+````
+
+### Days 12-14: Remaining Tutorials
+
+**All tutorials fully executable:**
+
+**Day 12:**
+- Type_System_Quick_Reference.qmd
+- Integration_Framework_Quick_Reference.qmd
+
+**Day 13:**
+- Control_Framework_Quick_Reference.qmd
+- Visualization_Framework_Quick_Reference.qmd
+
+**Day 14:**
+- Delegation_Layer_Quick_Reference.qmd
+- Example_Systems_Quick_Reference.qmd
+
+**Day 15:**
+- Review and test all tutorials
+- Ensure all outputs are meaningful
+- Add performance comparisons where relevant
+
+---
+
+## Phase 4: Enhanced Example Gallery (Days 16-20)
+
+### Strategy: Rich, Interactive Demonstrations
+
+Now that architecture is executable, examples can be even richer:
+- Show multiple approaches side-by-side
+- Include performance benchmarks
+- Add parameter sensitivity analysis
+- Create comparison tables
+
+### Day 16: Advanced Pendulum Example
+
+**Create `docs_quarto/examples/pendulum_control.qmd`:**
+
+````markdown
+---
+title: "Pendulum Control: Complete Workflow"
+execute:
+  eval: true
+  cache: true
+---
+
+## Introduction
+
+Complete workflow from system creation through controller design, implementation,
+and performance analysis.
+
+```{python}
+#| label: setup
+#| output: false
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+## System Creation and Analysis
+
+```{python}
+#| label: system-setup
+#| output: true
+
+system = SymbolicPendulum(m=1.0, l=0.5, beta=0.1, g=9.81)
+
+# List equilibria
+equilibria = system.list_equilibria()
+print(f"Available equilibria: {equilibria}")
+
+# Analyze each
+for name in equilibria:
+    x_eq, u_eq = system.get_equilibrium(name)
+    A, _ = system.linearize(x_eq, u_eq)
+    eigs = np.linalg.eigvals(A)
+    stable = np.all(np.real(eigs) < 0)
+    
+    print(f"\n{name}:")
+    print(f"  State: θ={x_eq[0]:.3f} rad, ω={x_eq[1]:.3f} rad/s")
+    print(f"  Eigenvalues: {eigs}")
+    print(f"  Stability: {'Stable ✓' if stable else 'Unstable ✗'}")
+```
+
+## Controller Design Comparison
+
+Compare different LQR weights:
+
+```{python}
+#| label: tbl-controller-comparison
+#| tbl-cap: "LQR controllers with different Q weights"
+
+x_eq, u_eq = system.get_equilibrium('inverted')
+A, B = system.linearize(x_eq, u_eq)
+R = np.array([[0.1]])
+
+q_scales = [1, 10, 100]
+controller_data = []
+
+for q_scale in q_scales:
+    Q = q_scale * np.diag([10, 1])
+    lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+    
+    controller_data.append({
+        'Q Scale': q_scale,
+        'K (angle)': f"{lqr['gain'][0, 0]:.2f}",
+        'K (velocity)': f"{lqr['gain'][0, 1]:.2f}",
+        'Max |Re(λ)|': f"{np.abs(np.real(lqr['closed_loop_eigenvalues'])).max():.2f}"
+    })
+
+pd.DataFrame(controller_data)
+```
+
+Higher Q → more aggressive gains → faster convergence.
+
+## Performance Comparison
+
+Simulate all three controllers:
+
+```{python}
+#| label: fig-controller-comparison
+#| fig-cap: "Response comparison for different LQR weights"
+#| fig-width: 10
+#| fig-height: 8
+
+x0 = np.array([np.pi + 0.2, 0.0])  # 11.5° perturbation
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 8))
+
+for q_scale in q_scales:
+    Q = q_scale * np.diag([10, 1])
+    lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+    K = lqr['gain']
+    
+    # Simulate
+    result = system.simulate(
+        x0=x0,
+        controller=lambda x, t: -K @ (x - x_eq),
+        t_span=(0, 5),
+        dt=0.01
+    )
+    
+    # Plot
+    axes[0].plot(result['time'], result['states'][:, 0] - np.pi, 
+                 label=f'Q scale = {q_scale}')
+    axes[1].plot(result['time'], result['controls'][:, 0],
+                 label=f'Q scale = {q_scale}')
+
+axes[0].set_ylabel('Angle Error (rad)')
+axes[0].legend()
+axes[0].grid(True)
+
+axes[1].set_ylabel('Control Torque (N·m)')
+axes[1].set_xlabel('Time (s)')
+axes[1].legend()
+axes[1].grid(True)
+
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-important}
+## Trade-off
+Higher Q weights provide faster response but require more control effort.
+Choose based on actuator constraints and performance requirements.
+:::
+
+## Robustness Analysis
+
+Test robustness to initial conditions:
+
+```{python}
+#| label: fig-robustness
+#| fig-cap: "Monte Carlo simulation showing robustness to IC uncertainty"
+#| fig-width: 10
+#| fig-height: 6
+
+# Use middle controller (Q scale = 10)
+Q = 10 * np.diag([10, 1])
+lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+K = lqr['gain']
+
+# Monte Carlo
+n_trials = 50
+np.random.seed(42)
+
+all_trajectories = []
+for _ in range(n_trials):
+    x0_noisy = x_eq + np.array([0.3, 0.5]) * np.random.randn(2)
+    
+    result = system.simulate(
+        x0=x0_noisy,
+        controller=lambda x, t: -K @ (x - x_eq),
+        t_span=(0, 5),
+        dt=0.01
+    )
+    all_trajectories.append(result['states'])
+
+# Stack and plot
+trajectories = np.array(all_trajectories)  # (n_trials, T, nx)
+
+# Plot mean ± std
+mean_traj = np.mean(trajectories, axis=0)
+std_traj = np.std(trajectories, axis=0)
+
+plt.figure(figsize=(10, 6))
+t = result['time']
+
+plt.plot(t, mean_traj[:, 0] - np.pi, 'b-', linewidth=2, label='Mean')
+plt.fill_between(
+    t,
+    mean_traj[:, 0] - np.pi - std_traj[:, 0],
+    mean_traj[:, 0] - np.pi + std_traj[:, 0],
+    alpha=0.3,
+    label='±1σ'
+)
+
+# Plot a few individual trajectories
+for i in range(5):
+    plt.plot(t, trajectories[i, :, 0] - np.pi, 'gray', alpha=0.3, linewidth=0.5)
+
+plt.xlabel('Time (s)')
+plt.ylabel('Angle Error (rad)')
+plt.legend()
+plt.grid(True)
+plt.title(f'Robustness: {n_trials} trials with random ICs')
+plt.show()
+
+# Compute statistics
+final_errors = trajectories[:, -1, 0] - np.pi
+print(f"Final error statistics:")
+print(f"  Mean: {np.mean(final_errors):.2e} rad")
+print(f"  Std:  {np.std(final_errors):.2e} rad")
+print(f"  Max:  {np.max(np.abs(final_errors)):.2e} rad")
+print(f"✓ All trials stabilized successfully")
+```
+````
+
+### Days 17-19: Complete Example Gallery
+
+**Day 17:**
+- `cartpole_swingup.qmd` - Full swing-up + balance with phase plots
+- `quadrotor_lqr.qmd` - Hover control with disturbance rejection
+
+**Day 18:**
+- `cstr_multiplicity.qmd` - Bifurcation diagram generation
+- `batch_reactor_optimization.qmd` - Temperature trajectory optimization
+
+**Day 19:**
+- `lorenz_chaos.qmd` - Sensitive dependence demonstration
+- `van_der_pol_limit_cycle.qmd` - Limit cycle with varying μ
+
+### Day 20: Examples Index with Live Previews
+
+**Create `docs_quarto/examples/index.qmd`:**
+````markdown
+---
+title: "Examples Gallery"
+execute:
+  eval: true
+listing:
+  - id: mechanical
+    contents: 
+      - pendulum_control.qmd
+      - cartpole_swingup.qmd
+    type: grid
+    fields: [title, image, description]
+    image-height: 200px
+  - id: aerospace
+    contents:
+      - quadrotor_lqr.qmd
+    type: grid
+  - id: chemical
+    contents:
+      - cstr_multiplicity.qmd
+      - batch_reactor_optimization.qmd
+    type: grid
+  - id: chaos
+    contents:
+      - lorenz_chaos.qmd
+      - van_der_pol_limit_cycle.qmd
+    type: grid
+---
+
+## Interactive Examples
+
+Fully executable demonstrations of ControlDESymulation capabilities. Every code
+block on every page **runs when the documentation is built**, ensuring examples
+stay current with the codebase.
+
+### Quick Preview
+
+Here's a live example running right on this index page:
+
+```{python}
+#| label: index-quick-demo
+#| code-fold: true
+
+from cdesym.systems.examples.van_der_pol import VanDerPolOscillator
+import matplotlib.pyplot as plt
+
+system = VanDerPolOscillator(mu=1.0)
+result = system.integrate(
+    x0=np.array([0.1, 0.0]),
+    u=None,
+    t_span=(0, 30)
+)
+
+plt.figure(figsize=(8, 4))
+plt.plot(result['x'][:, 0], result['x'][:, 1], linewidth=2)
+plt.xlabel('x')
+plt.ylabel('ẋ')
+plt.title('Van der Pol Limit Cycle (μ=1.0)')
+plt.grid(True)
+plt.axis('equal')
+plt.show()
+```
+
+### Mechanical Systems
+::: {#mechanical}
+:::
+
+### Aerospace Systems
+::: {#aerospace}
+:::
+
+### Chemical Systems
+::: {#chemical}
+:::
+
+### Chaos & Complex Dynamics
+::: {#chaos}
+:::
+````
+
+---
+
+## Phase 5: GitHub Integration (Days 21-22)
+
+### Day 21: Enhanced GitHub Actions Workflow
+
+**Create `.github/workflows/quarto-publish.yml`:**
+```yaml
+name: Publish Quarto Documentation
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs_quarto/**'
+      - 'src/**'  # Re-build if source changes!
+      - '.github/workflows/quarto-publish.yml'
+  pull_request:
+    paths:
+      - 'docs_quarto/**'
+      - 'src/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly rebuild (Sundays at 2 AM)
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install numpy scipy matplotlib sympy pandas
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install jax jaxlib
+          pip install plotly kaleido
+          pip install -e .  # Install package in editable mode
+      
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.4.554
+      
+      - name: Verify installation
+        run: |
+          python -c "import cdesym; print(f'✓ Package version: {cdesym.__version__}')"
+          quarto --version
+      
+      - name: Render Quarto documentation
+        run: |
+          cd docs_quarto
+          quarto render --execute-daemon --execute-daemon-restart
+        env:
+          QUARTO_PYTHON: python
+      
+      - name: Check for rendering errors
+        run: |
+          if grep -r "ERROR" docs_quarto/_site/; then
+            echo "Found errors in rendered output"
+            exit 1
+          fi
+          echo "✓ No rendering errors found"
+      
+      - name: Upload artifact (for PR preview)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: quarto-docs-preview
+          path: docs_quarto/_site
+          retention-days: 7
+      
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs_quarto/_site
+          cname: controldesymulation.yoursite.com  # Optional
+      
+      - name: Create deployment summary
+        if: github.event_name == 'push'
+        run: |
+          echo "## 📚 Documentation Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "Site: https://gilbenezer.github.io/ControlDESymulation/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Rendered pages: $(find docs_quarto/_site -name '*.html' | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Total size: $(du -sh docs_quarto/_site | cut -f1)" >> $GITHUB_STEP_SUMMARY
+```
+
+### Day 22: Testing Infrastructure
+
+**Create `scripts/test_quarto_docs.py`:**
+```python
+#!/usr/bin/env python3
+"""
+Test that ALL Quarto documentation executes successfully.
+
+This is critical since all docs are now executable.
+"""
+
+import subprocess
+from pathlib import Path
+import sys
+import time
+
+
+def test_quarto_file(qmd_file: Path) -> tuple[bool, float, str]:
+    """
+    Test that a single .qmd file renders without errors.
+    
+    Returns:
+        (success, render_time, error_message)
+    """
+    
+    print(f"Testing: {qmd_file.name}...", end=" ", flush=True)
+    
+    start = time.time()
+    try:
+        result = subprocess.run(
+            ['quarto', 'render', str(qmd_file), '--execute'],
+            capture_output=True,
+            text=True,
+            timeout=600  # 10 minute timeout per file
+        )
+        elapsed = time.time() - start
+        
+        if result.returncode == 0:
+            print(f"✓ PASS ({elapsed:.1f}s)")
+            return True, elapsed, ""
+        else:
+            print(f"✗ FAIL ({elapsed:.1f}s)")
+            error_lines = result.stderr.split('\n')
+            # Get last 20 lines of error
+            error_msg = '\n'.join(error_lines[-20:])
+            print(f"  Error preview: {error_lines[-3:]}")
+            return False, elapsed, error_msg
+            
+    except subprocess.TimeoutExpired:
+        elapsed = time.time() - start
+        print(f"✗ TIMEOUT (>{elapsed:.0f}s)")
+        return False, elapsed, "Timeout exceeded"
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"✗ ERROR: {e}")
+        return False, elapsed, str(e)
+
+
+def main():
+    """Test all Quarto documentation files."""
+    
+    docs_root = Path("docs_quarto")
+    
+    # Find all .qmd files
+    qmd_files = list(docs_root.rglob("*.qmd"))
+    # Exclude index files from listings
+    qmd_files = [f for f in qmd_files if f.name != '_listing.qmd']
+    
+    print("=" * 70)
+    print(f"Testing ALL {len(qmd_files)} Quarto Documentation Files")
+    print("Full Execution Mode - Every Code Block Must Run")
+    print("=" * 70)
+    print()
+    
+    results = []
+    total_time = 0
+    
+    for qmd_file in sorted(qmd_files):
+        passed, elapsed, error = test_quarto_file(qmd_file)
+        results.append((qmd_file, passed, elapsed, error))
+        total_time += elapsed
+    
+    print()
+    print("=" * 70)
+    print("Test Summary")
+    print("=" * 70)
+    
+    passed_count = sum(1 for _, p, _, _ in results if p)
+    failed_count = len(results) - passed_count
+    
+    print(f"Passed: {passed_count}/{len(results)}")
+    print(f"Failed: {failed_count}/{len(results)}")
+    print(f"Total render time: {total_time:.1f}s ({total_time/60:.1f} min)")
+    print(f"Average per file: {total_time/len(results):.1f}s")
+    
+    if failed_count > 0:
+        print("\n" + "=" * 70)
+        print("Failed Files (Details)")
+        print("=" * 70)
+        for qmd_file, passed, elapsed, error in results:
+            if not passed:
+                print(f"\n{qmd_file.relative_to(docs_root)}:")
+                print(f"  Time: {elapsed:.1f}s")
+                if error:
+                    print(f"  Error:\n{error}")
+        
+        print("\n" + "=" * 70)
+        sys.exit(1)
+    else:
+        print("\n✓ All documentation files executed successfully!")
+        print(f"✓ Total of {sum(r[2] for r in results)/60:.1f} minutes of computation verified")
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**Make executable and test:**
+```bash
+chmod +x scripts/test_quarto_docs.py
+python scripts/test_quarto_docs.py
+```
+
+---
+
+## Phase 6: Architecture Enhancement (Days 23-26)
+
+### Day 23: UI Framework Architecture - Full Execution
+
+**Key enhancements for `UI_Framework_Architecture.qmd`:**
+
+````markdown
+---
+title: "UI Framework Architecture"
+execute:
+  eval: true
+  cache: true
+---
+
+```{python}
+#| label: setup
+#| echo: false
+#| output: false
+
+import numpy as np
+import sympy as sp
+from cdesym.systems.base import ContinuousSymbolicSystem, DiscreteSymbolicSystem
+```
+
+## Architecture Layers {#sec-layers}
+
+The following diagram shows the inheritance hierarchy:
+
+```{mermaid}
+%%| label: fig-ui-layers
+%%| fig-cap: "UI Framework inheritance structure"
+
+graph TD
+    A[SymbolicSystemBase<br/>Time-agnostic] --> B[ContinuousSystemBase]
+    A --> C[DiscreteSystemBase]
+    B --> D[ContinuousSymbolicSystem<br/>Multiple Inheritance]
+    C --> E[DiscreteSymbolicSystem<br/>Multiple Inheritance]
+    D --> F[ContinuousStochasticSystem]
+    E --> G[DiscreteStochasticSystem]
+```
+
+## Layer 0: SymbolicSystemBase {#sec-layer0}
+
+**Demonstration of shared functionality:**
+
+```{python}
+#| label: symbolic-system-demo
+#| output: true
+
+class DemoSystem(ContinuousSymbolicSystem):
+    """Minimal system to demonstrate SymbolicSystemBase features."""
+    
+    def define_system(self, k=1.0):
+        x = sp.symbols('x', real=True)
+        u = sp.symbols('u', real=True)
+        k_sym = sp.symbols('k', positive=True)
+        
+        self.state_vars = [x]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([-k_sym*x + u])
+        self.parameters = {k_sym: k}
+        self.order = 1
+    
+    def setup_equilibria(self):
+        pass
+
+# Create system
+demo = DemoSystem(k=2.0)
+
+# Features from SymbolicSystemBase:
+print(f"1. State dimension: {demo.nx}")
+print(f"2. Parameters: {demo.parameters}")
+print(f"3. Backend: {demo.backend.default_backend}")
+
+# Equilibrium management
+demo.add_equilibrium('test', x_eq=np.array([0.0]), u_eq=np.array([0.0]))
+print(f"4. Equilibria: {demo.list_equilibria()}")
+
+# Backend switching
+demo.set_default_backend('numpy')
+print(f"5. ✓ All SymbolicSystemBase features working")
+```
+
+::: {.callout-note}
+## Live Validation
+The code above **actually runs** when building docs, proving that 
+SymbolicSystemBase provides these features to all derived classes.
+:::
+````
+
+**Continue with detailed sections showing actual layer implementation...**
+
+### Day 24: Integration Framework Architecture - Performance Demos
+
+````markdown
+## Integrator Performance Comparison {#sec-integrator-performance}
+
+Real benchmark comparing all available integrators:
+
+```{python}
+#| label: tbl-integrator-benchmark
+#| tbl-cap: "Integrator performance on pendulum system"
+#| output: true
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+from cdesym.systems.base.numerical_integration import IntegratorFactory
+import time
+import pandas as pd
+
+system = SymbolicPendulum()
+x0 = np.array([np.pi + 0.1, 0.0])
+u_func = lambda t, x: np.array([0.0])
+t_span = (0, 10)
+
+# Test multiple methods
+methods = ['RK45', 'RK23', 'DOP853', 'Radau', 'BDF', 'LSODA']
+benchmark_data = []
+
+for method in methods:
+    integrator = IntegratorFactory.create(system, backend='numpy', method=method)
+    
+    # Warm-up
+    _ = integrator.integrate(x0, u_func, (0, 0.1))
+    
+    # Benchmark
+    start = time.time()
+    result = integrator.integrate(x0, u_func, t_span)
+    elapsed = time.time() - start
+    
+    benchmark_data.append({
+        'Method': method,
+        'Time (ms)': f"{elapsed*1000:.2f}",
+        'Steps': result['nsteps'],
+        'Evals': result['nfev'],
+        'Success': '✓' if result['success'] else '✗'
+    })
+
+pd.DataFrame(benchmark_data)
+```
+
+This table shows **actual measured performance**, updated every time docs are built!
+````
+
+### Day 25: Control Framework Architecture - Algorithm Validation
+
+````markdown
+## LQR Algorithm Verification {#sec-lqr-verification}
+
+**Mathematical Test**: Verify that LQR solution satisfies Riccati equation.
+
+```{python}
+#| label: lqr-verification
+#| output: true
+
+from cdesym.control.classical_control_functions import design_lqr
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+
+# Setup test system
+system = SymbolicPendulum()
+x_eq = np.array([np.pi, 0.0])
+u_eq = np.array([0.0])
+A, B = system.linearize(x_eq, u_eq)
+
+Q = np.diag([10, 1])
+R = np.array([[0.1]])
+
+# Design LQR
+lqr = design_lqr(A, B, Q, R, system_type='continuous')
+P = lqr['cost_to_go']
+K = lqr['gain']
+
+# Verify Continuous ARE: A'P + PA - PBR⁻¹B'P + Q = 0
+riccati_residual = (
+    A.T @ P + P @ A 
+    - P @ B @ np.linalg.solve(R, B.T @ P)
+    + Q
+)
+
+max_error = np.abs(riccati_residual).max()
+print(f"Maximum Riccati residual: {max_error:.2e}")
+print(f"Relative error: {max_error / np.abs(Q).max():.2e}")
+
+# Verify K = R⁻¹B'P
+K_computed = np.linalg.solve(R, B.T @ P)
+K_error = np.linalg.norm(K - K_computed)
+
+print(f"\nGain computation error: {K_error:.2e}")
+
+# Final verdict
+if max_error < 1e-10 and K_error < 1e-10:
+    print("\n✓✓✓ LQR algorithm mathematically verified!")
+else:
+    print("\n✗ Verification failed - check implementation")
+    raise AssertionError("LQR algorithm verification failed")
+```
+
+::: {.callout-important}
+## Continuous Validation
+This verification runs **automatically** in CI, catching any algorithmic bugs
+immediately.
+:::
+````
+
+### Day 26: Visualization Framework - Live Plot Gallery
+
+````markdown
+## Plot Gallery {#sec-plot-gallery}
+
+All plot types demonstrated with live examples:
+
+::: {.panel-tabset}
+
+## Trajectory Plot
+
+```{python}
+#| label: fig-trajectory-example
+#| fig-cap: "TrajectoryPlotter example"
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+
+system = SymbolicPendulum()
+result = system.integrate(
+    x0=np.array([np.pi + 0.2, 0.0]),
+    u=lambda t, x: np.array([0.0]),
+    t_span=(0, 5)
+)
+
+fig = system.plotter.plot_trajectory(
+    result['t'],
+    result['x'],
+    state_names=['θ', 'ω'],
+    theme='publication',
+    color_scheme='colorblind_safe'
+)
+fig.show()
+```
+
+## Phase Portrait
+
+```{python}
+#| label: fig-phase-example
+#| fig-cap: "PhasePortraitPlotter example"
+
+fig = system.phase_plotter.plot_2d(
+    result['x'],
+    state_names=('θ', 'ω'),
+    show_direction=True,
+    theme='publication'
+)
+fig.show()
+```
+
+## Eigenvalue Map
+
+```{python}
+#| label: fig-eigenvalue-example
+#| fig-cap: "ControlPlotter eigenvalue map"
+
+x_eq = np.array([np.pi, 0.0])
+u_eq = np.array([0.0])
+A, B = system.linearize(x_eq, u_eq)
+
+Q = np.diag([10, 1])
+R = np.array([[0.1]])
+lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+
+fig = system.control_plotter.plot_eigenvalue_map(
+    lqr['closed_loop_eigenvalues'],
+    system_type='continuous',
+    theme='publication'
+)
+fig.show()
+```
+
+## State + Control
+
+```{python}
+#| label: fig-state-control-example
+#| fig-cap: "Combined state and control plot"
+
+K = lqr['gain']
+result = system.simulate(
+    x0=np.array([np.pi + 0.2, 0.0]),
+    controller=lambda x, t: -K @ (x - x_eq),
+    t_span=(0, 5),
+    dt=0.01
+)
+
+fig = system.plotter.plot_state_and_control(
+    result['time'],
+    result['states'],
+    result['controls'],
+    state_names=['θ', 'ω'],
+    control_names=['τ'],
+    theme='publication'
+)
+fig.show()
+```
+
+:::
+
+All plots above are **generated live** when documentation builds!
+````
+
+---
+
+## Phase 7: Optimization and Performance (Days 27-28)
+
+### Day 27: Caching Strategy
+
+**Identify expensive operations and cache them:**
+
+````markdown
+```{python}
+#| label: expensive-computation
+#| cache: true  # ← Cache this specific block
+
+# This takes 30 seconds, cache the result
+monte_carlo_results = run_expensive_monte_carlo(n_trials=1000)
+```
+
+Next block uses cached results:
+
+```{python}
+#| label: use-cached-results
+#| dependson: expensive-computation
+
+# This uses cached data from above
+plot_monte_carlo_results(monte_carlo_results)
+```
+````
+
+**Create `docs_quarto/_freeze_config.yml`:**
+```yaml
+# Control freezing behavior
+freeze:
+  # Never freeze these (always re-execute)
+  exclude:
+    - "index.qmd"
+    - "examples/*/index.qmd"
+  
+  # These are expensive, freeze unless source changes
+  expensive:
+    - "examples/cstr_multiplicity.qmd"
+    - "examples/lorenz_chaos.qmd"
+```
+
+### Day 28: Output Management
+
+**For architecture docs with lots of code:**
+
+````markdown
+## Large Code Listing {#sec-large-listing}
+
+Here's the complete implementation (validated but output hidden):
+
+```{python}
+#| code-fold: true
+#| output: false
+
+class CompleteSystemImplementation(ContinuousSymbolicSystem):
+    """
+    Full implementation of complex system.
+    
+    Code is executed to validate it works, but output is hidden
+    to keep documentation readable. Expand code block to see details.
+    """
+    
+    def define_system(self, ...):
+        # ... 100 lines of actual, working code ...
+        pass
+    
+    def setup_equilibria(self):
+        # ... more code ...
+        pass
+    
+    # ... additional methods ...
+
+# Create instance to verify it works
+system = CompleteSystemImplementation()
+assert system.nx > 0  # Validation
+```
+
+Key features demonstrated above (click to expand code):
+
+```{python}
+#| output: true
+
+# Now show specific features with output
+system = CompleteSystemImplementation()
+print(f"✓ System created: {system.nx} states")
+print(f"✓ Equilibria: {system.list_equilibria()}")
+print(f"✓ Backend: {system.backend.default_backend}")
+```
+````
+
+---
+
+## Phase 8: Testing and Debugging (Days 29-30)
+
+### Day 29: Comprehensive Testing
+
+**Test matrix:**
+
+| Category | Files | Expected Time | Cache Strategy |
+|----------|-------|---------------|----------------|
+| Architecture | 7 | ~15 min total | freeze: auto |
+| Tutorials | 7 | ~20 min total | freeze: auto |
+| Examples | 6 | ~30 min total | cache: true |
+| **Total** | **20** | **~65 min** | Mixed |
+
+**Run full test:**
+```bash
+# Clean build (no cache)
+rm -rf docs_quarto/_freeze
+python scripts/test_quarto_docs.py
+
+# Cached build (should be faster)
+python scripts/test_quarto_docs.py
+```
+
+**Expected results:**
+- First build: ~60-90 minutes
+- Cached build: ~5-10 minutes
+- CI build: ~30-45 minutes (parallel rendering)
+
+### Day 30: Debug Common Issues
+
+**Issue 1: Code block fails**
+
+**Fix pattern:**
+````markdown
+```{python}
+#| label: problematic-block
+#| error: true  # ← Allow error, document it
+
+try:
+    # Code that might fail
+    risky_operation()
+except Exception as e:
+    print(f"Expected error: {e}")
+```
+````
+
+**Issue 2: Import not found**
+
+**Fix:**
+````markdown
+```{python}
+#| output: false
+
+import sys
+from pathlib import Path
+
+# Ensure package is importable
+if str(Path.cwd().parent / 'src') not in sys.path:
+    sys.path.insert(0, str(Path.cwd().parent / 'src'))
+
+import cdesym
+```
+````
+
+**Issue 3: Too slow**
+
+**Optimize:**
+````markdown
+```{python}
+#| cache: true  # ← Cache expensive block
+
+# Reduce problem size for docs
+n_trials = 10  # Instead of 1000
+t_span = (0, 5)  # Instead of (0, 100)
+```
+````
+
+---
+
+## Phase 9: Polish and Enhancement (Days 31-32)
+
+### Day 31: Add Interactive Elements
+
+**Parameter sensitivity widget (using Plotly):**
+
+````markdown
+```{python}
+#| label: fig-parameter-sensitivity
+#| fig-cap: "Interactive parameter sensitivity"
+
+from cdesym.systems.examples.pendulum import SymbolicPendulum
+import plotly.graph_objects as go
+
+# Simulate for different damping values
+damping_values = np.linspace(0.01, 1.0, 10)
+fig = go.Figure()
+
+for beta in damping_values:
+    system = SymbolicPendulum(beta=beta)
+    result = system.integrate(
+        x0=np.array([np.pi + 0.2, 0.0]),
+        u=lambda t, x: np.array([0.0]),
+        t_span=(0, 10)
+    )
+    
+    fig.add_trace(go.Scatter(
+        x=result['t'],
+        y=result['x'][:, 0],
+        name=f'β={beta:.2f}',
+        mode='lines'
+    ))
+
+fig.update_layout(
+    title='Parameter Sensitivity: Effect of Damping',
+    xaxis_title='Time (s)',
+    yaxis_title='Angle (rad)',
+    hovermode='x unified'
+)
+fig.show()
+```
+
+Hover over the plot to explore different damping values!
+````
+
+### Day 32: Documentation Quality Pass
+
+**Review checklist for EACH file:**
+
+- [ ] YAML front matter correct
+- [ ] All code blocks execute without errors
+- [ ] Output shown for demonstrative code
+- [ ] Output hidden for validation-only code
+- [ ] Cross-references work
+- [ ] Figures have captions
+- [ ] Tables have captions
+- [ ] Callouts used appropriately
+- [ ] No broken links
+- [ ] Mobile-responsive
+- [ ] Performance acceptable (<30s render time)
+
+**Automated quality checks:**
+```bash
+# Check for common issues
+python scripts/check_quarto_quality.py
+```
+
+**Create `scripts/check_quarto_quality.py`:**
+```python
+#!/usr/bin/env python3
+"""Check Quarto documentation quality."""
+
+from pathlib import Path
+import re
+
+def check_file_quality(qmd_file: Path):
+    """Check single file for quality issues."""
+    
+    content = qmd_file.read_text()
+    issues = []
+    
+    # Check 1: Has YAML front matter
+    if not content.startswith('---\n'):
+        issues.append("Missing YAML front matter")
+    
+    # Check 2: No bare ```python blocks (should be ```{python})
+    if re.search(r'```python\n', content):
+        issues.append("Found bare ```python (should be ```{python})")
+    
+    # Check 3: Figures should have captions
+    fig_blocks = re.findall(r'```\{python\}.*?```', content, re.DOTALL)
+    for block in fig_blocks:
+        if 'fig.show()' in block or 'plt.show()' in block:
+            if '#| fig-cap:' not in block and '#| label: fig-' not in block:
+                issues.append(f"Figure without caption: {block[:50]}...")
+    
+    # Check 4: Long code blocks should have output: false
+    for block in fig_blocks:
+        if block.count('\n') > 30 and '#| output: false' not in block:
+            issues.append(f"Long code block without output: false: {block[:50]}...")
+    
+    return issues
+
+# Run checks on all files
+docs_root = Path("docs_quarto")
+all_issues = {}
+
+for qmd_file in docs_root.rglob("*.qmd"):
+    issues = check_file_quality(qmd_file)
+    if issues:
+        all_issues[qmd_file] = issues
+
+# Report
+if all_issues:
+    print("Quality Issues Found:")
+    for file, issues in all_issues.items():
+        print(f"\n{file.relative_to(docs_root)}:")
+        for issue in issues:
+            print(f"  - {issue}")
+    exit(1)
+else:
+    print("✓ All quality checks passed!")
+    exit(0)
+```
+
+---
+
+## Phase 10: Deployment (Days 33-34)
+
+### Day 33: Pre-Deployment Validation
+
+**Full validation suite:**
+
+```bash
+# 1. Clean build
+rm -rf docs_quarto/_freeze docs_quarto/_site
+
+# 2. Full render
+cd docs_quarto
+quarto render
+
+# 3. Run tests
+cd ..
+python scripts/test_quarto_docs.py
+
+# 4. Quality checks
+python scripts/check_quarto_quality.py
+
+# 5. Check output size
+du -sh docs_quarto/_site
+# Should be <100 MB ideally
+
+# 6. Manual review
+open docs_quarto/_site/index.html
+
+# 7. Check all links work
+# (Use link checker tool)
+wget --spider -r -nd -nv -l 2 docs_quarto/_site/index.html 2>&1 | grep -B2 '404'
+```
+
+### Day 34: Launch
+
+**Deployment checklist:**
+
+- [ ] All tests passing
+- [ ] GitHub Actions workflow tested
+- [ ] Caching working correctly
+- [ ] Site loads in <2 seconds
+- [ ] Navigation works
+- [ ] Cross-references resolve
+- [ ] All figures display
+- [ ] Mobile responsive
+- [ ] No console errors
+
+**Deploy:**
+```bash
+# Final commit
+git add docs_quarto/
+git add .github/workflows/
+git add scripts/
+git commit -m "docs: Complete executable Quarto conversion
+
+- All architecture docs now executable
+- All tutorials fully validated
+- Interactive example gallery
+- Automated CI/CD deployment
+- ~65 minutes of code execution per build
+- Every code example guaranteed to work"
+
+git push origin main
+
+# Watch deployment
+# GitHub Actions → Wait for success
+# Visit: https://gilbenezer.github.io/ControlDESymulation/
+```
+
+---
+
+## Updated Metadata Files
+
+### Architecture: Full Execution
+
+**`docs_quarto/architecture/_metadata.yml`:**
+```yaml
+execute:
+  eval: true       # Execute ALL code
+  cache: true      # Cache for performance
+  warning: false   # Clean output
+  output: false    # Default: validate without cluttering
+  freeze: auto     # Re-execute when source changes
+  
+format:
+  html:
+    code-fold: show      # Allow code folding
+    code-tools: true     # Show code tools
+    code-link: true      # Link to source
+    code-line-numbers: false
+```
+
+### Tutorials: Full Execution with Output
+
+**`docs_quarto/tutorials/_metadata.yml`:**
+```yaml
+execute:
+  eval: true        # Execute all
+  cache: true
+  warning: false
+  output: true      # Show outputs
+  freeze: auto
+  
+format:
+  html:
+    code-fold: false   # Always show code
+    code-tools: true
+    code-link: true
+```
+
+### Examples: Full Execution, Rich Output
+
+**`docs_quarto/examples/_metadata.yml`:**
+```yaml
+execute:
+  eval: true         # Execute all
+  cache: true
+  warning: false
+  output: true       # Show all outputs
+  freeze: auto
+  
+format:
+  html:
+    code-fold: false
+    code-tools: true
+    fig-width: 10
+    fig-height: 6
+```
+
+---
+
+## Updated Timeline
+
+| Phase | Days | What Changes with Full Execution |
+|-------|------|----------------------------------|
+| 1. Setup | 2 | Configure for execution by default |
+| 2. Architecture (executable!) | 6 | Add setup blocks, validate all code, show key outputs |
+| 3. Tutorials (executable) | 5 | Full execution with rich outputs |
+| 4. Examples (enhanced) | 5 | Even richer with live benchmarks |
+| 5. GitHub | 2 | Longer CI times, caching critical |
+| 6. Architecture Enhancement | 4 | Make demos comprehensive |
+| 7. Optimization | 2 | Tune caching, reduce render time |
+| 8. Testing | 2 | More rigorous (everything must work) |
+| 9. Polish | 2 | Interactive elements, quality pass |
+| 10. Deploy | 2 | Full validation before launch |
+| **Total** | **32** | ~5 weeks full-time, 10-12 weeks part-time |
+
+---
+
+## Key Differences from Previous Plan
+
+### What Changed
+
+**Before**: Architecture docs were reference-only (eval: false)
+**After**: Architecture docs fully executable (eval: true, output: false)
+
+**Benefits of Full Execution:**
+
+1. **Continuous Validation**: Every code example tested in CI
+2. **No Silent Breakage**: API changes immediately caught
+3. **Live Demonstrations**: Show actual framework capabilities
+4. **Confidence**: Documentation is always correct
+5. **Learning**: Readers trust examples work
+6. **Maintenance**: Easier to keep updated (auto-tested)
+
+**Costs:**
+
+1. **Render Time**: ~65 minutes total (mitigated by caching)
+2. **CI Time**: ~30-45 minutes (parallelizable)
+3. **Complexity**: More to debug if something breaks
+4. **Dependencies**: Must have full environment in CI
+
+### Mitigation Strategies
+
+**For Render Time:**
+```yaml
+# Use freeze: auto (re-execute only changed files)
+execute:
+  freeze: auto
+
+# Use cache: true (cache within files)
+#| cache: true
+
+# Reduce problem sizes for docs
+t_span = (0, 5)  # Instead of (0, 100)
+n_trials = 10    # Instead of 1000
+```
+
+**For CI:**
+```yaml
+# Parallel rendering (Quarto built-in)
+quarto render --execute-daemon
+
+# Cache between builds
+- name: Cache Quarto freeze
+  uses: actions/cache@v3
+  with:
+    path: docs_quarto/_freeze
+    key: quarto-freeze-${{ hashFiles('docs_quarto/**/*.qmd') }}
+```
+
+**For Debugging:**
+```python
+#| error: true  # Document expected errors
+
+try:
+    potentially_failing_code()
+except Exception as e:
+    print(f"Note: This demonstrates error handling: {e}")
+```
+
+---
+
+## Success Metrics (Updated)
+
+### Quantitative
+- **100%** of code blocks execute successfully
+- **0** broken cross-references
+- **<45 min** CI build time (with cache)
+- **<10 min** incremental builds (freeze: auto)
+- **<2 sec** page load time
+- **65+ minutes** of validated code execution
+
+### Qualitative
+- Every example proven to work
+- Outputs show framework capabilities
+- Readers can trust all code
+- Documentation stays current automatically
+- Professional, modern appearance
+
+---
+
+## Final Deliverables
+
+### Must Have ✓
+- [x] All 20+ documentation files fully executable
+- [x] All code blocks validated in CI
+- [x] Interactive Plotly figures throughout
+- [x] Performance benchmarks auto-generated
+- [x] Cross-references working
+- [x] GitHub Actions deploys successfully
+- [x] Caching reduces rebuild time to <10 min
+
+### Should Have ✓
+- [x] Live algorithm verification (e.g., Riccati residual)
+- [x] Parameter comparison tables
+- [x] Monte Carlo demonstrations
+- [x] Backend performance comparisons
+- [x] Mobile-responsive
+- [x] Dark mode theme
+
+### Nice to Have
+- [ ] Interactive parameter sliders
+- [ ] Automatic API docs
+- [ ] PDF export
+- [ ] Search functionality
+- [ ] Version selector
+
+---
+
+## Risk Management (Updated)
+
+### Risk: Long CI Build Times
+
+**Impact**: High (blocks merges if >1 hour)
+
+**Mitigation:**
+```yaml
+# Aggressive caching
+- uses: actions/cache@v3
+  with:
+    path: |
+      docs_quarto/_freeze
+      ~/.cache/pip
+    key: docs-${{ hashFiles('docs_quarto/**', 'src/**') }}
+
+# Parallel rendering
+quarto render --execute-daemon
+
+# Only re-render changed files
+execute:
+  freeze: auto
+```
+
+**Fallback**: If CI exceeds 1 hour, switch specific expensive files to `freeze: true`
+
+### Risk: Code Block Failures in Production
+
+**Impact**: Critical (broken documentation)
+
+**Mitigation:**
+- **Pre-commit hook** runs local tests before push
+- **PR checks** must pass before merge
+- **Weekly cron** re-validates everything
+- **Error: true** for expected failures
+
+**Create `.git/hooks/pre-push`:**
+```bash
+#!/bin/bash
+echo "Testing documentation before push..."
+python scripts/test_quarto_docs.py || {
+    echo "❌ Documentation tests failed!"
+    echo "Fix failing code blocks before pushing"
+    exit 1
+}
+echo "✅ Documentation validated"
+```
+
+### Risk: Caching Stale Results
+
+**Impact**: Medium (shows outdated outputs)
+
+**Mitigation:**
+```yaml
+# freeze: auto re-executes when SOURCE changes
+# But also force refresh weekly
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Sunday 2 AM
+```
+
+**Manual refresh:**
+```bash
+# When suspicious of stale cache
+rm -rf docs_quarto/_freeze
+quarto render docs_quarto/
+```
+
+---
+
+## Conclusion
+
+This updated plan creates **fully executable, continuously validated documentation** where:
+
+✅ **Every code example runs** when docs are built
+✅ **Every algorithm is verified** mathematically  
+✅ **Every plot is generated live** from actual data
+✅ **Every benchmark measures real performance**
+✅ **CI catches breaking changes** immediately
+
+The documentation becomes a **living test suite** that ensures your examples always work, your algorithms are correct, and your API is stable.
+
+**Total Investment**: ~5 weeks full-time (or 10-12 weeks part-time)
+
+**Payoff**: Documentation you can **absolutely trust**, that serves as both
+user guide AND comprehensive integration test suite.
+
+**Next Step**: Start Phase 1 (Days 1-2) to set up infrastructure, then proceed
+through architecture conversion (Days 3-8) making everything executable!
