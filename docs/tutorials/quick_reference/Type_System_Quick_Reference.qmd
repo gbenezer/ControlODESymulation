@@ -1,3 +1,10 @@
+---
+title: "Title Here"
+format:
+  html:
+    toc: true
+---
+
 # Type System Quick Reference
 
 ## Quick Start
