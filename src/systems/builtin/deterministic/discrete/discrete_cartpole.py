@@ -481,7 +481,7 @@ class DiscreteCartPole(DiscreteSymbolicSystem):
     >>> 
     >>> # Reinforcement learning evaluation
     >>> def check_episode_success(states, x_threshold=2.4, theta_threshold=0.2):
-    ...     """Check if episode stayed within success criteria."""
+    ...     '''Check if episode stayed within success criteria.'''
     ...     x_ok = np.all(np.abs(states[:, 0]) <= x_threshold)
     ...     theta_ok = np.all(np.abs(states[:, 2]) <= theta_threshold)
     ...     return x_ok and theta_ok
