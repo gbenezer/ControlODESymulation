@@ -273,9 +273,10 @@ Repository is not currently ready for other contributors. Once all files are ful
 If you use this library in your research, please cite:
 
 ```bibtex
-@software{benezer2025controlde,
+@software{benezer2025cdesym,
   author = {Benezer, Gil},
   title = {ControlDESymulation: Symbolic Dynamical System Specification for Modern Scientific Computing},
+  month = {December},
   year = {2025},
   url = {https://github.com/gbenezer/ControlDESymulation},
   version = {1.0.0}
