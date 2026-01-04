@@ -76,7 +76,12 @@ from .equilibrium_handler import EquilibriumHandler
 from .linearization_engine import LinearizationEngine
 from .observation_engine import ObservationEngine
 
-# Validation (ValidationError not exported to avoid conflict with stochastic.ValidationError)
+# Validation
+# NOTE: ValidationError name collision
+# Both symbolic_validator and stochastic.sde_validator define ValidationError.
+# To avoid ambiguity, neither is exported at package level. Access them explicitly:
+#   - from src.systems.base.utils.symbolic_validator import ValidationError  # for symbolic validation
+#   - from src.systems.base.utils.stochastic.sde_validator import ValidationError  # for SDE validation
 from .symbolic_validator import SymbolicValidator
 
 # Code generation
