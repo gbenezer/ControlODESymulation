@@ -11,8 +11,6 @@ A Python library for defining, analyzing, and simulating nonlinear dynamical sys
 
 ## Documentation [Here](https://gbenezer.github.io/ControlDESymulation/)
 
----
-
 ## Why ControlDESymulation?
 
 Most control and dynamics libraries force you to choose between **symbolic elegance** *or* **numerical efficiency**. ControlDESymulation gives you **both**:
