@@ -516,20 +516,39 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
             seed=seed,
             **integrator_kwargs,
         )
+        
+        # Get noise type once (outside the path loop)
+        noise_type = self.get_noise_type()
 
         # Single path vs Monte Carlo
         if n_paths == 1:
             # Single trajectory
-            return integrator.integrate(x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval)
+            result = integrator.integrate(x0=x0, u_func=u_func, t_span=t_span, t_eval=t_eval)
+
+            # Add noise_type to result if not present
+            if 'noise_type' not in result:
+                result['noise_type'] = noise_type.value if hasattr(noise_type, 'value') else str(noise_type)
+                
+            return result
+        
+        
+        # Monte Carlo simulation
         # Monte Carlo simulation
         if hasattr(integrator, "integrate_monte_carlo"):
-            return integrator.integrate_monte_carlo(
+            mc_result = integrator.integrate_monte_carlo(
                 x0=x0,
                 u_func=u_func,
                 t_span=t_span,
                 n_paths=n_paths,
                 t_eval=t_eval,
             )
+            
+            # Add noise_type if not present
+            if 'noise_type' not in mc_result:
+                mc_result['noise_type'] = noise_type.value if hasattr(noise_type, 'value') else str(noise_type)
+                
+            return mc_result
+            
         # Manual Monte Carlo (run n_paths separate integrations)
         import warnings
 
@@ -561,16 +580,13 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
 
         # Stack all paths
         x_all = np.stack(all_paths, axis=0)  # (n_paths, T, nx)
-        
-        # get the noise type to satisfy the output
-        noise_type = self.get_noise_type()
 
-        # Return combined result
+        # Return combined result with noise_type
         return {
             **result,  # Use last result for metadata
             "x": x_all,
             "n_paths": n_paths,
-            "noise_type": noise_type,
+            "noise_type": noise_type.value if hasattr(noise_type, 'value') else str(noise_type),
             "message": f"Monte Carlo with {n_paths} paths (manual mode)",
         }
 
