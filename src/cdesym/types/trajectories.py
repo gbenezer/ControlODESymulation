@@ -741,6 +741,7 @@ class SDEIntegrationResult(TypedDict, total=False):
     # SDE-specific fields
     diffusion_evals: int
     noise_samples: ArrayLike
+    noise_type: str
     n_paths: int
     convergence_type: str
     sde_type: str
