@@ -195,7 +195,7 @@ cli = [
 
 # Complete installation (all optional dependencies)
 all = [
-    "controldesymulation[torch,jax,viz,control,julia,optimization,dev,docs,notebooks,cli]",
+    "cdesym[torch,jax,viz,control,julia,optimization,dev,docs,notebooks,cli]",
 ]
 
 # ============================================================================
