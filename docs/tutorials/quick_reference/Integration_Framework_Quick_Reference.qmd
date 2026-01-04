@@ -1,8 +1,15 @@
 ---
 title: "Numerical Integration Framework Quick Reference"
+subtitle: "ControlDESymulation Quick Reference Guides"
+author: "Gil Benezer"
+date: today
 format:
   html:
     toc: true
+    toc-depth: 3
+    code-fold: false
+    code-tools: true
+    theme: cosmo
 ---
 
 ## Quick Start
