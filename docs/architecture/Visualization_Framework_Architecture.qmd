@@ -158,7 +158,7 @@ for i, (name, colors) in enumerate(schemes.items(), 1):
     fig.update_yaxes(showticklabels=False, row=i, col=1)
 
 fig.update_layout(height=400, title_text="Color Scheme Comparison")
-fig.show()
+fig
 ```
 
 ### Plot Themes {#sec-plot-themes}
@@ -219,7 +219,7 @@ fig = system.plotter.plot_trajectory(
     state_names=['θ (rad)', 'ω (rad/s)'],
     title='Pendulum Dynamics'
 )
-fig.show()
+fig
 ```
 
 ::: {.callout-note}
@@ -277,7 +277,7 @@ fig = stochastic_system.plotter.plot_trajectory(
     title=f'Stochastic Pendulum Monte Carlo (n={n_trials}, σ=0.3)',
     show_std=True
 )
-fig.show()
+fig
 ```
 
 ::: {.callout-note}
@@ -318,7 +318,7 @@ fig = system.plotter.plot_state_and_control(
     state_names=['θ (rad)', 'ω (rad/s)'],
     control_names=['Torque (N⋅m)']
 )
-fig.show()
+fig
 ```
 
 ### Comparing Multiple Designs {#sec-comparing-designs}
@@ -353,7 +353,7 @@ fig = system.plotter.plot_comparison(
     trajectories,
     state_names=['θ (rad)', 'ω (rad/s)']
 )
-fig.show()
+fig
 ```
 
 ::: {.callout-important}
@@ -404,7 +404,7 @@ fig = system.phase_plotter.plot_2d(
     equilibria=[np.array([0, 0])],
     show_direction=True
 )
-fig.show()
+fig
 ```
 
 ### With Vector Field {#sec-vector-field}
@@ -430,7 +430,7 @@ fig = system.phase_plotter.plot_2d(
     equilibria=[np.array([0, 0]), np.array([np.pi, 0])],
     show_direction=True
 )
-fig.show()
+fig
 ```
 
 ## ControlPlotter: Control Analysis {#sec-control-plotter}
@@ -467,7 +467,7 @@ fig = system.control_plotter.plot_eigenvalue_map(
     color_scheme='colorblind_safe',
     theme='publication'
 )
-fig.show()
+fig
 ```
 
 ::: {.callout-tip}
@@ -538,7 +538,7 @@ fig = stochastic_system.plotter.plot_comparison(
     state_names=['θ (rad)', 'ω (rad/s)']
 )
 fig.update_layout(title='Effect of Noise Intensity on Stochastic Pendulum')
-fig.show()
+fig
 ```
 
 ::: {.callout-tip}
@@ -595,7 +595,7 @@ fig = stochastic_system.phase_plotter.plot_2d(
     show_direction=True
 )
 fig.update_layout(title='Stochastic Pendulum Phase Portrait (Same IC, Different Noise)')
-fig.show()
+fig
 ```
 
 ::: {.callout-note}
@@ -634,7 +634,7 @@ fig = system.control_plotter.plot_gain_comparison(
     gains,
     labels=['θ', 'ω']
 )
-fig.show()
+fig
 ```
 
 ### Step Response {#sec-step-response}
@@ -667,7 +667,7 @@ fig = system.control_plotter.plot_step_response(
     reference=1.0,
     show_metrics=True
 )
-fig.show()
+fig
 ```
 
 ## Publication-Ready Output {#sec-publication-ready}
@@ -693,7 +693,7 @@ fig = system.plotter.plot_trajectory(
     theme='publication',
     color_scheme='colorblind_safe'
 )
-fig.show()
+fig
 ```
 
 ### Exporting Figures {#sec-exporting}
@@ -852,7 +852,7 @@ fig = system.plotter.plot_trajectory(
     result['states'],
     theme='publication'
 )
-fig.show()
+fig
 ```
 
 ## Available Plot Types {#sec-plot-types}
