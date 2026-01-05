@@ -680,10 +680,14 @@ Switch to publication theme for papers:
 #| label: demo-publication-theme
 #| fig-cap: "Same plot with publication theme (serif fonts, clean styling)"
 
+# Get a fresh result for this example
+x0_pub = np.array([0.5, 0.0])
+result_pub = system.simulate(x0_pub, controller=None, t_span=(0, 10), dt=0.01)
+
 # Same trajectory, publication theme
 fig = system.plotter.plot_trajectory(
-    result['t'],
-    result['x'],
+    result_pub['time'],
+    result_pub['states'],
     state_names=['θ (rad)', 'ω (rad/s)'],
     title='Pendulum Dynamics',
     theme='publication',
