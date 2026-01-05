@@ -16,7 +16,7 @@ execute:
 
 ## Overview {#sec-overview}
 
-The **Control Framework** provides classical control theory algorithms for analysis and synthesis of dynamical systems. It consists of **3 core modules** totaling ~1,786 lines organized into a clean **2-layer architecture**: pure stateless functions and thin composition wrappers.
+The **Control Framework** provides classical control theory algorithms for analysis and synthesis of dynamical systems. It consists of **3 core modules** organized into a clean **2-layer architecture**: pure stateless functions and thin composition wrappers.
 
 ## Architecture Philosophy {#sec-architecture-philosophy}
 
@@ -57,14 +57,14 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 │                   APPLICATION LAYER                        │
 │              (ContinuousSystemBase, DiscreteSystemBase)    │
 │                                                            │
-│  system.control   ──────► ControlSynthesis (388 lines)     │
-│  system.analysis  ──────► SystemAnalysis   (431 lines)     │
+│  system.control   ──────► ControlSynthesis                 │
+│  system.analysis  ──────► SystemAnalysis                   │
 └──────────────────┬─────────────────────────────────────────┘
                    │ delegates to
                    ↓
 ┌────────────────────────────────────────────────────────────┐
 │              PURE FUNCTION LAYER                           │
-│          classical_control_functions.py (967 lines)        │
+│          classical_control_functions.py                    │
 │                                                            │
 │  Control Design:          System Analysis:                 │
 │  • design_lqr()          • analyze_stability()             │
@@ -77,7 +77,7 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
                    ↓
 ┌────────────────────────────────────────────────────────────┐
 │                   TYPE LAYER                               │
-│             control_classical.py (542 lines)               │
+│             control_classical.py                           │
 │                                                            │
 │  • LQRResult           • StabilityInfo                     │
 │  • KalmanFilterResult  • ControllabilityInfo               │
@@ -90,7 +90,7 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 ### Pure Function Layer {#sec-pure-function-layer}
 
 #### classical_control_functions.py {#sec-classicalcontrolfunctionspy}
-**File:** `classical_control_functions.py` (967 lines)
+**File:** `classical_control_functions.py`
 
 **Purpose:** Stateless algorithms for control design and system analysis
 
@@ -439,7 +439,7 @@ def _from_numpy(arr: np.ndarray, backend: Backend):
 ### Composition Wrapper Layer {#sec-composition-wrapper-layer}
 
 #### control_synthesis.py {#sec-controlsynthesispy}
-**File:** `control_synthesis.py` (388 lines)
+**File:** `control_synthesis.py`
 
 **Purpose:** Thin wrapper for control design algorithms
 
@@ -514,7 +514,7 @@ u = -K @ (x - x_eq)
 ---
 
 #### system_analysis.py {#sec-systemanalysispy}
-**File:** `system_analysis.py` (431 lines)
+**File:** `system_analysis.py`
 
 **Purpose:** Thin wrapper for system analysis algorithms
 
@@ -596,7 +596,7 @@ if controllability['is_controllable'] and observability['is_observable']:
 ### Type Layer {#sec-type-layer}
 
 #### control_classical.py {#sec-controlclassicalpy}
-**File:** `control_classical.py` (542 lines)
+**File:** `control_classical.py`
 
 **Purpose:** TypedDict result types for control algorithms
 
@@ -624,15 +624,15 @@ See `Type_System_Architecture.md` for complete documentation.
 # ANTI-PATTERN: Methods on system class (violates SRP)
 class ContinuousSystemBase:
     def design_lqr(self, Q, R):
-        # 200+ lines of LQR implementation
-        # Mixes system concerns with control algorithm
+        # LQR implementation mixes system concerns
+        # with control algorithm
         pass
 
 # GOOD PATTERN: Pure function + composition
 # Pure function (classical_control_functions.py)
 def design_lqr(A, B, Q, R, system_type, backend):
     """Stateless, testable, reusable."""
-    # 200+ lines focused solely on LQR algorithm
+    # Focus solely on LQR algorithm
     return LQRResult(...)
 
 # Thin wrapper (control_synthesis.py)

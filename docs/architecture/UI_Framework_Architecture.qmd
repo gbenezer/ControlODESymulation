@@ -169,7 +169,7 @@ class MySystem(ContinuousSymbolicSystem):
 ```
 
 #### DiscreteSymbolicSystem {#sec-discretesymbolicsystem}
-**File:** `discrete_symbolic_system.py` (1,020 lines)
+**File:** `discrete_symbolic_system.py`
 
 **Inheritance:** `SymbolicSystemBase + DiscreteSystemBase`
 
@@ -200,7 +200,7 @@ class MyDiscreteSystem(DiscreteSymbolicSystem):
 ### Layer 3: Stochastic Extensions {#sec-layer-3-stochastic-extensions}
 
 #### ContinuousStochasticSystem {#sec-continuousstochasticsystem}
-**File:** `continuous_stochastic_system.py` (1,103 lines)
+**File:** `continuous_stochastic_system.py`
 
 **Inheritance:** `ContinuousSymbolicSystem` (single inheritance)
 
@@ -245,7 +245,7 @@ class MySDESystem(ContinuousStochasticSystem):
 ```
 
 #### DiscreteStochasticSystem {#sec-discretestochasticsystem}
-**File:** `discrete_stochastic_system.py` (1,383 lines)
+**File:** `discrete_stochastic_system.py`
 
 **Inheritance:** `DiscreteSymbolicSystem` (single inheritance)
 
@@ -266,7 +266,7 @@ where:
 ---
 
 ### Special System: DiscretizedSystem {#sec-special-system-discretizedsystem}
-**File:** `discretized_system.py` (4,916 lines!)
+**File:** `discretized_system.py`
 
 **Purpose:** Creates discrete-time approximations from continuous systems
 

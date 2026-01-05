@@ -103,7 +103,7 @@ warnings.filterwarnings('ignore', category=UserWarning, module='jax')
 
 ### IntegratorBase: Abstract Interface {#sec-integratorbase}
 
-**File:** `integrator_base.py` (512 lines)
+**File:** `integrator_base.py`
 
 The `IntegratorBase` class defines the unified interface that all numerical integrators must implement. This abstraction enables backend-agnostic integration while maintaining consistent behavior across implementations.
 
@@ -152,7 +152,7 @@ def name(self) -> str:
 
 ### IntegratorFactory: Smart Creation {#sec-integratorfactory}
 
-**File:** `integrator_factory.py` (1,267 lines)
+**File:** `integrator_factory.py`
 
 The `IntegratorFactory` provides intelligent integrator creation with automatic backend and method selection. It encapsulates the complexity of choosing appropriate integration methods based on system properties and use case requirements.
 
@@ -200,7 +200,7 @@ The factory maintains a comprehensive registry mapping method names to backends 
 
 ### ScipyIntegrator: Adaptive NumPy Integration {#sec-scipyintegrator}
 
-**File:** `scipy_integrator.py` (~620 lines)
+**File:** `scipy_integrator.py`
 
 Wraps `scipy.integrate.solve_ivp` to provide professional-grade adaptive integration with comprehensive error control. This is the recommended starting point for most NumPy-based applications.
 
@@ -258,7 +258,7 @@ print(f"Steps taken: {result['nsteps']}")
 
 ### TorchDiffEqIntegrator: GPU-Accelerated PyTorch {#sec-torchdiffeqintegrator}
 
-**File:** `torchdiffeq_integrator.py** (~800 lines)
+**File:** `torchdiffeq_integrator.py**
 
 Provides PyTorch integration with GPU acceleration and automatic differentiation support. Essential for neural ODE applications and gradient-based optimization.
 
@@ -314,7 +314,7 @@ print(f"Integration time: {result['integration_time']:.4f}s")
 
 ### DiffraxIntegrator: JAX with XLA Compilation {#sec-diffraxintegrator}
 
-**File:** `diffrax_integrator.py` (~700 lines)
+**File:** `diffrax_integrator.py`
 
 Leverages JAX's diffrax library for high-performance integration with XLA compilation. Ideal for optimization workflows requiring extensive JIT compilation and functional transformations.
 
@@ -369,7 +369,7 @@ print(f"Success: {result['success']}")
 
 ### DiffEqPyIntegrator: Julia's Solver Ecosystem {#sec-diffeqpyintegrator}
 
-**File:** `diffeqpy_integrator.py` (~900 lines)
+**File:** `diffeqpy_integrator.py`
 
 Accesses Julia's extensive DifferentialEquations.jl ecosystem through Python bindings. Provides the most comprehensive method library with production-grade performance.
 
@@ -436,7 +436,7 @@ print(f"Achieved accuracy: reltol={1e-12}, abstol={1e-14}")
 
 ### FixedStepIntegrators: Educational and Simple Systems {#sec-fixedstepintegrators}
 
-**File:** `fixed_step_integrators.py` (~600 lines)
+**File:** `fixed_step_integrators.py`
 
 Manual implementations of classic fixed-step methods. These provide transparent, backend-agnostic integration suitable for education and simple systems where adaptive stepping is unnecessary.
 
@@ -488,7 +488,7 @@ print(f"Number of steps: {result['nsteps']}")
 
 ### SDEIntegratorBase: Stochastic Abstract Interface {#sec-sdeintegratorbase}
 
-**File:** `sde_integrator_base.py` (1,080 lines)
+**File:** `sde_integrator_base.py`
 
 Extends `IntegratorBase` to handle stochastic differential equations of the form:
 
@@ -534,7 +534,7 @@ def integrate_monte_carlo(
 
 ### SDEIntegratorFactory: SDE-Specific Creation {#sec-sdeintegratorfactory}
 
-**File:** `sde_integrator_factory.py` (~1,000 lines)
+**File:** `sde_integrator_factory.py`
 
 Provides intelligent SDE integrator creation with automatic noise structure detection and method selection.
 
@@ -575,7 +575,7 @@ SDEIntegratorFactory.for_monte_carlo(
 
 ### TorchSDEIntegrator: PyTorch SDE Integration {#sec-torchsdeintegrator}
 
-**File:** `torchsde_integrator.py` (~800 lines)
+**File:** `torchsde_integrator.py`
 
 GPU-accelerated SDE integration using the `torchsde` library. Supports automatic differentiation through stochastic dynamics.
 
@@ -623,7 +623,7 @@ print(f"SDE type: {result['sde_type']}")
 
 ### DiffraxSDEIntegrator: JAX SDE Integration {#sec-diffraxsdeintegrator}
 
-**File:** `diffrax_sde_integrator.py` (~750 lines)
+**File:** `diffrax_sde_integrator.py`
 
 JAX-based SDE integration with XLA compilation and functional transformations. Excellent for optimization involving stochastic dynamics.
 
@@ -667,7 +667,7 @@ print(f"Steps: {result['nsteps']}")
 
 ### DiffEqPySDEIntegrator: Julia SDE Integration {#sec-diffeqpysdeintegrator}
 
-**File:** `diffeqpy_sde_integrator.py` (~850 lines)
+**File:** `diffeqpy_sde_integrator.py`
 
 Access to Julia's comprehensive SDE solver ecosystem through Python bindings.
 
@@ -711,7 +711,7 @@ print(f"Diffusion evaluations: {result['diffusion_evals']}")
 
 ### CustomBrownianPath: Deterministic Noise for Testing {#sec-custombrownianpath}
 
-**File:** `custom_brownian.py` (160 lines)
+**File:** `custom_brownian.py`
 
 Provides custom Brownian motion paths for deterministic testing and reproducibility. Implements diffrax's `AbstractPath` interface.
 

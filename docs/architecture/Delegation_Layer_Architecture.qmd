@@ -18,7 +18,7 @@ execute:
 
 ## Overview {#sec-overview}
 
-The **Delegation Layer** (also called the **Support Framework**) provides **specialized internal services** to the UI framework through **composition rather than inheritance**. This layer consists of **11 focused utility classes** totaling ~7,200 lines that handle backend management, code generation, dynamics evaluation, and stochastic analysis.
+The **Delegation Layer** (also called the **Support Framework**) provides **specialized internal services** to the UI framework through **composition rather than inheritance**. This layer consists of **11 focused utility classes** that handle backend management, code generation, dynamics evaluation, and stochastic analysis.
 
 ::: {.callout-important}
 ## Internal Framework - Not for Direct Use
@@ -147,7 +147,7 @@ This architecture provides:
 
 ### BackendManager: Multi-Backend Array Handling {#sec-backendmanager}
 
-**File:** `backend_manager.py` (545 lines)
+**File:** `backend_manager.py`
 
 The `BackendManager` handles all backend-specific array operations and device management. Users interact with this functionality through system-level methods, never directly.
 
@@ -204,7 +204,7 @@ x_cuda = backend_manager.convert(array, target_backend='torch', device='cuda:0')
 
 ### CodeGenerator: Symbolic to Numerical Compilation {#sec-codegenerator}
 
-**File:** `code_generator.py` (565 lines)
+**File:** `code_generator.py`
 
 The `CodeGenerator` orchestrates the symbolic-to-numerical code generation pipeline with intelligent caching. This is completely internal—users simply call system methods that trigger code generation when needed.
 
@@ -259,7 +259,7 @@ print("✓ Code generation happens transparently")
 
 ### EquilibriumHandler: Named Equilibrium Management {#sec-equilibriumhandler}
 
-**File:** `equilibrium_handler.py` (221 lines)
+**File:** `equilibrium_handler.py`
 
 The `EquilibriumHandler` manages multiple named equilibrium points with automatic backend conversion. Users interact through system methods.
 
@@ -312,7 +312,7 @@ else:
 
 ### SymbolicValidator: System Definition Validation {#sec-symbolicvalidator}
 
-**File:** `symbolic_validator.py` (718 lines)
+**File:** `symbolic_validator.py`
 
 The `SymbolicValidator` performs comprehensive validation of symbolic system definitions during initialization. Users benefit from clear error messages without directly interacting with the validator.
 
@@ -354,7 +354,7 @@ Error messages are clear and actionable, helping users fix issues quickly.
 
 ### DynamicsEvaluator: Forward Dynamics Computation {#sec-dynamicsevaluator}
 
-**File:** `dynamics_evaluator.py` (576 lines)
+**File:** `dynamics_evaluator.py`
 
 The `DynamicsEvaluator` handles forward dynamics evaluation (dx/dt = f(x, u)) across all backends. Users call `system(x, u)` which internally delegates to this evaluator.
 
@@ -403,7 +403,7 @@ with system.use_backend('torch'):
 
 ### LinearizationEngine: Jacobian Computation {#sec-linearizationengine}
 
-**File:** `linearization_engine.py` (907 lines)
+**File:** `linearization_engine.py`
 
 The `LinearizationEngine` computes system linearizations (Jacobians) at equilibrium points. Users access this through `system.linearize()`.
 
@@ -456,7 +456,7 @@ For `order=n` systems where the state is `[q, q̇, ..., q^(n-1)]` and only `q^(n
 
 ### ObservationEngine: Output Function Evaluation {#sec-observationengine}
 
-**File:** `observation_engine.py` (628 lines)
+**File:** `observation_engine.py`
 
 The `ObservationEngine` handles output function evaluation (y = h(x)) and output Jacobian computation. Users access through `system.output()` and `system.output_jacobian()`.
 
@@ -508,7 +508,7 @@ print(f"C matrix shape: {C.shape}")
 
 ### DiffusionHandler: SDE Diffusion Management {#sec-diffusionhandler}
 
-**File:** `diffusion_handler.py` (1,069 lines)
+**File:** `diffusion_handler.py`
 
 The `DiffusionHandler` generates and caches diffusion functions for stochastic systems. Users interact through `system.diffusion()` method.
 
@@ -564,7 +564,7 @@ print(f"Recommended solvers: {solvers[:3] if len(solvers) > 3 else solvers}")
 
 ### SDEValidator: SDE-Specific Validation {#sec-sdevalidator}
 
-**File:** `sde_validator.py` (544 lines)
+**File:** `sde_validator.py`
 
 The `SDEValidator` performs SDE-specific validation during system creation. Validation happens automatically with clear error messages.
 
@@ -596,7 +596,7 @@ class MyStochasticSystem(ContinuousStochasticSystem):
 
 ### codegen_utils: SymPy Code Generation {#sec-codegenutils}
 
-**File:** `codegen_utils.py` (733 lines)
+**File:** `codegen_utils.py`
 
 Low-level utilities for converting SymPy expressions to executable functions. This is completely internal to the framework.
 

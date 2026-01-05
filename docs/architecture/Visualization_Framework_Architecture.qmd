@@ -16,7 +16,7 @@ execute:
 
 ## Overview {#sec-overview}
 
-The **Visualization Framework** provides interactive, publication-ready plotting for dynamical systems analysis. It consists of **4 core modules** totaling ~4,422 lines organized into a **2-layer architecture**: centralized theming + specialized plotters.
+The **Visualization Framework** provides interactive, publication-ready plotting for dynamical systems analysis. It consists of **4 core modules** organized into a **2-layer architecture**: centralized theming + specialized plotters.
 
 ## Architecture Philosophy {#sec-architecture-philosophy}
 
@@ -53,50 +53,50 @@ fig.show()
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                   APPLICATION LAYER                         │
-│         (ContinuousSystemBase, DiscreteSystemBase)          │
-│                                                              │
-│  system.plotter          ──────► TrajectoryPlotter          │
-│  system.phase_plotter    ──────► PhasePortraitPlotter       │
-│  system.control_plotter  ──────► ControlPlotter             │
+│                   APPLICATION LAYER                        │
+│         (ContinuousSystemBase, DiscreteSystemBase)         │
+│                                                            │
+│  system.plotter          ──────► TrajectoryPlotter         │
+│  system.phase_plotter    ──────► PhasePortraitPlotter      │
+│  system.control_plotter  ──────► ControlPlotter            │
 └──────────────────┬─────────────────────────────────────────┘
                    │ use theming from
                    ↓
 ┌────────────────────────────────────────────────────────────┐
-│                   THEMING LAYER                             │
-│                   themes.py (623 lines)                     │
-│                                                              │
-│  ColorSchemes:            PlotThemes:                       │
-│  • PLOTLY                • DEFAULT                          │
-│  • D3                    • PUBLICATION                      │
-│  • COLORBLIND_SAFE       • DARK                             │
-│  • TABLEAU                                                  │
-│  • SEQUENTIAL_BLUE                                          │
-│  • DIVERGING_RED_BLUE                                       │
-│                                                              │
+│                   THEMING LAYER                            │
+│                   themes.py                                │
+│                                                            │
+│  ColorSchemes:            PlotThemes:                      │
+│  • PLOTLY                • DEFAULT                         │
+│  • D3                    • PUBLICATION                     │
+│  • COLORBLIND_SAFE       • DARK                            │
+│  • TABLEAU                                                 │
+│  • SEQUENTIAL_BLUE                                         │
+│  • DIVERGING_RED_BLUE                                      │
+│                                                            │
 │  Utilities: lighten_color(), darken_color(), interpolate() │
 └──────────────────┬─────────────────────────────────────────┘
                    │ used by
                    ↓
 ┌────────────────────────────────────────────────────────────┐
-│                   PLOTTER LAYER                             │
-│                                                              │
+│                   PLOTTER LAYER                            │
+│                                                            │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │ TrajectoryPlotter (914 lines)                        │  │
+│  │ TrajectoryPlotter                                    │  │
 │  │ • plot_trajectory()        - State vs time           │  │
 │  │ • plot_state_and_control() - Combined view           │  │
 │  │ • plot_comparison()        - Multiple runs           │  │
 │  └──────────────────────────────────────────────────────┘  │
-│                                                              │
+│                                                            │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │ PhasePortraitPlotter (1,027 lines)                   │  │
+│  │ PhasePortraitPlotter                                 │  │
 │  │ • plot_2d()                - 2D phase portrait       │  │
 │  │ • plot_3d()                - 3D phase portrait       │  │
 │  │ • plot_limit_cycle()       - Periodic orbits         │  │
 │  └──────────────────────────────────────────────────────┘  │
-│                                                              │
+│                                                            │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │ ControlPlotter (1,858 lines)                         │  │
+│  │ ControlPlotter                                       │  │
 │  │ • plot_eigenvalue_map()         - Stability regions  │  │
 │  │ • plot_gain_comparison()        - Compare gains      │  │
 │  │ • plot_riccati_convergence()    - Solver conv        │  │
@@ -116,7 +116,7 @@ fig.show()
 ### Theming Layer {#sec-theming-layer}
 
 #### themes.py {#sec-themespy}
-**File:** `themes.py` (623 lines)
+**File:** `themes.py`
 
 **Purpose:** Centralized color palettes and plot styling
 
@@ -336,7 +336,7 @@ def interpolate_colors(color1: str, color2: str, n: int) -> List[str]:
 ### Plotter Layer {#sec-plotter-layer}
 
 #### trajectory_plotter.py {#sec-trajectoryplotterpy}
-**File:** `trajectory_plotter.py` (914 lines)
+**File:** `trajectory_plotter.py`
 
 **Purpose:** Time-domain visualization (state and control vs time)
 
@@ -509,7 +509,7 @@ def plot_comparison(
 ---
 
 #### phase_portrait.py {#sec-phaseportraitpy}
-**File:** `phase_portrait.py` (1,027 lines)
+**File:** `phase_portrait.py`
 
 **Purpose:** State space visualization (phase portraits)
 
@@ -679,7 +679,7 @@ def plot_limit_cycle(
 ---
 
 #### control_plots.py {#sec-controlplotspy}
-**File:** `control_plots.py` (1,858 lines)
+**File:** `control_plots.py`
 
 **Purpose:** Control-specific visualizations
 

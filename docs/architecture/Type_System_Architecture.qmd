@@ -16,7 +16,7 @@ execute:
 
 ## Overview {#sec-overview}
 
-The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** totaling ~7,000 lines that define over **200 type aliases** and **structured dictionaries**.
+The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** that define over **200 type aliases** and **structured dictionaries**.
 
 ## Architecture Philosophy {#sec-architecture-philosophy}
 
@@ -57,20 +57,20 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                    APPLICATION LAYER                        │
+│                    APPLICATION LAYER                       │
 │  (UI Framework, Delegation Layer, Integration Framework)   │
 └──────────────────┬─────────────────────────────────────────┘
                    │ uses types from
                    ↓
 ┌────────────────────────────────────────────────────────────┐
-│                    TYPE SYSTEM                              │
-│                                                              │
+│                    TYPE SYSTEM                             │
+│                                                            │
 │  ┌─────────────────────────────────────────────────┐       │
 │  │  FOUNDATIONAL TYPES                             │       │
 │  │  • core.py           - Vectors, matrices        │       │
 │  │  • backends.py       - Backend enums            │       │
 │  └─────────────────────────────────────────────────┘       │
-│                                                              │
+│                                                            │
 │  ┌─────────────────────────────────────────────────┐       │
 │  │  DOMAIN TYPES                                   │       │
 │  │  • trajectories.py   - Time series results      │       │
@@ -78,7 +78,7 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 │  │  • symbolic.py       - SymPy types              │       │
 │  │  • control_classical.py - Control design results│       │
 │  └─────────────────────────────────────────────────┘       │
-│                                                              │
+│                                                            │
 │  ┌─────────────────────────────────────────────────┐       │
 │  │  STRUCTURAL TYPES                               │       │
 │  │  • protocols.py      - Abstract interfaces      │       │
@@ -92,7 +92,7 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 ### Foundational Types {#sec-foundational-types}
 
 #### core.py {#sec-corepy}
-**File:** `core.py` (1,501 lines)
+**File:** `core.py`
 
 **Purpose:** Fundamental building blocks for all other types
 
@@ -184,7 +184,7 @@ EquilibriumName     # str - Named equilibrium
 ---
 
 #### backends.py {#sec-backendspy}
-**File:** `backends.py` (735 lines)
+**File:** `backends.py`
 
 **Purpose:** Backend configuration and method selection types
 
@@ -271,7 +271,7 @@ class SystemConfig(TypedDict, total=False):
 ### Domain Types {#sec-domain-types}
 
 #### trajectories.py {#sec-trajectoriespy}
-**File:** `trajectories.py** (879 lines)
+**File:** `trajectories.py**
 
 **Purpose:** Time series data and simulation results
 
@@ -352,7 +352,7 @@ class BatchSimulationResult(TypedDict):
 ---
 
 #### linearization.py {#sec-linearizationpy}
-**File:** `linearization.py` (502 lines)
+**File:** `linearization.py`
 
 **Purpose:** Linearization results and Jacobian types
 
@@ -425,7 +425,7 @@ DiffusionJacobian = DiffusionMatrix  # G = ∂g/∂x
 ---
 
 #### symbolic.py {#sec-symbolicpy}
-**File:** `symbolic.py` (646 lines)
+**File:** `symbolic.py`
 
 **Purpose:** SymPy symbolic types
 
@@ -474,7 +474,7 @@ SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
 ---
 
 #### control_classical.py {#sec-controlclassicalpy}
-**File:** `control_classical.py` (542 lines)
+**File:** `control_classical.py`
 
 **Purpose:** Classical control theory result types
 
@@ -639,7 +639,7 @@ if ctrl['is_controllable']:
 ### Structural Types {#sec-structural-types}
 
 #### protocols.py {#sec-protocolspy}
-**File:** `protocols.py` (1,086 lines)
+**File:** `protocols.py`
 
 **Purpose:** Abstract interfaces via Protocol
 
@@ -717,7 +717,7 @@ class FeedbackControllerProtocol(ControllerProtocol, Protocol):
 ---
 
 #### utilities.py {#sec-utilitiespy}
-**File:** `utilities.py` (1,132 lines)
+**File:** `utilities.py`
 
 **Purpose:** Helper types and utilities
 
