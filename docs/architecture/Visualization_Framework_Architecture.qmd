@@ -722,7 +722,10 @@ C = np.array([[1, 0]])
 D = np.zeros((1, 1))
 
 # Closed-loop dynamics
-A_cl = (A - B @ lqr_result['gain']) * 10.0
+print(f"A matrix:\n{A}")
+print(f"B matrix:\n{B}")
+print(f"LQR Gain:\n{lqr_result['gain']}")
+A_cl = A - B @ lqr_result['gain']
 sys_cl = signal.StateSpace(A_cl, B, C, D)
 
 # Step response
