@@ -241,35 +241,12 @@ ControlDESymulation supports multiple numerical backends with automatic detectio
 | **PyTorch** | Neural networks, GPU | Yes | Yes | Yes |
 | **JAX** | Research, TPU, functional | Yes | Yes | Yes |
 
-## Integration Methods
-
-### Adaptive ODE Solvers
-
-| Method | Backend | Order | Best For |
-|--------|---------|-------|----------|
-| `LSODA` | NumPy | Variable | Auto-stiffness detection |
-| `RK45` | NumPy | 5(4) | General non-stiff |
-| `BDF` | NumPy | Variable | Stiff systems |
-| `Tsit5` | Julia | 5 | High-performance non-stiff |
-| `Vern9` | Julia | 9 | High accuracy |
-| `Rodas5` | Julia | 5 | Stiff systems |
-| `dopri5` | PyTorch/JAX | 5(4) | Neural ODEs, optimization |
-
-### SDE Solvers
-
-| Method | Order | Noise Type |
-|--------|-------|------------|
-| `euler-maruyama` | 0.5 (strong) | All |
-| `heun` | 1.0 (strong) | Additive |
-| `milstein` | 1.0 (strong) | Diagonal |
-| `srk` | Various | Specific structures |
-
 ## Contributing
 
 Repository is not currently ready for other contributors. Once all files are fully documented, initial example notebooks and/or more formal tutorials, all warnings addressed, and all mypy/ruff/pylint issues are resolved, then contributions are welcome. Some examples of future help would be:
 
 1. **Additional Example Systems** - More application domains
-    - Currently implemented systems
+    <!-- - Currently implemented systems
         - Deterministic
             - Continuous
                 - Aerial system models (2D quadrotor)
@@ -317,7 +294,7 @@ Repository is not currently ready for other contributors. Once all files are ful
                 - Discrete stochastic pendulum
                 - Stochastic logistic map
                 - Euler discretized stochastic chemical reactors with independent noise
-                - Discrete stochastic queue model
+                - Discrete stochastic queue model -->
 2. **Documentation** - Tutorials, guides, and examples
 3. **Performance Optimization** - Profiling and speedups
 4. **Additional Backends** - TensorFlow, CuPy, etc.
