@@ -292,9 +292,10 @@ Compare different control strategies:
 #| fig-cap: "Comparison of different control strategies"
 
 # Simulate with different controllers
+# Controllers must return (nu,) array, not (nx,)
 controllers = {
-    'P (K=1)': lambda x, t: -1.0 * x,
-    'P (K=5)': lambda x, t: -5.0 * x,
+    'P (K=1)': lambda x, t: np.array([-1.0 * x[0] - 0.5 * x[1]]),
+    'P (K=5)': lambda x, t: np.array([-5.0 * x[0] - 2.0 * x[1]]),
     'No Control': None
 }
 
