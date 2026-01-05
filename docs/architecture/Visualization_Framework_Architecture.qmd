@@ -299,18 +299,22 @@ controllers = {
     'No Control': None
 }
 
-results_dict = {}
+trajectories = {}
+t_common = None
 for name, ctrl in controllers.items():
     if ctrl is None:
         res = system.integrate(x0, u=None, t_span=(0, 10))
+        trajectories[name] = res['x']
+        t_common = res['t']
     else:
         res = system.simulate(x0, controller=ctrl, t_span=(0, 10), dt=0.01)
-        res = {'t': res['time'], 'x': res['states']}
-    results_dict[name] = res
+        trajectories[name] = res['states']
+        t_common = res['time']
 
-# Compare trajectories
+# Compare trajectories (pass t and trajectories separately)
 fig = system.plotter.plot_comparison(
-    results_dict,
+    t_common,
+    trajectories,
     state_names=['θ (rad)', 'ω (rad/s)']
 )
 fig.show()
