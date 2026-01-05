@@ -385,12 +385,14 @@ class LinearizationEngine:
                     A_result = A_func(*all_args)
                     B_result = B_func(*all_args)
 
-                    A_batch[i] = np.array(A_result, dtype=np.float64)
-                    B_batch[i] = np.array(B_result, dtype=np.float64)
+                    # Reshape results to correct matrix dimensions
+                    A_batch[i] = np.array(A_result, dtype=np.float64).reshape(self.system.nx, self.system.nx)
+                    B_batch[i] = np.array(B_result, dtype=np.float64).reshape(self.system.nx, self.system.nu)
                 else:
                     # Autonomous: only pass state variables
                     A_result = A_func(*x_list)
-                    A_batch[i] = np.array(A_result, dtype=np.float64)
+                    # Reshape to correct matrix dimensions
+                    A_batch[i] = np.array(A_result, dtype=np.float64).reshape(self.system.nx, self.system.nx)
                     # B_batch[i] remains zeros with shape (nx, 0)
         else:
             # Fall back to symbolic evaluation
@@ -499,11 +501,17 @@ class LinearizationEngine:
                     u_list = [u_i[j] for j in range(self.system.nu)]
                     all_args = x_list + u_list
 
-                    A_batch[i] = A_func(*all_args)
-                    B_batch[i] = B_func(*all_args)
+                    A_result = A_func(*all_args)
+                    B_result = B_func(*all_args)
+                    
+                    # Reshape and convert to tensor
+                    A_batch[i] = torch.tensor(A_result, dtype=dtype, device=device).reshape(self.system.nx, self.system.nx)
+                    B_batch[i] = torch.tensor(B_result, dtype=dtype, device=device).reshape(self.system.nx, self.system.nu)
                 else:
                     # Autonomous: only pass state variables
-                    A_batch[i] = A_func(*x_list)
+                    A_result = A_func(*x_list)
+                    # Reshape to correct matrix dimensions
+                    A_batch[i] = torch.tensor(A_result, dtype=dtype, device=device).reshape(self.system.nx, self.system.nx)
                     # B_batch[i] remains zeros with shape (nx, 0)
         else:
             # Fall back to symbolic evaluation
