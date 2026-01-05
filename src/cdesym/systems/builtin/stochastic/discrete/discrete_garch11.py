@@ -14,6 +14,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
+NOTE: Not exactly sure how effectively this actually models time-varying
+behavior given the framework is not yet set up to explicitly add time as a
+symbolic variable. Use with caution.
+
 Discrete GARCH - Time-Varying Volatility Models (Nobel Prize 2003)
 ===================================================================
 
