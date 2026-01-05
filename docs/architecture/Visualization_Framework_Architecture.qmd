@@ -57,6 +57,7 @@ The system properties automatically configure plotters with the correct backend 
 
 # Setup for all code examples
 import numpy as np
+import sympy as sp
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from typing import Optional, Tuple, Dict, List
@@ -415,13 +416,17 @@ results_noise = {}
 
 for sigma in noise_levels:
     sys_i = ContinuousStochasticPendulum(g=9.81, L=1.0, b=0.5, sigma=sigma)
+    sys_i.set_default_backend('torch')
     x0 = np.array([0.3, 0.0])
     
     result = sys_i.integrate(
         x0, u=None, t_span=(0, 15), 
         method='euler', dt=0.01, seed=42
     )
-    results_noise[f'σ={sigma}'] = {'t': result['t'], 'x': result['x']}
+    
+    # Convert to numpy for plotting
+    x_np = result['x'].cpu().numpy() if hasattr(result['x'], 'cpu') else result['x']
+    results_noise[f'σ={sigma}'] = {'t': result['t'], 'x': x_np}
 
 # Compare trajectories
 fig = stochastic_system.plotter.plot_comparison(
@@ -453,6 +458,9 @@ Phase portraits reveal noise-induced behavior:
 #| label: demo-stochastic-phase
 #| fig-cap: "Phase portrait of stochastic pendulum showing noise-induced wandering"
 
+# Switch to torch for SDE integration
+stochastic_system.set_default_backend('torch')
+
 # Multiple stochastic trajectories from same initial condition
 n_trajectories = 5
 stochastic_trajectories = []
@@ -466,9 +474,14 @@ for i in range(n_trajectories):
         dt=0.01,
         seed=i
     )
-    stochastic_trajectories.append(result['x'])
+    # Convert to numpy
+    x_np = result['x'].cpu().numpy() if hasattr(result['x'], 'cpu') else result['x']
+    stochastic_trajectories.append(x_np)
 
 x_stochastic = np.stack(stochastic_trajectories)
+
+# Reset backend
+stochastic_system.set_default_backend('numpy')
 
 # Plot stochastic phase portrait
 fig = stochastic_system.phase_plotter.plot_2d(
