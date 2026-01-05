@@ -114,4 +114,8 @@ execute:
   eval: true    # ← EXECUTE BY DEFAULT
   
 bibliography: references.bib
+
 csl: ieee.csl
+
+metadata:
+  version: "1.0.0"

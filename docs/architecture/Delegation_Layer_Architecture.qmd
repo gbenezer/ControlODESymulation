@@ -415,8 +415,9 @@ $$\delta\dot{x} = A\delta x + B\delta u$$
 
 where:
 
-- $A = \frac{\partial f}{\partial x}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_x}$
-- $B = \frac{\partial f}{\partial u}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_u}$
+$$A = \frac{\partial f}{\partial x}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_x}$$
+
+$$B = \frac{\partial f}{\partial u}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_u}$$
 
 **Discrete systems:**
 
@@ -469,7 +470,7 @@ $$\delta y = C\delta x$$
 
 where
 
-$C = \frac{\partial h}{\partial x}\bigg|_{x_{eq}} \in \mathbb{R}^{n_y \times n_x}$
+$$C = \frac{\partial h}{\partial x}\bigg|_{x_{eq}} \in \mathbb{R}^{n_y \times n_x}$$
 
 **User-facing interface:**
 
@@ -515,9 +516,9 @@ The `DiffusionHandler` generates and caches diffusion functions for stochastic s
 
 $$dx = f(x, u)dt + g(x, u)dW$$
 
-Diffusion matrix 
+Diffusion matrix $g(x, u) \in \mathbb{R}^{n_x \times n_w}$ 
 
-$g(x, u) \in \mathbb{R}^{n_x \times n_w}$ where:
+where:
 
 - $n_x$: state dimension
 - $n_w$: number of independent Wiener processes
