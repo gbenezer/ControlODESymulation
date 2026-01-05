@@ -173,6 +173,33 @@ Three built-in themes provide different visual styles:
 
 ## TrajectoryPlotter: Time-Domain Visualization {#sec-trajectory-plotter}
 
+::: {.callout-tip}
+## Integration Methods for Visualization
+
+For visualization purposes, **use `simulate()`** instead of `integrate()`:
+
+- `simulate()` returns **regular time grids** (uniform spacing) - ideal for plotting
+- `integrate()` returns **adaptive time points** (variable spacing) - can create uneven plots
+
+```python
+# ✓ RECOMMENDED for plotting: Regular time grid
+result = system.simulate(x0, controller, t_span=(0, 10), dt=0.01)
+fig = system.plotter.plot_trajectory(result['time'], result['states'])
+
+# ⚠️ Works but may have uneven time spacing: Adaptive grid
+result = system.integrate(x0, u=None, t_span=(0, 10), method='RK45')
+# Or use t_eval for regular grid:
+result = system.integrate(x0, u=None, t_span=(0, 10), t_eval=np.linspace(0, 10, 1001))
+fig = system.plotter.plot_trajectory(result['t'], result['x'])
+```
+
+**Why this matters:**
+- Adaptive methods choose time points based on error control (dense where dynamics change, sparse where smooth)
+- This can create visually uneven plots with more points in some regions
+- Regular grids ensure uniform visual appearance
+- For comparison plots, all trajectories **must** have same time grid
+:::
+
 ### Basic Trajectory Plot {#sec-basic-trajectory}
 
 The most common visualization: state variables vs time.
@@ -181,19 +208,30 @@ The most common visualization: state variables vs time.
 #| label: demo-trajectory-basic
 #| fig-cap: "Simple pendulum trajectory showing angle and angular velocity over time"
 
-# Simulate pendulum
+# Simulate pendulum with regular time grid (recommended for plotting)
 x0 = np.array([0.5, 0.0])
-result = system.integrate(x0, u=None, t_span=(0, 10), method='RK45')
+result = system.simulate(x0, controller=None, t_span=(0, 10), dt=0.01)
 
 # Plot using system's built-in plotter
 fig = system.plotter.plot_trajectory(
-    result['t'],
-    result['x'],
+    result['time'],
+    result['states'],
     state_names=['θ (rad)', 'ω (rad/s)'],
     title='Pendulum Dynamics'
 )
 fig.show()
 ```
+
+::: {.callout-note}
+## Why `simulate()` for Plotting
+
+This example uses `simulate()` rather than `integrate()` because:
+- **Regular time grid** (uniform dt=0.01) makes for smooth, evenly-spaced plots
+- **Time-major output** `result['states']` is (T, nx) - natural for plotting
+- **Reconstructed controls** available if controller provided
+
+For comparison, `integrate()` returns adaptive time points that may create visually uneven plots.
+:::
 
 ### Batched Trajectories (Monte Carlo) {#sec-batched-trajectories}
 
@@ -292,26 +330,24 @@ Compare different control strategies:
 #| fig-cap: "Comparison of different control strategies"
 
 # Simulate with different controllers
-# Controllers must return (nu,) array, not (nx,)
+# Note: All must use same time grid for comparison
 controllers = {
     'P (K=1)': lambda x, t: np.array([-1.0 * x[0] - 0.5 * x[1]]),
     'P (K=5)': lambda x, t: np.array([-5.0 * x[0] - 2.0 * x[1]]),
     'No Control': None
 }
 
+# Use common dt for all simulations
+dt = 0.01
 trajectories = {}
-t_common = None
-for name, ctrl in controllers.items():
-    if ctrl is None:
-        res = system.integrate(x0, u=None, t_span=(0, 10))
-        trajectories[name] = res['x']
-        t_common = res['t']
-    else:
-        res = system.simulate(x0, controller=ctrl, t_span=(0, 10), dt=0.01)
-        trajectories[name] = res['states']
-        t_common = res['time']
+t_common = np.arange(0, 10 + dt, dt)
 
-# Compare trajectories (pass t and trajectories separately)
+for name, ctrl in controllers.items():
+    # Use simulate() to ensure regular time grid
+    result = system.simulate(x0, controller=ctrl, t_span=(0, 10), dt=dt)
+    trajectories[name] = result['states']
+
+# Compare trajectories (all have same time grid)
 fig = system.plotter.plot_comparison(
     t_common,
     trajectories,
@@ -319,6 +355,23 @@ fig = system.plotter.plot_comparison(
 )
 fig.show()
 ```
+
+::: {.callout-important}
+## Regular Time Grids Required for Comparison
+
+When comparing multiple trajectories, **all must use the same time grid**. Use `simulate()` with the same `dt` for all runs, or use `integrate()` with the same `t_eval` array.
+
+```python
+# ✓ CORRECT: Same time grid
+for name, ctrl in controllers.items():
+    result = system.simulate(x0, controller=ctrl, t_span=(0, 10), dt=0.01)
+    
+# ❌ WRONG: Different adaptive grids
+for name, ctrl in controllers.items():
+    result = system.integrate(x0, u=ctrl, t_span=(0, 10))
+    # Different number of time points! Cannot compare directly.
+```
+:::
 
 ## PhasePortraitPlotter: State-Space Visualization {#sec-phase-portrait}
 
@@ -330,7 +383,7 @@ Visualize dynamics in state space:
 #| label: demo-phase-2d
 #| fig-cap: "2D phase portrait showing state-space trajectory"
 
-# Simulate from multiple initial conditions
+# Simulate from multiple initial conditions (use simulate for regular grids)
 initial_conditions = [
     np.array([0.3, 0.0]),
     np.array([1.0, 0.0]),
@@ -339,8 +392,8 @@ initial_conditions = [
 
 trajectories = []
 for x0_i in initial_conditions:
-    result = system.integrate(x0_i, u=None, t_span=(0, 15))
-    trajectories.append(result['x'])
+    result = system.simulate(x0_i, controller=None, t_span=(0, 15), dt=0.01)
+    trajectories.append(result['states'])
 
 x_all = np.stack(trajectories)  # (n_traj, T, nx)
 
@@ -384,11 +437,11 @@ fig.show()
 
 ### Eigenvalue Map {#sec-eigenvalue-map}
 
-Visualize closed-loop stability:
+Visualize closed-loop stability with comparison:
 
 ```{python}
 #| label: demo-eigenvalue-map
-#| fig-cap: "Eigenvalue map showing open-loop and closed-loop poles"
+#| fig-cap: "Eigenvalue map comparing open-loop and closed-loop poles"
 
 # Get linearization at origin
 x_eq, u_eq = system.get_equilibrium('origin')
@@ -399,17 +452,52 @@ Q = np.diag([10, 1])
 R = np.array([[0.1]])
 lqr_result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 
-# Plot eigenvalues
+# Plot eigenvalues using dictionary format (recommended for comparison)
 eigenvalues_ol = np.linalg.eigvals(A)
 eigenvalues_cl = lqr_result['closed_loop_eigenvalues']
 
+eigenvalue_sets = {
+    'Open-loop': eigenvalues_ol,
+    'Closed-loop (LQR)': eigenvalues_cl,
+}
+
 fig = system.control_plotter.plot_eigenvalue_map(
-    np.concatenate([eigenvalues_ol, eigenvalues_cl]),
+    eigenvalue_sets,
     system_type='continuous',
-    labels=['Open-loop', 'Closed-loop (LQR)']
+    color_scheme='colorblind_safe',
+    theme='publication'
 )
 fig.show()
 ```
+
+::: {.callout-tip}
+## Comparing Eigenvalue Sets
+
+The `plot_eigenvalue_map()` method supports multiple input formats:
+
+**Dictionary format (recommended for comparison):**
+```python
+eigenvalue_sets = {
+    'Open-loop': eigs_ol,
+    'Closed-loop (LQR)': eigs_cl,
+}
+fig = system.control_plotter.plot_eigenvalue_map(eigenvalue_sets)
+```
+
+**Concatenated with per-eigenvalue labels:**
+```python
+eigs_all = np.concatenate([eigs_ol, eigs_cl])
+labels = ['Open-loop'] * len(eigs_ol) + ['Closed-loop'] * len(eigs_cl)
+fig = system.control_plotter.plot_eigenvalue_map(eigs_all, labels=labels)
+```
+
+**Single set:**
+```python
+fig = system.control_plotter.plot_eigenvalue_map(eigs_cl, labels='LQR')
+```
+
+Each set gets a unique color and marker symbol for easy distinction!
+:::
 
 ## Stochastic System Visualization {#sec-stochastic-viz}
 
