@@ -276,41 +276,84 @@ class BackendManager:
     def convert(
         self,
         array: ArrayLike,
-        target_backend: Backend,
+        target_backend: Optional[Backend] = None,
+        device: Optional[Device] = None,
     ) -> ArrayLike:
         """
-        Convert array to target backend.
-
+        Convert array to target backend with optional device placement.
+        
+        This is the primary conversion method that combines backend conversion
+        and device placement in a single operation. This method allows explicit device control.
+        
         Args:
-            array: Source array
-            target_backend: Target backend
-
+            array: Source array (numpy.ndarray, torch.Tensor, or jax.numpy.ndarray)
+            target_backend: Target backend (None = use default_backend)
+            device: Target device (None = use preferred_device)
+        
         Returns:
-            Array in target backend format
-
+            Array in target backend format on specified device
+        
         Raises:
             RuntimeError: If target backend is not available
-            ValueError: If target backend is invalid
-
+            ValueError: If device is incompatible with target backend
+            TypeError: If array type is not recognized
+        
         Example:
             >>> mgr = BackendManager()
-            >>> x_np = np.array([1.0, 2.0])
-            >>> x_torch = mgr.convert(x_np, 'torch')  # Returns torch.Tensor
+            >>> x_np = np.array([1.0, 2.0, 3.0])
+            >>> 
+            >>> # Convert to PyTorch on CPU
+            >>> x_torch = mgr.to_backend(x_np, 'torch', device='cpu')
+            >>> 
+            >>> # Convert to JAX (uses default device)
+            >>> x_jax = mgr.to_backend(x_np, 'jax')
+            >>> 
+            >>> # Convert to default backend
+            >>> x_default = mgr.to_backend(x_jax)  # Uses default_backend
+        
+        Note:
+            - If target_backend is None, uses self.default_backend
+            - If device is None, uses self.preferred_device
+            - For numpy backend, device parameter is ignored (always CPU)
+            - Performs no-op if array is already in target backend on correct device
         """
-        # Validate target backend
+        
+        import warnings
+    
+        # Resolve target backend
+        target_backend = target_backend or self.default_backend
         target_backend = validate_backend(target_backend)
-
+        
+        # Resolve target device
+        target_device = device or self.preferred_device
+        target_device = validate_device(target_device, target_backend)
+        
         # Check target backend is available
         self.require_backend(target_backend)
-
+        
         # Detect source backend
         source_backend = self.detect(array)
-
-        # If already correct backend, return as-is (no-op)
+        
+        # Fast path: already correct backend and device
         if source_backend == target_backend:
-            return array
-
-        # Convert to NumPy as intermediate step
+            if target_backend == "numpy":
+                return array  # NumPy always on CPU
+            elif target_backend == "torch":
+                import torch
+                if isinstance(array, torch.Tensor):
+                    # Check if already on correct device
+                    current_device = str(array.device)
+                    if current_device == target_device or (
+                        target_device == "cpu" and current_device == "cpu"
+                    ):
+                        return array
+                    # Move to target device
+                    return array.to(target_device)
+            elif target_backend == "jax":
+                # JAX device handling is more complex, safer to recreate
+                pass
+        
+        # Convert to NumPy as intermediate representation
         if source_backend == "numpy":
             array_np = array
         elif source_backend == "torch":
@@ -318,31 +361,65 @@ class BackendManager:
         elif source_backend == "jax":
             array_np = np.array(array)
         else:
-            raise RuntimeError(f"Unknown source backend: {source_backend}")
-
+            raise TypeError(
+                f"Unknown source array type: {type(array)}. "
+                f"Expected np.ndarray, torch.Tensor, or jax.numpy.ndarray"
+            )
+        
         # Convert from NumPy to target backend
         if target_backend == "numpy":
             return array_np
-        if target_backend == "torch":
+        
+        elif target_backend == "torch":
             import torch
-
-            tensor = torch.tensor(array_np, dtype=torch.float32)
-            if self._preferred_device != "cpu":
-                tensor = tensor.to(self._preferred_device)
+            
+            # Preserve dtype precision
+            dtype = torch.float64 if array_np.dtype == np.float64 else torch.float32
+            
+            # Create tensor on target device
+            tensor = torch.tensor(array_np, dtype=dtype, device=target_device)
             return tensor
-        if target_backend == "jax":
+        
+        elif target_backend == "jax":
             import jax.numpy as jnp
             from jax import device_put, devices
-
+            
+            # Create JAX array
             array_jax = jnp.array(array_np)
-            if self._preferred_device != "cpu":
+            
+            # Handle device placement for JAX
+            if target_device != "cpu":
                 try:
-                    target_device = devices(self._preferred_device)[0]
-                    array_jax = device_put(array_jax, target_device)
-                except (IndexError, RuntimeError):
+                    # Parse device string (e.g., 'gpu:0' -> device 0)
+                    if target_device.startswith("gpu:"):
+                        device_idx = int(target_device.split(":")[1])
+                        jax_devices = devices("gpu")
+                    elif target_device.startswith("cuda:"):
+                        device_idx = int(target_device.split(":")[1])
+                        jax_devices = devices("gpu")
+                    elif target_device in ("gpu", "cuda"):
+                        device_idx = 0
+                        jax_devices = devices("gpu")
+                    else:
+                        # Unknown device format, stay on default
+                        warnings.warn(
+                            f"Unknown JAX device format '{target_device}'. "
+                            f"Expected format: 'cpu', 'gpu', 'cuda', 'gpu:N', or 'cuda:N'. "
+                            f"Array will be placed on default JAX device.",
+                            UserWarning,
+                            stacklevel=2,
+                        )
+                        return array_jax
+                    
+                    if device_idx < len(jax_devices):
+                        array_jax = device_put(array_jax, jax_devices[device_idx])
+                except (IndexError, RuntimeError, ValueError):
+                    # If device placement fails, return on default device
                     pass
+            
             return array_jax
-        raise RuntimeError(f"Unhandled target backend: {target_backend}")
+        else:
+            raise RuntimeError(f"Unhandled target backend: {target_backend}")
 
     # ========================================================================
     # Configuration
