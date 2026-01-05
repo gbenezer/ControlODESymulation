@@ -12,3 +12,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# CRITICAL: Import juliacall BEFORE any torch imports
+# This prevents segfault issues (see: https://github.com/pytorch/pytorch/issues/78829)
+
+try:
+    import juliacall
+except ImportError:
+    pass  # juliacall is optional, only needed for DifferentialEquations.jl backend
