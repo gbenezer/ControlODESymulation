@@ -250,7 +250,7 @@ For comparison, `integrate()` returns adaptive time points that may create visua
 
 ### Batched Trajectories (Monte Carlo) {#sec-batched-trajectories}
 
-Automatically handles multiple trajectories with mean ± std visualization. This example uses the **stochastic pendulum** to show genuine stochastic dynamics:
+Automatically handles multiple trajectories. This example uses the **stochastic pendulum** to show genuine stochastic dynamics:
 
 ```{python}
 #| label: demo-trajectory-batch
@@ -302,20 +302,24 @@ fig
 ::: {.callout-note}
 ## Stochastic Monte Carlo Visualization
 
-This demonstrates **true stochastic dynamics** from Wiener process noise:
+This demonstrates **true stochastic dynamics** from Wiener process noise, described by the SDE:
+
+$$dx = f(x, u)dt + g(x, u)dW$$
 
 **What you see:**
 - **Individual trajectories**: Each colored line shows one noise realization
-- **Stochastic spread**: Trajectories diverge over time from accumulated noise
-- **Nonlinear dynamics**: Damping limits growth but uncertainty remains
+- **Stochastic spread**: Trajectories diverge over time from accumulated Brownian forcing
+- **Nonlinear effects**: Pendulum damping limits growth but uncertainty remains
 
-**Key insight**: Starting from identical initial conditions (θ=0.5, ω=0), the 20 trajectories spread due to different noise realizations. This visualizes inherent stochastic uncertainty.
+**Key distinction**: The trajectory variability comes from **random Brownian forcing** $dW(t)$, not just different initial conditions. Starting from identical states (θ=0.5, ω=0), the 20 trajectories spread due to different noise realizations, visualizing inherent stochastic uncertainty.
+
+For comparison, deterministic Monte Carlo shows variability only from initial condition uncertainty, not from dynamic randomness.
 :::
 
 ::: {.callout-tip}
-## SDE Integration: Output Time Points
+## SDE Integration with PyTorch
 
-For PyTorch SDE integration, use **`t_eval`** to get dense output:
+For PyTorch SDE integration, specify output times with `t_eval`:
 
 ```python
 # Define output times
@@ -325,61 +329,33 @@ result = system.integrate(
     x0,
     u=None,
     t_span=(0, 10),
-    method='euler',    # PyTorch torchsde method
-    dt=0.01,          # Integration time step
-    t_eval=t_eval,    # Output time points (dense)
+    method='euler',        # PyTorch torchsde method
+    dt=0.01,              # Integration time step
+    t_eval=t_eval,        # Output time points
     seed=42
 )
 ```
 
-**Why this matters:**
-- `dt=0.01` controls integration accuracy (internal time step)
-- `t_eval` controls which points are returned in the output
-- Without `t_eval`, may only return start/end points
-- For plotting, always use `t_eval` for dense, uniform output
-:::
-
-
-::: {.callout-note}
-## Stochastic vs Deterministic Monte Carlo
-
-This example demonstrates **true stochastic dynamics** from the stochastic pendulum's Wiener process noise. Each trajectory experiences different random realizations of the noise process.
-
-**Key features:**
-- **Batched input**: `x_batch` shape is `(20, 1001, 2)` = (n_trials, T, nx)
-- **Automatic statistics**: Plotter computes mean and std across trials
-- **Visual encoding**: Shaded region shows ±1 standard deviation
-- **Individual trajectories**: Thin lines show each realization (optional)
-
-For deterministic systems, Monte Carlo typically varies initial conditions or parameters rather than having inherent stochasticity.
+**Parameters:**
+- `dt=0.01`: Internal time step (controls accuracy)
+- `t_eval`: Which points to return in output (controls density)
 :::
 
 ::: {.callout-tip}
 ## Backend Conversion for Plotting
 
-The plotter requires **NumPy arrays**, but SDE integration used **PyTorch**:
+The plotter requires **NumPy arrays**, but SDE integration returns **PyTorch tensors**:
+
 ```python
 # Convert torch tensor to numpy
 x_np = result['x'].cpu().numpy()  # Move to CPU, then numpy
 t_np = result['t'].cpu().numpy()  # Same for time
 ```
 
-This conversion happens because:
-- PyTorch SDE solvers work with torch tensors
+**Why this is needed:**
+- PyTorch SDE solvers work with torch tensors (for autodiff/GPU)
 - Plotly requires NumPy arrays for visualization
-- The plotter handles this automatically for single trajectories, but for batched data we do it explicitly
-:::
-
-::: {.callout-note}
-## Stochastic vs Deterministic Monte Carlo
-
-This example demonstrates **genuine stochastic dynamics** from the SDE:
-
-$dx = f(x, u)dt + g(x, u)dW$
-
-The trajectory variability comes from **random Brownian forcing**, not just different initial conditions. Each trajectory experiences different noise realizations $dW(t)$, showing how randomness affects the system's evolution.
-
-For comparison, a deterministic Monte Carlo (like the previous example) shows variability only from initial condition uncertainty, not from dynamic randomness.
+- Conversion is explicit for batched Monte Carlo data
 :::
 
 
