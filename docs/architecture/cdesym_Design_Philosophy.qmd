@@ -737,13 +737,6 @@ Noise types:
 - Heun (strong 1.0, additive)
 - Stochastic RK methods
 
-**Discretization:**
-
-- Exact (matrix exponential)
-- Tustin (bilinear transform)
-- Forward/backward Euler
-- Zero-order hold
-
 ---
 
 ## Performance Considerations {#sec-performance-considerations}
