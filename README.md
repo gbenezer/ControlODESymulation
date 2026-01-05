@@ -177,31 +177,31 @@ ControlDESymulation follows a clean 4-layer architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  Layer 3: User Interface                     │
-│  ContinuousSymbolicSystem   | DiscreteSymbolicSystem         │
-│  ContinuousStochasticSystem | DiscreteStochasticSystem       │
-│                                                              │
+│                  Layer 3: User Interface                    │
+│  ContinuousSymbolicSystem   | DiscreteSymbolicSystem        │
+│  ContinuousStochasticSystem | DiscreteStochasticSystem      │
+│                                                             │
 └─────────────────────┬───────────────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────────────┐
-│              Layer 2: Numerical Integration                  │
-│  IntegratorFactory | SDEIntegratorFactory                    │
-│  40+ solver methods across NumPy/PyTorch/JAX/Julia           │
-│                                                              │
+│              Layer 2: Numerical Integration                 │
+│  IntegratorFactory | SDEIntegratorFactory                   │
+│  40+ solver methods across NumPy/PyTorch/JAX/Julia          │
+│                                                             │
 └─────────────────────┬───────────────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────────────┐
-│              Layer 1: Delegation Layer                       │
-│  Backend-agnostic numerical operations                       │
-│  Array manipulation | Linear algebra | Special functions     │
-│                                                              │
+│              Layer 1: Delegation Layer                      │
+│  Backend-agnostic numerical operations                      │
+│  Array manipulation | Linear algebra | Special functions    │
+│                                                             │
 └─────────────────────┬───────────────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────────────┐
-│              Layer 0: Type System                            │
-│  TypedDict definitions for type safety                       │
-│  200+ types across 19 focused modules                        │
-│                                                              │
+│              Layer 0: Type System                           │
+│  TypedDict definitions for type safety                      │
+│  200+ types across 19 focused modules                       │
+│                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
