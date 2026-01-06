@@ -755,6 +755,11 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     is_sde_method : Check if method is for stochastic systems
     is_fixed_step : Check if method uses fixed time stepping
     """
+    
+    # Add None check
+    if method is None:
+        raise ValueError("method cannot be None")
+    
     # ========================================================================
     # Check if already valid for backend
     # ========================================================================
