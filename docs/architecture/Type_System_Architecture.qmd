@@ -1,106 +1,145 @@
 ---
-title: "ControlDESymulation Type System Architecture"
-subtitle: "ControlDESymulation Architecture Documentation"
+title: "Type System Architecture"
+subtitle: "Foundational Types and Structured Results"
 author: "Gil Benezer"
 date: today
 format:
   html:
     toc: true
+    toc-depth: 3
     code-fold: show
     code-tools: true
+    theme: cosmo
 execute:
-  eval: true      # Execute all code blocks
-  cache: true     # Cache results
-  warning: false  # Suppress warnings
+  eval: true
+  cache: true
+  warning: false
 ---
 
 ## Overview {#sec-overview}
 
-The **Type System** is the **foundational layer** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** that define over **200 type aliases** and **structured dictionaries**.
+The **Type System** is the **foundational layer (Layer 0)** that provides semantic types, structured results, and type-safe interfaces for the entire framework. It consists of **8 focused modules** defining over **200 type aliases** and **structured dictionaries**.
+
+::: {.callout-important}
+## Internal Framework - Not for Direct Use
+
+**This documentation describes internal framework types.** Users should NOT directly reference or manipulate these types except through system methods. The type system is an internal implementation detail that provides:
+
+- Type safety through static checking
+- IDE autocomplete support
+- Clear documentation of expected types
+- Backend-agnostic interfaces
+```python
+# ✓ CORRECT: Types work transparently through system methods
+system = Pendulum()
+result = system.integrate(x0, u=None, t_span=(0, 10))
+# result is IntegrationResult (TypedDict) - IDE knows fields available
+
+A, B = system.linearize(x_eq, u_eq)
+# A is StateMatrix, B is InputMatrix - types guide usage
+
+# ✗ INCORRECT: No need to import or reference types directly
+from cdesym.types.core import StateVector, ControlVector
+x: StateVector = np.array([1.0, 0.0])  # Unnecessary annotation
+```
+
+The type system enables type checking and IDE support while remaining invisible during normal use. This documentation is provided for framework developers and advanced users implementing custom components.
+:::
+```{python}
+#| label: setup-imports
+#| echo: false
+#| output: false
+
+# Global setup for all code examples
+import numpy as np
+import torch
+import jax.numpy as jnp
+import sympy as sp
+from typing import Union, Tuple, Dict, List, Optional, Callable, Any, Literal, TypedDict, Protocol
+from enum import Enum
+import warnings
+
+warnings.filterwarnings('ignore', category=UserWarning)
+
+# Import for examples
+from cdesym import Pendulum, ContinuousSymbolicSystem
+```
 
 ## Architecture Philosophy {#sec-architecture-philosophy}
 
-**Type-Driven Design** - The type system enables:
+**Type-Driven Design** - Types are not just annotations—they are architecture.
+
+The type system enables:
 
 1. **Semantic Clarity** - Names convey mathematical meaning (`StateVector`, not `ArrayLike`)
-2. **Type Safety** - Static type checking via mypy/pyright
-3. **IDE Support** - Autocomplete and inline documentation
+2. **Type Safety** - Static checking via mypy/pyright catches errors before runtime
+3. **IDE Support** - Autocomplete knows `result['t']` exists and is `TimePoints`
 4. **Backend Agnosticism** - Same types work with NumPy/PyTorch/JAX
 5. **Structured Results** - TypedDict for dictionaries (not plain `dict`)
-6. **Self-Documenting** - Types encode constraints and invariants
+6. **Self-Documentation** - Type signatures encode mathematical constraints
 
+**Example comparison:**
 ```{python}
-#| output: false
-# Compare:
+#| label: ex-type-comparison
+#| eval: false
 
-```{python}
-#| label: setup-imports
-#| output: false
-#| echo: false
-
-# Setup for all code examples in this document
-from typing import Optional, Tuple, Dict, List, Union
-from cdesym import ContinuousSymbolicSystem
-from cdesym.systems.examples.pendulum import SymbolicPendulum
-```
-
-def bad(x, u):  # What are x and u? Arrays? Scalars? Dimensions?
+# ✗ Bad: Unclear types and semantics
+def bad(x, u):  # What are these? What dimensions? What backend?
     return x + u
 
-# vs:
+# ✓ Good: Clear semantics and constraints
 def good(x: StateVector, u: ControlVector) -> StateVector:
-    """Clear intent: state in, control in, state out."""
+    """Clear: state in, control in, state out. Works with any backend."""
     return x + u
 ```
 
-## Type System Layers {#sec-type-system-layers}
-
+## Framework Layers {#sec-framework-layers}
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                    APPLICATION LAYER                       │
+│                   APPLICATION LAYER                        │
 │  (UI Framework, Delegation Layer, Integration Framework)   │
-└──────────────────┬─────────────────────────────────────────┘
-                   │ uses types from
-                   ↓
+└─────────────────────┬──────────────────────────────────────┘
+                      │ uses types from
+                      ↓
 ┌────────────────────────────────────────────────────────────┐
-│                    TYPE SYSTEM                             │
+│                    TYPE SYSTEM (Layer 0)                   │
 │                                                            │
-│  ┌─────────────────────────────────────────────────┐       │
-│  │  FOUNDATIONAL TYPES                             │       │
-│  │  • core.py           - Vectors, matrices        │       │
-│  │  • backends.py       - Backend enums            │       │
-│  └─────────────────────────────────────────────────┘       │
+│  ┌──────────────────────────────────────────────────────  │
+│  │  FOUNDATIONAL TYPES                                  │  │
+│  │  • core.py           - Vectors, matrices            │  │
+│  │  • backends.py       - Backend enums, configs       │  │
+│  └──────────────────────────────────────────────────────  │
 │                                                            │
-│  ┌─────────────────────────────────────────────────┐       │
-│  │  DOMAIN TYPES                                   │       │
-│  │  • trajectories.py   - Time series results      │       │
-│  │  • linearization.py  - Jacobian tuples          │       │
-│  │  • symbolic.py       - SymPy types              │       │
-│  │  • control_classical.py - Control design results│       │
-│  └─────────────────────────────────────────────────┘       │
+│  ┌──────────────────────────────────────────────────────  │
+│  │  DOMAIN TYPES                                        │  │
+│  │  • trajectories.py   - Time series results          │  │
+│  │  • linearization.py  - Jacobian tuples              │  │
+│  │  • symbolic.py       - SymPy types                  │  │
+│  │  • control_classical.py - Control design results    │  │
+│  └──────────────────────────────────────────────────────  │
 │                                                            │
-│  ┌─────────────────────────────────────────────────┐       │
-│  │  STRUCTURAL TYPES                               │       │
-│  │  • protocols.py      - Abstract interfaces      │       │
-│  │  • utilities.py      - Helper types             │       │
-│  └─────────────────────────────────────────────────┘       │
+│  ┌──────────────────────────────────────────────────────  │
+│  │  STRUCTURAL TYPES                                    │  │
+│  │  • protocols.py      - Abstract interfaces          │  │
+│  │  • utilities.py      - Helper types, guards         │  │
+│  └──────────────────────────────────────────────────────  │
 └────────────────────────────────────────────────────────────┘
 ```
 
-## Module Breakdown {#sec-module-breakdown}
+## Foundational Types {#sec-foundational-types}
 
-### Foundational Types {#sec-foundational-types}
+### core.py: Fundamental Building Blocks {#sec-corepy}
 
-#### core.py {#sec-corepy}
 **File:** `core.py`
 
-**Purpose:** Fundamental building blocks for all other types
+The `core` module provides fundamental building blocks for all other types in the framework. These types establish semantic clarity and backend agnosticism throughout the library.
 
-**Categories:**
+**Key categories:**
 
-**1. Multi-Backend Arrays (20+ types)**
-```{python}
-#| output: false
+#### Multi-Backend Arrays (20+ types)
+
+Backend-agnostic array types that work transparently with NumPy, PyTorch, and JAX:
+```python
 ArrayLike = Union[np.ndarray, torch.Tensor, jnp.ndarray]
 NumpyArray = np.ndarray
 TorchTensor = torch.Tensor
@@ -109,10 +148,30 @@ ScalarLike = Union[float, int, np.number, torch.Tensor, jnp.ndarray]
 IntegerLike = Union[int, np.integer]
 ```
 
-**2. Semantic Vector Types (15+ types)**
+**Usage in framework:**
 ```{python}
-#| output: false
-StateVector         # x ∈ ℝⁿˣ - State
+#| label: ex-multi-backend
+
+system = Pendulum()
+
+# Same function works with all backends
+x_np = np.array([1.0, 0.0])      # NumPy
+x_torch = torch.tensor([1.0, 0.0])  # PyTorch
+x_jax = jnp.array([1.0, 0.0])    # JAX
+
+# Backend detected automatically - no type errors
+dx_np = system(x_np, np.zeros(1))
+dx_torch = system(x_torch, torch.zeros(1))
+dx_jax = system(x_jax, jnp.zeros(1))
+
+print("✓ Backend-agnostic type system")
+```
+
+#### Semantic Vector Types (15+ types)
+
+Vector types that convey mathematical meaning:
+```python
+StateVector         # x ∈ ℝⁿˣ - System state
 ControlVector       # u ∈ ℝⁿᵘ - Control input
 OutputVector        # y ∈ ℝⁿʸ - Measured output
 NoiseVector         # w ∈ ℝⁿʷ - Stochastic noise
@@ -123,37 +182,65 @@ StateIncrement      # δx - State deviation
 ControlIncrement    # δu - Control deviation
 ```
 
-**3. Matrix Types (30+ types)**
+**Why semantic types matter:**
 ```{python}
-#| output: false
-# Dynamics matrices
+#| label: ex-semantic-types
+#| eval: false
+
+# ✗ Unclear what arrays represent
+def compute(arr1, arr2, arr3):
+    return arr1 @ arr2 + arr3
+
+# ✓ Clear mathematical meaning
+def compute_control(x: StateVector, K: GainMatrix, u_ff: ControlVector) -> ControlVector:
+    """State feedback with feedforward: u = -K*x + u_ff"""
+    return -K @ x + u_ff
+```
+
+#### Matrix Types (30+ types)
+
+Matrix types organized by mathematical purpose:
+
+**Dynamics matrices:**
+```python
 StateMatrix         # A ∈ ℝⁿˣˣⁿˣ - ∂f/∂x
 InputMatrix         # B ∈ ℝⁿˣˣⁿᵘ - ∂f/∂u  
 DiffusionMatrix     # G ∈ ℝⁿˣˣⁿʷ - Noise intensity
+```
 
-# Observation matrices
+**Observation matrices:**
+```python
 OutputMatrix        # C ∈ ℝⁿʸˣⁿˣ - ∂h/∂x
 FeedthroughMatrix   # D ∈ ℝⁿʸˣⁿᵘ - Direct feedthrough
+```
 
-# Control matrices
+**Control matrices:**
+```python
 GainMatrix          # K ∈ ℝⁿᵘˣⁿˣ - Feedback gain
 CostMatrix          # Q ∈ ℝⁿˣˣⁿˣ - State cost
 ControlCostMatrix   # R ∈ ℝⁿᵘˣⁿᵘ - Control cost
+```
 
-# Stochastic matrices
+**Stochastic matrices:**
+```python
 CovarianceMatrix    # P ∈ ℝⁿˣˣⁿˣ - Covariance
 ProcessNoiseMatrix  # Q ∈ ℝⁿˣˣⁿˣ - Process noise cov
 MeasurementNoiseMatrix  # R ∈ ℝⁿʸˣⁿʸ - Measurement noise cov
-
-# Special matrices
-IdentityMatrix      # I ∈ ℝⁿˣⁿ
-ZeroMatrix         # 0 ∈ ℝᵐˣⁿ
-GramianMatrix      # Controllability/observability
 ```
 
-**4. Function Signatures (10+ types)**
-```{python}
-#| output: false
+**Special matrices:**
+```python
+IdentityMatrix      # I ∈ ℝⁿˣⁿ
+ZeroMatrix         # 0 ∈ ℝᵐˣⁿ
+GramianMatrix      # Controllability/observability gramian
+ControllabilityMatrix  # [B AB A²B ... Aⁿ⁻¹B]
+ObservabilityMatrix    # [C; CA; CA²; ...; CAⁿ⁻¹]
+```
+
+#### Function Signatures (10+ types)
+
+Callable types that define function interfaces:
+```python
 DynamicsFunction    # (x, u) → dx/dt
 OutputFunction      # (x) → y
 ControlPolicy       # (t, x) → u
@@ -161,9 +248,28 @@ CostFunction        # (x, u) → scalar
 ObserverFunction    # (y, u) → x_hat
 ```
 
-**5. System Properties (15+ types)**
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-function-types
+
+# Function signature guides implementation
+def simulate_with_controller(
+    system: Callable[[StateVector, ControlVector], StateVector],  # DynamicsFunction
+    controller: Callable[[float, StateVector], ControlVector],    # ControlPolicy
+    x0: StateVector,
+    t_span: Tuple[float, float]
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Type signatures document the contract."""
+    # Implementation here
+    pass
+
+print("✓ Function types document interfaces")
+```
+
+#### System Properties (15+ types)
+
+Types for system dimensions and properties:
+```python
 StateDimension      # nx - Number of states
 ControlDimension    # nu - Number of controls
 OutputDimension     # ny - Number of outputs
@@ -174,25 +280,16 @@ EquilibriumPoint    # (x_eq, u_eq) - Tuple
 EquilibriumName     # str - Named equilibrium
 ```
 
-**Key Design:**
+### backends.py: Backend Configuration {#sec-backendspy}
 
-- **Semantic naming** - Type names encode mathematical meaning
-- **Multi-backend** - All types support NumPy/PyTorch/JAX
-- **Composition** - Types compose into higher-level structures
-- **Documentation** - Each type has examples and constraints
-
----
-
-#### backends.py {#sec-backendspy}
 **File:** `backends.py`
 
-**Purpose:** Backend configuration and method selection types
+The `backends` module defines backend selection, device management, and method specification types.
 
-**Categories:**
+**Key categories:**
 
-**1. Backend Types**
-```{python}
-#| output: false
+#### Backend Types
+```python
 Backend = Literal["numpy", "torch", "jax"]
 Device = str  # 'cpu', 'cuda:0', 'mps', 'tpu'
 
@@ -202,9 +299,26 @@ class BackendConfig(TypedDict, total=False):
     dtype: Optional[str]  # 'float32', 'float64'
 ```
 
-**2. Integration Methods**
+**Usage in framework:**
 ```{python}
-#| output: false
+#| label: ex-backend-config
+
+system = Pendulum()
+
+# Backend configuration handled internally
+print(f"Default backend: {system.backend.default_backend}")
+print(f"Default device: {system.backend.default_device}")
+
+# Users interact through simple methods
+system.set_default_backend('numpy')
+system.to_device('cpu')
+
+with system.use_backend('torch'):
+    print(f"Temporary backend: {system.backend.default_backend}")
+```
+
+#### Integration Methods
+```python
 IntegrationMethod = str  # 'RK45', 'dopri5', 'tsit5', etc.
 
 # Specific categories
@@ -214,9 +328,8 @@ FixedStepMethod = str    # Fixed-step methods
 AdaptiveMethod = str     # Adaptive methods
 ```
 
-**3. Discretization Methods**
-```{python}
-#| output: false
+#### Discretization Methods
+```python
 DiscretizationMethod = Literal[
     "exact",      # Matrix exponential
     "euler",      # Forward Euler
@@ -226,9 +339,8 @@ DiscretizationMethod = Literal[
 ]
 ```
 
-**4. SDE Types**
-```{python}
-#| output: false
+#### SDE Types
+```python
 SDEType = Literal["ito", "stratonovich"]
 
 class NoiseType(Enum):
@@ -244,9 +356,8 @@ class ConvergenceType(Enum):
     WEAK = "weak"      # Distribution convergence
 ```
 
-**5. System Configuration**
-```{python}
-#| output: false
+#### System Configuration
+```python
 class SystemConfig(TypedDict, total=False):
     """Complete system configuration."""
     nx: int              # State dimension
@@ -259,44 +370,37 @@ class SystemConfig(TypedDict, total=False):
     device: Device
 ```
 
-**Key Design:**
+## Domain Types {#sec-domain-types}
 
-- **Type-safe enums** - Literal types prevent typos
-- **Structured configs** - TypedDict for configuration
-- **Extensible** - Easy to add new methods
-- **Self-documenting** - Clear valid values
+### trajectories.py: Time Series Results {#sec-trajectoriespy}
 
----
+**File:** `trajectories.py`
 
-### Domain Types {#sec-domain-types}
+The `trajectories` module defines types for time series data and simulation results.
 
-#### trajectories.py {#sec-trajectoriespy}
-**File:** `trajectories.py**
+**Key categories:**
 
-**Purpose:** Time series data and simulation results
-
-**Categories:**
-
-**1. Trajectory Types**
-```{python}
-#| output: false
+#### Trajectory Types
+```python
 StateTrajectory = ArrayLike      # (T, nx) or (T, batch, nx)
 ControlSequence = ArrayLike      # (T, nu) or (T, batch, nu)
 OutputSequence = ArrayLike       # (T, ny)
 NoiseSequence = ArrayLike        # (T, nw)
 ```
 
-**2. Time Types**
-```{python}
-#| output: false
+**Convention: Time-major ordering** - All trajectories use `(T, ...)` format where `T` is the first dimension.
+
+#### Time Types
+```python
 TimePoints = ArrayLike           # (T,) - Time grid
 TimeSpan = Tuple[float, float]   # (t0, tf) - Interval
 TimeStep = float                 # dt - Step size
 ```
 
-**3. Integration Results (TypedDict)**
-```{python}
-#| output: false
+#### Integration Results (TypedDict)
+
+**Deterministic ODE Integration:**
+```python
 class IntegrationResult(TypedDict, total=False):
     """ODE integration result."""
     t: TimePoints              # Time points
@@ -316,9 +420,8 @@ class IntegrationResult(TypedDict, total=False):
     dense_output: bool         # Dense output available
 ```
 
-**4. SDE Integration Results**
-```{python}
-#| output: false
+**Stochastic SDE Integration:**
+```python
 class SDEIntegrationResult(TypedDict, total=False):
     """SDE integration result (extends IntegrationResult)."""
     # All IntegrationResult fields, plus:
@@ -330,9 +433,8 @@ class SDEIntegrationResult(TypedDict, total=False):
     noise_type: str            # Noise structure
 ```
 
-**5. Batch Results**
-```{python}
-#| output: false
+**Batch Simulation:**
+```python
 class BatchSimulationResult(TypedDict):
     """Batched simulation result."""
     t: TimePoints                    # (T,)
@@ -342,25 +444,52 @@ class BatchSimulationResult(TypedDict):
     statistics: Dict[str, ArrayLike] # Mean, std, etc.
 ```
 
-**Key Design:**
+**Why TypedDict:**
+```{python}
+#| label: ex-typeddict-benefits
 
-- **Time-major ordering** - (T, nx) not (nx, T)
-- **TypedDict results** - Structured, type-safe dictionaries
-- **Optional fields** - Use `total=False` for flexibility
-- **Consistent shapes** - All trajectories follow same conventions
+system = Pendulum()
+x0 = np.array([1.0, 0.0])
 
----
+# TypedDict result provides IDE support
+result = system.integrate(x0, u=None, t_span=(0, 10))
 
-#### linearization.py {#sec-linearizationpy}
+# IDE knows these fields exist and their types
+t = result['t']              # TimePoints
+x = result['x']              # StateTrajectory
+success = result['success']  # bool
+solver = result['solver']    # str
+
+print(f"Integration {'succeeded' if success else 'failed'}")
+print(f"Solver: {solver}")
+```
+
+### linearization.py: Jacobian Types {#sec-linearizationpy}
+
 **File:** `linearization.py`
 
-**Purpose:** Linearization results and Jacobian types
+The `linearization` module defines return types for linearization operations.
 
-**Categories:**
+**Mathematical forms:**
 
-**1. Basic Linearization**
-```{python}
-#| output: false
+**Continuous systems:**
+
+$$\delta\dot{x} = A\delta x + B\delta u$$
+
+where:
+
+$$A = \frac{\partial f}{\partial x}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_x}$$
+
+$$B = \frac{\partial f}{\partial u}\bigg|_{(x_{eq}, u_{eq})} \in \mathbb{R}^{n_x \times n_u}$$
+
+**Discrete systems:**
+
+$$\delta x[k+1] = A_d\delta x[k] + B_d\delta u[k]$$
+
+**Type definitions:**
+
+#### Basic Linearization
+```python
 DeterministicLinearization = Tuple[StateMatrix, InputMatrix]
 # Returns: (A, B) where
 #   A = ∂f/∂x - State Jacobian
@@ -376,18 +505,16 @@ LinearizationResult = Union[DeterministicLinearization, StochasticLinearization]
 # Polymorphic: works with both
 ```
 
-**2. Output Linearization**
-```{python}
-#| output: false
+#### Output Linearization
+```python
 ObservationLinearization = Tuple[OutputMatrix, FeedthroughMatrix]
 # Returns: (C, D) where
 #   C = ∂h/∂x - Output Jacobian
 #   D = ∂h/∂u - Feedthrough (usually 0)
 ```
 
-**3. Full State-Space**
-```{python}
-#| output: false
+#### Full State-Space
+```python
 FullLinearization = Tuple[StateMatrix, InputMatrix, OutputMatrix, FeedthroughMatrix]
 # Returns: (A, B, C, D)
 
@@ -397,92 +524,94 @@ FullStochasticLinearization = Tuple[
 # Returns: (A, B, G, C, D)
 ```
 
-**4. Time-Domain Aliases**
+**Usage example:**
 ```{python}
-#| output: false
-ContinuousLinearization = DeterministicLinearization
-DiscreteLinearization = DeterministicLinearization
-ContinuousStochasticLinearization = StochasticLinearization
-DiscreteStochasticLinearization = StochasticLinearization
+#| label: ex-linearization-types
+
+system = Pendulum()
+
+# Get equilibrium
+x_eq, u_eq = system.get_equilibrium('origin')
+
+# Type annotation guides usage
+A, B = system.linearize(x_eq, u_eq)  # DeterministicLinearization
+
+# Natural tuple unpacking
+print(f"A shape: {A.shape}")  # (nx, nx)
+print(f"B shape: {B.shape}")  # (nx, nu)
 ```
 
-**5. Jacobian-Specific**
-```{python}
-#| output: false
-StateJacobian = StateMatrix       # A = ∂f/∂x
-ControlJacobian = InputMatrix     # B = ∂f/∂u
-OutputJacobian = OutputMatrix     # C = ∂h/∂x
-DiffusionJacobian = DiffusionMatrix  # G = ∂g/∂x
-```
+### symbolic.py: SymPy Integration {#sec-symbolicpy}
 
-**Key Design:**
-
-- **Tuple returns** - Natural unpacking: `A, B = linearize()`
-- **Polymorphic types** - Union handles deterministic/stochastic
-- **Semantic aliases** - Time-domain context clear
-- **Mathematical clarity** - Names match theory
-
----
-
-#### symbolic.py {#sec-symbolicpy}
 **File:** `symbolic.py`
 
-**Purpose:** SymPy symbolic types
+The `symbolic` module provides types for SymPy symbolic expressions.
 
-**Categories:**
+**Key categories:**
 
-**1. Symbolic Variables**
-```{python}
-#| output: false
+#### Symbolic Variables
+```python
 SymbolicVariable = sp.Symbol        # Single variable
 SymbolicVector = sp.Matrix          # Vector of symbols
 SymbolicMatrix = sp.Matrix          # Matrix expression
 SymbolicExpression = sp.Expr        # General expression
 ```
 
-**2. System Components**
-```{python}
-#| output: false
+#### System Components
+```python
 DynamicsExpression = sp.Matrix      # f(x, u) symbolic
 OutputExpression = sp.Matrix        # h(x) symbolic
 DiffusionExpression = sp.Matrix     # g(x, u) symbolic
 ParameterDict = Dict[sp.Symbol, float]  # Parameter values
 ```
 
-**3. Jacobian Expressions**
-```{python}
-#| output: false
+#### Jacobian Expressions
+```python
 JacobianExpression = sp.Matrix      # ∂f/∂x symbolic
 HessianExpression = sp.Matrix       # ∂²f/∂x² symbolic
 GradientExpression = sp.Matrix      # ∇f symbolic
 ```
 
-**4. Substitution Types**
+**Usage in framework:**
 ```{python}
-#| output: false
-SubstitutionDict = Dict[sp.Symbol, Union[float, sp.Expr]]
-SimplificationStrategy = Literal["simplify", "expand", "factor", "cancel"]
+#| label: ex-symbolic-types
+
+# Define custom system using symbolic types
+class MySystem(ContinuousSymbolicSystem):
+    def define_system(self, m=1.0, k=10.0):
+        # SymbolicVariable
+        x, v = sp.symbols('x v', real=True)
+        u = sp.symbols('u', real=True)
+        
+        # SymbolicVector
+        self.state_vars = [x, v]
+        self.control_vars = [u]
+        
+        # DynamicsExpression (SymbolicMatrix)
+        self._f_sym = sp.Matrix([v, -k*x/m + u/m])
+        
+        # ParameterDict
+        m_sym, k_sym = sp.symbols('m k', positive=True)
+        self.parameters = {m_sym: m, k_sym: k}
+        
+        self.order = 1
+
+system = MySystem()
+print("✓ Symbolic types guide system definition")
 ```
 
-**Key Design:**
+### control_classical.py: Control Design Results {#sec-controlclassicalpy}
 
-- **SymPy integration** - Bridge symbolic ↔ numerical
-- **Type annotations** - Clarify SymPy usage
-- **Code generation** - Input to compilation pipeline
-- **Parameter substitution** - Clear parameter handling
-
----
-
-#### control_classical.py {#sec-controlclassicalpy}
 **File:** `control_classical.py`
 
-**Purpose:** Classical control theory result types
+The `control_classical` module provides TypedDict results for classical control theory operations.
 
-**Categories:**
+**Key categories:**
 
-**1. System Analysis Results**
-```{python}
-#| output: false
+#### System Analysis Results
+
+**Stability Analysis:**
+```python
 class StabilityInfo(TypedDict):
     """Stability analysis result.
     
@@ -497,7 +626,10 @@ class StabilityInfo(TypedDict):
     is_stable: bool                  # Asymptotically stable
     is_marginally_stable: bool       # On stability boundary
     is_unstable: bool                # Unstable
+```
 
+**Controllability:**
+```python
 class ControllabilityInfo(TypedDict, total=False):
     """Controllability analysis result.
     
@@ -507,7 +639,10 @@ class ControllabilityInfo(TypedDict, total=False):
     rank: int                        # Rank of C
     is_controllable: bool            # rank == nx
     uncontrollable_modes: Optional[np.ndarray]  # Eigenvalues
+```
 
+**Observability:**
+```python
 class ObservabilityInfo(TypedDict, total=False):
     """Observability analysis result.
     
@@ -519,9 +654,10 @@ class ObservabilityInfo(TypedDict, total=False):
     unobservable_modes: Optional[np.ndarray]  # Eigenvalues
 ```
 
-**2. Control Design Results**
-```{python}
-#| output: false
+#### Control Design Results
+
+**LQR Controller:**
+```python
 class LQRResult(TypedDict):
     """Linear Quadratic Regulator result.
     
@@ -534,7 +670,10 @@ class LQRResult(TypedDict):
     cost_to_go: CovarianceMatrix     # Riccati solution P (nx, nx)
     closed_loop_eigenvalues: np.ndarray  # eig(A - BK)
     stability_margin: float          # Phase/gain margin
+```
 
+**Kalman Filter:**
+```python
 class KalmanFilterResult(TypedDict):
     """Kalman Filter (optimal estimator) result.
     
@@ -548,7 +687,10 @@ class KalmanFilterResult(TypedDict):
     error_covariance: CovarianceMatrix  # Error cov P (nx, nx)
     innovation_covariance: CovarianceMatrix  # Innovation S (ny, ny)
     observer_eigenvalues: np.ndarray  # eig(A - LC)
+```
 
+**LQG Controller:**
+```python
 class LQGResult(TypedDict):
     """Linear Quadratic Gaussian controller result.
     
@@ -568,9 +710,8 @@ class LQGResult(TypedDict):
     estimator_eigenvalues: np.ndarray   # eig(A - LC)
 ```
 
-**3. Additional Controllers**
-```{python}
-#| output: false
+**Pole Placement:**
+```python
 class PolePlacementResult(TypedDict):
     """Pole placement (eigenvalue assignment) result.
     
@@ -580,12 +721,15 @@ class PolePlacementResult(TypedDict):
     desired_poles: np.ndarray        # Desired eigenvalues
     achieved_poles: np.ndarray       # Actual eig(A - BK)
     is_controllable: bool            # Arbitrary placement possible
+```
 
+**Luenberger Observer:**
+```python
 class LuenbergerObserverResult(TypedDict):
     """Luenberger observer (deterministic estimator) result.
     
-    Observer: x̂˙ = Ax̂ + Bu + L(y - Cx̂)
-    Error dynamics: e˙ = (A - LC)e
+    Observer: x̂̇ = Ax̂ + Bu + L(y - Cx̂)
+    Error dynamics: ė = (A - LC)e
     """
     gain: GainMatrix                 # Observer gain L (nx, ny)
     desired_poles: np.ndarray        # Desired observer poles
@@ -593,61 +737,47 @@ class LuenbergerObserverResult(TypedDict):
     is_observable: bool              # Arbitrary placement possible
 ```
 
-**Usage Examples:**
+**Usage example:**
 ```{python}
-#| output: false
-# Stability analysis
-stability: StabilityInfo = analyze_stability(A, system_type='continuous')
+#| label: ex-control-results
+#| eval: false
+
+# Stability analysis (TypedDict provides structure)
+stability: StabilityInfo = system.control.analyze_stability(A, system_type='continuous')
 if stability['is_stable']:
     print(f"Stable with spectral radius {stability['spectral_radius']:.3f}")
 
-# LQR design
+# LQR design (clear result structure)
 lqr: LQRResult = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 K = lqr['gain']
-closed_loop_A = A - B @ K
+closed_loop_eigs = lqr['closed_loop_eigenvalues']
 
-# Kalman filter design
+# Kalman filter (all fields documented)
 kalman: KalmanFilterResult = system.control.design_kalman(
     A, C, Q_process, R_measurement, system_type='discrete'
 )
 L = kalman['gain']
 
-# LQG controller (combined)
+# LQG controller (separation principle results)
 lqg: LQGResult = system.control.design_lqg(
     A, B, C, Q, R, Q_process, R_measurement, system_type='discrete'
 )
 K = lqg['control_gain']
 L = lqg['estimator_gain']
-
-# Controllability check
-ctrl: ControllabilityInfo = analyze_controllability(A, B)
-if ctrl['is_controllable']:
-    print(f"System is controllable with rank {ctrl['rank']}")
 ```
 
-**Key Design:**
+## Structural Types {#sec-structural-types}
 
-- **TypedDict results** - Structured, type-safe returns
-- **Mathematical clarity** - Names match control theory
-- **Complete information** - All relevant analysis data
-- **Separation principle** - LQG designed independently
-- **Stability guarantees** - Eigenvalues included
-- **IDE support** - Autocomplete for all fields
+### protocols.py: Abstract Interfaces {#sec-protocolspy}
 
----
-
-### Structural Types {#sec-structural-types}
-
-#### protocols.py {#sec-protocolspy}
 **File:** `protocols.py`
 
-**Purpose:** Abstract interfaces via Protocol
+The `protocols` module defines abstract interfaces via Protocol (structural typing).
 
-**Categories:**
+**Key categories:**
 
-**1. System Protocols**
-```{python}
-#| output: false
+#### System Protocols
+```python
 class DynamicalSystemProtocol(Protocol):
     """Abstract interface for dynamical systems."""
     @property
@@ -670,12 +800,6 @@ class DiscreteSystemProtocol(DynamicalSystemProtocol, Protocol):
     @property
     def dt(self) -> float: ...
     def step(self, x: StateVector, u: ControlVector) -> StateVector: ...
-    def simulate(
-        self,
-        x0: StateVector,
-        u_seq: ControlSequence,
-        steps: int
-    ) -> StateTrajectory: ...
 
 class StochasticSystemProtocol(Protocol):
     """Stochastic system interface."""
@@ -685,18 +809,8 @@ class StochasticSystemProtocol(Protocol):
     def diffusion(self, x: StateVector, u: ControlVector) -> DiffusionMatrix: ...
 ```
 
-**2. Observer Protocols**
-```{python}
-#| output: false
-class ObserverProtocol(Protocol):
-    """State observer interface."""
-    def observe(self, x: StateVector) -> OutputVector: ...
-    def estimate(self, y: OutputVector, u: ControlVector) -> StateVector: ...
-```
-
-**3. Controller Protocols**
-```{python}
-#| output: false
+#### Controller Protocols
+```python
 class ControllerProtocol(Protocol):
     """Controller interface."""
     def compute_control(self, x: StateVector) -> ControlVector: ...
@@ -707,25 +821,46 @@ class FeedbackControllerProtocol(ControllerProtocol, Protocol):
     def K(self) -> GainMatrix: ...
 ```
 
-**Key Design:**
+#### Observer Protocols
+```python
+class ObserverProtocol(Protocol):
+    """State observer interface."""
+    def observe(self, x: StateVector) -> OutputVector: ...
+    def estimate(self, y: OutputVector, u: ControlVector) -> StateVector: ...
+```
 
-- **Structural subtyping** - Duck typing with type safety
-- **Interface documentation** - Clear contracts
-- **Composition** - Protocols compose naturally
-- **No inheritance** - Structural not nominal
+**Why Protocol:**
+```{python}
+#| label: ex-protocol-benefits
+#| eval: false
 
----
+# No inheritance needed - structural typing
+class MyCustomSystem:
+    @property
+    def nx(self) -> int:
+        return 2
+    
+    @property  
+    def nu(self) -> int:
+        return 1
+    
+    def __call__(self, x: StateVector, u: ControlVector) -> StateVector:
+        return x + u
 
-#### utilities.py {#sec-utilitiespy}
+# Satisfies protocol structurally (duck typing with type safety)
+system: DynamicalSystemProtocol = MyCustomSystem()  # ✓ Type checker approves!
+```
+
+### utilities.py: Helper Types {#sec-utilitiespy}
+
 **File:** `utilities.py`
 
-**Purpose:** Helper types and utilities
+The `utilities` module provides helper types, type guards, and performance tracking.
 
-**Categories:**
+**Key categories:**
 
-**1. Type Guards**
-```{python}
-#| output: false
+#### Type Guards
+```python
 def is_numpy(arr: ArrayLike) -> bool:
     """Check if array is NumPy."""
     return isinstance(arr, np.ndarray)
@@ -739,9 +874,8 @@ def is_jax(arr: ArrayLike) -> bool:
     return hasattr(arr, '__module__') and 'jax' in arr.__module__
 ```
 
-**2. Shape Utilities**
-```{python}
-#| output: false
+#### Shape Utilities
+```python
 def is_batched(arr: ArrayLike, expected_dims: int = 1) -> bool:
     """Check if array is batched."""
     return arr.ndim > expected_dims
@@ -755,9 +889,8 @@ def get_state_dim(x: StateVector) -> int:
     return x.shape[-1] if x.ndim > 0 else 1
 ```
 
-**3. Performance Types**
-```{python}
-#| output: false
+#### Performance Types
+```python
 class ExecutionStats(TypedDict):
     """Performance statistics."""
     count: int              # Number of calls
@@ -767,9 +900,8 @@ class ExecutionStats(TypedDict):
     max_time: float         # Slowest call
 ```
 
-**4. Validation Types**
-```{python}
-#| output: false
+#### Validation Types
+```python
 class ValidationResult(TypedDict):
     """Validation result."""
     valid: bool
@@ -778,67 +910,86 @@ class ValidationResult(TypedDict):
     info: Dict[str, Any]
 ```
 
-**Key Design:**
+## Design Principles {#sec-design-principles}
 
-- **Runtime utilities** - Complement static types
-- **Type guards** - Enable type narrowing
-- **Performance tracking** - Structured metrics
-- **Validation** - Structured error reporting
+### 1. Semantic Over Structural {#sec-principle-semantic}
 
----
-
-## Type System Design Principles {#sec-type-system-design-principles}
-
-### 1. Semantic Over Structural {#sec-1-semantic-over-structural}
+**Principle:** Names convey mathematical meaning, not implementation details.
 ```{python}
-#| output: false
-# Bad: Structural (what it is)
-def compute(arr1: np.ndarray, arr2: np.ndarray) -> np.ndarray:
-    pass
+#| label: ex-semantic-principle
+#| eval: false
 
-# Good: Semantic (what it means)
+# ✗ Structural (what it is)
+def compute(arr1: np.ndarray, arr2: np.ndarray) -> np.ndarray:
+    return arr1 @ arr2
+
+# ✓ Semantic (what it means)
 def compute_control(x: StateVector, K: GainMatrix) -> ControlVector:
-    pass
+    """u = -Kx"""
+    return -K @ x
 ```
 
-### 2. Backend Agnosticism {#sec-2-backend-agnosticism}
+### 2. Backend Agnosticism {#sec-principle-backend}
+
+**Principle:** Same types work with NumPy/PyTorch/JAX.
 ```{python}
-#| eval: false
+#| label: ex-backend-principle
+
 # Same function signature works for all backends
 def dynamics(x: StateVector, u: ControlVector) -> StateVector:
     # Works with NumPy, PyTorch, JAX
-    return f(x, u)
+    return x + u  # Backend detected from input
+
+# Works with all backends
+dx_np = dynamics(np.array([1.0, 0.0]), np.array([0.0]))
+dx_torch = dynamics(torch.tensor([1.0, 0.0]), torch.tensor([0.0]))
+dx_jax = dynamics(jnp.array([1.0, 0.0]), jnp.array([0.0]))
+
+print("✓ Backend-agnostic types")
 ```
 
-### 3. TypedDict for Structured Results {#sec-3-typeddict-for-structured-results}
+### 3. TypedDict for Structured Results {#sec-principle-typeddict}
+
+**Principle:** Never return plain dictionaries—use TypedDict for structure and safety.
 ```{python}
+#| label: ex-typeddict-principle
 #| eval: false
-# Bad: Plain dict (no type safety)
+
+# ✗ Plain dict (no IDE support, no type checking)
 def integrate() -> dict:
     return {'t': t, 'x': x, 'success': True}
 
-# Good: TypedDict (type-safe, documented)
+# ✓ TypedDict (type-safe, self-documenting)
 def integrate() -> IntegrationResult:
-    return {'t': t, 'x': x, 'success': True, ...}
+    return {
+        't': t,              # TimePoints - IDE knows this
+        'x': x,              # StateTrajectory - IDE knows this
+        'success': True,     # bool - IDE knows this
+        'nfev': 100,        # int - Required field
+        'integration_time': 0.5,
+        'solver': 'RK45'
+    }
 ```
 
-### 4. Optional Fields with total=False {#sec-4-optional-fields-with-totalfalse}
-```{python}
-#| eval: false
+### 4. Optional Fields with total=False {#sec-principle-optional}
+
+**Principle:** Use `total=False` for optional fields in TypedDict.
+```python
 class IntegrationResult(TypedDict, total=False):
-    # Required fields
+    # Required fields (always present)
     t: TimePoints
     x: StateTrajectory
     success: bool
     
-    # Optional fields (adaptive methods only)
-    njev: int  # May not be present
+    # Optional fields (may not be present)
+    njev: int  # Only adaptive methods
     sol: Any   # Dense output (optional)
 ```
 
-### 5. Polymorphic Types via Union {#sec-5-polymorphic-types-via-union}
-```{python}
-#| output: false
+### 5. Polymorphic Types via Union {#sec-principle-polymorphic}
+
+**Principle:** Use Union for polymorphic return types.
+```python
 LinearizationResult = Union[
     Tuple[StateMatrix, InputMatrix],           # Deterministic
     Tuple[StateMatrix, InputMatrix, DiffusionMatrix]  # Stochastic
@@ -851,27 +1002,38 @@ def analyze(result: LinearizationResult):
         G = result[2]  # Stochastic
 ```
 
-### 6. Protocol for Interfaces {#sec-6-protocol-for-interfaces}
+### 6. Protocol for Interfaces {#sec-principle-protocol}
+
+**Principle:** Define interfaces via Protocol (structural typing) not inheritance.
 ```{python}
-#| output: false
+#| label: ex-protocol-principle
+#| eval: false
+
 # No inheritance needed - structural typing
 class MySystem:
+    @property
+    def nx(self) -> int:
+        return 2
+    
     def __call__(self, x: StateVector, u: ControlVector) -> StateVector:
         return x + u
 
 # Satisfies DynamicalSystemProtocol structurally
-system: DynamicalSystemProtocol = MySystem()
+system: DynamicalSystemProtocol = MySystem()  # ✓ Type checker approves!
 ```
 
-## Usage Throughout the Framework {#sec-usage-throughout-the-framework}
+## Usage Throughout Framework {#sec-usage-throughout-framework}
 
-### In UI Framework {#sec-in-ui-framework}
-```{python}
-#| output: false
+### In UI Framework {#sec-usage-ui-framework}
+```python
 class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
-    def __call__(self, x: StateVector, u: Optional[ControlVector] = None) -> StateVector:
-        """Evaluate dynamics."""
-        return self._dynamics.evaluate(x, u, backend=self._default_backend)
+    def __call__(
+        self, 
+        x: StateVector, 
+        u: Optional[ControlVector] = None
+    ) -> StateVector:
+        """Evaluate dynamics (types guide implementation)."""
+        return self._dynamics.evaluate(x, u, backend=self.backend.default_backend)
     
     def linearize(
         self,
@@ -879,13 +1041,12 @@ class ContinuousSymbolicSystem(SymbolicSystemBase, ContinuousSystemBase):
         u_eq: EquilibriumControl,
         backend: Backend = "numpy"
     ) -> DeterministicLinearization:
-        """Compute linearization."""
+        """Compute linearization (return type documents structure)."""
         return self._linearization.linearize_continuous(x_eq, u_eq, backend)
 ```
 
-### In Delegation Layer {#sec-in-delegation-layer}
-```{python}
-#| output: false
+### In Delegation Layer {#sec-usage-delegation-layer}
+```python
 class DynamicsEvaluator:
     def evaluate(
         self,
@@ -893,12 +1054,12 @@ class DynamicsEvaluator:
         u: Optional[ControlVector],
         backend: Backend
     ) -> StateVector:
-        """Evaluate forward dynamics."""
+        """Evaluate forward dynamics (types ensure correctness)."""
         f_func: DynamicsFunction = self.code_gen.generate_dynamics(backend)
         return f_func(x, u)
     
     def get_stats(self) -> ExecutionStats:
-        """Get performance statistics."""
+        """Get performance statistics (TypedDict result)."""
         return {
             'count': self._call_count,
             'total_time': self._total_time,
@@ -908,9 +1069,8 @@ class DynamicsEvaluator:
         }
 ```
 
-### In Integration Framework {#sec-in-integration-framework}
-```{python}
-#| output: false
+### In Integration Framework {#sec-usage-integration-framework}
+```python
 class ScipyIntegrator(IntegratorBase):
     def integrate(
         self,
@@ -919,7 +1079,7 @@ class ScipyIntegrator(IntegratorBase):
         t_span: TimeSpan,
         t_eval: Optional[TimePoints] = None
     ) -> IntegrationResult:
-        """Integrate using scipy."""
+        """Integrate using scipy (TypedDict ensures complete result)."""
         # ... implementation ...
         
         result: IntegrationResult = {
@@ -933,24 +1093,56 @@ class ScipyIntegrator(IntegratorBase):
             'solver': self.name
         }
         
-        # Optional fields
+        # Optional fields (type system allows this)
         if hasattr(sol, 'njev'):
             result['njev'] = sol.njev
         
         return result
 ```
 
+## Type Statistics {#sec-type-statistics}
+
+### Type Distribution
+
+| Category | Count | Examples |
+|----------|-------|----------|
+| Vector Types | 15+ | StateVector, ControlVector, OutputVector |
+| Matrix Types | 30+ | StateMatrix, GainMatrix, CovarianceMatrix |
+| Function Types | 10+ | DynamicsFunction, ControlPolicy |
+| Backend Types | 20+ | Backend, Device, NoiseType |
+| Trajectory Types | 15+ | StateTrajectory, IntegrationResult |
+| Linearization Types | 15+ | DeterministicLinearization |
+| Symbolic Types | 10+ | SymbolicExpression, DynamicsExpression |
+| Protocol Types | 20+ | DynamicalSystemProtocol |
+| Utility Types | 20+ | ExecutionStats, ValidationResult |
+| TypedDict Results | 15+ | IntegrationResult, LQRResult, StabilityInfo |
+| **TOTAL** | **200+** | **Complete type system** |
+
 ## Key Strengths {#sec-key-strengths}
+
+::: {.callout-tip}
+## Type System Benefits
 
 1. **Semantic Clarity** - Names convey mathematical meaning
 2. **Type Safety** - Static checking prevents errors
-3. **IDE Support** - Autocomplete and documentation
-4. **Backend Agnostic** - Works with NumPy/PyTorch/JAX
+3. **IDE Support** - Autocomplete and inline documentation
+4. **Backend Agnostic** - Works with NumPy/PyTorch/JAX transparently
 5. **Structured Results** - TypedDict not plain dict
-6. **Self-Documenting** - Types encode constraints
+6. **Self-Documenting** - Types encode constraints and invariants
 7. **Composition** - Types compose naturally
 8. **Extensible** - Easy to add new types
-9. **Consistent** - Same conventions throughout
-10. **Testable** - Type-driven testing
+9. **Consistent** - Same conventions throughout framework
+10. **Testable** - Type-driven testing patterns
+:::
 
-This type system is the **foundation** that enables the clean, type-safe architecture of the entire ControlDESymulation framework!
+## Summary
+
+The type system is the **foundational layer** that enables clean, type-safe architecture throughout ControlDESymulation. By providing semantic types, structured results, and protocol-based interfaces, it supports:
+
+- **Type-driven development** - Types guide implementation
+- **Static verification** - Catch errors before runtime
+- **Multi-backend support** - Transparent backend switching
+- **Clear contracts** - Function signatures document expectations
+- **Maintainability** - Types make code self-documenting
+
+**The type system is infrastructure—users benefit from it without needing to understand it.** This documentation is provided for framework developers and advanced users who need to understand the internal type architecture.
