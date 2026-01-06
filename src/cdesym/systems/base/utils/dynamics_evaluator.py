@@ -320,21 +320,26 @@ class DynamicsEvaluator:
         start_time = time.time()
 
         # CRITICAL FIX: Convert inputs to torch tensors if needed
-        # This handles cases where control functions return numpy arrays or None
         import torch
         import numpy as np
         
-        # Convert x if it's a numpy array
+        # Convert x if it's a numpy array - PRESERVE DTYPE
         if isinstance(x, np.ndarray):
-            x = torch.from_numpy(x).float()
+            # Preserve dtype: float64 → float64, float32 → float32
+            if x.dtype == np.float64:
+                x = torch.from_numpy(x).double()  # Use .double() for float64
+            else:
+                x = torch.from_numpy(x).float()   # Use .float() for float32
         
         # Convert u if it's a numpy array, or create empty tensor if None
         if u is None:
-            # Autonomous system: create empty tensor
+            # Autonomous system: create empty tensor matching x's dtype and device
             u = torch.tensor([], dtype=x.dtype, device=x.device)
         elif isinstance(u, np.ndarray):
             # Convert numpy array to torch tensor with same dtype and device as x
-            u = torch.from_numpy(u).to(dtype=x.dtype, device=x.device)
+            u_torch = torch.from_numpy(u)
+            # Match x's dtype and device
+            u = u_torch.to(dtype=x.dtype, device=x.device)
 
         # Input validation
         if len(x.shape) == 0:
@@ -444,14 +449,14 @@ class DynamicsEvaluator:
         # CRITICAL FIX: Convert inputs to jax arrays if needed
         # This handles cases where control functions return numpy arrays or None
         if isinstance(x, np.ndarray):
-            x = jnp.array(x)
+            x = jnp.array(x)  # JAX preserves dtype automatically
         
         # Convert u if it's a numpy array, or create empty array if None
         if u is None:
-            # Autonomous system: create empty array
-            u = jnp.array([])
+            # Autonomous system: create empty array with same dtype as x
+            u = jnp.array([], dtype=x.dtype)
         elif isinstance(u, np.ndarray):
-            # Convert numpy array to jax array
+            # Convert numpy array to jax array (preserves dtype)
             u = jnp.array(u)
 
         # Input validation
