@@ -610,7 +610,7 @@ print(f"Noise dimension: {system.nw}")
 x0 = np.array([1.0])
 result = system.integrate(
     x0, u=None, t_span=(0, 10), 
-    method='euler',  # Euler-Maruyama for SDEs
+    method='EM',  # Euler-Maruyama for SDEs
     dt=0.01
 )
 print(f"✓ Stochastic system integration")
@@ -783,7 +783,7 @@ print(f"System order: {system.order}")
 
 # Backend
 print(f"Default backend: {system.backend.default_backend}")
-print(f"Device: {system.backend.default_device}")
+print(f"Device: {system.backend.preferred_device}")
 ```
 
 ### Discrete-Only Properties {#sec-discrete-properties}
@@ -991,7 +991,7 @@ print(f"Drift: {f}, Diffusion: {g}")
 x0 = np.array([0.0])
 result = brownian.integrate(
     x0, u=None, t_span=(0, 10),
-    method='euler', dt=0.01
+    method='EM', dt=0.01
 )
 print(f"SDE integration complete: {result['success']}")
 ```
