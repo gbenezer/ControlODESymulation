@@ -1,27 +1,76 @@
 ---
 title: "Control Framework Architecture"
-subtitle: "ControlDESymulation Architecture Documentation"
+subtitle: "Classical Control Theory for Analysis and Synthesis"
 author: "Gil Benezer"
 date: today
 format:
   html:
     toc: true
+    toc-depth: 3
     code-fold: show
     code-tools: true
     theme: cosmo
 execute:
-  eval: true      # Execute all code blocks
-  cache: true     # Cache results
-  warning: false  # Suppress warnings
+  eval: true
+  cache: true
+  warning: false
 ---
 
 ## Overview {#sec-overview}
 
 The **Control Framework** provides classical control theory algorithms for analysis and synthesis of dynamical systems. It consists of **3 core modules** organized into a clean **2-layer architecture**: pure stateless functions and thin composition wrappers.
 
+::: {.callout-note}
+## Framework Components
+
+**Pure Function Layer:** `classical_control_functions.py` - Stateless control algorithms  
+**Composition Layer:** `control_synthesis.py`, `system_analysis.py` - System integration  
+**Type Layer:** `control_classical.py` - TypedDict result definitions
+:::
+
+::: {.callout-important}
+## User Interaction Model
+
+**Users interact with the control framework through system properties:**
+```python
+# ✓ CORRECT: Access via system properties
+system = Pendulum()
+A, B = system.linearize(x_eq, u_eq)
+
+# Control design
+lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+K = lqr['gain']
+
+# System analysis
+stability = system.analysis.stability(A, system_type='continuous')
+controllability = system.analysis.controllability(A, B)
+
+# ✗ INCORRECT: Direct function imports (not recommended)
+from cdesym.control.classical_control_functions import design_lqr
+lqr = design_lqr(A, B, Q, R, system_type='continuous')
+```
+
+The system properties (`system.control`, `system.analysis`) automatically handle backend management and provide a consistent interface. Direct function calls are possible but bypass the system's backend configuration.
+:::
+```{python}
+#| label: setup-imports
+#| echo: false
+#| output: false
+
+# Global setup for all code examples
+import numpy as np
+from typing import Optional, Tuple, Dict, List, Union
+import warnings
+
+warnings.filterwarnings('ignore', category=UserWarning)
+
+# Import for examples
+from cdesym import Pendulum
+```
+
 ## Architecture Philosophy {#sec-architecture-philosophy}
 
-**Functional Design with Composition** - The control framework enables:
+**Functional Design with Composition** - The control framework achieves:
 
 1. **Pure Functions** - Stateless algorithms like scipy (design_lqr, analyze_stability)
 2. **Thin Wrappers** - Minimal composition layer for system integration
@@ -29,37 +78,18 @@ The **Control Framework** provides classical control theory algorithms for analy
 4. **Backend Consistency** - Automatic backend handling from parent system
 5. **Separation of Concerns** - Analysis vs synthesis clearly separated
 6. **Mathematical Rigor** - Implements classical control theory correctly
-7. **System Integration** - Clean `system.control` and `system.analysis` APIs
+7. **Clean Integration** - Natural `system.control` and `system.analysis` APIs
 
-```{python}
-#| output: false
-# Pure functions - stateless, reusable
-
-```{python}
-#| label: setup-imports
-#| output: false
-#| echo: false
-
-# Setup for all code examples in this document
-import numpy as np
-from typing import Optional, Tuple, Dict, List, Union
-```
-
-result = design_lqr(A, B, Q, R, system_type='continuous')
-
-# Composition wrappers - integrate with systems
-result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
-```
+**Design principle:** Control algorithms are **pure functions** that work like scipy—take matrices in, return structured results. Thin wrapper classes provide system integration without adding business logic.
 
 ## Framework Layers {#sec-framework-layers}
-
 ```
 ┌────────────────────────────────────────────────────────────┐
 │                   APPLICATION LAYER                        │
 │              (ContinuousSystemBase, DiscreteSystemBase)    │
 │                                                            │
-│  system.control   ──────► ControlSynthesis                 │
-│  system.analysis  ──────► SystemAnalysis                   │
+│  system.control   ─────► ControlSynthesis                 │
+│  system.analysis  ─────► SystemAnalysis                   │
 └──────────────────┬─────────────────────────────────────────┘
                    │ delegates to
                    ↓
@@ -86,29 +116,56 @@ result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 └────────────────────────────────────────────────────────────┘
 ```
 
-## Module Breakdown {#sec-module-breakdown}
+## Pure Function Layer {#sec-pure-function-layer}
 
-### Pure Function Layer {#sec-pure-function-layer}
+### classical_control_functions.py: Stateless Algorithms {#sec-classical-control-functions}
 
-#### classical_control_functions.py {#sec-classicalcontrolfunctionspy}
 **File:** `classical_control_functions.py`
 
-**Purpose:** Stateless algorithms for control design and system analysis
+The pure function layer provides stateless control algorithms that work like scipy—take matrices in, return structured TypedDict results.
 
-**Design Philosophy:**
+**Design philosophy:**
 
-- Pure functions (no side effects, no state)
-- Works like scipy - takes matrices in, returns TypedDict
-- Backend conversion handled internally
-- Mathematical correctness guaranteed
-- Comprehensive error checking
+- **Pure functions** - No side effects, no state
+- **Backend agnostic** - Internal conversion to/from NumPy for scipy
+- **Mathematical correctness** - Rigorous implementation of control theory
+- **Comprehensive validation** - Dimension checks, positive-definiteness
+- **Clear error handling** - Actionable exceptions for infeasible problems
 
-**Categories:**
+**Key categories:**
 
-**1. Control Design Functions**
+### Control Design Functions {#sec-control-design}
 
-```{python}
-#| output: false
+#### LQR Controller Design
+
+**Mathematical background:**
+
+**Continuous-time LQR:**
+
+$$J = \int_0^\infty (x'Qx + u'Ru + 2x'Nu) dt$$
+
+**Algebraic Riccati Equation (ARE):**
+
+$$A'P + PA - PBR^{-1}B'P + Q - N'R^{-1}N = 0$$
+
+**Optimal gain:**
+
+$$K = R^{-1}(B'P + N')$$
+
+**Discrete-time LQR:**
+
+$$J = \sum_{k=0}^\infty (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])$$
+
+**Discrete ARE:**
+
+$$P = A'PA - (A'PB + N)(R + B'PB)^{-1}(B'PA + N') + Q$$
+
+**Optimal gain:**
+
+$$K = (R + B'PB)^{-1}(B'PA + N')$$
+
+**Function signature:**
+```python
 def design_lqr(
     A: StateMatrix,
     B: InputMatrix,
@@ -123,53 +180,90 @@ def design_lqr(
     
     Unified interface for continuous and discrete LQR.
     
-    Mathematical Background:
-        Continuous: Minimize J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
-        Discrete:   Minimize J = Σₖ₌₀^∞ (x'Qx + u'Ru + 2x'Nu)
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    B : InputMatrix
+        Input matrix (nx, nu)
+    Q : StateMatrix
+        State cost matrix (nx, nx), Q ≥ 0, (Q,A) detectable
+    R : InputMatrix
+        Control cost matrix (nu, nu), R > 0
+    N : InputMatrix, optional
+        Cross-coupling matrix (nx, nu)
+    system_type : str
+        'continuous' or 'discrete'
+    backend : Backend
+        Computational backend
     
-    Solution via Algebraic Riccati Equation (ARE):
-        Continuous: A'P + PA - PBR⁻¹B'P + Q = 0
-        Discrete:   P = A'PA - A'PB(R + B'PB)⁻¹B'PA + Q
+    Returns
+    -------
+    LQRResult
+        gain : Optimal feedback gain K (nu, nx)
+        cost_to_go : Riccati solution P (nx, nx)
+        closed_loop_eigenvalues : eig(A - BK)
+        stability_margin : Stability robustness measure
     
-    Optimal Gain:
-        Continuous: K = R⁻¹B'P
-        Discrete:   K = (R + B'PB)⁻¹B'PA
-    
-    Args:
-        A: State matrix (nx, nx)
-        B: Input matrix (nx, nu)
-        Q: State cost matrix (nx, nx), Q ≥ 0, (Q,A) detectable
-        R: Control cost matrix (nu, nu), R > 0
-        N: Cross-coupling matrix (nx, nu), default None
-        system_type: 'continuous' or 'discrete'
-        backend: Computational backend
-    
-    Returns:
-        LQRResult with:
-            - gain: Optimal feedback gain K (nu, nx)
-            - cost_to_go: Riccati solution P (nx, nx)
-            - closed_loop_eigenvalues: eig(A - BK)
-            - stability_margin: Stability robustness measure
-    
-    Raises:
-        ValueError: If Q, R dimensions incompatible
-        LinAlgError: If Riccati equation has no stabilizing solution
-    
-    Examples:
-        >>> A = np.array([[0, 1], [-2, -3]])
-        >>> B = np.array([[0], [1]])
-        >>> Q = np.diag([10, 1])
-        >>> R = np.array([[0.1]])
-        >>> 
-        >>> result = design_lqr(A, B, Q, R, system_type='continuous')
-        >>> K = result['gain']
-        >>> A_cl = A - B @ K
-        >>> print(f"Closed-loop eigenvalues: {result['closed_loop_eigenvalues']}")
+    Raises
+    ------
+    ValueError
+        If Q, R dimensions incompatible or conditions violated
+    LinAlgError
+        If Riccati equation has no stabilizing solution
     """
 ```
 
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-lqr-design
+
+system = Pendulum()
+
+# Linearize at upright equilibrium
+x_eq = np.array([np.pi, 0.0])
+u_eq = np.array([0.0])
+A, B = system.linearize(x_eq, u_eq)
+
+# Design LQR controller
+Q = np.diag([10, 1])   # Penalize angle more than velocity
+R = np.array([[0.1]])   # Small control cost
+
+lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
+
+# Extract results
+K = lqr['gain']
+P = lqr['cost_to_go']
+eigs = lqr['closed_loop_eigenvalues']
+
+print(f"LQR gain shape: {K.shape}")
+print(f"Closed-loop stable: {np.all(np.real(eigs) < 0)}")
+```
+
+#### Kalman Filter Design
+
+**Mathematical background:**
+
+**System model:**
+
+$$x[k+1] = Ax[k] + Bu[k] + w[k], \quad w \sim \mathcal{N}(0, Q)$$
+
+$$y[k] = Cx[k] + v[k], \quad v \sim \mathcal{N}(0, R)$$
+
+**Estimator dynamics:**
+
+$$\hat{x}[k+1] = A\hat{x}[k] + Bu[k] + L(y[k] - C\hat{x}[k])$$
+
+**Optimal gain:**
+
+$$L = APC'(CPC' + R)^{-1}$$
+
+**Error covariance Riccati equation:**
+
+$$P = A(P - PC'(CPC' + R)^{-1}CP)A' + Q$$
+
+**Function signature:**
+```python
 def design_kalman_filter(
     A: StateMatrix,
     C: OutputMatrix,
@@ -181,48 +275,79 @@ def design_kalman_filter(
     """
     Design Kalman filter for optimal state estimation.
     
-    System Model:
-        x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q)
-        y[k] = Cx[k] + v[k],            v ~ N(0, R)
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    C : OutputMatrix
+        Output matrix (ny, nx)
+    Q : StateMatrix
+        Process noise covariance (nx, nx), Q ≥ 0
+    R : OutputMatrix
+        Measurement noise covariance (ny, ny), R > 0
+    system_type : str
+        'continuous' or 'discrete'
+    backend : Backend
+        Computational backend
     
-    Estimator Dynamics:
-        x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
-    
-    Optimal Gain:
-        L = APC'(CPC' + R)⁻¹
-    
-    Riccati Equation:
-        P = A(P - PC'(CPC'+R)⁻¹CP)A' + Q
-    
-    Args:
-        A: State matrix (nx, nx)
-        C: Output matrix (ny, nx)
-        Q: Process noise covariance (nx, nx), Q ≥ 0
-        R: Measurement noise covariance (ny, ny), R > 0
-        system_type: 'continuous' or 'discrete'
-        backend: Computational backend
-    
-    Returns:
-        KalmanFilterResult with:
-            - gain: Kalman gain L (nx, ny)
-            - error_covariance: Steady-state P (nx, nx)
-            - innovation_covariance: S = CPC' + R (ny, ny)
-            - observer_eigenvalues: eig(A - LC)
-    
-    Examples:
-        >>> A = np.array([[1, 0.1], [0, 0.9]])
-        >>> C = np.array([[1, 0]])
-        >>> Q_proc = 0.01 * np.eye(2)
-        >>> R_meas = np.array([[0.1]])
-        >>> 
-        >>> kalman = design_kalman_filter(A, C, Q_proc, R_meas)
-        >>> L = kalman['gain']
-        >>> print(f"Observer poles: {kalman['observer_eigenvalues']}")
+    Returns
+    -------
+    KalmanFilterResult
+        gain : Kalman gain L (nx, ny)
+        error_covariance : Steady-state P (nx, nx)
+        innovation_covariance : S = CPC' + R (ny, ny)
+        observer_eigenvalues : eig(A - LC)
     """
 ```
 
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-kalman-design
+
+# Define measurement model (measure angle only)
+C = np.array([[1, 0]])
+
+# Define noise covariances
+Q_process = 0.01 * np.eye(2)      # Process noise
+R_measurement = np.array([[0.1]])  # Measurement noise
+
+# Design Kalman filter
+kalman = system.control.design_kalman(
+    A, C, Q_process, R_measurement,
+    system_type='continuous'
+)
+
+# Extract results
+L = kalman['gain']
+P = kalman['error_covariance']
+observer_eigs = kalman['observer_eigenvalues']
+
+print(f"Kalman gain shape: {L.shape}")
+print(f"Observer stable: {np.all(np.real(observer_eigs) < 0)}")
+```
+
+#### LQG Controller Design
+
+**Mathematical background:**
+
+**Separation principle:**
+
+1. Design LQR assuming full state feedback: $u = -Kx$
+2. Design Kalman filter for state estimation
+3. Combine via certainty equivalence: $u = -K\hat{x}$
+
+**Closed-loop system:**
+
+$$\begin{bmatrix} x[k+1] \\ e[k+1] \end{bmatrix} = \begin{bmatrix} A - BK & BK \\ 0 & A - LC \end{bmatrix} \begin{bmatrix} x[k] \\ e[k] \end{bmatrix} + \begin{bmatrix} w[k] \\ w[k] - Lv[k] \end{bmatrix}$$
+
+**Eigenvalues:**
+
+- Controller poles: $\text{eig}(A - BK)$
+- Observer poles: $\text{eig}(A - LC)$
+- Combined: $\text{eig}(A - BK) \cup \text{eig}(A - LC)$
+
+**Function signature:**
+```python
 def design_lqg(
     A: StateMatrix,
     B: InputMatrix,
@@ -241,61 +366,85 @@ def design_lqg(
     Combines LQR (optimal control) with Kalman filter (optimal estimation)
     via the separation principle.
     
-    Controller: u[k] = -Kx̂[k]
-    Estimator: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    B : InputMatrix
+        Input matrix (nx, nu)
+    C : OutputMatrix
+        Output matrix (ny, nx)
+    Q_state : StateMatrix
+        LQR state cost (nx, nx)
+    R_control : InputMatrix
+        LQR control cost (nu, nu)
+    Q_process : StateMatrix
+        Process noise covariance (nx, nx)
+    R_measurement : OutputMatrix
+        Measurement noise covariance (ny, ny)
+    N : InputMatrix, optional
+        Cross-coupling (nx, nu)
+    system_type : str
+        'continuous' or 'discrete'
+    backend : Backend
+        Computational backend
     
-    Separation Principle:
-        - Design LQR assuming full state available
-        - Design Kalman filter independently
-        - Combine: optimal for linear Gaussian systems
-        - Closed-loop poles = controller poles ∪ observer poles
-    
-    Args:
-        A: State matrix (nx, nx)
-        B: Input matrix (nx, nu)
-        C: Output matrix (ny, nx)
-        Q_state: LQR state cost (nx, nx)
-        R_control: LQR control cost (nu, nu)
-        Q_process: Process noise covariance (nx, nx)
-        R_measurement: Measurement noise covariance (ny, ny)
-        N: Cross-coupling (nx, nu), optional
-        system_type: 'continuous' or 'discrete'
-        backend: Computational backend
-    
-    Returns:
-        LQGResult with:
-            - control_gain: LQR gain K (nu, nx)
-            - estimator_gain: Kalman gain L (nx, ny)
-            - control_cost_to_go: Controller Riccati P_c
-            - estimation_error_covariance: Estimator Riccati P_e
-            - separation_verified: bool
-            - closed_loop_stable: bool
-            - controller_eigenvalues: eig(A - BK)
-            - estimator_eigenvalues: eig(A - LC)
-    
-    Examples:
-        >>> A = np.array([[1, 0.1], [0, 0.9]])
-        >>> B = np.array([[0], [0.1]])
-        >>> C = np.array([[1, 0]])
-        >>> 
-        >>> lqg = design_lqg(
-        ...     A, B, C,
-        ...     Q_state=np.diag([10, 1]),
-        ...     R_control=np.array([[0.1]]),
-        ...     Q_process=0.01*np.eye(2),
-        ...     R_measurement=np.array([[0.1]])
-        ... )
-        >>> 
-        >>> K = lqg['control_gain']
-        >>> L = lqg['estimator_gain']
-        >>> print(f"LQG stable: {lqg['closed_loop_stable']}")
+    Returns
+    -------
+    LQGResult
+        control_gain : LQR gain K (nu, nx)
+        estimator_gain : Kalman gain L (nx, ny)
+        control_cost_to_go : Controller Riccati P_c
+        estimation_error_covariance : Estimator Riccati P_e
+        separation_verified : bool
+        closed_loop_stable : bool
+        controller_eigenvalues : eig(A - BK)
+        estimator_eigenvalues : eig(A - LC)
     """
 ```
 
-**2. System Analysis Functions**
-
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-lqg-design
+
+# Design LQG controller
+lqg = system.control.design_lqg(
+    A, B, C,
+    Q_state=np.diag([10, 1]),
+    R_control=np.array([[0.1]]),
+    Q_process=0.01*np.eye(2),
+    R_measurement=np.array([[0.1]]),
+    system_type='continuous'
+)
+
+# Extract both gains
+K_control = lqg['control_gain']
+L_estimator = lqg['estimator_gain']
+
+print(f"LQG stable: {lqg['closed_loop_stable']}")
+print(f"Separation verified: {lqg['separation_verified']}")
+print(f"Controller poles: {lqg['controller_eigenvalues']}")
+print(f"Observer poles: {lqg['estimator_eigenvalues']}")
+```
+
+### System Analysis Functions {#sec-system-analysis}
+
+#### Stability Analysis
+
+**Mathematical background:**
+
+**Continuous-time stability criteria:**
+- **Asymptotically stable:** All $\text{Re}(\lambda) < 0$ (left half-plane)
+- **Marginally stable:** $\max \text{Re}(\lambda) \approx 0$
+- **Unstable:** Any $\text{Re}(\lambda) > 0$
+
+**Discrete-time stability criteria:**
+- **Asymptotically stable:** All $|\lambda| < 1$ (inside unit circle)
+- **Marginally stable:** $\max |\lambda| \approx 1$
+- **Unstable:** Any $|\lambda| > 1$
+
+**Function signature:**
+```python
 def analyze_stability(
     A: StateMatrix,
     system_type: str = "continuous",
@@ -304,41 +453,61 @@ def analyze_stability(
     """
     Analyze system stability via eigenvalue placement.
     
-    Stability Criteria:
-        Continuous: All Re(λ) < 0 (left half-plane)
-        Discrete:   All |λ| < 1 (inside unit circle)
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    system_type : str
+        'continuous' or 'discrete'
+    backend : Backend
+        Computational backend
     
-    Marginal Stability:
-        Continuous: max Re(λ) ≈ 0
-        Discrete:   max |λ| ≈ 1
-    
-    Args:
-        A: State matrix (nx, nx)
-        system_type: 'continuous' or 'discrete'
-        backend: Computational backend
-    
-    Returns:
-        StabilityInfo with:
-            - eigenvalues: Complex eigenvalues of A
-            - magnitudes: |λ| for each eigenvalue
-            - max_magnitude: max |λ| (spectral radius)
-            - spectral_radius: Same as max_magnitude
-            - is_stable: Asymptotic stability
-            - is_marginally_stable: On boundary
-            - is_unstable: At least one unstable mode
-    
-    Examples:
-        >>> A = np.array([[0, 1], [-2, -3]])
-        >>> stability = analyze_stability(A, system_type='continuous')
-        >>> 
-        >>> if stability['is_stable']:
-        ...     print(f"Stable! Eigenvalues: {stability['eigenvalues']}")
-        ...     print(f"Spectral radius: {stability['spectral_radius']:.3f}")
+    Returns
+    -------
+    StabilityInfo
+        eigenvalues : Complex eigenvalues of A
+        magnitudes : |λ| for each eigenvalue
+        max_magnitude : max |λ| (spectral radius)
+        spectral_radius : Same as max_magnitude
+        is_stable : Asymptotic stability
+        is_marginally_stable : On boundary
+        is_unstable : At least one unstable mode
     """
 ```
 
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-stability-analysis
+
+# Analyze open-loop stability
+stability_ol = system.analysis.stability(A, system_type='continuous')
+
+print(f"Open-loop stable: {stability_ol['is_stable']}")
+print(f"Spectral radius: {stability_ol['spectral_radius']:.3f}")
+print(f"Eigenvalues: {stability_ol['eigenvalues']}")
+
+# Analyze closed-loop stability (with LQR)
+A_cl = A - B @ K
+stability_cl = system.analysis.stability(A_cl, system_type='continuous')
+
+print(f"\nClosed-loop stable: {stability_cl['is_stable']}")
+print(f"Spectral radius: {stability_cl['spectral_radius']:.3f}")
+```
+
+#### Controllability Analysis
+
+**Mathematical background:**
+
+**Controllability test:**
+
+$$\text{rank}(\mathcal{C}) = n_x \quad \text{where} \quad \mathcal{C} = [B, AB, A^2B, \ldots, A^{n_x-1}B]$$
+
+**Interpretation:**
+- **Controllable:** All states can be driven to any value in finite time
+- **Uncontrollable:** Some states cannot be influenced by control
+
+**Function signature:**
+```python
 def analyze_controllability(
     A: StateMatrix,
     B: InputMatrix,
@@ -347,37 +516,57 @@ def analyze_controllability(
     """
     Test system controllability via rank condition.
     
-    Controllability Test:
-        rank(C) = nx where C = [B, AB, A²B, ..., Aⁿ⁻¹B]
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    B : InputMatrix
+        Input matrix (nx, nu)
+    backend : Backend
+        Computational backend
     
-    Interpretation:
-        - Controllable: All states can be driven to any value
-        - Uncontrollable: Some states cannot be influenced by control
-    
-    Args:
-        A: State matrix (nx, nx)
-        B: Input matrix (nx, nu)
-        backend: Computational backend
-    
-    Returns:
-        ControllabilityInfo with:
-            - controllability_matrix: C = [B AB ... Aⁿ⁻¹B] (nx, nx*nu)
-            - rank: Rank of controllability matrix
-            - is_controllable: rank == nx
-            - uncontrollable_modes: Eigenvalues of uncontrollable subsystem
-    
-    Examples:
-        >>> A = np.array([[0, 1], [-2, -3]])
-        >>> B = np.array([[0], [1]])
-        >>> 
-        >>> ctrl = analyze_controllability(A, B)
-        >>> print(f"Controllable: {ctrl['is_controllable']}")
-        >>> print(f"Rank: {ctrl['rank']} / {A.shape[0]}")
+    Returns
+    -------
+    ControllabilityInfo
+        controllability_matrix : C = [B AB ... A^(n-1)B] (nx, nx*nu)
+        rank : Rank of controllability matrix
+        is_controllable : rank == nx
+        uncontrollable_modes : Eigenvalues of uncontrollable subsystem
     """
 ```
 
+**Usage example:**
 ```{python}
-#| output: false
+#| label: ex-controllability-analysis
+
+# Check controllability
+ctrl = system.analysis.controllability(A, B)
+
+print(f"Controllable: {ctrl['is_controllable']}")
+print(f"Rank: {ctrl['rank']} / {A.shape[0]}")
+
+if ctrl['is_controllable']:
+    print("✓ Can design LQR controller")
+else:
+    print("✗ Cannot design LQR - system not controllable")
+    if ctrl.get('uncontrollable_modes') is not None:
+        print(f"Uncontrollable modes: {ctrl['uncontrollable_modes']}")
+```
+
+#### Observability Analysis
+
+**Mathematical background:**
+
+**Observability test:**
+
+$$\text{rank}(\mathcal{O}) = n_x \quad \text{where} \quad \mathcal{O} = \begin{bmatrix} C \\ CA \\ CA^2 \\ \vdots \\ CA^{n_x-1} \end{bmatrix}$$
+
+**Interpretation:**
+- **Observable:** Initial state can be determined from output measurements
+- **Unobservable:** Some states hidden from measurements
+
+**Function signature:**
+```python
 def analyze_observability(
     A: StateMatrix,
     C: OutputMatrix,
@@ -386,83 +575,71 @@ def analyze_observability(
     """
     Test system observability via rank condition.
     
-    Observability Test:
-        rank(O) = nx where O = [C; CA; CA²; ...; CAⁿ⁻¹]
+    Parameters
+    ----------
+    A : StateMatrix
+        State matrix (nx, nx)
+    C : OutputMatrix
+        Output matrix (ny, nx)
+    backend : Backend
+        Computational backend
     
-    Interpretation:
-        - Observable: Initial state can be determined from outputs
-        - Unobservable: Some states hidden from measurements
-    
-    Args:
-        A: State matrix (nx, nx)
-        C: Output matrix (ny, nx)
-        backend: Computational backend
-    
-    Returns:
-        ObservabilityInfo with:
-            - observability_matrix: O = [C; CA; ...] (nx*ny, nx)
-            - rank: Rank of observability matrix
-            - is_observable: rank == nx
-            - unobservable_modes: Eigenvalues of unobservable subsystem
-    
-    Examples:
-        >>> A = np.array([[0, 1], [-2, -3]])
-        >>> C = np.array([[1, 0]])
-        >>> 
-        >>> obs = analyze_observability(A, C)
-        >>> print(f"Observable: {obs['is_observable']}")
-        >>> print(f"Rank: {obs['rank']} / {A.shape[0]}")
+    Returns
+    -------
+    ObservabilityInfo
+        observability_matrix : O = [C; CA; ...] (nx*ny, nx)
+        rank : Rank of observability matrix
+        is_observable : rank == nx
+        unobservable_modes : Eigenvalues of unobservable subsystem
     """
 ```
 
-**Key Design Features:**
-
-- **Pure functions** - No state, no side effects
-- **Scipy-like API** - Familiar interface for control engineers
-- **Backend agnostic** - Internal conversion to/from NumPy
-- **Comprehensive validation** - Dimension checks, positive-definiteness
-- **Riccati solvers** - scipy.linalg.solve_continuous_are/solve_discrete_are
-- **Error handling** - Clear exceptions for infeasible problems
-- **TypedDict returns** - Type-safe structured results
-
-**Internal Utilities:**
+**Usage example:**
 ```{python}
-#| output: false
-def _to_numpy(arr, backend: Backend) -> np.ndarray:
-    """Convert from any backend to NumPy for scipy."""
+#| label: ex-observability-analysis
 
-def _from_numpy(arr: np.ndarray, backend: Backend):
-    """Convert from NumPy back to original backend."""
+# Check observability
+obs = system.analysis.observability(A, C)
+
+print(f"Observable: {obs['is_observable']}")
+print(f"Rank: {obs['rank']} / {A.shape[0]}")
+
+if obs['is_observable']:
+    print("✓ Can design Kalman filter")
+else:
+    print("✗ Cannot design Kalman filter - system not observable")
+    if obs.get('unobservable_modes') is not None:
+        print(f"Unobservable modes: {obs['unobservable_modes']}")
+
+# Check minimal realization
+if ctrl['is_controllable'] and obs['is_observable']:
+    print("\n✓ System is minimal (controllable and observable)")
+    print("✓ Can design LQG controller")
 ```
 
----
+## Composition Wrapper Layer {#sec-composition-wrapper-layer}
 
-### Composition Wrapper Layer {#sec-composition-wrapper-layer}
+### ControlSynthesis: Control Design Wrapper {#sec-control-synthesis}
 
-#### control_synthesis.py {#sec-controlsynthesispy}
 **File:** `control_synthesis.py`
 
-**Purpose:** Thin wrapper for control design algorithms
+The `ControlSynthesis` class provides a thin wrapper for control design algorithms, integrating them with the system's backend configuration.
 
-**Design Philosophy:**
+**Design philosophy:**
 
-- **Composition not inheritance** - Utility held by system, not base class
-- **No state** - Only stores backend setting from parent
+- **Composition not inheritance** - Utility composed by system, not inherited
+- **No state** - Only stores backend setting from parent system
 - **No caching** - Delegates immediately to pure functions
 - **Clean API** - Methods match control theory terminology
 
 **Architecture:**
-```{python}
-#| output: false
+```python
 class ControlSynthesis:
     """
     Control synthesis wrapper for system composition.
     
     Thin wrapper that routes to pure control design functions while
     maintaining backend consistency with parent system.
-    
-    Attributes:
-        backend: Backend setting from parent system
     """
     
     def __init__(self, backend: Backend = "numpy"):
@@ -470,73 +647,48 @@ class ControlSynthesis:
     
     def design_lqr(self, A, B, Q, R, N=None, system_type='discrete'):
         """Route to classical_control_functions.design_lqr()"""
-        from src.control.classical_control_functions import design_lqr
+        from cdesym.control.classical_control_functions import design_lqr
         return design_lqr(A, B, Q, R, N, system_type, self.backend)
     
     def design_kalman(self, A, C, Q, R, system_type='discrete'):
         """Route to classical_control_functions.design_kalman_filter()"""
-        from src.control.classical_control_functions import design_kalman_filter
+        from cdesym.control.classical_control_functions import design_kalman_filter
         return design_kalman_filter(A, C, Q, R, system_type, self.backend)
     
-    def design_lqg(self, A, B, C, Q_state, R_control, Q_process, R_measurement, N=None, system_type='discrete'):
+    def design_lqg(self, A, B, C, Q_state, R_control, Q_process, R_measurement, 
+                   N=None, system_type='discrete'):
         """Route to classical_control_functions.design_lqg()"""
-        from src.control.classical_control_functions import design_lqg
-        return design_lqg(A, B, C, Q_state, R_control, Q_process, R_measurement, N, system_type, self.backend)
+        from cdesym.control.classical_control_functions import design_lqg
+        return design_lqg(A, B, C, Q_state, R_control, Q_process, R_measurement, 
+                         N, system_type, self.backend)
 ```
 
-**Integration with Systems:**
-```{python}
-#| output: false
+**System integration:**
+```python
 # In ContinuousSystemBase / DiscreteSystemBase
 @property
 def control(self) -> ControlSynthesis:
     """Access control synthesis utilities."""
     if not hasattr(self, '_control_synthesis'):
-        from src.control.control_synthesis import ControlSynthesis
-        self._control_synthesis = ControlSynthesis(backend=self._default_backend)
+        from cdesym.control.control_synthesis import ControlSynthesis
+        self._control_synthesis = ControlSynthesis(backend=self.backend.default_backend)
     return self._control_synthesis
 ```
 
-**Usage Pattern:**
-```{python}
-#| output: false
-# Via system composition (typical)
-system = Pendulum()
-A, B = system.linearize(x_eq, u_eq)
+### SystemAnalysis: System Analysis Wrapper {#sec-system-analysis-wrapper}
 
-# Design controller - backend handled automatically
-result = system.control.design_lqr(A, B, Q, R, system_type='continuous')
-K = result['gain']
-
-# Control law
-u = -K @ (x - x_eq)
-```
-
----
-
-#### system_analysis.py {#sec-systemanalysispy}
 **File:** `system_analysis.py`
 
-**Purpose:** Thin wrapper for system analysis algorithms
-
-**Design Philosophy:**
-
-- **Identical to ControlSynthesis** - Same thin wrapper pattern
-- **Separation of concerns** - Analysis separate from synthesis
-- **Consistent interface** - Matches control_synthesis.py design
+The `SystemAnalysis` class provides a thin wrapper for system analysis algorithms, identical in design to `ControlSynthesis`.
 
 **Architecture:**
-```{python}
-#| output: false
+```python
 class SystemAnalysis:
     """
     System analysis wrapper for composition.
     
     Thin wrapper that routes to pure system analysis functions while
     maintaining backend consistency with parent system.
-    
-    Attributes:
-        backend: Backend setting from parent system
     """
     
     def __init__(self, backend: Backend = "numpy"):
@@ -544,92 +696,49 @@ class SystemAnalysis:
     
     def stability(self, A, system_type='continuous'):
         """Route to classical_control_functions.analyze_stability()"""
-        from src.control.classical_control_functions import analyze_stability
+        from cdesym.control.classical_control_functions import analyze_stability
         return analyze_stability(A, system_type, self.backend)
     
     def controllability(self, A, B):
         """Route to classical_control_functions.analyze_controllability()"""
-        from src.control.classical_control_functions import analyze_controllability
+        from cdesym.control.classical_control_functions import analyze_controllability
         return analyze_controllability(A, B, self.backend)
     
     def observability(self, A, C):
         """Route to classical_control_functions.analyze_observability()"""
-        from src.control.classical_control_functions import analyze_observability
+        from cdesym.control.classical_control_functions import analyze_observability
         return analyze_observability(A, C, self.backend)
 ```
 
-**Integration with Systems:**
-```{python}
-#| output: false
+**System integration:**
+```python
 # In ContinuousSystemBase / DiscreteSystemBase
 @property
 def analysis(self) -> SystemAnalysis:
     """Access system analysis utilities."""
     if not hasattr(self, '_system_analysis'):
-        from src.control.system_analysis import SystemAnalysis
-        self._system_analysis = SystemAnalysis(backend=self._default_backend)
+        from cdesym.control.system_analysis import SystemAnalysis
+        self._system_analysis = SystemAnalysis(backend=self.backend.default_backend)
     return self._system_analysis
 ```
 
-**Usage Pattern:**
-```{python}
-#| output: false
-# Via system composition (typical)
-system = Pendulum()
-A, B = system.linearize(x_eq, u_eq)
-C = np.array([[1, 0]])  # Measure position
-
-# Analyze system properties
-stability = system.analysis.stability(A, system_type='continuous')
-controllability = system.analysis.controllability(A, B)
-observability = system.analysis.observability(A, C)
-
-# Check results
-if stability['is_stable']:
-    print(f"Stable with margin: {stability['stability_margin']:.3f}")
-
-if controllability['is_controllable'] and observability['is_observable']:
-    print("System is minimal (controllable and observable)")
-```
-
----
-
-### Type Layer {#sec-type-layer}
-
-#### control_classical.py {#sec-controlclassicalpy}
-**File:** `control_classical.py`
-
-**Purpose:** TypedDict result types for control algorithms
-
-See `Type_System_Architecture.md` for complete documentation.
-
-**Key Types:**
-
-- `LQRResult` - LQR controller design result
-- `KalmanFilterResult` - Kalman filter design result
-- `LQGResult` - LQG controller design result
-- `StabilityInfo` - Stability analysis result
-- `ControllabilityInfo` - Controllability test result
-- `ObservabilityInfo` - Observability test result
-
----
-
 ## Design Patterns {#sec-design-patterns}
 
-### Pattern 1: Pure Functions + Thin Wrappers {#sec-pattern-1-pure-functions--thin-wrappers}
+### Pattern 1: Pure Functions + Thin Wrappers {#sec-pattern-pure-functions}
 
-**Why this architecture?**
-
+**Principle:** Separate stateless algorithms from system integration.
 ```{python}
-#| output: false
-# ANTI-PATTERN: Methods on system class (violates SRP)
+#| label: ex-pattern-separation
+#| eval: false
+
+# ✗ ANTI-PATTERN: Methods on system class (violates SRP)
 class ContinuousSystemBase:
     def design_lqr(self, Q, R):
-        # LQR implementation mixes system concerns
-        # with control algorithm
+        # LQR implementation mixed with system concerns
         pass
 
-# GOOD PATTERN: Pure function + composition
+# ✓ GOOD PATTERN: Pure function + composition
+
 # Pure function (classical_control_functions.py)
 def design_lqr(A, B, Q, R, system_type, backend):
     """Stateless, testable, reusable."""
@@ -644,27 +753,28 @@ class ControlSynthesis:
 # System integration (continuous_system_base.py)
 @property
 def control(self) -> ControlSynthesis:
-    return ControlSynthesis(backend=self._default_backend)
+    return ControlSynthesis(backend=self.backend.default_backend)
 ```
 
 **Benefits:**
 
-- ✅ **Single Responsibility** - Pure functions do one thing
-- ✅ **Testability** - Functions easy to unit test
-- ✅ **Reusability** - Functions work standalone
-- ✅ **Composition** - System uses utilities, doesn't inherit them
-- ✅ **Maintainability** - Changes isolated to function layer
+- ✓ Single responsibility per component
+- ✓ Easy unit testing of pure functions
+- ✓ Reusable algorithms outside system context
+- ✓ Maintainability through isolation
 
-### Pattern 2: Backend Agnosticism {#sec-pattern-2-backend-agnosticism}
+### Pattern 2: Backend Agnosticism {#sec-pattern-backend-agnostic}
 
-```{python}
-#| output: false
+**Principle:** Convert to NumPy for scipy, then back to original backend.
+```python
 def design_lqr(..., backend: Backend):
     """Works with NumPy, PyTorch, JAX transparently."""
     
     # Convert to NumPy for scipy
     A_np = _to_numpy(A, backend)
     B_np = _to_numpy(B, backend)
+    Q_np = _to_numpy(Q, backend)
+    R_np = _to_numpy(R, backend)
     
     # Solve in NumPy (scipy.linalg)
     P = solve_continuous_are(A_np, B_np, Q_np, R_np)
@@ -677,10 +787,13 @@ def design_lqr(..., backend: Backend):
     return LQRResult(gain=K_result, cost_to_go=P_result, ...)
 ```
 
-### Pattern 3: TypedDict Results {#sec-pattern-3-typeddict-results}
+### Pattern 3: TypedDict Results {#sec-pattern-typeddict-results}
 
+**Principle:** Structured results with type safety and IDE support.
 ```{python}
-#| output: false
+#| label: ex-pattern-typeddict
+#| eval: false
+
 # All functions return structured TypedDict
 result: LQRResult = design_lqr(A, B, Q, R, system_type='continuous')
 
@@ -695,11 +808,10 @@ def apply_control(result: LQRResult) -> np.ndarray:
     return result['gain']  # ✓ Type checker verifies
 ```
 
-### Pattern 4: Unified Continuous/Discrete Interface {#sec-pattern-4-unified-continuous-discrete-interface}
+### Pattern 4: Unified Continuous/Discrete Interface {#sec-pattern-unified-interface}
 
-```{python}
-#| output: false
-# Same function handles both continuous and discrete
+**Principle:** Single function handles both continuous and discrete cases.
+```python
 def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
     """Unified interface - system_type selects algorithm."""
     
@@ -722,125 +834,18 @@ def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
 
 **Benefits:**
 
-- ✅ Single function for both cases
-- ✅ Less code duplication
-- ✅ Easier to maintain
-- ✅ Consistent API across system types
-
----
-
-## Mathematical Algorithms {#sec-mathematical-algorithms}
-
-### LQR Design {#sec-lqr-design}
-
-**Continuous-Time LQR:**
-
-**Cost Functional:**
-```
-J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
-```
-
-**Algebraic Riccati Equation (ARE):**
-```
-A'P + PA - PBR⁻¹B'P + Q - N'R⁻¹N = 0
-```
-
-**Optimal Gain:**
-```
-K = R⁻¹(B'P + N')
-```
-
-**Closed-Loop Dynamics:**
-```
-ẋ = (A - BK)x
-```
-
-**Discrete-Time LQR:**
-
-**Cost Functional:**
-```
-J = Σₖ₌₀^∞ (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])
-```
-
-**Discrete ARE:**
-```
-P = A'PA - (A'PB + N)(R + B'PB)⁻¹(B'PA + N') + Q
-```
-
-**Optimal Gain:**
-```
-K = (R + B'PB)⁻¹(B'PA + N')
-```
-
-**Closed-Loop Dynamics:**
-```
-x[k+1] = (A - BK)x[k]
-```
-
-### Kalman Filter Design {#sec-kalman-filter-design}
-
-**System Model:**
-```
-x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q)
-y[k] = Cx[k] + v[k],            v ~ N(0, R)
-```
-
-**Estimator:**
-```
-x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
-```
-
-**Kalman Gain:**
-```
-L = APC'(CPC' + R)⁻¹
-```
-
-**Error Covariance Riccati Equation:**
-```
-P = A(P - PC'(CPC' + R)⁻¹CP)A' + Q
-```
-
-**Error Dynamics:**
-```
-e[k+1] = (A - LC)e[k] + w[k] - Lv[k]
-```
-
-### LQG Controller {#sec-lqg-controller}
-
-**Separation Principle:**
-
-1. Design LQR assuming full state feedback: `u = -Kx`
-2. Design Kalman filter for state estimation: `x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])`
-3. Combine: `u = -Kx̂` (certainty equivalence)
-
-**Closed-Loop System:**
-```
-[x[k+1]]   [A - BK    BK  ] [x[k] ]   [w[k]]
-[e[k+1]] = [  0     A - LC] [e[k] ] + [w[k] - Lv[k]]
-```
-
-**Eigenvalues:**
-
-- Controller poles: eig(A - BK)
-- Observer poles: eig(A - LC)
-- Combined poles: eig(A - BK) ∪ eig(A - LC)
-
-**Optimality:**
-
-- Optimal for linear systems with Gaussian noise
-- Minimizes steady-state error covariance
-- Separation holds for linear systems
-
----
+- ✓ Single function for both cases
+- ✓ Less code duplication
+- ✓ Consistent API across system types
+- ✓ Easier maintenance
 
 ## Usage Workflows {#sec-usage-workflows}
 
-### Workflow 1: Design LQR Controller {#sec-workflow-1-design-lqr-controller}
+### Workflow 1: LQR Controller Design {#sec-workflow-lqr}
 
+**Complete workflow from linearization to closed-loop simulation:**
 ```{python}
-#| output: false
-from src.systems.examples import Pendulum
-import numpy as np
+#| label: ex-workflow-lqr
 
 # 1. Create system
 system = Pendulum(m=1.0, l=0.5, g=9.81, b=0.1)
@@ -853,37 +858,40 @@ u_eq = np.zeros(1)
 A, B = system.linearize(x_eq, u_eq)
 
 # 4. Design LQR controller
-Q = np.diag([10, 1])  # Penalize angle more than velocity
-R = np.array([[0.1]])  # Small control cost
+Q = np.diag([10, 1])   # Penalize angle more than velocity
+R = np.array([[0.1]])   # Small control cost
 
-result = system.control.design_lqr(
-    A, B, Q, R,
-    system_type='continuous'
-)
+lqr = system.control.design_lqr(A, B, Q, R, system_type='continuous')
 
-# 5. Extract gain and verify stability
-K = result['gain']
-print(f"LQR gain: {K}")
-print(f"Closed-loop eigenvalues: {result['closed_loop_eigenvalues']}")
-print(f"Stable: {np.all(np.real(result['closed_loop_eigenvalues']) < 0)}")
+# 5. Extract and verify
+K = lqr['gain']
+eigs = lqr['closed_loop_eigenvalues']
+
+print(f"✓ LQR gain: {K}")
+print(f"✓ Closed-loop stable: {np.all(np.real(eigs) < 0)}")
 
 # 6. Implement controller
-def lqr_controller(x, t):
+def lqr_controller(t, x):
     return -K @ (x - x_eq)
 
-# 7. Simulate closed-loop
-result_sim = system.simulate(
+# 7. Simulate (closed-loop)
+result = system.simulate(
     x0=np.array([np.pi + 0.2, 0]),  # Start near upright
     controller=lqr_controller,
     t_span=(0, 10),
     dt=0.01
 )
+
+print(f"✓ Simulation complete: {len(result['time'])} time points")
 ```
 
-### Workflow 2: Design Kalman Filter {#sec-workflow-2-design-kalman-filter}
+### Workflow 2: Kalman Filter Design {#sec-workflow-kalman}
 
+**Observer design for partial state measurements:**
 ```{python}
-#| output: false
+#| label: ex-workflow-kalman
+#| eval: false
+
 # 1. Same system and linearization
 A, B = system.linearize(x_eq, u_eq)
 
@@ -891,7 +899,7 @@ A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])  # Observe theta, not omega
 
 # 3. Define noise covariances
-Q_process = 0.01 * np.eye(2)  # Process noise
+Q_process = 0.01 * np.eye(2)      # Process noise
 R_measurement = np.array([[0.1]])  # Measurement noise
 
 # 4. Design Kalman filter
@@ -902,33 +910,41 @@ kalman = system.control.design_kalman(
 
 # 5. Extract gain
 L = kalman['gain']
-print(f"Kalman gain: {L}")
-print(f"Observer eigenvalues: {kalman['observer_eigenvalues']}")
+observer_eigs = kalman['observer_eigenvalues']
+
+print(f"✓ Kalman gain: {L}")
+print(f"✓ Observer stable: {np.all(np.real(observer_eigs) < 0)}")
 
 # 6. Implement estimator
 x_hat = np.zeros(2)
+dt = 0.01
+N = 1000
+
 for k in range(N):
     # Prediction
-    x_hat_pred = A @ x_hat + B @ u[k]
+    x_hat_pred = A @ x_hat * dt + x_hat + B @ u[k] * dt
     
     # Measurement update
     y_meas = C @ x_true[k] + np.random.randn() * np.sqrt(0.1)
     innovation = y_meas - C @ x_hat_pred
-    x_hat = x_hat_pred + L @ innovation
+    x_hat = x_hat_pred + L @ innovation * dt
 ```
 
-### Workflow 3: Design LQG Controller {#sec-workflow-3-design-lqg-controller}
+### Workflow 3: LQG Controller Design {#sec-workflow-lqg}
 
+**Combined optimal control and estimation:**
 ```{python}
-#| output: false
+#| label: ex-workflow-lqg
+#| eval: false
+
 # 1. Define all matrices
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])  # Partial state measurement
 
 # 2. Design weights
-Q_state = np.diag([10, 1])    # LQR state cost
-R_control = np.array([[0.1]])  # LQR control cost
-Q_process = 0.01 * np.eye(2)  # Kalman process noise
+Q_state = np.diag([10, 1])        # LQR state cost
+R_control = np.array([[0.1]])      # LQR control cost
+Q_process = 0.01 * np.eye(2)      # Kalman process noise
 R_measurement = np.array([[0.1]])  # Kalman measurement noise
 
 # 3. Design LQG
@@ -943,41 +959,46 @@ lqg = system.control.design_lqg(
 K = lqg['control_gain']
 L = lqg['estimator_gain']
 
-print(f"LQG stable: {lqg['closed_loop_stable']}")
-print(f"Separation verified: {lqg['separation_verified']}")
+print(f"✓ LQG stable: {lqg['closed_loop_stable']}")
+print(f"✓ Separation verified: {lqg['separation_verified']}")
 
 # 5. Implement LQG controller
 x_hat = np.zeros(2)
+dt = 0.01
+
 for k in range(N):
     # Control (certainty equivalence)
     u[k] = -K @ (x_hat - x_eq)
     
     # Prediction
-    x_hat = A @ x_hat + B @ u[k]
+    x_hat = A @ x_hat * dt + x_hat + B @ u[k] * dt
     
     # Measurement update
     y_meas = C @ x_true[k] + measurement_noise[k]
     innovation = y_meas - C @ x_hat
-    x_hat = x_hat + L @ innovation
+    x_hat = x_hat + L @ innovation * dt
 ```
 
-### Workflow 4: System Analysis {#sec-workflow-4-system-analysis}
+### Workflow 4: System Analysis {#sec-workflow-analysis}
 
+**Complete system analysis before controller design:**
 ```{python}
-#| output: false
+#| label: ex-workflow-analysis
+#| eval: false
+
 # 1. Linearize system
 A, B = system.linearize(x_eq, u_eq)
 C = np.array([[1, 0]])
 
 # 2. Check stability
 stability = system.analysis.stability(A, system_type='continuous')
-print(f"Stable: {stability['is_stable']}")
+print(f"Open-loop stable: {stability['is_stable']}")
 print(f"Eigenvalues: {stability['eigenvalues']}")
 print(f"Spectral radius: {stability['spectral_radius']:.3f}")
 
 # 3. Check controllability
 ctrl = system.analysis.controllability(A, B)
-print(f"Controllable: {ctrl['is_controllable']}")
+print(f"\nControllable: {ctrl['is_controllable']}")
 print(f"Rank: {ctrl['rank']} / {A.shape[0]}")
 
 if not ctrl['is_controllable']:
@@ -985,14 +1006,14 @@ if not ctrl['is_controllable']:
 
 # 4. Check observability
 obs = system.analysis.observability(A, C)
-print(f"Observable: {obs['is_observable']}")
+print(f"\nObservable: {obs['is_observable']}")
 print(f"Rank: {obs['rank']} / {A.shape[0]}")
 
-# 5. Verify conditions for LQR/Kalman
+# 5. Verify conditions for control design
 if ctrl['is_controllable']:
-    print("✓ Can design LQR controller")
+    print("\n✓ Can design LQR controller")
 else:
-    print("✗ Cannot design LQR - system not controllable")
+    print("\n✗ Cannot design LQR - system not controllable")
 
 if obs['is_observable']:
     print("✓ Can design Kalman filter")
@@ -1005,15 +1026,29 @@ if ctrl['is_controllable'] and obs['is_observable']:
 
 ## Key Strengths {#sec-key-strengths}
 
-1. **Pure Functional Core** - Stateless algorithms, easy to test
-2. **Thin Wrappers** - Minimal composition layer, no business logic
-3. **Type Safety** - TypedDict results throughout
-4. **Backend Agnostic** - NumPy/PyTorch/JAX transparent
+::: {.callout-tip}
+## Control Framework Advantages
+
+1. **Pure Functional Core** - Stateless algorithms, easy to test and reuse
+2. **Thin Wrappers** - Minimal composition layer with no business logic
+3. **Type Safety** - TypedDict results throughout with IDE support
+4. **Backend Agnostic** - NumPy/PyTorch/JAX transparency
 5. **Separation of Concerns** - Analysis vs synthesis clearly separated
-6. **Mathematical Rigor** - Correct implementation of classical control
-7. **Clean Integration** - `system.control` and `system.analysis` APIs
-8. **Unified Interface** - Single function for continuous/discrete
+6. **Mathematical Rigor** - Correct implementation of classical control theory
+7. **Clean Integration** - Natural `system.control` and `system.analysis` APIs
+8. **Unified Interface** - Single function for continuous/discrete cases
 9. **Comprehensive** - LQR, Kalman, LQG, stability, controllability, observability
 10. **Scipy-like** - Familiar API for control engineers
+:::
 
-This control framework is the **foundation** for classical control theory in ControlDESymulation!
+## Summary
+
+The Control Framework provides **production-quality classical control theory algorithms** through a clean two-layer architecture:
+
+- **Pure Function Layer** provides stateless, testable algorithms
+- **Composition Layer** integrates algorithms with system backend management
+- **Type Layer** ensures type safety with structured TypedDict results
+
+Users interact through intuitive system properties (`system.control`, `system.analysis`) that automatically handle backend management and provide consistent interfaces across continuous and discrete systems.
+
+**The framework implements classical control theory correctly while maintaining clean software architecture and comprehensive type safety.**
