@@ -1,11 +1,24 @@
 # Copyright (C) 2025 Gil Benezer
-# AGPL-3.0 License
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 """
 Unit Tests for DiscretizedSystem
 =================================
 
-Comprehensive test suite for discretized_system.py module.
+Comprehensive test suite for discretized_system.py module with method_registry integration.
 
 Test Coverage
 ------------
@@ -15,21 +28,10 @@ Test Coverage
 4. Control input handling (various formats)
 5. Linearization via ZOH
 6. Helper functions (discretize, discretize_batch, etc.)
-7. Integration with real continuous systems
-8. Protocol satisfaction
-9. Edge cases and error handling
-
-Location
---------
-tests/systems/discretization/test_discretized_system.py
-
-Dependencies
-------------
-- pytest
-- numpy
-- scipy
-- src.systems.discretization.discretized_system
-- Mock continuous systems (or real if available)
+7. Integration with method_registry
+8. Integration with real continuous systems
+9. Protocol satisfaction
+10. Edge cases and error handling
 
 Authors
 -------
@@ -53,6 +55,15 @@ from cdesym.systems.base.core.discretized_system import (
     discretize,
     discretize_batch,
     recommend_dt,
+)
+
+# Test that method_registry integration is working
+from cdesym.systems.base.numerical_integration.method_registry import (
+    get_available_methods,
+    is_fixed_step,
+    is_sde_method,
+    normalize_method_name,
+    validate_method,
 )
 
 # Conditional imports for backends
@@ -91,7 +102,7 @@ def _has_full_sde_support():
 
 
 class MockContinuousSystem(ContinuousSystemBase):
-    """Simple linear continuous system for testing (inherits from ContinuousSystemBase)."""
+    """Simple linear continuous system for testing."""
 
     def __init__(self, nx=2, nu=1):
         # Don't call super().__init__() - ContinuousSystemBase is abstract with no __init__
@@ -105,14 +116,13 @@ class MockContinuousSystem(ContinuousSystemBase):
         return False
 
     def __call__(self, x, u=None, t=0.0, backend=None):
-        """dx/dt = -x + u (handles nu=0 case)"""
+        """dx/dt = -x + u"""
         if u is None:
             u = np.zeros(self.nu)
 
-        # Handle zero control dimension
         if self.nu == 0:
             return -x
-        # Ensure u is the right shape for broadcasting
+
         u_array = np.asarray(u)
         if u_array.size == 0:
             return -x
@@ -137,7 +147,7 @@ class MockContinuousSystem(ContinuousSystemBase):
 
         return {
             "t": result.t,
-            "x": result.y.T,  # Convert to time-major
+            "x": result.y.T,
             "success": result.success,
             "nfev": result.nfev,
             "sol": getattr(result, "sol", None),
@@ -148,6 +158,7 @@ class MockContinuousSystem(ContinuousSystemBase):
         A = -np.eye(self.nx)
         B = np.eye(self.nx, self.nu) if self.nu > 0 else np.zeros((self.nx, 0))
         return (A, B)
+
 
 
 class MockStochasticSystem(MockContinuousSystem):
@@ -162,6 +173,106 @@ class MockStochasticSystem(MockContinuousSystem):
 
     def is_diagonal_noise(self):
         return True
+
+# ============================================================================
+# Test Suite: Method Registry Integration
+# ============================================================================
+
+
+class TestMethodRegistryIntegration:
+    """Test integration with method_registry module."""
+
+    def test_uses_registry_for_normalization(self):
+        """DiscretizedSystem uses method_registry for normalization."""
+        continuous = MockContinuousSystem()
+        discrete = DiscretizedSystem(continuous, dt=0.01, method="euler_maruyama")
+
+        # Should normalize to backend-specific name
+        # For numpy backend: euler_maruyama -> EM
+        assert discrete._method == normalize_method_name("euler_maruyama", "numpy")
+        assert discrete._method == "EM"
+
+    def test_uses_registry_for_classification(self):
+        """DiscretizedSystem uses method_registry for classification."""
+        continuous = MockContinuousSystem()
+
+        # Fixed-step method
+        discrete_fixed = DiscretizedSystem(continuous, dt=0.01, method="rk4")
+        assert discrete_fixed._is_fixed_step == is_fixed_step("rk4")
+
+        # Adaptive method
+        discrete_adaptive = DiscretizedSystem(continuous, dt=0.01, method="RK45")
+        assert discrete_adaptive._is_fixed_step == is_fixed_step("RK45")
+
+    def test_get_available_methods_delegates_to_registry(self):
+        """get_available_methods() delegates to method_registry."""
+        # Call static method
+        methods = DiscretizedSystem.get_available_methods("torch", "stochastic")
+
+        # Should match registry directly
+        registry_methods = get_available_methods("torch", "stochastic")
+        assert methods == registry_methods
+
+    def test_canonical_names_work_across_backends(self):
+        """Canonical names like 'euler_maruyama' work on all backends."""
+        canonical_methods = ["euler_maruyama", "milstein", "rk45", "rk23"]
+
+        for method in canonical_methods:
+            for backend in ["numpy", "torch", "jax"]:
+                # Create mock system with specific backend
+                continuous = MockContinuousSystem()
+                continuous._default_backend = backend
+
+                # Should normalize successfully
+                discrete = DiscretizedSystem(continuous, dt=0.01, method=method)
+                assert discrete._method == normalize_method_name(method, backend)
+
+    def test_no_internal_classification_constants(self):
+        """DiscretizedSystem no longer has internal classification constants."""
+        # These should NOT exist anymore (replaced by registry imports)
+        assert not hasattr(DiscretizedSystem, "_DETERMINISTIC_FIXED_STEP")
+        assert not hasattr(DiscretizedSystem, "_DETERMINISTIC_ADAPTIVE")
+        assert not hasattr(DiscretizedSystem, "_SDE_METHODS")
+        assert not hasattr(DiscretizedSystem, "_SDE_ADAPTIVE")
+        assert not hasattr(DiscretizedSystem, "_NORMALIZATION_MAP")
+
+    def test_no_internal_classification_methods(self):
+        """DiscretizedSystem no longer has internal classification methods."""
+        # These should NOT exist as methods on DiscretizedSystem
+        assert not hasattr(DiscretizedSystem, "_is_method_sde")
+        assert not hasattr(DiscretizedSystem, "_is_method_fixed_step")
+        assert not hasattr(DiscretizedSystem, "_normalize_method_name")
+
+    def test_registry_functions_imported_at_module_level(self):
+        """Method registry functions are imported from method_registry module."""
+        # These should be the actual registry functions, not DiscretizedSystem methods
+        from cdesym.systems.base.numerical_integration import method_registry
+        
+        # Verify they're imported in discretized_system module
+        import cdesym.systems.base.core.discretized_system as ds_module
+        
+        # Check that the module uses the registry functions
+        # (not that they're methods on DiscretizedSystem)
+        assert hasattr(method_registry, 'is_sde_method')
+        assert hasattr(method_registry, 'is_fixed_step')
+        assert hasattr(method_registry, 'normalize_method_name')
+
+    def test_normalization_idempotent(self):
+        """Method normalization is idempotent."""
+        continuous = MockContinuousSystem()
+        continuous._default_backend = "numpy"
+        
+        # First normalization
+        discrete1 = DiscretizedSystem(continuous, dt=0.01, method="euler_maruyama")
+        normalized_once = discrete1._method
+        
+        # Already normalized - should stay the same
+        discrete2 = DiscretizedSystem(continuous, dt=0.01, method=normalized_once)
+        normalized_twice = discrete2._method
+        
+        assert normalized_once == normalized_twice
+        assert normalized_once == "EM"
+
 
 
 # ============================================================================
@@ -291,21 +402,13 @@ class TestDiscretizedSystemInit:
         assert discrete._integrator_kwargs["rtol"] == 1e-9
         assert discrete._integrator_kwargs["atol"] == 1e-11
 
-    def test_method_classification_constants_exist(self):
-        """Method classification constants are properly defined."""
-        assert hasattr(DiscretizedSystem, "_DETERMINISTIC_FIXED_STEP")
-        assert hasattr(DiscretizedSystem, "_DETERMINISTIC_ADAPTIVE")
-        assert hasattr(DiscretizedSystem, "_SDE_METHODS")
-        assert hasattr(DiscretizedSystem, "_SDE_ADAPTIVE")
+    def test_original_method_preserved(self):
+        """Original method name preserved before normalization."""
+        continuous = MockContinuousSystem()
+        discrete = DiscretizedSystem(continuous, dt=0.01, method="euler_maruyama")
 
-        # Check they're frozensets
-        assert isinstance(DiscretizedSystem._DETERMINISTIC_FIXED_STEP, frozenset)
-        assert isinstance(DiscretizedSystem._SDE_METHODS, frozenset)
-
-        # Check they contain expected methods
-        assert "rk4" in DiscretizedSystem._DETERMINISTIC_FIXED_STEP
-        assert "RK45" in DiscretizedSystem._DETERMINISTIC_ADAPTIVE
-        assert "euler_maruyama" in DiscretizedSystem._SDE_METHODS
+        assert discrete._original_method == "euler_maruyama"
+        assert discrete._method == "EM"  # Normalized for numpy backend
 
 
 # ============================================================================
@@ -910,6 +1013,23 @@ class TestUtilityMethods:
         assert info["stochastic_info"]["recommended_method"] in ["euler_maruyama", "milstein"]
         assert info["stochastic_info"]["has_sde_integrator"] in [True, False]
 
+    def test_get_info_noise_ignored_uses_registry(self):
+        """get_info() uses method_registry to determine if noise ignored."""
+        stochastic = MockStochasticSystem()
+
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            discrete = DiscretizedSystem(stochastic, dt=0.01, method="rk4", auto_detect_sde=False)
+
+        info = discrete.get_info()
+
+        # Should detect rk4 is NOT an SDE method via registry
+        assert info["stochastic_info"]["noise_ignored"] == True
+
+        # Verify it's using registry function
+        assert info["stochastic_info"]["noise_ignored"] == (not is_sde_method("rk4"))
 
 # ============================================================================
 # Test Suite: Helper Functions
@@ -1003,7 +1123,7 @@ class TestHelperFunctions:
 
 
 # ============================================================================
-# Test Suite: Integration with Real Systems (Conditional)
+# Test Suite: Stochastic System Handling
 # ============================================================================
 
 
@@ -1023,7 +1143,7 @@ class TestStochasticDiscretization:
                 stochastic,
                 dt=0.01,
                 method="rk4",
-                auto_detect_sde=False,  # Use unambiguous method
+                auto_detect_sde=False,
             )
 
         assert discrete.is_stochastic is True
@@ -1036,8 +1156,8 @@ class TestStochasticDiscretization:
         # Should recommend euler_maruyama or milstein for additive diagonal noise
         assert method in ["euler_maruyama", "milstein"]
 
-    def test_stochastic_step_with_mock(self):
-        """Can step stochastic system with deterministic integrator."""
+    def test_stochastic_step_with_deterministic_integrator(self):
+        """Can step stochastic system with deterministic integrator (noise ignored)."""
         stochastic = MockStochasticSystem(nx=2, nu=1)
 
         # Disable auto-detection to use deterministic method
@@ -1045,12 +1165,12 @@ class TestStochasticDiscretization:
         import warnings
 
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")  # Suppress expected warning
+            warnings.simplefilter("ignore")
             discrete = DiscretizedSystem(
                 stochastic,
                 dt=0.01,
                 method="rk4",
-                auto_detect_sde=False,  # Key change: disable auto-detection
+                auto_detect_sde=False,
             )
 
         x = np.array([1.0, 0.0])
@@ -1058,7 +1178,7 @@ class TestStochasticDiscretization:
 
         # Should work (treats as deterministic)
         assert x_next.shape == (2,)
-        assert discrete._method == "rk4"  # Verify method stayed as rk4
+        assert discrete._method == "rk4"
 
     def test_stochastic_auto_detect_warns_without_sde_integrator(self):
         """Auto-detection warns when SDE integrator unavailable."""
@@ -1074,15 +1194,33 @@ class TestStochasticDiscretization:
             # Should have warning about SDE not available
             assert len(w) > 0
             warning_text = str(w[0].message)
+            assert "noise will be IGNORED" in warning_text or "deterministic" in warning_text.lower()
 
-            # Check for key phrases in the warning
-            assert (
-                "noise will be IGNORED" in warning_text or "deterministic" in warning_text.lower()
-            )
-
-        # Method should stay as rk4 (deterministic fallback)
         assert discrete._method == "rk4"
         assert discrete._method_source == "deterministic_fallback"
+
+    def test_stochastic_sde_method_parameter(self):
+        """sde_method parameter works correctly."""
+        stochastic = MockStochasticSystem(nx=2, nu=1)
+
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            discrete = DiscretizedSystem(
+                stochastic,
+                dt=0.01,
+                sde_method="euler_maruyama",
+            )
+
+        # Should normalize euler_maruyama to EM for numpy backend
+        assert discrete._method == "EM"
+        assert discrete._original_method == "rk4"  # Default method parameter
+
+
+# ============================================================================
+# Test Suite: Integration with Real Systems (Conditional)
+# ============================================================================
 
 
 class TestRealSystemIntegration:
