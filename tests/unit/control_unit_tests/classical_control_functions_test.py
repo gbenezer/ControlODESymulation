@@ -555,24 +555,26 @@ class TestLQG(ControlTestCase):
             system_type="discrete",
         )
 
-        # Check result structure
-        self.assertIn("control_gain", result)
+        # Check result structure - updated field names
+        self.assertIn("control_gain", result)  # Changed from "controller_gain"
         self.assertIn("estimator_gain", result)
-        self.assertIn("controller_riccati", result)
-        self.assertIn("estimator_covariance", result)
-        self.assertIn("closed_loop_eigenvalues", result)
-        self.assertIn("observer_eigenvalues", result)
+        self.assertIn("control_cost_to_go", result)  # Changed from "controller_riccati"
+        self.assertIn("estimation_error_covariance", result)  # Changed from "estimator_covariance"
+        self.assertIn("controller_eigenvalues", result)  # Changed from "closed_loop_eigenvalues"
+        self.assertIn("estimator_eigenvalues", result)  # Changed from "observer_eigenvalues"
+        self.assertIn("separation_verified", result)  # Added
+        self.assertIn("closed_loop_stable", result)  # Added
 
-        # Check dimensions
-        K = result["control_gain"]
+        # Check dimensions - updated field names
+        K = result["control_gain"]  # Changed
         L = result["estimator_gain"]
 
         self.assertEqual(K.shape, (1, 2))
         self.assertEqual(L.shape, (2, 1))
 
-        # Both controller and estimator should be stable
-        self.assert_stable_discrete(result["closed_loop_eigenvalues"])
-        self.assert_stable_discrete(result["observer_eigenvalues"])
+        # Both controller and estimator should be stable - updated field names
+        self.assert_stable_discrete(result["controller_eigenvalues"])  # Changed
+        self.assert_stable_discrete(result["estimator_eigenvalues"])  # Changed
 
     def test_lqg_continuous_basic(self):
         """Test basic continuous LQG design."""
@@ -587,9 +589,9 @@ class TestLQG(ControlTestCase):
             system_type="continuous",
         )
 
-        # Check stability
-        self.assert_stable_continuous(result["closed_loop_eigenvalues"])
-        self.assert_stable_continuous(result["observer_eigenvalues"])
+        # Check stability - updated field names
+        self.assert_stable_continuous(result["controller_eigenvalues"])  # Changed
+        self.assert_stable_continuous(result["estimator_eigenvalues"])  # Changed
 
     def test_lqg_separation_principle(self):
         """Test separation principle: LQG = LQR + Kalman designed independently."""
@@ -623,9 +625,9 @@ class TestLQG(ControlTestCase):
             system_type="discrete",
         )
 
-        # LQG gains should match individual designs
+        # LQG gains should match individual designs - updated field names
         assert_allclose(
-            lqg_result["control_gain"],
+            lqg_result["control_gain"],  # Changed from "controller_gain"
             lqr_result["gain"],
             rtol=self.rtol,
             atol=self.atol,
@@ -1077,9 +1079,9 @@ class TestIntegration(ControlTestCase):
             system_type="discrete",
         )
 
-        # Verify both controller and estimator are stable
+        # Verify both controller and estimator are stable - updated field names
         ctrl_stability = analyze_stability(
-            self.Ad_double_int - self.Bd_double_int @ result["control_gain"],
+            self.Ad_double_int - self.Bd_double_int @ result["control_gain"],  # Changed
             system_type="discrete",
         )
         self.assertTrue(ctrl_stability["is_stable"])

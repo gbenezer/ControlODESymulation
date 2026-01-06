@@ -136,17 +136,20 @@ class SynthesisTestCase(unittest.TestCase):
 
     def assert_lqg_result_valid(self, result: LQGResult, nx: int, nu: int, ny: int):
         """Validate LQG result structure and shapes."""
-        self.assertIn("control_gain", result)
+        # Updated field names to match LQGResult TypedDict
+        self.assertIn("control_gain", result)  # Changed from "controller_gain"
         self.assertIn("estimator_gain", result)
-        self.assertIn("controller_riccati", result)
-        self.assertIn("estimator_covariance", result)
-        self.assertIn("closed_loop_eigenvalues", result)
-        self.assertIn("observer_eigenvalues", result)
+        self.assertIn("control_cost_to_go", result)  # Changed from "controller_riccati"
+        self.assertIn("estimation_error_covariance", result)  # Changed from "estimator_covariance"
+        self.assertIn("controller_eigenvalues", result)  # Changed from "closed_loop_eigenvalues"
+        self.assertIn("estimator_eigenvalues", result)  # Changed from "observer_eigenvalues"
+        self.assertIn("separation_verified", result)  # Added
+        self.assertIn("closed_loop_stable", result)  # Added
 
-        self.assertEqual(result["control_gain"].shape, (nu, nx))
+        self.assertEqual(result["control_gain"].shape, (nu, nx))  # Changed
         self.assertEqual(result["estimator_gain"].shape, (nx, ny))
-        self.assertEqual(result["controller_riccati"].shape, (nx, nx))
-        self.assertEqual(result["estimator_covariance"].shape, (nx, nx))
+        self.assertEqual(result["control_cost_to_go"].shape, (nx, nx))  # Changed
+        self.assertEqual(result["estimation_error_covariance"].shape, (nx, nx))  # Changed
 
 
 # ============================================================================
@@ -434,12 +437,12 @@ class TestLQGMethod(SynthesisTestCase):
             system_type="discrete",
         )
 
-        # Controller should be stable
-        ctrl_max = np.max(np.abs(result["closed_loop_eigenvalues"]))
+        # Controller should be stable - updated field name
+        ctrl_max = np.max(np.abs(result["controller_eigenvalues"]))  # Changed
         self.assertLess(ctrl_max, 1.0)
 
-        # Observer should be stable
-        obs_max = np.max(np.abs(result["observer_eigenvalues"]))
+        # Observer should be stable - updated field name
+        obs_max = np.max(np.abs(result["estimator_eigenvalues"]))  # Changed
         self.assertLess(obs_max, 1.0)
 
 
@@ -622,13 +625,16 @@ class TestDelegation(SynthesisTestCase):
     def test_lqg_delegates_correctly(self):
         """Test that design_lqg delegates with correct arguments."""
         with patch("cdesym.control.classical_control_functions.design_lqg") as mock_func:
+            # Updated field names to match LQGResult
             mock_func.return_value = {
-                "control_gain": np.zeros((1, 2)),
+                "control_gain": np.zeros((1, 2)),  # Changed
                 "estimator_gain": np.zeros((2, 1)),
-                "controller_riccati": np.eye(2),
-                "estimator_covariance": np.eye(2),
-                "closed_loop_eigenvalues": np.array([0.5, 0.6]),
-                "observer_eigenvalues": np.array([0.4, 0.5]),
+                "control_cost_to_go": np.eye(2),  # Changed
+                "estimation_error_covariance": np.eye(2),  # Changed
+                "separation_verified": True,  # Added
+                "closed_loop_stable": True,  # Added
+                "controller_eigenvalues": np.array([0.5, 0.6]),  # Changed
+                "estimator_eigenvalues": np.array([0.4, 0.5]),  # Changed
             }
 
             synthesis = ControlSynthesis(backend="numpy")
@@ -699,17 +705,17 @@ class TestIntegration(SynthesisTestCase):
             system_type="discrete",
         )
 
-        # Extract gains
-        K = lqg_result["control_gain"]
+        # Extract gains - updated field names
+        K = lqg_result["control_gain"]  # Changed from "controller_gain"
         L = lqg_result["estimator_gain"]
 
         # Verify shapes
         self.assertEqual(K.shape, (1, 2))
         self.assertEqual(L.shape, (2, 1))
 
-        # Verify both are stable
-        ctrl_stable = np.all(np.abs(lqg_result["closed_loop_eigenvalues"]) < 1)
-        obs_stable = np.all(np.abs(lqg_result["observer_eigenvalues"]) < 1)
+        # Verify both are stable - updated field names
+        ctrl_stable = np.all(np.abs(lqg_result["controller_eigenvalues"]) < 1)  # Changed
+        obs_stable = np.all(np.abs(lqg_result["estimator_eigenvalues"]) < 1)  # Changed
 
         self.assertTrue(ctrl_stable)
         self.assertTrue(obs_stable)
@@ -742,9 +748,9 @@ class TestIntegration(SynthesisTestCase):
             system_type="discrete",
         )
 
-        # Separation principle: gains should match
+        # Separation principle: gains should match - updated field names
         assert_allclose(
-            lqg_result["control_gain"],
+            lqg_result["control_gain"],  # Changed from "controller_gain"
             lqr_result["gain"],
             rtol=self.rtol,
             atol=self.atol,
@@ -984,7 +990,7 @@ class TestInterface(SynthesisTestCase):
         self.assertIsInstance(kalman_result, dict)
         self.assertIn("gain", kalman_result)
 
-        # LQG should return LQGResult
+        # LQG should return LQGResult - updated field names
         lqg_result = synthesis.design_lqg(
             self.Ad,
             self.Bd,
@@ -995,7 +1001,7 @@ class TestInterface(SynthesisTestCase):
             self.R_meas,
         )
         self.assertIsInstance(lqg_result, dict)
-        self.assertIn("control_gain", lqg_result)
+        self.assertIn("control_gain", lqg_result)  # Changed from "controller_gain"
         self.assertIn("estimator_gain", lqg_result)
 
 
