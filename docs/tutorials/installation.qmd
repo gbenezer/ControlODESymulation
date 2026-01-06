@@ -155,7 +155,7 @@ Jupyter, JupyterLab, IPyKernel, IPyWidgets, Notebook, and IPython
 
 ControlDESymulation automatically detects available backends. You can explicitly set the backend:
 
-```{python}
+```python
 from cdesym import DynamicalSystem
 
 # Using NumPy (default)
@@ -178,7 +178,7 @@ When no backend is specified, the library searches in order:
 
 ### Checking Available Backends {#sec-checking-available-backends}
 
-```{python}
+```python
 from cdesym.backends import get_available_backends
 
 print(get_available_backends())
@@ -191,7 +191,7 @@ print(get_available_backends())
 
 Verify the installation:
 
-```{python}
+```python
 import cdesym
 print(cdesym.__version__)
 ```
@@ -200,7 +200,7 @@ print(cdesym.__version__)
 
 Test each backend with a simple system:
 
-```{python}
+```python
 import sympy as sp
 from cdesym import DynamicalSystem
 
@@ -289,7 +289,7 @@ pip install torch
 
 **Solution**: Verify GPU availability:
 
-```{python}
+```python
 # For PyTorch
 import torch
 print(torch.cuda.is_available())
@@ -323,7 +323,7 @@ pip install --upgrade sympy
 
 ### PyTorch GPU Configuration {#sec-pytorch-gpu-configuration}
 
-```{python}
+```python
 import torch
 
 # Check CUDA availability
@@ -343,7 +343,7 @@ initial_state_gpu = torch.tensor(initial_state).to(device)
 
 ### JAX GPU Configuration {#sec-jax-gpu-configuration}
 
-```{python}
+```python
 import jax
 
 # JAX automatically uses GPU if available
@@ -408,7 +408,7 @@ If you encounter issues not covered here:
 
 Check your installed version:
 
-```{python}
+```python
 import cdesym
 print(f"ControlDESymulation version: {cdesym.__version__}")
 ```
