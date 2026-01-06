@@ -88,7 +88,7 @@ def canonical_ode_methods():
 @pytest.fixture
 def manual_implementations():
     """Manual implementations available on all backends."""
-    return ["euler", "midpoint", "rk4", "heun"]
+    return ["euler", "midpoint", "rk4"]
 
 
 @pytest.fixture
