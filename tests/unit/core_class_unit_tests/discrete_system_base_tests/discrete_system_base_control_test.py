@@ -363,7 +363,7 @@ class TestControlIntegration(unittest.TestCase):
         # Check result structure
         self.assertIn("gain", result)
         self.assertIn("cost_to_go", result)
-        self.assertIn("closed_loop_eigenvalues", result)
+        self.assertIn("controller_eigenvalues", result)
         self.assertIn("stability_margin", result)
 
         # Check gain shape
@@ -374,7 +374,7 @@ class TestControlIntegration(unittest.TestCase):
         self.assertGreater(result["stability_margin"], 0, "LQR should stabilize the system")
 
         # Verify closed-loop eigenvalues are inside unit circle
-        eigenvalues = result["closed_loop_eigenvalues"]
+        eigenvalues = result["controller_eigenvalues"]
         max_magnitude = np.max(np.abs(eigenvalues))
         self.assertLess(max_magnitude, 1.0, "Discrete LQR eigenvalues should be inside unit circle")
 
@@ -408,14 +408,14 @@ class TestControlIntegration(unittest.TestCase):
         self.assertIn("gain", result)
         self.assertIn("error_covariance", result)
         self.assertIn("innovation_covariance", result)
-        self.assertIn("observer_eigenvalues", result)
+        self.assertIn("estimator_eigenvalues", result)
 
         # Check gain shape
         L = result["gain"]
         self.assertEqual(L.shape, (self.system.nx, self.C.shape[0]))
 
         # Verify observer eigenvalues are inside unit circle
-        eigenvalues = result["observer_eigenvalues"]
+        eigenvalues = result["estimator_eigenvalues"]
         max_magnitude = np.max(np.abs(eigenvalues))
         self.assertLess(max_magnitude, 1.0, "Observer eigenvalues should be inside unit circle")
 
@@ -433,22 +433,22 @@ class TestControlIntegration(unittest.TestCase):
         )
 
         # Check result structure
-        self.assertIn("controller_gain", result)
+        self.assertIn("control_gain", result)
         self.assertIn("estimator_gain", result)
         self.assertIn("controller_riccati", result)
         self.assertIn("estimator_covariance", result)
-        self.assertIn("closed_loop_eigenvalues", result)
-        self.assertIn("observer_eigenvalues", result)
+        self.assertIn("controller_eigenvalues", result)
+        self.assertIn("estimator_eigenvalues", result)
 
         # Check gain shapes
-        K = result["controller_gain"]
+        K = result["control_gain"]
         L = result["estimator_gain"]
         self.assertEqual(K.shape, (self.system.nu, self.system.nx))
         self.assertEqual(L.shape, (self.system.nx, self.C.shape[0]))
 
         # Verify both controller and observer are stable
-        ctrl_eigs = result["closed_loop_eigenvalues"]
-        obs_eigs = result["observer_eigenvalues"]
+        ctrl_eigs = result["controller_eigenvalues"]
+        obs_eigs = result["estimator_eigenvalues"]
 
         self.assertLess(
             np.max(np.abs(ctrl_eigs)),
@@ -788,11 +788,11 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types
         self.assertIsInstance(result["gain"], np.ndarray)
         self.assertIsInstance(result["cost_to_go"], np.ndarray)
-        self.assertIsInstance(result["closed_loop_eigenvalues"], np.ndarray)
+        self.assertIsInstance(result["controller_eigenvalues"], np.ndarray)
 
         # Verify stability
         self.assertGreater(result["stability_margin"], 0)
-        self.assertLess(np.max(np.abs(result["closed_loop_eigenvalues"])), 1.0)
+        self.assertLess(np.max(np.abs(result["controller_eigenvalues"])), 1.0)
 
     def test_numpy_backend_kalman(self):
         """Test Kalman filter with NumPy backend."""
@@ -809,10 +809,10 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types
         self.assertIsInstance(result["gain"], np.ndarray)
         self.assertIsInstance(result["error_covariance"], np.ndarray)
-        self.assertIsInstance(result["observer_eigenvalues"], np.ndarray)
+        self.assertIsInstance(result["estimator_eigenvalues"], np.ndarray)
 
         # Verify observer stability
-        self.assertLess(np.max(np.abs(result["observer_eigenvalues"])), 1.0)
+        self.assertLess(np.max(np.abs(result["estimator_eigenvalues"])), 1.0)
 
     def test_numpy_backend_analysis(self):
         """Test system analysis with NumPy backend."""
@@ -857,11 +857,11 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types (should be torch tensors)
         self.assertIsInstance(result["gain"], torch.Tensor)
         self.assertIsInstance(result["cost_to_go"], torch.Tensor)
-        self.assertIsInstance(result["closed_loop_eigenvalues"], torch.Tensor)
+        self.assertIsInstance(result["controller_eigenvalues"], torch.Tensor)
 
         # Verify stability
         self.assertGreater(result["stability_margin"], 0)
-        eigenvalues_np = result["closed_loop_eigenvalues"].numpy()
+        eigenvalues_np = result["controller_eigenvalues"].numpy()
         self.assertLess(np.max(np.abs(eigenvalues_np)), 1.0)
 
     @unittest.skipUnless(torch_available, "PyTorch not installed")
@@ -888,10 +888,10 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types
         self.assertIsInstance(result["gain"], torch.Tensor)
         self.assertIsInstance(result["error_covariance"], torch.Tensor)
-        self.assertIsInstance(result["observer_eigenvalues"], torch.Tensor)
+        self.assertIsInstance(result["estimator_eigenvalues"], torch.Tensor)
 
         # Verify observer stability
-        eigenvalues_np = result["observer_eigenvalues"].numpy()
+        eigenvalues_np = result["estimator_eigenvalues"].numpy()
         self.assertLess(np.max(np.abs(eigenvalues_np)), 1.0)
 
     @unittest.skipUnless(torch_available, "PyTorch not installed")
@@ -922,12 +922,12 @@ class TestAllBackends(unittest.TestCase):
         )
 
         # Verify result types
-        self.assertIsInstance(result["controller_gain"], torch.Tensor)
+        self.assertIsInstance(result["control_gain"], torch.Tensor)
         self.assertIsInstance(result["estimator_gain"], torch.Tensor)
 
         # Verify both components are stable
-        ctrl_eigs_np = result["closed_loop_eigenvalues"].numpy()
-        obs_eigs_np = result["observer_eigenvalues"].numpy()
+        ctrl_eigs_np = result["controller_eigenvalues"].numpy()
+        obs_eigs_np = result["estimator_eigenvalues"].numpy()
         self.assertLess(np.max(np.abs(ctrl_eigs_np)), 1.0)
         self.assertLess(np.max(np.abs(obs_eigs_np)), 1.0)
 
@@ -976,11 +976,11 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types (should be JAX arrays)
         self.assertTrue(hasattr(result["gain"], "__array__"))
         self.assertTrue(hasattr(result["cost_to_go"], "__array__"))
-        self.assertTrue(hasattr(result["closed_loop_eigenvalues"], "__array__"))
+        self.assertTrue(hasattr(result["controller_eigenvalues"], "__array__"))
 
         # Verify stability
         self.assertGreater(result["stability_margin"], 0)
-        eigenvalues_np = np.array(result["closed_loop_eigenvalues"])
+        eigenvalues_np = np.array(result["controller_eigenvalues"])
         self.assertLess(np.max(np.abs(eigenvalues_np)), 1.0)
 
     @unittest.skipUnless(jax_available, "JAX not installed")
@@ -1011,10 +1011,10 @@ class TestAllBackends(unittest.TestCase):
         # Verify result types
         self.assertTrue(hasattr(result["gain"], "__array__"))
         self.assertTrue(hasattr(result["error_covariance"], "__array__"))
-        self.assertTrue(hasattr(result["observer_eigenvalues"], "__array__"))
+        self.assertTrue(hasattr(result["estimator_eigenvalues"], "__array__"))
 
         # Verify observer stability
-        eigenvalues_np = np.array(result["observer_eigenvalues"])
+        eigenvalues_np = np.array(result["estimator_eigenvalues"])
         self.assertLess(np.max(np.abs(eigenvalues_np)), 1.0)
 
     @unittest.skipUnless(jax_available, "JAX not installed")
@@ -1049,12 +1049,12 @@ class TestAllBackends(unittest.TestCase):
         )
 
         # Verify result types
-        self.assertTrue(hasattr(result["controller_gain"], "__array__"))
+        self.assertTrue(hasattr(result["control_gain"], "__array__"))
         self.assertTrue(hasattr(result["estimator_gain"], "__array__"))
 
         # Verify both components are stable
-        ctrl_eigs_np = np.array(result["closed_loop_eigenvalues"])
-        obs_eigs_np = np.array(result["observer_eigenvalues"])
+        ctrl_eigs_np = np.array(result["controller_eigenvalues"])
+        obs_eigs_np = np.array(result["estimator_eigenvalues"])
         self.assertLess(np.max(np.abs(ctrl_eigs_np)), 1.0)
         self.assertLess(np.max(np.abs(obs_eigs_np)), 1.0)
 
@@ -1235,7 +1235,7 @@ class TestEdgeCases(unittest.TestCase):
         self.assertGreater(result["stability_margin"], 0)
 
         # Verify closed-loop is stable (discrete: |λ| < 1)
-        eigenvalues = result["closed_loop_eigenvalues"]
+        eigenvalues = result["controller_eigenvalues"]
         self.assertLess(np.max(np.abs(eigenvalues)), 1.0)
 
 
