@@ -104,25 +104,25 @@ def good(x: StateVector, u: ControlVector) -> StateVector:
 ┌────────────────────────────────────────────────────────────┐
 │                    TYPE SYSTEM (Layer 0)                   │
 │                                                            │
-│  ┌──────────────────────────────────────────────────────  │
+│  ┌──────────────────────────────────────────────────────┐  │
 │  │  FOUNDATIONAL TYPES                                  │  │
-│  │  • core.py           - Vectors, matrices            │  │
-│  │  • backends.py       - Backend enums, configs       │  │
-│  └──────────────────────────────────────────────────────  │
+│  │  • core.py           - Vectors, matrices             │  │
+│  │  • backends.py       - Backend enums, configs        │  │
+│  └──────────────────────────────────────────────────────┘  │
 │                                                            │
-│  ┌──────────────────────────────────────────────────────  │
+│  ┌──────────────────────────────────────────────────────┐  │
 │  │  DOMAIN TYPES                                        │  │
-│  │  • trajectories.py   - Time series results          │  │
-│  │  • linearization.py  - Jacobian tuples              │  │
-│  │  • symbolic.py       - SymPy types                  │  │
-│  │  • control_classical.py - Control design results    │  │
-│  └──────────────────────────────────────────────────────  │
+│  │  • trajectories.py   - Time series results           │  │
+│  │  • linearization.py  - Jacobian tuples               │  │
+│  │  • symbolic.py       - SymPy types                   │  │
+│  │  • control_classical.py - Control design results     │  │
+│  └──────────────────────────────────────────────────────┘  │
 │                                                            │
-│  ┌──────────────────────────────────────────────────────  │
+│  ┌──────────────────────────────────────────────────────┐  │
 │  │  STRUCTURAL TYPES                                    │  │
-│  │  • protocols.py      - Abstract interfaces          │  │
-│  │  • utilities.py      - Helper types, guards         │  │
-│  └──────────────────────────────────────────────────────  │
+│  │  • protocols.py      - Abstract interfaces           │  │
+│  │  • utilities.py      - Helper types, guards          │  │
+│  └──────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -251,7 +251,7 @@ ObserverFunction    # (y, u) → x_hat
 **Usage example:**
 ```{python}
 #| label: ex-function-types
-
+from cdesym.types import StateVector, ControlVector
 # Function signature guides implementation
 def simulate_with_controller(
     system: Callable[[StateVector, ControlVector], StateVector],  # DynamicsFunction
@@ -307,7 +307,7 @@ system = Pendulum()
 
 # Backend configuration handled internally
 print(f"Default backend: {system.backend.default_backend}")
-print(f"Default device: {system.backend.default_device}")
+print(f"Default device: {system.backend.preferred_device}")
 
 # Users interact through simple methods
 system.set_default_backend('numpy')
