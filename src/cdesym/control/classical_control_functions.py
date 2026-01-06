@@ -203,7 +203,7 @@ def design_lqr(
         Dictionary containing:
             - gain: Optimal feedback gain K (nu, nx)
             - cost_to_go: Riccati solution P (nx, nx)
-            - closed_loop_eigenvalues: Eigenvalues of (A - BK)
+            - controller_eigenvalues: Eigenvalues of (A - BK)
             - stability_margin: Distance from stability boundary
               * Continuous: -max(Re(λ)) (positive = stable)
               * Discrete: 1 - max(|λ|) (positive = stable)
@@ -374,7 +374,7 @@ def design_lqr(
     result: LQRResult = {
         "gain": _from_numpy(K, backend),
         "cost_to_go": _from_numpy(P, backend),
-        "closed_loop_eigenvalues": _from_numpy(eigenvalues, backend),
+        "controller_eigenvalues": _from_numpy(eigenvalues, backend),
         "stability_margin": float(stability_margin),
     }
 
@@ -420,7 +420,7 @@ def design_kalman_filter(
             - gain: Kalman gain L (nx, ny)
             - error_covariance: Steady-state error covariance P (nx, nx)
             - innovation_covariance: Innovation covariance S = CPC' + R (ny, ny)
-            - observer_eigenvalues: Eigenvalues of (A - LC)
+            - estimator_eigenvalues: Eigenvalues of (A - LC)
 
     Raises:
         ValueError: If matrices have incompatible shapes or invalid system_type
@@ -448,8 +448,8 @@ def design_kalman_filter(
     ...     innovation = y[k] - C @ x_hat_pred
     ...     x_hat = x_hat_pred + L @ innovation
     >>>
-    >>> # Check observer stability
-    >>> print(f"Observer stable: {np.all(np.abs(result['observer_eigenvalues']) < 1)}")
+    >>> # Check estimator stability
+    >>> print(f"Estimator stable: {np.all(np.abs(result['estimator_eigenvalues']) < 1)}")
     >>>
     >>> # Continuous Kalman filter
     >>> result_c = design_kalman_filter(A, C, Q, R, system_type='continuous')
@@ -494,8 +494,8 @@ def design_kalman_filter(
         L = P @ C_np.T @ linalg.inv(R_np)
         # Innovation covariance
         S = C_np @ P @ C_np.T + R_np
-        # Observer dynamics: A - LC
-        A_observer = A_np - L @ C_np
+        # Estimator dynamics: A - LC
+        A_estimator = A_np - L @ C_np
     else:
         # Discrete-time Kalman filter
         # Solve: P = APA' - APC'(CPC' + R)^{-1}CPA' + Q (dual of LQR)
@@ -504,18 +504,18 @@ def design_kalman_filter(
         S = C_np @ P @ C_np.T + R_np
         # Kalman gain: L = APC'S^{-1}
         L = A_np @ P @ C_np.T @ linalg.inv(S)
-        # Observer dynamics: A - LC
-        A_observer = A_np - L @ C_np
+        # estimator dynamics: A - LC
+        A_estimator = A_np - L @ C_np
 
-    # Observer eigenvalues (for convergence rate)
-    observer_eigenvalues = np.linalg.eigvals(A_observer)
+    # estimator eigenvalues (for convergence rate)
+    estimator_eigenvalues = np.linalg.eigvals(A_estimator)
 
     # Convert back to target backend
     result: KalmanFilterResult = {
         "gain": _from_numpy(L, backend),
         "error_covariance": _from_numpy(P, backend),
         "innovation_covariance": _from_numpy(S, backend),
-        "observer_eigenvalues": _from_numpy(observer_eigenvalues, backend),
+        "estimator_eigenvalues": _from_numpy(estimator_eigenvalues, backend),
     }
 
     return result
@@ -568,8 +568,8 @@ def design_lqg(
             - estimator_gain: Kalman gain L (nx, ny)
             - controller_riccati: LQR Riccati solution P_c (nx, nx)
             - estimator_covariance: Kalman covariance P_e (nx, nx)
-            - closed_loop_eigenvalues: Controller eigenvalues of (A - BK)
-            - observer_eigenvalues: Estimator eigenvalues of (A - LC)
+            - controller_eigenvalues: Controller eigenvalues of (A - BK)
+            - estimator_eigenvalues: Estimator eigenvalues of (A - LC)
 
     Examples
     --------
@@ -636,9 +636,9 @@ def design_lqg(
     # Check stability and separation
     closed_loop_stable = bool(
         lqr_result["stability_margin"] > 0 
-        and (np.max(np.abs(kalman_result["observer_eigenvalues"])) < 1 
+        and (np.max(np.abs(kalman_result["estimator_eigenvalues"])) < 1 
              if system_type == "discrete" 
-             else np.max(np.real(kalman_result["observer_eigenvalues"])) < 0)
+             else np.max(np.real(kalman_result["estimator_eigenvalues"])) < 0)
     )
     
     # Separation principle always holds for linear systems
@@ -646,14 +646,14 @@ def design_lqg(
 
     # Construct LQG result - match TypedDict field names exactly
     result: LQGResult = {
-        "control_gain": lqr_result["gain"],  # Changed from controller_gain
+        "control_gain": lqr_result["gain"],
         "estimator_gain": kalman_result["gain"],
-        "control_cost_to_go": lqr_result["cost_to_go"],  # Changed from controller_riccati
+        "control_cost_to_go": lqr_result["cost_to_go"],
         "estimation_error_covariance": kalman_result["error_covariance"],  # Changed from estimator_covariance
-        "separation_verified": separation_verified,  # Added
-        "closed_loop_stable": closed_loop_stable,  # Added
-        "controller_eigenvalues": lqr_result["closed_loop_eigenvalues"],  # Changed from closed_loop_eigenvalues
-        "estimator_eigenvalues": kalman_result["observer_eigenvalues"],  # Changed from observer_eigenvalues
+        "separation_verified": separation_verified,
+        "closed_loop_stable": closed_loop_stable,
+        "controller_eigenvalues": lqr_result["controller_eigenvalues"],
+        "estimator_eigenvalues": kalman_result["estimator_eigenvalues"],
     }
 
     return result
