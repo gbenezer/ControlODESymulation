@@ -848,7 +848,7 @@ def design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy'):
 #| label: ex-workflow-lqr
 
 # 1. Create system
-system = Pendulum(m=1.0, l=0.5, g=9.81, b=0.1)
+system = Pendulum(m_val=1.0, l_val=0.5, g_val=9.81, beta_val=0.1)
 
 # 2. Define equilibrium (upright position)
 x_eq = np.array([np.pi, 0])  # [theta, omega]
