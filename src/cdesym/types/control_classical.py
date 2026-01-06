@@ -57,7 +57,7 @@ Usage
 >>> # LQR design
 >>> result: LQRResult = design_lqr(A, B, Q, R)
 >>> K = result['gain']
->>> is_stable = np.all(np.real(result['closed_loop_eigenvalues']) < 0)
+>>> is_stable = np.all(np.real(result['controller_eigenvalues']) < 0)
 >>>
 >>> # Kalman filter design
 >>> kalman: KalmanFilterResult = design_kalman(A, C, Q_process, R_meas)
@@ -252,7 +252,7 @@ class LQRResult(TypedDict):
         Optimal feedback gain K of shape (nu, nx)
     cost_to_go : CovarianceMatrix
         Solution P to algebraic Riccati equation (nx, nx)
-    closed_loop_eigenvalues : np.ndarray
+    controller_eigenvalues : np.ndarray
         Eigenvalues of (A - BK) - indicates stability and response
     stability_margin : float
         Distance from stability boundary (positive = stable)
@@ -274,19 +274,19 @@ class LQRResult(TypedDict):
     >>> u = -K @ x
     >>>
     >>> # Check stability
-    >>> print(np.all(np.real(result['closed_loop_eigenvalues']) < 0))  # True
+    >>> print(np.all(np.real(result['controller_eigenvalues']) < 0))  # True
     >>> print(result['stability_margin'])  # Positive value
     >>>
     >>> # Discrete LQR
     >>> Ad = np.array([[1, 0.1], [0, 0.9]])
     >>> Bd = np.array([[0], [0.1]])
     >>> result_d: LQRResult = design_lqr_discrete(Ad, Bd, Q, R)
-    >>> print(np.all(np.abs(result_d['closed_loop_eigenvalues']) < 1))  # True
+    >>> print(np.all(np.abs(result_d['controller_eigenvalues']) < 1))  # True
     """
 
     gain: GainMatrix
     cost_to_go: CovarianceMatrix
-    closed_loop_eigenvalues: np.ndarray
+    controller_eigenvalues: np.ndarray
     stability_margin: float
 
 

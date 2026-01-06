@@ -149,7 +149,7 @@ class TestUnifiedLQR(ControlTestCase):
         # Check result structure
         self.assertIn("gain", result)
         self.assertIn("cost_to_go", result)
-        self.assertIn("closed_loop_eigenvalues", result)
+        self.assertIn("controller_eigenvalues", result)
         self.assertIn("stability_margin", result)
 
         # Check dimensions
@@ -158,7 +158,7 @@ class TestUnifiedLQR(ControlTestCase):
 
         # Check stability
         self.assertGreater(result["stability_margin"], 0)
-        self.assert_stable_continuous(result["closed_loop_eigenvalues"])
+        self.assert_stable_continuous(result["controller_eigenvalues"])
 
     def test_unified_lqr_discrete_default(self):
         """Test unified LQR with default system_type='discrete'."""
@@ -167,7 +167,7 @@ class TestUnifiedLQR(ControlTestCase):
 
         self.assertEqual(result["gain"].shape, (1, 2))
         self.assertGreater(result["stability_margin"], 0)
-        self.assert_stable_discrete(result["closed_loop_eigenvalues"])
+        self.assert_stable_discrete(result["controller_eigenvalues"])
 
     def test_unified_lqr_discrete_explicit(self):
         """Test unified LQR with explicit system_type='discrete'."""
@@ -181,7 +181,7 @@ class TestUnifiedLQR(ControlTestCase):
 
         self.assertEqual(result["gain"].shape, (1, 2))
         self.assertGreater(result["stability_margin"], 0)
-        self.assert_stable_discrete(result["closed_loop_eigenvalues"])
+        self.assert_stable_discrete(result["controller_eigenvalues"])
 
     def test_unified_lqr_with_cross_term(self):
         """Test unified LQR with cross-coupling term N."""
@@ -239,7 +239,7 @@ class TestLQRContinuous(ControlTestCase):
         # Check result structure
         self.assertIn("gain", result)
         self.assertIn("cost_to_go", result)
-        self.assertIn("closed_loop_eigenvalues", result)
+        self.assertIn("controller_eigenvalues", result)
         self.assertIn("stability_margin", result)
 
         # Check dimensions
@@ -254,7 +254,7 @@ class TestLQRContinuous(ControlTestCase):
 
         # Check stability
         self.assertGreater(result["stability_margin"], 0, "System should be stable")
-        self.assert_stable_continuous(result["closed_loop_eigenvalues"])
+        self.assert_stable_continuous(result["controller_eigenvalues"])
 
         # Verify Riccati equation: A'P + PA - PBR^{-1}B'P + Q = 0
         A = self.A_double_int
@@ -277,7 +277,7 @@ class TestLQRContinuous(ControlTestCase):
         self.assertGreater(result["stability_margin"], 0)
 
         # Closed-loop should be more stable than open-loop
-        A_cl_eigs = result["closed_loop_eigenvalues"]
+        A_cl_eigs = result["controller_eigenvalues"]
         A_eigs = np.linalg.eigvals(self.A_stable)
 
         max_real_cl = np.max(np.real(A_cl_eigs))
@@ -372,7 +372,7 @@ class TestLQRDiscrete(ControlTestCase):
 
         # Check stability
         self.assertGreater(result["stability_margin"], 0)
-        self.assert_stable_discrete(result["closed_loop_eigenvalues"])
+        self.assert_stable_discrete(result["controller_eigenvalues"])
 
         # Verify discrete Riccati equation
         A = self.Ad_double_int
@@ -391,7 +391,7 @@ class TestLQRDiscrete(ControlTestCase):
         )
 
         # Stability margin = 1 - max(|λ|)
-        max_mag = np.max(np.abs(result["closed_loop_eigenvalues"]))
+        max_mag = np.max(np.abs(result["controller_eigenvalues"]))
         expected_margin = 1.0 - max_mag
 
         assert_allclose(result["stability_margin"], expected_margin, rtol=self.rtol, atol=self.atol)
@@ -560,7 +560,7 @@ class TestLQG(ControlTestCase):
         self.assertIn("estimator_gain", result)
         self.assertIn("control_cost_to_go", result)  # Changed from "controller_riccati"
         self.assertIn("estimation_error_covariance", result)  # Changed from "estimator_covariance"
-        self.assertIn("controller_eigenvalues", result)  # Changed from "closed_loop_eigenvalues"
+        self.assertIn("controller_eigenvalues", result)  # Changed from "controller_eigenvalues"
         self.assertIn("estimator_eigenvalues", result)  # Changed from "observer_eigenvalues"
         self.assertIn("separation_verified", result)  # Added
         self.assertIn("closed_loop_stable", result)  # Added

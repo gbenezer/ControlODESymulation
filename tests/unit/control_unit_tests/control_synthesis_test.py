@@ -114,12 +114,12 @@ class SynthesisTestCase(unittest.TestCase):
         """Validate LQR result structure and shapes."""
         self.assertIn("gain", result)
         self.assertIn("cost_to_go", result)
-        self.assertIn("closed_loop_eigenvalues", result)
+        self.assertIn("controller_eigenvalues", result)
         self.assertIn("stability_margin", result)
 
         self.assertEqual(result["gain"].shape, (nu, nx))
         self.assertEqual(result["cost_to_go"].shape, (nx, nx))
-        self.assertEqual(len(result["closed_loop_eigenvalues"]), nx)
+        self.assertEqual(len(result["controller_eigenvalues"]), nx)
         self.assertIsInstance(result["stability_margin"], (float, np.floating))
 
     def assert_kalman_result_valid(self, result: KalmanFilterResult, nx: int, ny: int):
@@ -141,7 +141,7 @@ class SynthesisTestCase(unittest.TestCase):
         self.assertIn("estimator_gain", result)
         self.assertIn("control_cost_to_go", result)  # Changed from "controller_riccati"
         self.assertIn("estimation_error_covariance", result)  # Changed from "estimator_covariance"
-        self.assertIn("controller_eigenvalues", result)  # Changed from "closed_loop_eigenvalues"
+        self.assertIn("controller_eigenvalues", result)  # Changed from "controller_eigenvalues"
         self.assertIn("estimator_eigenvalues", result)  # Changed from "observer_eigenvalues"
         self.assertIn("separation_verified", result)  # Added
         self.assertIn("closed_loop_stable", result)  # Added
@@ -271,7 +271,7 @@ class TestUnifiedLQRMethod(SynthesisTestCase):
             mock_func.return_value = {
                 "gain": np.zeros((1, 2)),
                 "cost_to_go": np.eye(2),
-                "closed_loop_eigenvalues": np.array([-1, -2]),
+                "controller_eigenvalues": np.array([-1, -2]),
                 "stability_margin": 1.0,
             }
 
@@ -460,7 +460,7 @@ class TestBackendConsistency(SynthesisTestCase):
             mock_func.return_value = {
                 "gain": np.zeros((1, 2)),
                 "cost_to_go": np.eye(2),
-                "closed_loop_eigenvalues": np.array([-1, -2]),
+                "controller_eigenvalues": np.array([-1, -2]),
                 "stability_margin": 1.0,
             }
 
@@ -501,7 +501,7 @@ class TestBackendConsistency(SynthesisTestCase):
                 "estimator_gain": np.zeros((2, 1)),
                 "controller_riccati": np.eye(2),
                 "estimator_covariance": np.eye(2),
-                "closed_loop_eigenvalues": np.array([0.5, 0.6]),
+                "controller_eigenvalues": np.array([0.5, 0.6]),
                 "observer_eigenvalues": np.array([0.4, 0.5]),
             }
 
@@ -566,7 +566,7 @@ class TestDelegation(SynthesisTestCase):
             mock_func.return_value = {
                 "gain": np.zeros((1, 2)),
                 "cost_to_go": np.eye(2),
-                "closed_loop_eigenvalues": np.array([-1, -2]),
+                "controller_eigenvalues": np.array([-1, -2]),
                 "stability_margin": 1.0,
             }
 
