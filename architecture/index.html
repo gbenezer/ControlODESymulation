@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Architecture – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-db9ed783aab5bf1f5c769f61b112e483.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.html"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/basic_usage.html">
+ <span class="dropdown-text">Basic Usage</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#architecture-documents" id="toc-architecture-documents" class="nav-link" data-scroll-target="#architecture-documents">Architecture Documents</a>
+  <ul>
+  <li><a href="#design-philosophy" id="toc-design-philosophy" class="nav-link" data-scroll-target="#design-philosophy">1. Design Philosophy</a></li>
+  <li><a href="#delegation-layer" id="toc-delegation-layer" class="nav-link" data-scroll-target="#delegation-layer">2. Delegation Layer</a></li>
+  <li><a href="#integration-framework" id="toc-integration-framework" class="nav-link" data-scroll-target="#integration-framework">3. Integration Framework</a></li>
+  <li><a href="#visualization-framework" id="toc-visualization-framework" class="nav-link" data-scroll-target="#visualization-framework">4. Visualization Framework</a></li>
+  </ul></li>
+  <li><a href="#quick-navigation" id="toc-quick-navigation" class="nav-link" data-scroll-target="#quick-navigation">Quick Navigation</a>
+  <ul>
+  <li><a href="#by-user-level" id="toc-by-user-level" class="nav-link" data-scroll-target="#by-user-level">By User Level</a></li>
+  <li><a href="#by-use-case" id="toc-by-use-case" class="nav-link" data-scroll-target="#by-use-case">By Use Case</a></li>
+  </ul></li>
+  <li><a href="#architecture-statistics" id="toc-architecture-statistics" class="nav-link" data-scroll-target="#architecture-statistics">Architecture Statistics</a></li>
+  <li><a href="#design-principles-summary" id="toc-design-principles-summary" class="nav-link" data-scroll-target="#design-principles-summary">Design Principles Summary</a></li>
+  <li><a href="#common-architectural-questions" id="toc-common-architectural-questions" class="nav-link" data-scroll-target="#common-architectural-questions">Common Architectural Questions</a>
+  <ul>
+  <li><a href="#why-composition-instead-of-inheritance" id="toc-why-composition-instead-of-inheritance" class="nav-link" data-scroll-target="#why-composition-instead-of-inheritance">Why composition instead of inheritance?</a></li>
+  <li><a href="#why-support-multiple-backends" id="toc-why-support-multiple-backends" class="nav-link" data-scroll-target="#why-support-multiple-backends">Why support multiple backends?</a></li>
+  <li><a href="#where-does-symbolic-to-numerical-compilation-happen" id="toc-where-does-symbolic-to-numerical-compilation-happen" class="nav-link" data-scroll-target="#where-does-symbolic-to-numerical-compilation-happen">Where does symbolic-to-numerical compilation happen?</a></li>
+  <li><a href="#how-are-integrators-selected-automatically" id="toc-how-are-integrators-selected-automatically" class="nav-link" data-scroll-target="#how-are-integrators-selected-automatically">How are integrators selected automatically?</a></li>
+  <li><a href="#how-does-the-framework-avoid-code-duplication" id="toc-how-does-the-framework-avoid-code-duplication" class="nav-link" data-scroll-target="#how-does-the-framework-avoid-code-duplication">How does the framework avoid code duplication?</a></li>
+  </ul></li>
+  <li><a href="#contributing-to-the-framework" id="toc-contributing-to-the-framework" class="nav-link" data-scroll-target="#contributing-to-the-framework">Contributing to the Framework</a></li>
+  <li><a href="#getting-help" id="toc-getting-help" class="nav-link" data-scroll-target="#getting-help">Getting Help</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/architecture/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Architecture</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">Understanding ControlDESymulation’s Internal Design</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>ControlDESymulation is built on a <strong>type-driven, composition-based architecture</strong> that achieves mathematical rigor, software engineering excellence, and multi-backend performance simultaneously. This section provides comprehensive documentation of the framework’s internal design for developers and advanced users.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Who Should Read This?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Most users do NOT need to read architecture documentation.</strong> If you’re:</p>
+<ul>
+<li>Using built-in systems from <code>cdesym.systems.builtin.*</code></li>
+<li>Defining custom systems by subclassing <code>ContinuousSymbolicSystem</code> or <code>DiscreteSymbolicSystem</code></li>
+<li>Following tutorials and examples</li>
+</ul>
+<p><strong>Then you can skip this section entirely.</strong> The architecture documentation is intended for:</p>
+<ul>
+<li>Framework contributors and maintainers</li>
+<li>Advanced users implementing custom integrators or utilities</li>
+<li>Researchers studying the framework’s design</li>
+<li>Developers extending the framework with new capabilities</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="architecture-documents" class="level2">
+<h2 class="anchored" data-anchor-id="architecture-documents">Architecture Documents</h2>
+<p>The framework consists of <strong>4 architectural layers</strong>, each documented separately:</p>
+<section id="design-philosophy" class="level3">
+<h3 class="anchored" data-anchor-id="design-philosophy">1. <a href="../architecture/cdesym_Design_Philosophy.html">Design Philosophy</a></h3>
+<p><strong>Start here</strong> to understand the core principles that guide the framework’s design.</p>
+<p><strong>Topics covered:</strong></p>
+<ul>
+<li>Type-driven design philosophy</li>
+<li>Composition over inheritance</li>
+<li>Backend agnosticism</li>
+<li>Zero code duplication</li>
+<li>Progressive disclosure of complexity</li>
+<li>Design patterns and trade-offs</li>
+</ul>
+<p><strong>Read this if:</strong> You want to understand <em>why</em> the framework is built the way it is, or you’re contributing new features.</p>
+</section>
+<section id="delegation-layer" class="level3">
+<h3 class="anchored" data-anchor-id="delegation-layer">2. <a href="../architecture/Delegation_Layer_Architecture.html">Delegation Layer</a></h3>
+<p>The internal service layer that provides specialized utilities through composition.</p>
+<p><strong>Components documented:</strong></p>
+<ul>
+<li><strong>Core Utilities:</strong> <code>BackendManager</code>, <code>CodeGenerator</code>, <code>EquilibriumHandler</code>, <code>SymbolicValidator</code></li>
+<li><strong>Deterministic Evaluation:</strong> <code>DynamicsEvaluator</code>, <code>LinearizationEngine</code>, <code>ObservationEngine</code></li>
+<li><strong>Stochastic Support:</strong> <code>DiffusionHandler</code>, <code>NoiseCharacterizer</code>, <code>SDEValidator</code></li>
+<li><strong>Low-Level Utilities:</strong> <code>codegen_utils</code></li>
+</ul>
+<p><strong>Read this if:</strong> You’re implementing custom system types or need to understand how symbolic-to-numerical compilation works.</p>
+</section>
+<section id="integration-framework" class="level3">
+<h3 class="anchored" data-anchor-id="integration-framework">3. <a href="../architecture/Integration_Framework_Architecture.html">Integration Framework</a></h3>
+<p>Multi-backend numerical integration for ODEs and SDEs.</p>
+<p><strong>Topics covered:</strong></p>
+<ul>
+<li>Integrator architecture and factories</li>
+<li>Deterministic integrators (Scipy, TorchDiffEq, Diffrax, DiffEqPy, Fixed-step)</li>
+<li>Stochastic integrators (TorchSDE, Diffrax SDE, DiffEqPy SDE)</li>
+<li>40+ integration methods across 4 backends</li>
+<li>Integration result types and performance tracking</li>
+</ul>
+<p><strong>Read this if:</strong> You’re implementing custom integrators, need to understand method selection, or want to optimize integration performance.</p>
+</section>
+<section id="visualization-framework" class="level3">
+<h3 class="anchored" data-anchor-id="visualization-framework">4. <a href="../architecture/Visualization_Framework_Architecture.html">Visualization Framework</a></h3>
+<p>Interactive, publication-ready plotting for dynamical systems analysis.</p>
+<p><strong>Components documented:</strong></p>
+<ul>
+<li>Theming layer (colors, styles, themes)</li>
+<li><code>TrajectoryPlotter</code> - Time-domain visualization</li>
+<li><code>PhasePortraitPlotter</code> - State-space visualization</li>
+<li><code>ControlPlotter</code> - Control analysis plots</li>
+</ul>
+<p><strong>Read this if:</strong> You’re extending visualization capabilities or need to understand the plotting system architecture.</p>
+</section>
+</section>
+<section id="quick-navigation" class="level2">
+<h2 class="anchored" data-anchor-id="quick-navigation">Quick Navigation</h2>
+<section id="by-user-level" class="level3">
+<h3 class="anchored" data-anchor-id="by-user-level">By User Level</h3>
+<p><strong>Beginners:</strong> - Skip architecture docs - use <a href="../getting_started/index.qmd">Getting Started</a> instead</p>
+<p><strong>Intermediate Users:</strong> - Read <a href="../architecture/cdesym_Design_Philosophy.html">Design Philosophy</a> for conceptual understanding - Skim <a href="../architecture/Visualization_Framework_Architecture.html">Visualization Framework</a> for plotting capabilities</p>
+<p><strong>Advanced Users:</strong> - Study all architecture documents - Focus on <a href="../architecture/Integration_Framework_Architecture.html">Integration Framework</a> for custom numerical methods - Reference <a href="../architecture/Delegation_Layer_Architecture.html">Delegation Layer</a> for system extension</p>
+</section>
+<section id="by-use-case" class="level3">
+<h3 class="anchored" data-anchor-id="by-use-case">By Use Case</h3>
+<p><strong>I want to understand the framework’s design principles:</strong> → <a href="../architecture/cdesym_Design_Philosophy.html">Design Philosophy</a></p>
+<p><strong>I want to implement a custom integrator:</strong> → <a href="../architecture/Integration_Framework_Architecture.html">Integration Framework</a></p>
+<p><strong>I want to extend the system base classes:</strong> → <a href="../architecture/Delegation_Layer_Architecture.html">Delegation Layer</a></p>
+<p><strong>I want to customize or extend plotting:</strong> → <a href="../architecture/Visualization_Framework_Architecture.html">Visualization Framework</a></p>
+<p><strong>I want to understand symbolic-to-numerical compilation:</strong> → <a href="../architecture/Delegation_Layer_Architecture.html">Delegation Layer</a> → CodeGenerator</p>
+<p><strong>I want to add a new backend (e.g., TensorFlow):</strong> → <a href="../architecture/cdesym_Design_Philosophy.html">Design Philosophy</a> → Extension Points<br>
+→ <a href="../architecture/Delegation_Layer_Architecture.html">Delegation Layer</a> → BackendManager</p>
+</section>
+</section>
+<section id="architecture-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="architecture-statistics">Architecture Statistics</h2>
+<p>The framework consists of:</p>
+<ul>
+<li><strong>39 core files</strong> organized into 4 architectural layers</li>
+<li><strong>200+ types</strong> for semantic clarity and IDE support</li>
+<li><strong>55+ integration methods</strong> across NumPy, PyTorch, JAX, and Julia backends</li>
+<li><strong>11 delegation layer utilities</strong> providing specialized services</li>
+<li><strong>16+ plot types</strong> for comprehensive visualization</li>
+<li><strong>Zero code duplication</strong> through strategic abstraction</li>
+</ul>
+</section>
+<section id="design-principles-summary" class="level2">
+<h2 class="anchored" data-anchor-id="design-principles-summary">Design Principles Summary</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Core Principles
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>Type-Driven Design</strong> - Types are not just annotations—they are the architecture</li>
+<li><strong>Composition Over Inheritance</strong> - Build systems from specialized utilities</li>
+<li><strong>Backend Agnosticism</strong> - Write once, run on NumPy/PyTorch/JAX</li>
+<li><strong>Zero Code Duplication</strong> - Every line exists in exactly one place</li>
+<li><strong>Structured Results</strong> - TypedDict for all outputs with IDE support</li>
+<li><strong>Protocol-Based Interfaces</strong> - Duck typing with type safety</li>
+<li><strong>Factory Pattern</strong> - Hide complexity behind simple creation methods</li>
+<li><strong>Semantic Naming</strong> - Names convey mathematical meaning</li>
+<li><strong>Progressive Disclosure</strong> - Simple things simple, complex things possible</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="common-architectural-questions" class="level2">
+<h2 class="anchored" data-anchor-id="common-architectural-questions">Common Architectural Questions</h2>
+<section id="why-composition-instead-of-inheritance" class="level3">
+<h3 class="anchored" data-anchor-id="why-composition-instead-of-inheritance">Why composition instead of inheritance?</h3>
+<p><strong>Short answer:</strong> Single responsibility, testability, and flexibility.</p>
+<p><strong>Long answer:</strong> See <a href="../architecture/cdesym_Design_Philosophy.html#sec-composition-over-inheritance">Design Philosophy</a></p>
+</section>
+<section id="why-support-multiple-backends" class="level3">
+<h3 class="anchored" data-anchor-id="why-support-multiple-backends">Why support multiple backends?</h3>
+<p><strong>Short answer:</strong> Different backends excel at different tasks—NumPy for CPU, PyTorch for GPUs/neural networks, JAX for optimization.</p>
+<p><strong>Long answer:</strong> See <a href="../architecture/cdesym_Design_Philosophy.html#sec-backend-agnosticism">Design Philosophy</a></p>
+</section>
+<section id="where-does-symbolic-to-numerical-compilation-happen" class="level3">
+<h3 class="anchored" data-anchor-id="where-does-symbolic-to-numerical-compilation-happen">Where does symbolic-to-numerical compilation happen?</h3>
+<p><strong>Short answer:</strong> In the <code>CodeGenerator</code> utility, with per-backend caching.</p>
+<p><strong>Long answer:</strong> See <a href="../architecture/Delegation_Layer_Architecture.html#sec-codegenerator">Delegation Layer</a></p>
+</section>
+<section id="how-are-integrators-selected-automatically" class="level3">
+<h3 class="anchored" data-anchor-id="how-are-integrators-selected-automatically">How are integrators selected automatically?</h3>
+<p><strong>Short answer:</strong> Through the <code>IntegratorFactory</code> which chooses based on system properties and backend.</p>
+<p><strong>Long answer:</strong> See <a href="../architecture/Integration_Framework_Architecture.html#sec-integratorfactory">Integration Framework</a></p>
+</section>
+<section id="how-does-the-framework-avoid-code-duplication" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-the-framework-avoid-code-duplication">How does the framework avoid code duplication?</h3>
+<p><strong>Short answer:</strong> Through <code>SymbolicSystemBase</code> providing shared functionality to both continuous and discrete systems.</p>
+<p><strong>Long answer:</strong> See <a href="../architecture/cdesym_Design_Philosophy.html#sec-zero-code-duplication">Design Philosophy</a></p>
+</section>
+</section>
+<section id="contributing-to-the-framework" class="level2">
+<h2 class="anchored" data-anchor-id="contributing-to-the-framework">Contributing to the Framework</h2>
+<p>If you’re interested in contributing:</p>
+<ol type="1">
+<li><strong>Start with <a href="../architecture/cdesym_Design_Philosophy.html">Design Philosophy</a></strong> to understand core principles</li>
+<li><strong>Study the relevant layer docs</strong> for your contribution area</li>
+<li><strong>Follow the established patterns</strong> (composition, type-driven design, etc.)</li>
+<li><strong>Write comprehensive tests</strong> for each component in isolation</li>
+<li><strong>Document your additions</strong> with clear examples and type annotations</li>
+</ol>
+<p>See <a href="../contributing/index.qmd">Contributing Guidelines</a> for more details.</p>
+</section>
+<section id="getting-help" class="level2">
+<h2 class="anchored" data-anchor-id="getting-help">Getting Help</h2>
+<ul>
+<li><strong>Questions about architecture?</strong> Open a discussion on GitHub</li>
+<li><strong>Found a design issue?</strong> File an issue with the “architecture” label</li>
+<li><strong>Want to propose an enhancement?</strong> Start with a discussion to align with design principles</li>
+</ul>
+<hr>
+<p><strong>Remember:</strong> Most users don’t need to read architecture documentation. The framework is designed so you can be productive without understanding its internals. These documents are here when you need them.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Architecture"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Understanding ControlDESymulation's Internal Design"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ControlDESymulation is built on a **type-driven, composition-based architecture** that achieves mathematical rigor, software engineering excellence, and multi-backend performance simultaneously. This section provides comprehensive documentation of the framework's internal design for developers and advanced users.</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>::: {.callout-important}</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## Who Should Read This?</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>**Most users do NOT need to read architecture documentation.** If you're:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Using built-in systems from <span class="in">`cdesym.systems.builtin.*`</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Defining custom systems by subclassing <span class="in">`ContinuousSymbolicSystem`</span> or <span class="in">`DiscreteSymbolicSystem`</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Following tutorials and examples</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>**Then you can skip this section entirely.** The architecture documentation is intended for:</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Framework contributors and maintainers</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Advanced users implementing custom integrators or utilities</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Researchers studying the framework's design</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Developers extending the framework with new capabilities</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">## Architecture Documents</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>The framework consists of **4 architectural layers**, each documented separately:</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1. [Design Philosophy](cdesym_Design_Philosophy.qmd)</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>**Start here** to understand the core principles that guide the framework's design.</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>**Topics covered:**</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Type-driven design philosophy</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Composition over inheritance</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Backend agnosticism</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Zero code duplication</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Progressive disclosure of complexity</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Design patterns and trade-offs</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>**Read this if:** You want to understand *why* the framework is built the way it is, or you're contributing new features.</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2. [Delegation Layer](Delegation_Layer_Architecture.qmd)</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>The internal service layer that provides specialized utilities through composition.</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>**Components documented:**</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Core Utilities:** <span class="in">`BackendManager`</span>, <span class="in">`CodeGenerator`</span>, <span class="in">`EquilibriumHandler`</span>, <span class="in">`SymbolicValidator`</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Deterministic Evaluation:** <span class="in">`DynamicsEvaluator`</span>, <span class="in">`LinearizationEngine`</span>, <span class="in">`ObservationEngine`</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Stochastic Support:** <span class="in">`DiffusionHandler`</span>, <span class="in">`NoiseCharacterizer`</span>, <span class="in">`SDEValidator`</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Low-Level Utilities:** <span class="in">`codegen_utils`</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>**Read this if:** You're implementing custom system types or need to understand how symbolic-to-numerical compilation works.</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3. [Integration Framework](Integration_Framework_Architecture.qmd)</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>Multi-backend numerical integration for ODEs and SDEs.</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>**Topics covered:**</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Integrator architecture and factories</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Deterministic integrators (Scipy, TorchDiffEq, Diffrax, DiffEqPy, Fixed-step)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stochastic integrators (TorchSDE, Diffrax SDE, DiffEqPy SDE)</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>40+ integration methods across 4 backends</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Integration result types and performance tracking</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>**Read this if:** You're implementing custom integrators, need to understand method selection, or want to optimize integration performance.</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="fu">### 4. [Visualization Framework](Visualization_Framework_Architecture.qmd)</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>Interactive, publication-ready plotting for dynamical systems analysis.</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>**Components documented:**</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Theming layer (colors, styles, themes)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`TrajectoryPlotter`</span> - Time-domain visualization</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`PhasePortraitPlotter`</span> - State-space visualization</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`ControlPlotter`</span> - Control analysis plots</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>**Read this if:** You're extending visualization capabilities or need to understand the plotting system architecture.</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Quick Navigation</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="fu">### By User Level</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>**Beginners:**</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Skip architecture docs - use <span class="co">[</span><span class="ot">Getting Started</span><span class="co">](../getting_started/index.qmd)</span> instead</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>**Intermediate Users:**</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Read <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd)</span> for conceptual understanding</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Skim <span class="co">[</span><span class="ot">Visualization Framework</span><span class="co">](Visualization_Framework_Architecture.qmd)</span> for plotting capabilities</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>**Advanced Users:**</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Study all architecture documents</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Focus on <span class="co">[</span><span class="ot">Integration Framework</span><span class="co">](Integration_Framework_Architecture.qmd)</span> for custom numerical methods</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Reference <span class="co">[</span><span class="ot">Delegation Layer</span><span class="co">](Delegation_Layer_Architecture.qmd)</span> for system extension</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### By Use Case</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>**I want to understand the framework's design principles:**</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd)</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>**I want to implement a custom integrator:**</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Integration Framework</span><span class="co">](Integration_Framework_Architecture.qmd)</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>**I want to extend the system base classes:**</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Delegation Layer</span><span class="co">](Delegation_Layer_Architecture.qmd)</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>**I want to customize or extend plotting:**</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Visualization Framework</span><span class="co">](Visualization_Framework_Architecture.qmd)</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>**I want to understand symbolic-to-numerical compilation:**</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Delegation Layer</span><span class="co">](Delegation_Layer_Architecture.qmd)</span> → CodeGenerator</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>**I want to add a new backend (e.g., TensorFlow):**</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd)</span> → Extension Points  </span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>→ <span class="co">[</span><span class="ot">Delegation Layer</span><span class="co">](Delegation_Layer_Architecture.qmd)</span> → BackendManager</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a><span class="fu">## Architecture Statistics</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>The framework consists of:</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**39 core files** organized into 4 architectural layers</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**200+ types** for semantic clarity and IDE support</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**55+ integration methods** across NumPy, PyTorch, JAX, and Julia backends</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**11 delegation layer utilities** providing specialized services</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**16+ plot types** for comprehensive visualization</span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Zero code duplication** through strategic abstraction</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="fu">## Design Principles Summary</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Core Principles</span></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Type-Driven Design** - Types are not just annotations—they are the architecture</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Composition Over Inheritance** - Build systems from specialized utilities</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Backend Agnosticism** - Write once, run on NumPy/PyTorch/JAX</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Zero Code Duplication** - Every line exists in exactly one place</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**Structured Results** - TypedDict for all outputs with IDE support</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>**Protocol-Based Interfaces** - Duck typing with type safety</span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>**Factory Pattern** - Hide complexity behind simple creation methods</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>**Semantic Naming** - Names convey mathematical meaning</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>**Progressive Disclosure** - Simple things simple, complex things possible</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common Architectural Questions</span></span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why composition instead of inheritance?</span></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>**Short answer:** Single responsibility, testability, and flexibility.</span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>**Long answer:** See <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd#sec-composition-over-inheritance)</span></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why support multiple backends?</span></span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>**Short answer:** Different backends excel at different tasks—NumPy for CPU, PyTorch for GPUs/neural networks, JAX for optimization.</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>**Long answer:** See <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd#sec-backend-agnosticism)</span></span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a><span class="fu">### Where does symbolic-to-numerical compilation happen?</span></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>**Short answer:** In the <span class="in">`CodeGenerator`</span> utility, with per-backend caching.</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>**Long answer:** See <span class="co">[</span><span class="ot">Delegation Layer</span><span class="co">](Delegation_Layer_Architecture.qmd#sec-codegenerator)</span></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a><span class="fu">### How are integrators selected automatically?</span></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>**Short answer:** Through the <span class="in">`IntegratorFactory`</span> which chooses based on system properties and backend.</span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>**Long answer:** See <span class="co">[</span><span class="ot">Integration Framework</span><span class="co">](Integration_Framework_Architecture.qmd#sec-integratorfactory)</span></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### How does the framework avoid code duplication?</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>**Short answer:** Through <span class="in">`SymbolicSystemBase`</span> providing shared functionality to both continuous and discrete systems.</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>**Long answer:** See <span class="co">[</span><span class="ot">Design Philosophy</span><span class="co">](cdesym_Design_Philosophy.qmd#sec-zero-code-duplication)</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## Contributing to the Framework</span></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>If you're interested in contributing:</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Start with [Design Philosophy](cdesym_Design_Philosophy.qmd)** to understand core principles</span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Study the relevant layer docs** for your contribution area</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Follow the established patterns** (composition, type-driven design, etc.)</span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Write comprehensive tests** for each component in isolation</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**Document your additions** with clear examples and type annotations</span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>See <span class="co">[</span><span class="ot">Contributing Guidelines</span><span class="co">](../contributing/index.qmd)</span> for more details.</span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a><span class="fu">## Getting Help</span></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Questions about architecture?** Open a discussion on GitHub</span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Found a design issue?** File an issue with the "architecture" label</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Want to propose an enhancement?** Start with a discussion to align with design principles</span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>**Remember:** Most users don't need to read architecture documentation. The framework is designed so you can be productive without understanding its internals. These documents are here when you need them.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/architecture/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
