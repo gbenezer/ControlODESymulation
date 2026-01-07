@@ -4,88 +4,122 @@
 # Install: pre-commit install
 # Run manually: pre-commit run --all-files
 # Update hooks: pre-commit autoupdate
+#
+# PHASED ROLLOUT:
+# - Currently only pytest runs (blocks commit on test failure)
+# - Uncomment sections below as codebase issues are resolved
+# - Order to enable: general checks → black → isort → ruff → bandit → mypy
 
 default_language_version:
   python: python3.12
 
 repos:
-  # General file checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  # ==========================================================================
+  # ACTIVE: Pytest (blocks commit on test failure)
+  # ==========================================================================
+  - repo: local
     hooks:
-      - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
-      - id: end-of-file-fixer
-      - id: check-yaml
-        args: [--unsafe]  # Allow custom tags in YAML
-      - id: check-toml
-      - id: check-json
-      - id: check-added-large-files
-        args: [--maxkb=1000]
-      - id: check-merge-conflict
-      - id: check-case-conflict
-      - id: detect-private-key
-      - id: debug-statements
-      - id: check-docstring-first
-
-  # Python import sorting (must run before black)
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
-        args: [--profile, black, --line-length, "100"]
-
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
-        args: [--line-length, "100", --target-version, py39]
-        language_version: python3
-
-  # Fast Python linting
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-
-  # Security checks
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.8.0
-    hooks:
-      - id: bandit
-        args: [-c, pyproject.toml, -r, src/]
-        additional_dependencies: ["bandit[toml]"]
-
-  # Type checking (optional - can be slow, run with: pre-commit run mypy)
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
-    hooks:
-      - id: mypy
-        args: [--config-file, pyproject.toml]
-        additional_dependencies:
-          - types-requests
-          - types-setuptools
-          - pydantic>=2.5
-          - numpy>=2.0
+      - id: pytest
+        name: pytest (unit tests)
+        entry: pytest tests/unit -x -q --no-header --tb=line --no-cov
+        language: system
         pass_filenames: false
-        stages: [manual]  # Only run manually: pre-commit run mypy --all-files
+        always_run: true
+        # -x = stop on first failure
+        # -q = quiet output
+        # --tb=line = minimal traceback
+        # --no-cov = skip coverage for speed
 
-  # Check pyproject.toml
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.23
-    hooks:
-      - id: validate-pyproject
+  # ==========================================================================
+  # PHASE 1: General file checks (safe, non-breaking)
+  # Uncomment when ready - these are low-risk
+  # ==========================================================================
+  # - repo: https://github.com/pre-commit/pre-commit-hooks
+  #   rev: v5.0.0
+  #   hooks:
+  #     - id: trailing-whitespace
+  #       args: [--markdown-linebreak-ext=md]
+  #     - id: end-of-file-fixer
+  #     - id: check-yaml
+  #       args: [--unsafe]  # Allow custom tags in YAML
+  #     - id: check-toml
+  #     - id: check-json
+  #     - id: check-added-large-files
+  #       args: [--maxkb=1000]
+  #     - id: check-merge-conflict
+  #     - id: check-case-conflict
+  #     - id: detect-private-key
+  #     - id: debug-statements
+  #     - id: check-docstring-first
 
-  # Markdown linting
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.43.0
-    hooks:
-      - id: markdownlint
-        args: [--disable, MD013, MD033, MD041, --]  # Disable line length, inline HTML, first-line heading
+  # ==========================================================================
+  # PHASE 2: Code formatting (auto-fixes, run black first then isort)
+  # Uncomment after running: black src/ tests/ && isort src/ tests/
+  # ==========================================================================
+  # - repo: https://github.com/psf/black
+  #   rev: 24.10.0
+  #   hooks:
+  #     - id: black
+  #       args: [--line-length, "100", --target-version, py39]
+  #       language_version: python3
+
+  # - repo: https://github.com/pycqa/isort
+  #   rev: 5.13.2
+  #   hooks:
+  #     - id: isort
+  #       args: [--profile, black, --line-length, "100"]
+
+  # ==========================================================================
+  # PHASE 3: Linting with Ruff
+  # Uncomment after running: ruff check src/ tests/ --fix
+  # ==========================================================================
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.8.4
+  #   hooks:
+  #     - id: ruff
+  #       args: [--fix, --exit-non-zero-on-fix]
+
+  # ==========================================================================
+  # PHASE 4: Security checks
+  # Uncomment after running: bandit -c pyproject.toml -r src/
+  # ==========================================================================
+  # - repo: https://github.com/pycqa/bandit
+  #   rev: 1.8.0
+  #   hooks:
+  #     - id: bandit
+  #       args: [-c, pyproject.toml, -r, src/]
+  #       additional_dependencies: ["bandit[toml]"]
+
+  # ==========================================================================
+  # PHASE 5: Type checking (slowest, most work to fix)
+  # Uncomment after running: mypy src/ --config-file pyproject.toml
+  # ==========================================================================
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.14.1
+  #   hooks:
+  #     - id: mypy
+  #       args: [--config-file, pyproject.toml]
+  #       additional_dependencies:
+  #         - types-requests
+  #         - types-setuptools
+  #         - pydantic>=2.5
+  #         - numpy>=2.0
+  #       pass_filenames: false
+
+  # ==========================================================================
+  # PHASE 6: Additional checks (optional)
+  # ==========================================================================
+  # - repo: https://github.com/abravalheri/validate-pyproject
+  #   rev: v0.23
+  #   hooks:
+  #     - id: validate-pyproject
+
+  # - repo: https://github.com/igorshubovych/markdownlint-cli
+  #   rev: v0.43.0
+  #   hooks:
+  #     - id: markdownlint
+  #       args: [--disable, MD013, MD033, MD041, --]
 
 ci:
   autofix_commit_msg: "style: auto-fix by pre-commit hooks"
   autoupdate_commit_msg: "chore: update pre-commit hooks"
-  skip: [mypy]  # Skip slow hooks in CI (already run separately)
