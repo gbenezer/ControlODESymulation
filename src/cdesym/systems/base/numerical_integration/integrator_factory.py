@@ -369,15 +369,16 @@ class IntegratorFactory:
                 ExplicitEulerIntegrator,
                 MidpointIntegrator,
                 RK4Integrator,
+                HeunIntegrator,
             )
 
             integrator_map = {
                 "euler": ExplicitEulerIntegrator,
+                "heun": HeunIntegrator,
                 "midpoint": MidpointIntegrator,
                 "rk4": RK4Integrator,
             }
 
-            # Note: 'heun' would need HeunIntegrator class to be implemented
             if method not in integrator_map:
                 raise ValueError(
                     f"Manual implementation for '{method}' not available. "
@@ -405,7 +406,7 @@ class IntegratorFactory:
 
         These are the ONLY methods with manual integrator classes.
         """
-        return method in ["euler", "midpoint", "rk4"]
+        return method in ["euler", "heun", "midpoint", "rk4"]
 
     @classmethod
     def _is_julia_method(cls, method: IntegrationMethod) -> bool:
