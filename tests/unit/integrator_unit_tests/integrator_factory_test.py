@@ -1101,6 +1101,203 @@ class TestScalarLikeTypeUsage:
 
 
 # ============================================================================
+# Regression Tests for DiscretizedSystem Integration
+# ============================================================================
+
+
+class TestDiscretizedSystemIntegration:
+    """
+    Test IntegratorFactory behavior when called from DiscretizedSystem.
+
+    Regression Prevention: The bug occurred because DiscretizedSystem was
+    creating integrators on every step without specifying step_mode, causing
+    inefficiency and incorrect behavior.
+    """
+
+    def test_fixed_step_methods_with_explicit_step_mode(self, mock_system):
+        """
+        Fixed-step methods should work correctly with explicit StepMode.FIXED.
+
+        This is how DiscretizedSystem now calls the factory.
+        """
+        for method in ["euler", "rk4", "midpoint", "heun"]:
+            integrator = IntegratorFactory.create(
+                mock_system,
+                backend="numpy",
+                method=method,
+                dt=0.01,
+                step_mode=StepMode.FIXED,  # ← Explicit, not defaulted
+            )
+
+            # Should create successfully
+            assert integrator is not None
+            assert integrator.step_mode == StepMode.FIXED
+
+            # Should have efficient step() method
+            assert hasattr(integrator, "step")
+            assert callable(integrator.step)
+
+    def test_step_mode_fixed_with_prefer_manual(self, mock_system):
+        """
+        Combining step_mode=FIXED with prefer_manual=True should work.
+
+        This is the pattern DiscretizedSystem uses for optimal performance.
+        """
+        integrator = IntegratorFactory.create(
+            mock_system,
+            backend="numpy",
+            method="euler",
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            prefer_manual=True,  # ← Avoid Julia overhead
+        )
+
+        from cdesym.systems.base.numerical_integration.fixed_step_integrators import (
+            ExplicitEulerIntegrator,
+        )
+
+        # Should use native Python implementation
+        assert isinstance(integrator, ExplicitEulerIntegrator)
+        assert integrator.step_mode == StepMode.FIXED
+
+    def test_default_step_mode_is_adaptive(self, mock_system):
+        """
+        Verify default step_mode is ADAPTIVE (documents behavior).
+
+        This was part of the bug - when step_mode wasn't specified,
+        it defaulted to ADAPTIVE even for fixed-step methods.
+        """
+        integrator = IntegratorFactory.create(
+            mock_system,
+            backend="numpy",
+            method="euler",
+            dt=0.01,
+            # step_mode NOT specified ← Should default to ADAPTIVE
+        )
+
+        # Default should be ADAPTIVE
+        assert integrator.step_mode == StepMode.ADAPTIVE
+
+    def test_step_mode_mismatch_detection(self, mock_system):
+        """
+        Test that step_mode is correctly set regardless of method type.
+
+        This documents that the factory doesn't validate step_mode against
+        method - it trusts the caller (DiscretizedSystem) to set it correctly.
+        """
+        # Fixed-step method with ADAPTIVE mode (unusual but allowed)
+        integrator1 = IntegratorFactory.create(
+            mock_system,
+            backend="numpy",
+            method="euler",
+            dt=0.01,
+            step_mode=StepMode.ADAPTIVE,  # ← Explicit ADAPTIVE for fixed method
+        )
+        assert integrator1.step_mode == StepMode.ADAPTIVE
+
+        # This is unusual but shouldn't crash - documents behavior
+        # (DiscretizedSystem should never do this, but factory allows it)
+
+    def test_integrator_is_stateless_and_reusable(self, mock_system):
+        """
+        Integrators should be stateless and reusable across steps.
+
+        Critical for DiscretizedSystem's caching strategy.
+        """
+        integrator = IntegratorFactory.create(
+            mock_system,
+            backend="numpy",
+            method="euler",
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            prefer_manual=True,
+        )
+
+        # Should be able to call step() multiple times
+        x0 = np.array([1.0, 0.0])
+
+        x1 = integrator.step(x0, None, dt=0.01)
+        x2 = integrator.step(x1, None, dt=0.01)
+        x3 = integrator.step(x2, None, dt=0.01)
+
+        # All calls should succeed
+        assert x1 is not None
+        assert x2 is not None
+        assert x3 is not None
+
+        # States should be different (evolving)
+        assert not np.allclose(x1, x0)
+        assert not np.allclose(x2, x1)
+        assert not np.allclose(x3, x2)
+
+    def test_sde_method_validation_on_deterministic_system(self, mock_system):
+        """
+        Factory should reject SDE methods on deterministic systems.
+
+        DiscretizedSystem catches this ValueError and maps to deterministic.
+        """
+        # Mock system is deterministic (no is_stochastic attribute)
+        with pytest.raises(ValueError, match="SDE method.*deterministic"):
+            IntegratorFactory.create(
+                mock_system,
+                backend="numpy",
+                method="EM",  # SDE method
+                dt=0.01,
+                step_mode=StepMode.FIXED,
+            )
+
+        # This error is expected - DiscretizedSystem catches and handles it
+
+
+class TestStepMethodAvailability:
+    """
+    Verify all integrators have working step() methods.
+
+    Critical for DiscretizedSystem's fast path.
+    """
+
+    def test_all_fixed_step_integrators_have_step_method(self, mock_system):
+        """All fixed-step integrators must have step() method."""
+        methods = ["euler", "rk4", "midpoint", "heun"]
+
+        for method in methods:
+            integrator = IntegratorFactory.create(
+                mock_system,
+                backend="numpy",
+                method=method,
+                dt=0.01,
+                step_mode=StepMode.FIXED,
+                prefer_manual=True,
+            )
+
+            # Must have step() method
+            assert hasattr(integrator, "step"), f"{method} integrator missing step() method"
+
+            # Must be callable
+            assert callable(integrator.step), f"{method} integrator step() is not callable"
+
+    def test_step_method_signature_correct(self, mock_system):
+        """step() should accept (x, u, dt) parameters."""
+        integrator = IntegratorFactory.create(
+            mock_system,
+            backend="numpy",
+            method="euler",
+            dt=0.01,
+            step_mode=StepMode.FIXED,
+            prefer_manual=True,
+        )
+
+        x0 = np.array([1.0, 0.0])
+
+        # Should accept these forms
+        x1 = integrator.step(x0, None)  # dt from integrator.dt
+        x2 = integrator.step(x0, None, dt=0.01)  # explicit dt
+
+        assert x1 is not None
+        assert x2 is not None
+
+
+# ============================================================================
 # Run Tests
 # ============================================================================
 
