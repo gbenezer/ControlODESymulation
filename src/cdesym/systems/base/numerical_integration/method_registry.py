@@ -697,15 +697,20 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
 
     Normalization Logic
     -------------------
-    1. **Already valid for backend?** → Return unchanged
-       - Check if method is in BACKEND_METHODS[backend]
-       - Avoids unnecessary mapping when user provides correct name
+    1. **Auto-switching methods** → Pass through unchanged
+       - Julia methods with parentheses (e.g., 'AutoTsit5(Rosenbrock23())')
 
-    2. **In normalization map?** → Map to backend-specific name
+    2. **Already valid for backend?** → Return (with special upgrades)
+       - Check if method is in BACKEND_METHODS[backend]
+       - Special case: lowercase euler/heun/midpoint on numpy → upgrade to Julia
+       - Avoids breaking SDE methods (e.g., 'Euler' on jax stays 'Euler')
+
+    3. **In normalization map?** → Map to backend-specific name
        - Check both exact case and lowercase versions
        - Handles canonical names like 'euler_maruyama', 'rk45'
+       - Handles explicit manual requests like 'manual_euler'
 
-    3. **Unknown method?** → Pass through unchanged
+    4. **Unknown method?** → Pass through unchanged
        - Will fail at integrator level with appropriate error
        - Allows custom methods to pass through
 
@@ -714,6 +719,16 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     - **NumPy/Julia (DiffEqPy)**: Capitalized (e.g., 'EM', 'Tsit5', 'SRIW1')
     - **PyTorch (TorchSDE/TorchDiffEq)**: lowercase (e.g., 'euler', 'dopri5')
     - **JAX (Diffrax)**: PascalCase (e.g., 'Euler', 'ItoMilstein', 'Tsit5')
+
+    Julia Preference for ODE Methods
+    ---------------------------------
+    On NumPy backend, lowercase ODE methods automatically prefer Julia:
+    - 'euler' → 'Euler' (Julia's implementation)
+    - 'heun' → 'Heun' (Julia's implementation)
+    - 'midpoint' → 'Midpoint' (Julia's implementation)
+    
+    To explicitly use manual implementations on NumPy:
+    - Use 'manual_euler', 'manual_heun', 'manual_midpoint'
 
     Idempotency
     -----------
@@ -743,6 +758,36 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     >>> normalize_method_name('rk45', 'jax')
     'tsit5'
 
+    **Julia preference for ODE methods on NumPy:**
+
+    >>> normalize_method_name('euler', 'numpy')
+    'Euler'  # Upgraded to Julia
+    >>> normalize_method_name('heun', 'numpy')
+    'Heun'   # Upgraded to Julia
+    >>> normalize_method_name('midpoint', 'numpy')
+    'Midpoint'  # Upgraded to Julia
+
+    **Manual implementations on NumPy:**
+
+    >>> normalize_method_name('manual_euler', 'numpy')
+    'euler'  # Explicit manual request
+    >>> normalize_method_name('manual_heun', 'numpy')
+    'heun'   # Explicit manual request
+
+    **SDE methods preserved (critical for correctness):**
+
+    >>> normalize_method_name('Euler', 'jax')
+    'Euler'  # SDE method, NOT normalized to 'euler'
+    >>> normalize_method_name('Heun', 'jax')
+    'Heun'   # SDE method, NOT normalized to 'heun'
+
+    **ODE methods on torch/jax use manual implementations:**
+
+    >>> normalize_method_name('euler', 'torch')
+    'euler'
+    >>> normalize_method_name('heun', 'jax')
+    'heun'
+
     **Cross-backend normalization (torch → jax):**
 
     >>> normalize_method_name('dopri5', 'jax')
@@ -770,7 +815,7 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     'my_custom_method'
     # Will be validated at integrator creation
 
-    **Case-insensitive lookup:**
+    **Case-insensitive lookup (canonical names only):**
 
     >>> normalize_method_name('RK45', 'torch')
     'dopri5'
@@ -792,6 +837,8 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
       (e.g., 'rk45' → 'RK45'/'dopri5'/'tsit5')
     - Not all methods can be perfectly mapped across backends (e.g., 'lsoda'
       doesn't exist on PyTorch/JAX, maps to nearest equivalent)
+    - **Critical**: Methods already valid for a backend are preserved to avoid
+      breaking SDE integration (e.g., 'Euler' on jax must stay 'Euler')
 
     See Also
     --------
@@ -817,7 +864,22 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
         return method
     
     # ========================================================================
-    # Check normalization map FIRST (to allow preferring Julia methods)
+    # Check if already valid for backend
+    # ========================================================================
+    
+    if backend in BACKEND_METHODS and method in BACKEND_METHODS[backend]:
+        # Special case: Prefer Julia for lowercase euler/heun/midpoint on numpy
+        # This upgrades manual ODE implementations to faster Julia versions
+        if backend == "numpy" and method in ["euler", "heun", "midpoint"]:
+            return method.capitalize()  # euler → Euler, heun → Heun, etc.
+        
+        # Otherwise, if it's already valid, don't change it!
+        # This is CRITICAL for SDE methods - 'Euler' on jax must stay 'Euler'
+        # not be converted to 'euler' which would break SDE integration
+        return method
+    
+    # ========================================================================
+    # Try normalization map (exact and case-insensitive)
     # ========================================================================
     
     method_lower = method.lower()
@@ -829,13 +891,6 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     # Try case-insensitive match
     if method_lower in NORMALIZATION_MAP and backend in NORMALIZATION_MAP[method_lower]:
         return NORMALIZATION_MAP[method_lower][backend]
-    
-    # ========================================================================
-    # Check if already valid for backend (fallback)
-    # ========================================================================
-    
-    if backend in BACKEND_METHODS and method in BACKEND_METHODS[backend]:
-        return method
     
     # ========================================================================
     # No normalization found - return as-is
