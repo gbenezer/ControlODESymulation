@@ -18,6 +18,9 @@ website:
         file: tutorials/installation.qmd
       - text: "Architecture"
         menu:
+          - text: "Overview"
+            file: architecture/index.qmd
+          - text: "---"
           - architecture/cdesym_Design_Philosophy.qmd
           - architecture/UI_Framework_Architecture.qmd
           - architecture/Type_System_Architecture.qmd
@@ -52,6 +55,8 @@ website:
             - tutorials/installation.qmd
         - section: "Framework Design"
           contents:
+            - text: "Overview"
+              file: architecture/index.qmd
             - architecture/cdesym_Design_Philosophy.qmd
             - architecture/UI_Framework_Architecture.qmd
             - architecture/Type_System_Architecture.qmd

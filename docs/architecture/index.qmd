@@ -26,7 +26,7 @@ ControlDESymulation is built on a **type-driven, composition-based architecture*
 
 ## Architecture Documents
 
-The framework consists of **4 architectural layers**, each documented separately:
+The framework consists of **7 architectural layers**, each documented separately:
 
 ### 1. [Design Philosophy](cdesym_Design_Philosophy.qmd)
 
@@ -43,7 +43,34 @@ The framework consists of **4 architectural layers**, each documented separately
 
 **Read this if:** You want to understand *why* the framework is built the way it is, or you're contributing new features.
 
-### 2. [Delegation Layer](Delegation_Layer_Architecture.qmd)
+### 2. [Type System Architecture](Type_System_Architecture.qmd)
+
+The foundational **Layer 0** that provides semantic types, structured results, and type-safe interfaces.
+
+**Topics covered:**
+
+- Multi-backend array types (NumPy, PyTorch, JAX)
+- Semantic vector/matrix types (StateVector, GainMatrix, etc.)
+- TypedDict structured results (IntegrationResult, LQRResult, etc.)
+- Protocol-based interfaces for duck typing with type safety
+- 200+ type definitions across 8 modules
+
+**Read this if:** You're implementing custom components, need to understand type conventions, or want to leverage IDE support.
+
+### 3. [UI Framework Architecture](UI_Framework_Architecture.qmd)
+
+The user-facing **Layer 3** for defining and working with dynamical systems.
+
+**Components documented:**
+
+- **Layer 0:** `SymbolicSystemBase` - Time-domain agnostic foundation
+- **Layer 1:** `ContinuousSystemBase`, `DiscreteSystemBase` - Time-domain interfaces
+- **Layer 2:** `ContinuousSymbolicSystem`, `DiscreteSymbolicSystem` - Concrete implementations
+- **Layer 3:** `ContinuousStochasticSystem`, `DiscreteStochasticSystem` - Stochastic extensions
+
+**Read this if:** You're defining custom systems, extending the framework, or need to understand the class hierarchy.
+
+### 4. [Delegation Layer](Delegation_Layer_Architecture.qmd)
 
 The internal service layer that provides specialized utilities through composition.
 
@@ -56,7 +83,7 @@ The internal service layer that provides specialized utilities through compositi
 
 **Read this if:** You're implementing custom system types or need to understand how symbolic-to-numerical compilation works.
 
-### 3. [Integration Framework](Integration_Framework_Architecture.qmd)
+### 5. [Integration Framework](Integration_Framework_Architecture.qmd)
 
 Multi-backend numerical integration for ODEs and SDEs.
 
@@ -70,7 +97,21 @@ Multi-backend numerical integration for ODEs and SDEs.
 
 **Read this if:** You're implementing custom integrators, need to understand method selection, or want to optimize integration performance.
 
-### 4. [Visualization Framework](Visualization_Framework_Architecture.qmd)
+### 6. [Control Framework Architecture](Control_Framework_Architecture.qmd)
+
+Classical control theory algorithms for analysis and synthesis.
+
+**Topics covered:**
+
+- **Control Design:** LQR, Kalman filter, LQG controller design
+- **System Analysis:** Stability, controllability, observability analysis
+- Pure functional architecture with thin composition wrappers
+- Unified continuous/discrete interface
+- TypedDict results (LQRResult, KalmanFilterResult, StabilityInfo, etc.)
+
+**Read this if:** You're using control design methods, need to understand the control API, or want to extend control capabilities.
+
+### 7. [Visualization Framework](Visualization_Framework_Architecture.qmd)
 
 Interactive, publication-ready plotting for dynamical systems analysis.
 
@@ -92,23 +133,35 @@ Interactive, publication-ready plotting for dynamical systems analysis.
 
 **Intermediate Users:**
 - Read [Design Philosophy](cdesym_Design_Philosophy.qmd) for conceptual understanding
+- Skim [UI Framework](UI_Framework_Architecture.qmd) for custom system definition
 - Skim [Visualization Framework](Visualization_Framework_Architecture.qmd) for plotting capabilities
 
 **Advanced Users:**
 - Study all architecture documents
+- Focus on [Type System](Type_System_Architecture.qmd) for understanding type conventions
 - Focus on [Integration Framework](Integration_Framework_Architecture.qmd) for custom numerical methods
 - Reference [Delegation Layer](Delegation_Layer_Architecture.qmd) for system extension
+- Reference [Control Framework](Control_Framework_Architecture.qmd) for control design algorithms
 
 ### By Use Case
 
 **I want to understand the framework's design principles:**
 → [Design Philosophy](cdesym_Design_Philosophy.qmd)
 
+**I want to understand the type system and conventions:**
+→ [Type System Architecture](Type_System_Architecture.qmd)
+
+**I want to define a custom dynamical system:**
+→ [UI Framework Architecture](UI_Framework_Architecture.qmd)
+
 **I want to implement a custom integrator:**
 → [Integration Framework](Integration_Framework_Architecture.qmd)
 
 **I want to extend the system base classes:**
 → [Delegation Layer](Delegation_Layer_Architecture.qmd)
+
+**I want to use or extend control design (LQR, Kalman, LQG):**
+→ [Control Framework Architecture](Control_Framework_Architecture.qmd)
 
 **I want to customize or extend plotting:**
 → [Visualization Framework](Visualization_Framework_Architecture.qmd)
@@ -117,17 +170,19 @@ Interactive, publication-ready plotting for dynamical systems analysis.
 → [Delegation Layer](Delegation_Layer_Architecture.qmd) → CodeGenerator
 
 **I want to add a new backend (e.g., TensorFlow):**
-→ [Design Philosophy](cdesym_Design_Philosophy.qmd) → Extension Points  
+→ [Design Philosophy](cdesym_Design_Philosophy.qmd) → Extension Points
 → [Delegation Layer](Delegation_Layer_Architecture.qmd) → BackendManager
 
 ## Architecture Statistics
 
 The framework consists of:
 
-- **39 core files** organized into 4 architectural layers
+- **50+ core files** organized into 7 architectural layers
 - **200+ types** for semantic clarity and IDE support
 - **55+ integration methods** across NumPy, PyTorch, JAX, and Julia backends
 - **11 delegation layer utilities** providing specialized services
+- **Classical control algorithms** (LQR, Kalman, LQG, stability, controllability, observability)
+- **8 core UI framework classes** for system definition
 - **16+ plot types** for comprehensive visualization
 - **Zero code duplication** through strategic abstraction
 
@@ -177,17 +232,41 @@ The framework consists of:
 
 **Short answer:** Through `SymbolicSystemBase` providing shared functionality to both continuous and discrete systems.
 
-**Long answer:** See [Design Philosophy](cdesym_Design_Philosophy.qmd#sec-zero-code-duplication)
+**Long answer:** See [UI Framework Architecture](UI_Framework_Architecture.qmd#sec-layer-0) and [Design Philosophy](cdesym_Design_Philosophy.qmd#sec-zero-code-duplication)
+
+### What types should I use for my custom components?
+
+**Short answer:** Use semantic types like `StateVector`, `ControlVector`, and TypedDict results like `IntegrationResult`.
+
+**Long answer:** See [Type System Architecture](Type_System_Architecture.qmd)
+
+### How do I design an LQR controller?
+
+**Short answer:** Use `system.control.design_lqr(A, B, Q, R)` after linearizing your system.
+
+**Long answer:** See [Control Framework Architecture](Control_Framework_Architecture.qmd#sec-control-design)
+
+### How do I define a custom dynamical system?
+
+**Short answer:** Subclass `ContinuousSymbolicSystem` or `DiscreteSymbolicSystem` and implement `define_system()`.
+
+**Long answer:** See [UI Framework Architecture](UI_Framework_Architecture.qmd#sec-layer-2)
 
 ## Contributing to the Framework
 
 If you're interested in contributing:
 
 1. **Start with [Design Philosophy](cdesym_Design_Philosophy.qmd)** to understand core principles
-2. **Study the relevant layer docs** for your contribution area
-3. **Follow the established patterns** (composition, type-driven design, etc.)
-4. **Write comprehensive tests** for each component in isolation
-5. **Document your additions** with clear examples and type annotations
+2. **Review [Type System Architecture](Type_System_Architecture.qmd)** to understand type conventions
+3. **Study the relevant layer docs** for your contribution area:
+   - System definition → [UI Framework Architecture](UI_Framework_Architecture.qmd)
+   - Internal utilities → [Delegation Layer](Delegation_Layer_Architecture.qmd)
+   - Numerical integration → [Integration Framework](Integration_Framework_Architecture.qmd)
+   - Control algorithms → [Control Framework](Control_Framework_Architecture.qmd)
+   - Visualization → [Visualization Framework](Visualization_Framework_Architecture.qmd)
+4. **Follow the established patterns** (composition, type-driven design, etc.)
+5. **Write comprehensive tests** for each component in isolation
+6. **Document your additions** with clear examples and type annotations
 
 See [Contributing Guidelines](../contributing/index.qmd) for more details.
 
