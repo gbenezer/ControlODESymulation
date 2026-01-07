@@ -325,20 +325,6 @@ plt.show()
 :::
 ```` -->
 
----
-
-## Phase 5: GitHub Integration (Days 21-22)
-
-### Day 22: Testing Infrastructure
-
-**Make executable and test:**
-```bash
-chmod +x scripts/test_quarto_docs.py
-python scripts/test_quarto_docs.py
-```
-
----
-
 ## Phase 6: Architecture Enhancement (Days 23-26)
 
 ### Day 23: UI Framework Architecture - Full Execution
