@@ -11,7 +11,7 @@
 **Outcome**: Professional, interactive, continuously-tested documentation where every code example is guaranteed to work.
 
 ---
-
+<!-- 
 ## Phase 4: Enhanced Example Gallery (Days 16-20)
 
 ### Strategy: Rich, Interactive Demonstrations
@@ -323,7 +323,7 @@ plt.show()
 ### Chaos & Complex Dynamics
 ::: {#chaos}
 :::
-````
+```` -->
 
 ---
 
