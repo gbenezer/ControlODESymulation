@@ -541,7 +541,7 @@ class TestHeunIntegrator:
             t_span=(0.0, 1.0),
         )
 
-        stats = integrator.stats()
+        stats = integrator.get_stats()
         
         assert stats["total_steps"] == result["nsteps"]
         assert stats["total_time"] > 0
