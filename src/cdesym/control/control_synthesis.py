@@ -267,7 +267,7 @@ class ControlSynthesis:
         ...     x_hat = x_hat_pred + L @ innovation
         >>>
         >>> # Check observer convergence
-        >>> obs_stable = np.all(np.abs(kalman['observer_eigenvalues']) < 1)
+        >>> obs_stable = np.all(np.abs(kalman['estimator_eigenvalues']) < 1)
         >>> print(f"Observer stable: {obs_stable}")
 
         See Also
