@@ -98,7 +98,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-cdesym/
+control_de/
 
 # ============================================================================
 # Package Managers
