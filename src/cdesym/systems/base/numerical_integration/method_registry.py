@@ -56,7 +56,7 @@ Usage Examples
 >>> from cdesym.systems.base.numerical_integration.method_registry import (
 ...     normalize_method_name
 ... )
->>> 
+>>>
 >>> # Canonical name → backend-specific
 >>> normalize_method_name('euler_maruyama', 'numpy')
 'EM'
@@ -70,12 +70,12 @@ Usage Examples
 >>> from cdesym.systems.base.numerical_integration.method_registry import (
 ...     is_sde_method, is_fixed_step
 ... )
->>> 
+>>>
 >>> is_sde_method('euler_maruyama')
 True
 >>> is_sde_method('rk4')
 False
->>> 
+>>>
 >>> is_fixed_step('rk4')
 True
 >>> is_fixed_step('RK45')
@@ -86,12 +86,12 @@ False
 >>> from cdesym.systems.base.numerical_integration.method_registry import (
 ...     get_available_methods
 ... )
->>> 
+>>>
 >>> # All methods for PyTorch backend
 >>> methods = get_available_methods('torch', method_type='all')
 >>> print(methods['sde_fixed_step'])
 ['euler', 'milstein', 'srk', 'midpoint']
->>> 
+>>>
 >>> # Only stochastic methods
 >>> sde_methods = get_available_methods('jax', method_type='stochastic')
 >>> print(sde_methods['canonical_aliases'])
@@ -102,7 +102,7 @@ False
 >>> from cdesym.systems.base.numerical_integration.method_registry import (
 ...     validate_method
 ... )
->>> 
+>>>
 >>> # Check if method is valid for backend
 >>> is_valid, error = validate_method('euler_maruyama', 'torch', is_stochastic=True)
 >>> if is_valid:
@@ -116,7 +116,7 @@ False
 >>> from cdesym.systems.base.numerical_integration.method_registry import (
 ...     normalize_method_name, is_fixed_step
 ... )
->>> 
+>>>
 >>> # In DiscretizedSystem.__init__:
 >>> backend = getattr(continuous_system, '_default_backend', 'numpy')
 >>> method = normalize_method_name(user_method, backend)
@@ -139,135 +139,136 @@ from cdesym.types.backends import Backend
 # Deterministic Methods - Fixed Step
 # ============================================================================
 
-DETERMINISTIC_FIXED_STEP: FrozenSet[str] = frozenset([
-    # Manual implementations (available on all backends)
-    # NOTE: 'euler' and 'midpoint' also appear in SDE context for some backends
-    # When used as deterministic methods, they ignore any noise terms
-    "euler",     # Forward Euler (1st order)
-    "heun",      # Heun's method / Improved Euler / Explicit Trapezoid (2nd order)
-    "midpoint",  # Midpoint/RK2 (2nd order)
-    "rk4",       # Classic Runge-Kutta 4 (4th order)
-])
+DETERMINISTIC_FIXED_STEP: FrozenSet[str] = frozenset(
+    [
+        # Manual implementations (available on all backends)
+        # NOTE: 'euler' and 'midpoint' also appear in SDE context for some backends
+        # When used as deterministic methods, they ignore any noise terms
+        "euler",  # Forward Euler (1st order)
+        "heun",  # Heun's method / Improved Euler / Explicit Trapezoid (2nd order)
+        "midpoint",  # Midpoint/RK2 (2nd order)
+        "rk4",  # Classic Runge-Kutta 4 (4th order)
+    ]
+)
 
 # ============================================================================
 # Deterministic Methods - Adaptive
 # ============================================================================
 
-DETERMINISTIC_ADAPTIVE: FrozenSet[str] = frozenset([
-    # ========================================================================
-    # Scipy methods (NumPy backend)
-    # ========================================================================
-    "RK45",      # Dormand-Prince 5(4) - general purpose
-    "RK23",      # Bogacki-Shampine 3(2) - lower accuracy
-    "DOP853",    # Dormand-Prince 8(5,3) - high accuracy
-    "Radau",     # Implicit Runge-Kutta (stiff systems)
-    "BDF",       # Backward Differentiation Formula (very stiff)
-    "LSODA",     # Auto stiffness detection (switches between Adams/BDF)
-    
-    # ========================================================================
-    # TorchDiffEq methods (PyTorch backend)
-    # ========================================================================
-    "dopri5",          # Dormand-Prince 5(4)
-    "dopri8",          # Dormand-Prince 8
-    "bosh3",           # Bogacki-Shampine 3(2)
-    "fehlberg2",       # Fehlberg 2(1)
-    # NOTE: 'adaptive_heun' removed - it's primarily an SDE method
-    "explicit_adams",  # Explicit Adams-Bashforth
-    "implicit_adams",  # Implicit Adams-Moulton
-    
-    # ========================================================================
-    # Diffrax methods (JAX backend)
-    # ========================================================================
-    "tsit5",          # Tsitouras 5/4 (modern, efficient)
-    "dopri5",         # Dormand-Prince 5(4)
-    "dopri8",         # Dormand-Prince 8
-    "bosh3",          # Bogacki-Shampine 3(2)
-    "implicit_euler", # Implicit Euler (stiff)
-    "kvaerno3",       # Kvaerno 3 (ESDIRK, stiff)
-    "kvaerno4",       # Kvaerno 4 (ESDIRK, stiff)
-    "kvaerno5",       # Kvaerno 5 (ESDIRK, stiff)
-    
-    # ========================================================================
-    # Julia/DiffEqPy methods (NumPy backend via Julia)
-    # ========================================================================
-    "Tsit5",         # Tsitouras 5/4
-    "Vern6",         # Verner 6/5
-    "Vern7",         # Verner 7/6
-    "Vern8",         # Verner 8/7
-    "Vern9",         # Verner 9/8
-    "DP5",           # Dormand-Prince 5
-    "DP8",           # Dormand-Prince 8
-    "Rosenbrock23",  # Rosenbrock 2/3 (stiff)
-    "Rodas5",        # Rosenbrock 5 (stiff)
-    "ROCK4",         # Stabilized explicit (moderately stiff)
-])
+DETERMINISTIC_ADAPTIVE: FrozenSet[str] = frozenset(
+    [
+        # ========================================================================
+        # Scipy methods (NumPy backend)
+        # ========================================================================
+        "RK45",  # Dormand-Prince 5(4) - general purpose
+        "RK23",  # Bogacki-Shampine 3(2) - lower accuracy
+        "DOP853",  # Dormand-Prince 8(5,3) - high accuracy
+        "Radau",  # Implicit Runge-Kutta (stiff systems)
+        "BDF",  # Backward Differentiation Formula (very stiff)
+        "LSODA",  # Auto stiffness detection (switches between Adams/BDF)
+        # ========================================================================
+        # TorchDiffEq methods (PyTorch backend)
+        # ========================================================================
+        "dopri5",  # Dormand-Prince 5(4)
+        "dopri8",  # Dormand-Prince 8
+        "bosh3",  # Bogacki-Shampine 3(2)
+        "fehlberg2",  # Fehlberg 2(1)
+        # NOTE: 'adaptive_heun' removed - it's primarily an SDE method
+        "explicit_adams",  # Explicit Adams-Bashforth
+        "implicit_adams",  # Implicit Adams-Moulton
+        # ========================================================================
+        # Diffrax methods (JAX backend)
+        # ========================================================================
+        "tsit5",  # Tsitouras 5/4 (modern, efficient)
+        "dopri5",  # Dormand-Prince 5(4)
+        "dopri8",  # Dormand-Prince 8
+        "bosh3",  # Bogacki-Shampine 3(2)
+        "implicit_euler",  # Implicit Euler (stiff)
+        "kvaerno3",  # Kvaerno 3 (ESDIRK, stiff)
+        "kvaerno4",  # Kvaerno 4 (ESDIRK, stiff)
+        "kvaerno5",  # Kvaerno 5 (ESDIRK, stiff)
+        # ========================================================================
+        # Julia/DiffEqPy methods (NumPy backend via Julia)
+        # ========================================================================
+        "Tsit5",  # Tsitouras 5/4
+        "Vern6",  # Verner 6/5
+        "Vern7",  # Verner 7/6
+        "Vern8",  # Verner 8/7
+        "Vern9",  # Verner 9/8
+        "DP5",  # Dormand-Prince 5
+        "DP8",  # Dormand-Prince 8
+        "Rosenbrock23",  # Rosenbrock 2/3 (stiff)
+        "Rodas5",  # Rosenbrock 5 (stiff)
+        "ROCK4",  # Stabilized explicit (moderately stiff)
+    ]
+)
 
 # ============================================================================
 # Stochastic (SDE) Methods - Fixed Step
 # ============================================================================
 
-SDE_FIXED_STEP: FrozenSet[str] = frozenset([
-    # ========================================================================
-    # Canonical names (user-friendly aliases)
-    # ========================================================================
-    "euler_maruyama",         # Most common SDE method (strong 0.5, weak 1.0)
-    "milstein",               # Higher accuracy (strong 1.0)
-    "stratonovich_milstein",  # Stratonovich interpretation
-    "sra1",                   # Stochastic Runge-Kutta (strong 1.5, diagonal)
-    
-    # ========================================================================
-    # NumPy/Julia (DiffEqPy) - Capitalized
-    # ========================================================================
-    "EM",          # Euler-Maruyama
-    "EulerHeun",   # Euler-Heun (predictor-corrector)
-    "SRIW1",       # Stochastic Runge-Kutta (diagonal noise, weak 1.5)
-    "SRIW2",       # Stochastic Runge-Kutta (diagonal noise, weak 2.0)
-    "SRA1",        # Stochastic Runge-Kutta (strong 1.5, diagonal)
-    "SRA3",        # Stochastic Runge-Kutta (strong 1.5, general)
-    "RKMil",       # Runge-Kutta-Milstein
-    "ImplicitEM",  # Implicit Euler-Maruyama (stiff SDEs)
-    
-    # ========================================================================
-    # PyTorch (TorchSDE) - lowercase
-    # ========================================================================
-    # NOTE: PyTorch uses 'euler' for SDE, which conflicts with deterministic
-    # The context (stochastic vs deterministic system) determines usage
-    "euler",           # Euler-Maruyama (TorchSDE naming)
-    "milstein",        # Milstein method
-    "srk",             # Stochastic Runge-Kutta
-    "midpoint",        # Stochastic midpoint
-    
-    # ========================================================================
-    # JAX (Diffrax) - PascalCase
-    # ========================================================================
-    "Euler",                  # Euler-Maruyama
-    "EulerHeun",              # Euler-Heun
-    "Heun",                   # Heun's method for SDEs
-    "ItoMilstein",            # Milstein (Itô interpretation)
-    "StratonovichMilstein",   # Milstein (Stratonovich interpretation)
-    "SEA",                    # Split-step Exponential Adams
-    "SHARK",                  # Split-step High-order Adams-Runge-Kutta
-    "SRA1",                   # Stochastic Runge-Kutta (matches Julia)
-    "ReversibleHeun",         # Time-reversible Heun
-])
+SDE_FIXED_STEP: FrozenSet[str] = frozenset(
+    [
+        # ========================================================================
+        # Canonical names (user-friendly aliases)
+        # ========================================================================
+        "euler_maruyama",  # Most common SDE method (strong 0.5, weak 1.0)
+        "milstein",  # Higher accuracy (strong 1.0)
+        "stratonovich_milstein",  # Stratonovich interpretation
+        "sra1",  # Stochastic Runge-Kutta (strong 1.5, diagonal)
+        # ========================================================================
+        # NumPy/Julia (DiffEqPy) - Capitalized
+        # ========================================================================
+        "EM",  # Euler-Maruyama
+        "EulerHeun",  # Euler-Heun (predictor-corrector)
+        "SRIW1",  # Stochastic Runge-Kutta (diagonal noise, weak 1.5)
+        "SRIW2",  # Stochastic Runge-Kutta (diagonal noise, weak 2.0)
+        "SRA1",  # Stochastic Runge-Kutta (strong 1.5, diagonal)
+        "SRA3",  # Stochastic Runge-Kutta (strong 1.5, general)
+        "RKMil",  # Runge-Kutta-Milstein
+        "ImplicitEM",  # Implicit Euler-Maruyama (stiff SDEs)
+        # ========================================================================
+        # PyTorch (TorchSDE) - lowercase
+        # ========================================================================
+        # NOTE: PyTorch uses 'euler' for SDE, which conflicts with deterministic
+        # The context (stochastic vs deterministic system) determines usage
+        "euler",  # Euler-Maruyama (TorchSDE naming)
+        "milstein",  # Milstein method
+        "srk",  # Stochastic Runge-Kutta
+        "midpoint",  # Stochastic midpoint
+        # ========================================================================
+        # JAX (Diffrax) - PascalCase
+        # ========================================================================
+        "Euler",  # Euler-Maruyama
+        "EulerHeun",  # Euler-Heun
+        "Heun",  # Heun's method for SDEs
+        "ItoMilstein",  # Milstein (Itô interpretation)
+        "StratonovichMilstein",  # Milstein (Stratonovich interpretation)
+        "SEA",  # Split-step Exponential Adams
+        "SHARK",  # Split-step High-order Adams-Runge-Kutta
+        "SRA1",  # Stochastic Runge-Kutta (matches Julia)
+        "ReversibleHeun",  # Time-reversible Heun
+    ]
+)
 
 # ============================================================================
 # Stochastic (SDE) Methods - Adaptive
 # ============================================================================
 
-SDE_ADAPTIVE: FrozenSet[str] = frozenset([
-    # ========================================================================
-    # NumPy/Julia (DiffEqPy)
-    # ========================================================================
-    "AutoEM",     # Automatic Euler-Maruyama with adaptive stepping
-    "LambaEM",    # Lambda Euler-Maruyama (adaptive)
-    
-    # ========================================================================
-    # PyTorch (TorchSDE)
-    # ========================================================================
-    "adaptive_heun",   # Adaptive Heun for SDEs
-    "reversible_heun",  # Can be used in adaptive mode (PyTorch)
-])
+SDE_ADAPTIVE: FrozenSet[str] = frozenset(
+    [
+        # ========================================================================
+        # NumPy/Julia (DiffEqPy)
+        # ========================================================================
+        "AutoEM",  # Automatic Euler-Maruyama with adaptive stepping
+        "LambaEM",  # Lambda Euler-Maruyama (adaptive)
+        # ========================================================================
+        # PyTorch (TorchSDE)
+        # ========================================================================
+        "adaptive_heun",  # Adaptive Heun for SDEs
+        "reversible_heun",  # Can be used in adaptive mode (PyTorch)
+    ]
+)
 
 # Union of all SDE methods
 SDE_METHODS: FrozenSet[str] = SDE_FIXED_STEP | SDE_ADAPTIVE
@@ -280,137 +281,118 @@ NORMALIZATION_MAP: Dict[str, Dict[Backend, str]] = {
     # ========================================================================
     # Stochastic (SDE) Methods
     # ========================================================================
-    
     # Euler-Maruyama (most common SDE method)
     "euler_maruyama": {
-        "numpy": "EM",      # Julia/DiffEqPy
-        "torch": "euler",   # TorchSDE
-        "jax": "Euler",     # Diffrax
+        "numpy": "EM",  # Julia/DiffEqPy
+        "torch": "euler",  # TorchSDE
+        "jax": "Euler",  # Diffrax
     },
-    
     # Milstein method
     "milstein": {
-        "numpy": "RKMil",      # Julia (Runge-Kutta-Milstein)
-        "torch": "milstein",   # TorchSDE
+        "numpy": "RKMil",  # Julia (Runge-Kutta-Milstein)
+        "torch": "milstein",  # TorchSDE
         "jax": "ItoMilstein",  # Diffrax (Itô interpretation)
     },
-    
     # Stratonovich Milstein
     "stratonovich_milstein": {
-        "numpy": "RKMil",                # Julia (can handle Stratonovich)
-        "torch": "milstein",             # TorchSDE (typically Itô)
-        "jax": "StratonovichMilstein",   # Diffrax
+        "numpy": "RKMil",  # Julia (can handle Stratonovich)
+        "torch": "milstein",  # TorchSDE (typically Itô)
+        "jax": "StratonovichMilstein",  # Diffrax
     },
-    
     # SRA1 (diagonal noise, order 1.5 strong)
     "sra1": {
         "numpy": "SRA1",  # Julia
-        "torch": "srk",   # TorchSDE (closest equivalent)
-        "jax": "SRA1",    # Diffrax
+        "torch": "srk",  # TorchSDE (closest equivalent)
+        "jax": "SRA1",  # Diffrax
     },
-    
     # Reversible/Symmetric Heun (for time-reversible integration)
     "reversible_heun": {
-        "numpy": "EulerHeun",       # Julia (similar, but not identical)
-        "torch": "reversible_heun", # TorchSDE
-        "jax": "ReversibleHeun",    # Diffrax
+        "numpy": "EulerHeun",  # Julia (similar, but not identical)
+        "torch": "reversible_heun",  # TorchSDE
+        "jax": "ReversibleHeun",  # Diffrax
     },
-    
     # ========================================================================
     # Deterministic Methods - Adaptive
     # ========================================================================
-    
     # RK45 family (Dormand-Prince 5(4))
     "rk45": {
-        "numpy": "RK45",    # Scipy
+        "numpy": "RK45",  # Scipy
         "torch": "dopri5",  # TorchDiffEq
-        "jax": "tsit5",     # Diffrax (Tsitouras 5/4, similar performance)
+        "jax": "tsit5",  # Diffrax (Tsitouras 5/4, similar performance)
     },
-    
     # Dormand-Prince 5(4) - explicit
     "dopri5": {
-        "numpy": "RK45",    # Scipy (DP5(4) = RK45)
+        "numpy": "RK45",  # Scipy (DP5(4) = RK45)
         "torch": "dopri5",  # TorchDiffEq
-        "jax": "dopri5",    # Diffrax also has dopri5
+        "jax": "dopri5",  # Diffrax also has dopri5
     },
-    
     # RK23 family (Bogacki-Shampine 3(2))
     "rk23": {
-        "numpy": "RK23",   # Scipy
+        "numpy": "RK23",  # Scipy
         "torch": "bosh3",  # TorchDiffEq
-        "jax": "bosh3",    # Diffrax
+        "jax": "bosh3",  # Diffrax
     },
-    
     # High-order methods
     "dopri8": {
         "numpy": "DOP853",  # Scipy (8th order)
         "torch": "dopri8",  # TorchDiffEq
-        "jax": "dopri8",    # Diffrax
+        "jax": "dopri8",  # Diffrax
     },
-    
     # Tsitouras 5/4 (modern, efficient)
     "tsit5": {
-        "numpy": "Tsit5",   # Julia
+        "numpy": "Tsit5",  # Julia
         "torch": "dopri5",  # TorchDiffEq (closest)
-        "jax": "tsit5",     # Diffrax
+        "jax": "tsit5",  # Diffrax
     },
-    
     # Implicit methods for stiff systems
     "implicit_euler": {
-        "numpy": "Radau",          # Scipy (implicit RK)
-        "torch": "implicit_adams", # TorchDiffEq
-        "jax": "implicit_euler",   # Diffrax
+        "numpy": "Radau",  # Scipy (implicit RK)
+        "torch": "implicit_adams",  # TorchDiffEq
+        "jax": "implicit_euler",  # Diffrax
     },
-    
     # Stiff ODE solvers
     "bdf": {
-        "numpy": "BDF",            # Scipy
-        "torch": "implicit_adams", # TorchDiffEq (closest)
-        "jax": "kvaerno5",         # Diffrax (ESDIRK for stiff)
+        "numpy": "BDF",  # Scipy
+        "torch": "implicit_adams",  # TorchDiffEq (closest)
+        "jax": "kvaerno5",  # Diffrax (ESDIRK for stiff)
     },
-    
     # Auto stiffness detection
     "lsoda": {
-        "numpy": "LSODA",   # Scipy
+        "numpy": "LSODA",  # Scipy
         "torch": "dopri5",  # TorchDiffEq (no LSODA equivalent)
-        "jax": "tsit5",     # Diffrax (no LSODA equivalent)
+        "jax": "tsit5",  # Diffrax (no LSODA equivalent)
     },
-    
     # ========================================================================
     # Deterministic Methods - Fixed Step (prefer Julia on numpy)
     # ========================================================================
-    
     # Euler method - prefer Julia 'Euler' on numpy, manual elsewhere
     "euler": {
-        "numpy": "Euler",     # Use Julia's implementation
-        "torch": "euler",     # Use manual implementation
-        "jax": "euler",       # Use manual implementation
+        "numpy": "Euler",  # Use Julia's implementation
+        "torch": "euler",  # Use manual implementation
+        "jax": "euler",  # Use manual implementation
     },
-    
     # Heun method - prefer Julia 'Heun' on numpy, manual elsewhere
     "heun": {
-        "numpy": "Heun",      # Use Julia's implementation
-        "torch": "heun",      # Use manual implementation
-        "jax": "heun",        # Use manual implementation
+        "numpy": "Heun",  # Use Julia's implementation
+        "torch": "heun",  # Use manual implementation
+        "jax": "heun",  # Use manual implementation
     },
-    
     # Midpoint method - prefer Julia 'Midpoint' on numpy, manual elsewhere
     "midpoint": {
         "numpy": "Midpoint",  # Use Julia's implementation
         "torch": "midpoint",  # Use manual implementation
-        "jax": "midpoint",    # Use manual implementation
+        "jax": "midpoint",  # Use manual implementation
     },
-    
     # Allow users to explicitly request manual implementations
     "manual_euler": {
-        "numpy": "euler",     # Force manual (lowercase)
-        "torch": "euler", 
+        "numpy": "euler",  # Force manual (lowercase)
+        "torch": "euler",
         "jax": "euler",
     },
     "manual_heun": {
-        "numpy": "heun",      # Force manual (lowercase)
+        "numpy": "heun",  # Force manual (lowercase)
         "torch": "heun",
-        "jax": "heun", 
+        "jax": "heun",
     },
     "manual_midpoint": {
         "numpy": "midpoint",  # Force manual (lowercase)
@@ -427,53 +409,109 @@ BACKEND_METHODS: Dict[Backend, FrozenSet[str]] = {
     # ========================================================================
     # NumPy backend: Julia/DiffEqPy + Scipy
     # ========================================================================
-    "numpy": frozenset([
-        # Julia capitalized methods (SDE)
-        "EM", "LambaEM", "EulerHeun", "SRIW1", "SRIW2", "SRA1", "SRA3",
-        "RKMil", "ImplicitEM", "AutoEM",
-        # Scipy methods (ODE)
-        "RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA",
-        # Julia capitalized methods (ODE)
-        "Tsit5", "Vern6", "Vern7", "Vern8", "Vern9", "DP5", "DP8",
-        "Rosenbrock23", "Rodas5", "ROCK4",
-        # Manual implementations (fixed-step)
-        "euler", "heun", "midpoint", "rk4",
-        # Julia low-order implementations (optional, capitalized)
-        "Euler", "Heun", "Midpoint",
-    ]),
-    
+    "numpy": frozenset(
+        [
+            # Julia capitalized methods (SDE)
+            "EM",
+            "LambaEM",
+            "EulerHeun",
+            "SRIW1",
+            "SRIW2",
+            "SRA1",
+            "SRA3",
+            "RKMil",
+            "ImplicitEM",
+            "AutoEM",
+            # Scipy methods (ODE)
+            "RK45",
+            "RK23",
+            "DOP853",
+            "Radau",
+            "BDF",
+            "LSODA",
+            # Julia capitalized methods (ODE)
+            "Tsit5",
+            "Vern6",
+            "Vern7",
+            "Vern8",
+            "Vern9",
+            "DP5",
+            "DP8",
+            "Rosenbrock23",
+            "Rodas5",
+            "ROCK4",
+            # Manual implementations (fixed-step)
+            "euler",
+            "heun",
+            "midpoint",
+            "rk4",
+            # Julia low-order implementations (optional, capitalized)
+            "Euler",
+            "Heun",
+            "Midpoint",
+        ]
+    ),
     # ========================================================================
     # PyTorch backend: TorchSDE + TorchDiffEq
     # ========================================================================
-    "torch": frozenset([
-        # TorchSDE lowercase (SDE)
-        "euler", "milstein", "srk", "midpoint", "reversible_heun",
-        "adaptive_heun",
-        # TorchDiffEq lowercase (ODE)
-        "dopri5", "dopri8", "bosh3", "fehlberg2",
-        "explicit_adams", "implicit_adams",
-        # Manual implementations (fixed-step)
-        "heun", "rk4",
-    ]),
-    
+    "torch": frozenset(
+        [
+            # TorchSDE lowercase (SDE)
+            "euler",
+            "milstein",
+            "srk",
+            "midpoint",
+            "reversible_heun",
+            "adaptive_heun",
+            # TorchDiffEq lowercase (ODE)
+            "dopri5",
+            "dopri8",
+            "bosh3",
+            "fehlberg2",
+            "explicit_adams",
+            "implicit_adams",
+            # Manual implementations (fixed-step)
+            "heun",
+            "rk4",
+        ]
+    ),
     # ========================================================================
     # JAX backend: Diffrax
     # ========================================================================
-    "jax": frozenset([
-        # Diffrax SDE methods (PascalCase)
-        "Euler", "EulerHeun", "Heun", "ItoMilstein", "StratonovichMilstein",
-        "SEA", "SHARK", "SRA1", "ReversibleHeun",
-        # Diffrax ODE methods (lowercase/PascalCase mix)
-        "tsit5", "dopri5", "dopri8", "bosh3", "implicit_euler",
-        "kvaerno3", "kvaerno4", "kvaerno5",
-        # Manual implementations (fixed-step)
-        "euler", "heun", "midpoint", "rk4",
-    ]),
+    "jax": frozenset(
+        [
+            # Diffrax SDE methods (PascalCase)
+            "Euler",
+            "EulerHeun",
+            "Heun",
+            "ItoMilstein",
+            "StratonovichMilstein",
+            "SEA",
+            "SHARK",
+            "SRA1",
+            "ReversibleHeun",
+            # Diffrax ODE methods (lowercase/PascalCase mix)
+            "tsit5",
+            "dopri5",
+            "dopri8",
+            "bosh3",
+            "implicit_euler",
+            "kvaerno3",
+            "kvaerno4",
+            "kvaerno5",
+            # Manual implementations (fixed-step)
+            "euler",
+            "heun",
+            "midpoint",
+            "rk4",
+        ]
+    ),
 }
 
 # ============================================================================
 # Method Classification Functions
 # ============================================================================
+
 
 def is_sde_method(method: str) -> bool:
     """
@@ -637,17 +675,17 @@ def is_fixed_step(method: str) -> bool:
     Notes on Ambiguous Methods
     ---------------------------
     Some methods appear in both deterministic and SDE contexts:
-    
+
     - **'euler'**: In both DETERMINISTIC_FIXED_STEP and SDE_FIXED_STEP
       Classification: Fixed-step (True) for both contexts
-      
+
     - **'midpoint'**: In both DETERMINISTIC_FIXED_STEP and SDE_FIXED_STEP
       Classification: Fixed-step (True) for both contexts
-      
+
     - **'reversible_heun'**: In both SDE_FIXED_STEP and SDE_ADAPTIVE
       Classification: Adaptive (False) - prioritizes adaptive classification
       since it CAN be used in adaptive mode
-    
+
     The ambiguity is resolved at runtime by the system type (stochastic vs
     deterministic) passed to validate_method().
 
@@ -726,7 +764,7 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     - 'euler' → 'Euler' (Julia's implementation)
     - 'heun' → 'Heun' (Julia's implementation)
     - 'midpoint' → 'Midpoint' (Julia's implementation)
-    
+
     To explicitly use manual implementations on NumPy:
     - Use 'manual_euler', 'manual_heun', 'manual_midpoint'
 
@@ -846,15 +884,15 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
     is_sde_method : Check if method is for stochastic systems
     is_fixed_step : Check if method uses fixed time stepping
     """
-    
+
     # Add None check
     if method is None:
         raise ValueError("method cannot be None")
-    
+
     # ========================================================================
     # Handle Julia/DiffEqPy auto-switching methods FIRST
     # ========================================================================
-    
+
     # DiffEqPy methods can have complex syntax with parentheses for auto-switching
     # e.g., AutoTsit5(Rosenbrock23()), AutoVern7(Rodas5())
     # These are valid on numpy backend and should be passed through as-is
@@ -862,40 +900,40 @@ def normalize_method_name(method: str, backend: Backend = "numpy") -> str:
         # This is likely a Julia auto-switching method
         # Don't try to normalize it - validation will handle it
         return method
-    
+
     # ========================================================================
     # Check if already valid for backend
     # ========================================================================
-    
+
     if backend in BACKEND_METHODS and method in BACKEND_METHODS[backend]:
         # Special case: Prefer Julia for lowercase euler/heun/midpoint on numpy
         # This upgrades manual ODE implementations to faster Julia versions
         if backend == "numpy" and method in ["euler", "heun", "midpoint"]:
             return method.capitalize()  # euler → Euler, heun → Heun, etc.
-        
+
         # Otherwise, if it's already valid, don't change it!
         # This is CRITICAL for SDE methods - 'Euler' on jax must stay 'Euler'
         # not be converted to 'euler' which would break SDE integration
         return method
-    
+
     # ========================================================================
     # Try normalization map (exact and case-insensitive)
     # ========================================================================
-    
+
     method_lower = method.lower()
-    
+
     # Try exact match first
     if method in NORMALIZATION_MAP and backend in NORMALIZATION_MAP[method]:
         return NORMALIZATION_MAP[method][backend]
-    
+
     # Try case-insensitive match
     if method_lower in NORMALIZATION_MAP and backend in NORMALIZATION_MAP[method_lower]:
         return NORMALIZATION_MAP[method_lower][backend]
-    
+
     # ========================================================================
     # No normalization found - return as-is
     # ========================================================================
-    
+
     # Let integrator factory handle validation and error messages
     return method
 
@@ -927,19 +965,19 @@ def get_available_methods(
     -------
     dict
         Dictionary with method categories as keys:
-        
+
         - **deterministic_fixed_step** : list of str
             Fixed-step ODE methods (euler, rk4, heun, midpoint)
-        
+
         - **deterministic_adaptive** : list of str
             Adaptive ODE methods (RK45, LSODA, dopri5, tsit5, etc.)
-        
+
         - **sde_fixed_step** : list of str
             Fixed-step SDE methods (EM, euler_maruyama, milstein, etc.)
-        
+
         - **sde_adaptive** : list of str
             Adaptive SDE methods (LambaEM, AutoEM, adaptive_heun)
-        
+
         - **canonical_aliases** : list of str
             User-friendly canonical names that work on all backends
             (euler_maruyama, milstein, rk45, rk23, etc.)
@@ -947,17 +985,17 @@ def get_available_methods(
     Method Availability
     -------------------
     Actual availability depends on installed packages:
-    
+
     - **NumPy backend**:
       - Requires: scipy (always available)
       - Optional: diffeqpy (Julia integration, enables high-accuracy SDE solvers)
       - Without diffeqpy: Only scipy methods + manual implementations
-    
+
     - **PyTorch backend**:
       - Requires: torch (for basic functionality)
       - Optional: torchdiffeq (ODE solvers), torchsde (SDE solvers)
       - Without packages: Only manual implementations (euler, rk4, heun)
-    
+
     - **JAX backend**:
       - Requires: jax, jaxlib
       - Optional: diffrax (comprehensive ODE/SDE solvers)
@@ -975,7 +1013,7 @@ def get_available_methods(
     >>> print(methods.keys())
     dict_keys(['deterministic_fixed_step', 'deterministic_adaptive',
                'sde_fixed_step', 'sde_adaptive', 'canonical_aliases'])
-    >>> 
+    >>>
     >>> print(methods['sde_fixed_step'])
     ['euler', 'milstein', 'srk', 'midpoint']
 
@@ -985,7 +1023,7 @@ def get_available_methods(
     >>> print(sde_methods['sde_fixed_step'])
     ['Euler', 'EulerHeun', 'Heun', 'ItoMilstein', 'StratonovichMilstein',
      'SEA', 'SHARK', 'SRA1']
-    >>> 
+    >>>
     >>> print(sde_methods['canonical_aliases'])
     ['euler_maruyama', 'milstein', 'rk45', 'rk23', 'tsit5']
 
@@ -1022,11 +1060,11 @@ def get_available_methods(
     **Filter and format for user display:**
 
     >>> methods = get_available_methods('numpy', method_type='deterministic')
-    >>> 
+    >>>
     >>> print("Fixed-step methods:")
     >>> for method in sorted(methods['deterministic_fixed_step']):
     ...     print(f"  - {method}")
-    >>> 
+    >>>
     >>> print("\nAdaptive methods:")
     >>> for method in sorted(methods['deterministic_adaptive']):
     ...     print(f"  - {method}")
@@ -1058,108 +1096,108 @@ def get_available_methods(
     # ========================================================================
     # Build complete method dictionary for backend
     # ========================================================================
-    
+
     all_methods = {
         "numpy": {
             "deterministic_fixed_step": sorted(list(DETERMINISTIC_FIXED_STEP)),
-            "deterministic_adaptive": sorted([
-                m for m in DETERMINISTIC_ADAPTIVE
-                if m in BACKEND_METHODS["numpy"]
-            ]),
-            "sde_fixed_step": sorted([
-                m for m in SDE_FIXED_STEP
-                if m in BACKEND_METHODS["numpy"]
-            ]),
-            "sde_adaptive": sorted([
-                m for m in SDE_ADAPTIVE
-                if m in BACKEND_METHODS["numpy"]
-            ]),
-            "canonical_aliases": sorted([
-                "euler_maruyama", "milstein", "stratonovich_milstein",
-                "sra1", "reversible_heun",
-                "rk45", "rk23", "dopri5", "dopri8", "tsit5",
-                "implicit_euler", "bdf", "lsoda",
-            ]),
+            "deterministic_adaptive": sorted(
+                [m for m in DETERMINISTIC_ADAPTIVE if m in BACKEND_METHODS["numpy"]]
+            ),
+            "sde_fixed_step": sorted([m for m in SDE_FIXED_STEP if m in BACKEND_METHODS["numpy"]]),
+            "sde_adaptive": sorted([m for m in SDE_ADAPTIVE if m in BACKEND_METHODS["numpy"]]),
+            "canonical_aliases": sorted(
+                [
+                    "euler_maruyama",
+                    "milstein",
+                    "stratonovich_milstein",
+                    "sra1",
+                    "reversible_heun",
+                    "rk45",
+                    "rk23",
+                    "dopri5",
+                    "dopri8",
+                    "tsit5",
+                    "implicit_euler",
+                    "bdf",
+                    "lsoda",
+                ]
+            ),
         },
         "torch": {
-            "deterministic_fixed_step": sorted(list(DETERMINISTIC_FIXED_STEP & BACKEND_METHODS["torch"])),
-            "deterministic_adaptive": sorted([
-                m for m in DETERMINISTIC_ADAPTIVE
-                if m in BACKEND_METHODS["torch"]
-            ]),
-            "sde_fixed_step": sorted([
-                m for m in SDE_FIXED_STEP
-                if m in BACKEND_METHODS["torch"]
-            ]),
-            "sde_adaptive": sorted([
-                m for m in SDE_ADAPTIVE
-                if m in BACKEND_METHODS["torch"]
-            ]),
-            "canonical_aliases": sorted([
-                "euler_maruyama", "milstein", "sra1", "reversible_heun",
-                "rk45", "rk23", "dopri5", "dopri8",
-            ]),
+            "deterministic_fixed_step": sorted(
+                list(DETERMINISTIC_FIXED_STEP & BACKEND_METHODS["torch"])
+            ),
+            "deterministic_adaptive": sorted(
+                [m for m in DETERMINISTIC_ADAPTIVE if m in BACKEND_METHODS["torch"]]
+            ),
+            "sde_fixed_step": sorted([m for m in SDE_FIXED_STEP if m in BACKEND_METHODS["torch"]]),
+            "sde_adaptive": sorted([m for m in SDE_ADAPTIVE if m in BACKEND_METHODS["torch"]]),
+            "canonical_aliases": sorted(
+                [
+                    "euler_maruyama",
+                    "milstein",
+                    "sra1",
+                    "reversible_heun",
+                    "rk45",
+                    "rk23",
+                    "dopri5",
+                    "dopri8",
+                ]
+            ),
         },
         "jax": {
-            "deterministic_fixed_step": sorted(list(DETERMINISTIC_FIXED_STEP & BACKEND_METHODS["jax"])),
-            "deterministic_adaptive": sorted([
-                m for m in DETERMINISTIC_ADAPTIVE
-                if m in BACKEND_METHODS["jax"]
-            ]),
-            "sde_fixed_step": sorted([
-                m for m in SDE_FIXED_STEP
-                if m in BACKEND_METHODS["jax"]
-            ]),
-            "sde_adaptive": sorted([
-                m for m in SDE_ADAPTIVE
-                if m in BACKEND_METHODS["jax"]
-            ]),
-            "canonical_aliases": sorted([
-                "euler_maruyama", "milstein", "stratonovich_milstein",
-                "sra1", "reversible_heun",
-                "rk45", "rk23", "dopri5", "dopri8", "tsit5",
-                "implicit_euler", "bdf",
-            ]),
+            "deterministic_fixed_step": sorted(
+                list(DETERMINISTIC_FIXED_STEP & BACKEND_METHODS["jax"])
+            ),
+            "deterministic_adaptive": sorted(
+                [m for m in DETERMINISTIC_ADAPTIVE if m in BACKEND_METHODS["jax"]]
+            ),
+            "sde_fixed_step": sorted([m for m in SDE_FIXED_STEP if m in BACKEND_METHODS["jax"]]),
+            "sde_adaptive": sorted([m for m in SDE_ADAPTIVE if m in BACKEND_METHODS["jax"]]),
+            "canonical_aliases": sorted(
+                [
+                    "euler_maruyama",
+                    "milstein",
+                    "stratonovich_milstein",
+                    "sra1",
+                    "reversible_heun",
+                    "rk45",
+                    "rk23",
+                    "dopri5",
+                    "dopri8",
+                    "tsit5",
+                    "implicit_euler",
+                    "bdf",
+                ]
+            ),
         },
     }
-    
+
     backend_methods = all_methods.get(backend, {})
-    
+
     # ========================================================================
     # Apply filters based on method_type
     # ========================================================================
-    
+
     if method_type == "all":
         return backend_methods
-    
+
     if method_type == "deterministic":
         return {
             k: v
             for k, v in backend_methods.items()
             if "deterministic" in k or k == "canonical_aliases"
         }
-    
+
     if method_type == "stochastic":
-        return {
-            k: v
-            for k, v in backend_methods.items()
-            if "sde" in k or k == "canonical_aliases"
-        }
-    
+        return {k: v for k, v in backend_methods.items() if "sde" in k or k == "canonical_aliases"}
+
     if method_type == "fixed_step":
-        return {
-            k: v
-            for k, v in backend_methods.items()
-            if "fixed_step" in k
-        }
-    
+        return {k: v for k, v in backend_methods.items() if "fixed_step" in k}
+
     if method_type == "adaptive":
-        return {
-            k: v
-            for k, v in backend_methods.items()
-            if "adaptive" in k
-        }
-    
+        return {k: v for k, v in backend_methods.items() if "adaptive" in k}
+
     raise ValueError(
         f"Unknown method_type: {method_type}. "
         f"Must be one of: 'all', 'deterministic', 'stochastic', 'fixed_step', 'adaptive'"
@@ -1199,7 +1237,7 @@ def validate_method(
     1. **Normalization**: Convert canonical names to backend-specific
     2. **Backend availability**: Check if method exists for backend
     3. **Type mismatch**: Detect SDE method on deterministic system
-    
+
     Does NOT check:
     - Whether required packages are installed (diffeqpy, torchsde, etc.)
     - Whether method will actually work (that's for integrator factory)
@@ -1260,7 +1298,7 @@ def validate_method(
     >>> # Validate during initialization
     >>> normalized_method = normalize_method_name(user_method, backend)
     >>> is_valid, error = validate_method(normalized_method, backend, is_stochastic)
-    >>> 
+    >>>
     >>> if not is_valid:
     ...     raise ValueError(f"Invalid method configuration: {error}")
 
@@ -1272,7 +1310,7 @@ def validate_method(
     ...     ('euler_maruyama', 'torch', True),
     ...     ('LSODA', 'jax', False),  # This will fail
     ... ]
-    >>> 
+    >>>
     >>> for method, backend, is_stochastic in configurations:
     ...     is_valid, error = validate_method(method, backend, is_stochastic)
     ...     if is_valid:
@@ -1286,11 +1324,11 @@ def validate_method(
     ...     is_valid, error = validate_method(
     ...         method, backend, system.is_stochastic
     ...     )
-    ...     
+    ...
     ...     if not is_valid:
     ...         # Show user what went wrong
     ...         print(f"Error: {error}")
-    ...         
+    ...
     ...         # Show alternatives
     ...         available = get_available_methods(
     ...             backend,
@@ -1298,7 +1336,7 @@ def validate_method(
     ...         )
     ...         print(f"Try one of: {available['canonical_aliases']}")
     ...         return None
-    ...     
+    ...
     ...     return DiscretizedSystem(system, dt=0.01, method=method)
 
     Notes
@@ -1307,7 +1345,7 @@ def validate_method(
     - Does not check if packages (diffeqpy, torchsde) are installed
     - Only validates logical consistency, not runtime availability
     - Original method name preserved in error messages for clarity
-    
+
     **Ambiguous Method Handling:**
     Some methods appear in both deterministic and SDE categories:
     - 'euler': Valid for both contexts (determined by is_stochastic flag)
@@ -1332,82 +1370,123 @@ def validate_method(
     # ========================================================================
     # Validate backend
     # ========================================================================
-    
+
     if backend not in BACKEND_METHODS:
         valid_backends = list(BACKEND_METHODS.keys())
+        return False, (f"Invalid backend: '{backend}'. " f"Must be one of: {valid_backends}")
+
+    # ========================================================================
+    # CRITICAL: Check for type mismatch BEFORE normalization
+    # ========================================================================
+
+    # Check if the ORIGINAL method name is an exclusive SDE canonical name
+    # This prevents false positives from normalization
+    exclusive_sde_canonical = {
+        "euler_maruyama",
+        "milstein",
+        "stratonovich_milstein",
+        "sra1",
+    }
+
+    if not is_stochastic and method in exclusive_sde_canonical:
         return False, (
-            f"Invalid backend: '{backend}'. "
-            f"Must be one of: {valid_backends}"
+            f"SDE method '{method}' used on deterministic system. "
+            f"SDE methods are only for stochastic systems."
         )
-    
+
     # ========================================================================
     # Normalize method name
     # ========================================================================
-    
+
     normalized = normalize_method_name(method, backend)
-    
+
     # ========================================================================
     # Handle Julia/DiffEqPy auto-switching methods
     # ========================================================================
-    
+
     # Methods like "AutoTsit5(Rosenbrock23())" are valid Julia/DiffEqPy methods
     # They won't be in BACKEND_METHODS but should be allowed on numpy backend
     if backend == "numpy" and "(" in normalized:
         # Julia auto-switching method - allow it through
         # The actual Julia backend will validate if it's a real method
         return True, None
-    
+
     # ========================================================================
     # Check if method exists for backend
     # ========================================================================
-    
+
     if normalized not in BACKEND_METHODS[backend]:
         # Get available methods for helpful error message
         available = get_available_methods(backend, method_type="all")
-        
+
         # Flatten all categories for display
         all_available = set()
         for category, methods in available.items():
             if category != "canonical_aliases":
                 all_available.update(methods)
-        
+
         return False, (
             f"Method '{method}' (normalized to '{normalized}') not available "
             f"for {backend} backend. Available methods: "
             f"{sorted(list(all_available))}. "
             f"Canonical aliases: {available['canonical_aliases']}"
         )
-    
+
     # ========================================================================
-    # Check for type mismatch (SDE method on deterministic system)
+    # Check for type mismatch on BACKEND-SPECIFIC names
     # ========================================================================
-    
-    # Only fail if method is EXCLUSIVELY SDE (not in deterministic sets)
-    is_exclusively_sde = (
-        is_sde_method(normalized) and
-        normalized not in DETERMINISTIC_FIXED_STEP and
-        normalized not in DETERMINISTIC_ADAPTIVE
-    )
-    
-    if not is_stochastic and is_exclusively_sde:
-        return False, (
-            f"SDE method '{method}' (normalized to '{normalized}') used on "
-            f"deterministic system. SDE methods are only for stochastic systems."
-        )
-    
+
+    # Only check backend-specific names for SDE mismatch
+    # Skip this check if method came from a canonical name or is ambiguous
+    backend_specific_sde_exclusive = {
+        # NumPy/Julia SDE-only (capitalized)
+        "EM",
+        "LambaEM",
+        "EulerHeun",
+        "SRIW1",
+        "SRIW2",
+        "SRA1",
+        "SRA3",
+        "RKMil",
+        "ImplicitEM",
+        "AutoEM",
+        # PyTorch SDE-only
+        "milstein",
+        "srk",
+        "reversible_heun",
+        "adaptive_heun",
+        # JAX SDE-only (capitalized)
+        "ItoMilstein",
+        "StratonovichMilstein",
+        "SEA",
+        "SHARK",
+        "ReversibleHeun",
+    }
+
+    # Only fail if using a backend-specific SDE name on deterministic system
+    # AND it's truly exclusive (not ambiguous like 'euler'/'Euler' which could be ODE)
+    if not is_stochastic and normalized in backend_specific_sde_exclusive:
+        # Double-check it's not from an ambiguous source
+        if method not in ["euler", "heun", "midpoint", "Euler", "Heun", "Midpoint"]:
+            return False, (
+                f"SDE method '{method}' (normalized to '{normalized}') used on "
+                f"deterministic system. SDE methods are only for stochastic systems."
+            )
+
     # Note: We allow deterministic methods on stochastic systems
     # (noise will be ignored, but that's handled elsewhere with warnings)
-    
+
     # ========================================================================
     # All checks passed
     # ========================================================================
-    
+
     return True, None
 
 
 # ============================================================================
 # Convenience Functions
 # ============================================================================
+
 
 def get_method_info(method: str, backend: Backend = "numpy") -> Dict[str, any]:
     """
@@ -1452,13 +1531,13 @@ def get_method_info(method: str, backend: Backend = "numpy") -> Dict[str, any]:
     is_sde = is_sde_method(normalized)
     is_fixed = is_fixed_step(normalized)
     is_available = normalized in BACKEND_METHODS.get(backend, set())
-    
+
     # Determine category
     if is_sde:
         category = "sde_fixed_step" if is_fixed else "sde_adaptive"
     else:
         category = "deterministic_fixed_step" if is_fixed else "deterministic_adaptive"
-    
+
     return {
         "original_name": method,
         "normalized_name": normalized,
@@ -1495,7 +1574,7 @@ def list_all_methods() -> Dict[str, List[str]]:
     canonical_aliases = set()
     for method_name in NORMALIZATION_MAP.keys():
         canonical_aliases.add(method_name)
-    
+
     return {
         "deterministic_fixed_step": sorted(list(DETERMINISTIC_FIXED_STEP)),
         "deterministic_adaptive": sorted(list(DETERMINISTIC_ADAPTIVE)),
@@ -1503,17 +1582,18 @@ def list_all_methods() -> Dict[str, List[str]]:
         "sde_adaptive": sorted(list(SDE_ADAPTIVE)),
         "all_canonical": sorted(list(canonical_aliases)),
     }
-    
+
+
 def get_implementing_library(method: str, backend: Backend, is_stochastic: bool = False) -> str:
     """
     Get which library/package implements this method.
-    
+
     Returns
     -------
     str
-        One of: 'scipy', 'diffeqpy', 'torchdiffeq', 'torchsde', 
+        One of: 'scipy', 'diffeqpy', 'torchdiffeq', 'torchsde',
         'diffrax', 'manual', 'unknown'
-    
+
     Examples
     --------
     >>> get_implementing_library('LSODA', 'numpy', is_stochastic=False)
@@ -1530,76 +1610,88 @@ def get_implementing_library(method: str, backend: Backend, is_stochastic: bool 
     # ========================================================================
     # Manual implementations (only for deterministic on NumPy)
     # ========================================================================
-    
+
     manual_methods = {"euler", "heun", "midpoint", "rk4"}
-    
+
     if method in manual_methods and backend == "numpy" and not is_stochastic:
         return "manual"
-    
+
     # ========================================================================
     # Scipy (NumPy only, deterministic only, specific set)
     # ========================================================================
-    
+
     if backend == "numpy" and not is_stochastic:
         scipy_methods = {"LSODA", "RK45", "RK23", "DOP853", "Radau", "BDF"}
         if method in scipy_methods:
             return "scipy"
-    
+
     # ========================================================================
     # DiffEqPy (NumPy only, Capital letter heuristic)
     # ========================================================================
-    
+
     if backend == "numpy":
         # Auto-switching methods (contain parentheses)
         if "(" in method:
             return "diffeqpy"
-        
+
         # Capital first letter, excluding Scipy methods
         if method and method[0].isupper():
             scipy_methods = {"LSODA", "RK45", "RK23", "DOP853", "Radau", "BDF"}
             if method not in scipy_methods:
                 return "diffeqpy"
-    
+
     # ========================================================================
     # TorchDiffEq (PyTorch, deterministic)
     # ========================================================================
-    
+
     if backend == "torch" and not is_stochastic:
-        torchdiffeq_methods = {"dopri5", "dopri8", "bosh3", "fehlberg2", 
-                               "explicit_adams", "implicit_adams"}
+        torchdiffeq_methods = {
+            "dopri5",
+            "dopri8",
+            "bosh3",
+            "fehlberg2",
+            "explicit_adams",
+            "implicit_adams",
+        }
         if method in torchdiffeq_methods:
             return "torchdiffeq"
-        
+
         # Manual methods on torch (deterministic only)
         if method in manual_methods:
             return "manual"
-    
+
     # ========================================================================
     # TorchSDE (PyTorch, stochastic)
     # ========================================================================
-    
+
     if backend == "torch" and is_stochastic:
-        torchsde_methods = {"euler", "milstein", "srk", "midpoint", 
-                           "reversible_heun", "adaptive_heun"}
+        torchsde_methods = {
+            "euler",
+            "milstein",
+            "srk",
+            "midpoint",
+            "reversible_heun",
+            "adaptive_heun",
+        }
         if method in torchsde_methods:
             return "torchsde"
-    
+
     # ========================================================================
     # Diffrax (JAX, both ODE and SDE)
     # ========================================================================
-    
+
     if backend == "jax":
         # Manual methods on JAX (deterministic only)
         if method in manual_methods and not is_stochastic:
             return "manual"
-        
+
         # Everything else is Diffrax
         return "diffrax"
-    
+
     # ========================================================================
     # Unknown/unsupported
     # ========================================================================
-    
+
     return "unknown"
 
 
@@ -1617,7 +1709,6 @@ __all__ = [
     "get_method_info",
     "list_all_methods",
     "get_implementing_library",
-    
     # Constants (for advanced usage)
     "DETERMINISTIC_FIXED_STEP",
     "DETERMINISTIC_ADAPTIVE",
