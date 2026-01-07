@@ -18,6 +18,7 @@ Fixed-Step Integrators - REFACTORED FOR TypedDict
 
 Implements classic fixed time-step integration methods:
 - Explicit Euler (1st order)
+- Heun's Method / Improved Euler (2nd order)
 - Midpoint/RK2 (2nd order)
 - RK4 (4th order)
 
@@ -489,6 +490,252 @@ class MidpointIntegrator(IntegratorBase):
         return "Midpoint (RK2)"
 
 
+class HeunIntegrator(IntegratorBase):
+    """
+    Heun's method integrator (Improved Euler / Explicit Trapezoid).
+
+    Second-order method using predictor-corrector approach.
+
+    Algorithm:
+        k1 = f(x_k, u_k)                    # Predictor (Euler step)
+        x_pred = x_k + dt * k1
+        k2 = f(x_pred, u_k)                 # Corrector
+        x_{k+1} = x_k + (dt/2) * (k1 + k2)  # Trapezoidal rule
+
+    Also known as:
+    - Improved Euler method
+    - Explicit Trapezoid method
+    - Modified Euler method
+
+    Characteristics:
+    - Order: 2 (error ∝ dt²)
+    - Stability: Better than Euler, similar to Midpoint
+    - Function evaluations: 2 per step
+    - Style: Predictor-corrector (explicit trapezoid)
+
+    Comparison with Similar Methods:
+    - vs. Euler: Same cost per step as 2 Euler steps, but much better accuracy
+    - vs. Midpoint: Similar accuracy and cost, different approach (trapezoid vs midpoint)
+    - vs. RK4: Half the function evaluations, but lower order (2 vs 4)
+
+    Best for:
+    - General-purpose simulation
+    - Moderate accuracy requirements
+    - When stability is important but RK4 is too expensive
+    - Educational purposes (predictor-corrector concept)
+
+    Examples
+    --------
+    >>> # Controlled system
+    >>> integrator = HeunIntegrator(system, dt=0.01, backend='numpy')
+    >>> x_next = integrator.step(x, u)
+    >>>
+    >>> # Autonomous system
+    >>> integrator = HeunIntegrator(autonomous_system, dt=0.01)
+    >>> x_next = integrator.step(x, u=None)
+    >>>
+    >>> # Full integration returns TypedDict
+    >>> result = integrator.integrate(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     u_func=lambda t, x: None,
+    ...     t_span=(0.0, 10.0)
+    ... )
+    >>> print(f"Heun used {result['nfev']} evaluations for {result['nsteps']} steps")
+    """
+
+    def __init__(
+        self,
+        system: "ContinuousSystemBase",
+        dt: ScalarLike,
+        backend: Backend = "numpy",
+        **options,
+    ):
+        """
+        Initialize Heun integrator.
+
+        Parameters
+        ----------
+        system : SymbolicDynamicalSystem
+            System to integrate (controlled or autonomous)
+        dt : float
+            Fixed time step
+        backend : str
+            Backend ('numpy', 'torch', 'jax')
+        """
+        super().__init__(system, dt, StepMode.FIXED, backend, **options)
+
+    def step(
+        self,
+        x: StateVector,
+        u: Optional[ControlVector] = None,
+        dt: Optional[ScalarLike] = None,
+    ) -> StateVector:
+        """
+        Take one Heun step using predictor-corrector approach.
+
+        Uses two function evaluations per step for 2nd-order accuracy.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Current state
+        u : Optional[ArrayLike]
+            Control input (None for autonomous systems, assumed constant)
+        dt : Optional[float]
+            Time step (uses self.dt if None)
+
+        Returns
+        -------
+        ArrayLike
+            Next state
+
+        Notes
+        -----
+        Control is assumed constant over the time step. For time-varying
+        control, use integrate() with appropriate u(t, x).
+
+        The algorithm:
+        1. Predictor: Take full Euler step to get x_pred
+        2. Corrector: Evaluate derivative at x_pred
+        3. Final: Average the two derivatives (trapezoidal rule)
+        """
+        dt = dt if dt is not None else self.dt
+
+        # Predictor: Evaluate at current point
+        k1 = self._evaluate_dynamics(x, u)
+
+        # Take predictor (Euler) step
+        x_pred = x + dt * k1
+
+        # Corrector: Evaluate at predicted point
+        k2 = self._evaluate_dynamics(x_pred, u)
+
+        # Final update using trapezoidal rule (average of derivatives)
+        x_next = x + 0.5 * dt * (k1 + k2)
+
+        self._stats["total_steps"] += 1
+
+        return x_next
+
+    def integrate(
+        self,
+        x0: StateVector,
+        u_func: Callable[[ScalarLike, StateVector], Optional[ControlVector]],
+        t_span: TimeSpan,
+        t_eval: Optional[TimePoints] = None,
+        dense_output: bool = False,
+    ) -> IntegrationResult:
+        """
+        Integrate using fixed Heun steps.
+
+        Parameters
+        ----------
+        x0 : ArrayLike
+            Initial state
+        u_func : Callable
+            Control policy (t, x) → u (or None for autonomous)
+        t_span : Tuple[float, float]
+            (t_start, t_end)
+        t_eval : Optional[ArrayLike]
+            Times to evaluate (if None, uses uniform grid)
+        dense_output : bool
+            Ignored for fixed-step methods
+
+        Returns
+        -------
+        IntegrationResult
+            TypedDict with trajectory and diagnostics
+
+        Examples
+        --------
+        >>> # Controlled system
+        >>> result = integrator.integrate(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: np.array([0.5]),
+        ...     t_span=(0.0, 10.0)
+        ... )
+        >>> print(f"Final: {result['x'][-1]}")
+        >>>
+        >>> # Autonomous system
+        >>> result = integrator.integrate(
+        ...     x0=np.array([1.0, 0.0]),
+        ...     u_func=lambda t, x: None,
+        ...     t_span=(0.0, 10.0)
+        ... )
+        >>> assert result["success"]
+        >>> assert result["nfev"] == 2 * result["nsteps"]  # 2 evals per step
+        """
+        start_time = time.time()
+
+        t0, tf = t_span
+
+        # Create time grid
+        if t_eval is None:
+            num_steps = int(np.ceil((tf - t0) / self.dt))
+            t_eval = np.linspace(t0, tf, num_steps + 1)
+
+        # Convert to backend
+        if self.backend == "numpy":
+            t_points = np.asarray(t_eval)
+        elif self.backend == "torch":
+            import torch
+
+            t_points = torch.as_tensor(t_eval) if not isinstance(t_eval, torch.Tensor) else t_eval
+        elif self.backend == "jax":
+            import jax.numpy as jnp
+
+            t_points = jnp.asarray(t_eval)
+
+        # Initialize trajectory
+        trajectory = [x0]
+        x = x0
+
+        # Integration loop
+        for i in range(len(t_points) - 1):
+            t = float(t_points[i])
+            dt_step = float(t_points[i + 1] - t_points[i])
+
+            # Get control (may be None for autonomous systems)
+            u = u_func(t, x)
+
+            # Heun step (handles u=None)
+            x = self.step(x, u, dt=dt_step)
+            trajectory.append(x)
+
+        # Stack trajectory
+        if self.backend == "numpy":
+            x_traj = np.stack(trajectory)
+        elif self.backend == "torch":
+            import torch
+
+            x_traj = torch.stack(trajectory)
+        elif self.backend == "jax":
+            import jax.numpy as jnp
+
+            x_traj = jnp.stack(trajectory)
+
+        elapsed = time.time() - start_time
+        self._stats["total_time"] += elapsed
+
+        # Create TypedDict result
+        result: IntegrationResult = {
+            "t": t_points,
+            "x": x_traj,
+            "success": True,
+            "message": "Heun integration completed",
+            "nfev": self._stats["total_fev"],
+            "nsteps": len(t_points) - 1,
+            "integration_time": elapsed,
+            "solver": self.name,
+        }
+
+        return result
+
+    @property
+    def name(self) -> str:
+        return "Heun (Improved Euler)"
+
+
 class RK4Integrator(IntegratorBase):
     """
     Classic 4th-order Runge-Kutta integrator.
@@ -740,7 +987,7 @@ def create_fixed_step_integrator(
     Parameters
     ----------
     method : str
-        'euler', 'midpoint', or 'rk4'
+        'euler', 'heun', 'midpoint', or 'rk4'
     system : SymbolicDynamicalSystem
         System to integrate (controlled or autonomous)
     dt : float
@@ -763,6 +1010,9 @@ def create_fixed_step_integrator(
     >>> # Euler for prototyping
     >>> integrator = create_fixed_step_integrator('euler', system, dt=0.001)
     >>>
+    >>> # Heun for balanced accuracy
+    >>> integrator = create_fixed_step_integrator('heun', system, dt=0.01)
+    >>>
     >>> # Midpoint with PyTorch backend
     >>> integrator = create_fixed_step_integrator(
     ...     'midpoint', system, dt=0.01, backend='torch'
@@ -770,6 +1020,7 @@ def create_fixed_step_integrator(
     """
     method_map = {
         "euler": ExplicitEulerIntegrator,
+        "heun": HeunIntegrator,
         "midpoint": MidpointIntegrator,
         "rk4": RK4Integrator,
     }
@@ -787,6 +1038,7 @@ def create_fixed_step_integrator(
 
 __all__ = [
     "ExplicitEulerIntegrator",
+    "HeunIntegrator",
     "MidpointIntegrator",
     "RK4Integrator",
     "create_fixed_step_integrator",

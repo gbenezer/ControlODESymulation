@@ -79,6 +79,7 @@ from .fixed_step_integrators import (
     ExplicitEulerIntegrator,
     MidpointIntegrator,
     RK4Integrator,
+    HeunIntegrator,
     create_fixed_step_integrator,
 )
 from .integrator_base import IntegratorBase, StepMode
@@ -105,6 +106,7 @@ __all__ = [
     # Fixed-step integrators
     "ExplicitEulerIntegrator",
     "MidpointIntegrator",
+    "HeunIntegrator",
     "RK4Integrator",
     "create_fixed_step_integrator",
     # Stochastic submodule
