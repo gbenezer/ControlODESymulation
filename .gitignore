@@ -98,8 +98,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-control_de/
-control_ode_symulation/  # Your conda environment
+cdesym/
 
 # ============================================================================
 # Package Managers
