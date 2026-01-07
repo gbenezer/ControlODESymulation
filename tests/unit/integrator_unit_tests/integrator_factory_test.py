@@ -1101,7 +1101,44 @@ class TestScalarLikeTypeUsage:
 
 
 # ============================================================================
-# Regression Tests for DiscretizedSystem Integration
+# Additional fixtures for integration tests
+# ============================================================================
+
+
+class SimpleDecaySystem:
+    """
+    Simple system for testing: dx/dt = -x (exponential decay).
+
+    Not a Mock - real minimal implementation for integration tests.
+    """
+
+    def __init__(self):
+        self.nx = 2
+        self.nu = 1
+        self.ny = 2
+
+    def __call__(self, x, u=None, t=None, backend=None, **kwargs):
+        """Dynamics: dx/dt = -x"""
+        x_array = np.asarray(x)
+        return -x_array
+
+    def forward(self, x, u=None, **kwargs):
+        """Alias for __call__"""
+        return self(x, u)
+
+
+@pytest.fixture
+def realistic_mock_system():
+    """
+    Create a simple system with realistic dynamics for integration tests.
+
+    Returns system with dynamics: dx/dt = -x (exponential decay)
+    """
+    return SimpleDecaySystem()
+
+
+# ============================================================================
+# Regression Tests for DiscretizedSystem Integration (Bug #XXX)
 # ============================================================================
 
 
@@ -1198,14 +1235,14 @@ class TestDiscretizedSystemIntegration:
         # This is unusual but shouldn't crash - documents behavior
         # (DiscretizedSystem should never do this, but factory allows it)
 
-    def test_integrator_is_stateless_and_reusable(self, mock_system):
+    def test_integrator_is_stateless_and_reusable(self, realistic_mock_system):
         """
         Integrators should be stateless and reusable across steps.
 
         Critical for DiscretizedSystem's caching strategy.
         """
         integrator = IntegratorFactory.create(
-            mock_system,
+            realistic_mock_system,
             backend="numpy",
             method="euler",
             dt=0.01,
@@ -1229,6 +1266,11 @@ class TestDiscretizedSystemIntegration:
         assert not np.allclose(x1, x0)
         assert not np.allclose(x2, x1)
         assert not np.allclose(x3, x2)
+
+        # Should be decaying (dx/dt = -x)
+        assert x1[0] < x0[0]
+        assert x2[0] < x1[0]
+        assert x3[0] < x2[0]
 
     def test_sde_method_validation_on_deterministic_system(self, mock_system):
         """
@@ -1276,10 +1318,10 @@ class TestStepMethodAvailability:
             # Must be callable
             assert callable(integrator.step), f"{method} integrator step() is not callable"
 
-    def test_step_method_signature_correct(self, mock_system):
+    def test_step_method_signature_correct(self, realistic_mock_system):
         """step() should accept (x, u, dt) parameters."""
         integrator = IntegratorFactory.create(
-            mock_system,
+            realistic_mock_system,
             backend="numpy",
             method="euler",
             dt=0.01,
@@ -1295,6 +1337,14 @@ class TestStepMethodAvailability:
 
         assert x1 is not None
         assert x2 is not None
+
+        # Both should evolve the state
+        assert not np.allclose(x1, x0)
+        assert not np.allclose(x2, x0)
+
+        # Should be decaying
+        assert x1[0] < x0[0]
+        assert x2[0] < x0[0]
 
 
 # ============================================================================
