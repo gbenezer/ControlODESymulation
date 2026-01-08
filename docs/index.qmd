@@ -7,8 +7,8 @@ execute:
 
 ## Overview {#sec-overview}
 
-ControlDESymulation is a comprehensive Python framework for symbolic modeling, 
-simulation, and control of dynamical systems.
+ControlDESymulation is a comprehensive Python framework for symbolic modeling,
+simulation, and control of dynamical systems. The source code is available on [GitHub](https://github.com/gbenezer/ControlDESymulation).
 
 ### Key Benefits {#sec-key-benefits}
 
