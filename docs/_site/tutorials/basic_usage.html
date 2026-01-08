@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Gil Benezer">
+<meta name="dcterms.date" content="2026-01-08">
+
+<title>Basic Usage – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script type="text/javascript">
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-3.3.0.min"</script>
+
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.html"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/basic_usage.html">
+ <span class="dropdown-text">Basic Usage</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/basic_usage.html">Small Demonstrations of Basic Functionality</a></li><li class="breadcrumb-item"><a href="../tutorials/basic_usage.html">Basic Usage</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Small Demonstrations of Basic Functionality</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/basic_usage.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Basic Usage</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-introduction" id="toc-sec-introduction" class="nav-link active" data-scroll-target="#sec-introduction">Introduction</a></li>
+  <li><a href="#sec-setting-up" id="toc-sec-setting-up" class="nav-link" data-scroll-target="#sec-setting-up">Setting Up</a></li>
+  <li><a href="#sec-defining-a-simple-system" id="toc-sec-defining-a-simple-system" class="nav-link" data-scroll-target="#sec-defining-a-simple-system">Defining a Simple System</a></li>
+  <li><a href="#sec-simulation" id="toc-sec-simulation" class="nav-link" data-scroll-target="#sec-simulation">Simulation</a></li>
+  <li><a href="#sec-visualization" id="toc-sec-visualization" class="nav-link" data-scroll-target="#sec-visualization">Visualization</a></li>
+  <li><a href="#sec-phase-portrait" id="toc-sec-phase-portrait" class="nav-link" data-scroll-target="#sec-phase-portrait">Phase Portrait</a></li>
+  <li><a href="#sec-next-steps" id="toc-sec-next-steps" class="nav-link" data-scroll-target="#sec-next-steps">Next Steps</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/tutorials/basic_usage.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/basic_usage.html">Small Demonstrations of Basic Functionality</a></li><li class="breadcrumb-item"><a href="../tutorials/basic_usage.html">Basic Usage</a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Basic Usage</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">ControlDESymulation Tutorials</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Gil Benezer </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 8, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec-introduction" class="level2">
+<h2 class="anchored" data-anchor-id="sec-introduction">Introduction</h2>
+<p>This tutorial covers the basics of defining and simulating dynamical systems.</p>
+</section>
+<section id="sec-setting-up" class="level2">
+<h2 class="anchored" data-anchor-id="sec-setting-up">Setting Up</h2>
+<p>First, import the necessary modules:</p>
+<div id="7869ad63" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> cdesym <span class="im">import</span> ContinuousSymbolicSystem</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="sec-defining-a-simple-system" class="level2">
+<h2 class="anchored" data-anchor-id="sec-defining-a-simple-system">Defining a Simple System</h2>
+<p>Let’s create a simple pendulum:</p>
+<div id="c8f91f51" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SymbolicPendulum(ContinuousSymbolicSystem):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> define_system(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        m_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        l_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        beta_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        g_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">9.81</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""First order model of a pendulum"""</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># define the symbolic variables</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        theta, theta_dot <span class="op">=</span> sp.symbols(<span class="st">"theta theta_dot"</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> sp.symbols(<span class="st">"u"</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        m, l, beta, g <span class="op">=</span> sp.symbols(<span class="st">"m l beta g"</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the variables to the system fields properly</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.parameters <span class="op">=</span> {m: m_val, l: l_val, beta: beta_val, g: g_val}</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.state_vars <span class="op">=</span> [theta, theta_dot]</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.control_vars <span class="op">=</span> [u]</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># define the dynamics of the system</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        ml2 <span class="op">=</span> m <span class="op">*</span> l <span class="op">*</span> l</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            [theta_dot, (<span class="op">-</span>beta <span class="op">/</span> ml2) <span class="op">*</span> theta_dot <span class="op">+</span> (g <span class="op">/</span> l) <span class="op">*</span> sp.sin(theta) <span class="op">+</span> u <span class="op">/</span> ml2],</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._h_sym <span class="op">=</span> sp.Matrix([theta])</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup_equilibria(<span class="va">self</span>):</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># method to add equilibria to the system automatically after initialization</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the stable equilibrium where the pendulum is hanging down</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.add_equilibrium(</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            <span class="st">'downward'</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            x_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>            u_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>]),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            verify<span class="op">=</span><span class="va">True</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the unstable equilibrium where the pendulum is inverted</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.add_equilibrium(</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            <span class="st">'inverted'</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            x_eq<span class="op">=</span>np.array([np.pi, <span class="fl">0.0</span>]),</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>            u_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>]),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>            stability<span class="op">=</span><span class="st">'unstable'</span>,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>            notes<span class="op">=</span><span class="st">'Requires active control'</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Instantiate the system</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>pendulum <span class="op">=</span> SymbolicPendulum()</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial conditions</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="sec-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="sec-simulation">Simulation</h2>
+<p>Now simulate the system:</p>
+<div id="4e0deca0" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integrate a trajectory with auto-selection of</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># relevant arguments</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pendulum_integration_result <span class="op">=</span> pendulum.integrate(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        x0<span class="op">=</span>x0,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        t_span <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">20.0</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, v <span class="kw">in</span> pendulum_integration_result.items():</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">!=</span> <span class="st">"x"</span> <span class="kw">and</span> k <span class="op">!=</span> <span class="st">"t"</span>:</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(k, <span class="st">" : "</span>, v)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>success  :  True
+message  :  The solver successfully reached the end of the integration interval.
+nfev  :  1442
+nsteps  :  1442
+integration_time  :  0.020517826080322266
+solver  :  scipy.RK45
+njev  :  0
+nlu  :  0
+status  :  0</code></pre>
+</div>
+</div>
+</section>
+<section id="sec-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="sec-visualization">Visualization</h2>
+<p>Plot the trajectory in 2D:</p>
+<div id="51b2a4ec" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>STATE_NAMES <span class="op">=</span> [<span class="st">'angle'</span>, <span class="st">'angular velocity'</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>trajectory_plot <span class="op">=</span> pendulum.plot(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>pendulum_integration_result,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    state_names <span class="op">=</span> STATE_NAMES</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>trajectory_plot.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="9e84ff31-d745-4796-97eb-a500355a2cf6" class="plotly-graph-div" style="height:400px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("9e84ff31-d745-4796-97eb-a500355a2cf6")) {                    Plotly.newPlot(                        "9e84ff31-d745-4796-97eb-a500355a2cf6",                        [{"legendgroup":"trajectory_1","line":{"color":"#636EFA","width":2},"mode":"lines","name":"Trajectory 1","showlegend":true,"x":{"dtype":"f8","bdata":"AAAAAAAAAADQ8gcCuaZTP97tymI+BYs\u002fSr+tV18ssD9PjBxSTcnAP9TsXz2VK8s\u002frOMhdQON0z+liLID2TvaPxtsa+sl0uA\u002fqNzZ3ea64z++uzTqM5zmPxBEUdqCVOk\u002fiXblnk8V7D9cy4DdxAjvP777h3QqIPE\u002fG0Ay0r268j\u002fV6R688T70Pw6k2BiLqvU\u002fhH3gZkwU9z8gSOXtRxb5P9jH947Xy\u002fo\u002f4Yi0G4x2\u002fD8iJXw4+P39P\u002fsUnogUcf8\u002fyhHWz+RsAEDu23JUFhwBQI6O+bvlxAFATCgJR+NlAkDgdTDtqegCQHTDV5NwawNAXSrNsVz6A0A5O5euRaUEQI0HuEHGbQVAipVsw+hZBkCRuo5CBBsHQH\u002fPLQxE2gdAsUVM33KOCEAEKKQ7tjkJQHpkusJG3QlA10oGevp4CkBbv+qbe\u002fwKQN8zz738fwtA5Mf9X0\u002f7C0Cb3IQd9ZAMQFK1M\u002fjLPQ1AfuVko7IJDkAMmGrQOeUOQOaKY9B2oA9Awv22iFQtEEDxwbb8zIQQQKnPrJnQ1xBAnPI0lOMmEUAgSyErwXERQMi96RndrRFAcDCyCPnpEUBaEf9RjysSQGErv52leBJAn8Tfp1bREkDHY2o7lzsTQKLTIvsCpBNAlfNOwWT\u002fE0CGVNmFgFoUQEcqQvRtsBRAXgDxAxMCFUCb8Gc2wk8VQOqJt8QKmRVAZsXn89LSFUBBIc7SzQoWQDmGl+CNTxZASnd3ieyeFkDpgUouafoWQDSZPFfaahdAKUCERarOF0DZJG52vDAYQHsfYreRihhA9M\u002fJ3hDfGEALZgMAdC8ZQNocpATaexlAPNUYHJTDGUB0JdldfwQaQKlrTC3ERBpA12VipXGQGkDrL7PzDecaQFC9yIhVTRtA0069tqi8G0DZ9CzkbRkcQGdT+PbTdRxAhN3OYqfMHEAelCIuFx8dQKyqAduibR1ANB6xhge4HUDzr17Sf\u002fQdQHRmaL2BMB5AX7okZnJ3HkDe0FoQsMgeQFycGUIwJh9AmXKSv6WaH0BNqHCcmP0fQJuLWeKULyBAUetLXYtcIEDv0bY\u002f9oYgQO0uQ2BmryBAmrH2ve3VIECiKdQRQfogQLavTdVyGyFAS0XTFs4+IUBJtmLCWGchQPb\u002f2W+2lSFAScfhjknOIUBWk3NEgAEiQOCVf22uMyJAIbKkWXthIkCUxztClowiQL4aFxq5tSJAdNKKng3dIkBcudkpaQIjQO8dOMMsJSNAwHvV4xJKI0Ai5s3u+nMjQJfLxAHZoyNAsDRqmhzfI0DyzAWn1REkQKqH7bnTQyRAXSvGDuFxJEBjwzrsaZ0kQKK3TBIaxyRAWRTUTiLvJEDlrSYsbRUlQI7V38GOOSVAZ0+ASN1hJUA02J9+II8lQO9IUxiPwyVA5IShpzn\u002fJUDpsxKyczAmQKgw7fVtYSZAU77PeGmPJkBYtEQnTrsmQJYESkCe5SZA5Jf5hYwOJ0BFmrfhHTYnQEuusx8+XydAEkeQEA2NJ0Axl\u002fOVMsEnQIoBFvpXBChAGm7ewMk3KEAgIyuezGooQG6oufSKmihAFplZbDPIKECyvZR0dfQoQH1UD\u002fSvHylAm9zAdClKKUDnzfRYb3cpQF\u002fQXpSjqSlAptJ\u002fKvXjKUBA3PxsmiMqQJldZut+VypAByX3zziLKkAQp+i3U7wqQGnD+WnR6ypAROlRkWUaK0C5YaQ0m0grQB0f4bNxeCtAvt9GoPOsK0BkaazgFukrQH9A\u002fL9yKyxAovU36K5iLECsjhT\u002ftJksQD2\u002f8xLqzSxAl17qeqQALUCauyRO2DItQIyfLsRYZS1AxMoTZwmbLUBzkjmQj9YtQK8e1bgJHy5AnR\u002fT6OJcLkDQxeMm95kuQJE5TmLS0i5AECgXttgJL0AhyhHaf0AvQMmu6E\u002fxdy9AWRA8hyizL0DIVZwRcfUvQKtq0+DiITBAJIrZv+1BMECmZLt+zGEwQKsa9F4egDBAZorbQPudMEDEH0CONrwwQPSY+LAX3DBAeiBYj4T\u002fMEDu+aHBAS0xQCTHVpSSTzFARCvXUvFxMUBg8bUY6ZIxQJoD5PDHszFAZrst+LPVMUDEqQ3om\u002foxQJXFQd6UJjJA5lzXTehNMkBCij8DsnQyQLEwop4cmTJANuPXQUu9MkD\u002f9p+12OIyQLj4wzwhDDNAs5u4jkhAM0BlieLNb2kzQF5HqoBjkjNAR7LRQS26M0BVsKWL6+IzQAAAAAAAADRA"},"y":{"dtype":"f8","bdata":"AAAAAAAA8D9fnEE5BgDwPxaIVR7uAvA\u002fUIy4oDFC8D8i6wmAghjxP4qws4rT0\u002fI\u002fcUNFkhjI9T9jCmJnAUn6P7BJy8TETwBAEIhDlXguA0AQkTrNPy8GQHKtDBkK\u002fAhAWMUP\u002f36YC0Cpsh9grfcNQLiwDqmM5w9AprWauvmLEECMPMNbwMQQQBE0ySeisRBAQpBxJexfEEDr2tFCWCMPQJN0ghXbSQ1AA3KOe0NDC0A+A1w1ImQJQBt\u002f\u002fE92wAdAmm58f+RkBkATQxsQw14FQP\u002fp2jR7sgRAs7q6\u002fdJaBECuN2tR5EkEQDEmSbkNZwRAOYJydSS3BEDBDicuBVAFQFOimRbQQAZAo+I6cJ+PB0Cd+NEFe6wIQEL5wMHztglAEdP5W4mRCkAZzxD46zcLQOwPt74vqgtAo9xLE2TrC0CZDveZFgEMQPIc8EdX+QtAQ2tk8jDZC0A227x8dJULQNZHr8HmJgtArEkZbQOFCkC0aVu\u002fJcQJQER6YgvJIAlA0RpL\u002fY6MCEDKlHwNWRcIQIny4OGuwQdA4sDtUleKB0DF2\u002fLYpG4HQPNT+5CeaQdA9oubCTBzB0DqiUSM7YwHQP7zSHH0vAdA579MhA4HCEBlE\u002flbH3EIQMEMDbBa4AhAE57lO2E+CUD9JKYbCpIJQLx79Zbp0glALKkBb\u002fYACkAWb3t4MR0KQCsgnOZ\u002fKQpAs40qpp0pCkCo9kPmHiIKQNhgNRyXDwpAiXJXLz3vCUC2sgqYyL4JQCuXBe9veQlAdTKRmIc5CUA1KbWsd\u002f4IQAb8tISozwhA85BtPpOsCEBsK9getZQIQAShC4VChwhAOYUGoeOCCEAnxUpZjIUIQEF0bEjijQhAwPstnhKeCEAHmF4NarcIQGHUnWuu2whAsf1WynsGCUDq+ED6QykJQA0Q\u002fvJcSAlAA30dEYRgCUDQQXEBwXEJQM7S+xlvfAlAoYuw9TWBCUBtLkxqWIEJQAT6jFpZfglAyI8Dyyp3CUChu2Z71WoJQN238miNWAlAWyPSaE0+CUALv980cScJQHf3tNR9EglAeil2av4BCUD39liyzPUIQNB+gD+37QhAVYJ4Km7pCEAXN8J5b+gIQEQy+Av76QhAcb96vfbtCEC9M+fzD\u002fUIQHV1q4K3\u002fwhAxKn9nucOCUCya\u002f+ULh0JQFgNq8tKKglAJCeE\u002fpA0CUBSP8O+LDwJQNe1yw4\u002fQQlAmr6ewfVDCUA22EkMm0QJQKWsjEuaQwlAduXHIQNBCUBiiTY3djwJQHabLgOyNQlAtK9dtgMsCUCUGna4iiMJQGnlNMbUGwlAka2NF9UVCUDt9B5XeREJQLv6DoetDglAka3UxVMNCUDN6AqkPQ0JQB3s1voqDglApAJ8PzgQCUDnXMsWjxMJQJTtvVBdGAlAsBUm3l0eCUASiuxZMSMJQN\u002fLJ+5zJwlAzDj9F64qCUA+OBPF5CwJQASOiHAlLglAyvDh24UuCUA\u002f\u002fLvkJC4JQE5Ml\u002fYOLQlAbSLXTiorCUD+fEa\u002fYigJQP8hI4pYJAlAyqbyp00hCUB4t8i1oh4JQPZkPbykHAlAVqXHoU4bCUD6aGXGlxoJQLsJHUtzGglAWz9AnM8aCUDMPfGfqxsJQEA8GVISHQlA9CCrehIfCUBTZAc3ZSEJQHpsvNwpIwlAlyWaD6UkCUDnFG0RsCUJQIehHxJOJglAMHXjYIUmCUAAKjv1XiYJQDSZ1wThJQlAzTPbSQclCUCMge+4zCMJQMUPmr9XIglA22ip3jYhCUC+CGxhSSAJQJy0t+eoHwlAKjlTmFIfCUDAeyIpQh8JQGwwhNtxHwlAKzG1j98fCUDEt3GfiyAJQE5QsFp+IQlAxIX4r0ciCUD3mech7iIJQCaeUxxcIwlAD+k5fpUjCUCWtGh8nSMJQELyHu13IwlAie0y9yYjCUDx03MJrCIJQKfMpB8NIglAbWg4wZchCUAuESPIPiEJQMngFXAMIQlAvQQEUP4gCUBzdz6wESEJQFryn+ZDIQlA5VEKqZIhCUB5Td4WASIJQCkkxFJJIglA6xVxXnsiCUBi5WXekSIJQDayxwWPIglAyxkXUnUiCUAYTPk6RyIJQKZk8NkGIglA0FMF4tIhCUB08z4vryEJQJc6V2ygIQlAj0f3FaQhCUDQ1JLltyEJQLySH0vZIQlAjH0YcQYiCUAQepwCIiIJQOujYpQwIglAP479EjEiCUCYsZaNJSIJQJXM6z0YIglA"},"type":"scatter","xaxis":"x","yaxis":"y","marker":{"size":8}},{"legendgroup":"trajectory_1","line":{"color":"#636EFA","width":2},"mode":"lines","name":"Trajectory 1","showlegend":false,"x":{"dtype":"f8","bdata":"AAAAAAAAAADQ8gcCuaZTP97tymI+BYs\u002fSr+tV18ssD9PjBxSTcnAP9TsXz2VK8s\u002frOMhdQON0z+liLID2TvaPxtsa+sl0uA\u002fqNzZ3ea64z++uzTqM5zmPxBEUdqCVOk\u002fiXblnk8V7D9cy4DdxAjvP777h3QqIPE\u002fG0Ay0r268j\u002fV6R688T70Pw6k2BiLqvU\u002fhH3gZkwU9z8gSOXtRxb5P9jH947Xy\u002fo\u002f4Yi0G4x2\u002fD8iJXw4+P39P\u002fsUnogUcf8\u002fyhHWz+RsAEDu23JUFhwBQI6O+bvlxAFATCgJR+NlAkDgdTDtqegCQHTDV5NwawNAXSrNsVz6A0A5O5euRaUEQI0HuEHGbQVAipVsw+hZBkCRuo5CBBsHQH\u002fPLQxE2gdAsUVM33KOCEAEKKQ7tjkJQHpkusJG3QlA10oGevp4CkBbv+qbe\u002fwKQN8zz738fwtA5Mf9X0\u002f7C0Cb3IQd9ZAMQFK1M\u002fjLPQ1AfuVko7IJDkAMmGrQOeUOQOaKY9B2oA9Awv22iFQtEEDxwbb8zIQQQKnPrJnQ1xBAnPI0lOMmEUAgSyErwXERQMi96RndrRFAcDCyCPnpEUBaEf9RjysSQGErv52leBJAn8Tfp1bREkDHY2o7lzsTQKLTIvsCpBNAlfNOwWT\u002fE0CGVNmFgFoUQEcqQvRtsBRAXgDxAxMCFUCb8Gc2wk8VQOqJt8QKmRVAZsXn89LSFUBBIc7SzQoWQDmGl+CNTxZASnd3ieyeFkDpgUouafoWQDSZPFfaahdAKUCERarOF0DZJG52vDAYQHsfYreRihhA9M\u002fJ3hDfGEALZgMAdC8ZQNocpATaexlAPNUYHJTDGUB0JdldfwQaQKlrTC3ERBpA12VipXGQGkDrL7PzDecaQFC9yIhVTRtA0069tqi8G0DZ9CzkbRkcQGdT+PbTdRxAhN3OYqfMHEAelCIuFx8dQKyqAduibR1ANB6xhge4HUDzr17Sf\u002fQdQHRmaL2BMB5AX7okZnJ3HkDe0FoQsMgeQFycGUIwJh9AmXKSv6WaH0BNqHCcmP0fQJuLWeKULyBAUetLXYtcIEDv0bY\u002f9oYgQO0uQ2BmryBAmrH2ve3VIECiKdQRQfogQLavTdVyGyFAS0XTFs4+IUBJtmLCWGchQPb\u002f2W+2lSFAScfhjknOIUBWk3NEgAEiQOCVf22uMyJAIbKkWXthIkCUxztClowiQL4aFxq5tSJAdNKKng3dIkBcudkpaQIjQO8dOMMsJSNAwHvV4xJKI0Ai5s3u+nMjQJfLxAHZoyNAsDRqmhzfI0DyzAWn1REkQKqH7bnTQyRAXSvGDuFxJEBjwzrsaZ0kQKK3TBIaxyRAWRTUTiLvJEDlrSYsbRUlQI7V38GOOSVAZ0+ASN1hJUA02J9+II8lQO9IUxiPwyVA5IShpzn\u002fJUDpsxKyczAmQKgw7fVtYSZAU77PeGmPJkBYtEQnTrsmQJYESkCe5SZA5Jf5hYwOJ0BFmrfhHTYnQEuusx8+XydAEkeQEA2NJ0Axl\u002fOVMsEnQIoBFvpXBChAGm7ewMk3KEAgIyuezGooQG6oufSKmihAFplZbDPIKECyvZR0dfQoQH1UD\u002fSvHylAm9zAdClKKUDnzfRYb3cpQF\u002fQXpSjqSlAptJ\u002fKvXjKUBA3PxsmiMqQJldZut+VypAByX3zziLKkAQp+i3U7wqQGnD+WnR6ypAROlRkWUaK0C5YaQ0m0grQB0f4bNxeCtAvt9GoPOsK0BkaazgFukrQH9A\u002fL9yKyxAovU36K5iLECsjhT\u002ftJksQD2\u002f8xLqzSxAl17qeqQALUCauyRO2DItQIyfLsRYZS1AxMoTZwmbLUBzkjmQj9YtQK8e1bgJHy5AnR\u002fT6OJcLkDQxeMm95kuQJE5TmLS0i5AECgXttgJL0AhyhHaf0AvQMmu6E\u002fxdy9AWRA8hyizL0DIVZwRcfUvQKtq0+DiITBAJIrZv+1BMECmZLt+zGEwQKsa9F4egDBAZorbQPudMEDEH0CONrwwQPSY+LAX3DBAeiBYj4T\u002fMEDu+aHBAS0xQCTHVpSSTzFARCvXUvFxMUBg8bUY6ZIxQJoD5PDHszFAZrst+LPVMUDEqQ3om\u002foxQJXFQd6UJjJA5lzXTehNMkBCij8DsnQyQLEwop4cmTJANuPXQUu9MkD\u002f9p+12OIyQLj4wzwhDDNAs5u4jkhAM0BlieLNb2kzQF5HqoBjkjNAR7LRQS26M0BVsKWL6+IzQAAAAAAAADRA"},"y":{"dtype":"f8","bdata":"AAAAAAAAAAAw5sl03UOEP8LvFp\u002fLs7s\u002fEZtQYpo64D\u002fZ5VzuD3nwP6g\u002fcNE9MPo\u002fK3gBQJaUAkA2jNwrNnkIQArnLziYBA5AKvlxcuRoEEBsgwRWj8MQQMTOmXbN\u002fg9AHv6yzrxkDEC5S0zbk88GQFDpB5E4N\u002f8\u002f8AmUVQdA8D8QE0n1JOvEP2dDBxlJTOK\u002fvuF72XmC87+VYP6o5yz\u002fv+KyPxpcuQLAk4+9wjPUA8BDSuGPgRADwIxFKxHD6QDA9mgtF5OO+79fRqOiSyr0v0BgeO7G4ei\u002fNHV34IgG1L9w1oZgYQCqP0R7dWp\u002f+9g\u002foonZd9Yg5z+XdxmdHdjwPxCahGMtPfU\u002fAWhqy9Sc9z+Zi50KpEH3P1kAQJfYC\u002fU\u002fs1zh6q+U8T8eGvo8FMnqPwgKYooC0uE\u002f1dhmJ6Xy0T+sDXj+XBiqP0XH4R+dQsW\u002f\u002fMCBtcKG1r\u002fUzGsDboLhvwhvwy1fHue\u002fkj7lDSA5679PHQn1BHXsvx5bhzikBeu\u002fxH15\u002fU+i57+lcsg0gg7jv7j\u002fAn5GuNu\u002fKGCXsuf+0L8q5sF01dK6v\u002fQ1vFYgrpQ\u002fgCmJ7U2WwT95m79rnSnQP\u002fDDBdANcNc\u002f\u002fgrVgt+e3T875ZM5otHgPzvARIzY+eA\u002f\u002fIiGn8GB3z9VEwb8q\u002fLaP+h1keZxLNU\u002fgM42vuekzT8srT4q8dDAP446aAZG76I\u002fPj\u002f+wGSQob+2AW5xn0K5v2AXB5GMpMW\u002fSsHRNz4qzr9Jw3tn3YrSv95ipkHQgNS\u002fM3\u002fzu10p1L\u002f9STBm+h\u002fSvwS6jVbzHc6\u002fiOLmL1fVxr9+JC1zpSm+v2ut4zamxK2\u002fgDKT1kAnar9J5zWovUimP7ZroP6p17U\u002fmBXMl65FwD99DNMLNeXEP+dyICqIEcg\u002fT2LOF3eoyD9YdhKU4AjHP64YBs5vzsM\u002fvpZOnopMvz\u002f+3rs6lhK2P8NrOqvdYKk\u002fQAzGZQdJjj8k6bwieDGJv426t6sSEqO\u002fGFYolfkzsL+gEXPe8mC2v70EVOhdQru\u002f9pCIksTIvb\u002f4q29y5Ou8v\u002fAc8JVSsbm\u002fefyRd3YLtb+IVCsBCj6vv1Schlyw0qO\u002fi4h4ActRkb9YUpiRfuZoP8FCa+6Xc5Q\u002fxIUKB2Zooj+AsFFlhxWqP7LKN2eTILA\u002fSSoK0xncsT+Tx4XOaYmxP11CiWI+WK8\u002fzuHv\u002fyDKqT+NbeDbCzqjP60QW8HZhZg\u002ffZhUzTuehT9IwYS6K4Jdv\u002f3ZViXHfom\u002fFra3Dw7slr86YN0x9B6gvxvm7OI9wKO\u002f+5vpg6CSpb\u002f016P8bdukvxYRMsg9XKK\u002fWp5P6jSjnb9dnIlPEm+Vv\u002fPxn3kcrYm\u002f7pFe+sPVcb9YvDrayrJpP4vw06yploM\u002fsFqGQAcOkD9DezbLsWWVP2qm3QdFEJk\u002fiWnSSV7amT8zvhYsIv6XP86RGVZfRJQ\u002fcMyaYI4Ajz8OuYLUrXqEP9bZ9LUjoHM\u002fYCQ76E15I7+VLzln4KpyvwYvvb5hcoG\u002fgvRhy6h9iL\u002fs5UhSiYqNv2w6BSsFKo+\u002f54iIixXvjL\u002f0S\u002flt6UKIvzl3UGkeQYK\u002fnGLgfps9d79MfAb9xptjv5DUM7qJTUc\u002fzTd8pb5wbD9nwrFQrUJ4P3wqzSBoKIA\u002fp56pnS2Ngj8nMYFueVuCP1IRXIiQRoA\u002fBnweKJ+4eT8AGwoT3ZRxP\u002fYe09799WE\u002fUC8jibGgIj+eufp8mEtcv2xP4Lsdd2u\u002fCxa4XD8Qc78HDFB+Qj92v+i95pr9GXa\u002fIKvvm35jc7+rMpIlBMptv9YE1XaQJ2O\u002fF2LOskURUL8oLB+xY0s1P8eknLM0WFg\u002fNcnFfUgWZD\u002fe17gfaotpP9kKs2pnH2s\u002fRJugdOpkaD\u002fSzP5vbc9iPxjgZ5dJ6Fc\u002fKCJWulnRQj\u002fg10ZFUBgyv0qBin2nuVC\u002fLmdHZhhcWr\u002fpwkRdOQZgv7HnLkykol+\u002fcVfO9I1UWr8xi+pO+\u002fFRv9epryngAUG\u002f0HhPd2PMCj9QM2sNk0VCP1Kpu6tKOE8\u002fCFQGSE5RUz+J5CZgMYpSPwLW+JAR+kw\u002fRI7m2dUxQT8eDx0qMHoiP0gHr53LZiy\u002f5FAKeOaVQL\u002flwidrY41GvzSGamtUJUe\u002f\u002faVKdL5xQr\u002fEemGrI001v6zf4KHabxK\u002fyb4PTpA9JT+SycGtrkI2P18ujWXmPjw\u002f7nceqXldOT+68mOJb9QwP+LyGhp0CRc\u002fLKcFSObSEr9WWT5545gpv3LS+2TPHzC\u002f"},"type":"scatter","xaxis":"x2","yaxis":"y2","marker":{"size":8}}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,0.46],"title":{"text":"Time (s)"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"angle"}},"xaxis2":{"anchor":"y2","domain":[0.54,1.0],"title":{"text":"Time (s)"}},"yaxis2":{"anchor":"x2","domain":[0.0,1.0],"title":{"text":"angular velocity"}},"annotations":[{"font":{"size":16},"showarrow":false,"text":"angle","x":0.23,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"},{"font":{"size":16},"showarrow":false,"text":"angular velocity","x":0.77,"xanchor":"center","xref":"paper","y":1.0,"yanchor":"bottom","yref":"paper"}],"margin":{"t":100},"title":{"text":"State Trajectories"},"showlegend":true,"height":400,"font":{"family":"Arial, sans-serif","size":12}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('9e84ff31-d745-4796-97eb-a500355a2cf6');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</section>
+<section id="sec-phase-portrait" class="level2">
+<h2 class="anchored" data-anchor-id="sec-phase-portrait">Phase Portrait</h2>
+<p>Plot the 2D phase portrait</p>
+<div id="929c89a6" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>upright_state, _ <span class="op">=</span> pendulum.get_equilibrium(<span class="st">'inverted'</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>downward_state, _ <span class="op">=</span> pendulum.get_equilibrium(<span class="st">'downward'</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>phase_portrait <span class="op">=</span> pendulum.phase_plotter.plot_2d(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>pendulum_integration_result[<span class="st">'x'</span>],</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    state_names <span class="op">=</span> STATE_NAMES,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    show_direction <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    equilibria<span class="op">=</span>[upright_state, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                downward_state]</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>phase_portrait.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="ce2a870d-6064-4331-abfb-bba6b0c3ab9c" class="plotly-graph-div" style="height:600px; width:700px;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("ce2a870d-6064-4331-abfb-bba6b0c3ab9c")) {                    Plotly.newPlot(                        "ce2a870d-6064-4331-abfb-bba6b0c3ab9c",                        [{"hovertemplate":"\u003cb\u003eStart: Trajectory 1\u003c\u002fb\u003e\u003cbr\u003ex\u2081: %{x:.3f}\u003cbr\u003ex\u2082: %{y:.3f}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"green","size":8,"symbol":"circle"},"mode":"markers","name":"Start","showlegend":true,"x":[1.0],"y":[0.0],"type":"scatter","line":{"width":2}},{"hovertemplate":"\u003cb\u003eEnd: Trajectory 1\u003c\u002fb\u003e\u003cbr\u003ex\u2081: %{x:.3f}\u003cbr\u003ex\u2082: %{y:.3f}\u003cextra\u003e\u003c\u002fextra\u003e","marker":{"color":"red","size":8,"symbol":"square"},"mode":"markers","name":"End","showlegend":true,"x":[3.1416478002152624],"y":[-0.0002460366567753953],"type":"scatter","line":{"width":2}},{"marker":{"color":"black","line":{"color":"black","width":2},"size":8,"symbol":"x"},"mode":"markers","name":"Equilibria","showlegend":true,"x":[3.141592653589793,0.0],"y":[0.0,0.0],"type":"scatter","line":{"width":2}},{"line":{"color":"#636EFA","width":2},"mode":"lines","name":"Trajectory 1","showlegend":true,"x":{"dtype":"f8","bdata":"AAAAAAAA8D9fnEE5BgDwPxaIVR7uAvA\u002fUIy4oDFC8D8i6wmAghjxP4qws4rT0\u002fI\u002fcUNFkhjI9T9jCmJnAUn6P7BJy8TETwBAEIhDlXguA0AQkTrNPy8GQHKtDBkK\u002fAhAWMUP\u002f36YC0Cpsh9grfcNQLiwDqmM5w9AprWauvmLEECMPMNbwMQQQBE0ySeisRBAQpBxJexfEEDr2tFCWCMPQJN0ghXbSQ1AA3KOe0NDC0A+A1w1ImQJQBt\u002f\u002fE92wAdAmm58f+RkBkATQxsQw14FQP\u002fp2jR7sgRAs7q6\u002fdJaBECuN2tR5EkEQDEmSbkNZwRAOYJydSS3BEDBDicuBVAFQFOimRbQQAZAo+I6cJ+PB0Cd+NEFe6wIQEL5wMHztglAEdP5W4mRCkAZzxD46zcLQOwPt74vqgtAo9xLE2TrC0CZDveZFgEMQPIc8EdX+QtAQ2tk8jDZC0A227x8dJULQNZHr8HmJgtArEkZbQOFCkC0aVu\u002fJcQJQER6YgvJIAlA0RpL\u002fY6MCEDKlHwNWRcIQIny4OGuwQdA4sDtUleKB0DF2\u002fLYpG4HQPNT+5CeaQdA9oubCTBzB0DqiUSM7YwHQP7zSHH0vAdA579MhA4HCEBlE\u002flbH3EIQMEMDbBa4AhAE57lO2E+CUD9JKYbCpIJQLx79Zbp0glALKkBb\u002fYACkAWb3t4MR0KQCsgnOZ\u002fKQpAs40qpp0pCkCo9kPmHiIKQNhgNRyXDwpAiXJXLz3vCUC2sgqYyL4JQCuXBe9veQlAdTKRmIc5CUA1KbWsd\u002f4IQAb8tISozwhA85BtPpOsCEBsK9getZQIQAShC4VChwhAOYUGoeOCCEAnxUpZjIUIQEF0bEjijQhAwPstnhKeCEAHmF4NarcIQGHUnWuu2whAsf1WynsGCUDq+ED6QykJQA0Q\u002fvJcSAlAA30dEYRgCUDQQXEBwXEJQM7S+xlvfAlAoYuw9TWBCUBtLkxqWIEJQAT6jFpZfglAyI8Dyyp3CUChu2Z71WoJQN238miNWAlAWyPSaE0+CUALv980cScJQHf3tNR9EglAeil2av4BCUD39liyzPUIQNB+gD+37QhAVYJ4Km7pCEAXN8J5b+gIQEQy+Av76QhAcb96vfbtCEC9M+fzD\u002fUIQHV1q4K3\u002fwhAxKn9nucOCUCya\u002f+ULh0JQFgNq8tKKglAJCeE\u002fpA0CUBSP8O+LDwJQNe1yw4\u002fQQlAmr6ewfVDCUA22EkMm0QJQKWsjEuaQwlAduXHIQNBCUBiiTY3djwJQHabLgOyNQlAtK9dtgMsCUCUGna4iiMJQGnlNMbUGwlAka2NF9UVCUDt9B5XeREJQLv6DoetDglAka3UxVMNCUDN6AqkPQ0JQB3s1voqDglApAJ8PzgQCUDnXMsWjxMJQJTtvVBdGAlAsBUm3l0eCUASiuxZMSMJQN\u002fLJ+5zJwlAzDj9F64qCUA+OBPF5CwJQASOiHAlLglAyvDh24UuCUA\u002f\u002fLvkJC4JQE5Ml\u002fYOLQlAbSLXTiorCUD+fEa\u002fYigJQP8hI4pYJAlAyqbyp00hCUB4t8i1oh4JQPZkPbykHAlAVqXHoU4bCUD6aGXGlxoJQLsJHUtzGglAWz9AnM8aCUDMPfGfqxsJQEA8GVISHQlA9CCrehIfCUBTZAc3ZSEJQHpsvNwpIwlAlyWaD6UkCUDnFG0RsCUJQIehHxJOJglAMHXjYIUmCUAAKjv1XiYJQDSZ1wThJQlAzTPbSQclCUCMge+4zCMJQMUPmr9XIglA22ip3jYhCUC+CGxhSSAJQJy0t+eoHwlAKjlTmFIfCUDAeyIpQh8JQGwwhNtxHwlAKzG1j98fCUDEt3GfiyAJQE5QsFp+IQlAxIX4r0ciCUD3mech7iIJQCaeUxxcIwlAD+k5fpUjCUCWtGh8nSMJQELyHu13IwlAie0y9yYjCUDx03MJrCIJQKfMpB8NIglAbWg4wZchCUAuESPIPiEJQMngFXAMIQlAvQQEUP4gCUBzdz6wESEJQFryn+ZDIQlA5VEKqZIhCUB5Td4WASIJQCkkxFJJIglA6xVxXnsiCUBi5WXekSIJQDayxwWPIglAyxkXUnUiCUAYTPk6RyIJQKZk8NkGIglA0FMF4tIhCUB08z4vryEJQJc6V2ygIQlAj0f3FaQhCUDQ1JLltyEJQLySH0vZIQlAjH0YcQYiCUAQepwCIiIJQOujYpQwIglAP479EjEiCUCYsZaNJSIJQJXM6z0YIglA"},"y":{"dtype":"f8","bdata":"AAAAAAAAAAAw5sl03UOEP8LvFp\u002fLs7s\u002fEZtQYpo64D\u002fZ5VzuD3nwP6g\u002fcNE9MPo\u002fK3gBQJaUAkA2jNwrNnkIQArnLziYBA5AKvlxcuRoEEBsgwRWj8MQQMTOmXbN\u002fg9AHv6yzrxkDEC5S0zbk88GQFDpB5E4N\u002f8\u002f8AmUVQdA8D8QE0n1JOvEP2dDBxlJTOK\u002fvuF72XmC87+VYP6o5yz\u002fv+KyPxpcuQLAk4+9wjPUA8BDSuGPgRADwIxFKxHD6QDA9mgtF5OO+79fRqOiSyr0v0BgeO7G4ei\u002fNHV34IgG1L9w1oZgYQCqP0R7dWp\u002f+9g\u002foonZd9Yg5z+XdxmdHdjwPxCahGMtPfU\u002fAWhqy9Sc9z+Zi50KpEH3P1kAQJfYC\u002fU\u002fs1zh6q+U8T8eGvo8FMnqPwgKYooC0uE\u002f1dhmJ6Xy0T+sDXj+XBiqP0XH4R+dQsW\u002f\u002fMCBtcKG1r\u002fUzGsDboLhvwhvwy1fHue\u002fkj7lDSA5679PHQn1BHXsvx5bhzikBeu\u002fxH15\u002fU+i57+lcsg0gg7jv7j\u002fAn5GuNu\u002fKGCXsuf+0L8q5sF01dK6v\u002fQ1vFYgrpQ\u002fgCmJ7U2WwT95m79rnSnQP\u002fDDBdANcNc\u002f\u002fgrVgt+e3T875ZM5otHgPzvARIzY+eA\u002f\u002fIiGn8GB3z9VEwb8q\u002fLaP+h1keZxLNU\u002fgM42vuekzT8srT4q8dDAP446aAZG76I\u002fPj\u002f+wGSQob+2AW5xn0K5v2AXB5GMpMW\u002fSsHRNz4qzr9Jw3tn3YrSv95ipkHQgNS\u002fM3\u002fzu10p1L\u002f9STBm+h\u002fSvwS6jVbzHc6\u002fiOLmL1fVxr9+JC1zpSm+v2ut4zamxK2\u002fgDKT1kAnar9J5zWovUimP7ZroP6p17U\u002fmBXMl65FwD99DNMLNeXEP+dyICqIEcg\u002fT2LOF3eoyD9YdhKU4AjHP64YBs5vzsM\u002fvpZOnopMvz\u002f+3rs6lhK2P8NrOqvdYKk\u002fQAzGZQdJjj8k6bwieDGJv426t6sSEqO\u002fGFYolfkzsL+gEXPe8mC2v70EVOhdQru\u002f9pCIksTIvb\u002f4q29y5Ou8v\u002fAc8JVSsbm\u002fefyRd3YLtb+IVCsBCj6vv1Schlyw0qO\u002fi4h4ActRkb9YUpiRfuZoP8FCa+6Xc5Q\u002fxIUKB2Zooj+AsFFlhxWqP7LKN2eTILA\u002fSSoK0xncsT+Tx4XOaYmxP11CiWI+WK8\u002fzuHv\u002fyDKqT+NbeDbCzqjP60QW8HZhZg\u002ffZhUzTuehT9IwYS6K4Jdv\u002f3ZViXHfom\u002fFra3Dw7slr86YN0x9B6gvxvm7OI9wKO\u002f+5vpg6CSpb\u002f016P8bdukvxYRMsg9XKK\u002fWp5P6jSjnb9dnIlPEm+Vv\u002fPxn3kcrYm\u002f7pFe+sPVcb9YvDrayrJpP4vw06yploM\u002fsFqGQAcOkD9DezbLsWWVP2qm3QdFEJk\u002fiWnSSV7amT8zvhYsIv6XP86RGVZfRJQ\u002fcMyaYI4Ajz8OuYLUrXqEP9bZ9LUjoHM\u002fYCQ76E15I7+VLzln4KpyvwYvvb5hcoG\u002fgvRhy6h9iL\u002fs5UhSiYqNv2w6BSsFKo+\u002f54iIixXvjL\u002f0S\u002flt6UKIvzl3UGkeQYK\u002fnGLgfps9d79MfAb9xptjv5DUM7qJTUc\u002fzTd8pb5wbD9nwrFQrUJ4P3wqzSBoKIA\u002fp56pnS2Ngj8nMYFueVuCP1IRXIiQRoA\u002fBnweKJ+4eT8AGwoT3ZRxP\u002fYe09799WE\u002fUC8jibGgIj+eufp8mEtcv2xP4Lsdd2u\u002fCxa4XD8Qc78HDFB+Qj92v+i95pr9GXa\u002fIKvvm35jc7+rMpIlBMptv9YE1XaQJ2O\u002fF2LOskURUL8oLB+xY0s1P8eknLM0WFg\u002fNcnFfUgWZD\u002fe17gfaotpP9kKs2pnH2s\u002fRJugdOpkaD\u002fSzP5vbc9iPxjgZ5dJ6Fc\u002fKCJWulnRQj\u002fg10ZFUBgyv0qBin2nuVC\u002fLmdHZhhcWr\u002fpwkRdOQZgv7HnLkykol+\u002fcVfO9I1UWr8xi+pO+\u002fFRv9epryngAUG\u002f0HhPd2PMCj9QM2sNk0VCP1Kpu6tKOE8\u002fCFQGSE5RUz+J5CZgMYpSPwLW+JAR+kw\u002fRI7m2dUxQT8eDx0qMHoiP0gHr53LZiy\u002f5FAKeOaVQL\u002flwidrY41GvzSGamtUJUe\u002f\u002faVKdL5xQr\u002fEemGrI001v6zf4KHabxK\u002fyb4PTpA9JT+SycGtrkI2P18ujWXmPjw\u002f7nceqXldOT+68mOJb9QwP+LyGhp0CRc\u002fLKcFSObSEr9WWT5545gpv3LS+2TPHzC\u002f"},"type":"scatter","marker":{"size":8}}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"light"},"margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"annotations":[{"arrowcolor":"#636EFA","arrowhead":2,"arrowsize":1.5,"arrowwidth":2,"ax":1.0,"axref":"x","ay":0.0,"ayref":"y","showarrow":true,"x":1.0000059353422086,"xref":"x","y":0.009895067335707969,"yref":"y"},{"arrowcolor":"#636EFA","arrowhead":2,"arrowsize":1.5,"arrowwidth":2,"ax":2.929025359069302,"axref":"x","ay":-0.104779568677167,"ayref":"y","showarrow":true,"x":2.9265719725321957,"xref":"x","y":0.020195489210029963,"yref":"y"},{"arrowcolor":"#636EFA","arrowhead":2,"arrowsize":1.5,"arrowwidth":2,"ax":3.114248364936687,"axref":"x","ay":0.019972204138698716,"ayref":"y","showarrow":true,"x":3.1161932757458364,"xref":"x","y":0.03595274768782589,"yref":"y"},{"arrowcolor":"#636EFA","arrowhead":2,"arrowsize":1.5,"arrowwidth":2,"ax":3.1428929537693864,"axref":"x","ay":0.006279584604185656,"ayref":"y","showarrow":true,"x":3.143402229443939,"xref":"x","y":0.004292357990044904,"yref":"y"},{"arrowcolor":"#636EFA","arrowhead":2,"arrowsize":1.5,"arrowwidth":2,"ax":3.141673189317043,"axref":"x","ay":-0.00019529129769741788,"ayref":"y","showarrow":true,"x":3.1416478002152624,"xref":"x","y":-0.0002460366567753953,"yref":"y"}],"title":{"text":"2D Phase Portrait"},"xaxis":{"title":{"text":"angle"}},"yaxis":{"title":{"text":"angular velocity"},"scaleanchor":"x","scaleratio":1},"width":700,"height":600,"showlegend":true,"font":{"family":"Arial, sans-serif","size":12}},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('ce2a870d-6064-4331-abfb-bba6b0c3ab9c');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</section>
+<section id="sec-next-steps" class="level2">
+<h2 class="anchored" data-anchor-id="sec-next-steps">Next Steps</h2>
+<ul>
+<li>Learn about <a href="sde-integration.qmd">stochastic systems</a> <em>not implemented</em></li>
+<li>Explore <a href="backends.qmd">different backends</a> <em>not implemented</em></li>
+<li>See <a href="../examples/index.html">advanced examples</a> <em>not implemented</em></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Basic Usage"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "ControlDESymulation Tutorials"</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Gil Benezer"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">  eval: true      # Execute by default</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction {#sec-introduction}</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>This tutorial covers the basics of defining and simulating dynamical systems.</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Setting Up {#sec-setting-up}</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>First, import the necessary modules:</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> cdesym <span class="im">import</span> ContinuousSymbolicSystem</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="fu">## Defining a Simple System {#sec-defining-a-simple-system}</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>Let's create a simple pendulum:</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SymbolicPendulum(ContinuousSymbolicSystem):</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> define_system(</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>        m_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>        l_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        beta_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>        g_val: <span class="bu">float</span> <span class="op">=</span> <span class="fl">9.81</span>,</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""First order model of a pendulum"""</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># define the symbolic variables</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>        theta, theta_dot <span class="op">=</span> sp.symbols(<span class="st">"theta theta_dot"</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        u <span class="op">=</span> sp.symbols(<span class="st">"u"</span>, real<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>        m, l, beta, g <span class="op">=</span> sp.symbols(<span class="st">"m l beta g"</span>, real<span class="op">=</span><span class="va">True</span>, positive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the variables to the system fields properly</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.parameters <span class="op">=</span> {m: m_val, l: l_val, beta: beta_val, g: g_val}</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.state_vars <span class="op">=</span> [theta, theta_dot]</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.control_vars <span class="op">=</span> [u]</span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.order <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># define the dynamics of the system</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        ml2 <span class="op">=</span> m <span class="op">*</span> l <span class="op">*</span> l</span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._f_sym <span class="op">=</span> sp.Matrix(</span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>            [theta_dot, (<span class="op">-</span>beta <span class="op">/</span> ml2) <span class="op">*</span> theta_dot <span class="op">+</span> (g <span class="op">/</span> l) <span class="op">*</span> sp.sin(theta) <span class="op">+</span> u <span class="op">/</span> ml2],</span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._h_sym <span class="op">=</span> sp.Matrix([theta])</span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup_equilibria(<span class="va">self</span>):</span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>        <span class="co"># method to add equilibria to the system automatically after initialization</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the stable equilibrium where the pendulum is hanging down</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.add_equilibrium(</span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>            <span class="st">'downward'</span>,</span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>            x_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>            u_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>]),</span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a>            verify<span class="op">=</span><span class="va">True</span></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>        <span class="co"># add the unstable equilibrium where the pendulum is inverted</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.add_equilibrium(</span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>            <span class="st">'inverted'</span>,</span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>            x_eq<span class="op">=</span>np.array([np.pi, <span class="fl">0.0</span>]),</span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>            u_eq<span class="op">=</span>np.array([<span class="fl">0.0</span>]),</span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>            stability<span class="op">=</span><span class="st">'unstable'</span>,</span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>            notes<span class="op">=</span><span class="st">'Requires active control'</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a><span class="co"># Instantiate the system</span></span>
+<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>pendulum <span class="op">=</span> SymbolicPendulum()</span>
+<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Initial conditions</span></span>
+<span id="cb7-93"><a href="#cb7-93" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>])</span>
+<span id="cb7-94"><a href="#cb7-94" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a><span class="fu">## Simulation {#sec-simulation}</span></span>
+<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a>Now simulate the system:</span>
+<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="co"># Integrate a trajectory with auto-selection of</span></span>
+<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a><span class="co"># relevant arguments</span></span>
+<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a>pendulum_integration_result <span class="op">=</span> pendulum.integrate(</span>
+<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a>        x0<span class="op">=</span>x0,</span>
+<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>        t_span <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">20.0</span>)</span>
+<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, v <span class="kw">in</span> pendulum_integration_result.items():</span>
+<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> k <span class="op">!=</span> <span class="st">"x"</span> <span class="kw">and</span> k <span class="op">!=</span> <span class="st">"t"</span>:</span>
+<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(k, <span class="st">" : "</span>, v)</span>
+<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualization {#sec-visualization}</span></span>
+<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a>Plot the trajectory in 2D:</span>
+<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a>STATE_NAMES <span class="op">=</span> [<span class="st">'angle'</span>, <span class="st">'angular velocity'</span>]</span>
+<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a>trajectory_plot <span class="op">=</span> pendulum.plot(</span>
+<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>    result<span class="op">=</span>pendulum_integration_result,</span>
+<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a>    state_names <span class="op">=</span> STATE_NAMES</span>
+<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>trajectory_plot.show()</span>
+<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a><span class="fu">## Phase Portrait {#sec-phase-portrait}</span></span>
+<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>Plot the 2D phase portrait</span>
+<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a>upright_state, _ <span class="op">=</span> pendulum.get_equilibrium(<span class="st">'inverted'</span>)</span>
+<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a>downward_state, _ <span class="op">=</span> pendulum.get_equilibrium(<span class="st">'downward'</span>)</span>
+<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>phase_portrait <span class="op">=</span> pendulum.phase_plotter.plot_2d(</span>
+<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>pendulum_integration_result[<span class="st">'x'</span>],</span>
+<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a>    state_names <span class="op">=</span> STATE_NAMES,</span>
+<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a>    show_direction <span class="op">=</span> <span class="va">True</span>,</span>
+<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a>    equilibria<span class="op">=</span>[upright_state, </span>
+<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a>                downward_state]</span>
+<span id="cb7-141"><a href="#cb7-141" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-142"><a href="#cb7-142" aria-hidden="true" tabindex="-1"></a>phase_portrait.show()</span>
+<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a><span class="fu">## Next Steps {#sec-next-steps}</span></span>
+<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Learn about <span class="co">[</span><span class="ot">stochastic systems</span><span class="co">](sde-integration.qmd)</span> *not implemented*</span>
+<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Explore <span class="co">[</span><span class="ot">different backends</span><span class="co">](backends.qmd)</span> *not implemented*</span>
+<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>See <span class="co">[</span><span class="ot">advanced examples</span><span class="co">](../examples/index.qmd)</span> *not implemented*</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/tutorials/basic_usage.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

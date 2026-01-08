@@ -18,7 +18,7 @@ execute:
 
 ## Overview {#sec-overview}
 
-The ControlDESymulation numerical integration framework provides **multi-backend**, **multi-method** support for integrating both **deterministic ordinary differential equations (ODEs)** and **stochastic differential equations (SDEs)**. The framework consists of 13 core files organized into a clean two-track architecture.
+The ControlDESymulation numerical integration framework provides **multi-backend**, **multi-method** support for integrating both **deterministic ordinary differential equations (ODEs)** and **stochastic differential equations (SDEs)**. The framework consists of 14 core files organized into a clean two-track architecture with a shared method registry.
 
 **Key capabilities:**
 
@@ -52,22 +52,29 @@ The system's `integrate()` method automatically handles backend selection, metho
 
 ## Architecture Overview {#sec-architecture}
 
-The framework follows a dual-track design separating deterministic and stochastic integration:
+The framework follows a dual-track design separating deterministic and stochastic integration, with a shared **method registry** providing centralized method management:
 
 ```
+Shared Infrastructure
+├── MethodRegistry (centralized method normalization and validation)
+│   ├── normalize_method_name() - cross-backend name mapping
+│   ├── validate_method() - backend/system compatibility
+│   ├── is_sde_method() / is_fixed_step() - classification
+│   └── get_available_methods() - method discovery
+│
 Track 1: Deterministic ODE Integration
 ├── IntegratorBase (abstract interface)
-├── IntegratorFactory (method selection and creation)
+├── IntegratorFactory (method selection via registry)
 ├── Backend-Specific Implementations:
 │   ├── ScipyIntegrator (NumPy/SciPy)
 │   ├── TorchDiffEqIntegrator (PyTorch with GPU)
 │   ├── DiffraxIntegrator (JAX with XLA)
 │   └── DiffEqPyIntegrator (Julia via Python)
-└── FixedStepIntegrators (RK4, Euler, Midpoint)
+└── FixedStepIntegrators (Euler, Heun, Midpoint, RK4)
 
 Track 2: Stochastic SDE Integration
 ├── SDEIntegratorBase (extends IntegratorBase)
-├── SDEIntegratorFactory (SDE-specific creation)
+├── SDEIntegratorFactory (SDE-specific creation via registry)
 ├── Backend-Specific Implementations:
 │   ├── TorchSDEIntegrator (PyTorch SDEs)
 │   ├── DiffraxSDEIntegrator (JAX SDEs)
@@ -97,6 +104,101 @@ SEED = 42
 # Suppress JAX GPU warnings
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='jax')
+```
+
+## Method Registry: Centralized Method Management {#sec-method-registry}
+
+**File:** `method_registry.py`
+
+The `method_registry` module serves as the **single source of truth** for all integration methods across backends. It provides centralized method normalization, validation, and classification for both ODE and SDE integrators.
+
+### Design Philosophy
+
+**Backend Naming Conventions:**
+
+| Backend | Convention | Examples |
+|---------|------------|----------|
+| NumPy/Julia (DiffEqPy) | Capitalized | `EM`, `Tsit5`, `SRIW1` |
+| PyTorch (TorchSDE/TorchDiffEq) | lowercase | `euler`, `dopri5`, `milstein` |
+| JAX (Diffrax) | PascalCase | `Euler`, `ItoMilstein`, `Tsit5` |
+
+**Canonical Names:**
+
+User-friendly aliases that work across all backends (e.g., `euler_maruyama`, `milstein`, `rk45`). These are automatically normalized to backend-specific names.
+
+### Core Functions
+
+```python
+from cdesym.systems.base.numerical_integration.method_registry import (
+    normalize_method_name,
+    validate_method,
+    is_sde_method,
+    is_fixed_step,
+    get_available_methods,
+    get_method_info,
+)
+
+# Normalize canonical names to backend-specific
+normalize_method_name('euler_maruyama', 'numpy')  # → 'EM'
+normalize_method_name('euler_maruyama', 'torch')  # → 'euler'
+normalize_method_name('euler_maruyama', 'jax')    # → 'Euler'
+
+# Validate method/backend/system compatibility
+is_valid, error = validate_method('euler_maruyama', 'torch', is_stochastic=True)
+
+# Classify methods
+is_sde_method('euler_maruyama')  # → True
+is_sde_method('rk4')              # → False
+is_fixed_step('rk4')              # → True
+is_fixed_step('RK45')             # → False (adaptive)
+
+# Discover available methods
+methods = get_available_methods('torch', method_type='stochastic')
+```
+
+### Method Classification
+
+Methods are classified along two dimensions:
+
+1. **System type**: Deterministic (ODE) vs Stochastic (SDE)
+2. **Time stepping**: Fixed-step vs Adaptive
+
+| Category | Examples | Use Case |
+|----------|----------|----------|
+| `DETERMINISTIC_FIXED_STEP` | `euler`, `heun`, `midpoint`, `rk4` | Manual implementations |
+| `DETERMINISTIC_ADAPTIVE` | `RK45`, `LSODA`, `dopri5`, `tsit5` | Production ODE solvers |
+| `SDE_FIXED_STEP` | `EM`, `euler`, `milstein`, `SRIW1` | Most SDE methods |
+| `SDE_ADAPTIVE` | `LambaEM`, `AutoEM`, `adaptive_heun` | Rare adaptive SDE |
+
+### Normalization Map
+
+The registry maintains a comprehensive map for cross-backend method translation:
+
+```python
+NORMALIZATION_MAP = {
+    # SDE Methods
+    'euler_maruyama': {'numpy': 'EM', 'torch': 'euler', 'jax': 'Euler'},
+    'milstein': {'numpy': 'RKMil', 'torch': 'milstein', 'jax': 'ItoMilstein'},
+    'sra1': {'numpy': 'SRA1', 'torch': 'srk', 'jax': 'SRA1'},
+
+    # ODE Methods
+    'rk45': {'numpy': 'RK45', 'torch': 'dopri5', 'jax': 'tsit5'},
+    'dopri5': {'numpy': 'RK45', 'torch': 'dopri5', 'jax': 'dopri5'},
+    'tsit5': {'numpy': 'Tsit5', 'torch': 'dopri5', 'jax': 'tsit5'},
+    # ... more mappings
+}
+```
+
+### Usage in Factories
+
+Both `IntegratorFactory` and `SDEIntegratorFactory` use the registry for method handling:
+
+```python
+# IntegratorFactory.create() internally:
+method = normalize_method_name(method, backend)
+is_valid, error = validate_method(method, backend, is_stochastic=False)
+if is_fixed_step(method) and dt is None:
+    raise ValueError("Fixed-step method requires dt")
 ```
 
 ## Track 1: Deterministic ODE Integration {#sec-track-1}
@@ -156,6 +258,33 @@ def name(self) -> str:
 
 The `IntegratorFactory` provides intelligent integrator creation with automatic backend and method selection. It encapsulates the complexity of choosing appropriate integration methods based on system properties and use case requirements.
 
+**Integration with Method Registry:**
+
+The factory delegates method normalization and validation to the centralized `method_registry`:
+
+```python
+# Internally, IntegratorFactory.create() does:
+method = normalize_method_name(method, backend)  # Registry function
+is_valid, error = validate_method(method, backend, is_stochastic=False)
+if is_fixed_step(method) and dt is None:
+    raise ValueError("Fixed-step method requires dt")
+```
+
+**Julia Preference for NumPy Backend:**
+
+When using the NumPy backend, `IntegratorFactory` automatically prefers Julia implementations for basic methods when DiffEqPy is available:
+
+- `euler` → Julia's `Euler` (better performance)
+- `heun` → Julia's `Heun`
+- `midpoint` → Julia's `Midpoint`
+
+To explicitly use manual Python implementations:
+```python
+integrator = IntegratorFactory.create(
+    system, backend='numpy', method='euler', prefer_manual=True
+)
+```
+
 **Factory methods:**
 
 ```python
@@ -180,7 +309,7 @@ IntegratorFactory.create(system, backend, method, **options)
 
 **Method registry:**
 
-The factory maintains a comprehensive registry mapping method names to backends and capabilities:
+The factory uses the centralized method registry for mapping method names to backends and capabilities:
 
 | Method | Backend | Type | Order | Best For |
 |--------|---------|------|-------|----------|
@@ -196,6 +325,8 @@ The factory maintains a comprehensive registry mapping method names to backends 
 | dopri8 | PyTorch/JAX | Adaptive | 8 | High-accuracy neural ODEs |
 | tsit5 | JAX (diffrax) | Adaptive | 5(4) | Optimization, XLA compilation |
 | euler | Any | Fixed | 1 | Simple systems, education |
+| heun | Any | Fixed | 2 | Improved Euler, predictor-corrector |
+| midpoint | Any | Fixed | 2 | Second-order, midpoint evaluation |
 | rk4 | Any | Fixed | 4 | Moderate accuracy, fixed step |
 
 ### ScipyIntegrator: Adaptive NumPy Integration {#sec-scipyintegrator}
@@ -442,9 +573,23 @@ Manual implementations of classic fixed-step methods. These provide transparent,
 
 **Available methods:**
 
-- **EulerIntegrator**: Forward Euler (order 1) — simplest method
-- **MidpointIntegrator**: Midpoint method (order 2) — improved accuracy
+- **ExplicitEulerIntegrator**: Forward Euler (order 1) — simplest method
+- **HeunIntegrator**: Heun's method / Improved Euler (order 2) — predictor-corrector approach
+- **MidpointIntegrator**: Midpoint method (order 2) — midpoint evaluation
 - **RK4Integrator**: Classic Runge-Kutta 4 (order 4) — excellent balance
+
+**HeunIntegrator:**
+
+Heun's method uses a predictor-corrector approach with trapezoidal averaging:
+
+```
+k1 = f(x_k, u_k)                    # Predictor (Euler step)
+x_pred = x_k + dt * k1
+k2 = f(x_pred, u_k)                 # Corrector
+x_{k+1} = x_k + (dt/2) * (k1 + k2)  # Trapezoidal rule
+```
+
+Also known as Improved Euler or Explicit Trapezoid method. Uses 2 function evaluations per step for second-order accuracy.
 
 **Key features:**
 
@@ -452,29 +597,32 @@ Manual implementations of classic fixed-step methods. These provide transparent,
 - **Transparent implementation**: Clear, readable code for learning
 - **Constant time step**: Predictable computational cost
 - **No external dependencies**: Pure Python implementations
+- **TypedDict results**: All integrators return `IntegrationResult` TypedDict
 
 **Usage example:**
 
 ```{python}
 #| label: ex-fixed
 
-from cdesym.systems.base.numerical_integration.fixed_step_integrators import RK4Integrator
-
-system = Pendulum(m_val=1.0, l_val=0.5)
-
-# Simple RK4 with fixed time step
-integrator = RK4Integrator(
-    system,
-    dt=0.01,  # 10ms time step
-    backend='numpy'
+from cdesym.systems.base.numerical_integration.fixed_step_integrators import (
+    RK4Integrator,
+    HeunIntegrator,
 )
 
+system = Pendulum(m_val=1.0, l_val=0.5)
 x0 = np.array([1.0, 0.0])
 u_func = lambda t, x: np.zeros(1)
-result = integrator.integrate(x0, u_func, t_span=(0, 10))
 
-print(f"Time step: {integrator.dt}")
-print(f"Number of steps: {result['nsteps']}")
+# RK4 with fixed time step (4 function evals/step)
+rk4_integrator = RK4Integrator(system, dt=0.01, backend='numpy')
+result_rk4 = rk4_integrator.integrate(x0, u_func, t_span=(0, 10))
+
+# Heun's method (2 function evals/step, predictor-corrector)
+heun_integrator = HeunIntegrator(system, dt=0.01, backend='numpy')
+result_heun = heun_integrator.integrate(x0, u_func, t_span=(0, 10))
+
+print(f"RK4 - Steps: {result_rk4['nsteps']}, Solver: {result_rk4['solver']}")
+print(f"Heun - Steps: {result_heun['nsteps']}, Solver: {result_heun['solver']}")
 ```
 
 **When to use:**
@@ -538,6 +686,18 @@ def integrate_monte_carlo(
 
 Provides intelligent SDE integrator creation with automatic noise structure detection and method selection.
 
+**Integration with Method Registry:**
+
+Like `IntegratorFactory`, the SDE factory delegates to the centralized `method_registry` for method normalization and validation:
+
+```python
+# Internally, SDEIntegratorFactory.create() does:
+method = normalize_method_name(method, backend)  # Registry function
+is_valid, error = validate_method(method, backend, is_stochastic=True)
+if is_fixed_step(method) and dt is None:
+    raise ValueError("Fixed-step SDE method requires dt")
+```
+
 **Factory methods:**
 
 ```python
@@ -549,10 +709,19 @@ SDEIntegratorFactory.create(
     sde_system, backend, method, dt, **options
 )
 
-# Optimized for Monte Carlo simulations (backend selected automatically)
+# Optimized for Monte Carlo simulations
 SDEIntegratorFactory.for_monte_carlo(
-    sde_system, n_paths, **options
+    sde_system, noise_type='general', **options
 )
+
+# Neural SDE training with adjoint
+SDEIntegratorFactory.for_neural_sde(sde_system, adjoint=True, **options)
+
+# Julia DiffEqPy SDE solvers
+SDEIntegratorFactory.for_julia(sde_system, algorithm='SRIW1', **options)
+
+# Gradient-based optimization
+SDEIntegratorFactory.for_optimization(sde_system, backend=None, **options)
 ```
 
 **Available SDE methods:**
@@ -1071,16 +1240,18 @@ print(f"Computation time: {integrator._stats['total_time']:.4f}s")
 
 1. **Multi-backend support**: Seamless NumPy/PyTorch/JAX switching
 2. **Extensive method library**: 40+ integration methods across ODE and SDE
-3. **Intelligent factories**: Automatic method selection based on system properties
-4. **Type safety**: TypedDict results with full IDE support
-5. **GPU acceleration**: First-class support via PyTorch and JAX
-6. **XLA compilation**: Near-native performance with JAX
-7. **Julia integration**: Access to world-class DifferentialEquations.jl ecosystem
-8. **SDE support**: Comprehensive stochastic integration framework
-9. **Noise exploitation**: Automatic detection and optimization for noise structure
-10. **Monte Carlo**: Built-in multi-trajectory simulation
-11. **Custom noise**: Deterministic testing with user-provided Brownian paths
-12. **Production ready**: Professional error control and performance tracking
+3. **Centralized method registry**: Unified method normalization, validation, and discovery
+4. **Canonical name support**: Use portable names (`euler_maruyama`, `rk45`) across backends
+5. **Intelligent factories**: Automatic method selection based on system properties
+6. **Type safety**: TypedDict results with full IDE support
+7. **GPU acceleration**: First-class support via PyTorch and JAX
+8. **XLA compilation**: Near-native performance with JAX
+9. **Julia integration**: Access to world-class DifferentialEquations.jl ecosystem
+10. **SDE support**: Comprehensive stochastic integration framework
+11. **Noise exploitation**: Automatic detection and optimization for noise structure
+12. **Monte Carlo**: Built-in multi-trajectory simulation
+13. **Custom noise**: Deterministic testing with user-provided Brownian paths
+14. **Production ready**: Professional error control and performance tracking
 
 ## Summary
 
