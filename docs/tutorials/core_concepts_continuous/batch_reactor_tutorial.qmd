@@ -1,0 +1,142 @@
+---
+title: "Anatomy of a Symbolic System"
+subtitle: "Stochastic Batch Reactors"
+author: "Gil Benezer"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 5
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+execute:
+  eval: true
+  cache: true
+  warning: false
+---
+
+TODO: add front matter describing the batch reactor system
+
+```{python}
+from typing import List, Optional, Tuple
+
+import numpy as np
+import sympy as sp
+
+from cdesym import ContinuousStochasticSystem
+
+class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
+    def define_system(
+        self,
+        k1_val: float = 0.5,
+        k2_val: float = 0.3,
+        E1_val: float = 1000.0,
+        E2_val: float = 1500.0,
+        alpha_val: float = 0.1,
+        T_amb_val: float = 300.0,
+        sigma_A: float = 0.01,
+        sigma_B: float = 0.01,
+        sigma_T: float = 1.0,
+        C_A0: Optional[float] = None,
+        T0: Optional[float] = None,
+    ):
+        # Store initial conditions
+        self.C_A0 = C_A0
+        self.T0 = T0
+
+        # State and control variables
+        C_A, C_B, T = sp.symbols("C_A C_B T", real=True, positive=True)
+        Q = sp.symbols("Q", real=True)
+
+        # Parameters (kinetics and heat transfer)
+        k1, k2, E1, E2, alpha, T_amb = sp.symbols(
+            "k1 k2 E1 E2 alpha T_amb",
+            real=True,
+            positive=True,
+        )
+
+        # Noise intensities
+        sigma_A_sym = sp.symbols("sigma_A", real=True, positive=True)
+        sigma_B_sym = sp.symbols("sigma_B", real=True, positive=True)
+        sigma_T_sym = sp.symbols("sigma_T", real=True, positive=True)
+
+        self.parameters = {
+            k1: k1_val,
+            k2: k2_val,
+            E1: E1_val,
+            E2: E2_val,
+            alpha: alpha_val,
+            T_amb: T_amb_val,
+            sigma_A_sym: sigma_A,
+            sigma_B_sym: sigma_B,
+            sigma_T_sym: sigma_T,
+        }
+
+        self.state_vars = [C_A, C_B, T]
+        self.control_vars = [Q]
+        self.output_vars = []
+        self.order = 1
+
+        # Reaction rates (Arrhenius kinetics)
+        r1 = k1 * C_A * sp.exp(-E1 / T)
+        r2 = k2 * C_B * sp.exp(-E2 / T)
+
+        # DRIFT (Deterministic part - same as deterministic reactor)
+        dC_A_dt = -r1
+        dC_B_dt = r1 - r2
+        dT_dt = Q - alpha * (T - T_amb)
+
+        self._f_sym = sp.Matrix([dC_A_dt, dC_B_dt, dT_dt])
+
+        # DIFFUSION (Stochastic part - additive noise)
+        # Diagonal matrix: three independent Wiener processes
+        self.diffusion_expr = sp.Matrix(
+            [
+                [sigma_A_sym, 0, 0],
+                [0, sigma_B_sym, 0],
+                [0, 0, sigma_T_sym],
+            ],
+        )
+
+        # Itô SDE interpretation
+        self.sde_type = "ito"
+
+        # Output: Full state measurement (with potential noise in practice)
+        # technically optional
+        self._h_sym = sp.Matrix([C_A, C_B, T])
+
+    def setup_equilibria(self):
+        # Get parameters
+        T_amb = self.parameters[sp.symbols("T_amb")]
+
+        # Complete conversion equilibrium (deterministic part)
+        self.add_equilibrium(
+            "complete",
+            x_eq=np.array([0.0, 0.0, T_amb]),
+            u_eq=np.array([0.0]),
+            verify=True,
+            stability="stable",
+            notes="Equilibrium of deterministic part (drift). Stochastic trajectories "
+            "fluctuate around this point with variance growing over time.",
+        )
+
+        # Initial condition (if provided)
+        if self.C_A0 is not None and self.T0 is not None:
+            alpha = self.parameters[sp.symbols("alpha")]
+            Q_init = alpha * (self.T0 - T_amb)
+
+            self.add_equilibrium(
+                "initial",
+                x_eq=np.array([self.C_A0, 0.0, self.T0]),
+                u_eq=np.array([Q_init]),
+                verify=False,
+                stability="unstable",
+                notes="Initial state setpoint (deterministic part). Stochastic trajectories "
+                "will fluctuate with std ~ [σ_A·√t, σ_B·√t, σ_T·√t].",
+            )
+            self.set_default_equilibrium("initial")
+        else:
+            self.set_default_equilibrium("complete")
+```
+

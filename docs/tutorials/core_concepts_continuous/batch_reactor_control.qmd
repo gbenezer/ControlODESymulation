@@ -1,0 +1,17 @@
+---
+title: "Controlling a Batch Reactor"
+subtitle: "Heating and Optimal Stopping"
+author: "Gil Benezer"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 5
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+execute:
+  eval: true
+  cache: true
+  warning: false
+---

@@ -4,12 +4,15 @@ title: "Tutorials"
 
 ## Getting Started {#sec-getting-started}
 
-- [Installation](installation.qmd)
-- [Basic Usage](basic_usage.qmd)
+- [Installation](getting_started/installation.qmd)
+- [Basic Usage](getting_started/basic_usage.qmd)
 
-## Core Concepts {#sec-core-concepts}
+## Core Concepts of Continuous Systems: A Tutorial Series Using Chemical Reactors {#sec-core-concepts-chemical}
 
-- TODO: Plan and make these
+- [Anatomy of a Symbolic System: Stochastic Batch Reactors](core_concepts_continuous/batch_reactor_tutorial.qmd)
+- [Comparing Systems: Deterministic and Stochastic Reactors](core_concepts_continuous/deterministic_stochastic_reactor_tutorial.qmd)
+- [System Discretization](core_concepts_continuous/discretized_reactor_tutorial.qmd)
+- [Controlling a Batch Reactor](core_concepts_continuous/batch_reactor_control.qmd)
 
 ## Advanced Topics {#sec-advanced-topics}
 

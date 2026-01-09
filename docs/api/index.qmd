@@ -1,41 +1,5 @@
 # API Reference {.doc .doc-index}
 
-## Control Design & Analysis
-
-Control synthesis, system analysis, and classical control functions
-
-| | |
-| --- | --- |
-| [control.ControlSynthesis](control.ControlSynthesis.qmd#cdesym.control.ControlSynthesis) | Control synthesis wrapper for system composition. |
-| [control.SystemAnalysis](control.SystemAnalysis.qmd#cdesym.control.SystemAnalysis) | System analysis wrapper for composition. |
-| [control.design_lqr](control.design_lqr.qmd#cdesym.control.design_lqr) | Design Linear Quadratic Regulator (LQR) controller. |
-| [control.design_lqg](control.design_lqg.qmd#cdesym.control.design_lqg) | Design Linear Quadratic Gaussian (LQG) controller. |
-| [control.design_kalman_filter](control.design_kalman_filter.qmd#cdesym.control.design_kalman_filter) | Design Kalman filter for optimal state estimation. |
-| [control.analyze_stability](control.analyze_stability.qmd#cdesym.control.analyze_stability) | Analyze system stability via eigenvalue analysis. |
-| [control.analyze_controllability](control.analyze_controllability.qmd#cdesym.control.analyze_controllability) | Test controllability of linear system (A, B). |
-| [control.analyze_observability](control.analyze_observability.qmd#cdesym.control.analyze_observability) | Test observability of linear system (A, C). |
-
-## State Observers
-
-State estimation and observer design
-
-| | |
-| --- | --- |
-| [observers.LinearObserver](observers.LinearObserver.qmd#cdesym.observers.LinearObserver) | Linear state observer with constant gain. |
-| [observers.ExtendedKalmanFilter](observers.ExtendedKalmanFilter.qmd#cdesym.observers.ExtendedKalmanFilter) | Extended Kalman Filter (EKF) for nonlinear state estimation. |
-
-## Visualization
-
-Plotting and visualization tools for dynamical systems
-
-| | |
-| --- | --- |
-| [visualization.TrajectoryPlotter](visualization.TrajectoryPlotter.qmd#cdesym.visualization.TrajectoryPlotter) | Time-domain trajectory visualization. |
-| [visualization.PhasePortraitPlotter](visualization.PhasePortraitPlotter.qmd#cdesym.visualization.PhasePortraitPlotter) | Phase space visualization for dynamical systems. |
-| [visualization.ControlPlotter](visualization.ControlPlotter.qmd#cdesym.visualization.ControlPlotter) | Control system analysis visualization. |
-| [visualization.ColorSchemes](visualization.ColorSchemes.qmd#cdesym.visualization.ColorSchemes) | Predefined color palettes for plotting. |
-| [visualization.PlotThemes](visualization.PlotThemes.qmd#cdesym.visualization.PlotThemes) | Complete plotting theme configurations. |
-
 ## Systems: Core Classes
 
 Abstract base classes and core system implementations
@@ -97,6 +61,33 @@ Backend management, linearization, and code generation
 | [systems.base.utils.stochastic.analyze_noise_structure](systems.base.utils.stochastic.analyze_noise_structure.qmd#cdesym.systems.base.utils.stochastic.analyze_noise_structure) | Convenience function for analyzing noise structure. |
 | [systems.base.utils.stochastic.DiffusionHandler](systems.base.utils.stochastic.DiffusionHandler.qmd#cdesym.systems.base.utils.stochastic.DiffusionHandler) | Handles code generation and caching for diffusion terms. |
 | [systems.base.utils.stochastic.SDEValidator](systems.base.utils.stochastic.SDEValidator.qmd#cdesym.systems.base.utils.stochastic.SDEValidator) | Validates stochastic dynamical system definitions. |
+
+## Control Design & Analysis
+
+Control synthesis, system analysis, and classical control functions
+
+| | |
+| --- | --- |
+| [control.ControlSynthesis](control.ControlSynthesis.qmd#cdesym.control.ControlSynthesis) | Control synthesis wrapper for system composition. |
+| [control.SystemAnalysis](control.SystemAnalysis.qmd#cdesym.control.SystemAnalysis) | System analysis wrapper for composition. |
+| [control.design_lqr](control.design_lqr.qmd#cdesym.control.design_lqr) | Design Linear Quadratic Regulator (LQR) controller. |
+| [control.design_lqg](control.design_lqg.qmd#cdesym.control.design_lqg) | Design Linear Quadratic Gaussian (LQG) controller. |
+| [control.design_kalman_filter](control.design_kalman_filter.qmd#cdesym.control.design_kalman_filter) | Design Kalman filter for optimal state estimation. |
+| [control.analyze_stability](control.analyze_stability.qmd#cdesym.control.analyze_stability) | Analyze system stability via eigenvalue analysis. |
+| [control.analyze_controllability](control.analyze_controllability.qmd#cdesym.control.analyze_controllability) | Test controllability of linear system (A, B). |
+| [control.analyze_observability](control.analyze_observability.qmd#cdesym.control.analyze_observability) | Test observability of linear system (A, C). |
+
+## Visualization
+
+Plotting and visualization tools for dynamical systems
+
+| | |
+| --- | --- |
+| [visualization.TrajectoryPlotter](visualization.TrajectoryPlotter.qmd#cdesym.visualization.TrajectoryPlotter) | Time-domain trajectory visualization. |
+| [visualization.PhasePortraitPlotter](visualization.PhasePortraitPlotter.qmd#cdesym.visualization.PhasePortraitPlotter) | Phase space visualization for dynamical systems. |
+| [visualization.ControlPlotter](visualization.ControlPlotter.qmd#cdesym.visualization.ControlPlotter) | Control system analysis visualization. |
+| [visualization.ColorSchemes](visualization.ColorSchemes.qmd#cdesym.visualization.ColorSchemes) | Predefined color palettes for plotting. |
+| [visualization.PlotThemes](visualization.PlotThemes.qmd#cdesym.visualization.PlotThemes) | Complete plotting theme configurations. |
 
 ## Builtin: Deterministic Continuous
 
@@ -354,3 +345,12 @@ Structural subtyping protocols for system interfaces
 | [types.protocols.StochasticSystemProtocol](types.protocols.StochasticSystemProtocol.qmd#cdesym.types.protocols.StochasticSystemProtocol) | System with stochastic dynamics (continuous or discrete). |
 | [types.protocols.LinearizableContinuousProtocol](types.protocols.LinearizableContinuousProtocol.qmd#cdesym.types.protocols.LinearizableContinuousProtocol) | Continuous system with linearization capability. |
 | [types.protocols.LinearizableDiscreteProtocol](types.protocols.LinearizableDiscreteProtocol.qmd#cdesym.types.protocols.LinearizableDiscreteProtocol) | Discrete system with linearization capability. |
+
+## State Observers
+
+State estimation and observer design
+
+| | |
+| --- | --- |
+| [observers.LinearObserver](observers.LinearObserver.qmd#cdesym.observers.LinearObserver) | Linear state observer with constant gain. |
+| [observers.ExtendedKalmanFilter](observers.ExtendedKalmanFilter.qmd#cdesym.observers.ExtendedKalmanFilter) | Extended Kalman Filter (EKF) for nonlinear state estimation. |

@@ -1,0 +1,17 @@
+---
+title: "Comparing Systems: Deterministic and Stochastic Reactors"
+subtitle: "Batch Reactors versus CSTRs"
+author: "Gil Benezer"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 5
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+execute:
+  eval: true
+  cache: true
+  warning: false
+---
