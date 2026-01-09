@@ -11102,7 +11102,7 @@
     "href": "tutorials/getting_started/basic_usage.html#sec-simulation",
     "title": "Basic Usage",
     "section": "Simulation",
-    "text": "Simulation\nNow simulate the system:\n\n# Integrate a trajectory with auto-selection of\n# relevant arguments\npendulum_integration_result = pendulum.integrate(\n        x0=x0,\n        t_span = (0.0, 20.0)\n    )\nfor k, v in pendulum_integration_result.items():\n    if k != \"x\" and k != \"t\":\n        print(k, \" : \", v)\n\nsuccess  :  True\nmessage  :  The solver successfully reached the end of the integration interval.\nnfev  :  1442\nnsteps  :  1442\nintegration_time  :  0.028922319412231445\nsolver  :  scipy.RK45\nnjev  :  0\nnlu  :  0\nstatus  :  0",
+    "text": "Simulation\nNow simulate the system:\n\n# Integrate a trajectory with auto-selection of\n# relevant arguments\npendulum_integration_result = pendulum.integrate(\n        x0=x0,\n        t_span = (0.0, 20.0)\n    )\nfor k, v in pendulum_integration_result.items():\n    if k != \"x\" and k != \"t\":\n        print(k, \" : \", v)\n\nsuccess  :  True\nmessage  :  The solver successfully reached the end of the integration interval.\nnfev  :  1442\nnsteps  :  1442\nintegration_time  :  0.0385892391204834\nsolver  :  scipy.RK45\nnjev  :  0\nnlu  :  0\nstatus  :  0",
     "crumbs": [
       "Small Demonstrations of Basic Functionality",
       "Basic Usage"
