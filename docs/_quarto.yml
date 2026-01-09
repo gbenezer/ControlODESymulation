@@ -15,7 +15,7 @@ website:
       - text: "Home"
         file: index.qmd
       - text: "Installation Guide"
-        file: tutorials/installation.qmd
+        file: tutorials/getting_started/installation.qmd
       - text: "Architecture"
         menu:
           - text: "Overview"
@@ -30,7 +30,7 @@ website:
           - architecture/Delegation_Layer_Architecture.qmd
       - text: "Tutorials"
         menu:
-          - tutorials/basic_usage.qmd
+          - tutorials/getting_started/basic_usage.qmd
       - text: "Examples"
         menu:
           - examples/pendulum_control.qmd
@@ -52,7 +52,7 @@ website:
       contents:
         - section: "Installation Guide"
           contents:
-            - tutorials/installation.qmd
+            - tutorials/getting_started/installation.qmd
         - section: "Framework Design"
           contents:
             - text: "Overview"
@@ -69,7 +69,7 @@ website:
       contents:
         - section: "Small Demonstrations of Basic Functionality"
           contents:
-          - tutorials/basic_usage.qmd
+          - tutorials/getting_started/basic_usage.qmd
     
     - title: "Examples"
       contents:

@@ -48,4 +48,4 @@ simulation, and control of dynamical systems. The source code is available on [G
 
 ### Installation {#sec-installation}
 
-- **[Installation Guide](tutorials/installation.qmd)**: Current installation guide
+- **[Installation Guide](tutorials/getting_started/installation.qmd)**: Current installation guide
