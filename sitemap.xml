@@ -2,950 +2,950 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/tutorials/installation.html</loc>
-    <lastmod>2026-01-09T15:42:24.977Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.752Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/tutorials/index.html</loc>
-    <lastmod>2026-01-09T15:42:24.977Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.752Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/UI_Framework_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/Integration_Framework_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.749Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/Control_Framework_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.749Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/index.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/index.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.751Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.TimeVaryingControl.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ControlInput.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.FeedthroughMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.get_backend_default_method.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.ControlledLorenz.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.LinearizationResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.BrownianMotion.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.FullStochasticLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteSolowModel.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.robustness.RobustStabilityResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ParameterVector.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.AdaptiveControlResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/observers.LinearObserver.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteWhiteNoise.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.SDEIntegrationMethod.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.DuffingOscillator.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.SDEIntegratorBase.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.estimation.EKFResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.DynamicsFunction.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ControlVector.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.DynamicsEvaluator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.SimulationResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.LinearSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.TrajectoryStatistics.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.stochastic.SDEValidator.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.DiscreteSymbolicSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteGARCH11.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.ControlJacobian.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.VanDerPolOscillator.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.InputMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.DiscreteStochasticLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.ControlSequence.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.learning.TrainingResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.TorchDiffEqIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.ConvergenceType.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.SDEIntegratorConfig.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.GainMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.TimeSpan.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.ObservabilityInfo.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.StabilityInfo.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.get_available_methods.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.design_lqg.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.LMIResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.symbolic.SymbolicExpression.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.validate_device.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/visualization.ControlPlotter.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.design_lqr.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.protocols.ContinuousSystemProtocol.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.IntegrationMethod.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.EquilibriumHandler.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.PVTOL.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.reachability.CBFResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/visualization.PlotThemes.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.749Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.symbolic.SymbolicMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.LangevinDynamics.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.MHEResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.ContinuousCSTR.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.SymbolicQuadrotor2D.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.OutputFunction.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.LuenbergerObserverResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.learning.RLTrainingResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.IntegratorFactory.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.DubinsVehicle.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.LinearizationEngine.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteARMA11.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.get_method_info.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.ContinuousStochasticLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteOscillator.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.CustomBrownianPath.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.OutputSequence.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.contraction.CCMResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.ObservationEngine.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.AutonomousLinearSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.ContinuousLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.HenonMap.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.SymbolicSystemBase.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.H2ControlResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteAR1.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.StochasticSIR.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.PathTracking.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/index.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.ContinuousStochasticSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.DiscreteStochasticSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.OutputVector.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.StateJacobian.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.is_fixed_step.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.analyze_stability.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.StochasticLorenz.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.CoupledOscillatorSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.validate_backend.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.robustness.TubeMPCResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/visualization.PhasePortraitPlotter.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.analyze_observability.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.reachability.ROAResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.ContinuousSymbolicSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteRandomWalk.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteCSTR.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.Lorenz.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.IntegratorBase.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.StateVector.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.SymbolicPendulum.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.ContinuousSystemBase.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.IntegrationResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.LogisticMap.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscretePendulum.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.CodeGenerator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.SystemConfig.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.protocols.StochasticSystemProtocol.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.MPCResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteCartPole.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.DiscreteLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteRobotArm.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.741Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.stochastic.DiffusionHandler.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.GeometricBrownianMotion.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.symbolic.SymbolicJacobian.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.normalize_method_name.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.CartPole.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.BackendManager.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.analyze_controllability.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.design_kalman_filter.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.NonlinearChainSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ScalarLike.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.StateTrajectory.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.BackendConfig.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.SDEIntegratorFactory.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.protocols.LinearizableContinuousProtocol.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.create_custom_or_random_brownian.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticQueue.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.Device.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.get_implementing_library.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.protocols.DiscreteSystemProtocol.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.LinearSystem2D.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.HInfControlResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.LQGResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.is_sde_method.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ArrayLike.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.NoiseType.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DifferentialDriveRobot.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.DiffusionMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.DiscretizerConfig.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.IntegratorConfig.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.ControllabilityInfo.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.DiscretizedSystem.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.TimePoints.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.SystemAnalysis.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.Manipulator2Link.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.NoiseVector.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.CoxIngersollRoss.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.DiffusionFunction.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.stochastic.NoiseCharacteristics.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.SDEType.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.LQRResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.ScipyIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.discrete.DiscreteVAR1.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_advanced.SlidingModeResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.OptimizationMethod.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.StateMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.DiffraxIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.PolePlacementResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.continuous.ContinuousBatchReactor.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.739Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.BrownianMotionWithDrift.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.TrajectorySegment.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.ControlPolicy.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.estimation.UKFResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.stochastic.analyze_noise_structure.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.estimation.ParticleFilterResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.list_all_methods.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.737Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.StochasticLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.protocols.LinearizableDiscreteProtocol.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.SystemDimensions.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.LinearizationCacheKey.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.DiscretizationMethod.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.DeterministicLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.control_classical.KalmanFilterResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.discretize.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.StochasticCartPole.html</loc>
-    <lastmod>2026-01-09T15:42:24.971Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.743Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.SymbolicValidator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.DiscreteBatchReactor.html</loc>
-    <lastmod>2026-01-09T15:42:24.969Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.740Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/control.ControlSynthesis.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.contraction.ContractionAnalysisResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.OutputMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.core.DiscreteSystemBase.html</loc>
-    <lastmod>2026-01-09T15:42:24.966Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.736Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.symbolic.SymbolicStateEquations.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.ObservationLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.DiffusionJacobian.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.optimization.OptimizationResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.FullLinearization.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/observers.ExtendedKalmanFilter.html</loc>
-    <lastmod>2026-01-09T15:42:24.965Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.735Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.FeedbackController.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.optimization.TrajectoryOptimizationResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.backends.Backend.html</loc>
-    <lastmod>2026-01-09T15:42:24.972Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.744Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.stochastic.TorchSDEIntegrator.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.stochastic.continuous.BrownianMotion2D.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.linearization.OutputJacobian.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.utils.stochastic.NoiseCharacterizer.html</loc>
-    <lastmod>2026-01-09T15:42:24.968Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/visualization.TrajectoryPlotter.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.749Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.core.CovarianceMatrix.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.746Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.conformal.ConformalPredictionResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.973Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.745Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.reachability.CLFResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.trajectories.NoiseSequence.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.base.numerical_integration.validate_method.html</loc>
-    <lastmod>2026-01-09T15:42:24.967Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.738Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/types.reachability.ReachabilityResult.html</loc>
-    <lastmod>2026-01-09T15:42:24.974Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.747Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/systems.builtin.deterministic.discrete.StandardMap.html</loc>
-    <lastmod>2026-01-09T15:42:24.970Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.742Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/api/visualization.ColorSchemes.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.748Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/examples/index.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/Delegation_Layer_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.975Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.749Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/Visualization_Framework_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/Type_System_Architecture.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/architecture/cdesym_Design_Philosophy.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/bug_fix_documentation/dynamics_evaluator_bug_fix_summary.html</loc>
-    <lastmod>2026-01-09T15:42:24.976Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.750Z</lastmod>
   </url>
   <url>
     <loc>https://gilbenezer.github.io/ControlDESymulation/tutorials/basic_usage.html</loc>
-    <lastmod>2026-01-09T15:42:24.977Z</lastmod>
+    <lastmod>2026-01-09T16:41:57.752Z</lastmod>
   </url>
 </urlset>
