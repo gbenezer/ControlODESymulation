@@ -1,0 +1,1025 @@
+# systems.base.core.SymbolicSystemBase { #cdesym.systems.base.core.SymbolicSystemBase }
+
+```python
+systems.base.core.SymbolicSystemBase(*args, **kwargs)
+```
+
+Abstract base class for symbolic systems (time-domain agnostic).
+
+Provides symbolic machinery for ANY symbolic system, whether continuous
+or discrete time. This class extracts the ~1,800 lines of common code
+that was previously duplicated between SymbolicDynamicalSystem and
+DiscreteSymbolicSystem.
+
+Subclasses must:
+1. Inherit from BOTH SymbolicSystemBase AND a time-domain base
+   (ContinuousSystemBase or DiscreteSystemBase)
+2. Implement the abstract define_system() method
+3. Implement the abstract print_equations() method
+4. Implement all methods from the time-domain base interface
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name         | Type                     | Description                                                       |
+|--------------|--------------------------|-------------------------------------------------------------------|
+| state_vars   | List\[sp.Symbol\]        | State variables as SymPy symbols (e.g., [x, v, theta])            |
+| control_vars | List\[sp.Symbol\]        | Control variables as SymPy symbols (e.g., [u1, u2])               |
+| output_vars  | List\[sp.Symbol\]        | Output variable names (optional)                                  |
+| parameters   | Dict\[sp.Symbol, float\] | System parameters with Symbol keys (e.g., {m: 1.0, k: 10.0})      |
+| _f_sym       | sp.Matrix                | Symbolic dynamics expression (interpretation depends on subclass) |
+| _h_sym       | Optional\[sp.Matrix\]    | Symbolic output expression (None = identity output)               |
+| order        | int                      | System order (1 = first-order, 2 = second-order, etc.)            |
+| backend      | BackendManager           | Backend management component                                      |
+| equilibria   | EquilibriumHandler       | Equilibrium point management                                      |
+
+## Examples {.doc-section .doc-section-examples}
+
+Concrete system combining symbolic base with continuous interface:
+
+```python
+>>> class LinearOscillator(SymbolicSystemBase, ContinuousSystemBase):
+...     def define_system(self, k=1.0, c=0.1):
+...         x, v = sp.symbols('x v', real=True)
+...         u = sp.symbols('u', real=True)
+...         k_sym, c_sym = sp.symbols('k c', positive=True)
+...
+...         self.state_vars = [x, v]
+...         self.control_vars = [u]
+...         self._f_sym = sp.Matrix([v, -k_sym*x - c_sym*v + u])
+...         self.parameters = {k_sym: k, c_sym: c}
+...         self.order = 1
+...
+...     def print_equations(self, simplify=True):
+...         print("Continuous dynamics: dx/dt = f(x, u)")
+...         # ... implementation
+...
+...     # Also implement ContinuousSystemBase interface
+...     def __call__(self, x, u=None, t=0.0):
+...         # ... implementation
+...         pass
+...
+>>> system = LinearOscillator(k=2.0, c=0.5)
+>>> system.nx  # Number of states
+2
+>>> system.parameters  # Numerical values
+{k: 2.0, c: 0.5}
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [add_equilibrium](#cdesym.systems.base.core.SymbolicSystemBase.add_equilibrium) | Add an equilibrium point with optional verification. |
+| [compile](#cdesym.systems.base.core.SymbolicSystemBase.compile) | Pre-compile dynamics functions for specified backends. |
+| [define_system](#cdesym.systems.base.core.SymbolicSystemBase.define_system) | Define the symbolic system (must be implemented by subclasses). |
+| [get_backend_info](#cdesym.systems.base.core.SymbolicSystemBase.get_backend_info) | Get comprehensive information about backend configuration and status. |
+| [get_config_dict](#cdesym.systems.base.core.SymbolicSystemBase.get_config_dict) | Get system configuration as dictionary. |
+| [get_equilibrium](#cdesym.systems.base.core.SymbolicSystemBase.get_equilibrium) | Get equilibrium state and control in specified backend. |
+| [get_equilibrium_metadata](#cdesym.systems.base.core.SymbolicSystemBase.get_equilibrium_metadata) | Get metadata for equilibrium. |
+| [get_performance_stats](#cdesym.systems.base.core.SymbolicSystemBase.get_performance_stats) | Get performance statistics for system operations. |
+| [list_equilibria](#cdesym.systems.base.core.SymbolicSystemBase.list_equilibria) | List all equilibrium names. |
+| [print_equations](#cdesym.systems.base.core.SymbolicSystemBase.print_equations) | Print symbolic equations in human-readable format. |
+| [remove_equilibrium](#cdesym.systems.base.core.SymbolicSystemBase.remove_equilibrium) | Remove an equilibrium point. |
+| [reset_caches](#cdesym.systems.base.core.SymbolicSystemBase.reset_caches) | Reset cached compiled functions for specified backends. |
+| [reset_performance_stats](#cdesym.systems.base.core.SymbolicSystemBase.reset_performance_stats) | Reset all performance counters to zero. |
+| [save_config](#cdesym.systems.base.core.SymbolicSystemBase.save_config) | Save system configuration to JSON file. |
+| [set_default_backend](#cdesym.systems.base.core.SymbolicSystemBase.set_default_backend) | Set default backend and optionally device for this system. |
+| [set_default_equilibrium](#cdesym.systems.base.core.SymbolicSystemBase.set_default_equilibrium) | Set default equilibrium for get operations without name. |
+| [setup_equilibria](#cdesym.systems.base.core.SymbolicSystemBase.setup_equilibria) | Optional hook to add equilibria after system initialization. |
+| [substitute_parameters](#cdesym.systems.base.core.SymbolicSystemBase.substitute_parameters) | Substitute numerical parameter values into symbolic expression. |
+| [to_device](#cdesym.systems.base.core.SymbolicSystemBase.to_device) | Set preferred device for PyTorch/JAX backends. |
+| [use_backend](#cdesym.systems.base.core.SymbolicSystemBase.use_backend) | Temporarily switch to a different backend and/or device. |
+
+### add_equilibrium { #cdesym.systems.base.core.SymbolicSystemBase.add_equilibrium }
+
+```python
+systems.base.core.SymbolicSystemBase.add_equilibrium(
+    name,
+    x_eq,
+    u_eq,
+    verify=True,
+    tol=1e-06,
+    **metadata,
+)
+```
+
+Add an equilibrium point with optional verification.
+
+Equilibrium points are states where the dynamics are zero (or identity
+for discrete systems). The system can have multiple equilibria
+(e.g., pendulum upright vs downward).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type       | Description                                                              | Default    |
+|------------|------------|--------------------------------------------------------------------------|------------|
+| name       | str        | Unique name for this equilibrium (e.g., 'origin', 'upright', 'inverted') | _required_ |
+| x_eq       | np.ndarray | Equilibrium state (nx,)                                                  | _required_ |
+| u_eq       | np.ndarray | Equilibrium control (nu,)                                                | _required_ |
+| verify     | bool       | If True, verify that equilibrium condition holds (default: True)         | `True`     |
+| tol        | float      | Tolerance for verification (default: 1e-6)                               | `1e-06`    |
+| **metadata | dict       | Additional metadata to store (e.g., stability='stable')                  | `{}`       |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                         |
+|--------|-------------|-----------------------------------------------------|
+|        | ValueError  | If dimensions don't match system dimensions         |
+|        | UserWarning | If verification fails (not actually an equilibrium) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Pendulum downward equilibrium
+>>> system.add_equilibrium(
+...     'downward',
+...     x_eq=np.array([0.0, 0.0]),
+...     u_eq=np.array([0.0]),
+...     verify=True
+... )
+```
+
+```python
+>>> # Inverted pendulum (with metadata)
+>>> system.add_equilibrium(
+...     'inverted',
+...     x_eq=np.array([np.pi, 0.0]),
+...     u_eq=np.array([0.0]),
+...     stability='unstable',
+...     notes='Requires active control'
+... )
+```
+
+```python
+>>> # Get equilibrium back
+>>> x_eq = system.equilibria.get_x('inverted')
+>>> u_eq = system.equilibria.get_u('inverted')
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Verification implementation depends on concrete subclass
+- If verification fails, a warning is issued but equilibrium is still added
+- Delegates to EquilibriumHandler.add() for storage and management
+- Concrete subclasses may override to provide custom verification
+
+#### See Also {.doc-section .doc-section-see-also}
+
+setup_equilibrium: Automatically add equilibria after system initialization
+get_equilibrium : Retrieve equilibrium in specified backend
+list_equilibria : List all equilibrium names
+set_default_equilibrium : Set default equilibrium
+remove_equilibrium : Remove an equilibrium
+
+### compile { #cdesym.systems.base.core.SymbolicSystemBase.compile }
+
+```python
+systems.base.core.SymbolicSystemBase.compile(
+    backends=None,
+    verbose=False,
+    **kwargs,
+)
+```
+
+Pre-compile dynamics functions for specified backends.
+
+Compilation happens lazily by default (on first use). This method
+allows eager compilation to reduce first-call latency and validate
+that code generation works correctly.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                    | Description                                                                                          | Default   |
+|----------|-------------------------|------------------------------------------------------------------------------------------------------|-----------|
+| backends | Optional\[List\[str\]\] | List of backends to compile ('numpy', 'torch', 'jax'). If None, compiles for all available backends. | `None`    |
+| verbose  | bool                    | If True, print compilation progress and timing                                                       | `False`   |
+| **kwargs | dict                    | Backend-specific compilation options                                                                 | `{}`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                             |
+|--------|--------------------|-----------------------------------------|
+|        | Dict\[str, float\] | Compilation times per backend (seconds) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compile for all available backends
+>>> times = system.compile(verbose=True)
+Compiling for numpy... 0.123s
+Compiling for torch... 0.456s
+Compiling for jax... 0.789s
+```
+
+```python
+>>> # Compile only for specific backends
+>>> system.compile(backends=['numpy', 'torch'])
+```
+
+```python
+>>> # Chain with other operations
+>>> system.compile().set_default_backend('torch')
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Compilation is cached - subsequent calls are no-ops unless cache is cleared
+- JAX compilation includes JIT, which may take longer initially
+- PyTorch compilation is optional (not JIT by default)
+- NumPy always uses regular Python functions (fastest to "compile")
+
+#### See Also {.doc-section .doc-section-see-also}
+
+reset_caches : Clear compiled function cache
+get_backend_info : Check compilation status
+
+### define_system { #cdesym.systems.base.core.SymbolicSystemBase.define_system }
+
+```python
+systems.base.core.SymbolicSystemBase.define_system(*args, **kwargs)
+```
+
+Define the symbolic system (must be implemented by subclasses).
+
+This method must populate the following attributes:
+
+**Required Attributes:**
+
+- ``self.state_vars``: List[sp.Symbol]
+    State variables (e.g., [x, y, theta])
+    Cannot be empty
+- ``self.control_vars``: List[sp.Symbol]
+    Control variables (e.g., [u1, u2])
+    Empty list for autonomous systems
+- ``self._f_sym``: sp.Matrix
+    Symbolic dynamics (column vector)
+- ``self.parameters``: Dict[sp.Symbol, float]
+    Parameter values with Symbol keys (NOT strings!)
+
+**Optional Attributes:**
+
+- ``self.output_vars``: List[sp.Symbol]
+    Output variable names (optional)
+- ``self._h_sym``: sp.Matrix
+    Symbolic output function (None = identity)
+- ``self.order``: int
+    System order (default: 1)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                                        | Default   |
+|----------|--------|--------------------------------------------------------------------|-----------|
+| *args    | tuple  | System-specific positional arguments (e.g., mass, length, damping) | `()`      |
+| **kwargs | dict   | System-specific keyword arguments                                  | `{}`      |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type            | Description                                                          |
+|--------|-----------------|----------------------------------------------------------------------|
+|        | ValidationError | If the defined system is invalid (checked after this method returns) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**CRITICAL**: self.parameters must use SymPy Symbol objects as keys!
+
+Correct::
+
+    {m: 1.0, l: 0.5}
+
+Incorrect::
+
+    {'m': 1.0, 'l': 0.5}  # Strings won't work!
+
+**System Order - Two Equivalent Formulations:**
+
+1. **First-Order State-Space Form (order=1):**
+   - State: x = [q, q̇] for a 2nd-order physical system
+   - _f_sym returns ALL derivatives: [q̇, q̈]
+   - Set: self.order = 1
+
+   Example::
+
+       self.state_vars = [theta, theta_dot]
+       self._f_sym = sp.Matrix([
+           theta_dot,                      # dθ/dt = θ̇
+           -k*theta - c*theta_dot + u      # dθ̇/dt = θ̈
+       ])
+       self.order = 1
+
+2. **Higher-Order Form (order=n):**
+   - State: x = [q, q̇] for a 2nd-order physical system
+   - _f_sym returns ONLY highest derivative: q̈
+   - Set: self.order = 2
+
+   Example::
+
+       self.state_vars = [theta, theta_dot]
+       self._f_sym = sp.Matrix([
+           -k*theta - c*theta_dot + u  # Only θ̈
+       ])
+       self.order = 2
+
+Both formulations are mathematically equivalent! The framework handles
+state-space construction automatically during linearization.
+
+**When to use which:**
+
+- Use order=1 (state-space) for: simpler code, explicit derivatives
+- Use order=n (higher-order) for: physics-focused definitions, cleaner dynamics
+
+**Validation rules:**
+
+- For order=1: len(_f_sym) must equal nx
+- For order=n: len(_f_sym) must equal nq, and nx must be divisible by order
+
+#### Examples {.doc-section .doc-section-examples}
+
+First-order system::
+
+    def define_system(self, a=1.0):
+        x = sp.symbols('x')
+        u = sp.symbols('u')
+        a_sym = sp.symbols('a', real=True, positive=True)
+
+        self.state_vars = [x]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([-a_sym * x + u])
+        self.parameters = {a_sym: a}
+        self.order = 1
+
+Second-order (state-space form)::
+
+    def define_system(self, m=1.0, k=10.0, c=0.5):
+        q, q_dot = sp.symbols('q q_dot')
+        u = sp.symbols('u')
+        m_sym, k_sym, c_sym = sp.symbols('m k c', positive=True)
+
+        # Return both derivatives explicitly
+        self.state_vars = [q, q_dot]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([
+            q_dot,                                  # dq/dt
+            (-k_sym*q - c_sym*q_dot + u)/m_sym     # dq̇/dt = q̈
+        ])
+        self.parameters = {m_sym: m, k_sym: k, c_sym: c}
+        self.order = 1  # First-order state-space
+
+Second-order (higher-order form)::
+
+    def define_system(self, m=1.0, k=10.0, c=0.5):
+        q, q_dot = sp.symbols('q q_dot')
+        u = sp.symbols('u')
+        m_sym, k_sym, c_sym = sp.symbols('m k c', positive=True)
+
+        # Return only acceleration
+        q_ddot = (-k_sym*q - c_sym*q_dot + u)/m_sym
+
+        self.state_vars = [q, q_dot]
+        self.control_vars = [u]
+        self._f_sym = sp.Matrix([q_ddot])  # Only highest derivative
+        self.parameters = {m_sym: m, k_sym: k, c_sym: c}
+        self.order = 2  # Second-order form
+
+### get_backend_info { #cdesym.systems.base.core.SymbolicSystemBase.get_backend_info }
+
+```python
+systems.base.core.SymbolicSystemBase.get_backend_info()
+```
+
+Get comprehensive information about backend configuration and status.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|--------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary containing: - 'default_backend': Current default backend - 'preferred_device': Current device setting - 'available_backends': List of installed backends - 'compiled_backends': List of backends with compiled functions - 'torch_available': Whether PyTorch is installed - 'jax_available': Whether JAX is installed - 'numpy_version': NumPy version string - 'torch_version': PyTorch version (or None) - 'jax_version': JAX version (or None) - 'initialized': Whether system is initialized |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = system.get_backend_info()
+>>> print(f"Default: {info['default_backend']}")
+>>> print(f"Available: {info['available_backends']}")
+>>> print(f"Compiled: {info['compiled_backends']}")
+```
+
+### get_config_dict { #cdesym.systems.base.core.SymbolicSystemBase.get_config_dict }
+
+```python
+systems.base.core.SymbolicSystemBase.get_config_dict()
+```
+
+Get system configuration as dictionary.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                                                                                                                                                                                             |
+|--------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | Dict   | Configuration dictionary containing: - 'class_name': System class name - 'state_vars': State variable names - 'control_vars': Control variable names - 'output_vars': Output variable names - 'parameters': Parameter values (as dict) - 'order': System order - 'nx', 'nu', 'ny': Dimensions - 'backend': Default backend - 'device': Preferred device |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> config = system.get_config_dict()
+>>> config['nx']
+2
+>>> config['parameters']
+{'m': 1.0, 'k': 10.0}
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Useful for saving system configuration to file
+- Does not include compiled functions or cached data
+- Can be used with save_config() for persistence
+
+#### See Also {.doc-section .doc-section-see-also}
+
+save_config : Save configuration to JSON file
+
+### get_equilibrium { #cdesym.systems.base.core.SymbolicSystemBase.get_equilibrium }
+
+```python
+systems.base.core.SymbolicSystemBase.get_equilibrium(name=None, backend=None)
+```
+
+Get equilibrium state and control in specified backend.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type            | Description                                | Default   |
+|---------|-----------------|--------------------------------------------|-----------|
+| name    | Optional\[str\] | Equilibrium name (None = default)          | `None`    |
+| backend | Optional\[str\] | Backend for arrays (None = system default) | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                       |
+|--------|-------------------------------|-----------------------------------|
+|        | Tuple\[ArrayLike, ArrayLike\] | (x_eq, u_eq) in requested backend |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_eq, u_eq = system.get_equilibrium('inverted', backend='torch')
+>>> x_eq, u_eq = system.get_equilibrium()  # Default equilibrium, default backend
+```
+
+### get_equilibrium_metadata { #cdesym.systems.base.core.SymbolicSystemBase.get_equilibrium_metadata }
+
+```python
+systems.base.core.SymbolicSystemBase.get_equilibrium_metadata(name=None)
+```
+
+Get metadata for equilibrium.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type            | Description                       | Default   |
+|--------|-----------------|-----------------------------------|-----------|
+| name   | Optional\[str\] | Equilibrium name (None = default) | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | Dict   | Metadata dictionary |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> meta = system.get_equilibrium_metadata('inverted')
+>>> print(meta['stability'])
+'unstable'
+```
+
+### get_performance_stats { #cdesym.systems.base.core.SymbolicSystemBase.get_performance_stats }
+
+```python
+systems.base.core.SymbolicSystemBase.get_performance_stats()
+```
+
+Get performance statistics for system operations.
+
+Returns timing and call count information for key operations.
+Useful for profiling and optimization.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                                                                                                                                                                                                                                                    |
+|--------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | Dict\[str, float\] | Dictionary containing: - 'forward_calls': Number of forward dynamics calls - 'forward_time': Total time in forward dynamics (seconds) - 'avg_forward_time': Average time per forward call (seconds) - (Other stats depend on concrete subclass implementation) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Run some operations
+>>> for _ in range(100):
+...     dx = system(x, u)
+...
+>>> stats = system.get_performance_stats()
+>>> print(f"Forward calls: {stats['forward_calls']}")
+>>> print(f"Avg time: {stats['avg_forward_time']:.6f}s")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Statistics accumulate over system lifetime
+- Use reset_performance_stats() to clear counters
+- Timing includes overhead from backend detection/conversion
+- Concrete subclasses may add additional statistics
+
+#### See Also {.doc-section .doc-section-see-also}
+
+reset_performance_stats : Reset all performance counters
+
+### list_equilibria { #cdesym.systems.base.core.SymbolicSystemBase.list_equilibria }
+
+```python
+systems.base.core.SymbolicSystemBase.list_equilibria()
+```
+
+List all equilibrium names.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                     |
+|--------|-------------|---------------------------------|
+|        | List\[str\] | Names of all defined equilibria |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.list_equilibria()
+['origin', 'downward', 'inverted']
+```
+
+### print_equations { #cdesym.systems.base.core.SymbolicSystemBase.print_equations }
+
+```python
+systems.base.core.SymbolicSystemBase.print_equations(simplify=True)
+```
+
+Print symbolic equations in human-readable format.
+
+This method is abstract because the notation differs between continuous
+and discrete systems:
+- Continuous: "dx/dt = f(x, u)" or "dθ/dt", "dθ̇/dt"
+- Discrete: "x[k+1] = f(x[k], u[k])" or "θ[k+1]", "θ̇[k+1]"
+
+Subclasses must implement this with appropriate notation for their
+time-domain semantics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                                                   | Default   |
+|----------|--------|-------------------------------------------------------------------------------|-----------|
+| simplify | bool   | If True, simplify expressions before printing If False, print raw expressions | `True`    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Typical implementation should display:
+- System name
+- State and control variables
+- System order and dimensions
+- Dynamics equations with proper notation
+- Output equations (if defined)
+
+#### Examples {.doc-section .doc-section-examples}
+
+Continuous implementation::
+
+    def print_equations(self, simplify=True):
+        print("=" * 70)
+        print(f"{self.__class__.__name__}")
+        print("=" * 70)
+        print(f"State Variables: {self.state_vars}")
+        print(f"Control Variables: {self.control_vars}")
+        print(f"System Order: {self.order}")
+        print(f"Dimensions: nx={self.nx}, nu={self.nu}, ny={self.ny}")
+
+        print("\nDynamics: dx/dt = f(x, u)")
+        for var, expr in zip(self.state_vars, self._f_sym):
+            expr_sub = self.substitute_parameters(expr)
+            if simplify:
+                expr_sub = sp.simplify(expr_sub)
+            print(f"  d{var}/dt = {expr_sub}")
+
+        if self._h_sym is not None:
+            print("\nOutput: y = h(x)")
+            for i, expr in enumerate(self._h_sym):
+                expr_sub = self.substitute_parameters(expr)
+                if simplify:
+                    expr_sub = sp.simplify(expr_sub)
+                print(f"  y[{i}] = {expr_sub}")
+
+        print("=" * 70)
+
+Discrete implementation::
+
+    def print_equations(self, simplify=True):
+        print("=" * 70)
+        print(f"{self.__class__.__name__}")
+        print("=" * 70)
+        print(f"State Variables: {self.state_vars}")
+        print(f"Control Variables: {self.control_vars}")
+        print(f"System Order: {self.order}")
+        print(f"Dimensions: nx={self.nx}, nu={self.nu}, ny={self.ny}")
+
+        print("\nDynamics: x[k+1] = f(x[k], u[k])")
+        for var, expr in zip(self.state_vars, self._f_sym):
+            expr_sub = self.substitute_parameters(expr)
+            if simplify:
+                expr_sub = sp.simplify(expr_sub)
+            print(f"  {var}[k+1] = {expr_sub}")
+
+        if self._h_sym is not None:
+            print("\nOutput: y[k] = h(x[k])")
+            for i, expr in enumerate(self._h_sym):
+                expr_sub = self.substitute_parameters(expr)
+                if simplify:
+                    expr_sub = sp.simplify(expr_sub)
+                print(f"  y[{i}] = {expr_sub}")
+
+        print("=" * 70)
+
+### remove_equilibrium { #cdesym.systems.base.core.SymbolicSystemBase.remove_equilibrium }
+
+```python
+systems.base.core.SymbolicSystemBase.remove_equilibrium(name)
+```
+
+Remove an equilibrium point.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                | Default    |
+|--------|--------|----------------------------|------------|
+| name   | str    | Equilibrium name to remove | _required_ |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                                             |
+|--------|------------|---------------------------------------------------------|
+|        | ValueError | If trying to remove 'origin' or nonexistent equilibrium |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.remove_equilibrium('test_point')
+```
+
+### reset_caches { #cdesym.systems.base.core.SymbolicSystemBase.reset_caches }
+
+```python
+systems.base.core.SymbolicSystemBase.reset_caches(backends=None)
+```
+
+Reset cached compiled functions for specified backends.
+
+Clears the code generation cache, forcing recompilation on next use.
+Useful when system parameters change or to free memory.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                    | Description                                                                        | Default   |
+|----------|-------------------------|------------------------------------------------------------------------------------|-----------|
+| backends | Optional\[List\[str\]\] | List of backends to reset ('numpy', 'torch', 'jax'). If None, resets all backends. | `None`    |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Reset all cached functions
+>>> system.reset_caches()
+```
+
+```python
+>>> # Reset only PyTorch cache
+>>> system.reset_caches(['torch'])
+```
+
+```python
+>>> # After parameter update
+>>> system.parameters[m] = 2.0  # Changed mass
+>>> system.reset_caches()  # Force recompilation with new value
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Does not affect the system definition (state_vars, _f_sym, etc.)
+- Only clears the compiled numerical functions
+- Next function call will trigger recompilation
+- Use sparingly - compilation has overhead
+
+#### See Also {.doc-section .doc-section-see-also}
+
+compile : Pre-compile functions
+_clear_backend_cache : Clear single backend (internal use)
+
+### reset_performance_stats { #cdesym.systems.base.core.SymbolicSystemBase.reset_performance_stats }
+
+```python
+systems.base.core.SymbolicSystemBase.reset_performance_stats()
+```
+
+Reset all performance counters to zero.
+
+Clears timing and call count statistics across all components.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.reset_performance_stats()
+>>> stats = system.get_performance_stats()
+>>> stats['forward_calls']
+0
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Resets counters in all components (DynamicsEvaluator, etc.)
+- Does not affect compilation cache or system definition
+- Concrete subclasses override to reset their component stats
+
+### save_config { #cdesym.systems.base.core.SymbolicSystemBase.save_config }
+
+```python
+systems.base.core.SymbolicSystemBase.save_config(filename)
+```
+
+Save system configuration to JSON file.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                       | Default    |
+|----------|--------|---------------------------------------------------|------------|
+| filename | str    | Path to output file (will be created/overwritten) | _required_ |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.save_config('pendulum_config.json')
+```
+
+```python
+>>> # Load config (manually)
+>>> import json
+>>> with open('pendulum_config.json', 'r') as f:
+...     config = json.load(f)
+>>> print(config['parameters'])
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Saves only configuration, not compiled functions
+- Use get_config_dict() to get config without saving
+- JSON format enables easy sharing and version control
+
+#### See Also {.doc-section .doc-section-see-also}
+
+get_config_dict : Get configuration dictionary
+
+### set_default_backend { #cdesym.systems.base.core.SymbolicSystemBase.set_default_backend }
+
+```python
+systems.base.core.SymbolicSystemBase.set_default_backend(backend, device=None)
+```
+
+Set default backend and optionally device for this system.
+
+The default backend is used when backend='default' is passed to methods,
+or when no backend is specified and conversion is needed.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type            | Description                                                                                      | Default    |
+|---------|-----------------|--------------------------------------------------------------------------------------------------|------------|
+| backend | str             | Backend name ('numpy', 'torch', or 'jax')                                                        | _required_ |
+| device  | Optional\[str\] | Device for GPU backends ('cpu', 'cuda', 'cuda:0', 'gpu:0', etc.) If None, device is not changed. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                |
+|--------|--------------------|----------------------------|
+|        | SymbolicSystemBase | Self (for method chaining) |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type         | Description                                 |
+|--------|--------------|---------------------------------------------|
+|        | ValueError   | If backend name is invalid                  |
+|        | RuntimeError | If backend is not available (not installed) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.set_default_backend('torch', device='cuda:0')
+>>> system._default_backend
+'torch'
+>>> system._preferred_device
+'cuda:0'
+```
+
+Method chaining:
+
+```python
+>>> system.set_default_backend('jax').compile(verbose=True)
+```
+
+### set_default_equilibrium { #cdesym.systems.base.core.SymbolicSystemBase.set_default_equilibrium }
+
+```python
+systems.base.core.SymbolicSystemBase.set_default_equilibrium(name)
+```
+
+Set default equilibrium for get operations without name.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                           | Default    |
+|--------|--------|---------------------------------------|------------|
+| name   | str    | Name of equilibrium to use as default | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description              |
+|--------|--------------------|--------------------------|
+|        | SymbolicSystemBase | Self for method chaining |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.set_default_equilibrium('inverted')
+>>> x_eq = system.equilibria.get_x()  # Gets 'inverted' by default
+```
+
+Method chaining:
+
+```python
+>>> system.set_default_equilibrium('upright').compile()
+```
+
+### setup_equilibria { #cdesym.systems.base.core.SymbolicSystemBase.setup_equilibria }
+
+```python
+systems.base.core.SymbolicSystemBase.setup_equilibria()
+```
+
+Optional hook to add equilibria after system initialization.
+
+This method is called automatically after the system is fully
+initialized if auto_add_equilibria=True (default).
+
+Override this method in subclasses to add standard equilibria.
+Can access self.parameters for parameter-dependent equilibria.
+
+#### Examples {.doc-section .doc-section-examples}
+
+Parameter-independent:
+
+```python
+>>> def setup_equilibria(self):
+...     self.equilibria.add('origin', np.zeros(self.nx), np.zeros(self.nu))
+```
+
+Parameter-dependent:
+
+```python
+>>> def setup_equilibria(self):
+...     g = self.parameters[self._g_sym]  # Access parameter value
+...     x_eq = np.array([0, np.sqrt(g)])
+...     self.equilibria.add('special', x_eq, np.zeros(self.nu))
+```
+
+### substitute_parameters { #cdesym.systems.base.core.SymbolicSystemBase.substitute_parameters }
+
+```python
+systems.base.core.SymbolicSystemBase.substitute_parameters(expr)
+```
+
+Substitute numerical parameter values into symbolic expression.
+
+Replaces all parameter symbols with their numerical values
+from self.parameters dictionary.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                        | Description                   | Default    |
+|--------|-----------------------------|-------------------------------|------------|
+| expr   | Union\[sp.Expr, sp.Matrix\] | Symbolic expression or matrix | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                        | Description                            |
+|--------|-----------------------------|----------------------------------------|
+|        | Union\[sp.Expr, sp.Matrix\] | Expression with parameters substituted |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> m, k = sp.symbols('m k')
+>>> expr = m * sp.symbols('x') + k
+>>> system.parameters = {m: 1.0, k: 10.0}
+>>> system.substitute_parameters(expr)
+x + 10.0
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is used internally by code generation to create
+parameter-specific numerical functions.
+
+### to_device { #cdesym.systems.base.core.SymbolicSystemBase.to_device }
+
+```python
+systems.base.core.SymbolicSystemBase.to_device(device)
+```
+
+Set preferred device for PyTorch/JAX backends.
+
+Changes the device for all subsequent operations. Clears cached functions
+for backends that need recompilation (PyTorch, JAX) because device-specific
+code may differ.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                     | Default    |
+|--------|--------|-----------------------------------------------------------------|------------|
+| device | str    | Device string ('cpu', 'cuda', 'cuda:0', 'gpu:0', 'tpu:0', etc.) | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                |
+|--------|--------------------|----------------------------|
+|        | SymbolicSystemBase | Self (for method chaining) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+- NumPy always uses CPU (device setting ignored)
+- PyTorch and JAX respect device setting
+- Changing device clears cached functions for affected backends
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.to_device('cuda:0')
+>>> system.set_default_backend('torch')
+>>> # All torch operations now use CUDA device 0
+```
+
+Method chaining:
+
+```python
+>>> system.to_device('cuda').set_default_backend('torch')
+```
+
+### use_backend { #cdesym.systems.base.core.SymbolicSystemBase.use_backend }
+
+```python
+systems.base.core.SymbolicSystemBase.use_backend(backend, device=None)
+```
+
+Temporarily switch to a different backend and/or device.
+
+This context manager allows temporary backend changes without
+affecting the configured default. Useful for benchmarking or
+comparing backend performance.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type            | Description                                          | Default    |
+|---------|-----------------|------------------------------------------------------|------------|
+| backend | str             | Temporary backend to use ('numpy', 'torch', 'jax')   | _required_ |
+| device  | Optional\[str\] | Temporary device to use (None = keep current device) | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                        | Description                                                        |
+|--------|---------------------------------------------|--------------------------------------------------------------------|
+|        | Generator\[SymbolicSystemBase, None, None\] | Context manager yielding self with temporary backend configuration |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.set_default_backend('numpy')
+>>>
+>>> # Temporarily use PyTorch
+>>> with system.use_backend('torch', device='cuda'):
+...     dx = system(x, u, backend='default')  # Uses torch on CUDA
+>>>
+>>> # Back to NumPy after context
+>>> system._default_backend
+'numpy'
+```
+
+Nested contexts:
+
+```python
+>>> with system.use_backend('torch'):
+...     with system.use_backend('jax'):
+...         # Uses JAX
+...         pass
+...     # Back to torch
+...     pass
+>>> # Back to original
+```

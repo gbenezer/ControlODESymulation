@@ -1,0 +1,425 @@
+# systems.builtin.stochastic.continuous.StochasticCartPole { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole(*args, **kwargs)
+```
+
+Stochastic inverted pendulum on cart with random disturbances.
+
+Combines the challenging underactuated nonlinear dynamics of the cart-pole
+with process noise, creating a realistic benchmark for robust control,
+state estimation, and reliability analysis of balancing systems.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+State-space form with noise on velocities:
+
+    dx = ẋ·dt
+    dẋ = [(F + m·L·θ̇²·sin(θ) - m·L·θ̈·cos(θ))/(M+m)]·dt + σ_x·dW_x
+    dθ = θ̇·dt
+    dθ̇ = [(g·sin(θ) - cos(θ)·(F + m·L·θ̇²·sin(θ))/(M+m)) /
+          (L·(4/3 - m·cos²(θ)/(M+m)))]·dt + σ_θ·dW_θ
+
+where:
+    - x: Cart position [m]
+    - ẋ: Cart velocity [m/s]
+    - θ: Pole angle from upward vertical [rad]
+    - θ̇: Pole angular velocity [rad/s]
+    - F: Applied horizontal force (control) [N]
+    - σ_x: Cart disturbance intensity [m/(s²·√s)]
+    - σ_θ: Pole disturbance intensity [rad/(s²·√s)]
+    - W_x, W_θ: Independent Wiener processes
+
+**Deterministic Part:**
+Same coupled nonlinear dynamics as deterministic cart-pole.
+See CartPole or DiscreteCartPole for detailed derivation.
+
+**Stochastic Part:**
+Additive noise on velocity derivatives models:
+- Cart: Ground vibrations, wind on cart body
+- Pole: Wind on pole, measurement/actuation noise
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Cart Noise (σ_x):**
+
+Sources:
+- Ground irregularities (bumps, friction variations)
+- Wind gusts on cart
+- Motor noise (torque ripple)
+- Track vibrations
+
+Effect:
+- Horizontal disturbances
+- Couples to pole via inertial forces
+- Less critical than pole noise
+
+**Pole Noise (σ_θ):**
+
+Sources:
+- Wind on pole (large moment arm)
+- Joint friction variations
+- Measurement noise (affects observer)
+- Structural flexibility
+
+Effect:
+- Directly affects unstable mode
+- Most critical for stability
+- Primary cause of falling
+
+**Why Pole Noise Dominates:**
+
+Upright equilibrium is unstable in θ:
+- Eigenvalue: λ ≈ +√(g/L) > 0 (exponentially unstable)
+- Small θ perturbation grows exponentially
+- Noise on θ̇ integrates to θ → falling
+
+Cart position (x) is marginally stable:
+- Can drift but doesn't diverge
+- Less critical for balance
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Underactuated + Noise:**
+- 4 states, 1 control, 2 noise sources
+- Cannot independently control all modes
+- Noise affects modes directly
+
+**Unstable + Noise:**
+- Upright equilibrium exponentially unstable
+- Noise continuously perturbs
+- Requires fast, accurate control
+
+**Nonlinear + Noise:**
+- Coupling via sin(θ), cos(θ)
+- Small angle approximation poor under noise
+- Need nonlinear control/estimation
+
+**Bistable:**
+- Upright (unstable) vs downward (stable)
+- Noise can cause transitions
+- Swing-up under noise challenging
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [x, ẋ, θ, θ̇]
+    - x ∈ ℝ: Cart position (track limits in practice)
+    - ẋ ∈ ℝ: Cart velocity
+    - θ ∈ ℝ: Pole angle (|θ| < π/4 for balance typically)
+    - θ̇ ∈ ℝ: Pole angular velocity
+
+Control: u = F ∈ ℝ
+    - Horizontal force on cart [N]
+    - Bounded: |F| ≤ F_max typically
+
+Noise: w = [w_x, w_θ] ∈ ℝ²
+    - Independent Wiener processes
+    - Enter velocity equations
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type   | Description                                                                                                        | Default   |
+|-------------|--------|--------------------------------------------------------------------------------------------------------------------|-----------|
+| M           | float  | Cart mass [kg]                                                                                                     | `1.0`     |
+| m           | float  | Pole mass [kg]                                                                                                     | `0.1`     |
+| L           | float  | Pole half-length [m]                                                                                               | `0.5`     |
+| g           | float  | Gravity [m/s²]                                                                                                     | `9.81`    |
+| b_cart      | float  | Cart friction [N·s/m]                                                                                              | `0.1`     |
+| b_pole      | float  | Pole friction [N·m·s/rad]                                                                                          | `0.0`     |
+| sigma_x     | float  | Cart noise intensity [m/(s²·√s)] - Typical: 0.01-1.0 - Less critical than σ_θ                                      | `0.1`     |
+| sigma_theta | float  | Pole noise intensity [rad/(s²·√s)] - Typical: 0.01-0.5 - Most critical parameter - Determines mean time to failure | `0.05`    |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR
+- Noise Type: ADDITIVE (on velocities)
+- SDE Type: Itô
+- Noise Dimension: nw = 2
+- Stationary: No (open-loop)
+- Bistable: Yes (upright vs downward)
+- Unstable: Yes (upright equilibrium)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Robust Control:**
+- LQG near upright (linearized)
+- Robust H∞ control
+- Stochastic MPC with chance constraints
+- Risk-sensitive control
+
+**2. State Estimation:**
+- EKF for balance (linearized)
+- UKF for swing-up (nonlinear)
+- Particle filter for multimodal
+
+**3. Reinforcement Learning:**
+- Robust RL with noise
+- Domain randomization
+- Sim-to-real transfer
+
+**4. Reliability Analysis:**
+- Mean time to failure
+- Probability of falling
+- Safety verification
+
+**5. Sensor Fusion:**
+- IMU + encoders
+- Kalman filter for fusion
+- Complementary filtering
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Recommended:**
+- Euler-Maruyama: dt = 0.001-0.01 s
+- Check falling: |θ| > threshold
+- Monitor constraints
+
+**Event Detection:**
+Terminate when falling:
+- |θ| > π/4 (45°)
+- |x| > x_max (track end)
+
+## Monte Carlo Guidelines {.doc-section .doc-section-monte-carlo-guidelines}
+
+**Reliability Assessment:**
+- N = 100-1,000 runs
+- Record failure times
+- Compute success rate, MTF
+
+**Statistics:**
+- Mean trajectory ± 2σ bands
+- Histogram of max |θ|
+- Distribution of failure times
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic:**
+- Perfect upright stabilization
+- Deterministic swing-up
+- Infinite uptime with LQR
+
+**Stochastic:**
+- Probabilistic stabilization
+- Swing-up success rate
+- Finite mean time to failure
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Additive noise only (not multiplicative)
+- Independent noise sources
+- No actuator noise (only process)
+- Rigid body (no flexibility)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Multiplicative noise: σ(X)
+- Actuator noise: u → u + noise
+- Measurement delays
+- Flexible pole
+- 3D cart-pole
+
+## See Also {.doc-section .doc-section-see-also}
+
+CartPole : Deterministic version
+DiscreteCartPole : Discrete-time deterministic
+StochasticPendulum : Simpler (no cart)
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_energy](#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.compute_energy) | Compute total mechanical energy. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.define_system) | Define stochastic cart-pole dynamics. |
+| [estimate_mean_time_to_failure](#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.estimate_mean_time_to_failure) | Estimate mean time to failure (very rough approximation). |
+| [get_noise_intensities](#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.get_noise_intensities) | Get noise intensity parameters. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.setup_equilibria) | Set up equilibrium points (deterministic part). |
+
+### compute_energy { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.compute_energy }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole.compute_energy(x)
+```
+
+Compute total mechanical energy.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description        | Default    |
+|--------|------------|--------------------|------------|
+| x      | np.ndarray | State [x, ẋ, θ, θ̇] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description      |
+|--------|--------|------------------|
+|        | float  | Total energy [J] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Energy fluctuates due to noise (not conserved).
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cartpole = StochasticCartPole()
+>>> x = np.array([0.0, 0.5, 0.1, 0.2])
+>>> E = cartpole.compute_energy(x)
+>>> print(f"Energy: {E:.3f} J")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.define_system }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole.define_system(
+    M=1.0,
+    m=0.1,
+    L=0.5,
+    g=9.81,
+    b_cart=0.1,
+    b_pole=0.0,
+    sigma_x=0.1,
+    sigma_theta=0.05,
+)
+```
+
+Define stochastic cart-pole dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type   | Description                                                                                                                                         | Default   |
+|-------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| M           | float  | Cart mass [kg]                                                                                                                                      | `1.0`     |
+| m           | float  | Pole mass [kg]                                                                                                                                      | `0.1`     |
+| L           | float  | Pole half-length [m]                                                                                                                                | `0.5`     |
+| g           | float  | Gravity [m/s²]                                                                                                                                      | `9.81`    |
+| b_cart      | float  | Cart friction [N·s/m]                                                                                                                               | `0.1`     |
+| b_pole      | float  | Pole friction [N·m·s/rad]                                                                                                                           | `0.0`     |
+| sigma_x     | float  | Cart disturbance intensity [m/(s²·√s)] - Horizontal disturbances - Typical: 0.01-1.0 - Less critical than σ_θ                                       | `0.1`     |
+| sigma_theta | float  | Pole disturbance intensity [rad/(s²·√s)] - Angular disturbances - Typical: 0.01-0.5 - MOST CRITICAL for stability - Determines mean time to failure | `0.05`    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Noise Intensity Guidelines:**
+
+Cart noise (σ_x):
+- Small (0.01): Lab conditions, smooth track
+- Medium (0.1): Typical industrial
+- Large (1.0): Rough terrain, high wind
+
+Pole noise (σ_θ):
+- Small (0.01): Precise control, low wind
+- Medium (0.05): Typical outdoor
+- Large (0.2): High wind, poor sensors
+
+**Critical: σ_θ Determines Reliability**
+
+Exponential dependence:
+    MTF ~ exp(θ_max²/σ_θ²)
+
+Example (θ_max = 0.2 rad ≈ 11.5°):
+- σ_θ = 0.01: MTF ~ exp(400) ~ infinite
+- σ_θ = 0.05: MTF ~ exp(16) ~ 9 million seconds ~ 3 months
+- σ_θ = 0.1: MTF ~ exp(4) ~ 55 seconds
+- σ_θ = 0.2: MTF ~ exp(1) ~ 3 seconds
+
+Small increase in noise → huge decrease in reliability!
+
+**Noise Correlation:**
+
+Currently: Independent noise on x and θ.
+
+In reality: May be correlated (common wind gust affects both).
+Extension: Use 2×2 covariance matrix.
+
+**Physical Validation:**
+
+Check noise levels are reasonable:
+1. Simulate deterministic + stochastic
+2. Compare trajectories (should be similar but not identical)
+3. Success rate should be 50-95% (not 0% or 100%)
+
+**Design Tradeoff:**
+
+Smaller noise:
+- More reliable (longer MTF)
+- Easier control problem
+- Less realistic
+
+Larger noise:
+- Less reliable (shorter MTF)
+- Harder control (robustness needed)
+- More realistic
+
+Choose based on application requirements.
+
+### estimate_mean_time_to_failure { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.estimate_mean_time_to_failure }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole.estimate_mean_time_to_failure(
+    theta_max=0.2,
+    control_gain=None,
+)
+```
+
+Estimate mean time to failure (very rough approximation).
+
+Uses Kramers-like formula:
+    MTF ~ exp(θ_max²·κ/σ_θ²)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type              | Description                                                   | Default   |
+|--------------|-------------------|---------------------------------------------------------------|-----------|
+| theta_max    | float             | Failure threshold [rad]                                       | `0.2`     |
+| control_gain | Optional\[float\] | Effective stabilization strength (if None, estimate from g/L) | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description       |
+|--------|--------|-------------------|
+|        | float  | Estimated MTF [s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is very approximate! For accurate MTF, use Monte Carlo.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cartpole = StochasticCartPole(sigma_theta=0.05)
+>>> mtf = cartpole.estimate_mean_time_to_failure(theta_max=0.2)
+>>> print(f"Estimated MTF: {mtf:.2e} seconds")
+```
+
+### get_noise_intensities { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.get_noise_intensities }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole.get_noise_intensities()
+```
+
+Get noise intensity parameters.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                          |
+|--------|--------|--------------------------------------|
+|        | dict   | {'sigma_x': ..., 'sigma_theta': ...} |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cartpole = StochasticCartPole(sigma_x=0.1, sigma_theta=0.05)
+>>> noise = cartpole.get_noise_intensities()
+>>> print(f"Pole noise (critical): {noise['sigma_theta']}")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.StochasticCartPole.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.StochasticCartPole.setup_equilibria()
+```
+
+Set up equilibrium points (deterministic part).
+
+Note: With noise, cannot maintain exact equilibrium.
+These are nominal targets that fluctuate.

@@ -1,0 +1,17 @@
+# types.linearization.FullStochasticLinearization { #cdesym.types.linearization.FullStochasticLinearization }
+
+`types.linearization.FullStochasticLinearization`
+
+Complete stochastic linearization: (A, B, G, C, D).
+
+Includes both dynamics and output linearization.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A, B, G, C, D = sde_system.full_linearization(x_eq, u_eq)
+>>> 
+>>> # LQG design
+>>> K_lqr = design_lqr(A, B, Q_control, R_control)
+>>> L_kalman = design_kalman(A, C, G@G.T, R_meas)
+```

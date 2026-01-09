@@ -1,0 +1,47 @@
+# types.backends.SystemConfig { #cdesym.types.backends.SystemConfig }
+
+```python
+types.backends.SystemConfig()
+```
+
+Complete system configuration dictionary.
+
+Contains all system metadata and settings.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name          | Type    | Description                       |
+|---------------|---------|-----------------------------------|
+| name          | str     | System name (user-defined)        |
+| class_name    | str     | Python class name                 |
+| nx            | int     | State dimension                   |
+| nu            | int     | Control dimension                 |
+| ny            | int     | Output dimension                  |
+| nw            | int     | Noise dimension (stochastic only) |
+| is_discrete   | bool    | Discrete-time vs continuous-time  |
+| is_stochastic | bool    | Stochastic vs deterministic       |
+| is_autonomous | bool    | Autonomous (nu=0) vs controlled   |
+| backend       | Backend | Default computational backend     |
+| device        | Device  | Preferred hardware device         |
+| parameters    | Dict    | Symbolic parameter values         |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> config: SystemConfig = system.get_config_dict()
+>>> print(f"System: {config['class_name']}")
+>>> print(f"States: {config['nx']}, Controls: {config['nu']}")
+>>> print(f"Backend: {config['backend']}, Device: {config['device']}")
+>>>
+>>> # Create from scratch
+>>> config: SystemConfig = {
+...     'name': 'Pendulum',
+...     'class_name': 'InvertedPendulum',
+...     'nx': 2,
+...     'nu': 1,
+...     'ny': 2,
+...     'is_discrete': False,
+...     'is_stochastic': False,
+...     'backend': 'numpy',
+... }
+```

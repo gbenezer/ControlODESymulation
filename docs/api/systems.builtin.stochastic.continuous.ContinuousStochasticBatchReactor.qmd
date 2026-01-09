@@ -1,0 +1,406 @@
+# systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor(
+    *args,
+    **kwargs,
+)
+```
+
+Continuous-time stochastic batch reactor with process noise.
+
+Extends the deterministic batch reactor to include stochastic effects
+from process disturbances, parameter uncertainty, and inherent randomness.
+This model is essential for robust control design, risk analysis, and
+state estimation under uncertainty.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+The reactor dynamics with additive noise:
+
+    dC_A = (-r₁)·dt + σ_A·dW_A
+    dC_B = (r₁ - r₂)·dt + σ_B·dW_B
+    dT = (Q - α·(T - T_amb))·dt + σ_T·dW_T
+
+where:
+    - r₁ = k₁·C_A·exp(-E₁/T): Reaction 1 rate (A → B)
+    - r₂ = k₂·C_B·exp(-E₂/T): Reaction 2 rate (B → C)
+    - σ_A, σ_B: Concentration noise intensities [mol/(L·√s)]
+    - σ_T: Temperature noise intensity [K/√s]
+    - W_A, W_B, W_T: Independent Wiener processes
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Noise Sources:**
+
+1. **Concentration Noise (σ_A, σ_B):**
+   - Feed composition variability
+   - Mixing imperfections
+   - Sampling uncertainty
+   - Kinetic parameter fluctuations
+
+2. **Temperature Noise (σ_T):**
+   - Heat transfer variations
+   - Ambient temperature changes
+   - Control system imperfections
+   - Measurement noise
+
+**Why Three Independent Sources?**
+- Different physical mechanisms
+- Spatial separation (bulk vs jacket)
+- Independent control loops
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x = [C_A, C_B, T]
+    Same as deterministic model but now stochastic:
+    - C_A(t): Random process, not deterministic function
+    - C_B(t): Random process
+    - T(t): Random process
+
+    Each trajectory is one realization from probability distribution.
+
+Control: u = [Q]
+    - Q: Heating/cooling rate [K/s]
+    - Same as deterministic (no noise in control)
+
+Noise: w = [w_A, w_B, w_T]
+    - Three independent Wiener processes
+    - Dimension: nw = 3
+    - Structure: Diagonal (uncorrelated)
+
+## Key Properties {.doc-section .doc-section-key-properties}
+
+**Stochastic Nature:**
+- Multiple runs give different trajectories
+- Statistics (mean, variance) evolve over time
+- Need ensemble analysis (Monte Carlo)
+
+**Mean Behavior:**
+For additive noise: E[X(t)] follows deterministic dynamics approximately.
+
+**Variance Growth:**
+Variance increases with time due to noise accumulation:
+    Var[C_A(t)] ≈ Var[C_A(0)] + σ_A²·t
+
+**Non-Gaussian:**
+Even with Gaussian noise, nonlinear dynamics create non-Gaussian
+distributions (except in linear approximation).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type              | Description                                                                                                                                         | Default    |
+|---------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| k1      | float             | Pre-exponential factor for A→B reaction [1/s]                                                                                                       | _required_ |
+| k2      | float             | Pre-exponential factor for B→C reaction [1/s]                                                                                                       | _required_ |
+| E1      | float             | Activation energy for reaction 1 [K]                                                                                                                | _required_ |
+| E2      | float             | Activation energy for reaction 2 [K]                                                                                                                | _required_ |
+| alpha   | float             | Heat transfer coefficient [1/s]                                                                                                                     | _required_ |
+| T_amb   | float             | Ambient temperature [K]                                                                                                                             | _required_ |
+| C_A0    | Optional\[float\] | Initial concentration of A for equilibrium setup [mol/L]                                                                                            | _required_ |
+| T0      | Optional\[float\] | Initial temperature for equilibrium setup [K]                                                                                                       | _required_ |
+| sigma_A | float             | Concentration noise for A [mol/(L·√s)] - Controls C_A fluctuations - Typical: 0.001-0.1 - Should be << C_A0 for realistic noise                     | `0.01`     |
+| sigma_B | float             | Concentration noise for B [mol/(L·√s)] - Controls C_B fluctuations - Typical: 0.001-0.1                                                             | `0.01`     |
+| sigma_T | float             | Temperature noise [K/√s] - Controls T fluctuations - Typical: 0.1-5.0 - More critical than concentration noise   (exponential effect via Arrhenius) | `1.0`      |
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Robust Optimal Control:**
+Design controllers accounting for uncertainty:
+    - Stochastic MPC with chance constraints
+    - Risk-sensitive control
+    - Robust trajectory optimization
+
+**2. State Estimation:**
+Kalman filter for noisy measurements:
+    - Extended Kalman Filter (EKF)
+    - Unscented Kalman Filter (UKF)
+    - Particle filter
+
+**3. Risk Analysis:**
+Assess probability of constraint violation:
+    - Monte Carlo simulation
+    - Rare event estimation
+    - Safety verification
+
+**4. Parameter Identification:**
+Estimate parameters from noisy data:
+    - Maximum likelihood
+    - Bayesian inference
+    - Sequential Monte Carlo
+
+**5. Process Design:**
+Design for robustness:
+    - Worst-case analysis
+    - Six Sigma methodology
+    - Process capability studies
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Recommended Methods:**
+- Euler-Maruyama: Simple, robust, dt ~ 0.01-0.1 s
+- Milstein: Higher order, dt ~ 0.001-0.01 s
+- SRK: Even higher order, more cost
+
+**Monte Carlo Ensemble:**
+Run N = 100-10,000 simulations to characterize:
+    - Mean trajectory: E[X(t)]
+    - Variance: Var[X(t)]
+    - Confidence bands: μ ± 2σ
+    - Probability distributions
+
+**Noise Structure:**
+- Type: ADDITIVE (state-independent)
+- Dimension: nw = 3 (three Wiener processes)
+- Correlation: DIAGONAL (independent noise sources)
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic:**
+- Single trajectory
+- Perfect prediction
+- Nominal design
+
+**Stochastic:**
+- Ensemble of trajectories
+- Probabilistic prediction
+- Robust design
+
+**When Stochastic is Necessary:**
+- Real process has significant noise
+- Robust control needed
+- Risk assessment required
+- Parameter uncertainty significant
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Additive noise only (not multiplicative)
+- Constant noise intensity (not state-dependent)
+- Independent noise sources (no correlation)
+- No jumps (only continuous Brownian paths)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Multiplicative noise: g(x) = diag(σ_A·C_A, σ_B·C_B, σ_T·T)
+- Correlated noise: Full covariance matrix
+- Jump diffusion: Add Poisson jumps
+- Parameter uncertainty: Random walk parameters
+
+## See Also {.doc-section .doc-section-see-also}
+
+ContinuousBatchReactor : Deterministic version
+OrnsteinUhlenbeck : Mean-reverting stochastic process
+GeometricBrownianMotion : Multiplicative noise example
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_signal_to_noise_ratio](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.compute_signal_to_noise_ratio) | Compute signal-to-noise ratio for each state. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.define_system) | Define stochastic batch reactor dynamics. |
+| [estimate_variance_growth](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.estimate_variance_growth) | Estimate variance growth for additive noise (approximate). |
+| [get_noise_intensities](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.get_noise_intensities) | Get current noise intensity parameters. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.setup_equilibria) | Set up equilibrium points. |
+
+### compute_signal_to_noise_ratio { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.compute_signal_to_noise_ratio }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.compute_signal_to_noise_ratio(
+    x,
+    t,
+)
+```
+
+Compute signal-to-noise ratio for each state.
+
+SNR = |x| / (σ·√t)
+
+Higher SNR → noise less significant.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description                 | Default    |
+|--------|------------|-----------------------------|------------|
+| x      | np.ndarray | Current state [C_A, C_B, T] | _required_ |
+| t      | float      | Time since start [s]        | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description           |
+|--------|------------|-----------------------|
+|        | np.ndarray | SNR for [C_A, C_B, T] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+SNR > 10: Noise negligible
+SNR ~ 1: Noise significant
+SNR < 0.1: Noise dominates
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = ContinuousStochasticBatchReactor()
+>>> x = np.array([0.5, 0.3, 360.0])
+>>> snr = reactor.compute_signal_to_noise_ratio(x, t=10)
+>>> print(f"SNR: C_A={snr[0]:.1f}, C_B={snr[1]:.1f}, T={snr[2]:.1f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.define_system }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.define_system(
+    k1_val=0.5,
+    k2_val=0.3,
+    E1_val=1000.0,
+    E2_val=1500.0,
+    alpha_val=0.1,
+    T_amb_val=300.0,
+    sigma_A=0.01,
+    sigma_B=0.01,
+    sigma_T=1.0,
+    C_A0=None,
+    T0=None,
+)
+```
+
+Define stochastic batch reactor dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type              | Description                                                                                                                                                              | Default   |
+|-----------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| k1_val    | float             | Pre-exponential factor for A→B reaction [1/s]                                                                                                                            | `0.5`     |
+| k2_val    | float             | Pre-exponential factor for B→C reaction [1/s]                                                                                                                            | `0.3`     |
+| E1_val    | float             | Activation energy for reaction 1 [K]                                                                                                                                     | `1000.0`  |
+| E2_val    | float             | Activation energy for reaction 2 [K]                                                                                                                                     | `1500.0`  |
+| alpha_val | float             | Heat transfer coefficient [1/s]                                                                                                                                          | `0.1`     |
+| T_amb_val | float             | Ambient temperature [K]                                                                                                                                                  | `300.0`   |
+| sigma_A   | float             | Concentration noise intensity for A [mol/(L·√s)] - Typical: 0.001-0.1 mol/(L·√s) - Should be << C_A0 for realistic noise - Rule of thumb: σ_A ~ 0.01·C_A0                | `0.01`    |
+| sigma_B   | float             | Concentration noise intensity for B [mol/(L·√s)] - Same magnitude as σ_A typically - Represents mixing and kinetic uncertainty                                           | `0.01`    |
+| sigma_T   | float             | Temperature noise intensity [K/√s] - Typical: 0.1-5.0 K/√s - More critical than concentration noise - Affects reaction rates exponentially - Rule of thumb: σ_T ~ 1 K/√s | `1.0`     |
+| C_A0      | Optional\[float\] | Initial conditions for equilibrium setup                                                                                                                                 | `None`    |
+| T0        | Optional\[float\] | Initial conditions for equilibrium setup                                                                                                                                 | `None`    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Drift (Deterministic Part):**
+Identical to deterministic reactor:
+    f(x, u) = [-r₁, r₁ - r₂, Q - α·(T - T_amb)]ᵀ
+
+**Diffusion (Stochastic Part):**
+Diagonal matrix (additive, independent noise):
+    g(x, u) = diag(σ_A, σ_B, σ_T)
+
+This gives three independent Wiener processes driving
+concentration and temperature fluctuations.
+
+**Noise Intensity Guidelines:**
+
+For 1% relative noise at C_A0 = 1.0 mol/L over 1 second:
+    σ_A ~ 0.01 mol/(L·√s)
+
+For 1 K standard deviation over 1 second:
+    σ_T ~ 1.0 K/√s
+
+**Physical Justification:**
+
+Additive noise models:
+- External disturbances (feed, ambient)
+- Measurement errors (sensors)
+- Control system imperfections
+- Unmodeled dynamics (lumped effects)
+
+Alternative: Multiplicative noise would be:
+    g(x) = diag(σ_A·C_A, σ_B·C_B, σ_T·T)
+
+This models relative errors scaling with state magnitude.
+
+**Validation:**
+
+Check noise levels are reasonable:
+1. Run deterministic + stochastic simulations
+2. Compare final states
+3. Coefficient of variation should be 5-20%:
+       CV = std(C_B_final) / mean(C_B_final)
+4. If CV > 30%: Noise too large
+5. If CV < 1%: Noise negligible
+
+### estimate_variance_growth { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.estimate_variance_growth }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.estimate_variance_growth(
+    t,
+)
+```
+
+Estimate variance growth for additive noise (approximate).
+
+For additive noise with independent sources:
+    Var[X(t)] ≈ Var[X(0)] + diag(σ²)·t
+
+This is exact for linear systems, approximate for nonlinear.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description   | Default    |
+|--------|--------|---------------|------------|
+| t      | float  | Time [s]      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                                     |
+|--------|------------|-------------------------------------------------|
+|        | np.ndarray | Estimated variance [Var(C_A), Var(C_B), Var(T)] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is a rough estimate. For accurate statistics, run Monte Carlo.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = ContinuousStochasticBatchReactor(
+...     sigma_A=0.01, sigma_B=0.01, sigma_T=1.0
+... )
+>>> var_100s = reactor.estimate_variance_growth(t=100)
+>>> std_100s = np.sqrt(var_100s)
+>>> print(f"Estimated std after 100s: C_A={std_100s[0]:.3f}, "
+...       f"C_B={std_100s[1]:.3f}, T={std_100s[2]:.3f}")
+```
+
+### get_noise_intensities { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.get_noise_intensities }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.get_noise_intensities(
+)
+```
+
+Get current noise intensity parameters.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                          |
+|--------|--------|------------------------------------------------------|
+|        | dict   | Dictionary with keys 'sigma_A', 'sigma_B', 'sigma_T' |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = ContinuousStochasticBatchReactor(
+...     sigma_A=0.01, sigma_B=0.01, sigma_T=1.0
+... )
+>>> noise = reactor.get_noise_intensities()
+>>> print(f"Temperature noise: {noise['sigma_T']} K/√s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.setup_equilibria(
+)
+```
+
+Set up equilibrium points.
+
+Note: For stochastic systems, "equilibrium" refers to deterministic
+part only. Actual trajectories fluctuate around this point.

@@ -1,0 +1,5 @@
+# types.backends.OptimizationMethod { #cdesym.types.backends.OptimizationMethod }
+
+`types.backends.OptimizationMethod`
+
+Optimization method for control/estimation problems.

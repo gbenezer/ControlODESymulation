@@ -1,0 +1,40 @@
+# systems.builtin.deterministic.continuous.AutonomousLinearSystem { #cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem }
+
+```python
+systems.builtin.deterministic.continuous.AutonomousLinearSystem(*args, **kwargs)
+```
+
+Autonomous first-order linear system: dx/dt = -a*x
+
+No control input (nu=0).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                    | Default   |
+|--------|--------|--------------------------------|-----------|
+| a      | float  | Decay rate (positive = stable) | `1.0`     |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = AutonomousLinearSystem(a=1.0)
+>>> system.nu
+0
+>>> dx = system(np.array([1.0]), u=None)  # -1*1 = -1
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem.define_system) | Define autonomous linear dynamics. |
+
+### define_system { #cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem.define_system }
+
+```python
+systems.builtin.deterministic.continuous.AutonomousLinearSystem.define_system(
+    a=1.0,
+)
+```
+
+Define autonomous linear dynamics.

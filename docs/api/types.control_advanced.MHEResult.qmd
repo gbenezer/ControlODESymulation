@@ -1,0 +1,49 @@
+# types.control_advanced.MHEResult { #cdesym.types.control_advanced.MHEResult }
+
+```python
+types.control_advanced.MHEResult()
+```
+
+Moving Horizon Estimation (MHE) result.
+
+MHE is the dual of MPC - optimal state estimation over a
+receding horizon using past measurements and control inputs.
+
+## Fields {.doc-section .doc-section-fields}
+
+state_estimate : StateVector
+    Current optimal state estimate x̂[k] (nx,)
+covariance_estimate : CovarianceMatrix
+    Estimated covariance P̂[k] (nx, nx)
+state_trajectory : StateTrajectory
+    Estimated trajectory over horizon (N, nx)
+cost : float
+    Estimation objective value
+success : bool
+    Whether optimization succeeded
+solve_time : float
+    Computation time in seconds
+innovation_sequence : OutputSequence
+    Measurement residuals y - Cx̂ (N, ny)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Setup MHE
+>>> mhe = MovingHorizonEstimator(
+...     system, horizon=10, Q_process=0.01*np.eye(2), R_meas=0.1*np.eye(1)
+... )
+>>>
+>>> # Update with new measurement
+>>> y_meas = np.array([1.2])
+>>> u_applied = np.array([0.5])
+>>> result: MHEResult = mhe.update(y_meas, u_applied)
+>>>
+>>> # Use state estimate
+>>> x_hat = result['state_estimate']
+>>> P_hat = result['covariance_estimate']
+>>>
+>>> # Check innovation
+>>> innovations = result['innovation_sequence']
+>>> innovation_norm = np.linalg.norm(innovations[-1])
+```

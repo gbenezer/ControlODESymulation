@@ -1,0 +1,95 @@
+# control.design_lqg { #cdesym.control.design_lqg }
+
+```python
+control.design_lqg(
+    A,
+    B,
+    C,
+    Q_state,
+    R_control,
+    Q_process,
+    R_measurement,
+    N=None,
+    system_type='discrete',
+    backend='numpy',
+)
+```
+
+Design Linear Quadratic Gaussian (LQG) controller.
+
+Combines LQR controller with Kalman filter estimator.
+Separation principle allows independent design of controller and estimator.
+
+System:
+    x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q_process)
+    y[k] = Cx[k] + v[k],            v ~ N(0, R_measurement)
+
+Controller: u[k] = -Kx̂[k] (feedback on estimate)
+Estimator: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+
+Args:
+    A: State matrix (nx, nx)
+    B: Input matrix (nx, nu)
+    C: Output matrix (ny, nx)
+    Q_state: LQR state cost matrix (nx, nx)
+    R_control: LQR control cost matrix (nu, nu)
+    Q_process: Process noise covariance (nx, nx)
+    R_measurement: Measurement noise covariance (ny, ny)
+    system_type: 'continuous' or 'discrete'
+    backend: Computational backend
+
+Returns:
+    LQGResult containing:
+        - controller_gain: LQR gain K (nu, nx)
+        - estimator_gain: Kalman gain L (nx, ny)
+        - controller_riccati: LQR Riccati solution P_c (nx, nx)
+        - estimator_covariance: Kalman covariance P_e (nx, nx)
+        - controller_eigenvalues: Controller eigenvalues of (A - BK)
+        - estimator_eigenvalues: Estimator eigenvalues of (A - LC)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design LQG controller
+>>> A = np.array([[1, 0.1], [0, 0.9]])
+>>> B = np.array([[0], [0.1]])
+>>> C = np.array([[1, 0]])  # Measure position
+>>>
+>>> # LQR weights
+>>> Q_state = np.diag([10, 1])
+>>> R_control = np.array([[0.1]])
+>>>
+>>> # Noise covariances
+>>> Q_process = 0.01 * np.eye(2)
+>>> R_measurement = np.array([[0.1]])
+>>>
+>>> result = design_lqg(
+...     A, B, C,
+...     Q_state, R_control,
+...     Q_process, R_measurement,
+...     system_type='discrete'
+... )
+>>>
+>>> K = result['controller_gain']
+>>> L = result['estimator_gain']
+>>>
+>>> # Implementation
+>>> x_hat = np.zeros(2)
+>>> for k in range(N):
+...     # Control
+...     u = -K @ x_hat
+...
+...     # Estimation
+...     x_hat_pred = A @ x_hat + B @ u
+...     innovation = y[k] - C @ x_hat_pred
+...     x_hat = x_hat_pred + L @ innovation
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+- Separation principle: LQR and Kalman can be designed independently
+- LQG is optimal for linear systems with Gaussian noise
+- Closed-loop has eigenvalues of both controller and estimator
+- Controller must stabilize system
+- Estimator must converge faster than controller for good performance
+- Trade-off: Lower Q_process/R_measurement → more aggressive estimator

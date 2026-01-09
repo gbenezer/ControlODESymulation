@@ -1,0 +1,49 @@
+# types.backends.SDEIntegratorConfig { #cdesym.types.backends.SDEIntegratorConfig }
+
+```python
+types.backends.SDEIntegratorConfig()
+```
+
+Configuration for SDE integrators.
+
+Extends integrator config with stochastic-specific settings.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name             | Type                 | Description                                |
+|------------------|----------------------|--------------------------------------------|
+| method           | SDEIntegrationMethod | SDE integration algorithm                  |
+| dt               | float                | Time step (fixed-step methods)             |
+| convergence_type | ConvergenceType      | Strong (pathwise) or weak (distributional) |
+| backend          | Backend              | Computational backend                      |
+| seed             | Optional\[int\]      | Random seed for reproducibility            |
+| adaptive         | bool                 | Use adaptive stepping (if available)       |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Basic configuration
+>>> config: SDEIntegratorConfig = {
+...     'method': 'euler',
+...     'dt': 0.01,
+...     'convergence_type': 'strong',
+...     'backend': 'numpy'
+... }
+>>>
+>>> # High-accuracy additive noise
+>>> config_accurate: SDEIntegratorConfig = {
+...     'method': 'SRIW1',
+...     'dt': 0.001,
+...     'convergence_type': 'strong',
+...     'backend': 'numpy',
+...     'seed': 42
+... }
+>>>
+>>> # Monte Carlo simulation
+>>> config_mc: SDEIntegratorConfig = {
+...     'method': 'SEA',
+...     'dt': 0.01,
+...     'convergence_type': 'weak',
+...     'backend': 'jax',
+... }
+```

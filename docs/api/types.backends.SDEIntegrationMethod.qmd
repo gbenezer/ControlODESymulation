@@ -1,0 +1,5 @@
+# types.backends.SDEIntegrationMethod { #cdesym.types.backends.SDEIntegrationMethod }
+
+`types.backends.SDEIntegrationMethod`
+
+SDE integration method for stochastic differential equations.

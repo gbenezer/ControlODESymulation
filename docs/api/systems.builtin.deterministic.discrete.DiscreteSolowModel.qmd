@@ -1,0 +1,890 @@
+# systems.builtin.deterministic.discrete.DiscreteSolowModel { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel(*args, **kwargs)
+```
+
+    Discrete-time Solow-Swan neoclassical growth model.
+
+##     Physical System (Economic System): {.doc-section .doc-section-----physical-system-economic-system}
+
+    The Solow model describes how an economy's capital stock evolves over time
+    through the interplay of:
+    - **Investment:** Savings channeled into new capital
+    - **Depreciation:** Capital wears out and becomes obsolete
+    - **Population growth:** Dilutes per-capita capital
+    - **Technological progress:** Increases productivity
+
+    **The Central Equation (Continuous Time):**
+        k̇ = s·f(k) - (δ + n)·k
+
+    where:
+        k: Capital per worker (capital intensity)
+        s: Savings rate (fraction of output saved)
+        f(k): Production function (output per worker)
+        δ: Depreciation rate
+        n: Population growth rate
+
+    **Production Function (Cobb-Douglas):**
+    The standard form is:
+        y = f(k) = A·k^α
+
+    where:
+        y: Output per worker (GDP per capita)
+        A: Total factor productivity (TFP), technology level
+        k: Capital per worker
+        α: Output elasticity of capital (0 < α < 1)
+
+    **Key Properties:**
+    1. **Positive but diminishing marginal product:**
+       f'(k) > 0, f''(k) < 0
+       - More capital → more output
+       - But each additional unit contributes less (diminishing returns)
+
+    2. **Inada conditions:**
+       f(0) = 0, f'(0) = ∞, f'(∞) = 0
+       - No capital → no output
+       - Initially very productive
+       - Eventually saturates
+
+    3. **Constant returns to scale (with labor):**
+       F(K, L) = A·K^α·L^(1-α)
+       - Doubling both K and L doubles output
+
+    **Discrete-Time Dynamics:**
+    The discrete version models year-to-year changes:
+
+        k[t+1] = (1 - δ)·k[t] + s·f(k[t])
+
+    Or with population growth:
+        k[t+1] = [(1 - δ)·k[t] + s·f(k[t])] / (1 + n)
+
+##     State Space: {.doc-section .doc-section-----state-space}
+
+    State: x[t] = [k[t]]
+        Capital per worker:
+        - k: Capital intensity [$/worker] or [capital units per worker]
+          * k ≥ 0: Non-negative by definition
+          * k = 0: No capital (subsistence economy)
+          * k → k*: Converges to steady state
+          * Typical range: 0-500 for normalized units
+
+    **Physical/Economic Meaning:**
+    Capital per worker represents:
+    - Machines, equipment, tools available per person
+    - Infrastructure (roads, buildings) per capita
+    - Technology embodied in physical capital
+    - Higher k → higher productivity → higher income
+
+    Control: u[t] (optional, for policy intervention)
+        - Can represent:
+          * Temporary savings rate change: s → s + u[t]
+          * Government investment/stimulus
+          * Technology adoption rate change
+          * Foreign aid or capital injection
+        - Standard model: u = 0 (no intervention)
+
+    Output: y[t] = [k[t]] or [k[t], y[t], c[t]]
+        Standard outputs:
+        - k[t]: Capital per worker (state variable)
+        - y[t]: Output per worker (GDP per capita)
+        - c[t]: Consumption per worker
+
+        Where:
+            y[t] = A·k[t]^α
+            c[t] = (1 - s)·y[t]
+
+##     Dynamics (Economic Interpretation): {.doc-section .doc-section-----dynamics-economic-interpretation}
+
+    The discrete dynamics:
+        k[t+1] = (1 - δ)·k[t] + s·A·k[t]^α
+
+    **Capital Evolution Has Three Components:**
+
+    1. **Undepreciated capital: (1 - δ)·k[t]**
+       - Fraction (1 - δ) survives to next period
+       - δ represents wearing out, obsolescence
+       - If δ = 0.05: 5% of capital lost each year
+
+    2. **New investment: s·f(k[t])**
+       - Savings rate s fraction of output is invested
+       - f(k) = A·k^α is output per worker
+       - Higher s → more investment → faster growth
+
+    3. **Population dilution (if n > 0):**
+       - Growing population dilutes per-capita capital
+       - k[t+1] must be divided by (1 + n)
+       - Higher n → slower per-capita growth
+
+    **Steady State (Golden Rule):**
+    At steady state: k[t+1] = k[t] = k*
+
+        (1 - δ)·k* + s·A·(k*)^α = k*
+        s·A·(k*)^α = δ·k*
+        k* = (s·A/δ)^(1/(1-α))
+
+    The steady-state capital is unique and globally stable (under standard
+    assumptions).
+
+    **Convergence to Steady State:**
+    - If k[0] < k*: Capital accumulates (growth)
+    - If k[0] > k*: Capital decumulates (decline)
+    - Convergence is monotonic (no oscillations for standard parameters)
+    - Speed of convergence: Faster when far from k*, slower when near
+
+##     Parameters: {.doc-section .doc-section-----parameters}
+
+    s : float, default=0.3
+        Savings rate (fraction of output saved/invested)
+        - Must satisfy: 0 < s < 1
+        - Typical values: 0.15-0.40
+        - Developed countries: ~0.20-0.25
+        - Developing countries: ~0.30-0.40
+        - China (historically): ~0.45-0.50
+
+        **Economic Meaning:**
+        - Higher s → more investment → higher steady-state k*
+        - But also lower consumption (1-s)·y
+        - Golden rule: s that maximizes steady-state consumption
+
+    delta : float, default=0.05
+        Depreciation rate (fraction of capital lost per period)
+        - Must satisfy: 0 < δ < 1
+        - Typical annual values: 0.03-0.10
+        - Physical capital: ~0.05-0.08
+        - Structures: ~0.03
+        - Equipment: ~0.10
+
+        **Economic Meaning:**
+        - Higher δ → more replacement needed → lower k*
+        - Represents obsolescence, wear and tear
+
+    alpha : float, default=0.33
+        Capital share of income (output elasticity of capital)
+        - Must satisfy: 0 < α < 1
+        - Typical values: 0.25-0.40
+        - Empirically: ~0.33 (one-third)
+        - Labor share: 1 - α ≈ 0.67 (two-thirds)
+
+        **Economic Meaning:**
+        - Measures importance of capital vs labor
+        - α = 0.5: Equal importance (Cobb-Douglas symmetric)
+        - α < 0.5: Labor more important
+        - α > 0.5: Capital more important (rare)
+
+    A : float, default=1.0
+        Total Factor Productivity (TFP) / technology level
+        - Must satisfy: A > 0
+        - Captures: Technology, institutions, efficiency
+        - Grows over time via technological progress
+        - Typical growth: 1-2% per year
+
+        **Economic Meaning:**
+        - Higher A → more output for same k
+        - Represents "technological level"
+        - Solow residual: Growth not explained by capital/labor
+
+    n : float, default=0.0
+        Population/labor force growth rate
+        - Can be positive, zero, or negative
+        - Typical values: -0.01 to 0.03 (annually)
+        - Developed countries: ~0.00-0.01
+        - Developing countries: ~0.01-0.03
+
+        **Economic Meaning:**
+        - Higher n → dilutes per-capita capital
+        - Must invest more just to maintain k
+        - Effective depreciation: δ + n
+
+    dt : float, default=1.0
+        Time period (typically 1 year for macroeconomic data)
+        - Units: years
+        - dt = 1: Annual model (most common)
+        - dt = 0.25: Quarterly model
+
+    include_population_growth : bool, default=False
+        If True, include population growth in dynamics
+        If False, assume n = 0
+
+    use_technology_growth : bool, default=False
+        If True, allow A to grow over time
+        If False, A is constant
+
+##     Equilibria: {.doc-section .doc-section-----equilibria}
+
+    **Steady State (k*):**
+    The unique non-zero equilibrium where capital per worker is constant:
+
+        k* = (s·A/δ)^(1/(1-α))
+
+    At steady state:
+    - Capital accumulation exactly balances depreciation
+    - Investment = Depreciation: s·y* = δ·k*
+    - No growth in per-capita variables (k, y, c constant)
+    - But total output grows at rate n (population growth)
+
+    **Stability:**
+    The steady state is GLOBALLY ASYMPTOTICALLY STABLE:
+    - For ANY initial k[0] > 0, system converges to k*
+    - Convergence is monotonic (no oscillations)
+    - Speed: |λ| = (1 - δ) + s·α·A·(k*)^(α-1) < 1
+
+    **Output at Steady State:**
+        y* = A·(k*)^α = A^(1/(1-α))·(s/δ)^(α/(1-α))
+
+    **Consumption at Steady State:**
+        c* = (1 - s)·y*
+
+    **Golden Rule Capital Level:**
+    The capital level that maximizes steady-state consumption:
+        k_gold = (α·A/δ)^(1/(1-α))
+
+    Golden rule savings rate:
+        s_gold = α
+
+    If s = α, the economy is at the golden rule (max consumption).
+    If s > α, the economy is "over-saving" (dynamic inefficiency).
+    If s < α, the economy could save more to increase consumption.
+
+##     Convergence Dynamics: {.doc-section .doc-section-----convergence-dynamics}
+
+    **Conditional Convergence:**
+    Countries with same parameters (s, δ, α, A) converge to same k*.
+    - Poor countries (low k) grow faster initially
+    - Rich countries (high k) grow slower
+    - Convergence rate: β = (1 - α)(δ + n)
+    - Half-life: t_half = ln(2)/β
+
+    **Absolute Convergence:**
+    Empirically NOT observed - poor countries don't always catch up.
+    Reasons:
+    - Different savings rates s
+    - Different technology levels A
+    - Different institutional quality
+    - Different human capital
+
+    **Speed of Convergence:**
+    Empirical estimate: β ≈ 0.02 (2% per year)
+    - Half-life: ~35 years
+    - Slow convergence due to diminishing returns
+
+##     Economic Insights: {.doc-section .doc-section-----economic-insights}
+
+    **The Fundamental Question:**
+    Why are some countries rich and others poor?
+
+    Solow model answers:
+    1. **Capital accumulation:** Rich countries have more k
+    2. **Savings rates:** Higher s → higher k*
+    3. **Technology:** Higher A → higher productivity
+    4. **Population:** Lower n → easier to maintain high k
+
+    **The Growth Puzzle:**
+    Solow model predicts:
+    - Long-run growth ONLY from technological progress (A growing)
+    - Capital accumulation alone cannot sustain growth (diminishing returns)
+    - Saving more raises level but not long-run growth rate
+
+    **Policy Implications:**
+    1. **Increase savings rate s:**
+       - Raises steady-state income
+       - Temporary growth boost during transition
+       - Reduces consumption in short run
+
+    2. **Reduce depreciation δ:**
+       - Better infrastructure maintenance
+       - Raises k* and y*
+
+    3. **Improve technology A:**
+       - Education, R&D, technology adoption
+       - Permanent growth effects
+       - Most important for long run
+
+    4. **Control population n:**
+       - Lower n → higher k* per capita
+       - But total output growth slower
+
+##     Control Objectives (Policy): {.doc-section .doc-section-----control-objectives-policy}
+
+    **1. Maximize Steady-State Consumption:**
+       Goal: Choose s to maximize c* = (1 - s)·y*
+       Solution: Golden rule s* = α
+
+    **2. Convergence Acceleration:**
+       Goal: Reach k* faster via temporary policy
+       Method: Increase s temporarily, then reduce
+       Challenge: Political economy (delayed gratification)
+
+    **3. Poverty Trap Escape:**
+       Goal: Overcome low-level equilibrium trap
+       Method: Large temporary investment (foreign aid, stimulus)
+       Extension: Add threshold effects, multiple equilibria
+
+    **4. Optimal Savings Path:**
+       Goal: Maximize discounted utility ∫e^(-ρt)·u(c[t])dt
+       Solution: Ramsey-Cass-Koopmans model (extends Solow)
+
+    **5. Technological Catch-Up:**
+       Goal: Model technology diffusion from frontier
+       Extension: A[t+1] = A[t] + φ(A_frontier - A[t])
+
+##     State Constraints: {.doc-section .doc-section-----state-constraints}
+
+    **1. Non-negativity: k[t] ≥ 0**
+       - Capital cannot be negative
+       - Economic necessity
+       - k = 0 is absorbing state (poverty trap if no external help)
+
+    **2. Feasibility: k[t] ≤ k_max**
+       - Some maximum possible capital
+       - Typically not binding (grows without bound theoretically)
+
+    **3. Savings rate bounds: 0 < s < 1**
+       - Cannot save more than 100% of output
+       - Cannot save negative amount
+       - Policy variable, not state constraint
+
+    **4. Non-negative output: y[t] ≥ 0**
+       - Automatic if k ≥ 0 and A > 0
+
+##     Numerical Considerations: {.doc-section .doc-section-----numerical-considerations}
+
+    **Stability:**
+    The discrete Solow model is always stable (under standard parameters):
+    - Eigenvalue at k*: λ = (1 - δ) + s·α·A·(k*)^(α-1)
+    - For typical parameters: 0 < λ < 1
+    - Monotonic convergence (no oscillations)
+
+    **Accuracy:**
+    Discrete vs continuous models differ for large dt:
+    - Annual data (dt = 1): Discrete appropriate
+    - Continuous time limit as dt → 0
+
+    **Numerical Precision:**
+    No special considerations - well-conditioned problem.
+
+##     Example Usage: {.doc-section .doc-section-----example-usage}
+
+    >>> # Create Solow model with US-like parameters
+    >>> model = DiscreteSolowModel(
+    ...     s=0.25,      # 25% savings rate
+    ...     delta=0.05,  # 5% annual depreciation
+    ...     alpha=0.33,  # 1/3 capital share
+    ...     A=1.0,       # Normalized technology
+    ...     n=0.01,      # 1% population growth
+    ...     dt=1.0,      # Annual periods
+    ...     include_population_growth=True
+    ... )
+    >>>
+    >>> # Compute steady state
+    >>> k_star = model.compute_steady_state()
+    >>> y_star = model.compute_output(k_star)
+    >>> c_star = model.compute_consumption(k_star)
+    >>>
+    >>> print(f"Steady-state capital: k* = {k_star:.2f}")
+    >>> print(f"Steady-state output: y* = {y_star:.2f}")
+    >>> print(f"Steady-state consumption: c* = {c_star:.2f}")
+    >>>
+    >>> # Check golden rule
+    >>> k_gold = model.compute_golden_rule_capital()
+    >>> s_gold = model.alpha
+    >>> print(f"
+Golden rule capital: k_gold = {k_gold:.2f}")
+    >>> print(f"Golden rule savings rate: s_gold = {s_gold:.2f}")
+    >>> print(f"Current vs optimal: {'Over-saving' if model.s > s_gold else 'Under-saving'}")
+    >>>
+    >>> # Simulate convergence from low initial capital (poor country)
+    >>> k0_poor = np.array([10.0])  # Low starting capital
+    >>> result_poor = model.simulate(
+    ...     x0=k0_poor,
+    ...     u_sequence=None,
+    ...     n_steps=100  # 100 years
+    ... )
+    >>>
+    >>> # Simulate from high initial capital (rich country)
+    >>> k0_rich = np.array([100.0])  # High starting capital
+    >>> result_rich = model.simulate(
+    ...     x0=k0_rich,
+    ...     u_sequence=None,
+    ...     n_steps=100
+    ... )
+    >>>
+    >>> # Plot convergence
+    >>> import plotly.graph_objects as go
+    >>> from plotly.subplots import make_subplots
+    >>>
+    >>> fig = make_subplots(
+    ...     rows=2, cols=2,
+    ...     subplot_titles=['Capital per Worker', 'Output per Worker',
+    ...                     'Growth Rate', 'Consumption per Worker']
+    ... )
+    >>>
+    >>> t = result_poor['time_steps']
+    >>>
+    >>> # Capital
+    >>> fig.add_trace(go.Scatter(x=t, y=result_poor['states'][:, 0],
+    ...                          name='Poor', line=dict(color='blue')), row=1, col=1)
+    >>> fig.add_trace(go.Scatter(x=t, y=result_rich['states'][:, 0],
+    ...                          name='Rich', line=dict(color='red')), row=1, col=1)
+    >>> fig.add_hline(y=k_star, line_dash='dash', line_color='green', row=1, col=1)
+    >>>
+    >>> # Output
+    >>> y_poor = model.compute_output(result_poor['states'][:, 0])
+    >>> y_rich = model.compute_output(result_rich['states'][:, 0])
+    >>> fig.add_trace(go.Scatter(x=t, y=y_poor, showlegend=False,
+    ...                          line=dict(color='blue')), row=1, col=2)
+    >>> fig.add_trace(go.Scatter(x=t, y=y_rich, showlegend=False,
+    ...                          line=dict(color='red')), row=1, col=2)
+    >>> fig.add_hline(y=y_star, line_dash='dash', line_color='green', row=1, col=2)
+    >>>
+    >>> # Growth rate
+    >>> growth_poor = np.diff(result_poor['states'][:, 0]) / result_poor['states'][:-1, 0]
+    >>> growth_rich = np.diff(result_rich['states'][:, 0]) / result_rich['states'][:-1, 0]
+    >>> fig.add_trace(go.Scatter(x=t[:-1], y=growth_poor*100, showlegend=False,
+    ...                          line=dict(color='blue')), row=2, col=1)
+    >>> fig.add_trace(go.Scatter(x=t[:-1], y=growth_rich*100, showlegend=False,
+    ...                          line=dict(color='red')), row=2, col=1)
+    >>>
+    >>> # Consumption
+    >>> c_poor = model.compute_consumption(result_poor['states'][:, 0])
+    >>> c_rich = model.compute_consumption(result_rich['states'][:, 0])
+    >>> fig.add_trace(go.Scatter(x=t, y=c_poor, showlegend=False,
+    ...                          line=dict(color='blue')), row=2, col=2)
+    >>> fig.add_trace(go.Scatter(x=t, y=c_rich, showlegend=False,
+    ...                          line=dict(color='red')), row=2, col=2)
+    >>>
+    >>> fig.update_xaxes(title_text='Time [years]')
+    >>> fig.update_yaxes(title_text='k', row=1, col=1)
+    >>> fig.update_yaxes(title_text='y', row=1, col=2)
+    >>> fig.update_yaxes(title_text='Growth [%]', row=2, col=1)
+    >>> fig.update_yaxes(title_text='c', row=2, col=2)
+    >>> fig.update_layout(height=800, width=1000, title_text='Solow Model: Convergence Dynamics')
+    >>> fig.show()
+    >>>
+    >>> # Phase diagram (Solow diagram)
+    >>> fig_phase = model.plot_solow_diagram()
+    >>> fig_phase.show()
+    >>>
+    >>> # Sensitivity analysis: Vary savings rate
+    >>> s_values = np.linspace(0.1, 0.5, 20)
+    >>> k_stars = []
+    >>> y_stars = []
+    >>> c_stars = []
+    >>>
+    >>> for s_test in s_values:
+    ...     model_temp = DiscreteSolowModel(
+    ...         s=s_test, delta=0.05, alpha=0.33, A=1.0
+    ...     )
+    ...     k_ss = model_temp.compute_steady_state()
+    ...     y_ss = model_temp.compute_output(k_ss)
+    ...     c_ss = model_temp.compute_consumption(k_ss)
+    ...     k_stars.append(k_ss)
+    ...     y_stars.append(y_ss)
+    ...     c_stars.append(c_ss)
+    >>>
+    >>> fig_sens = go.Figure()
+    >>> fig_sens.add_trace(go.Scatter(x=s_values, y=k_stars, name='k*'))
+    >>> fig_sens.add_trace(go.Scatter(x=s_values, y=y_stars, name='y*'))
+    >>> fig_sens.add_trace(go.Scatter(x=s_values, y=c_stars, name='c*'))
+    >>> fig_sens.add_vline(x=model.alpha, line_dash='dash',
+    ...                    annotation_text='Golden Rule')
+    >>> fig_sens.update_layout(
+    ...     title='Steady State vs Savings Rate',
+    ...     xaxis_title='Savings Rate s',
+    ...     yaxis_title='Steady-State Value'
+    ... )
+    >>> fig_sens.show()
+    >>>
+    >>> # Simulate policy experiment: Increase savings temporarily
+    >>> k0 = np.array([20.0])  # Below steady state
+    >>>
+    >>> # Baseline: constant s = 0.25
+    >>> result_baseline = model.simulate(x0=k0, u_sequence=None, n_steps=50)
+    >>>
+    >>> # Policy: Increase s to 0.35 for 10 years, then back to 0.25
+    >>> def policy_intervention(x, k_time):
+    ...     if 10 <= k_time < 20:
+    ...         # Increase savings rate temporarily
+    ...         model_temp = DiscreteSolowModel(
+    ...             s=0.35, delta=model.delta, alpha=model.alpha, A=model.A
+    ...         )
+    ...         # Compute additional investment
+    ...         extra_savings = 0.35 - 0.25
+    ...         y_current = model.compute_output(x[0])
+    ...         # This requires modifying the system...
+    ...         # For now, return zero (standard model doesn't have control)
+    ...         return np.array([])
+    ...     return np.array([])
+    >>>
+    >>> # For policy experiments, better to simulate with modified parameters
+    >>> # Create model with higher savings for intervention period
+    >>> model_high_s = DiscreteSolowModel(s=0.35, delta=0.05, alpha=0.33, A=1.0)
+    >>>
+    >>> # Simulate in segments
+    >>> # Years 0-10: Normal savings
+    >>> result_seg1 = model.simulate(x0=k0, u_sequence=None, n_steps=10)
+    >>> # Years 10-20: High savings
+    >>> k_10 = result_seg1['states'][-1, :]
+    >>> result_seg2 = model_high_s.simulate(x0=k_10, u_sequence=None, n_steps=10)
+    >>> # Years 20-50: Back to normal
+    >>> k_20 = result_seg2['states'][-1, :]
+    >>> result_seg3 = model.simulate(x0=k_20, u_sequence=None, n_steps=30)
+    >>>
+    >>> # Combine results
+    >>> k_policy = np.concatenate([
+    ...     result_seg1['states'][:, 0],
+    ...     result_seg2['states'][1:, 0],
+    ...     result_seg3['states'][1:, 0]
+    ... ])
+    >>>
+    >>> fig_policy = go.Figure()
+    >>> fig_policy.add_trace(go.Scatter(
+    ...     x=np.arange(51),
+    ...     y=result_baseline['states'][:, 0],
+    ...     name='Baseline (s=0.25)',
+    ...     line=dict(color='blue')
+    ... ))
+    >>> fig_policy.add_trace(go.Scatter(
+    ...     x=np.arange(51),
+    ...     y=k_policy,
+    ...     name='Policy (s=0.35 for years 10-20)',
+    ...     line=dict(color='red')
+    ... ))
+    >>> fig_policy.add_vrect(x0=10, x1=20, fillcolor='gray', opacity=0.2,
+    ...                      annotation_text='High Savings')
+    >>> fig_policy.update_layout(
+    ...     title='Policy Experiment: Temporary Savings Increase',
+    ...     xaxis_title='Time [years]',
+    ...     yaxis_title='Capital per Worker k'
+    ... )
+    >>> fig_policy.show()
+
+##     Economic Paradoxes and Puzzles: {.doc-section .doc-section-----economic-paradoxes-and-puzzles}
+
+    **1. Solow Paradox (Computer Age):**
+    "You can see the computer age everywhere but in the productivity statistics"
+    - Massive IT investment in 1980s-90s
+    - But productivity growth didn't accelerate much
+    - Possible explanations: Mismeasurement, adjustment lags, diminishing returns
+
+    **2. Productivity Puzzle:**
+    Why does α ≈ 0.33 (Kaldor fact)?
+    - Empirically robust across countries and time
+    - Suggests deep structural feature of production
+    - Labor share stable despite technological change
+
+    **3. Growth Miracle Puzzle:**
+    Some countries grow much faster than Solow predicts:
+    - East Asian tigers: 7-10% growth for decades
+    - China: 10% growth for 30+ years
+    - Solow: Convergence only, not sustained super-growth
+    - Answer: Rapid A growth, human capital, institutions
+
+    **4. Poverty Trap:**
+    Basic Solow predicts convergence, but some countries stay poor:
+    - Extensions: Threshold effects, multiple equilibria
+    - S-shaped production function
+    - Institutional quality matters
+
+##     Common Pitfalls: {.doc-section .doc-section-----common-pitfalls}
+
+    1. **Confusing levels with growth rates:**
+       Higher s → higher k* (level effect)
+       But NOT higher long-run growth rate
+       Growth sustained only by technological progress
+
+    2. **Ignoring diminishing returns:**
+       Cannot grow forever by capital accumulation alone
+       α < 1 ensures diminishing returns
+
+    3. **Misinterpreting steady state:**
+       k* constant doesn't mean economy stopped growing
+       Total output Y = y·L grows at rate n (population)
+       Per-capita y constant, but total Y growing
+
+    4. **Assuming instant convergence:**
+       Convergence takes decades (half-life ~35 years)
+       Short-run dynamics matter for policy
+
+    5. **Forgetting population dilution:**
+       With n > 0, investment must first offset dilution
+       Effective depreciation: δ + n
+
+    6. **Using wrong α:**
+       α should be capital share, empirically ~0.33
+       α = 0.5 gives equal capital/labor importance (unrealistic)
+
+##     Extensions: {.doc-section .doc-section-----extensions}
+
+    1. **Human capital:**
+       k → (k_physical, k_human)
+       Education and skills accumulation
+
+    2. **Technology diffusion:**
+       A[t+1] = A[t] + g·A[t] + φ(A_frontier - A[t])
+       Catch-up dynamics
+
+    3. **Multiple sectors:**
+       Agriculture, manufacturing, services
+       Structural transformation
+
+    4. **Open economy:**
+       Include international trade, capital flows
+       Foreign investment, remittances
+
+    5. **Endogenous growth:**
+       Make technology growth endogenous
+       R&D, learning-by-doing, spillovers
+
+    6. **Resource constraints:**
+       Add natural resources (oil, land)
+       Environmental limits to growth
+
+##     See Also: {.doc-section .doc-section-----see-also}
+
+    LogisticMap : Similar mathematical structure (but very different interpretation)
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_consumption](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_consumption) | Compute consumption per worker c = (1-s)·y. |
+| [compute_convergence_speed](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_convergence_speed) | Compute speed of convergence β. |
+| [compute_golden_rule_capital](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_golden_rule_capital) | Compute golden rule capital level k_gold. |
+| [compute_investment](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_investment) | Compute investment per worker i = s·y. |
+| [compute_output](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_output) | Compute output per worker y = A·k^α. |
+| [compute_steady_state](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_steady_state) | Compute steady-state capital per worker k*. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.define_system) | Define discrete-time Solow growth model. |
+| [plot_solow_diagram](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.plot_solow_diagram) | Plot classic Solow diagram (phase diagram). |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.setup_equilibria) | Set up steady-state equilibrium. |
+
+### compute_consumption { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_consumption }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_consumption(k)
+```
+
+Compute consumption per worker c = (1-s)·y.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description        | Default    |
+|--------|------------|--------------------|------------|
+| k      | np.ndarray | Capital per worker | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description            |
+|--------|------------|------------------------|
+|        | np.ndarray | Consumption per worker |
+
+### compute_convergence_speed { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_convergence_speed }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_convergence_speed(
+)
+```
+
+Compute speed of convergence β.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | float  | Convergence coefficient β |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Linearization around k* gives:
+    k[t+1] - k* ≈ λ·(k[t] - k*)
+
+where λ = 1 - β and:
+    β = (1 - α)(δ + n)
+
+Half-life: t_half = ln(2)/β
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> model = DiscreteSolowModel()
+>>> beta = model.compute_convergence_speed()
+>>> print(f"Convergence rate: {beta:.4f}")
+>>> print(f"Half-life: {np.log(2)/beta:.1f} years")
+```
+
+### compute_golden_rule_capital { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_golden_rule_capital }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_golden_rule_capital(
+)
+```
+
+Compute golden rule capital level k_gold.
+
+The golden rule maximizes steady-state consumption.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Golden rule capital |
+
+#### Notes {.doc-section .doc-section-notes}
+
+At golden rule: MPK = δ + n
+    α·A·k_gold^(α-1) = δ + n
+    k_gold = (α·A/(δ + n))^(1/(1-α))
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> model = DiscreteSolowModel()
+>>> k_gold = model.compute_golden_rule_capital()
+>>> k_star = model.compute_steady_state()
+>>> print(f"Current k*: {k_star:.2f}")
+>>> print(f"Golden rule k_gold: {k_gold:.2f}")
+```
+
+### compute_investment { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_investment }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_investment(k)
+```
+
+Compute investment per worker i = s·y.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description        | Default    |
+|--------|------------|--------------------|------------|
+| k      | np.ndarray | Capital per worker | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description           |
+|--------|------------|-----------------------|
+|        | np.ndarray | Investment per worker |
+
+### compute_output { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_output }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_output(k)
+```
+
+Compute output per worker y = A·k^α.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description        | Default    |
+|--------|------------|--------------------|------------|
+| k      | np.ndarray | Capital per worker | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description       |
+|--------|------------|-------------------|
+|        | np.ndarray | Output per worker |
+
+### compute_steady_state { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_steady_state }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.compute_steady_state()
+```
+
+Compute steady-state capital per worker k*.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description             |
+|--------|--------|-------------------------|
+|        | float  | Steady-state capital k* |
+
+#### Notes {.doc-section .doc-section-notes}
+
+At steady state: k[t+1] = k[t] = k*
+    (1 - δ)·k* + s·A·(k*)^α = k*·(1 + n)
+    s·A·(k*)^α = (δ + n)·k*
+    k* = (s·A/(δ + n))^(1/(1-α))
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> model = DiscreteSolowModel(s=0.25, delta=0.05, alpha=0.33)
+>>> k_star = model.compute_steady_state()
+>>> print(f"Steady-state capital: {k_star:.2f}")
+```
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.define_system(
+    s=0.3,
+    delta=0.05,
+    alpha=0.33,
+    A=1.0,
+    n=0.0,
+    dt=1.0,
+    include_population_growth=False,
+    use_technology_growth=False,
+    g_A=0.0,
+)
+```
+
+Define discrete-time Solow growth model.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                      | Type   | Description                                            | Default   |
+|---------------------------|--------|--------------------------------------------------------|-----------|
+| s                         | float  | Savings rate (0 < s < 1)                               | `0.3`     |
+| delta                     | float  | Depreciation rate (0 < δ < 1)                          | `0.05`    |
+| alpha                     | float  | Capital share / output elasticity (0 < α < 1)          | `0.33`    |
+| A                         | float  | Technology level / TFP (A > 0)                         | `1.0`     |
+| n                         | float  | Population growth rate                                 | `0.0`     |
+| dt                        | float  | Time period [years]                                    | `1.0`     |
+| include_population_growth | bool   | If True, include population growth in dynamics         | `False`   |
+| use_technology_growth     | bool   | If True, allow A to grow at rate g_A                   | `False`   |
+| g_A                       | float  | Technology growth rate (if use_technology_growth=True) | `0.0`     |
+
+### plot_solow_diagram { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.plot_solow_diagram }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.plot_solow_diagram(
+    k_range=None,
+)
+```
+
+Plot classic Solow diagram (phase diagram).
+
+Shows:
+- Investment curve: s·f(k)
+- Depreciation line: δ·k (or (δ+n)·k)
+- Steady state at intersection
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type              | Description               | Default   |
+|---------|-------------------|---------------------------|-----------|
+| k_range | Optional\[tuple\] | Range of k values to plot | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | go.Figure | Solow diagram |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> model = DiscreteSolowModel()
+>>> fig = model.plot_solow_diagram()
+>>> fig.show()
+```
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteSolowModel.setup_equilibria()
+```
+
+Set up steady-state equilibrium.

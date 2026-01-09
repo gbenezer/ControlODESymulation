@@ -1,0 +1,135 @@
+# control.design_lqr { #cdesym.control.design_lqr }
+
+```python
+control.design_lqr(A, B, Q, R, N=None, system_type='discrete', backend='numpy')
+```
+
+Design Linear Quadratic Regulator (LQR) controller.
+
+Minimizes cost functional:
+    Continuous: J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
+    Discrete:   J = Σₖ₌₀^∞ (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])
+
+Solves algebraic Riccati equation (ARE):
+    Continuous (CARE): A'P + PA - (PB + N)R⁻¹(B'P + N') + Q = 0
+    Discrete (DARE):   P = A'PA - (A'PB + N)(R + B'PB)⁻¹(B'PA + N') + Q
+
+Optimal control law:
+    Continuous: u = -Kx where K = R⁻¹(B'P + N')
+    Discrete:   u[k] = -Kx[k] where K = (R + B'PB)⁻¹(B'PA + N')
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                    | Description                                                                                     | Default      |
+|-------------|-------------------------|-------------------------------------------------------------------------------------------------|--------------|
+| A           | StateMatrix             | State matrix (nx, nx)                                                                           | _required_   |
+| B           | InputMatrix             | Input matrix (nx, nu)                                                                           | _required_   |
+| Q           | StateMatrix             | State cost matrix (nx, nx), must be positive semi-definite (Q ≥ 0)                              | _required_   |
+| R           | InputMatrix             | Control cost matrix (nu, nu), must be positive definite (R > 0)                                 | _required_   |
+| N           | Optional\[InputMatrix\] | Cross-coupling matrix (nx, nu), optional. Default is zero. Allows for non-quadratic objectives. | `None`       |
+| system_type | str                     | 'continuous' or 'discrete', default 'discrete'                                                  | `'discrete'` |
+| backend     | Backend                 | Computational backend ('numpy', 'torch', 'jax'), default 'numpy'                                | `'numpy'`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                                                                                                                                                                                                                                                                                                               |
+|--------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | LQRResult | Dictionary containing:     - gain: Optimal feedback gain K (nu, nx)     - cost_to_go: Riccati solution P (nx, nx)     - controller_eigenvalues: Eigenvalues of (A - BK)     - stability_margin: Distance from stability boundary       * Continuous: -max(Re(λ)) (positive = stable)       * Discrete: 1 - max(\|λ\|) (positive = stable) |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                                        |
+|--------|-------------|--------------------------------------------------------------------|
+|        | ValueError  | If matrices have incompatible shapes or invalid system_type        |
+|        | LinAlgError | If Riccati equation has no solution (system may be unstabilizable) |
+
+## Examples {.doc-section .doc-section-examples}
+
+Continuous-time double integrator:
+
+```python
+>>> A = np.array([[0, 1], [0, 0]])
+>>> B = np.array([[0], [1]])
+>>> Q = np.diag([10, 1])  # Penalize position more
+>>> R = np.array([[0.1]])
+>>>
+>>> result = design_lqr(A, B, Q, R, system_type='continuous')
+>>> K = result['gain']
+>>> print(f"Gain: {K}")
+>>> print(f"Stable: {result['stability_margin'] > 0}")
+```
+
+Discrete-time system:
+
+```python
+>>> Ad = np.array([[1, 0.1], [0, 1]])
+>>> Bd = np.array([[0.005], [0.1]])
+>>> Q = np.diag([10, 1])
+>>> R = np.array([[0.1]])
+>>>
+>>> result = design_lqr(Ad, Bd, Q, R, system_type='discrete')
+>>> K = result['gain']
+>>>
+>>> # Apply control in simulation
+>>> x = np.array([1.0, 0.0])
+>>> for k in range(100):
+...     u = -K @ x
+...     x = Ad @ x + Bd @ u
+```
+
+With cross-coupling term:
+
+```python
+>>> N = np.array([[0.5], [0.1]])
+>>> result = design_lqr(A, B, Q, R, N=N, system_type='continuous')
+```
+
+Using PyTorch backend:
+
+```python
+>>> import torch
+>>> A_torch = torch.tensor(A, dtype=torch.float64)
+>>> B_torch = torch.tensor(B, dtype=torch.float64)
+>>> Q_torch = torch.tensor(Q, dtype=torch.float64)
+>>> R_torch = torch.tensor(R, dtype=torch.float64)
+>>>
+>>> result = design_lqr(
+...     A_torch, B_torch, Q_torch, R_torch,
+...     system_type='continuous',
+...     backend='torch'
+... )
+>>> K = result['gain']  # Returns torch.Tensor
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+**Controllability Requirements:**
+- Full controllability: (A, B) must be controllable for arbitrary pole placement
+- Stabilizability: Unstable modes must be controllable (weaker, sufficient for LQR)
+
+**Cost Matrix Requirements:**
+- Q must be positive semi-definite (all eigenvalues ≥ 0)
+- R must be positive definite (all eigenvalues > 0)
+- (Q, A) should be detectable for finite-horizon convergence
+
+**Stability:**
+- Continuous: Closed-loop stable if all Re(λ) < 0 (left half-plane)
+- Discrete: Closed-loop stable if all |λ| < 1 (inside unit circle)
+- stability_margin > 0 indicates asymptotic stability
+
+**Cross-Coupling Term N:**
+- Allows non-standard quadratic costs
+- Useful for systems with control-state coupling
+- Set to None (default) for standard LQR
+
+**Numerical Considerations:**
+- Uses scipy's solve_continuous_are / solve_discrete_are
+- Numerical issues may arise for ill-conditioned systems
+- Consider scaling states/controls for better conditioning
+
+## See Also {.doc-section .doc-section-see-also}
+
+design_kalman_filter : Optimal state estimator (dual to LQR)
+design_lqg : Combined LQR + Kalman filter
+analyze_controllability : Test controllability of (A, B)
+analyze_stability : Analyze closed-loop stability

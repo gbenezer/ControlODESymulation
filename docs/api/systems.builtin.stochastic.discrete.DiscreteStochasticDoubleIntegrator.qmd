@@ -1,0 +1,514 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator(
+    *args,
+    **kwargs,
+)
+```
+
+Discrete-time stochastic double integrator - canonical digital LQG benchmark.
+
+The fundamental discrete-time linear system for testing digital control
+algorithms, discrete Kalman filtering, and sampled-data design. This
+represents what actually gets implemented in real digital controllers.
+
+## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}
+
+Exact discretization with zero-order hold:
+
+    x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt²
+    v[k+1] = v[k] + u[k]·Δt
+
+With process noise:
+    x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt² + w_x[k]
+    v[k+1] = v[k] + u[k]·Δt + w_v[k]
+
+**Matrix Form:**
+    X[k+1] = Φ·X[k] + Γ·u[k] + w[k]
+
+where:
+    X = [x, v]ᵀ
+
+    Φ = [1  Δt]  (exact discrete-time dynamics)
+        [0   1]
+
+    Γ = [Δt²/2]  (exact zero-order hold)
+        [Δt   ]
+
+    w ~ N(0, Q)  (correlated process noise)
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Discrete-Time Dynamics:**
+
+Position update:
+    x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt²
+
+Terms:
+1. x[k]: Current position (persistence)
+2. v[k]·Δt: Displacement from velocity (integration)
+3. (1/2)·u[k]·Δt²: Displacement from acceleration (double integration)
+
+This is exact kinematics for constant acceleration over [k·Δt, (k+1)·Δt].
+
+Velocity update:
+    v[k+1] = v[k] + u[k]·Δt
+
+Exact integration of constant acceleration.
+
+**Process Noise:**
+
+Represents disturbances accumulated over sampling interval:
+- w_x[k]: Position error (from integrated velocity noise)
+- w_v[k]: Velocity error (from force disturbances)
+
+**Covariance Structure:**
+
+From continuous noise σ [m/(s²·√s)]:
+    Q = σ²·[Δt³/3   Δt²/2]
+            [Δt²/2   Δt   ]
+
+Non-diagonal! Position and velocity errors correlated.
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Exact Discretization:**
+No discretization error in deterministic part (kinematic equations exact).
+
+**Linear Dynamics:**
+Enables analytical Riccati solutions, optimal Kalman filter.
+
+**Controllability:**
+Completely controllable: rank[Γ, Φ·Γ] = 2
+
+**Observability:**
+Depends on measurement:
+- C = [1, 0]: Position only (observable)
+- C = [0, 1]: Velocity only (NOT observable)
+- C = I: Both (trivially observable)
+
+**Marginal Stability:**
+Eigenvalues: z = {1, 1} (on unit circle)
+- Not asymptotically stable (need feedback)
+- Not unstable (doesn't diverge)
+
+**Non-Stationary (Open-Loop):**
+Variance grows with k (no equilibrium without control).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**State Transition Matrix:**
+    Φ = [1  Δt]
+        [0   1]
+
+Eigenvalues: λ = 1 (double)
+Eigenvector: [1, 0]ᵀ (position mode)
+
+**Controllability Matrix:**
+    C_ctrl = [Γ, Φ·Γ] = [Δt²/2   Δt³/2]
+                          [Δt     Δt²  ]
+
+rank = 2 (fully controllable)
+
+**Observability Matrix (C = [1,0]):**
+    O = [C    ] = [1   0 ]
+        [C·Φ  ]   [1   Δt]
+
+rank = 2 (observable from position)
+
+**Process Noise Covariance:**
+
+Exact from continuous:
+    Q = σ²·[Δt³/3   Δt²/2]
+            [Δt²/2   Δt   ]
+
+Properties:
+- Positive definite (if σ > 0)
+- Symmetric (by construction)
+- Scales with Δt (smaller Δt → smaller Q)
+
+**Discrete Riccati Equation:**
+
+For LQR, DARE:
+    P = Q_cost + Φᵀ·P·Φ - Φᵀ·P·Γ·(R + Γᵀ·P·Γ)⁻¹·Γᵀ·P·Φ
+
+For Kalman, dual DARE:
+    Σ = Q_noise + Φ·Σ·Φᵀ - Φ·Σ·Cᵀ·(R_meas + C·Σ·Cᵀ)⁻¹·C·Σ·Φᵀ
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Sampling Period Δt:**
+- Sets digital control rate
+- Affects noise accumulation (Q ∝ Δt)
+- Determines controllability region
+- Trade-off: Fast sampling vs computation
+
+**Process Noise Intensity σ:**
+- From continuous: σ [m/(s²·√s)]
+- Creates discrete Q via integration
+- Physical: Force disturbances, model uncertainty
+
+**Why Position Variance Larger:**
+
+Q₁₁/Q₂₂ = Δt²/3
+
+For Δt = 0.1 s: Q₁₁/Q₂₂ = 0.01/3 ≈ 0.0033
+
+Velocity noise integrates twice to position → amplification.
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X[k] = [x[k], v[k]] ∈ ℝ²
+    - x: Position [m] (unbounded)
+    - v: Velocity [m/s] (unbounded)
+
+Control: u[k] ∈ ℝ
+    - Acceleration command [m/s²]
+    - Zero-order hold between samples
+
+Noise: w[k] = [w_x[k], w_v[k]] ~ N(0, Q)
+    - Correlated Gaussian white noise
+    - Accumulated over sampling interval
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                     | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Continuous noise intensity [m/(s²·√s)] - Determines discrete Q via integration - Typical: 0.01-1.0                              | `0.1`     |
+| dt     | float  | Sampling period [s] - Critical design parameter - Typical: 0.001-1.0 depending on application - Affects both dynamics and noise | `0.1`     |
+| m      | float  | Mass [kg] (optional, typically normalized to 1)                                                                                 | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR
+- Noise Type: ADDITIVE (constant)
+- Discrete: Yes (native discrete-time)
+- Noise Dimension: nw = 2 (position and velocity)
+- Stationary: No (open-loop)
+- Gaussian: Yes (linear preserves Gaussianity)
+- Exact Discretization: Yes (no error)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Digital LQG Control:**
+- Discrete DARE for optimal gain
+- Discrete Kalman filter for estimation
+- Real-time implementation
+
+**2. Embedded Control:**
+- Microcontroller implementation
+- Fixed-point arithmetic
+- Real-time constraints
+
+**3. Discrete Kalman Filter:**
+- Standard benchmark for testing
+- Numerical stability analysis
+- Joseph form, square-root filters
+
+**4. Model Predictive Control:**
+- Discrete-time optimization
+- Constraint handling
+- Receding horizon
+
+**5. Reinforcement Learning:**
+- Model-based RL (forward dynamics)
+- Discrete state-action updates
+- LQR as baseline
+
+**6. Motion Control:**
+- CNC machines
+- Robotics
+- Hard disk drives
+- Satellite control
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Evaluation:**
+No integration needed - direct update:
+    X[k+1] = Φ·X[k] + Γ·u[k] + w[k]
+
+where w[k] ~ N(0, Q) sampled directly.
+
+**Efficiency:**
+- Matrix multiplication (fast)
+- No time-stepping error
+- No stability issues
+- Vectorizable for batch
+
+## Discrete Kalman Filter Example {.doc-section .doc-section-discrete-kalman-filter-example}
+
+Standard implementation:
+
+```python
+# Initialize
+X_hat = np.zeros(2)
+P = np.eye(2)
+
+for k in range(N):
+    # Prediction
+    X_pred = Phi @ X_hat + Gamma * u[k]
+    P_pred = Phi @ P @ Phi.T + Q
+
+    # Update (if measurement available)
+    if y[k] is not None:
+        C = np.array([[1, 0]])  # Position measurement
+        S = C @ P_pred @ C.T + R_meas
+        K = P_pred @ C.T / S
+
+        X_hat = X_pred + K * (y[k] - C @ X_pred)
+        P = (np.eye(2) - K @ C) @ P_pred
+    else:
+        X_hat = X_pred
+        P = P_pred
+```
+
+## Comparison with Continuous {.doc-section .doc-section-comparison-with-continuous}
+
+**Continuous:**
+- Continuous-time Riccati (differential)
+- Kalman-Bucy filter (continuous)
+- Theoretical foundation
+
+**Discrete:**
+- Discrete-time Riccati (algebraic)
+- Discrete Kalman filter (recursive)
+- Practical implementation
+
+**Conversion:**
+- Φ = exp(A·Δt) exactly
+- Q from integration exactly
+- No approximation needed
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear only (no nonlinearity)
+- Constant parameters (no time-variation)
+- Gaussian noise (no heavy tails)
+- No constraints (in base formulation)
+- No delays (zero computation time assumed)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Add damping: Φ₂₂ = (1 - b·Δt)
+- Nonlinear: u·v coupling
+- Constraints: |x| ≤ x_max
+- Delays: Measurement delay d steps
+- Multi-rate: Different sampling for sensors/actuators
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system) | Define discrete stochastic double integrator dynamics. |
+| [get_control_matrix](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix) |         Get exact control input matrix Γ (zero-order hold). |
+| [get_discrete_eigenvalues](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues) | Get eigenvalues of discrete-time system (open-loop). |
+| [get_process_noise_covariance](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance) |         Get exact process noise covariance Q. |
+| [get_state_transition_matrix](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix) |         Get exact state transition matrix Φ. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria) | Set up equilibrium points. |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system(
+    sigma=0.1,
+    dt=0.1,
+    m=1.0,
+    noise_on_position=False,
+)
+```
+
+Define discrete stochastic double integrator dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name              | Type   | Description                                                                                                                         | Default   |
+|-------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma             | float  | Continuous noise intensity [m/(s²·√s)] - Determines discrete Q matrix - Typical: 0.01-1.0                                           | `0.1`     |
+| dt                | float  | Sampling period [s] - Critical parameter (affects dynamics and noise) - Typical: 0.001-1.0 - Choose based on bandwidth requirements | `0.1`     |
+| m                 | float  | Mass [kg] (typically normalized to 1)                                                                                               | `1.0`     |
+| noise_on_position | bool   | If True, add independent position noise (less physical) If False, only velocity noise (physical)                                    | `False`   |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Exact Discretization:**
+
+State transition (exact):
+    Φ = [1  Δt]  (from exp(A·Δt))
+        [0   1]
+
+Control input (exact for zero-order hold):
+    Γ = [Δt²/2]
+        [Δt   ]
+
+**Process Noise Covariance:**
+
+From continuous noise σ integrated over Δt:
+    Q = σ²·[Δt³/3   Δt²/2]
+            [Δt²/2   Δt   ]
+
+This is **exact** integration of Wiener process.
+
+**Structure:**
+- Q₁₁ ∝ Δt³: Position noise (from double integration)
+- Q₂₂ ∝ Δt: Velocity noise (from single integration)
+- Q₁₂ ∝ Δt²: Correlation (from integration)
+
+**Scaling:**
+Smaller Δt:
+- Φ closer to identity (less change per step)
+- Γ smaller (less control authority per step)
+- Q smaller (less noise per step)
+- Need more steps for same motion
+
+**Physical Validity:**
+
+Standard: Noise on velocity only (force disturbances)
+- Physically motivated (Newton's law)
+- Q from integration exact
+
+Optional: Add position noise (model uncertainty)
+- Less physical but accounts for unmodeled effects
+- Increases Q₁₁ independently
+
+**Sampling Rate Selection:**
+
+For desired closed-loop bandwidth ω_cl:
+    Δt < 1/(10·ω_cl)
+
+Example: ω_cl = 10 rad/s → Δt < 0.01 s (100 Hz minimum)
+
+**Eigenvalues:**
+
+Open-loop: z = {1, 1} (unit circle)
+Closed-loop (with LQR): Inside unit circle (stable)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Fast servo (100 Hz)
+>>> fast = DiscreteStochasticDoubleIntegrator(
+...     sigma=0.1,
+...     dt=0.01
+... )
+>>>
+>>> # Medium rate (20 Hz)
+>>> medium = DiscreteStochasticDoubleIntegrator(
+...     sigma=0.1,
+...     dt=0.05
+... )
+>>>
+>>> # Check noise covariance scaling
+>>> Q_fast = fast.get_process_noise_covariance()
+>>> Q_medium = medium.get_process_noise_covariance()
+>>> print(f"Ratio Q₂₂: {Q_medium[1,1] / Q_fast[1,1]:.1f}")  # = dt_ratio
+```
+
+### get_control_matrix { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix(
+)
+```
+
+        Get exact control input matrix Γ (zero-order hold).
+
+####         Returns {.doc-section .doc-section---------returns}
+
+        np.ndarray
+            Γ = [Δt²/2]
+                [Δt   ]
+
+####         Examples {.doc-section .doc-section---------examples}
+
+        >>> system = DiscreteStochasticDoubleIntegrator(dt=0.1)
+        >>> Gamma = system.get_control_matrix()
+        >>> print(f"Γ:
+{Gamma}")
+
+### get_discrete_eigenvalues { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues(
+)
+```
+
+Get eigenvalues of discrete-time system (open-loop).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                   |
+|--------|------------|-------------------------------|
+|        | np.ndarray | Eigenvalues (both equal to 1) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Marginally stable: On unit circle boundary.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteStochasticDoubleIntegrator(dt=0.1)
+>>> eigs = system.get_discrete_eigenvalues()
+>>> print(f"Eigenvalues: {eigs}")  # [1, 1]
+>>> print(f"On unit circle: {np.allclose(np.abs(eigs), 1)}")
+```
+
+### get_process_noise_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance(
+)
+```
+
+        Get exact process noise covariance Q.
+
+        From continuous noise σ integrated over Δt:
+            Q = σ²·[Δt³/3   Δt²/2]
+                    [Δt²/2   Δt   ]
+
+####         Returns {.doc-section .doc-section---------returns}
+
+        np.ndarray
+            Process noise covariance Q (2×2)
+
+####         Examples {.doc-section .doc-section---------examples}
+
+        >>> system = DiscreteStochasticDoubleIntegrator(sigma=0.1, dt=0.1)
+        >>> Q = system.get_process_noise_covariance()
+        >>> print(f"Q:
+{Q}")
+        >>> print(f"Q₁₁/Q₂₂ = {Q[0,0]/Q[1,1]:.4f} (should be Δt²/3)")
+
+### get_state_transition_matrix { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix(
+)
+```
+
+        Get exact state transition matrix Φ.
+
+####         Returns {.doc-section .doc-section---------returns}
+
+        np.ndarray
+            Φ = [1  Δt]
+                [0   1]
+
+####         Examples {.doc-section .doc-section---------examples}
+
+        >>> system = DiscreteStochasticDoubleIntegrator(dt=0.1)
+        >>> Phi = system.get_state_transition_matrix()
+        >>> print(f"Φ:
+{Phi}")
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria(
+)
+```
+
+Set up equilibrium points.
+
+Origin is only equilibrium (marginally stable without control).

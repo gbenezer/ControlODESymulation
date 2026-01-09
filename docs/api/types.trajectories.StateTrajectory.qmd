@@ -1,0 +1,47 @@
+# types.trajectories.StateTrajectory { #cdesym.types.trajectories.StateTrajectory }
+
+`types.trajectories.StateTrajectory`
+
+State trajectory over time.
+
+Time series of state vectors representing system evolution.
+
+Shapes:
+- Single trajectory: (n_steps, nx)
+  Each row is x[k] or x(t_k)
+
+- Batched trajectories: (n_steps, batch, nx)
+  Multiple trajectories simulated in parallel
+
+- Multiple trials: (n_trials, n_steps, nx)
+  Independent simulation runs
+
+Indexing:
+- trajectory[k] -> state at step k (nx,)
+- trajectory[:, i] -> i-th state component over time (n_steps,)
+- trajectory[k, b] -> state at step k, batch b (nx,)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Single trajectory from simulation
+>>> x0 = np.array([1.0, 0.0])
+>>> trajectory: StateTrajectory = system.simulate(x0, u_seq, steps=100)
+>>> print(trajectory.shape)  # (101, 2) - includes initial state
+>>> 
+>>> # Extract position and velocity
+>>> position = trajectory[:, 0]  # First state component
+>>> velocity = trajectory[:, 1]  # Second state component
+>>> 
+>>> # Batched simulation (Monte Carlo)
+>>> x0_batch = np.random.randn(1000, 2)  # 1000 initial conditions
+>>> trajectories: StateTrajectory = system.simulate_batch(x0_batch, u_seq)
+>>> print(trajectories.shape)  # (101, 1000, 2)
+>>> 
+>>> # Multiple independent trials
+>>> trials: StateTrajectory = np.array([
+...     system.simulate(x0, u_seq, steps=100)
+...     for _ in range(10)
+... ])
+>>> print(trials.shape)  # (10, 101, 2)
+```

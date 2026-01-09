@@ -1,0 +1,23 @@
+# types.linearization.DiffusionJacobian { #cdesym.types.linearization.DiffusionJacobian }
+
+`types.linearization.DiffusionJacobian`
+
+Diffusion Jacobian ∂g/∂x (stochastic systems).
+
+For multiplicative noise: g depends on x, so linearize.
+For additive noise: g is constant, Jacobian is just g itself.
+
+Shape: (nx, nw)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Gc: DiffusionJacobian = sde_system.diffusion_jacobian(x_eq, u_eq)
+>>> 
+>>> # Additive noise (constant)
+>>> Gc_additive = 0.1 * np.eye(nx)
+>>> 
+>>> # Multiplicative noise (state-dependent)
+>>> # For dx = f(x)dt + σ*x*dW:
+>>> Gc_multiplicative = σ * x_eq  # ∂(σ*x)/∂x evaluated at x_eq
+```

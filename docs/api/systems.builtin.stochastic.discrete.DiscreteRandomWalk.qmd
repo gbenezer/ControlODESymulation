@@ -1,0 +1,378 @@
+# systems.builtin.stochastic.discrete.DiscreteRandomWalk { #cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteRandomWalk(*args, **kwargs)
+```
+
+Random walk - non-stationary process with unit root.
+
+The fundamental non-stationary process, representing cumulative sum
+of white noise. This is the discrete-time analog of Brownian motion
+and the AR(1) process with φ = 1 (unit root).
+
+## Difference Equation {.doc-section .doc-section-difference-equation}
+
+Standard form (no drift):
+    X[k+1] = X[k] + σ·w[k]
+
+With drift:
+    X[k+1] = X[k] + μ + σ·w[k]
+
+where w[k] ~ N(0,1) are iid.
+
+**Cumulative Form:**
+    X[k] = X[0] + μ·k + Σ_{j=0}^{k-1} σ·w[j]
+
+Shows random walk as cumulative sum of innovations.
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Unit Root:**
+AR(1) with φ = 1 (critical boundary):
+- Stationary: |φ| < 1
+- Random walk: φ = 1
+- Explosive: |φ| > 1
+
+**Non-Stationarity:**
+Variance grows with time:
+    Var[X[k]] = k·σ²
+
+Unlike stationary processes with bounded variance.
+
+**Perfect Memory:**
+All past shocks permanently affect current value.
+Shocks never decay (contrast with AR(1)).
+
+**Martingale (μ=0):**
+Best prediction of future is present:
+    E[X[k+1] | past] = X[k]
+
+"Fair game" property.
+
+**Recurrence (1D):**
+Returns to any value infinitely often (Pólya's theorem).
+But transient in 3D and higher.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Moments (μ = 0):**
+Mean: E[X[k]] = X[0]
+Variance: Var[X[k]] = k·σ²
+Std Dev: σ·√k
+
+**Distribution:**
+    X[k] ~ N(X[0] + μ·k, k·σ²)
+
+**Autocorrelation:**
+For k ≥ j:
+    Corr[X[k], X[j]] = √(j/k)
+
+Decays slowly (does not go to zero).
+
+**Stationary Differences:**
+    ΔX[k] = X[k] - X[k-1] = μ + σ·w[k]
+
+Differences are stationary (integrated of order 1).
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Step Size σ:**
+- Standard deviation of each step
+- Units: [state]
+- RMS displacement after k steps: σ·√k
+
+**Drift μ:**
+- Expected change per step
+- Units: [state]/[step]
+- Creates deterministic trend
+
+**Scaling:**
+Displacement scales as √k (characteristic of diffusion).
+
+**Diffusion Coefficient:**
+    D = σ²/(2·Δt)
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ (unbounded)
+    - No equilibrium (non-stationary)
+    - Wanders arbitrarily far
+    - No tendency to return
+
+Control: None (autonomous)
+    - Pure stochastic dynamics
+    - No external forcing
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                            | Default   |
+|--------|--------|------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Step size (innovation std dev) - Must be positive - Controls diffusion rate - Typical: 0.1 to 10.0                     | `1.0`     |
+| mu     | float  | Drift (trend per step) - Can be positive, negative, or zero - μ = 0: Symmetric random walk - μ ≠ 0: Biased random walk | `0.0`     |
+| dt     | float  | Time step [units] - Required for discrete system - Sets time scale                                                     | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Type: Unit root (φ = 1)
+- Stationary: No (non-stationary)
+- Martingale: Yes (if μ = 0)
+- Memory: Perfect (all shocks permanent)
+- Variance: Unbounded (grows linearly)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Financial Economics:**
+- Stock prices (efficient markets)
+- Exchange rates
+- Interest rates (sometimes)
+- Null hypothesis for predictability tests
+
+**2. Physics:**
+- Brownian motion (discrete time)
+- Particle diffusion
+- Polymer chains
+
+**3. Econometrics:**
+- Unit root testing
+- Cointegration analysis
+- Non-stationary time series
+
+**4. Biology:**
+- Genetic drift
+- Population dispersal
+- Foraging behavior
+
+**5. Computer Science:**
+- Random algorithms
+- Page rank
+- Monte Carlo methods
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Efficient Generation:**
+    w = σ·np.random.randn(N)
+    X = X₀ + μ·np.arange(N) + np.cumsum(w)
+
+Uses cumulative sum for efficiency.
+
+**Typical Behavior:**
+- Starts at X₀
+- Wanders with no equilibrium
+- Standard deviation: σ·√k
+- Never settles down
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Unit Root Testing:**
+- Dickey-Fuller test
+- Augmented Dickey-Fuller (ADF)
+- Phillips-Perron
+
+**Differencing:**
+Transform to stationarity:
+    ΔX[k] = X[k] - X[k-1] ~ N(μ, σ²)
+
+**Parameter Estimation:**
+From differences:
+    μ̂ = mean(ΔX)
+    σ̂² = var(ΔX)
+
+## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}
+
+**vs. AR(1):**
+- AR(1): Stationary (|φ| < 1)
+- Random walk: Unit root (φ = 1)
+- RW is critical boundary
+
+**vs. White Noise:**
+- White noise: Independent, stationary
+- Random walk: Cumulative sum of white noise
+
+**vs. Brownian Motion:**
+- Brownian motion: Continuous time
+- Random walk: Discrete time
+- RW → BM in scaling limit
+
+**vs. Trend-Stationary:**
+- Trend-stationary: Detrend → stationary
+- Random walk: Difference → stationary
+- Different implications
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Non-stationary (need special methods)
+- Unbounded variance (unrealistic)
+- No mean reversion (prices may revert)
+- Constant volatility (often time-varying)
+- Normal innovations (may have fat tails)
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteWhiteNoise : Differences of random walk
+DiscreteAR1 : Stationary version (|φ| < 1)
+BrownianMotion : Continuous-time analog
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.define_system) | Define random walk dynamics. |
+| [get_mean](#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_mean) | Get expected value after n steps (from X[0]=0). |
+| [get_std](#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_std) | Get theoretical standard deviation after n steps. |
+| [get_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_variance) | Get theoretical variance after n steps. |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteRandomWalk.define_system(
+    sigma=1.0,
+    mu=0.0,
+    dt=1.0,
+)
+```
+
+Define random walk dynamics.
+
+Sets up the difference equation:
+    X[k+1] = X[k] + μ + σ·w[k]
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                            | Default   |
+|--------|--------|----------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Step size (innovation standard deviation) - Must be positive - Controls diffusion rate - Variance grows as k·σ²                        | `1.0`     |
+| mu     | float  | Drift (expected change per step) - Can be any real number - μ = 0: Symmetric random walk - μ > 0: Upward drift - μ < 0: Downward drift | `0.0`     |
+| dt     | float  | Time step [units] - Required for discrete system - Sets time scale                                                                     | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description   |
+|--------|------------|---------------|
+|        | ValueError | If sigma ≤ 0  |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Unit Root Property:**
+This is AR(1) with φ = 1:
+    X[k+1] = 1·X[k] + μ + σ·w[k]
+
+Critical boundary between stationary and explosive.
+
+**Non-Stationarity:**
+Unlike AR(1) with |φ| < 1:
+- Variance grows: Var[X[k]] = k·σ²
+- No equilibrium distribution
+- Wanders arbitrarily far
+
+**Perfect Memory:**
+All past shocks permanently affect current value:
+    X[k] = X[0] + μ·k + Σ σ·w[j]
+
+**Martingale (μ=0):**
+Best forecast: E[X[k+1] | X[k]] = X[k]
+
+Fair game - expected change is zero.
+
+**With Drift (μ≠0):**
+Expected value: E[X[k]] = X[0] + μ·k
+Linear trend in addition to random fluctuations.
+
+**Scaling to Brownian Motion:**
+As Δt → 0 with σ² ∝ Δt:
+    X[t/Δt] / √(Δt) → Brownian motion
+
+This is Donsker's invariance principle.
+
+**Diffusion Coefficient:**
+In continuous limit:
+    D = σ²/(2·Δt)
+
+**Parameter Selection:**
+- Financial returns: σ ≈ 0.01-0.03 (daily)
+- Physics: σ from Einstein relation
+- Generic: σ = 1 for baseline
+
+**Comparison with AR(1):**
+AR(1) with φ close to 1 approximates random walk:
+- φ = 0.99: Nearly unit root
+- φ = 1.00: Exact random walk
+- Hard to distinguish in finite samples
+
+**First Difference:**
+ΔX[k] = X[k] - X[k-1] = μ + σ·w[k]
+
+Differences are stationary white noise (with mean μ).
+
+### get_mean { #cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_mean }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_mean(n_steps)
+```
+
+Get expected value after n steps (from X[0]=0).
+
+For random walk: E[X[k]] = μ·k
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description     | Default    |
+|---------|--------|-----------------|------------|
+| n_steps | int    | Number of steps | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description    |
+|--------|--------|----------------|
+|        | float  | Expected value |
+
+### get_std { #cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_std }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_std(n_steps)
+```
+
+Get theoretical standard deviation after n steps.
+
+For random walk: Std[X[k]] = σ·√k
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description     | Default    |
+|---------|--------|-----------------|------------|
+| n_steps | int    | Number of steps | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                      |
+|--------|--------|----------------------------------|
+|        | float  | Standard deviation after n steps |
+
+#### Notes {.doc-section .doc-section-notes}
+
+√k scaling characteristic of diffusion.
+
+### get_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteRandomWalk.get_variance(n_steps)
+```
+
+Get theoretical variance after n steps.
+
+For random walk: Var[X[k]] = k·σ²
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                            | Default    |
+|---------|--------|----------------------------------------|------------|
+| n_steps | int    | Number of steps (must be non-negative) | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | float  | Variance after n steps |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Variance grows linearly with time - hallmark of diffusion.

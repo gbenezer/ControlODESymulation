@@ -1,0 +1,29 @@
+# types.core.CovarianceMatrix { #cdesym.types.core.CovarianceMatrix }
+
+`types.core.CovarianceMatrix`
+
+Covariance matrix (symmetric, positive semidefinite).
+
+Represents uncertainty or cost weighting.
+
+Uses:
+- State uncertainty: P (nx, nx)
+- Measurement noise: R (ny, ny)
+- Process noise: Q (nx, nx) or (nw, nw)
+- Parameter uncertainty: Σ_θ (np, np)
+
+Always symmetric: Σ = Σ'
+Always PSD: v'Σv ≥ 0 for all v
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # State covariance (isotropic)
+>>> P: CovarianceMatrix = np.eye(3)
+>>> 
+>>> # Measurement noise (diagonal)
+>>> R: CovarianceMatrix = np.diag([0.1, 0.05, 0.02])
+>>> 
+>>> # Process noise (correlated)
+>>> Q: CovarianceMatrix = np.array([[0.1, 0.05], [0.05, 0.2]])
+```

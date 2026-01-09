@@ -1,0 +1,818 @@
+# visualization.ControlPlotter { #cdesym.visualization.ControlPlotter }
+
+```python
+visualization.ControlPlotter(backend='numpy', default_theme='default')
+```
+
+Control system analysis visualization.
+
+Provides interactive Plotly-based plotting for control-specific analysis
+including eigenvalue maps, gain comparisons, and performance metrics.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name          | Type    | Description                                        |
+|---------------|---------|----------------------------------------------------|
+| backend       | Backend | Default computational backend for array conversion |
+| default_theme | str     | Default plot theme to apply                        |
+
+## Examples {.doc-section .doc-section-examples}
+
+Eigenvalue stability map:
+
+```python
+>>> plotter = ControlPlotter()
+>>> result = system.design_lqr(Q, R)
+>>> fig = plotter.plot_eigenvalue_map(
+...     result['closed_loop_eigenvalues'],
+...     system_type='continuous',
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+Compare LQR gains:
+
+```python
+>>> gains = {
+...     'Light Q': K1,
+...     'Heavy Q': K2,
+... }
+>>> fig = plotter.plot_gain_comparison(
+...     gains,
+...     color_scheme='colorblind_safe',
+...     theme='dark'
+... )
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [list_available_color_schemes](#cdesym.visualization.ControlPlotter.list_available_color_schemes) | List available color schemes. |
+| [list_available_themes](#cdesym.visualization.ControlPlotter.list_available_themes) | List available plot themes. |
+| [plot_controllability_gramian](#cdesym.visualization.ControlPlotter.plot_controllability_gramian) | Visualize controllability Gramian as heatmap. |
+| [plot_eigenvalue_map](#cdesym.visualization.ControlPlotter.plot_eigenvalue_map) | Plot eigenvalues with stability region. |
+| [plot_frequency_response](#cdesym.visualization.ControlPlotter.plot_frequency_response) | Plot frequency response (Bode plot). |
+| [plot_gain_comparison](#cdesym.visualization.ControlPlotter.plot_gain_comparison) | Compare feedback gains across different designs. |
+| [plot_impulse_response](#cdesym.visualization.ControlPlotter.plot_impulse_response) | Plot impulse response with performance metrics. |
+| [plot_nyquist](#cdesym.visualization.ControlPlotter.plot_nyquist) | Plot Nyquist diagram. |
+| [plot_observability_gramian](#cdesym.visualization.ControlPlotter.plot_observability_gramian) | Visualize observability Gramian as heatmap. |
+| [plot_riccati_convergence](#cdesym.visualization.ControlPlotter.plot_riccati_convergence) | Plot Riccati equation solver convergence. |
+| [plot_root_locus](#cdesym.visualization.ControlPlotter.plot_root_locus) | Plot root locus (pole migration as gain varies). |
+| [plot_step_response](#cdesym.visualization.ControlPlotter.plot_step_response) | Plot step response with performance metrics. |
+
+### list_available_color_schemes { #cdesym.visualization.ControlPlotter.list_available_color_schemes }
+
+```python
+visualization.ControlPlotter.list_available_color_schemes()
+```
+
+List available color schemes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                  |
+|--------|-------------|------------------------------|
+|        | List\[str\] | Available color scheme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> schemes = ControlPlotter.list_available_color_schemes()
+>>> print(schemes)
+['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+```
+
+### list_available_themes { #cdesym.visualization.ControlPlotter.list_available_themes }
+
+```python
+visualization.ControlPlotter.list_available_themes()
+```
+
+List available plot themes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description           |
+|--------|-------------|-----------------------|
+|        | List\[str\] | Available theme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> themes = ControlPlotter.list_available_themes()
+>>> print(themes)
+['default', 'publication', 'dark', 'presentation']
+```
+
+### plot_controllability_gramian { #cdesym.visualization.ControlPlotter.plot_controllability_gramian }
+
+```python
+visualization.ControlPlotter.plot_controllability_gramian(
+    W_c,
+    state_names=None,
+    title='Controllability Gramian',
+    theme=None,
+    **kwargs,
+)
+```
+
+Visualize controllability Gramian as heatmap.
+
+Shows coupling between states for controllability analysis.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                    | Description                                                                                                    | Default                     |
+|-------------|-------------------------|----------------------------------------------------------------------------------------------------------------|-----------------------------|
+| W_c         | np.ndarray              | Controllability Gramian, shape (nx, nx) Symmetric positive semi-definite matrix                                | _required_                  |
+| state_names | Optional\[List\[str\]\] | Names for states                                                                                               | `None`                      |
+| title       | str                     | Plot title                                                                                                     | `'Controllability Gramian'` |
+| theme       | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                      |
+| **kwargs    |                         | Additional arguments                                                                                           | `{}`                        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description     |
+|--------|-----------|-----------------|
+|        | go.Figure | Gramian heatmap |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compute controllability Gramian
+>>> from scipy.linalg import solve_continuous_lyapunov
+>>> W_c = solve_continuous_lyapunov(A, -B @ B.T)
+>>>
+>>> fig = plotter.plot_controllability_gramian(
+...     W_c,
+...     state_names=['Position', 'Velocity'],
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Diagonal elements: controllability of individual states
+- Off-diagonal: coupling between states
+- Small eigenvalues → difficult to control
+- Can also visualize observability Gramian W_o
+
+### plot_eigenvalue_map { #cdesym.visualization.ControlPlotter.plot_eigenvalue_map }
+
+```python
+visualization.ControlPlotter.plot_eigenvalue_map(
+    eigenvalues,
+    system_type='continuous',
+    labels=None,
+    title='Eigenvalue Map',
+    show_stability_margin=True,
+    show_stability_region=True,
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot eigenvalues with stability region.
+
+Creates complex plane plot showing eigenvalue locations with
+stability region highlighted. Supports multiple eigenvalue sets
+for comparative analysis.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type                                         | Description                                                                                                                                                                                                                                                                                                                                                                         | Default            |
+|-----------------------|----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------|
+| eigenvalues           | Union\[np.ndarray, Dict\[str, np.ndarray\]\] | Complex eigenvalues in one of two formats:  **Format 1: Single array**     Shape (n,) - single set of eigenvalues     Use with `labels` parameter for individual point labels  **Format 2: Dictionary** (recommended for multiple sets)     Dict mapping set names to eigenvalue arrays     Example: {'Open-loop': eigs_ol, 'Closed-loop': eigs_cl}     Each array: shape (n_eigs,) | _required_         |
+| system_type           | str                                          | System type determining stability criterion: - 'continuous': Re(λ) < 0 (left half-plane stable) - 'discrete': \|λ\| < 1 (inside unit circle stable)                                                                                                                                                                                                                                 | `'continuous'`     |
+| labels                | Optional\[Union\[List\[str\], str\]\]        | Labels for eigenvalues (only used if eigenvalues is array):  - **List[str]**: Individual label per eigenvalue, length must match - **str**: Single label for entire set - **None**: Default to "Eigenvalues"  Ignored if eigenvalues is Dict (uses dict keys instead)                                                                                                               | `None`             |
+| title                 | str                                          | Plot title                                                                                                                                                                                                                                                                                                                                                                          | `'Eigenvalue Map'` |
+| show_stability_margin | bool                                         | If True, annotate stability margin (distance to boundary) - Continuous: margin = -max(Re(λ)) - Discrete: margin = 1 - max(\|λ\|)                                                                                                                                                                                                                                                    | `True`             |
+| show_stability_region | bool                                         | If True, shade stability region - Continuous: shade left half-plane (green) - Discrete: draw unit circle                                                                                                                                                                                                                                                                            | `True`             |
+| color_scheme          | str                                          | Color scheme for eigenvalue sets Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc. Used when plotting multiple sets (dict format)                                                                                                                                                                                                                                         | `'plotly'`         |
+| theme                 | Optional\[str\]                              | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme                                                                                                                                                                                                                                                                      | `None`             |
+| **kwargs              |                                              | Additional customization arguments - marker_size : int - Size of eigenvalue markers (default: 12) - show_grid : bool - Show grid lines (default: True)                                                                                                                                                                                                                              | `{}`               |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                      |
+|--------|-----------|--------------------------------------------------|
+|        | go.Figure | Interactive eigenvalue map with stability region |
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Single set of eigenvalues:**
+
+```python
+>>> lqr = system.design_lqr(Q, R)
+>>> fig = plotter.plot_eigenvalue_map(
+...     lqr['closed_loop_eigenvalues'],
+...     system_type='continuous',
+...     labels='Closed-loop (LQR)',
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+**Multiple sets using dictionary (recommended):**
+
+```python
+>>> eigenvalue_sets = {
+...     'Open-loop': eigs_open,
+...     'Closed-loop (LQR)': eigs_lqr,
+...     'Closed-loop (H∞)': eigs_hinf,
+... }
+>>> fig = plotter.plot_eigenvalue_map(
+...     eigenvalue_sets,
+...     system_type='continuous',
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+**Multiple sets using concatenation + labels:**
+
+```python
+>>> eigs_all = np.concatenate([eigs_ol, eigs_cl])
+>>> labels_all = (
+...     ['Open-loop'] * len(eigs_ol) + 
+...     ['Closed-loop'] * len(eigs_cl)
+... )
+>>> fig = plotter.plot_eigenvalue_map(
+...     eigs_all,
+...     labels=labels_all,
+...     system_type='continuous'
+... )
+```
+
+**Discrete system:**
+
+```python
+>>> fig = plotter.plot_eigenvalue_map(
+...     discrete_lqr['closed_loop_eigenvalues'],
+...     system_type='discrete',
+...     theme='dark'
+... )
+```
+
+**Custom marker size and grid:**
+
+```python
+>>> fig = plotter.plot_eigenvalue_map(
+...     eigenvalue_sets,
+...     marker_size=15,
+...     show_grid=True
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stability Criteria:**
+
+- **Continuous systems**: Stable if Re(λ) < 0 for all eigenvalues
+(left half-plane of complex plane)
+
+- **Discrete systems**: Stable if |λ| < 1 for all eigenvalues
+(inside unit circle)
+
+**Stability Margin:**
+
+Distance from least stable eigenvalue to stability boundary:
+
+- Continuous: margin = -max(Re(λ))
+- Positive: stable with margin
+- Negative: unstable
+- Larger is better (more robustness)
+
+- Discrete: margin = 1 - max(|λ|)
+- Positive: stable with margin
+- Negative: unstable
+- Larger is better
+
+**Visual Encoding:**
+
+- Stable region: Shaded green/highlighted
+- Unstable region: Shaded red/unmarked
+- Stability boundary: Solid black line
+- Eigenvalues: Colored circles (one color per set)
+- Margin: Annotated with arrow
+
+**Multiple Sets:**
+
+When comparing multiple designs:
+- Each set gets unique color from color_scheme
+- Legend shows which eigenvalues belong to which design
+- Useful for visualizing controller tuning effects
+
+#### See Also {.doc-section .doc-section-see-also}
+
+plot_root_locus : Shows eigenvalue migration as gain varies
+plot_gain_comparison : Compare feedback gains
+
+### plot_frequency_response { #cdesym.visualization.ControlPlotter.plot_frequency_response }
+
+```python
+visualization.ControlPlotter.plot_frequency_response(
+    frequencies,
+    magnitude,
+    phase,
+    title='Frequency Response (Bode Plot)',
+    show_margins=True,
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot frequency response (Bode plot).
+
+Creates magnitude and phase plots vs frequency, with optional
+gain and phase margin annotations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type            | Description                                                                                                    | Default                            |
+|--------------|-----------------|----------------------------------------------------------------------------------------------------------------|------------------------------------|
+| frequencies  | np.ndarray      | Frequency points in rad/s, shape (n_freq,)                                                                     | _required_                         |
+| magnitude    | np.ndarray      | Magnitude response in dB, shape (n_freq,)                                                                      | _required_                         |
+| phase        | np.ndarray      | Phase response in degrees, shape (n_freq,)                                                                     | _required_                         |
+| title        | str             | Plot title                                                                                                     | `'Frequency Response (Bode Plot)'` |
+| show_margins | bool            | If True, annotate gain and phase margins                                                                       | `True`                             |
+| theme        | Optional\[str\] | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                             |
+| **kwargs     |                 | Additional arguments                                                                                           | `{}`                               |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                 |
+|--------|-----------|---------------------------------------------|
+|        | go.Figure | Bode plot with magnitude and phase subplots |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compute frequency response
+>>> from scipy import signal
+>>>
+>>> # Closed-loop transfer function
+>>> A_cl = A - B @ K
+>>> sys = signal.StateSpace(A_cl, B, C, D)
+>>>
+>>> # Frequency response
+>>> w = np.logspace(-2, 2, 1000)  # rad/s
+>>> w, H = signal.freqresp(sys, w)
+>>>
+>>> # Convert to dB and degrees
+>>> mag_dB = 20 * np.log10(np.abs(H).flatten())
+>>> phase_deg = np.angle(H, deg=True).flatten()
+>>>
+>>> # Plot with publication theme
+>>> fig = plotter.plot_frequency_response(
+...     w, mag_dB, phase_deg,
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Magnitude in dB: 20*log10(|H(jω)|)
+- Phase in degrees: ∠H(jω)
+- Gain margin: Amount gain can increase before instability
+- Phase margin: Amount phase can decrease before instability
+- Crossover frequencies automatically detected
+
+### plot_gain_comparison { #cdesym.visualization.ControlPlotter.plot_gain_comparison }
+
+```python
+visualization.ControlPlotter.plot_gain_comparison(
+    gains,
+    labels=None,
+    title='Feedback Gain Comparison',
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Compare feedback gains across different designs.
+
+Creates grouped bar chart or heatmap showing gain values
+for different control designs.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                    | Description                                                                                                    | Default                      |
+|--------------|-------------------------|----------------------------------------------------------------------------------------------------------------|------------------------------|
+| gains        | Dict\[str, np.ndarray\] | Dictionary mapping design names to gain matrices Each gain: (nu, nx) array                                     | _required_                   |
+| labels       | Optional\[List\[str\]\] | Labels for gain entries (state names) If None, uses generic labels                                             | `None`                       |
+| title        | str                     | Plot title                                                                                                     | `'Feedback Gain Comparison'` |
+| color_scheme | str                     | Color scheme name for bar charts Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc. Default: 'plotly' | `'plotly'`                   |
+| theme        | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                       |
+| **kwargs     |                         | Additional arguments                                                                                           | `{}`                         |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description          |
+|--------|-----------|----------------------|
+|        | go.Figure | Gain comparison plot |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compare different Q weights with colorblind-safe colors
+>>> gains = {
+...     'Q=10*I': system.design_lqr(10*np.eye(2), R)['gain'],
+...     'Q=100*I': system.design_lqr(100*np.eye(2), R)['gain'],
+...     'Q=1000*I': system.design_lqr(1000*np.eye(2), R)['gain'],
+... }
+>>> fig = plotter.plot_gain_comparison(
+...     gains,
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>> fig.show()
+>>>
+>>> # With state labels
+>>> fig = plotter.plot_gain_comparison(
+...     gains,
+...     labels=['Position', 'Velocity'],
+...     theme='dark'
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Each design shown as separate bar group
+- Useful for parameter studies
+- Shows effect of Q/R tuning on gains
+
+### plot_impulse_response { #cdesym.visualization.ControlPlotter.plot_impulse_response }
+
+```python
+visualization.ControlPlotter.plot_impulse_response(
+    t,
+    y,
+    show_metrics=True,
+    title='Impulse Response',
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot impulse response with performance metrics.
+
+Shows closed-loop impulse response (response to Dirac delta input)
+with annotations for peak, decay rate, and settling characteristics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type            | Description                                                                                                    | Default              |
+|--------------|-----------------|----------------------------------------------------------------------------------------------------------------|----------------------|
+| t            | np.ndarray      | Time points, shape (T,)                                                                                        | _required_           |
+| y            | np.ndarray      | Output response, shape (T,) or (T, ny)                                                                         | _required_           |
+| show_metrics | bool            | If True, annotate performance metrics                                                                          | `True`               |
+| title        | str             | Plot title                                                                                                     | `'Impulse Response'` |
+| theme        | Optional\[str\] | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`               |
+| **kwargs     |                 | Additional arguments                                                                                           | `{}`                 |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                        |
+|--------|-----------|------------------------------------|
+|        | go.Figure | Impulse response plot with metrics |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simulate closed-loop impulse response
+>>> # For continuous systems: y(t) = C @ expm(A_cl*t) @ B
+>>> from scipy.linalg import expm
+>>> A_cl = A - B @ K
+>>> t = np.linspace(0, 10, 1000)
+>>> y = np.array([C @ expm(A_cl * t_i) @ B for t_i in t]).flatten()
+>>>
+>>> fig = plotter.plot_impulse_response(
+...     t, y,
+...     show_metrics=True,
+...     theme='publication'
+... )
+>>>
+>>> # For discrete systems: simulate with impulse at k=0
+>>> x = np.zeros(nx)
+>>> y_discrete = []
+>>> for k in range(N):
+...     u_k = 1.0 if k == 0 else 0.0  # Impulse at k=0
+...     y_discrete.append(C @ x)
+...     x = A_cl @ x + B * u_k
+>>> fig = plotter.plot_impulse_response(t_discrete, np.array(y_discrete))
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Peak value: Maximum absolute response
+- Peak time: Time to peak
+- Decay rate: Exponential decay constant (if applicable)
+- Settling time: Time to settle within 2% of zero
+- Energy: Integral of squared response (L2 norm)
+
+### plot_nyquist { #cdesym.visualization.ControlPlotter.plot_nyquist }
+
+```python
+visualization.ControlPlotter.plot_nyquist(
+    real,
+    imag,
+    frequencies=None,
+    title='Nyquist Plot',
+    show_critical_point=True,
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot Nyquist diagram.
+
+Shows frequency response in complex plane, useful for stability analysis
+via Nyquist stability criterion.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                | Type                   | Description                                                                                                    | Default          |
+|---------------------|------------------------|----------------------------------------------------------------------------------------------------------------|------------------|
+| real                | np.ndarray             | Real part of frequency response, shape (n_freq,)                                                               | _required_       |
+| imag                | np.ndarray             | Imaginary part of frequency response, shape (n_freq,)                                                          | _required_       |
+| frequencies         | Optional\[np.ndarray\] | Frequency points in rad/s (for hover info)                                                                     | `None`           |
+| title               | str                    | Plot title                                                                                                     | `'Nyquist Plot'` |
+| show_critical_point | bool                   | If True, mark critical point (-1, 0j)                                                                          | `True`           |
+| theme               | Optional\[str\]        | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`           |
+| **kwargs            |                        | Additional arguments                                                                                           | `{}`             |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | go.Figure | Nyquist plot  |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compute open-loop frequency response
+>>> from scipy import signal
+>>>
+>>> # Open-loop system: G(s) = C(sI - A)^(-1)B
+>>> sys_ol = signal.StateSpace(A, B, C, D)
+>>>
+>>> # Frequency response
+>>> w = np.logspace(-2, 2, 1000)
+>>> w, H = signal.freqresp(sys_ol, w)
+>>> H = H.flatten()
+>>>
+>>> # Plot Nyquist with dark theme
+>>> fig = plotter.plot_nyquist(
+...     np.real(H), np.imag(H), frequencies=w,
+...     theme='dark'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Nyquist plot: H(jω) in complex plane as ω varies
+- Critical point: (-1, 0j)
+- Stability: Number of encirclements of (-1, 0j) determines stability
+- Gain margin: Distance from curve to (-1, 0j)
+- Phase margin: Angle from curve to (-1, 0j)
+
+### plot_observability_gramian { #cdesym.visualization.ControlPlotter.plot_observability_gramian }
+
+```python
+visualization.ControlPlotter.plot_observability_gramian(
+    W_o,
+    state_names=None,
+    title='Observability Gramian',
+    theme=None,
+    **kwargs,
+)
+```
+
+Visualize observability Gramian as heatmap.
+
+Shows coupling between states for observability analysis.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                    | Description                                                                                                    | Default                   |
+|-------------|-------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------|
+| W_o         | np.ndarray              | Observability Gramian, shape (nx, nx)                                                                          | _required_                |
+| state_names | Optional\[List\[str\]\] | Names for states                                                                                               | `None`                    |
+| title       | str                     | Plot title                                                                                                     | `'Observability Gramian'` |
+| theme       | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                    |
+| **kwargs    |                         | Additional arguments                                                                                           | `{}`                      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description     |
+|--------|-----------|-----------------|
+|        | go.Figure | Gramian heatmap |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compute observability Gramian
+>>> from scipy.linalg import solve_continuous_lyapunov
+>>> W_o = solve_continuous_lyapunov(A.T, -C.T @ C)
+>>>
+>>> fig = plotter.plot_observability_gramian(
+...     W_o,
+...     theme='publication'
+... )
+```
+
+### plot_riccati_convergence { #cdesym.visualization.ControlPlotter.plot_riccati_convergence }
+
+```python
+visualization.ControlPlotter.plot_riccati_convergence(
+    P_history,
+    title='Riccati Equation Convergence',
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot Riccati equation solver convergence.
+
+Shows how Riccati matrix P converges during iterative solution.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type               | Description                                                                                                    | Default                          |
+|-----------|--------------------|----------------------------------------------------------------------------------------------------------------|----------------------------------|
+| P_history | List\[np.ndarray\] | List of P matrices at each iteration Each P: (nx, nx) array                                                    | _required_                       |
+| title     | str                | Plot title                                                                                                     | `'Riccati Equation Convergence'` |
+| theme     | Optional\[str\]    | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                           |
+| **kwargs  |                    | Additional arguments                                                                                           | `{}`                             |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description      |
+|--------|-----------|------------------|
+|        | go.Figure | Convergence plot |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # During iterative Riccati solving
+>>> P_history = []
+>>> P = np.eye(nx)
+>>> for iter in range(100):
+...     P = riccati_iteration(P, A, B, Q, R)
+...     P_history.append(P.copy())
+>>>
+>>> fig = plotter.plot_riccati_convergence(
+...     P_history,
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Plots Frobenius norm vs iteration
+- Shows convergence rate
+- Useful for debugging custom solvers
+
+### plot_root_locus { #cdesym.visualization.ControlPlotter.plot_root_locus }
+
+```python
+visualization.ControlPlotter.plot_root_locus(
+    root_locus_data,
+    title='Root Locus',
+    show_grid=True,
+    system_type='continuous',
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot root locus (pole migration as gain varies).
+
+Shows how closed-loop poles move in complex plane as control
+gain varies from 0 to infinity.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name            | Type                    | Description                                                                                                                                                | Default        |
+|-----------------|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| root_locus_data | Dict\[str, np.ndarray\] | Dictionary with: - 'gains': Array of gain values, shape (n_gains,) - 'poles': Array of poles, shape (n_gains, n_poles) - Optional 'zeros': Open-loop zeros | _required_     |
+| title           | str                     | Plot title                                                                                                                                                 | `'Root Locus'` |
+| show_grid       | bool                    | If True, show stability grid                                                                                                                               | `True`         |
+| system_type     | str                     | 'continuous' or 'discrete' (affects stability region)                                                                                                      | `'continuous'` |
+| color_scheme    | str                     | Color scheme for pole branches Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc. Default: 'plotly'                                               | `'plotly'`     |
+| theme           | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme                                             | `None`         |
+| **kwargs        |                         | Additional arguments                                                                                                                                       | `{}`           |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description     |
+|--------|-----------|-----------------|
+|        | go.Figure | Root locus plot |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compute root locus for LQR as Q varies
+>>> from scipy import signal
+>>>
+>>> gains = np.logspace(-1, 3, 50)  # Q weight values
+>>> poles_list = []
+>>>
+>>> for q in gains:
+...     lqr = system.design_lqr(q * np.eye(nx), R)
+...     poles_list.append(lqr['closed_loop_eigenvalues'])
+>>>
+>>> root_locus_data = {
+...     'gains': gains,
+...     'poles': np.array(poles_list)
+... }
+>>>
+>>> fig = plotter.plot_root_locus(
+...     root_locus_data,
+...     system_type='continuous',
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Each branch shows one pole's trajectory
+- Starts at open-loop pole (K=0)
+- Ends at zero or infinity (K→∞)
+- Stability: poles must stay in stable region
+- Continuous: left half-plane (Re < 0)
+- Discrete: inside unit circle (|z| < 1)
+
+### plot_step_response { #cdesym.visualization.ControlPlotter.plot_step_response }
+
+```python
+visualization.ControlPlotter.plot_step_response(
+    t,
+    y,
+    reference=1.0,
+    show_metrics=True,
+    title='Step Response',
+    theme=None,
+    **kwargs,
+)
+```
+
+Plot step response with performance metrics.
+
+Shows closed-loop step response with annotations for
+rise time, settling time, overshoot, etc.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type            | Description                                                                                                    | Default           |
+|--------------|-----------------|----------------------------------------------------------------------------------------------------------------|-------------------|
+| t            | np.ndarray      | Time points, shape (T,)                                                                                        | _required_        |
+| y            | np.ndarray      | Output response, shape (T,) or (T, ny)                                                                         | _required_        |
+| reference    | float           | Reference value (step height)                                                                                  | `1.0`             |
+| show_metrics | bool            | If True, annotate performance metrics                                                                          | `True`            |
+| title        | str             | Plot title                                                                                                     | `'Step Response'` |
+| theme        | Optional\[str\] | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`            |
+| **kwargs     |                 | Additional arguments                                                                                           | `{}`              |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                     |
+|--------|-----------|---------------------------------|
+|        | go.Figure | Step response plot with metrics |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simulate closed-loop step response
+>>> A_cl = A - B @ K  # Closed-loop A matrix
+>>> result = system.integrate(x0, u=None, A_override=A_cl, t_span=(0, 10))
+>>> y = result['x'][:, 0]  # First state
+>>>
+>>> fig = plotter.plot_step_response(
+...     result['t'],
+...     y,
+...     reference=1.0,
+...     show_metrics=True,
+...     theme='publication'
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Rise time: 10% to 90% of final value
+- Settling time: Within 2% of final value
+- Overshoot: Peak value above reference
+- Steady-state error: Final value vs reference

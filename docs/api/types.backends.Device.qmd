@@ -1,0 +1,27 @@
+# types.backends.Device { #cdesym.types.backends.Device }
+
+`types.backends.Device`
+
+Device identifier for hardware acceleration.
+
+Common values:
+- 'cpu': CPU computation
+- 'cuda': NVIDIA GPU (any available)
+- 'cuda:0', 'cuda:1', ...: Specific NVIDIA GPU
+- 'mps': Apple Metal (M1/M2/M3 Macs)
+- 'tpu': Google TPU (JAX only)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> device: Device = 'cuda:0'
+>>> system.set_preferred_device('cpu')
+>>> 
+>>> # PyTorch usage
+>>> import torch
+>>> tensor = torch.tensor(data, device='cuda')
+>>> 
+>>> # JAX usage (via jax.devices)
+>>> import jax
+>>> device = jax.devices('gpu')[0]
+```

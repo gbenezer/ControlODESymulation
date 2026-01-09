@@ -1,0 +1,55 @@
+# types.control_classical.KalmanFilterResult { #cdesym.types.control_classical.KalmanFilterResult }
+
+```python
+types.control_classical.KalmanFilterResult()
+```
+
+Kalman Filter (optimal state estimator) design result.
+
+Kalman filter provides optimal state estimate for linear system:
+    x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q)
+    y[k] = Cx[k] + v[k],            v ~ N(0, R)
+
+Estimator dynamics: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    Kalman gain L of shape (nx, ny)
+estimation_error_covariance : CovarianceMatrix
+    Steady-state error covariance P (nx, nx)
+innovation_covariance : CovarianceMatrix
+    Innovation covariance S = CPC' + R (ny, ny)
+estimator_eigenvalues : np.ndarray
+    Eigenvalues of (A - LC) - determines convergence rate
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design Kalman filter
+>>> A = np.array([[1, 0.1], [0, 0.9]])
+>>> C = np.array([[1, 0]])  # Measure position only
+>>> Q_process = 0.01 * np.eye(2)  # Process noise covariance
+>>> R_meas = 0.1 * np.eye(1)      # Measurement noise covariance
+>>>
+>>> result: KalmanFilterResult = design_kalman_filter(A, C, Q_process, R_meas)
+>>> L = result['gain']
+>>> print(L.shape)  # (2, 1)
+>>>
+>>> # State estimation loop
+>>> x_hat = np.zeros(2)
+>>> for k in range(N):
+...     # Prediction
+...     x_hat_pred = A @ x_hat + B @ u[k]
+...
+...     # Update (correction)
+...     innovation = y[k] - C @ x_hat_pred
+...     x_hat = x_hat_pred + L @ innovation
+>>>
+>>> # Check observer stability
+>>> print(np.all(np.abs(result['estimator_eigenvalues']) < 1))  # True
+>>>
+>>> # Innovation statistics
+>>> S = result['innovation_covariance']
+>>> print(S.shape)  # (1, 1)
+```

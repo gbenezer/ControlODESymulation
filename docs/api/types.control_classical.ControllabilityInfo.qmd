@@ -1,0 +1,43 @@
+# types.control_classical.ControllabilityInfo { #cdesym.types.control_classical.ControllabilityInfo }
+
+```python
+types.control_classical.ControllabilityInfo()
+```
+
+Controllability analysis result.
+
+A system (A, B) is controllable if all states can be driven to any
+desired value in finite time using appropriate control inputs.
+
+Controllability Test:
+- Rank of controllability matrix C = [B AB A²B ... Aⁿ⁻¹B] equals nx
+
+## Fields {.doc-section .doc-section-fields}
+
+controllability_matrix : ControllabilityMatrix
+    C = [B, AB, A²B, ..., Aⁿ⁻¹B] of shape (nx, nx*nu)
+rank : int
+    Rank of controllability matrix
+is_controllable : bool
+    True if rank == nx (full rank)
+uncontrollable_modes : Optional[np.ndarray]
+    Eigenvalues of uncontrollable subsystem (if any)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>>
+>>> info: ControllabilityInfo = analyze_controllability(A, B)
+>>> print(info['is_controllable'])  # True
+>>> print(info['rank'])  # 2
+>>> print(info['controllability_matrix'].shape)  # (2, 2)
+>>>
+>>> # Uncontrollable system
+>>> B_bad = np.array([[1], [1]])  # Both states affected equally
+>>> A_diag = np.array([[1, 0], [0, 2]])
+>>> info: ControllabilityInfo = analyze_controllability(A_diag, B_bad)
+>>> print(info['is_controllable'])  # False
+>>> print(info['uncontrollable_modes'])  # Some eigenvalues
+```

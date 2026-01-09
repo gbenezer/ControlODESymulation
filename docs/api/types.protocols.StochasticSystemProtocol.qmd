@@ -1,0 +1,63 @@
+# types.protocols.StochasticSystemProtocol { #cdesym.types.protocols.StochasticSystemProtocol }
+
+```python
+types.protocols.StochasticSystemProtocol()
+```
+
+System with stochastic dynamics (continuous or discrete).
+
+This protocol can be combined with discrete or continuous protocols
+to indicate stochastic capabilities.
+
+## Implementations {.doc-section .doc-section-implementations}
+
+- ContinuousStochasticSystem
+- DiscreteStochasticSystem
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def estimate_noise_covariance(
+...     system: StochasticSystemProtocol,
+...     n_samples: int = 1000
+... ) -> np.ndarray:
+...     '''Estimate noise covariance from simulation.'''
+...     if system.is_additive_noise():
+...         # Constant noise - compute once
+...         G = system.get_constant_noise()
+...         return G @ G.T
+...     else:
+...         # State-dependent - estimate via Monte Carlo
+...         # ...
+...         pass
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [is_stochastic](#cdesym.types.protocols.StochasticSystemProtocol.is_stochastic) | True for stochastic systems |
+| [nw](#cdesym.types.protocols.StochasticSystemProtocol.nw) | Number of noise sources |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [is_additive_noise](#cdesym.types.protocols.StochasticSystemProtocol.is_additive_noise) | True if noise is state-independent |
+| [is_multiplicative_noise](#cdesym.types.protocols.StochasticSystemProtocol.is_multiplicative_noise) | True if noise depends on state |
+
+### is_additive_noise { #cdesym.types.protocols.StochasticSystemProtocol.is_additive_noise }
+
+```python
+types.protocols.StochasticSystemProtocol.is_additive_noise()
+```
+
+True if noise is state-independent
+
+### is_multiplicative_noise { #cdesym.types.protocols.StochasticSystemProtocol.is_multiplicative_noise }
+
+```python
+types.protocols.StochasticSystemProtocol.is_multiplicative_noise()
+```
+
+True if noise depends on state

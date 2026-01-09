@@ -1,0 +1,61 @@
+# types.contraction.ContractionAnalysisResult { #cdesym.types.contraction.ContractionAnalysisResult }
+
+```python
+types.contraction.ContractionAnalysisResult()
+```
+
+Contraction analysis result.
+
+Determines if system is contracting and computes contraction rate.
+
+## Fields {.doc-section .doc-section-fields}
+
+is_contracting : bool
+    True if system is contracting
+contraction_rate : ContractionRate
+    Exponential rate β
+metric : ContractionMetric
+    Contraction metric M(x)
+metric_type : str
+    Metric type ('constant', 'state_dependent', 'control_dependent')
+verification_method : str
+    Method used ('LMI', 'SOS', 'optimization', 'analytic')
+convergence_bound : Optional[Callable]
+    Upper bound ||δx(t)|| ≤ bound(t, ||δx(0)||)
+exponential_convergence : bool
+    True if exponential (vs polynomial)
+incremental_stability : bool
+    True if incrementally asymptotically stable
+condition_number : Optional[float]
+    Condition number κ(M) if constant metric
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Analyze system contraction
+>>> result: ContractionAnalysisResult = analyze_contraction(
+...     dynamics=lambda x: -A @ x,
+...     method='LMI'
+... )
+>>>
+>>> if result['is_contracting']:
+...     beta = result['contraction_rate']
+...     M = result['metric']
+...
+...     print(f"System is contracting!")
+...     print(f"Rate β = {beta:.3f}")
+...     print(f"Method: {result['verification_method']}")
+...
+...     # Convergence bound
+...     if 'convergence_bound' in result:
+...         bound = result['convergence_bound']
+...         t = np.linspace(0, 10, 100)
+...         delta_bound = [bound(ti, 1.0) for ti in t]
+...
+...         import matplotlib.pyplot as plt
+...         plt.plot(t, delta_bound)
+...         plt.xlabel('Time')
+...         plt.ylabel('||δx|| bound')
+... else:
+...     print("System is not contracting")
+```

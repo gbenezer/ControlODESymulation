@@ -1,0 +1,92 @@
+# types.estimation.ParticleFilterResult { #cdesym.types.estimation.ParticleFilterResult }
+
+```python
+types.estimation.ParticleFilterResult()
+```
+
+Particle Filter (Sequential Monte Carlo) result.
+
+Particle filters represent the posterior distribution as a set of
+weighted samples (particles), enabling estimation for arbitrary
+nonlinear/non-Gaussian systems.
+
+## Fields {.doc-section .doc-section-fields}
+
+state_estimate : StateVector
+    Mean of particle distribution x̂[k] = Σ wᵢ xᵢ (nx,)
+covariance : CovarianceMatrix
+    Sample covariance P[k] (nx, nx)
+particles : StateTrajectory
+    All particle states (n_particles, nx)
+weights : ArrayLike
+    Normalized particle weights wᵢ (n_particles,)
+effective_sample_size : float
+    ESS = 1/Σwᵢ² ∈ [1, n_particles]
+resampled : bool
+    Whether resampling occurred this step
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Highly nonlinear system with non-Gaussian noise
+>>> def dynamics(x, u, noise):
+...     # Chaotic dynamics with state-dependent noise
+...     return np.array([
+...         x[1],
+...         -np.sin(x[0]) + u[0] + noise[0] * (1 + x[0]**2)
+...     ])
+>>>
+>>> def measurement(x, noise):
+...     # Nonlinear measurement with outliers
+...     return np.array([x[0]**2 + noise[0]])
+>>>
+>>> # Create Particle Filter
+>>> pf = ParticleFilter(
+...     dynamics_fn=dynamics,
+...     measurement_fn=measurement,
+...     n_particles=1000,
+...     resampling_threshold=0.5  # Resample when ESS < 500
+... )
+>>>
+>>> # Initialize particles
+>>> pf.initialize(
+...     x0_mean=np.array([0.0, 0.0]),
+...     x0_cov=np.eye(2)
+... )
+>>>
+>>> # Update loop
+>>> for k in range(N):
+...     # Predict (propagate particles through dynamics)
+...     pf.predict(u[k], Q=0.1*np.eye(2))
+...
+...     # Update (weight by measurement likelihood)
+...     result: ParticleFilterResult = pf.update(y[k], R=0.5*np.eye(1))
+...
+...     # Extract estimate
+...     x_hat = result['state_estimate']
+...     P = result['covariance']
+...
+...     # Monitor particle degeneracy
+...     ess = result['effective_sample_size']
+...     if ess < 100:
+...         print(f"Warning: Low ESS = {ess:.0f} at k={k}")
+...
+...     # Check if resampling occurred
+...     if result['resampled']:
+...         print(f"Resampling at k={k}")
+>>>
+>>> # Visualize particle distribution
+>>> particles = result['particles']
+>>> weights = result['weights']
+>>>
+>>> import matplotlib.pyplot as plt
+>>> plt.scatter(particles[:, 0], particles[:, 1],
+...            s=weights*1000, alpha=0.5)
+>>> plt.title(f"Particle Distribution (ESS={ess:.0f})")
+>>>
+>>> # Compute credible intervals from particles
+>>> x_samples = particles[:, 0]
+>>> x_lower = np.percentile(x_samples, 2.5, weights=weights)
+>>> x_upper = np.percentile(x_samples, 97.5, weights=weights)
+>>> print(f"95% credible interval: [{x_lower:.3f}, {x_upper:.3f}]")
+```

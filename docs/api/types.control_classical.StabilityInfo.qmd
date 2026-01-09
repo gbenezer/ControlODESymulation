@@ -1,0 +1,51 @@
+# types.control_classical.StabilityInfo { #cdesym.types.control_classical.StabilityInfo }
+
+```python
+types.control_classical.StabilityInfo()
+```
+
+Stability analysis result dictionary.
+
+Contains eigenvalue-based stability information for linear systems.
+
+Stability Criteria:
+- Continuous: All Re(λ) < 0 (left half-plane)
+- Discrete: All |λ| < 1 (inside unit circle)
+
+## Fields {.doc-section .doc-section-fields}
+
+eigenvalues : np.ndarray
+    Eigenvalues of system matrix (complex)
+magnitudes : np.ndarray
+    Absolute values |λ| of eigenvalues
+max_magnitude : float
+    Maximum |λ| (spectral radius)
+spectral_radius : float
+    Same as max_magnitude (discrete systems)
+is_stable : bool
+    True if system is asymptotically stable
+is_marginally_stable : bool
+    True if max|λ| ≈ 1 or Re(λ) ≈ 0
+is_unstable : bool
+    True if any |λ| > 1 or Re(λ) > 0
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous system
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> stability: StabilityInfo = analyze_stability(A, system_type='continuous')
+>>> print(stability['is_stable'])  # True
+>>> print(stability['eigenvalues'])  # [-1, -2]
+>>>
+>>> # Discrete system
+>>> Ad = np.array([[0.9, 0.1], [0, 0.8]])
+>>> stability: StabilityInfo = analyze_stability(Ad, system_type='discrete')
+>>> print(stability['is_stable'])  # True (both |λ| < 1)
+>>> print(stability['spectral_radius'])  # 0.9
+>>>
+>>> # Unstable system
+>>> A_unstable = np.array([[1, 1], [0, 1]])
+>>> stability: StabilityInfo = analyze_stability(A_unstable, system_type='continuous')
+>>> print(stability['is_unstable'])  # True
+```

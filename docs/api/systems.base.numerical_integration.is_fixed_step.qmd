@@ -1,0 +1,123 @@
+# systems.base.numerical_integration.is_fixed_step { #cdesym.systems.base.numerical_integration.is_fixed_step }
+
+```python
+systems.base.numerical_integration.is_fixed_step(method)
+```
+
+Check if integration method uses fixed time stepping.
+
+Classifies methods into fixed-step (constant dt throughout integration)
+or adaptive (dt adjusted based on error estimates). This classification
+is used to auto-select discretization mode and validate mode/method
+compatibility.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                      | Default    |
+|--------|--------|--------------------------------------------------|------------|
+| method | str    | Integration method name (normalized or original) | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                             |
+|--------|--------|---------------------------------------------------------|
+|        | bool   | True if method uses fixed time steps, False if adaptive |
+
+## Classification Rules {.doc-section .doc-section-classification-rules}
+
+1. **Deterministic fixed-step**: euler, midpoint, rk4, heun → True
+2. **Deterministic adaptive**: RK45, LSODA, dopri5, tsit5, etc. → False
+3. **SDE fixed-step**: Most SDE methods (EM, euler_maruyama, etc.) → True
+4. **SDE adaptive**: Rare cases (LambaEM, AutoEM, adaptive_heun) → False
+5. **Unknown methods**: Conservative default → False (more flexible)
+
+## Notes {.doc-section .doc-section-notes}
+
+- Fixed-step methods take exactly `n_steps` integrations of size `dt`
+- Adaptive methods adjust step size internally for accuracy/efficiency
+- Most SDE methods are fixed-step (adaptive SDE solvers are rare)
+- Unknown methods default to False (adaptive mode works for both cases)
+- Used to auto-select DiscretizationMode.FIXED_STEP vs DENSE_OUTPUT
+
+## Design Decision: Conservative Default {.doc-section .doc-section-design-decision-conservative-default}
+
+When method is unknown, returns False (assume adaptive) because:
+- DENSE_OUTPUT mode works for both fixed and adaptive methods
+- FIXED_STEP mode ONLY works for fixed-step methods
+- Better to be conservative than raise unexpected errors
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Deterministic fixed-step methods
+>>> is_fixed_step('euler')
+True
+>>> is_fixed_step('rk4')
+True
+>>> is_fixed_step('heun')
+True
+```
+
+```python
+>>> # Deterministic adaptive methods
+>>> is_fixed_step('RK45')
+False
+>>> is_fixed_step('LSODA')
+False
+>>> is_fixed_step('dopri5')  # PyTorch
+False
+>>> is_fixed_step('tsit5')  # JAX
+False
+```
+
+```python
+>>> # SDE methods (mostly fixed-step)
+>>> is_fixed_step('euler_maruyama')
+True
+>>> is_fixed_step('EM')  # NumPy/Julia
+True
+>>> is_fixed_step('milstein')
+True
+>>> is_fixed_step('SRIW1')  # Julia SDE
+True
+```
+
+```python
+>>> # Rare adaptive SDE methods
+>>> is_fixed_step('LambaEM')  # Julia adaptive
+False
+>>> is_fixed_step('AutoEM')  # Julia adaptive
+False
+>>> is_fixed_step('adaptive_heun')  # PyTorch
+False
+>>> is_fixed_step('reversible_heun')  # Can be adaptive
+False
+```
+
+```python
+>>> # Unknown method (conservative default)
+>>> is_fixed_step('my_custom_method')
+False
+```
+
+## Notes on Ambiguous Methods {.doc-section .doc-section-notes-on-ambiguous-methods}
+
+Some methods appear in both deterministic and SDE contexts:
+
+- **'euler'**: In both DETERMINISTIC_FIXED_STEP and SDE_FIXED_STEP
+  Classification: Fixed-step (True) for both contexts
+
+- **'midpoint'**: In both DETERMINISTIC_FIXED_STEP and SDE_FIXED_STEP
+  Classification: Fixed-step (True) for both contexts
+
+- **'reversible_heun'**: In both SDE_FIXED_STEP and SDE_ADAPTIVE
+  Classification: Adaptive (False) - prioritizes adaptive classification
+  since it CAN be used in adaptive mode
+
+The ambiguity is resolved at runtime by the system type (stochastic vs
+deterministic) passed to validate_method().
+
+## See Also {.doc-section .doc-section-see-also}
+
+is_sde_method : Check if method is for stochastic systems
+normalize_method_name : Normalize method names across backends

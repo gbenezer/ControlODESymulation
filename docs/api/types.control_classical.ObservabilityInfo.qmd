@@ -1,0 +1,42 @@
+# types.control_classical.ObservabilityInfo { #cdesym.types.control_classical.ObservabilityInfo }
+
+```python
+types.control_classical.ObservabilityInfo()
+```
+
+Observability analysis result.
+
+A system (A, C) is observable if the initial state can be determined
+from output measurements over a finite time interval.
+
+Observability Test:
+- Rank of observability matrix O = [C; CA; CA²; ...; CAⁿ⁻¹] equals nx
+
+## Fields {.doc-section .doc-section-fields}
+
+observability_matrix : ObservabilityMatrix
+    O = [C; CA; CA²; ...; CAⁿ⁻¹] of shape (nx*ny, nx)
+rank : int
+    Rank of observability matrix
+is_observable : bool
+    True if rank == nx (full rank)
+unobservable_modes : Optional[np.ndarray]
+    Eigenvalues of unobservable subsystem (if any)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> C = np.array([[1, 0]])  # Measure position only
+>>>
+>>> info: ObservabilityInfo = analyze_observability(A, C)
+>>> print(info['is_observable'])  # True
+>>> print(info['rank'])  # 2
+>>> print(info['observability_matrix'].shape)  # (2, 2)
+>>>
+>>> # Unobservable system
+>>> C_bad = np.array([[1, 1]])  # Can't distinguish states
+>>> A_diag = np.array([[1, 0], [0, 2]])
+>>> info: ObservabilityInfo = analyze_observability(A_diag, C_bad)
+>>> print(info['is_observable'])  # False
+```

@@ -1,0 +1,48 @@
+# types.trajectories.NoiseSequence { #cdesym.types.trajectories.NoiseSequence }
+
+`types.trajectories.NoiseSequence`
+
+Noise/disturbance sequence for stochastic simulation.
+
+Time series of random disturbances in stochastic systems.
+
+Shapes:
+- Single sequence: (n_steps, nw)
+  IID noise samples
+
+- Batched sequences: (n_steps, batch, nw)
+  Independent noise for each trajectory
+
+Distribution:
+- Discrete stochastic: w[k] ~ N(0, I)
+- Continuous SDE: dW[k] ~ N(0, dt*I) (Brownian increments)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard normal noise for discrete system
+>>> w_seq: NoiseSequence = np.random.randn(100, 2)
+>>> trajectory = system.simulate_stochastic(x0, u_seq, w_seq)
+>>> 
+>>> # Brownian increments for continuous SDE
+>>> dt = 0.01
+>>> n_steps = 1000
+>>> dW: NoiseSequence = np.random.randn(n_steps, 2) * np.sqrt(dt)
+>>> 
+>>> # Reproducible simulation with seed
+>>> np.random.seed(42)
+>>> w_seq: NoiseSequence = np.random.randn(100, 3)
+>>> 
+>>> # Batched Monte Carlo simulation
+>>> n_trials = 1000
+>>> w_batch: NoiseSequence = np.random.randn(100, n_trials, 2)
+>>> trajectories_mc = system.simulate_stochastic_batch(x0, u_seq, w_batch)
+>>> 
+>>> # Colored noise (correlated)
+>>> # First generate white noise, then filter
+>>> w_white = np.random.randn(1000, 2)
+>>> # Apply low-pass filter for colored noise
+>>> from scipy.signal import lfilter
+>>> b, a = [0.1, 0.9], [1.0]
+>>> w_colored: NoiseSequence = lfilter(b, a, w_white, axis=0)
+```

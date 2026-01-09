@@ -1,0 +1,25 @@
+# types.core.GainMatrix { #cdesym.types.core.GainMatrix }
+
+`types.core.GainMatrix`
+
+Gain matrix for control or estimation.
+
+Maps state/output to control/estimate.
+
+Uses:
+- LQR gain: K (nu, nx) where u = -K*x
+- Kalman gain: L (nx, ny) where x̂̇ = ... + L*(y - C*x̂)
+- Observer gain: K_obs (nx, ny)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # LQR feedback gain
+>>> K_lqr: GainMatrix = np.array([[1.0, 0.5]])  # (nu=1, nx=2)
+>>> u = -K_lqr @ x
+>>> 
+>>> # Kalman gain
+>>> K_kalman: GainMatrix = np.array([[0.1], [0.2]])  # (nx=2, ny=1)
+>>> innovation = y - C @ x_hat
+>>> x_hat_update = x_hat + K_kalman @ innovation
+```

@@ -1,0 +1,38 @@
+# types.trajectories.TimePoints { #cdesym.types.trajectories.TimePoints }
+
+`types.trajectories.TimePoints`
+
+Array of time points for simulation or evaluation.
+
+Discrete time instants at which system is evaluated.
+
+Shape: (n_points,)
+
+Types:
+- Regular grid: t = [0, dt, 2*dt, ..., T]
+- Irregular grid: t = [0, 0.1, 0.15, 0.3, ...]
+- Adaptive: From adaptive integrator (irregular)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Regular time grid
+>>> t: TimePoints = np.linspace(0, 10, 101)
+>>> dt = t[1] - t[0]
+>>> print(f"dt = {dt:.3f}")  # 0.100
+>>> 
+>>> # Irregular time grid
+>>> t: TimePoints = np.array([0, 0.1, 0.15, 0.5, 1.0, 2.0, 5.0, 10.0])
+>>> 
+>>> # Logarithmic spacing (for stiff systems)
+>>> t: TimePoints = np.logspace(-3, 1, 100)  # 0.001 to 10
+>>> 
+>>> # From simulation result
+>>> result: IntegrationResult = integrator.solve(x0, u, t_span)
+>>> t: TimePoints = result['t']
+>>> trajectory: StateTrajectory = result['y']
+>>> 
+>>> # Discrete-time steps (as floats)
+>>> k = np.arange(0, 100)
+>>> t: TimePoints = k * dt  # Convert to continuous time
+```

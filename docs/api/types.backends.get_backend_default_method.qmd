@@ -1,0 +1,31 @@
+# types.backends.get_backend_default_method { #cdesym.types.backends.get_backend_default_method }
+
+```python
+types.backends.get_backend_default_method(backend, is_stochastic=False)
+```
+
+Get default integration method for backend.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type    | Description                  | Default    |
+|---------------|---------|------------------------------|------------|
+| backend       | Backend | Computational backend        | _required_ |
+| is_stochastic | bool    | Whether system is stochastic | `False`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                          |
+|--------|--------|--------------------------------------|
+|        | str    | Default method name for this backend |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> get_backend_default_method('numpy', is_stochastic=False)
+'RK45'
+>>> get_backend_default_method('numpy', is_stochastic=True)
+'EM'
+>>> get_backend_default_method('torch', is_stochastic=True)
+'euler'
+```

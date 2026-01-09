@@ -1,0 +1,134 @@
+# systems.base.core.DiscretizedSystem { #cdesym.systems.base.core.DiscretizedSystem }
+
+```python
+systems.base.core.DiscretizedSystem(
+    continuous_system,
+    dt=0.01,
+    method='rk4',
+    mode=None,
+    interpolation_kind='linear',
+    auto_detect_sde=True,
+    sde_method=None,
+    **integrator_kwargs,
+)
+```
+
+Pure wrapper providing discrete interface to continuous systems.
+
+## Protocol Satisfaction {.doc-section .doc-section-protocol-satisfaction}
+
+This class satisfies:
+- DiscreteSystemProtocol: Has step(), simulate(), dt, nx, nu
+- LinearizableDiscreteProtocol: Has linearize() (wraps continuous)
+
+Does NOT satisfy:
+- SymbolicDiscreteProtocol: No symbolic machinery (purely numerical)
+
+This means it can be used in:
+- ✓ Any function expecting DiscreteSystemProtocol
+- ✓ Control design (LQR, MPC) expecting LinearizableDiscreteProtocol
+- ✗ Code generation expecting SymbolicDiscreteProtocol
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> from controldesymulation.types.protocols import LinearizableDiscreteProtocol
+>>>
+>>> def lqr_design(system: LinearizableDiscreteProtocol, Q, R):
+...     Ad, Bd = system.linearize(np.zeros(system.nx), np.zeros(system.nu))
+...     # ... LQR computation
+>>>
+>>> # DiscretizedSystem works here:
+>>> continuous = Pendulum(m=1.0, l=0.5)
+>>> discrete = DiscretizedSystem(continuous, dt=0.01)
+>>> K = lqr_design(discrete, Q, R)  # ✓ Type checks pass!
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [change_method](#cdesym.systems.base.core.DiscretizedSystem.change_method) | Create new DiscretizedSystem with different method. |
+| [get_available_methods](#cdesym.systems.base.core.DiscretizedSystem.get_available_methods) | Get available integration methods for a backend. |
+| [get_info](#cdesym.systems.base.core.DiscretizedSystem.get_info) | Get comprehensive discretization information and configuration. |
+| [print_info](#cdesym.systems.base.core.DiscretizedSystem.print_info) | Print formatted discretization information. |
+| [simulate_stochastic](#cdesym.systems.base.core.DiscretizedSystem.simulate_stochastic) | Simulate stochastic system with multiple Monte Carlo trajectories. |
+
+### change_method { #cdesym.systems.base.core.DiscretizedSystem.change_method }
+
+```python
+systems.base.core.DiscretizedSystem.change_method(new_method, **new_kwargs)
+```
+
+Create new DiscretizedSystem with different method.
+
+### get_available_methods { #cdesym.systems.base.core.DiscretizedSystem.get_available_methods }
+
+```python
+systems.base.core.DiscretizedSystem.get_available_methods(
+    backend='numpy',
+    method_type='all',
+)
+```
+
+Get available integration methods for a backend.
+
+Delegates to method_registry.get_available_methods() for the
+canonical source of truth about method availability.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type    | Description                                                                                                                                                                                                                                  | Default   |
+|-------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| backend     | Backend | Backend to query: 'numpy', 'torch', or 'jax'                                                                                                                                                                                                 | `'numpy'` |
+| method_type | str     | Filter by method type: - 'all': All methods (default) - 'deterministic': Only ODE methods - 'stochastic': Only SDE methods - 'fixed_step': Only fixed-step methods (both ODE and SDE) - 'adaptive': Only adaptive methods (both ODE and SDE) | `'all'`   |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                   |
+|--------|--------|---------------------------------------------------------------|
+|        | dict   | Dictionary with method categories and their available methods |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> methods = DiscretizedSystem.get_available_methods('torch', 'stochastic')
+>>> print(methods['sde_fixed_step'])
+['euler', 'milstein', 'srk', 'midpoint']
+>>> print(methods['canonical_aliases'])
+['euler_maruyama', 'milstein', 'sra1', 'reversible_heun', 'rk45', ...]
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+method_registry.get_available_methods : Implementation details
+
+### get_info { #cdesym.systems.base.core.DiscretizedSystem.get_info }
+
+```python
+systems.base.core.DiscretizedSystem.get_info()
+```
+
+Get comprehensive discretization information and configuration.
+
+### print_info { #cdesym.systems.base.core.DiscretizedSystem.print_info }
+
+```python
+systems.base.core.DiscretizedSystem.print_info()
+```
+
+Print formatted discretization information.
+
+### simulate_stochastic { #cdesym.systems.base.core.DiscretizedSystem.simulate_stochastic }
+
+```python
+systems.base.core.DiscretizedSystem.simulate_stochastic(
+    x0,
+    u_sequence=None,
+    n_steps=100,
+    n_trajectories=100,
+    **kwargs,
+)
+```
+
+Simulate stochastic system with multiple Monte Carlo trajectories.

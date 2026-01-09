@@ -1,0 +1,92 @@
+# types.trajectories.SimulationResult { #cdesym.types.trajectories.SimulationResult }
+
+```python
+types.trajectories.SimulationResult()
+```
+
+Result from continuous-time system simulation.
+
+Contains trajectories on a regular time grid, control sequences, and metadata.
+
+**SHAPE CONVENTION**: For backward compatibility, arrays use **state-major**
+ordering (nx, n_steps). This may change in future versions to time-major.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name     | Type                        | Description                                                                                                                                                           |
+|----------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| time     | TimePoints                  | Regular time points (n_steps+1,) with spacing dt                                                                                                                      |
+| states   | StateTrajectory             | State trajectory **(nx, n_steps+1)** - includes initial state **NOTE**: State-major ordering for backward compatibility                                               |
+| controls | Optional\[ControlSequence\] | Control sequence used **(nu, n_steps)** if controller provided                                                                                                        |
+| outputs  | Optional\[OutputSequence\]  | Output sequence **(ny, n_steps+1)** if computed                                                                                                                       |
+| noise    | Optional\[NoiseSequence\]   | Noise sequence (n_steps, nw) for stochastic systems                                                                                                                   |
+| success  | bool                        | Whether simulation succeeded                                                                                                                                          |
+| metadata | Dict\[str, Any\]            | Additional information: - 'method': Integration method used - 'dt': Time step used - 'nfev': Number of function evaluations - 'cost': Trajectory cost (if applicable) |
+
+## Notes {.doc-section .doc-section-notes}
+
+This is the result from `simulate()` which provides a regular time grid
+by wrapping the lower-level `integrate()` method.
+
+**Array Ordering**: Currently uses **(nx, T)** state-major ordering for
+backward compatibility with legacy code. Access states as `states[:, k]`
+for state at time k, or `states[i, :]` for trajectory of state i.
+
+For the raw adaptive-grid integration result, use `integrate()` which
+may use different conventions depending on the backend.
+
+## Examples {.doc-section .doc-section-examples}
+
+Continuous simulation with state feedback:
+
+```python
+>>> def controller(x, t):  # Note: (x, t) order
+...     K = np.array([[-1.0, -2.0]])
+...     return -K @ x
+>>>
+>>> result: SimulationResult = system.simulate(
+...     x0=np.array([1.0, 0.0]),
+...     controller=controller,
+...     t_span=(0.0, 10.0),
+...     dt=0.01
+... )
+>>>
+>>> time = result['time']           # (1001,)
+>>> states = result['states']       # (2, 1001) - state-major!
+>>> controls = result['controls']   # (1, 1000)
+>>>
+>>> # Access state trajectory of first state variable
+>>> x1_trajectory = states[0, :]    # (1001,)
+>>>
+>>> # Access state at time step k
+>>> x_at_k = states[:, k]           # (2,)
+>>>
+>>> # Plot
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(time, states[0, :], label='x1')
+>>> plt.plot(time, states[1, :], label='x2')
+>>>
+>>> # Check success
+>>> if result['success']:
+...     print(f"Simulation completed with {result['metadata']['nfev']} evaluations")
+```
+
+Stochastic simulation:
+
+```python
+>>> result: SimulationResult = sde_system.simulate(
+...     x0=np.zeros(2),
+...     controller=None,  # Open-loop
+...     t_span=(0, 5),
+...     dt=0.01
+... )
+>>>
+>>> if 'noise' in result:
+...     print("Stochastic simulation")
+...     noise_used = result['noise']
+```
+
+## See Also {.doc-section .doc-section-see-also}
+
+integrate : Lower-level integration with adaptive time grid
+IntegrationResult : Result type from integrate()

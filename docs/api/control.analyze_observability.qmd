@@ -1,0 +1,55 @@
+# control.analyze_observability { #cdesym.control.analyze_observability }
+
+```python
+control.analyze_observability(A, C, tolerance=1e-10)
+```
+
+Test observability of linear system (A, C).
+
+A system is observable if the initial state can be determined from
+output measurements over a finite time interval.
+
+Observability test:
+    rank(O) = n, where O = [C; CA; CA²; ...; CAⁿ⁻¹]
+
+Args:
+    A: State matrix (nx, nx)
+    C: Output matrix (ny, nx)
+    tolerance: Tolerance for rank computation
+
+Returns:
+    ObservabilityInfo containing:
+        - observability_matrix: O = [C; CA; ...] (nx*ny, nx)
+        - rank: Rank of observability matrix
+        - is_observable: True if rank = nx (full rank)
+        - unobservable_modes: Eigenvalues of unobservable subspace (if any)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Fully observable
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> C = np.array([[1, 0]])  # Measure position only
+>>> info = analyze_observability(A, C)
+>>> print(info['is_observable'])  # True
+>>> print(info['rank'])  # 2
+>>>
+>>> # Unobservable system
+>>> A = np.array([[1, 0], [0, 2]])
+>>> C = np.array([[1, 1]])  # Can't distinguish states
+>>> info = analyze_observability(A, C)
+>>> print(info['is_observable'])  # False
+>>>
+>>> # Full state measurement
+>>> A = np.array([[0, 1, 0], [0, 0, 1], [-1, -2, -3]])
+>>> C = np.eye(3)  # Measure all states
+>>> info = analyze_observability(A, C)
+>>> print(info['is_observable'])  # True
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+- Observability is necessary for state estimation (Kalman filter)
+- Detectability: Unstable modes must be observable (weaker condition)
+- Dual to controllability: (A, C) observable ⟺ (A', C') controllable
+- For large systems, use dual controllability test

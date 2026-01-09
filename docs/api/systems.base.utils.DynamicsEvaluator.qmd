@@ -1,0 +1,102 @@
+# systems.base.utils.DynamicsEvaluator { #cdesym.systems.base.utils.DynamicsEvaluator }
+
+```python
+systems.base.utils.DynamicsEvaluator(system, code_gen, backend_mgr)
+```
+
+Evaluates forward dynamics across backends.
+
+Handles the evaluation of dx/dt = f(x, u) for controlled systems or
+dx/dt = f(x) for autonomous systems. Supports NumPy, PyTorch, and JAX
+backends with proper shape handling, batching, and performance tracking.
+
+Type System Integration:
+    - StateVector: Input state and output derivative
+    - ControlVector: Input control (Optional for autonomous)
+    - Backend: Type-safe backend selection
+    - ExecutionStats: Structured performance metrics
+
+Batching:
+    Supports both single and batched evaluation using centralized
+    utilities from the type framework (is_batched, get_batch_size).
+
+Example:
+    >>> # Controlled system
+    >>> evaluator = DynamicsEvaluator(system, code_gen, backend_mgr)
+    >>> dx: StateVector = evaluator.evaluate(x, u, backend='numpy')
+    >>>
+    >>> # Autonomous system (u=None)
+    >>> dx: StateVector = evaluator.evaluate(x, backend='numpy')
+    >>>
+    >>> # Get performance stats
+    >>> stats: ExecutionStats = evaluator.get_stats()
+    >>> print(f"Average time: {stats['avg_time']:.6f}s")
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [evaluate](#cdesym.systems.base.utils.DynamicsEvaluator.evaluate) | Evaluate forward dynamics: dx/dt = f(x, u) or dx/dt = f(x). |
+| [get_stats](#cdesym.systems.base.utils.DynamicsEvaluator.get_stats) | Get performance statistics. |
+| [reset_stats](#cdesym.systems.base.utils.DynamicsEvaluator.reset_stats) | Reset performance counters. |
+
+### evaluate { #cdesym.systems.base.utils.DynamicsEvaluator.evaluate }
+
+```python
+systems.base.utils.DynamicsEvaluator.evaluate(x, u=None, backend=None)
+```
+
+Evaluate forward dynamics: dx/dt = f(x, u) or dx/dt = f(x).
+
+Args:
+    x: State vector
+    u: Control vector (None for autonomous systems)
+    backend: Backend selection:
+        - None: Auto-detect from input type (default)
+        - 'numpy', 'torch', 'jax': Force specific backend
+        - 'default': Use system's default backend
+
+Returns:
+    State derivative vector (type matches backend)
+
+Raises:
+    ValueError: If u is None for non-autonomous system
+
+Example:
+    >>> # Controlled system - auto-detect backend
+    >>> dx = evaluator.evaluate(x_numpy, u_numpy)  # Returns NumPy
+    >>>
+    >>> # Autonomous system
+    >>> dx = evaluator.evaluate(x_numpy)  # u=None
+    >>>
+    >>> # Force specific backend (converts input)
+    >>> dx = evaluator.evaluate(x_numpy, u_numpy, backend='torch')  # Returns PyTorch
+
+### get_stats { #cdesym.systems.base.utils.DynamicsEvaluator.get_stats }
+
+```python
+systems.base.utils.DynamicsEvaluator.get_stats()
+```
+
+Get performance statistics.
+
+Returns:
+    ExecutionStats
+        Structured performance metrics with call count and timing
+
+Example:
+    >>> stats: ExecutionStats = evaluator.get_stats()
+    >>> print(f"Calls: {stats['calls']}")
+    >>> print(f"Avg time: {stats['avg_time']:.6f}s")
+
+### reset_stats { #cdesym.systems.base.utils.DynamicsEvaluator.reset_stats }
+
+```python
+systems.base.utils.DynamicsEvaluator.reset_stats()
+```
+
+Reset performance counters.
+
+Example:
+    >>> evaluator.reset_stats()
+    >>> # Stats are now zero

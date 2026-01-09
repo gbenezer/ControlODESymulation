@@ -1,0 +1,100 @@
+# systems.base.utils.ObservationEngine { #cdesym.systems.base.utils.ObservationEngine }
+
+```python
+systems.base.utils.ObservationEngine(system, code_gen, backend_mgr)
+```
+
+Evaluates observation/output functions across backends.
+
+Handles the evaluation of y = h(x) and C = ∂h/∂x for all backends
+with proper shape handling and batching.
+
+Type System Integration:
+    - StateVector: Input state
+    - OutputVector: Evaluated output y = h(x)
+    - OutputMatrix: Linearized observation C = ∂h/∂x
+    - ObservationLinearization: (C, D) tuple for full output linearization
+    - Backend: Type-safe backend selection
+
+Batching:
+    Supports both single and batched evaluation using centralized
+    utilities from the type framework (is_batched, get_batch_size).
+
+Example:
+    >>> engine = ObservationEngine(system, code_gen, backend_mgr)
+    >>> y: OutputVector = engine.evaluate(x, backend='numpy')
+    >>> C: OutputMatrix = engine.compute_jacobian(x, backend='numpy')
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_jacobian](#cdesym.systems.base.utils.ObservationEngine.compute_jacobian) | Compute linearized observation: C = ∂h/∂x. |
+| [compute_symbolic](#cdesym.systems.base.utils.ObservationEngine.compute_symbolic) | Compute symbolic linearization C = ∂h/∂x. |
+| [evaluate](#cdesym.systems.base.utils.ObservationEngine.evaluate) | Evaluate output equation: y = h(x). |
+
+### compute_jacobian { #cdesym.systems.base.utils.ObservationEngine.compute_jacobian }
+
+```python
+systems.base.utils.ObservationEngine.compute_jacobian(x, backend=None)
+```
+
+Compute linearized observation: C = ∂h/∂x.
+
+If no custom output function, returns identity matrix.
+
+Args:
+    x: State at which to linearize
+    backend: Backend selection:
+        - None: Auto-detect from input type (default)
+        - 'numpy', 'torch', 'jax': Force specific backend
+        - 'default': Use system's default backend
+
+Returns:
+    OutputMatrix
+        C matrix (ny, nx) - output Jacobian (type matches backend)
+
+Example:
+    >>> C: OutputMatrix = engine.compute_jacobian(x, backend='numpy')
+    >>> print(C.shape)  # (ny, nx)
+
+### compute_symbolic { #cdesym.systems.base.utils.ObservationEngine.compute_symbolic }
+
+```python
+systems.base.utils.ObservationEngine.compute_symbolic(x_eq=None)
+```
+
+Compute symbolic linearization C = ∂h/∂x.
+
+Args:
+    x_eq: Equilibrium state (zeros if None)
+
+Returns:
+    C: Symbolic Jacobian matrix
+
+Example:
+    >>> C_sym = engine.compute_symbolic(x_eq=sp.Matrix([0, 0]))
+
+### evaluate { #cdesym.systems.base.utils.ObservationEngine.evaluate }
+
+```python
+systems.base.utils.ObservationEngine.evaluate(x, backend=None)
+```
+
+Evaluate output equation: y = h(x).
+
+If no custom output function is defined, returns the full state (identity).
+
+Args:
+    x: State vector
+    backend: Backend selection:
+        - None: Auto-detect from input type (default)
+        - 'numpy', 'torch', 'jax': Force specific backend
+        - 'default': Use system's default backend
+
+Returns:
+    Output vector (type matches backend)
+
+Example:
+    >>> y: OutputVector = engine.evaluate(x_numpy)  # Auto-detect NumPy
+    >>> y: OutputVector = engine.evaluate(x_numpy, backend='torch')  # Convert to torch

@@ -1,0 +1,35 @@
+# types.linearization.ObservationLinearization { #cdesym.types.linearization.ObservationLinearization }
+
+`types.linearization.ObservationLinearization`
+
+Observation/output linearization: (C, D).
+
+Linearizes output equation y = h(x, u).
+
+Result:
+    y ≈ C*δx + D*δu + y_eq
+
+    where:
+        C = ∂h/∂x at (x_eq, u_eq)  (ny, nx)
+        D = ∂h/∂u at (x_eq, u_eq)  (ny, nu)
+        y_eq = h(x_eq, u_eq)
+
+Typically D = 0 (no direct feedthrough).
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Linearize output
+>>> C, D = system.linearized_observation(x_eq, u_eq)
+>>> print(C.shape)  # (ny, nx)
+>>> print(D.shape)  # (ny, nu)
+>>> 
+>>> # For Kalman filter
+>>> # Prediction: ŷ = C @ x̂_pred
+>>> # Innovation: v = y - ŷ
+>>> # Update: x̂ = x̂_pred + L @ v
+>>> 
+>>> # Full state observation (common case)
+>>> C_full = np.eye(nx)  # y = x
+>>> D_full = np.zeros((nx, nu))  # No feedthrough
+```

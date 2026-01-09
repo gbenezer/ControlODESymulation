@@ -1,0 +1,51 @@
+# types.reachability.ReachabilityResult { #cdesym.types.reachability.ReachabilityResult }
+
+```python
+types.reachability.ReachabilityResult()
+```
+
+Reachability analysis result.
+
+Computes forward/backward reachable sets over time horizon.
+
+## Fields {.doc-section .doc-section-fields}
+
+reachable_set : ReachableSet
+    Reachable set at final time T
+reachable_tube : List[ReachableSet]
+    Reachable set at each time t ∈ [0,T]
+volume : float
+    Volume/measure of reachable set
+representation : str
+    Set representation type ('polytope', 'ellipsoid', 'zonotope', 'grid')
+method : str
+    Method used ('Hamilton-Jacobi', 'Ellipsoidal', 'Zonotope', 'sampling')
+computation_time : float
+    Computation time in seconds
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Forward reachability
+>>> result: ReachabilityResult = compute_reachable_set(
+...     system=pendulum,
+...     x0=np.array([0.1, 0.0]),
+...     u_bounds=[-1, 1],
+...     horizon=10,
+...     dt=0.1
+... )
+>>>
+>>> # Visualize reachable tube
+>>> import matplotlib.pyplot as plt
+>>> for i, reach_set in enumerate(result['reachable_tube']):
+...     plt.plot(reach_set[:, 0], reach_set[:, 1],
+...              alpha=0.3, color='blue')
+>>>
+>>> print(f"Final volume: {result['volume']:.3f}")
+>>> print(f"Method: {result['method']}")
+>>>
+>>> # Check if target reached
+>>> x_target = np.array([0, 0])
+>>> final_set = result['reachable_set']
+>>> # Check if x_target in convex hull of final_set
+```

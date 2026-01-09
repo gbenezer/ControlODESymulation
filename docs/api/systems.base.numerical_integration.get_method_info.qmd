@@ -1,0 +1,37 @@
+# systems.base.numerical_integration.get_method_info { #cdesym.systems.base.numerical_integration.get_method_info }
+
+```python
+systems.base.numerical_integration.get_method_info(method, backend='numpy')
+```
+
+Get comprehensive information about a method.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description                                 | Default    |
+|---------|---------|---------------------------------------------|------------|
+| method  | str     | Method name (canonical or backend-specific) | _required_ |
+| backend | Backend | Target backend                              | `'numpy'`  |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary with method information: - original_name : str - Method name as provided - normalized_name : str - Backend-specific normalized name - backend : str - Target backend - is_sde : bool - Whether method is for SDEs - is_fixed_step : bool - Whether method uses fixed time stepping - is_adaptive : bool - Whether method uses adaptive time stepping - is_available : bool - Whether method exists for backend - category : str - Method category (e.g., 'deterministic_fixed_step') |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = get_method_info('euler_maruyama', 'torch')
+>>> print(info)
+{
+    'original_name': 'euler_maruyama',
+    'normalized_name': 'euler',
+    'backend': 'torch',
+    'is_sde': True,
+    'is_fixed_step': True,
+    'is_adaptive': False,
+    'is_available': True,
+    'category': 'sde_fixed_step'
+}
+```

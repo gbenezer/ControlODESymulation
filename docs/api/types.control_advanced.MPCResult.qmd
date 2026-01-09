@@ -1,0 +1,55 @@
+# types.control_advanced.MPCResult { #cdesym.types.control_advanced.MPCResult }
+
+```python
+types.control_advanced.MPCResult()
+```
+
+Model Predictive Control (MPC) solution result.
+
+MPC solves a finite-horizon optimal control problem at each time step,
+applying only the first control in the sequence (receding horizon).
+
+## Fields {.doc-section .doc-section-fields}
+
+control_sequence : ControlSequence
+    Optimal control trajectory u*[0:N-1] (N, nu)
+predicted_trajectory : StateTrajectory
+    Predicted state trajectory x*[0:N] (N+1, nx)
+cost : float
+    Optimal objective value J*
+success : bool
+    Whether optimization converged successfully
+iterations : int
+    Number of optimization iterations
+solve_time : float
+    Computation time in seconds
+constraint_violations : Optional[ArrayLike]
+    Slack variable values (if soft constraints used)
+dual_variables : Optional[ArrayLike]
+    Lagrange multipliers (sensitivity to constraints)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Setup MPC
+>>> mpc = ModelPredictiveController(
+...     system, horizon=20, Q=np.diag([10, 1]), R=np.array([[0.1]])
+... )
+>>>
+>>> # Solve at current state
+>>> x_current = np.array([1.0, 0.5])
+>>> x_ref = np.zeros(2)
+>>> result: MPCResult = mpc.solve(x_current, x_ref)
+>>>
+>>> # Apply first control (receding horizon)
+>>> u_apply = result['control_sequence'][0]
+>>>
+>>> # Check solution quality
+>>> if result['success']:
+...     print(f"Cost: {result['cost']:.3f}")
+...     print(f"Solve time: {result['solve_time']*1000:.1f} ms")
+>>>
+>>> # Examine predicted trajectory
+>>> x_pred = result['predicted_trajectory']
+>>> print(x_pred.shape)  # (21, 2) for horizon=20
+```

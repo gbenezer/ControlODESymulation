@@ -1,0 +1,439 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticPendulum { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum(*args, **kwargs)
+```
+
+Discrete-time stochastic pendulum for digital control and RL.
+
+Represents a pendulum sampled at discrete intervals with process noise,
+suitable for digital control implementation, discrete Kalman filtering,
+and reinforcement learning applications with realistic disturbances.
+
+## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}
+
+Euler discretization with noise:
+
+    θ[k+1] = θ[k] + ω[k]·Δt + w_θ[k]
+    ω[k+1] = ω[k] + (-(g/L)·sin(θ[k]) - b·ω[k] + u[k])·Δt + w_ω[k]
+
+where:
+    - θ[k]: Angle at time k·Δt [rad]
+    - ω[k]: Angular velocity at time k·Δt [rad/s]
+    - u[k]: Applied torque (zero-order hold) [rad/s²]
+    - w_θ[k]: Angle noise [rad per step]
+    - w_ω[k]: Angular velocity noise [rad/s per step]
+    - Δt: Sampling period [s]
+
+**Deterministic Part:**
+Same nonlinear pendulum dynamics as continuous.
+
+**Stochastic Part:**
+Noise accumulated over sampling interval [k·Δt, (k+1)·Δt].
+
+**Zero-Order Hold:**
+Control u[k] constant during interval (digital implementation).
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Digital Control Loop:**
+
+1. **Sample:** Read encoder at t = k·Δt
+   - Measure θ[k] (with quantization)
+   - Estimate ω[k] (from differences or gyro)
+
+2. **Compute:** Calculate control u[k]
+   - LQR, swing-up, learned policy
+   - Computation time: τ_comp (typically << Δt)
+
+3. **Actuate:** Output u[k] via DAC/PWM
+   - Held constant until t = (k+1)·Δt
+   - Zero-order hold
+
+4. **Disturbances:** Between samples
+   - Wind gusts: w_ω
+   - Ground vibration: w_θ
+   - Friction variations
+   - Unmodeled dynamics
+
+**Noise Sources:**
+
+Angle noise w_θ[k]:
+- Direct angle disturbances (rare physically)
+- Encoder quantization (measurement as process noise)
+- Model uncertainty
+- Typical: 0.001-0.01 rad per step
+
+Angular velocity noise w_ω[k]:
+- Torque disturbances (wind, vibration)
+- Motor ripple, cogging
+- Bearing friction variations
+- Most critical for stability
+- Typical: 0.01-0.1 rad/s per step
+
+**Conversion from Continuous:**
+
+For continuous σ_c [rad/(s²·√s)]:
+    σ_d = σ_c·√Δt [rad/s per step]
+
+Example: σ_c = 1.0, Δt = 0.01 s
+    → σ_d = 0.1 rad/s per step
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Nonlinearity:**
+sin(θ) creates bistability and complex dynamics.
+
+**Unstable Equilibrium:**
+Upright (θ=0) exponentially unstable without control.
+
+**Bistability:**
+Two potential wells (downward stable, upward unstable).
+
+**Discrete Sampling:**
+Finite Δt creates sampling effects (aliasing, delay).
+
+**Zero-Order Hold:**
+Control discontinuous (step-wise).
+
+**Process Noise:**
+Disturbances between samples.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Equilibria (Deterministic Part):**
+
+Downward: θ = 0, ω = 0 (stable)
+Upward: θ = π, ω = 0 (unstable)
+
+**Linearization (Small Angle):**
+
+Near downward (θ ≈ 0):
+    [θ[k+1]] ≈ [1      Δt    ]·[θ[k]] + [0 ]·u[k]
+    [ω[k+1]]   [-g/L·Δt  1-b·Δt] [ω[k]]   [Δt]
+
+Eigenvalues determine discrete stability.
+
+**Stability Condition (Linear):**
+
+For stable downward equilibrium:
+Eigenvalues of Φ must satisfy |λ| < 1.
+
+Requires: Δt < 2/(b + √(b² + 4g/L))
+
+**Upright (θ ≈ π):**
+
+Unstable - one eigenvalue |λ| > 1.
+Requires fast sampling and feedback.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Sampling Period Δt:**
+- Digital control rate
+- Critical for unstable upright
+- Affects noise accumulation
+- Trade-off: Fast vs computation
+
+**Damping b:**
+- Energy dissipation [1/s]
+- Higher b: Easier to control
+- Typical: 0.1-1.0
+
+**Noise Intensity σ:**
+- Angular disturbance magnitude
+- Higher σ: More falls, harder balance
+- Typical: 0.01-0.1 rad/s per step
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X[k] = [θ[k], ω[k]]
+    - θ: Angle (periodic, or unwrapped)
+    - ω: Angular velocity
+
+Control: u[k] ∈ ℝ
+    - Torque (zero-order hold)
+    - Bounded: |u| ≤ u_max typically
+
+Noise: w[k] = [w_θ[k], w_ω[k]]
+    - Gaussian per step
+    - Accumulated over Δt
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type   | Description                                                                                                                          | Default   |
+|-------------|--------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| g           | float  | Gravity [m/s²]                                                                                                                       | `9.81`    |
+| L           | float  | Pendulum length [m]                                                                                                                  | `1.0`     |
+| b           | float  | Damping [1/s]                                                                                                                        | `0.5`     |
+| sigma_theta | float  | Angle noise [rad per step] - Encoder noise, model uncertainty - Typical: 0.001-0.01                                                  | `0.01`    |
+| sigma_omega | float  | Angular velocity noise [rad/s per step] - Torque disturbances (most critical) - Convert from continuous: σ_c·√Δt - Typical: 0.01-0.1 | `0.05`    |
+| dt          | float  | Sampling period [s] - Critical parameter - Typical: 0.001-0.1 s - Faster for upright stabilization                                   | `0.01`    |
+| m           | float  | Mass [kg] (optional)                                                                                                                 | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR
+- Noise Type: ADDITIVE
+- Discrete: Yes (native discrete-time)
+- Stationary: No (open-loop)
+- Bistable: Yes (two equilibria)
+- Unstable: Yes (upright)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Digital Control:**
+- Microcontroller implementation
+- Real-time OS (RTOS)
+- Fixed-point arithmetic
+
+**2. State Estimation:**
+- Discrete EKF/UKF
+- Particle filter
+- Complementary filter (IMU+encoder)
+
+**3. Reinforcement Learning:**
+- OpenAI Gym Pendulum-v1
+- Discrete action spaces
+- Robust RL with noise
+
+**4. Embedded Systems:**
+- Arduino, STM32 implementation
+- FPGA for ultra-fast control
+- Education/research platforms
+
+**5. Robustness Analysis:**
+- Monte Carlo falling probability
+- Mean time to failure
+- Sensitivity to noise
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Evaluation:**
+    X[k+1] = f(X[k], u[k]) + w[k]
+
+No integration needed (discrete-time native).
+
+**Euler Discretization:**
+Standard for discrete pendulum (matches RL benchmarks).
+
+**Higher-Order (RK4):**
+More accurate but less common in practice.
+
+## Discrete EKF Implementation {.doc-section .doc-section-discrete-ekf-implementation}
+
+**Jacobian (Linearization):**
+
+F = ∂f/∂X = [1           Δt                    ]
+             [-g/L·cos(θ)·Δt  1 - b·Δt]
+
+At θ=0 (downward): cos(0) = 1
+At θ=π (upright): cos(π) = -1 (sign flip!)
+
+## Comparison with Continuous {.doc-section .doc-section-comparison-with-continuous}
+
+**Continuous Stochastic:**
+- dW Brownian motion
+- σ in [rad/(s²·√s)]
+- SDE integration (Euler-Maruyama)
+- Theoretical foundation
+
+**Discrete Stochastic:**
+- w[k] Gaussian per step
+- σ in [rad/s per step]
+- Direct evaluation
+- Practical implementation
+
+**Conversion:**
+    σ_discrete = σ_continuous·√Δt
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Euler discretization: O(Δt) error
+- Additive noise (not multiplicative)
+- 1D pendulum (no 3D motion)
+- Rigid body (no flexibility)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- RK4 discretization (higher accuracy)
+- Double pendulum (chaos + noise)
+- Flexible pendulum
+- 3D pendulum (spherical)
+- Multiplicative noise
+
+## See Also {.doc-section .doc-section-see-also}
+
+StochasticPendulum : Continuous-time version
+Pendulum : Deterministic discrete version
+DiscreteStochasticDoubleIntegrator : Simpler linear system
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_energy](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.compute_energy) | Compute mechanical energy. |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.define_system) | Define discrete stochastic pendulum dynamics. |
+| [get_natural_frequency](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_natural_frequency) | Get natural frequency ω₀ = √(g/L) [rad/s]. |
+| [get_noise_intensities](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_noise_intensities) | Get noise parameters. |
+| [get_nyquist_limit](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_nyquist_limit) | Get approximate Nyquist-like sampling limit. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.setup_equilibria) | Set up equilibrium points. |
+
+### compute_energy { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.compute_energy }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.compute_energy(x)
+```
+
+Compute mechanical energy.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description   | Default    |
+|--------|------------|---------------|------------|
+| x      | np.ndarray | State [θ, ω]  | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description   |
+|--------|--------|---------------|
+|        | float  | Energy [J/kg] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = DiscreteStochasticPendulum()
+>>> x = np.array([0.5, 1.0])
+>>> E = pend.compute_energy(x)
+>>> print(f"Energy: {E:.3f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.define_system(
+    g=9.81,
+    L=1.0,
+    b=0.5,
+    sigma_theta=0.01,
+    sigma_omega=0.05,
+    dt=0.01,
+    m=1.0,
+)
+```
+
+Define discrete stochastic pendulum dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type   | Description                                                                                                                                 | Default   |
+|-------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| g           | float  | Gravity [m/s²]                                                                                                                              | `9.81`    |
+| L           | float  | Pendulum length [m]                                                                                                                         | `1.0`     |
+| b           | float  | Damping [1/s]                                                                                                                               | `0.5`     |
+| sigma_theta | float  | Angle noise per step [rad] - Encoder quantization, model error - Typical: 0.001-0.01                                                        | `0.01`    |
+| sigma_omega | float  | Angular velocity noise per step [rad/s] - Torque disturbances (critical for upright) - Convert: σ_c·√Δt from continuous - Typical: 0.01-0.1 | `0.05`    |
+| dt          | float  | Sampling period [s] - Typical: 0.001-0.1 - Faster for upright control - Balance: Fast enough vs computation                                 | `0.01`    |
+| m           | float  | Mass [kg]                                                                                                                                   | `1.0`     |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Sampling Rate Selection:**
+
+For upright stabilization:
+- Minimum: Δt < π/√(g/L) (Nyquist-like)
+- Recommended: Δt < 0.1·√(L/g) (10× rule)
+- For L=1m, g=9.81: Δt < 0.03 s = 30 ms
+
+Practical:
+- Fast (research): 1-5 ms
+- Moderate (education): 10-20 ms
+- Slow (demo): 50-100 ms
+
+**Noise Scaling:**
+
+From continuous σ_c [rad/(s²·√s)]:
+    σ_discrete = σ_c·√Δt
+
+Example: σ_c = 1.0, Δt = 0.01
+    → σ_d = 0.1 rad/s per step
+
+**Stability (Discrete Linearized):**
+
+At downward (θ=0):
+Eigenvalues of:
+    Φ = [1           Δt        ]
+        [-g/L·Δt   1-b·Δt]
+
+Stable if |λ| < 1 for both eigenvalues.
+
+Requires: Δt small enough.
+
+**Discretization Method:**
+
+This uses Euler (most common for RL/embedded):
+- Simple, explicit
+- O(Δt) error
+- Matches OpenAI Gym
+
+Alternative: RK4 (more accurate, more computation).
+
+**Noise Placement:**
+
+On both θ and ω equations (general).
+
+Physical: Primarily on ω (torque disturbances).
+Can set σ_θ = 0 for purely physical model.
+
+### get_natural_frequency { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_natural_frequency }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_natural_frequency(
+)
+```
+
+Get natural frequency ω₀ = √(g/L) [rad/s].
+
+### get_noise_intensities { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_noise_intensities }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_noise_intensities(
+)
+```
+
+Get noise parameters.
+
+### get_nyquist_limit { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_nyquist_limit }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.get_nyquist_limit(
+)
+```
+
+Get approximate Nyquist-like sampling limit.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | float  | Maximum recommended Δt [s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Rule: Δt < π/ω₀ for capturing dynamics.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = DiscreteStochasticPendulum(g=9.81, L=1.0)
+>>> dt_max = pend.get_nyquist_limit()
+>>> print(f"Max Δt ≈ {dt_max:.3f} s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.setup_equilibria }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.setup_equilibria(
+)
+```
+
+Set up equilibrium points.

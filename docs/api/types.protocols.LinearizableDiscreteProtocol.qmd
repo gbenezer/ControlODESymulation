@@ -1,0 +1,159 @@
+# types.protocols.LinearizableDiscreteProtocol { #cdesym.types.protocols.LinearizableDiscreteProtocol }
+
+```python
+types.protocols.LinearizableDiscreteProtocol()
+```
+
+Discrete system with linearization capability.
+
+Extends DiscreteSystemProtocol with Jacobian computation, enabling
+linear control design algorithms (LQR, MPC, pole placement).
+
+The linearization provides discrete-time Jacobian matrices:
+    δx[k+1] = Ad·δx[k] + Bd·δu[k]
+
+where:
+    Ad = ∂f/∂x evaluated at (x_eq, u_eq)
+    Bd = ∂f/∂u evaluated at (x_eq, u_eq)
+
+## Implementations {.doc-section .doc-section-implementations}
+
+Concrete classes that satisfy this protocol:
+- DiscreteSymbolicSystem: Symbolic Jacobians via automatic differentiation
+- DiscreteStochasticSystem: Symbolic Jacobians + diffusion matrix
+- DiscretizedSystem: Wraps continuous linearization then discretizes
+- LinearizedDiscreteSystem: Explicitly provided A, B matrices
+
+## Required Methods (in addition to DiscreteSystemProtocol) {.doc-section .doc-section-required-methods-in-addition-to-discretesystemprotocol}
+
+linearize(x_eq, u_eq) -> (Ad, Bd)
+    Compute discrete Jacobian matrices
+
+## Use Cases {.doc-section .doc-section-use-cases}
+
+- LQR controller design
+- Model Predictive Control (MPC) with linearization
+- Pole placement
+- Discrete Kalman filter design
+- Stability analysis (eigenvalue-based)
+- Controllability/observability analysis
+- Most modern control algorithms
+
+## Examples {.doc-section .doc-section-examples}
+
+LQR design function:
+
+```python
+>>> from scipy.linalg import solve_discrete_are
+>>>
+>>> def design_lqr(
+...     system: LinearizableDiscreteProtocol,
+...     Q: np.ndarray,
+...     R: np.ndarray,
+...     x_eq: Optional[StateVector] = None,
+...     u_eq: Optional[ControlVector] = None
+... ) -> LQRResult:
+...     '''Design LQR controller for any linearizable discrete system.'''
+...     # Default to origin
+...     if x_eq is None:
+...         x_eq = np.zeros(system.nx)
+...         u_eq = np.zeros(system.nu)
+...
+...     # Get linearization
+...     Ad, Bd = system.linearize(x_eq, u_eq)
+...
+...     # Solve discrete-time algebraic Riccati equation
+...     P = solve_discrete_are(Ad, Bd, Q, R)
+...     K = np.linalg.inv(R + Bd.T @ P @ Bd) @ (Bd.T @ P @ Ad)
+...
+...     # Check closed-loop stability
+...     A_cl = Ad - Bd @ K
+...     eigenvalues = np.linalg.eigvals(A_cl)
+...
+...     return {
+...         "K": K,
+...         "P": P,
+...         "eigenvalues": eigenvalues,
+...         "cost": x_eq.T @ P @ x_eq
+...     }
+>>>
+>>> # Works with DiscreteSymbolicSystem
+>>> symbolic_sys = DiscreteOscillator(dt=0.01)
+>>> result1 = design_lqr(symbolic_sys, Q, R)
+>>>
+>>> # Also works with DiscretizedSystem
+>>> continuous = Pendulum(m=1.0, l=0.5)
+>>> discretized = DiscretizedSystem(continuous, dt=0.01)
+>>> result2 = design_lqr(discretized, Q, R)  # ✓ Same function!
+```
+
+Stability analysis:
+
+```python
+>>> def check_stability(system: LinearizableDiscreteProtocol) -> bool:
+...     '''Check if discrete system is stable at origin.'''
+...     Ad, Bd = system.linearize(
+...         np.zeros(system.nx),
+...         np.zeros(system.nu)
+...     )
+...     eigenvalues = np.linalg.eigvals(Ad)
+...     return np.all(np.abs(eigenvalues) < 1.0)
+>>>
+>>> is_stable = check_stability(any_discrete_system)  # Works with any!
+```
+
+MPC with linearization:
+
+```python
+>>> def mpc_step(
+...     system: LinearizableDiscreteProtocol,
+...     x_current: StateVector,
+...     x_ref: StateVector,
+...     horizon: int = 10
+... ) -> ControlVector:
+...     '''MPC using linearization around reference.'''
+...     # Linearize around reference
+...     Ad, Bd = system.linearize(x_ref, np.zeros(system.nu))
+...
+...     # Solve QP for optimal control
+...     # ... MPC formulation ...
+...     return u_optimal
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+The linearization is typically valid only for small deviations from
+the equilibrium point: δx = x - x_eq, δu = u - u_eq.
+
+For nonlinear systems, linearization provides a local approximation
+useful for controller design, but may not capture global behavior.
+
+The @runtime_checkable decorator enables isinstance() checks at runtime,
+though this should be used sparingly in favor of static type checking.
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [linearize](#cdesym.types.protocols.LinearizableDiscreteProtocol.linearize) | Compute discrete-time linearization: Ad = ∂f/∂x, Bd = ∂f/∂u. |
+
+### linearize { #cdesym.types.protocols.LinearizableDiscreteProtocol.linearize }
+
+```python
+types.protocols.LinearizableDiscreteProtocol.linearize(x_eq, u_eq=None)
+```
+
+Compute discrete-time linearization: Ad = ∂f/∂x, Bd = ∂f/∂u.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                    | Default    |
+|--------|---------------------------|------------------------------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)                        | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,), None = zero control | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                  | Description                                                                                                     |
+|--------|-----------------------|-----------------------------------------------------------------------------------------------------------------|
+|        | DiscreteLinearization | Tuple (Ad, Bd) of Jacobian matrices: - Ad: State transition matrix (nx, nx) - Bd: Control input matrix (nx, nu) |

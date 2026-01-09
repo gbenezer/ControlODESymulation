@@ -1,0 +1,69 @@
+# types.trajectories.IntegrationResult { #cdesym.types.trajectories.IntegrationResult }
+
+```python
+types.trajectories.IntegrationResult()
+```
+
+Result from continuous-time integration (ODE/SDE solver).
+
+Contains trajectory, time points, and solver diagnostics.
+
+## Shape Convention {.doc-section .doc-section-shape-convention}
+
+Time-major ordering for easy analysis and plotting:
+- t: (T,) - Time points
+- x: (T, nx) - State at each time point
+
+This differs from scipy's (nx, T) convention but is more natural
+for analysis: x[:, i] gives i-th component over time.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name             | Type      | Description                                    |
+|------------------|-----------|------------------------------------------------|
+| t                | ArrayLike | Time points (T,)                               |
+| x                | ArrayLike | State trajectory (T, nx) - time-major ordering |
+| success          | bool      | Whether integration succeeded                  |
+| message          | str       | Status message                                 |
+| nfev             | int       | Number of function evaluations                 |
+| nsteps           | int       | Number of integration steps                    |
+| integration_time | float     | Computation time in seconds                    |
+| solver           | str       | Name of solver used                            |
+
+## Optional Fields {.doc-section .doc-section-optional-fields}
+
+njev : int
+    Number of Jacobian evaluations
+nlu : int
+    Number of LU decompositions
+status : int
+    Solver-specific status code
+sol : Any
+    Dense output object (solver-specific)
+dense_output : bool
+    Whether dense output is available
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Integrate system
+>>> result: IntegrationResult = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: np.zeros(1),
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Access results
+>>> t = result["t"]        # Time points (T,)
+>>> x = result["x"]        # States (T, nx)
+>>>
+>>> # Plot first state component
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(t, x[:, 0], label='x1')
+>>> plt.plot(t, x[:, 1], label='x2')
+>>>
+>>> # Check success
+>>> if result["success"]:
+...     print(f"Completed in {result['integration_time']:.3f}s")
+...     print(f"Function evals: {result['nfev']}")
+```

@@ -1,0 +1,54 @@
+# systems.builtin.deterministic.continuous.LinearSystem2D { #cdesym.systems.builtin.deterministic.continuous.LinearSystem2D }
+
+```python
+systems.builtin.deterministic.continuous.LinearSystem2D(*args, **kwargs)
+```
+
+Two-dimensional linear system.
+
+Dynamics:
+    dx1/dt = a11*x1 + a12*x2 + b1*u
+    dx2/dt = a21*x1 + a22*x2 + b2*u
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description               | Default    |
+|--------|--------|---------------------------|------------|
+| a11    | float  | State matrix coefficients | _required_ |
+| a12    | float  | State matrix coefficients | _required_ |
+| a21    | float  | State matrix coefficients | _required_ |
+| a22    | float  | State matrix coefficients | _required_ |
+| b1     | float  | Control gain coefficients | _required_ |
+| b2     | float  | Control gain coefficients | _required_ |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Stable spiral
+>>> system = LinearSystem2D(
+...     a11=-1, a12=2, a21=-2, a22=-1, b1=1, b2=0
+... )
+>>> eigenvalues = np.linalg.eigvals(np.array([[-1, 2], [-2, -1]]))
+>>> # λ = -1 ± 2j (stable spiral)
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.deterministic.continuous.LinearSystem2D.define_system) | Define 2D linear dynamics. |
+
+### define_system { #cdesym.systems.builtin.deterministic.continuous.LinearSystem2D.define_system }
+
+```python
+systems.builtin.deterministic.continuous.LinearSystem2D.define_system(
+    a11=-1.0,
+    a12=0.0,
+    a21=0.0,
+    a22=-1.0,
+    b1=1.0,
+    b2=0.0,
+)
+```
+
+Define 2D linear dynamics.

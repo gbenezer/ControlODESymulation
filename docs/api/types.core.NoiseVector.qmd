@@ -1,0 +1,26 @@
+# types.core.NoiseVector { #cdesym.types.core.NoiseVector }
+
+`types.core.NoiseVector`
+
+Noise/disturbance vector w ∈ ℝⁿʷ (stochastic systems only).
+
+For continuous SDEs: Brownian motion increment dW
+For discrete stochastic: Standard normal w[k] ~ N(0, I)
+
+Shapes:
+- Single sample: (nw,)
+- Batched samples: (batch, nw)
+- Noise sequence: (n_steps, nw)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard normal noise
+>>> w: NoiseVector = np.random.randn(2)
+>>> 
+>>> # Brownian increment (continuous)
+>>> dW: NoiseVector = np.random.randn(2) * np.sqrt(dt)
+>>> 
+>>> # Discrete-time IID noise
+>>> w_k: NoiseVector = np.random.randn(2)  # w[k] ~ N(0, I)
+```

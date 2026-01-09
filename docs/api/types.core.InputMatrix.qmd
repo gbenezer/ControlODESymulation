@@ -1,0 +1,53 @@
+# types.core.InputMatrix { #cdesym.types.core.InputMatrix }
+
+`types.core.InputMatrix`
+
+Input matrix B (nx, nu).
+
+Maps control/input vector to state derivatives in state-space models:
+    Continuous: ẋ = Ax + Bu
+    Discrete:   x[k+1] = Ax[k] + Bu[k]
+
+Standard terminology in control theory literature. Also called:
+- B matrix (state-space notation)
+- Input gain matrix
+- Control-to-state matrix
+
+The B matrix structure reveals actuation architecture:
+- Row i: how all inputs affect state i
+- Column j: how input j affects all states
+- Rank deficiency: underactuated system
+
+Common structures:
+- Full rank: all states directly actuated
+- Partial: only some states directly affected
+- Sparse: localized actuation (e.g., torque only on joints)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simple integrator: ẋ = u
+>>> B: InputMatrix = np.array([[1.0]])
+>>> 
+>>> # Double integrator (position-velocity)
+>>> # Only velocity is directly actuated
+>>> B: InputMatrix = np.array([[0.0],   # position
+...                            [1.0]])  # velocity
+>>> 
+>>> # Quadrotor (multi-input)
+>>> # 4 motors, 6 states (x, y, z, roll, pitch, yaw)
+>>> B: InputMatrix = np.zeros((6, 4))
+>>> B[2, :] = [1, 1, 1, 1]      # z affected by all motors
+>>> B[3, :] = [1, -1, -1, 1]    # roll differential
+>>> B[4, :] = [1, 1, -1, -1]    # pitch differential
+>>> B[5, :] = [1, -1, 1, -1]    # yaw differential
+>>> 
+>>> # Linearized from Jacobian
+>>> # B = ∂f/∂u|_(x_eq, u_eq)
+>>> def dynamics(x, u):
+...     return np.array([x[1], -np.sin(x[0]) + u[0]])
+>>> 
+>>> # Jacobian at equilibrium
+>>> B_lin: InputMatrix = np.array([[0.0],    # ∂f₁/∂u = 0
+...                                [1.0]])   # ∂f₂/∂u = 1
+```

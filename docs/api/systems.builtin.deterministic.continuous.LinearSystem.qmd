@@ -1,0 +1,42 @@
+# systems.builtin.deterministic.continuous.LinearSystem { #cdesym.systems.builtin.deterministic.continuous.LinearSystem }
+
+```python
+systems.builtin.deterministic.continuous.LinearSystem(*args, **kwargs)
+```
+
+First-order linear system: dx/dt = -a*x + b*u
+
+Canonical example for testing and learning.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                           | Default   |
+|--------|--------|---------------------------------------|-----------|
+| a      | float  | State coefficient (positive = stable) | `1.0`     |
+| b      | float  | Control gain                          | `1.0`     |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LinearSystem(a=2.0, b=1.0)
+>>> x = np.array([1.0])
+>>> u = np.array([0.5])
+>>> dx = system(x, u)  # -2*1 + 1*0.5 = -1.5
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.deterministic.continuous.LinearSystem.define_system) | Define linear system dynamics. |
+
+### define_system { #cdesym.systems.builtin.deterministic.continuous.LinearSystem.define_system }
+
+```python
+systems.builtin.deterministic.continuous.LinearSystem.define_system(
+    a=1.0,
+    b=1.0,
+)
+```
+
+Define linear system dynamics.

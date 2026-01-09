@@ -1,0 +1,356 @@
+# API Reference {.doc .doc-index}
+
+## Control Design & Analysis
+
+Control synthesis, system analysis, and classical control functions
+
+| | |
+| --- | --- |
+| [control.ControlSynthesis](control.ControlSynthesis.qmd#cdesym.control.ControlSynthesis) | Control synthesis wrapper for system composition. |
+| [control.SystemAnalysis](control.SystemAnalysis.qmd#cdesym.control.SystemAnalysis) | System analysis wrapper for composition. |
+| [control.design_lqr](control.design_lqr.qmd#cdesym.control.design_lqr) | Design Linear Quadratic Regulator (LQR) controller. |
+| [control.design_lqg](control.design_lqg.qmd#cdesym.control.design_lqg) | Design Linear Quadratic Gaussian (LQG) controller. |
+| [control.design_kalman_filter](control.design_kalman_filter.qmd#cdesym.control.design_kalman_filter) | Design Kalman filter for optimal state estimation. |
+| [control.analyze_stability](control.analyze_stability.qmd#cdesym.control.analyze_stability) | Analyze system stability via eigenvalue analysis. |
+| [control.analyze_controllability](control.analyze_controllability.qmd#cdesym.control.analyze_controllability) | Test controllability of linear system (A, B). |
+| [control.analyze_observability](control.analyze_observability.qmd#cdesym.control.analyze_observability) | Test observability of linear system (A, C). |
+
+## State Observers
+
+State estimation and observer design
+
+| | |
+| --- | --- |
+| [observers.LinearObserver](observers.LinearObserver.qmd#cdesym.observers.LinearObserver) | Linear state observer with constant gain. |
+| [observers.ExtendedKalmanFilter](observers.ExtendedKalmanFilter.qmd#cdesym.observers.ExtendedKalmanFilter) | Extended Kalman Filter (EKF) for nonlinear state estimation. |
+
+## Visualization
+
+Plotting and visualization tools for dynamical systems
+
+| | |
+| --- | --- |
+| [visualization.TrajectoryPlotter](visualization.TrajectoryPlotter.qmd#cdesym.visualization.TrajectoryPlotter) | Time-domain trajectory visualization. |
+| [visualization.PhasePortraitPlotter](visualization.PhasePortraitPlotter.qmd#cdesym.visualization.PhasePortraitPlotter) | Phase space visualization for dynamical systems. |
+| [visualization.ControlPlotter](visualization.ControlPlotter.qmd#cdesym.visualization.ControlPlotter) | Control system analysis visualization. |
+| [visualization.ColorSchemes](visualization.ColorSchemes.qmd#cdesym.visualization.ColorSchemes) | Predefined color palettes for plotting. |
+| [visualization.PlotThemes](visualization.PlotThemes.qmd#cdesym.visualization.PlotThemes) | Complete plotting theme configurations. |
+
+## Systems: Core Classes
+
+Abstract base classes and core system implementations
+
+| | |
+| --- | --- |
+| [systems.base.core.SymbolicSystemBase](systems.base.core.SymbolicSystemBase.qmd#cdesym.systems.base.core.SymbolicSystemBase) | Abstract base class for symbolic systems (time-domain agnostic). |
+| [systems.base.core.ContinuousSystemBase](systems.base.core.ContinuousSystemBase.qmd#cdesym.systems.base.core.ContinuousSystemBase) | Abstract base class for all continuous-time dynamical systems. |
+| [systems.base.core.DiscreteSystemBase](systems.base.core.DiscreteSystemBase.qmd#cdesym.systems.base.core.DiscreteSystemBase) | Abstract base class for all discrete-time dynamical systems. |
+| [systems.base.core.ContinuousSymbolicSystem](systems.base.core.ContinuousSymbolicSystem.qmd#cdesym.systems.base.core.ContinuousSymbolicSystem) | Concrete symbolic continuous-time dynamical system. |
+| [systems.base.core.DiscreteSymbolicSystem](systems.base.core.DiscreteSymbolicSystem.qmd#cdesym.systems.base.core.DiscreteSymbolicSystem) | Concrete symbolic discrete-time dynamical system. |
+| [systems.base.core.ContinuousStochasticSystem](systems.base.core.ContinuousStochasticSystem.qmd#cdesym.systems.base.core.ContinuousStochasticSystem) | Concrete symbolic continuous-time stochastic dynamical system (SDE). |
+| [systems.base.core.DiscreteStochasticSystem](systems.base.core.DiscreteStochasticSystem.qmd#cdesym.systems.base.core.DiscreteStochasticSystem) | Concrete symbolic discrete-time stochastic dynamical system. |
+| [systems.base.core.DiscretizedSystem](systems.base.core.DiscretizedSystem.qmd#cdesym.systems.base.core.DiscretizedSystem) | Pure wrapper providing discrete interface to continuous systems. |
+| [systems.base.core.discretize](systems.base.core.discretize.qmd#cdesym.systems.base.core.discretize) | Convenience wrapper for creating a discretized system. |
+
+## Systems: Numerical Integration
+
+ODE and SDE integrators for multiple backends
+
+| | |
+| --- | --- |
+| [systems.base.numerical_integration.is_sde_method](systems.base.numerical_integration.is_sde_method.qmd#cdesym.systems.base.numerical_integration.is_sde_method) | Check if integration method is for stochastic differential equations. |
+| [systems.base.numerical_integration.is_fixed_step](systems.base.numerical_integration.is_fixed_step.qmd#cdesym.systems.base.numerical_integration.is_fixed_step) | Check if integration method uses fixed time stepping. |
+| [systems.base.numerical_integration.normalize_method_name](systems.base.numerical_integration.normalize_method_name.qmd#cdesym.systems.base.numerical_integration.normalize_method_name) | Normalize method names across backends to canonical form. |
+| [systems.base.numerical_integration.get_available_methods](systems.base.numerical_integration.get_available_methods.qmd#cdesym.systems.base.numerical_integration.get_available_methods) |     Get available integration methods for a backend. |
+| [systems.base.numerical_integration.validate_method](systems.base.numerical_integration.validate_method.qmd#cdesym.systems.base.numerical_integration.validate_method) | Validate method for backend and system type. |
+| [systems.base.numerical_integration.get_method_info](systems.base.numerical_integration.get_method_info.qmd#cdesym.systems.base.numerical_integration.get_method_info) | Get comprehensive information about a method. |
+| [systems.base.numerical_integration.list_all_methods](systems.base.numerical_integration.list_all_methods.qmd#cdesym.systems.base.numerical_integration.list_all_methods) | List all integration methods across all categories. |
+| [systems.base.numerical_integration.get_implementing_library](systems.base.numerical_integration.get_implementing_library.qmd#cdesym.systems.base.numerical_integration.get_implementing_library) | Get which library/package implements this method. |
+| [systems.base.numerical_integration.IntegratorFactory](systems.base.numerical_integration.IntegratorFactory.qmd#cdesym.systems.base.numerical_integration.IntegratorFactory) | Factory for creating numerical integrators. |
+| [systems.base.numerical_integration.IntegratorBase](systems.base.numerical_integration.IntegratorBase.qmd#cdesym.systems.base.numerical_integration.IntegratorBase) | Abstract base class for numerical integrators. |
+| [systems.base.numerical_integration.ScipyIntegrator](systems.base.numerical_integration.ScipyIntegrator.qmd#cdesym.systems.base.numerical_integration.ScipyIntegrator) | Adaptive integrator using scipy.integrate.solve_ivp. |
+| [systems.base.numerical_integration.DiffraxIntegrator](systems.base.numerical_integration.DiffraxIntegrator.qmd#cdesym.systems.base.numerical_integration.DiffraxIntegrator) | JAX-based ODE integrator using the Diffrax library. |
+| [systems.base.numerical_integration.TorchDiffEqIntegrator](systems.base.numerical_integration.TorchDiffEqIntegrator.qmd#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator) | PyTorch-based ODE integrator using the torchdiffeq library. |
+| [systems.base.numerical_integration.stochastic.SDEIntegratorFactory](systems.base.numerical_integration.stochastic.SDEIntegratorFactory.qmd#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory) | Factory for creating SDE numerical integrators. |
+| [systems.base.numerical_integration.stochastic.SDEIntegratorBase](systems.base.numerical_integration.stochastic.SDEIntegratorBase.qmd#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase) | Abstract base class for SDE integrators. |
+| [systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator](systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator) | Julia-based SDE integrator using DifferentialEquations.jl via diffeqpy. |
+| [systems.base.numerical_integration.stochastic.TorchSDEIntegrator](systems.base.numerical_integration.stochastic.TorchSDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator) | PyTorch-based SDE integrator using the torchsde library. |
+| [systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator](systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator) | JAX-based SDE integrator using the Diffrax library. |
+| [systems.base.numerical_integration.stochastic.CustomBrownianPath](systems.base.numerical_integration.stochastic.CustomBrownianPath.qmd#cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath) | Custom Brownian motion that uses provided dW increments. |
+| [systems.base.numerical_integration.stochastic.create_custom_or_random_brownian](systems.base.numerical_integration.stochastic.create_custom_or_random_brownian.qmd#cdesym.systems.base.numerical_integration.stochastic.create_custom_or_random_brownian) | Create either custom or random Brownian motion for Diffrax. |
+
+## Systems: Utilities
+
+Backend management, linearization, and code generation
+
+| | |
+| --- | --- |
+| [systems.base.utils.BackendManager](systems.base.utils.BackendManager.qmd#cdesym.systems.base.utils.BackendManager) | Manages backend detection, conversion, and device placement. |
+| [systems.base.utils.CodeGenerator](systems.base.utils.CodeGenerator.qmd#cdesym.systems.base.utils.CodeGenerator) | Orchestrates code generation and caching for a dynamical system. |
+| [systems.base.utils.DynamicsEvaluator](systems.base.utils.DynamicsEvaluator.qmd#cdesym.systems.base.utils.DynamicsEvaluator) | Evaluates forward dynamics across backends. |
+| [systems.base.utils.EquilibriumHandler](systems.base.utils.EquilibriumHandler.qmd#cdesym.systems.base.utils.EquilibriumHandler) | Manages multiple equilibrium points for a dynamical system. |
+| [systems.base.utils.LinearizationEngine](systems.base.utils.LinearizationEngine.qmd#cdesym.systems.base.utils.LinearizationEngine) | Computes linearized dynamics across backends. |
+| [systems.base.utils.ObservationEngine](systems.base.utils.ObservationEngine.qmd#cdesym.systems.base.utils.ObservationEngine) | Evaluates observation/output functions across backends. |
+| [systems.base.utils.SymbolicValidator](systems.base.utils.SymbolicValidator.qmd#cdesym.systems.base.utils.SymbolicValidator) | Validates symbolic dynamical system definitions. |
+| [systems.base.utils.stochastic.NoiseCharacteristics](systems.base.utils.stochastic.NoiseCharacteristics.qmd#cdesym.systems.base.utils.stochastic.NoiseCharacteristics) | Container for noise structure analysis results. |
+| [systems.base.utils.stochastic.NoiseCharacterizer](systems.base.utils.stochastic.NoiseCharacterizer.qmd#cdesym.systems.base.utils.stochastic.NoiseCharacterizer) | Analyzes symbolic diffusion expressions to determine noise structure. |
+| [systems.base.utils.stochastic.analyze_noise_structure](systems.base.utils.stochastic.analyze_noise_structure.qmd#cdesym.systems.base.utils.stochastic.analyze_noise_structure) | Convenience function for analyzing noise structure. |
+| [systems.base.utils.stochastic.DiffusionHandler](systems.base.utils.stochastic.DiffusionHandler.qmd#cdesym.systems.base.utils.stochastic.DiffusionHandler) | Handles code generation and caching for diffusion terms. |
+| [systems.base.utils.stochastic.SDEValidator](systems.base.utils.stochastic.SDEValidator.qmd#cdesym.systems.base.utils.stochastic.SDEValidator) | Validates stochastic dynamical system definitions. |
+
+## Builtin: Deterministic Continuous
+
+Continuous-time deterministic dynamical systems
+
+| | |
+| --- | --- |
+| [systems.builtin.deterministic.continuous.LinearSystem](systems.builtin.deterministic.continuous.LinearSystem.qmd#cdesym.systems.builtin.deterministic.continuous.LinearSystem) | First-order linear system: dx/dt = -a*x + b*u |
+| [systems.builtin.deterministic.continuous.AutonomousLinearSystem](systems.builtin.deterministic.continuous.AutonomousLinearSystem.qmd#cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem) | Autonomous first-order linear system: dx/dt = -a*x |
+| [systems.builtin.deterministic.continuous.LinearSystem2D](systems.builtin.deterministic.continuous.LinearSystem2D.qmd#cdesym.systems.builtin.deterministic.continuous.LinearSystem2D) | Two-dimensional linear system. |
+| [systems.builtin.deterministic.continuous.Pendulum](systems.builtin.deterministic.continuous.Pendulum.qmd#cdesym.systems.builtin.deterministic.continuous.Pendulum) |  |
+| [systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder](systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder) | Inverted pendulum - second-order formulation (returns ONLY acceleration). |
+| [systems.builtin.deterministic.continuous.CartPoleSystem](systems.builtin.deterministic.continuous.CartPoleSystem.qmd#cdesym.systems.builtin.deterministic.continuous.CartPoleSystem) |  |
+| [systems.builtin.deterministic.continuous.Lorenz](systems.builtin.deterministic.continuous.Lorenz.qmd#cdesym.systems.builtin.deterministic.continuous.Lorenz) | Lorenz system - famous chaotic dynamical system from atmospheric convection. |
+| [systems.builtin.deterministic.continuous.ControlledLorenz](systems.builtin.deterministic.continuous.ControlledLorenz.qmd#cdesym.systems.builtin.deterministic.continuous.ControlledLorenz) | Lorenz system - famous chaotic dynamical system from atmospheric convection with a forcing term |
+| [systems.builtin.deterministic.continuous.VanDerPolOscillator](systems.builtin.deterministic.continuous.VanDerPolOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.VanDerPolOscillator) | Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle. |
+| [systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator](systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator) | Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle and forcing term |
+| [systems.builtin.deterministic.continuous.DuffingOscillator](systems.builtin.deterministic.continuous.DuffingOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.DuffingOscillator) | Duffing oscillator - nonlinear oscillator with cubic stiffness term. |
+| [systems.builtin.deterministic.continuous.CoupledOscillatorSystem](systems.builtin.deterministic.continuous.CoupledOscillatorSystem.qmd#cdesym.systems.builtin.deterministic.continuous.CoupledOscillatorSystem) | Coupled mass-spring-damper system with rotational coupling - first-order formulation. |
+| [systems.builtin.deterministic.continuous.NonlinearChainSystem](systems.builtin.deterministic.continuous.NonlinearChainSystem.qmd#cdesym.systems.builtin.deterministic.continuous.NonlinearChainSystem) | Chain of five coupled nonlinear oscillators - first-order formulation. |
+| [systems.builtin.deterministic.continuous.DubinsVehicle](systems.builtin.deterministic.continuous.DubinsVehicle.qmd#cdesym.systems.builtin.deterministic.continuous.DubinsVehicle) | Dubins vehicle - kinematic car model with unicycle dynamics. |
+| [systems.builtin.deterministic.continuous.PathTracking](systems.builtin.deterministic.continuous.PathTracking.qmd#cdesym.systems.builtin.deterministic.continuous.PathTracking) | Path tracking error dynamics for a vehicle following a circular reference path. |
+| [systems.builtin.deterministic.continuous.SymbolicQuadrotor2D](systems.builtin.deterministic.continuous.SymbolicQuadrotor2D.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2D) | Planar quadrotor (quadcopter) - second-order formulation. |
+| [systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar](systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar) | Symbolic representation of a planar (2D) quadrotor with lidar-based partial observations. |
+| [systems.builtin.deterministic.continuous.PVTOL](systems.builtin.deterministic.continuous.PVTOL.qmd#cdesym.systems.builtin.deterministic.continuous.PVTOL) | Planar Vertical Take-Off and Landing (PVTOL) aircraft - second-order formulation. |
+| [systems.builtin.deterministic.continuous.Manipulator2Link](systems.builtin.deterministic.continuous.Manipulator2Link.qmd#cdesym.systems.builtin.deterministic.continuous.Manipulator2Link) | Two-link planar robotic manipulator - second-order formulation. |
+| [systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem](systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem.qmd#cdesym.systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem) | Fifth-order mechanical system - extremely high-order dynamics. |
+| [systems.builtin.deterministic.continuous.ContinuousBatchReactor](systems.builtin.deterministic.continuous.ContinuousBatchReactor.qmd#cdesym.systems.builtin.deterministic.continuous.ContinuousBatchReactor) |     Continuous-time chemical batch reactor with temperature control. |
+| [systems.builtin.deterministic.continuous.ContinuousCSTR](systems.builtin.deterministic.continuous.ContinuousCSTR.qmd#cdesym.systems.builtin.deterministic.continuous.ContinuousCSTR) | Continuous-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket. |
+
+## Builtin: Deterministic Discrete
+
+Discrete-time deterministic dynamical systems
+
+| | |
+| --- | --- |
+| [systems.builtin.deterministic.discrete.DiscreteOscillator](systems.builtin.deterministic.discrete.DiscreteOscillator.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator) | Discrete-time damped harmonic oscillator with external forcing. |
+| [systems.builtin.deterministic.discrete.DiscretePendulum](systems.builtin.deterministic.discrete.DiscretePendulum.qmd#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum) |     Discrete-time simple pendulum with friction and optional control. |
+| [systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator](systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator) | Discrete-time double integrator (position-controlled point mass). |
+| [systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce](systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce) | Discrete double integrator with explicit force input and mass. |
+| [systems.builtin.deterministic.discrete.DiscreteRobotArm](systems.builtin.deterministic.discrete.DiscreteRobotArm.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteRobotArm) |     Discrete-time single-link robot arm with gravity and friction. |
+| [systems.builtin.deterministic.discrete.DiscreteCartPole](systems.builtin.deterministic.discrete.DiscreteCartPole.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole) |         Discrete-time cart-pole (inverted pendulum on cart) system. |
+| [systems.builtin.deterministic.discrete.DifferentialDriveRobot](systems.builtin.deterministic.discrete.DifferentialDriveRobot.qmd#cdesym.systems.builtin.deterministic.discrete.DifferentialDriveRobot) | Discrete-time differential drive mobile robot with nonholonomic constraints. |
+| [systems.builtin.deterministic.discrete.DiscreteBatchReactor](systems.builtin.deterministic.discrete.DiscreteBatchReactor.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor) | Discrete-time chemical batch reactor with temperature control. |
+| [systems.builtin.deterministic.discrete.DiscreteCSTR](systems.builtin.deterministic.discrete.DiscreteCSTR.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR) |     Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket. |
+| [systems.builtin.deterministic.discrete.DiscreteSolowModel](systems.builtin.deterministic.discrete.DiscreteSolowModel.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel) |     Discrete-time Solow-Swan neoclassical growth model. |
+| [systems.builtin.deterministic.discrete.LogisticMap](systems.builtin.deterministic.discrete.LogisticMap.qmd#cdesym.systems.builtin.deterministic.discrete.LogisticMap) | The logistic map: x[k+1] = r·x[k]·(1 - x[k]) |
+| [systems.builtin.deterministic.discrete.HenonMap](systems.builtin.deterministic.discrete.HenonMap.qmd#cdesym.systems.builtin.deterministic.discrete.HenonMap) | The Hénon Map: Paradigm of 2D dissipative chaos and strange attractors. |
+| [systems.builtin.deterministic.discrete.StandardMap](systems.builtin.deterministic.discrete.StandardMap.qmd#cdesym.systems.builtin.deterministic.discrete.StandardMap) | The Standard Map (Chirikov-Taylor Map): Paradigm of Hamiltonian chaos. |
+
+## Builtin: Stochastic Continuous
+
+Continuous-time stochastic dynamical systems (SDEs)
+
+| | |
+| --- | --- |
+| [systems.builtin.stochastic.continuous.BrownianMotion](systems.builtin.stochastic.continuous.BrownianMotion.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotion) | Standard Brownian motion (Wiener process) - pure diffusion process. |
+| [systems.builtin.stochastic.continuous.BrownianMotion2D](systems.builtin.stochastic.continuous.BrownianMotion2D.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D) | Two-dimensional Brownian motion with independent components. |
+| [systems.builtin.stochastic.continuous.BrownianMotionWithDrift](systems.builtin.stochastic.continuous.BrownianMotionWithDrift.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotionWithDrift) | Alias for GeometricBrownianMotion. |
+| [systems.builtin.stochastic.continuous.GeometricBrownianMotion](systems.builtin.stochastic.continuous.GeometricBrownianMotion.qmd#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion) | Geometric Brownian motion with multiplicative (state-dependent) noise. |
+| [systems.builtin.stochastic.continuous.OrnsteinUhlenbeck](systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.qmd#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck) | Ornstein-Uhlenbeck process with mean reversion and additive noise. |
+| [systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck](systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.qmd#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck) | Multivariate Ornstein-Uhlenbeck process with coupling and correlated noise. |
+| [systems.builtin.stochastic.continuous.CoxIngersollRoss](systems.builtin.stochastic.continuous.CoxIngersollRoss.qmd#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss) | Cox-Ingersoll-Ross process with mean reversion and square-root diffusion. |
+| [systems.builtin.stochastic.continuous.LangevinDynamics](systems.builtin.stochastic.continuous.LangevinDynamics.qmd#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics) | Langevin dynamics - particle in viscous fluid with thermal noise. |
+| [systems.builtin.stochastic.continuous.StochasticDoubleIntegrator](systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator) | Stochastic double integrator - canonical LQG benchmark system. |
+| [systems.builtin.stochastic.continuous.ContinuousStochasticPendulum](systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum) | Stochastic pendulum with random forcing - canonical nonlinear stochastic system. |
+| [systems.builtin.stochastic.continuous.StochasticCartPole](systems.builtin.stochastic.continuous.StochasticCartPole.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole) | Stochastic inverted pendulum on cart with random disturbances. |
+| [systems.builtin.stochastic.continuous.StochasticLorenz](systems.builtin.stochastic.continuous.StochasticLorenz.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz) | Stochastic Lorenz system - deterministic chaos with random perturbations. |
+| [systems.builtin.stochastic.continuous.StochasticSIR](systems.builtin.stochastic.continuous.StochasticSIR.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticSIR) | Stochastic SIR epidemic model with demographic noise. |
+| [systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor](systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor) | Continuous-time stochastic batch reactor with process noise. |
+| [systems.builtin.stochastic.continuous.ContinuousStochasticCSTR](systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR) | Continuous-time stochastic CSTR with multiple equilibria and Brownian noise. |
+
+## Builtin: Stochastic Discrete
+
+Discrete-time stochastic dynamical systems
+
+| | |
+| --- | --- |
+| [systems.builtin.stochastic.discrete.DiscreteAR1](systems.builtin.stochastic.discrete.DiscreteAR1.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1) | First-order autoregressive process with additive noise. |
+| [systems.builtin.stochastic.discrete.DiscreteWhiteNoise](systems.builtin.stochastic.discrete.DiscreteWhiteNoise.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise) | Pure white noise process - memoryless random sequence. |
+| [systems.builtin.stochastic.discrete.DiscreteRandomWalk](systems.builtin.stochastic.discrete.DiscreteRandomWalk.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk) | Random walk - non-stationary process with unit root. |
+| [systems.builtin.stochastic.discrete.DiscreteARMA11](systems.builtin.stochastic.discrete.DiscreteARMA11.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11) | ARMA(1,1) process - combines autoregressive and moving average. |
+| [systems.builtin.stochastic.discrete.DiscreteVAR1](systems.builtin.stochastic.discrete.DiscreteVAR1.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1) | Vector Autoregressive process of order 1 - multivariate time series model. |
+| [systems.builtin.stochastic.discrete.DiscreteGARCH11](systems.builtin.stochastic.discrete.DiscreteGARCH11.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11) | GARCH(1,1) - time-varying volatility model (Nobel Prize 2003). |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator](systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator) | Discrete-time stochastic double integrator - canonical digital LQG benchmark. |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticPendulum](systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum) | Discrete-time stochastic pendulum for digital control and RL. |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticQueue](systems.builtin.stochastic.discrete.DiscreteStochasticQueue.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue) | Discrete-time stochastic queue with random arrivals and service. |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor](systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor) | Discrete-time stochastic batch reactor for digital control and estimation. |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticCSTR](systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR) | Discrete-time stochastic CSTR with multiple steady states and process noise. |
+| [systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap](systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap) | Discrete-time stochastic logistic map - chaos meets noise. |
+
+## Types: Core
+
+Fundamental vectors, matrices, dimensions, and function types
+
+| | |
+| --- | --- |
+| [types.core.ScalarLike](types.core.ScalarLike.qmd#cdesym.types.core.ScalarLike) | Scalar value in any backend. |
+| [types.core.ArrayLike](types.core.ArrayLike.qmd#cdesym.types.core.ArrayLike) | Array-like type supporting multiple backends. |
+| [types.core.StateVector](types.core.StateVector.qmd#cdesym.types.core.StateVector) | State vector x ∈ ℝⁿˣ. |
+| [types.core.ControlVector](types.core.ControlVector.qmd#cdesym.types.core.ControlVector) | Control input vector u ∈ ℝⁿᵘ. |
+| [types.core.OutputVector](types.core.OutputVector.qmd#cdesym.types.core.OutputVector) | Output/observation/measurement vector y ∈ ℝⁿʸ. |
+| [types.core.NoiseVector](types.core.NoiseVector.qmd#cdesym.types.core.NoiseVector) | Noise/disturbance vector w ∈ ℝⁿʷ (stochastic systems only). |
+| [types.core.ParameterVector](types.core.ParameterVector.qmd#cdesym.types.core.ParameterVector) | Parameter vector θ ∈ ℝⁿᵖ. |
+| [types.core.StateMatrix](types.core.StateMatrix.qmd#cdesym.types.core.StateMatrix) | State matrix (nx, nx). |
+| [types.core.InputMatrix](types.core.InputMatrix.qmd#cdesym.types.core.InputMatrix) | Input matrix B (nx, nu). |
+| [types.core.OutputMatrix](types.core.OutputMatrix.qmd#cdesym.types.core.OutputMatrix) | Output/observation matrix (ny, nx). |
+| [types.core.DiffusionMatrix](types.core.DiffusionMatrix.qmd#cdesym.types.core.DiffusionMatrix) | Diffusion/noise gain matrix (nx, nw) - stochastic systems only. |
+| [types.core.FeedthroughMatrix](types.core.FeedthroughMatrix.qmd#cdesym.types.core.FeedthroughMatrix) | Feedthrough/direct transmission matrix (ny, nu). |
+| [types.core.GainMatrix](types.core.GainMatrix.qmd#cdesym.types.core.GainMatrix) | Gain matrix for control or estimation. |
+| [types.core.CovarianceMatrix](types.core.CovarianceMatrix.qmd#cdesym.types.core.CovarianceMatrix) | Covariance matrix (symmetric, positive semidefinite). |
+| [types.core.SystemDimensions](types.core.SystemDimensions.qmd#cdesym.types.core.SystemDimensions) | System dimensions as dictionary. |
+| [types.core.DynamicsFunction](types.core.DynamicsFunction.qmd#cdesym.types.core.DynamicsFunction) | Dynamics function f(x, u). |
+| [types.core.OutputFunction](types.core.OutputFunction.qmd#cdesym.types.core.OutputFunction) | Output/observation function h(x). |
+| [types.core.DiffusionFunction](types.core.DiffusionFunction.qmd#cdesym.types.core.DiffusionFunction) | Diffusion function g(x, u) for stochastic systems. |
+| [types.core.ControlPolicy](types.core.ControlPolicy.qmd#cdesym.types.core.ControlPolicy) | Control policy/controller π(x). |
+| [types.core.TimeVaryingControl](types.core.TimeVaryingControl.qmd#cdesym.types.core.TimeVaryingControl) | Time-varying control function u(t). |
+| [types.core.FeedbackController](types.core.FeedbackController.qmd#cdesym.types.core.FeedbackController) | Feedback controller with time awareness π(x, t). |
+| [types.core.ControlInput](types.core.ControlInput.qmd#cdesym.types.core.ControlInput) | Unified type for control inputs to integration methods. |
+
+## Types: Backend & Configuration
+
+Backend support and configuration types
+
+| | |
+| --- | --- |
+| [types.backends.Backend](types.backends.Backend.qmd#cdesym.types.backends.Backend) | Backend identifier for numerical computation. |
+| [types.backends.Device](types.backends.Device.qmd#cdesym.types.backends.Device) | Device identifier for hardware acceleration. |
+| [types.backends.BackendConfig](types.backends.BackendConfig.qmd#cdesym.types.backends.BackendConfig) | Backend configuration dictionary. |
+| [types.backends.IntegrationMethod](types.backends.IntegrationMethod.qmd#cdesym.types.backends.IntegrationMethod) | Integration method for continuous-time systems (ODEs). |
+| [types.backends.SDEIntegrationMethod](types.backends.SDEIntegrationMethod.qmd#cdesym.types.backends.SDEIntegrationMethod) | SDE integration method for stochastic differential equations. |
+| [types.backends.DiscretizationMethod](types.backends.DiscretizationMethod.qmd#cdesym.types.backends.DiscretizationMethod) | Discretization method for continuous → discrete transformation. |
+| [types.backends.OptimizationMethod](types.backends.OptimizationMethod.qmd#cdesym.types.backends.OptimizationMethod) | Optimization method for control/estimation problems. |
+| [types.backends.NoiseType](types.backends.NoiseType.qmd#cdesym.types.backends.NoiseType) | Noise structure classification for stochastic systems. |
+| [types.backends.SDEType](types.backends.SDEType.qmd#cdesym.types.backends.SDEType) | SDE interpretation type. |
+| [types.backends.ConvergenceType](types.backends.ConvergenceType.qmd#cdesym.types.backends.ConvergenceType) | SDE convergence type for numerical integration. |
+| [types.backends.IntegratorConfig](types.backends.IntegratorConfig.qmd#cdesym.types.backends.IntegratorConfig) | Configuration for continuous-time integrators. |
+| [types.backends.SDEIntegratorConfig](types.backends.SDEIntegratorConfig.qmd#cdesym.types.backends.SDEIntegratorConfig) | Configuration for SDE integrators. |
+| [types.backends.DiscretizerConfig](types.backends.DiscretizerConfig.qmd#cdesym.types.backends.DiscretizerConfig) | Configuration for system discretization. |
+| [types.backends.SystemConfig](types.backends.SystemConfig.qmd#cdesym.types.backends.SystemConfig) | Complete system configuration dictionary. |
+| [types.backends.validate_backend](types.backends.validate_backend.qmd#cdesym.types.backends.validate_backend) | Validate and normalize backend string. |
+| [types.backends.validate_device](types.backends.validate_device.qmd#cdesym.types.backends.validate_device) | Validate device for given backend. |
+| [types.backends.get_backend_default_method](types.backends.get_backend_default_method.qmd#cdesym.types.backends.get_backend_default_method) | Get default integration method for backend. |
+
+## Types: Trajectories & Simulation
+
+Time series, trajectories, and simulation results
+
+| | |
+| --- | --- |
+| [types.trajectories.TimePoints](types.trajectories.TimePoints.qmd#cdesym.types.trajectories.TimePoints) | Array of time points for simulation or evaluation. |
+| [types.trajectories.TimeSpan](types.trajectories.TimeSpan.qmd#cdesym.types.trajectories.TimeSpan) | Time interval for continuous integration: (t_start, t_end). |
+| [types.trajectories.StateTrajectory](types.trajectories.StateTrajectory.qmd#cdesym.types.trajectories.StateTrajectory) | State trajectory over time. |
+| [types.trajectories.ControlSequence](types.trajectories.ControlSequence.qmd#cdesym.types.trajectories.ControlSequence) | Control input sequence over time. |
+| [types.trajectories.OutputSequence](types.trajectories.OutputSequence.qmd#cdesym.types.trajectories.OutputSequence) | Output/measurement sequence over time. |
+| [types.trajectories.NoiseSequence](types.trajectories.NoiseSequence.qmd#cdesym.types.trajectories.NoiseSequence) | Noise/disturbance sequence for stochastic simulation. |
+| [types.trajectories.SimulationResult](types.trajectories.SimulationResult.qmd#cdesym.types.trajectories.SimulationResult) | Result from continuous-time system simulation. |
+| [types.trajectories.IntegrationResult](types.trajectories.IntegrationResult.qmd#cdesym.types.trajectories.IntegrationResult) | Result from continuous-time integration (ODE/SDE solver). |
+| [types.trajectories.TrajectoryStatistics](types.trajectories.TrajectoryStatistics.qmd#cdesym.types.trajectories.TrajectoryStatistics) | Statistical summary of trajectory. |
+| [types.trajectories.TrajectorySegment](types.trajectories.TrajectorySegment.qmd#cdesym.types.trajectories.TrajectorySegment) | Segment of trajectory between two time points. |
+
+## Types: Control Results
+
+Control design and analysis result types
+
+| | |
+| --- | --- |
+| [types.control_classical.LQRResult](types.control_classical.LQRResult.qmd#cdesym.types.control_classical.LQRResult) | Linear Quadratic Regulator (LQR) design result. |
+| [types.control_classical.LQGResult](types.control_classical.LQGResult.qmd#cdesym.types.control_classical.LQGResult) | Linear Quadratic Gaussian (LQG) controller design result. |
+| [types.control_classical.KalmanFilterResult](types.control_classical.KalmanFilterResult.qmd#cdesym.types.control_classical.KalmanFilterResult) | Kalman Filter (optimal state estimator) design result. |
+| [types.control_classical.StabilityInfo](types.control_classical.StabilityInfo.qmd#cdesym.types.control_classical.StabilityInfo) | Stability analysis result dictionary. |
+| [types.control_classical.ControllabilityInfo](types.control_classical.ControllabilityInfo.qmd#cdesym.types.control_classical.ControllabilityInfo) | Controllability analysis result. |
+| [types.control_classical.ObservabilityInfo](types.control_classical.ObservabilityInfo.qmd#cdesym.types.control_classical.ObservabilityInfo) | Observability analysis result. |
+| [types.control_classical.PolePlacementResult](types.control_classical.PolePlacementResult.qmd#cdesym.types.control_classical.PolePlacementResult) | Pole placement (eigenvalue assignment) result. |
+| [types.control_classical.LuenbergerObserverResult](types.control_classical.LuenbergerObserverResult.qmd#cdesym.types.control_classical.LuenbergerObserverResult) | Luenberger observer (deterministic state estimator) design result. |
+| [types.control_advanced.MPCResult](types.control_advanced.MPCResult.qmd#cdesym.types.control_advanced.MPCResult) | Model Predictive Control (MPC) solution result. |
+| [types.control_advanced.MHEResult](types.control_advanced.MHEResult.qmd#cdesym.types.control_advanced.MHEResult) | Moving Horizon Estimation (MHE) result. |
+| [types.control_advanced.H2ControlResult](types.control_advanced.H2ControlResult.qmd#cdesym.types.control_advanced.H2ControlResult) | H₂ optimal control result. |
+| [types.control_advanced.HInfControlResult](types.control_advanced.HInfControlResult.qmd#cdesym.types.control_advanced.HInfControlResult) | H∞ robust control result. |
+| [types.control_advanced.LMIResult](types.control_advanced.LMIResult.qmd#cdesym.types.control_advanced.LMIResult) | Linear Matrix Inequality (LMI) solver result. |
+| [types.control_advanced.AdaptiveControlResult](types.control_advanced.AdaptiveControlResult.qmd#cdesym.types.control_advanced.AdaptiveControlResult) | Adaptive control result. |
+| [types.control_advanced.SlidingModeResult](types.control_advanced.SlidingModeResult.qmd#cdesym.types.control_advanced.SlidingModeResult) | Sliding Mode Control (SMC) result. |
+
+## Types: Estimation
+
+State estimation result types
+
+| | |
+| --- | --- |
+| [types.estimation.EKFResult](types.estimation.EKFResult.qmd#cdesym.types.estimation.EKFResult) | Extended Kalman Filter (EKF) state and result. |
+| [types.estimation.UKFResult](types.estimation.UKFResult.qmd#cdesym.types.estimation.UKFResult) | Unscented Kalman Filter (UKF) result. |
+| [types.estimation.ParticleFilterResult](types.estimation.ParticleFilterResult.qmd#cdesym.types.estimation.ParticleFilterResult) | Particle Filter (Sequential Monte Carlo) result. |
+
+## Types: Linearization
+
+Linearization and Jacobian types
+
+| | |
+| --- | --- |
+| [types.linearization.LinearizationResult](types.linearization.LinearizationResult.qmd#cdesym.types.linearization.LinearizationResult) | Flexible linearization result type. |
+| [types.linearization.DeterministicLinearization](types.linearization.DeterministicLinearization.qmd#cdesym.types.linearization.DeterministicLinearization) | Linearization result for deterministic systems: (A, B). |
+| [types.linearization.StochasticLinearization](types.linearization.StochasticLinearization.qmd#cdesym.types.linearization.StochasticLinearization) | Linearization result for stochastic systems: (A, B, G). |
+| [types.linearization.ContinuousLinearization](types.linearization.ContinuousLinearization.qmd#cdesym.types.linearization.ContinuousLinearization) | Alias for continuous-time deterministic linearization. |
+| [types.linearization.DiscreteLinearization](types.linearization.DiscreteLinearization.qmd#cdesym.types.linearization.DiscreteLinearization) | Alias for discrete-time deterministic linearization. |
+| [types.linearization.ContinuousStochasticLinearization](types.linearization.ContinuousStochasticLinearization.qmd#cdesym.types.linearization.ContinuousStochasticLinearization) | Alias for continuous-time stochastic linearization. |
+| [types.linearization.DiscreteStochasticLinearization](types.linearization.DiscreteStochasticLinearization.qmd#cdesym.types.linearization.DiscreteStochasticLinearization) | Alias for discrete-time stochastic linearization. |
+| [types.linearization.FullLinearization](types.linearization.FullLinearization.qmd#cdesym.types.linearization.FullLinearization) | Complete linearization including output: (A, B, C, D). |
+| [types.linearization.FullStochasticLinearization](types.linearization.FullStochasticLinearization.qmd#cdesym.types.linearization.FullStochasticLinearization) | Complete stochastic linearization: (A, B, G, C, D). |
+| [types.linearization.ObservationLinearization](types.linearization.ObservationLinearization.qmd#cdesym.types.linearization.ObservationLinearization) | Observation/output linearization: (C, D). |
+| [types.linearization.StateJacobian](types.linearization.StateJacobian.qmd#cdesym.types.linearization.StateJacobian) | State Jacobian ∂f/∂x. |
+| [types.linearization.ControlJacobian](types.linearization.ControlJacobian.qmd#cdesym.types.linearization.ControlJacobian) | Control Jacobian ∂f/∂u. |
+| [types.linearization.OutputJacobian](types.linearization.OutputJacobian.qmd#cdesym.types.linearization.OutputJacobian) | Output Jacobian ∂h/∂x. |
+| [types.linearization.DiffusionJacobian](types.linearization.DiffusionJacobian.qmd#cdesym.types.linearization.DiffusionJacobian) | Diffusion Jacobian ∂g/∂x (stochastic systems). |
+| [types.linearization.LinearizationCacheKey](types.linearization.LinearizationCacheKey.qmd#cdesym.types.linearization.LinearizationCacheKey) | Cache key for linearization results. |
+
+## Types: Symbolic
+
+Symbolic computation types
+
+| | |
+| --- | --- |
+| [types.symbolic.SymbolicExpression](types.symbolic.SymbolicExpression.qmd#cdesym.types.symbolic.SymbolicExpression) | Single symbolic expression. |
+| [types.symbolic.SymbolicMatrix](types.symbolic.SymbolicMatrix.qmd#cdesym.types.symbolic.SymbolicMatrix) | Matrix of symbolic expressions. |
+| [types.symbolic.SymbolicStateEquations](types.symbolic.SymbolicStateEquations.qmd#cdesym.types.symbolic.SymbolicStateEquations) | Symbolic state equations: f(x, u, params). |
+| [types.symbolic.SymbolicJacobian](types.symbolic.SymbolicJacobian.qmd#cdesym.types.symbolic.SymbolicJacobian) | Jacobian matrix: ∂f/∂x. |
+
+## Types: Advanced
+
+Reachability, robustness, optimization, and learning types
+
+| | |
+| --- | --- |
+| [types.reachability.ReachabilityResult](types.reachability.ReachabilityResult.qmd#cdesym.types.reachability.ReachabilityResult) | Reachability analysis result. |
+| [types.reachability.ROAResult](types.reachability.ROAResult.qmd#cdesym.types.reachability.ROAResult) | Region of Attraction (ROA) analysis result. |
+| [types.reachability.CBFResult](types.reachability.CBFResult.qmd#cdesym.types.reachability.CBFResult) | Control Barrier Function (CBF) result. |
+| [types.reachability.CLFResult](types.reachability.CLFResult.qmd#cdesym.types.reachability.CLFResult) | Control Lyapunov Function (CLF) result. |
+| [types.robustness.RobustStabilityResult](types.robustness.RobustStabilityResult.qmd#cdesym.types.robustness.RobustStabilityResult) | Robust stability analysis result. |
+| [types.robustness.TubeMPCResult](types.robustness.TubeMPCResult.qmd#cdesym.types.robustness.TubeMPCResult) | Tube-based MPC result. |
+| [types.optimization.OptimizationResult](types.optimization.OptimizationResult.qmd#cdesym.types.optimization.OptimizationResult) | General nonlinear optimization result. |
+| [types.optimization.TrajectoryOptimizationResult](types.optimization.TrajectoryOptimizationResult.qmd#cdesym.types.optimization.TrajectoryOptimizationResult) | Trajectory optimization result. |
+| [types.learning.TrainingResult](types.learning.TrainingResult.qmd#cdesym.types.learning.TrainingResult) | Neural network training result. |
+| [types.learning.RLTrainingResult](types.learning.RLTrainingResult.qmd#cdesym.types.learning.RLTrainingResult) | Reinforcement learning training result. |
+| [types.contraction.ContractionAnalysisResult](types.contraction.ContractionAnalysisResult.qmd#cdesym.types.contraction.ContractionAnalysisResult) | Contraction analysis result. |
+| [types.contraction.CCMResult](types.contraction.CCMResult.qmd#cdesym.types.contraction.CCMResult) | Control Contraction Metrics (CCM) result. |
+| [types.conformal.ConformalPredictionResult](types.conformal.ConformalPredictionResult.qmd#cdesym.types.conformal.ConformalPredictionResult) | Conformal prediction result for test points. |
+
+## Types: Protocols
+
+Structural subtyping protocols for system interfaces
+
+| | |
+| --- | --- |
+| [types.protocols.ContinuousSystemProtocol](types.protocols.ContinuousSystemProtocol.qmd#cdesym.types.protocols.ContinuousSystemProtocol) | Minimal interface for continuous-time dynamical systems. |
+| [types.protocols.DiscreteSystemProtocol](types.protocols.DiscreteSystemProtocol.qmd#cdesym.types.protocols.DiscreteSystemProtocol) | Minimal interface for discrete-time dynamical systems. |
+| [types.protocols.StochasticSystemProtocol](types.protocols.StochasticSystemProtocol.qmd#cdesym.types.protocols.StochasticSystemProtocol) | System with stochastic dynamics (continuous or discrete). |
+| [types.protocols.LinearizableContinuousProtocol](types.protocols.LinearizableContinuousProtocol.qmd#cdesym.types.protocols.LinearizableContinuousProtocol) | Continuous system with linearization capability. |
+| [types.protocols.LinearizableDiscreteProtocol](types.protocols.LinearizableDiscreteProtocol.qmd#cdesym.types.protocols.LinearizableDiscreteProtocol) | Discrete system with linearization capability. |

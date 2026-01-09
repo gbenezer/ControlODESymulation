@@ -1,0 +1,50 @@
+# types.learning.TrainingResult { #cdesym.types.learning.TrainingResult }
+
+```python
+types.learning.TrainingResult()
+```
+
+Neural network training result.
+
+## Fields {.doc-section .doc-section-fields}
+
+final_loss : float
+    Final training loss
+best_loss : float
+    Best loss achieved during training
+loss_history : List[float]
+    Loss value per epoch
+validation_loss : Optional[float]
+    Validation set loss (if validation data provided)
+training_time : float
+    Total training time in seconds
+epochs_trained : int
+    Number of epochs completed
+early_stopped : bool
+    Whether early stopping was triggered
+model_state : Optional[Dict]
+    Saved model parameters/weights
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Train neural ODE dynamics model
+>>> result: TrainingResult = train_neural_ode(
+...     model, data, epochs=100, learning_rate=1e-3
+... )
+>>>
+>>> print(f"Training complete:")
+>>> print(f"  Final loss: {result['final_loss']:.3e}")
+>>> print(f"  Best loss: {result['best_loss']:.3e}")
+>>> print(f"  Time: {result['training_time']:.1f}s")
+>>>
+>>> # Plot learning curve
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(result['loss_history'])
+>>> plt.xlabel('Epoch')
+>>> plt.ylabel('Loss')
+>>> plt.yscale('log')
+>>>
+>>> if result['early_stopped']:
+...     print("Training stopped early (convergence reached)")
+```

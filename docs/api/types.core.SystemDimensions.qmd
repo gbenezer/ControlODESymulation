@@ -1,0 +1,36 @@
+# types.core.SystemDimensions { #cdesym.types.core.SystemDimensions }
+
+```python
+types.core.SystemDimensions()
+```
+
+System dimensions as dictionary.
+
+All fields optional to support partial specifications.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name   | Type   | Description                                   |
+|--------|--------|-----------------------------------------------|
+| nx     | int    | State dimension                               |
+| nu     | int    | Control dimension                             |
+| ny     | int    | Output dimension                              |
+| nw     | int    | Noise dimension (stochastic systems only)     |
+| np     | int    | Parameter dimension (for learning/adaptation) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Deterministic system
+>>> dims: SystemDimensions = {'nx': 3, 'nu': 2, 'ny': 3}
+>>>
+>>> # Stochastic system
+>>> dims_stochastic: SystemDimensions = {
+...     'nx': 2, 'nu': 1, 'ny': 2, 'nw': 2
+... }
+>>>
+>>> # With parameters
+>>> dims_adaptive: SystemDimensions = {
+...     'nx': 3, 'nu': 1, 'ny': 3, 'np': 5
+... }
+```

@@ -1,0 +1,36 @@
+# types.core.DiffusionFunction { #cdesym.types.core.DiffusionFunction }
+
+`types.core.DiffusionFunction`
+
+Diffusion function g(x, u) for stochastic systems.
+
+Returns noise gain matrix.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description           | Default    |
+|--------|---------------------------|-----------------------|------------|
+| x      | StateVector               | State (nx,)           | _required_ |
+| u      | Optional\[ControlVector\] | Control (nu,) or None | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type            | Description               |
+|--------|-----------------|---------------------------|
+|        | DiffusionMatrix | Diffusion matrix (nx, nw) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Additive noise (constant)
+>>> def g_additive(x: StateVector, u: ControlVector) -> DiffusionMatrix:
+...     return 0.1 * np.eye(nx)
+>>> 
+>>> # Multiplicative noise (state-dependent)
+>>> def g_multiplicative(x: StateVector, u: ControlVector) -> DiffusionMatrix:
+...     return np.diag(0.1 * np.abs(x))
+>>> 
+>>> # Geometric Brownian motion
+>>> def g_gbm(x: StateVector, u: ControlVector) -> DiffusionMatrix:
+...     return np.array([[sigma * x[0]]])
+```

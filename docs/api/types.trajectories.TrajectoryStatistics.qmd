@@ -1,0 +1,43 @@
+# types.trajectories.TrajectoryStatistics { #cdesym.types.trajectories.TrajectoryStatistics }
+
+```python
+types.trajectories.TrajectoryStatistics()
+```
+
+Statistical summary of trajectory.
+
+Computed statistics over time series data.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name     | Type      | Description                              |
+|----------|-----------|------------------------------------------|
+| mean     | ArrayLike | Mean state over trajectory (nx,)         |
+| std      | ArrayLike | Standard deviation over trajectory (nx,) |
+| min      | ArrayLike | Minimum values (nx,)                     |
+| max      | ArrayLike | Maximum values (nx,)                     |
+| initial  | ArrayLike | Initial state x[0] (nx,)                 |
+| final    | ArrayLike | Final state x[-1] (nx,)                  |
+| length   | int       | Number of time steps                     |
+| duration | float     | Time duration (t_end - t_start)          |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def compute_trajectory_stats(trajectory: StateTrajectory) -> TrajectoryStatistics:
+...     '''Compute statistics of trajectory.'''
+...     return TrajectoryStatistics(
+...         mean=np.mean(trajectory, axis=0),
+...         std=np.std(trajectory, axis=0),
+...         min=np.min(trajectory, axis=0),
+...         max=np.max(trajectory, axis=0),
+...         initial=trajectory[0],
+...         final=trajectory[-1],
+...         length=len(trajectory),
+...     )
+>>>
+>>> stats: TrajectoryStatistics = compute_trajectory_stats(trajectory)
+>>> print(f"Mean state: {stats['mean']}")
+>>> print(f"Final state: {stats['final']}")
+>>> print(f"Max deviation: {np.max(stats['std'])}")
+```

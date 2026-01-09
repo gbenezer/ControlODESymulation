@@ -1,0 +1,48 @@
+# types.robustness.RobustStabilityResult { #cdesym.types.robustness.RobustStabilityResult }
+
+```python
+types.robustness.RobustStabilityResult()
+```
+
+Robust stability analysis result.
+
+Analyzes stability over parametric uncertainty set.
+
+## Fields {.doc-section .doc-section-fields}
+
+robustly_stable : bool
+    True if stable for all θ ∈ Θ
+worst_case_eigenvalue : complex
+    Eigenvalue closest to instability
+stability_margin : float
+    Minimum distance to instability boundary
+critical_parameter : Optional[ParameterVector]
+    Worst-case parameter θ*
+method : str
+    Analysis method ('polytope', 'Lyapunov', 'gridding')
+conservatism : Optional[float]
+    Conservatism estimate (0 = exact, 1 = very conservative)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Define uncertain system
+>>> # A(θ) = A_nom + θ₁*ΔA₁ + θ₂*ΔA₂
+>>> A_nom = np.array([[0, 1], [-2, -1]])
+>>> uncertainty = ([-0.2, -0.1], [0.2, 0.1])
+>>>
+>>> result: RobustStabilityResult = analyze_robust_stability(
+...     A_nom, uncertainty, method='polytope'
+... )
+>>>
+>>> if result['robustly_stable']:
+...     print(f"System is robustly stable!")
+...     print(f"Stability margin: {result['stability_margin']:.3f}")
+... else:
+...     print(f"Instability at θ = {result['critical_parameter']}")
+...     print(f"Critical eigenvalue: {result['worst_case_eigenvalue']}")
+>>>
+>>> # Check conservatism
+>>> if result.get('conservatism', 0) > 0.5:
+...     print("Analysis is conservative - true margin may be larger")
+```

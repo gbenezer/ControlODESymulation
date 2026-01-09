@@ -1,0 +1,52 @@
+# types.control_classical.LQRResult { #cdesym.types.control_classical.LQRResult }
+
+```python
+types.control_classical.LQRResult()
+```
+
+Linear Quadratic Regulator (LQR) design result.
+
+LQR computes optimal state feedback gain K that minimizes:
+    J = ∫₀^∞ (x'Qx + u'Ru) dt  (continuous)
+    J = Σₖ₌₀^∞ (x'Qx + u'Ru)     (discrete)
+
+Optimal control law: u = -Kx
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    Optimal feedback gain K of shape (nu, nx)
+cost_to_go : CovarianceMatrix
+    Solution P to algebraic Riccati equation (nx, nx)
+controller_eigenvalues : np.ndarray
+    Eigenvalues of (A - BK) - indicates stability and response
+stability_margin : float
+    Distance from stability boundary (positive = stable)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous LQR
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>> Q = np.diag([10, 1])  # Penalize position more than velocity
+>>> R = np.array([[0.1]])  # Control cost
+>>>
+>>> result: LQRResult = design_lqr_continuous(A, B, Q, R)
+>>> K = result['gain']
+>>> print(K.shape)  # (1, 2)
+>>>
+>>> # Apply control
+>>> x = np.array([1.0, 0.0])
+>>> u = -K @ x
+>>>
+>>> # Check stability
+>>> print(np.all(np.real(result['controller_eigenvalues']) < 0))  # True
+>>> print(result['stability_margin'])  # Positive value
+>>>
+>>> # Discrete LQR
+>>> Ad = np.array([[1, 0.1], [0, 0.9]])
+>>> Bd = np.array([[0], [0.1]])
+>>> result_d: LQRResult = design_lqr_discrete(Ad, Bd, Q, R)
+>>> print(np.all(np.abs(result_d['controller_eigenvalues']) < 1))  # True
+```

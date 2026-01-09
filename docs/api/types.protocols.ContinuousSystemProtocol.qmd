@@ -1,0 +1,84 @@
+# types.protocols.ContinuousSystemProtocol { #cdesym.types.protocols.ContinuousSystemProtocol }
+
+```python
+types.protocols.ContinuousSystemProtocol()
+```
+
+Minimal interface for continuous-time dynamical systems.
+
+Add continuous protocols if you have:
+- Trajectory optimization for continuous systems
+- Continuous-time verification algorithms
+- Reachability analysis
+- Generic continuous control design
+
+## Implementations {.doc-section .doc-section-implementations}
+
+- ContinuousSymbolicSystem
+- ContinuousStochasticSystem
+- NeuralODE (future)
+
+## Use Cases {.doc-section .doc-section-use-cases}
+
+- Trajectory optimization
+- Safety verification
+- Reachability analysis
+- Discretization utilities
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def discretize_any(
+...     system: ContinuousSystemProtocol,
+...     dt: float
+... ) -> DiscretizedSystem:
+...     '''Discretize any continuous system.'''
+...     return DiscretizedSystem(system, dt, method='rk4')
+>>>
+>>> # Works with any continuous system:
+>>> discrete1 = discretize_any(ContinuousSymbolicSystem(...), dt=0.01)
+>>> discrete2 = discretize_any(ContinuousStochasticSystem(...), dt=0.01)
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [nu](#cdesym.types.protocols.ContinuousSystemProtocol.nu) | Number of control inputs |
+| [nx](#cdesym.types.protocols.ContinuousSystemProtocol.nx) | Number of state variables |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [integrate](#cdesym.types.protocols.ContinuousSystemProtocol.integrate) | Numerically integrate continuous system. |
+
+### integrate { #cdesym.types.protocols.ContinuousSystemProtocol.integrate }
+
+```python
+types.protocols.ContinuousSystemProtocol.integrate(
+    x0,
+    u,
+    t_span,
+    method='RK45',
+    **kwargs,
+)
+```
+
+Numerically integrate continuous system.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                                   | Description                           | Default    |
+|----------|----------------------------------------|---------------------------------------|------------|
+| x0       | StateVector                            | Initial state                         | _required_ |
+| u        | Union\[ControlVector, Callable, None\] | Control input                         | _required_ |
+| t_span   | TimeSpan                               | Integration interval (t_start, t_end) | _required_ |
+| method   | str                                    | Integration method                    | `'RK45'`   |
+| **kwargs |                                        | Additional integrator options         | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                             |
+|--------|-------------------|-----------------------------------------|
+|        | IntegrationResult | Integration result with trajectory data |

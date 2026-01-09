@@ -1,0 +1,476 @@
+# systems.base.numerical_integration.stochastic.SDEIntegratorFactory { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory()
+```
+
+Factory for creating SDE numerical integrators.
+
+Provides convenient methods for creating SDE integrators based on:
+- Backend (numpy, torch, jax)
+- Method (EM, SRIW1, euler, etc.)
+- Use case (production, optimization, neural SDE, Julia)
+- Noise structure (additive, diagonal, general)
+
+Supports:
+- DiffEqPy (numpy): EM, SRIW1, SRA1, ImplicitEM, etc. (Julia solvers)
+- TorchSDE (torch): euler, milstein, srk, etc.
+- Diffrax (jax): Euler, ItoMilstein, SEA, SHARK, etc.
+
+All integrators support autonomous systems (nu=0) by passing u=None.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Create integrator by backend and method
+>>> integrator = SDEIntegratorFactory.create(
+...     sde_system,
+...     backend='numpy',
+...     method='EM'
+... )
+>>>
+>>> # Julia solver for high accuracy
+>>> integrator = SDEIntegratorFactory.create(
+...     sde_system,
+...     backend='numpy',
+...     method='SRIW1'
+... )
+>>>
+>>> # JAX for optimization
+>>> integrator = SDEIntegratorFactory.create(
+...     sde_system,
+...     backend='jax',
+...     method='Euler'
+... )
+>>>
+>>> # Automatic selection
+>>> integrator = SDEIntegratorFactory.auto(sde_system)
+>>>
+>>> # Use case-specific
+>>> integrator = SDEIntegratorFactory.for_optimization(sde_system)
+>>> integrator = SDEIntegratorFactory.for_neural_sde(neural_sde)
+>>> integrator = SDEIntegratorFactory.for_julia(sde_system, algorithm='SRA1')
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [auto](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.auto) | Automatically select best available SDE integrator. |
+| [create](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.create) | Create an SDE integrator with specified backend and method. |
+| [for_julia](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_julia) | Create Julia-based SDE integrator (DiffEqPy). |
+| [for_monte_carlo](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_monte_carlo) | Create SDE integrator optimized for Monte Carlo simulation. |
+| [for_neural_sde](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_neural_sde) | Create SDE integrator for neural SDEs. |
+| [for_optimization](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_optimization) | Create SDE integrator optimized for gradient-based optimization. |
+| [get_info](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.get_info) | Get information about a specific SDE integrator configuration. |
+| [list_methods](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.list_methods) | List available SDE methods for each backend. |
+| [recommend](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.recommend) | Get SDE integrator recommendation based on use case. |
+
+### auto { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.auto }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.auto(
+    sde_system,
+    seed=None,
+    **options,
+)
+```
+
+Automatically select best available SDE integrator.
+
+Tries backends in order of preference:
+1. JAX (Diffrax) - best for gradients and performance
+2. PyTorch (TorchSDE) - good for neural SDEs
+3. NumPy (DiffEqPy) - fallback, most features
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                     | Default    |
+|------------|----------------------------|---------------------------------|------------|
+| sde_system | ContinuousStochasticSystem | SDE system to integrate         | _required_ |
+| seed       | Optional\[int\]            | Random seed for reproducibility | `None`     |
+| **options  |                            | Additional integrator options   | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description               |
+|--------|-------------------|---------------------------|
+|        | SDEIntegratorBase | Best available integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Auto-select based on what's installed
+>>> integrator = SDEIntegratorFactory.auto(sde_system)
+>>>
+>>> # With reproducibility
+>>> integrator = SDEIntegratorFactory.auto(sde_system, seed=42)
+>>>
+>>> # Autonomous system
+>>> integrator = SDEIntegratorFactory.auto(autonomous_sde_system)
+```
+
+### create { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.create }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.create(
+    sde_system,
+    backend='numpy',
+    method=None,
+    dt=0.01,
+    step_mode=StepMode.FIXED,
+    sde_type=None,
+    convergence_type=ConvergenceType.STRONG,
+    seed=None,
+    **options,
+)
+```
+
+Create an SDE integrator with specified backend and method.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                             | Description                                                                                                                                         | Default                  |
+|------------------|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|
+| sde_system       | ContinuousStochasticSystem       | SDE system to integrate (controlled or autonomous)                                                                                                  | _required_               |
+| backend          | Backend                          | Backend: 'numpy', 'torch', 'jax'. Default: 'numpy'                                                                                                  | `'numpy'`                |
+| method           | Optional\[SDEIntegrationMethod\] | Solver method. If None, uses backend default. - numpy: 'EM' (Julia Euler-Maruyama) - torch: 'euler' (TorchSDE euler) - jax: 'Euler' (Diffrax Euler) | `None`                   |
+| dt               | Optional\[ScalarLike\]           | Time step (default: 0.01)                                                                                                                           | `0.01`                   |
+| step_mode        | StepMode                         | FIXED or ADAPTIVE stepping (most SDE solvers use FIXED)                                                                                             | `StepMode.FIXED`         |
+| sde_type         | Optional\[SDEType\]              | SDE interpretation (None = use system's type)                                                                                                       | `None`                   |
+| convergence_type | ConvergenceType                  | Strong or weak convergence                                                                                                                          | `ConvergenceType.STRONG` |
+| seed             | Optional\[int\]                  | Random seed for reproducibility                                                                                                                     | `None`                   |
+| **options        |                                  | Additional integrator options (rtol, atol, adjoint, etc.)                                                                                           | `{}`                     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description               |
+|--------|-------------------|---------------------------|
+|        | SDEIntegratorBase | Configured SDE integrator |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                              |
+|--------|-------------|------------------------------------------|
+|        | ValueError  | If backend/method combination is invalid |
+|        | ImportError | If required package not installed        |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Use defaults (Julia EM)
+>>> integrator = SDEIntegratorFactory.create(sde_system)
+>>>
+>>> # Julia high-accuracy solver
+>>> integrator = SDEIntegratorFactory.create(
+...     sde_system,
+...     backend='numpy',
+...     method='SRIW1',
+...     dt=0.001
+... )
+>>>
+>>> # JAX for optimization
+>>> integrator = SDEIntegratorFactory.create(
+...     sde_system,
+...     backend='jax',
+...     method='Euler',
+...     dt=0.01,
+...     seed=42
+... )
+>>>
+>>> # PyTorch for neural SDEs
+>>> integrator = SDEIntegratorFactory.create(
+...     neural_sde,
+...     backend='torch',
+...     method='euler',
+...     adjoint=True  # Memory-efficient backprop
+... )
+>>>
+>>> # Autonomous system (no control)
+>>> integrator = SDEIntegratorFactory.create(autonomous_sde_system)
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+```
+
+### for_julia { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_julia }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_julia(
+    sde_system,
+    algorithm='SRIW1',
+    **options,
+)
+```
+
+Create Julia-based SDE integrator (DiffEqPy).
+
+Access to Julia's extensive SDE solver ecosystem.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                        | Default    |
+|------------|----------------------------|------------------------------------|------------|
+| sde_system | ContinuousStochasticSystem | SDE system to integrate            | _required_ |
+| algorithm  | SDEIntegrationMethod       | Julia algorithm (default: 'SRIW1') | `'SRIW1'`  |
+| **options  |                            | Additional integrator options      | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description              |
+|--------|-------------------|--------------------------|
+|        | SDEIntegratorBase | Julia-powered integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # High-accuracy diagonal noise
+>>> integrator = SDEIntegratorFactory.for_julia(sde_system, algorithm='SRIW1')
+>>>
+>>> # Simple and fast
+>>> integrator = SDEIntegratorFactory.for_julia(sde_system, algorithm='EM')
+>>>
+>>> # Stiff drift
+>>> integrator = SDEIntegratorFactory.for_julia(
+...     stiff_sde,
+...     algorithm='ImplicitEM'
+... )
+```
+
+### for_monte_carlo { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_monte_carlo }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_monte_carlo(
+    sde_system,
+    noise_type='general',
+    **options,
+)
+```
+
+Create SDE integrator optimized for Monte Carlo simulation.
+
+Uses weak convergence methods optimized for moment accuracy.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                          | Default     |
+|------------|----------------------------|--------------------------------------|-------------|
+| sde_system | ContinuousStochasticSystem | SDE system to integrate              | _required_  |
+| noise_type | str                        | 'additive', 'diagonal', or 'general' | `'general'` |
+| **options  |                            | Additional integrator options        | `{}`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                  |
+|--------|-------------------|----------------------------------------------|
+|        | SDEIntegratorBase | Monte Carlo integrator with weak convergence |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Additive noise (fastest)
+>>> integrator = SDEIntegratorFactory.for_monte_carlo(
+...     sde_system,
+...     noise_type='additive'
+... )
+>>>
+>>> # General noise
+>>> integrator = SDEIntegratorFactory.for_monte_carlo(
+...     sde_system,
+...     noise_type='general'
+... )
+```
+
+### for_neural_sde { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_neural_sde }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_neural_sde(
+    sde_system,
+    adjoint=True,
+    **options,
+)
+```
+
+Create SDE integrator for neural SDEs.
+
+Uses TorchSDE with adjoint method for memory-efficient backpropagation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                        | Default    |
+|------------|----------------------------|------------------------------------|------------|
+| sde_system | ContinuousStochasticSystem | Neural SDE system to integrate     | _required_ |
+| adjoint    | bool                       | Use adjoint method (default: True) | `True`     |
+| **options  |                            | Additional integrator options      | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description           |
+|--------|-------------------|-----------------------|
+|        | SDEIntegratorBase | Neural SDE integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Neural SDE with adjoint
+>>> integrator = SDEIntegratorFactory.for_neural_sde(neural_sde)
+>>>
+>>> # Without adjoint (more memory, faster forward)
+>>> integrator = SDEIntegratorFactory.for_neural_sde(
+...     neural_sde,
+...     adjoint=False
+... )
+```
+
+### for_optimization { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_optimization }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.for_optimization(
+    sde_system,
+    backend=None,
+    **options,
+)
+```
+
+Create SDE integrator optimized for gradient-based optimization.
+
+Prefers JAX (Diffrax) for JIT compilation and autodiff,
+fallback to PyTorch (TorchSDE).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                            | Default    |
+|------------|----------------------------|----------------------------------------|------------|
+| sde_system | ContinuousStochasticSystem | SDE system to integrate                | _required_ |
+| backend    | Optional\[Backend\]        | Preferred backend (None = auto-select) | `None`     |
+| **options  |                            | Additional integrator options          | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                   |
+|--------|-------------------|-------------------------------|
+|        | SDEIntegratorBase | Optimization-ready integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Auto-select best optimization backend
+>>> integrator = SDEIntegratorFactory.for_optimization(sde_system)
+>>>
+>>> # Force specific backend
+>>> integrator = SDEIntegratorFactory.for_optimization(
+...     sde_system,
+...     backend='jax',
+...     dt=0.001
+... )
+```
+
+### get_info { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.get_info }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.get_info(
+    backend,
+    method,
+)
+```
+
+Get information about a specific SDE integrator configuration.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                 | Description   | Default    |
+|---------|----------------------|---------------|------------|
+| backend | Backend              | Backend name  | _required_ |
+| method  | SDEIntegrationMethod | Method name   | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                          |
+|--------|------------------|--------------------------------------|
+|        | Dict\[str, Any\] | Information about the SDE integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = SDEIntegratorFactory.get_info('jax', 'Euler')
+>>> print(info['description'])
+'Basic Euler-Maruyama, fast and robust'
+```
+
+### list_methods { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.list_methods }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.list_methods(
+    backend=None,
+)
+```
+
+List available SDE methods for each backend.
+
+Delegates to method_registry for stochastic methods.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                | Description                                        | Default   |
+|---------|---------------------|----------------------------------------------------|-----------|
+| backend | Optional\[Backend\] | If specified, return only methods for that backend | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                        | Description                                                                                               |
+|--------|---------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+|        | Dict with method categories (from registry) | If backend specified: categories for that backend If backend None: returns methods for 'numpy' by default |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Specific backend
+>>> methods = SDEIntegratorFactory.list_methods('jax')
+>>> print(methods['sde_fixed_step'])
+['Euler', 'EulerHeun', 'Heun', 'ItoMilstein', ...]
+>>>
+>>> # All methods (defaults to numpy)
+>>> methods = SDEIntegratorFactory.list_methods()
+>>> print(methods['sde_fixed_step'])
+['EM', 'EulerHeun', 'SRIW1', ...]
+```
+
+### recommend { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory.recommend }
+
+```python
+systems.base.numerical_integration.stochastic.SDEIntegratorFactory.recommend(
+    use_case,
+    noise_type='general',
+    has_jax=False,
+    has_torch=False,
+    has_gpu=False,
+)
+```
+
+Get SDE integrator recommendation based on use case.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type   | Description                                                                                       | Default     |
+|------------|--------|---------------------------------------------------------------------------------------------------|-------------|
+| use_case   | str    | One of: 'production', 'optimization', 'neural_sde', 'monte_carlo', 'prototype', 'simple', 'julia' | _required_  |
+| noise_type | str    | 'additive', 'diagonal', 'general'                                                                 | `'general'` |
+| has_jax    | bool   | Whether JAX is available                                                                          | `False`     |
+| has_torch  | bool   | Whether PyTorch is available                                                                      | `False`     |
+| has_gpu    | bool   | Whether GPU is available                                                                          | `False`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                                 |
+|--------|------------------|-------------------------------------------------------------|
+|        | Dict\[str, Any\] | Recommendation with 'backend', 'method', 'convergence_type' |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> rec = SDEIntegratorFactory.recommend('production')
+>>> print(rec)
+{'backend': 'numpy', 'method': 'SRIW1', 'convergence_type': 'STRONG'}
+```

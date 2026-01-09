@@ -1,0 +1,55 @@
+# types.symbolic.SymbolicJacobian { #cdesym.types.symbolic.SymbolicJacobian }
+
+`types.symbolic.SymbolicJacobian`
+
+Jacobian matrix: ∂f/∂x.
+
+Matrix of partial derivatives of a vector function.
+
+Shape: 
+- For f: ℝⁿ → ℝᵐ, Jacobian ∂f/∂x: (m, n)
+- Element (i,j) is ∂fᵢ/∂xⱼ
+
+Usage:
+- Linearization: A = ∂f/∂x at (x_eq, u_eq)
+- Sensitivity analysis: how outputs change with inputs
+- Optimization: gradient information
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import sympy as sp
+>>> 
+>>> # Nonlinear system
+>>> x, y = sp.symbols('x y')
+>>> f = sp.Matrix([x**2 + y, x*y])
+>>> 
+>>> J: SymbolicJacobian = f.jacobian([x, y])
+>>> print(J)
+>>> # Matrix([[2*x, 1],
+>>> #         [y,   x]])
+>>> 
+>>> # Evaluate at a point
+>>> J_at_point = J.subs({x: 1.0, y: 2.0})
+>>> # Matrix([[2.0, 1.0],
+>>> #         [2.0, 1.0]])
+>>> 
+>>> # For system dynamics linearization
+>>> theta, omega = sp.symbols('theta omega', real=True)
+>>> g, l = sp.symbols('g l', positive=True)
+>>> 
+>>> f_dynamics = sp.Matrix([
+...     omega,
+...     -(g/l)*sp.sin(theta)
+... ])
+>>> 
+>>> # State Jacobian (A matrix)
+>>> A: SymbolicJacobian = f_dynamics.jacobian([theta, omega])
+>>> # Matrix([[0,              1],
+>>> #         [-(g/l)*cos(theta), 0]])
+>>> 
+>>> # Evaluate at upright equilibrium (theta=π, omega=0)
+>>> A_upright = A.subs({theta: sp.pi, omega: 0})
+>>> # Matrix([[0, 1],
+>>> #         [g/l, 0]])  # Unstable!
+```

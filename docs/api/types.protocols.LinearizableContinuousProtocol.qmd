@@ -1,0 +1,62 @@
+# types.protocols.LinearizableContinuousProtocol { #cdesym.types.protocols.LinearizableContinuousProtocol }
+
+```python
+types.protocols.LinearizableContinuousProtocol()
+```
+
+Continuous system with linearization capability.
+
+## Implementations {.doc-section .doc-section-implementations}
+
+- ContinuousSymbolicSystem
+- ContinuousStochasticSystem (returns A, B, G)
+
+## Use Cases {.doc-section .doc-section-use-cases}
+
+- Continuous LQR/LQG design
+- H2/H-infinity control
+- Continuous Kalman filter
+- Lyapunov stability analysis
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def continuous_lqr(
+...     system: LinearizableContinuousProtocol,
+...     Q: np.ndarray,
+...     R: np.ndarray
+... ):
+...     '''Design continuous-time LQR.'''
+...     A, B = system.linearize(np.zeros(system.nx), np.zeros(system.nu))
+...     from scipy.linalg import solve_continuous_are
+...     P = solve_continuous_are(A, B, Q, R)
+...     K = np.linalg.inv(R) @ B.T @ P
+...     return {"K": K, "P": P}
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [linearize](#cdesym.types.protocols.LinearizableContinuousProtocol.linearize) | Compute continuous-time linearization: A = ∂f/∂x, B = ∂f/∂u. |
+
+### linearize { #cdesym.types.protocols.LinearizableContinuousProtocol.linearize }
+
+```python
+types.protocols.LinearizableContinuousProtocol.linearize(x_eq, u_eq=None)
+```
+
+Compute continuous-time linearization: A = ∂f/∂x, B = ∂f/∂u.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description         | Default    |
+|--------|---------------------------|---------------------|------------|
+| x_eq   | StateVector               | Equilibrium state   | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                | Description                                      |
+|--------|---------------------|--------------------------------------------------|
+|        | LinearizationResult | Tuple (A, B) or (A, B, G) for stochastic systems |

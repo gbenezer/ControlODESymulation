@@ -1,0 +1,49 @@
+# types.control_advanced.HInfControlResult { #cdesym.types.control_advanced.HInfControlResult }
+
+```python
+types.control_advanced.HInfControlResult()
+```
+
+H∞ robust control result.
+
+H∞ control minimizes the worst-case gain from disturbances to
+performance outputs, providing guaranteed robustness.
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    H∞ controller gain K (nu, nx)
+hinf_norm : float
+    Achieved H∞ norm ‖G‖∞
+gamma : float
+    Performance bound γ (hinf_norm ≤ γ)
+central_solution : CovarianceMatrix
+    Central Riccati solution (nx, nx)
+feasible : bool
+    Whether γ was achievable
+robustness_margin : float
+    Stability margin (how much uncertainty tolerated)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design H∞ controller with γ = 2.0
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>> C_z = np.eye(2)
+>>> D_zu = np.zeros((2, 1))
+>>>
+>>> result: HInfControlResult = design_hinf_controller(
+...     A, B, C_z, D_zu, gamma=2.0
+... )
+>>>
+>>> if result['feasible']:
+...     K = result['gain']
+...     print(f"Achieved γ: {result['hinf_norm']:.3f}")
+...     print(f"Robustness margin: {result['robustness_margin']:.3f}")
+... else:
+...     print("γ = 2.0 not achievable, try larger γ")
+>>>
+>>> # Verify worst-case performance
+>>> # ‖G_cl‖∞ ≤ γ guarantees robustness to uncertainties
+```

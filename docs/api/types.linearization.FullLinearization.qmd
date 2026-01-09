@@ -1,0 +1,28 @@
+# types.linearization.FullLinearization { #cdesym.types.linearization.FullLinearization }
+
+`types.linearization.FullLinearization`
+
+Complete linearization including output: (A, B, C, D).
+
+Linearizes both dynamics and output equations.
+
+State space form:
+    Continuous: dx/dt = Ac*x + Bc*u, y = Cc*x + Dc*u
+    Discrete:   x[k+1] = Ad*x + Bd*u, y = Cd*x + Dd*u
+
+Typically:
+    - C is identity for full state observation
+    - D is zero for no direct feedthrough
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A, B, C, D = system.full_linearization(x_eq, u_eq)
+>>> 
+>>> # State space model
+>>> ss_continuous = scipy.signal.StateSpace(A, B, C, D)
+>>> ss_discrete = scipy.signal.dlti(A, B, C, D, dt=0.01)
+>>> 
+>>> # Transfer function
+>>> G_s = C @ np.linalg.inv(s*I - A) @ B + D
+```

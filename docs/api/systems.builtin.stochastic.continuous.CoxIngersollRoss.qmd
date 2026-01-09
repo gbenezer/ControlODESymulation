@@ -1,0 +1,373 @@
+# systems.builtin.stochastic.continuous.CoxIngersollRoss { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss(*args, **kwargs)
+```
+
+Cox-Ingersoll-Ross process with mean reversion and square-root diffusion.
+
+The fundamental model for positive-valued mean-reverting processes,
+combining mean reversion (like OU) with multiplicative noise (like GBM)
+to ensure positivity while maintaining stationarity.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+General form:
+    dr = κ·(θ - r)·dt + σ·√r·dW
+
+With control:
+    dr = (κ·(θ - r) + u)·dt + σ·√r·dW
+
+where:
+    - r(t) ∈ ℝ₊: State (interest rate, volatility, intensity)
+    - κ > 0: Mean reversion speed [1/time]
+    - θ > 0: Long-term mean (equilibrium level)
+    - σ > 0: Volatility [1/√time]
+    - u ∈ ℝ: Control input (shifts equilibrium)
+    - W(t): Standard Wiener process
+    - √r: Square-root diffusion (ensures positivity)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Positivity:**
+r(t) ≥ 0 for all t if **Feller condition** holds:
+    2κθ ≥ σ²
+
+This ensures boundary r=0 is unattainable.
+
+**Mean Reversion:**
+Drift κ·(θ - r) pulls toward long-term mean θ:
+- Above θ: Negative drift (pulls down)
+- Below θ: Positive drift (pulls up)
+
+**Square-Root Diffusion:**
+Noise σ·√r scales with square root of state:
+- High r: Large volatility
+- Low r: Small volatility
+- r = 0: Zero volatility (boundary sticky)
+
+**Stationary Distribution:**
+r(∞) ~ Gamma(2κθ/σ², 2κ/σ²)
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Feller Condition:**
+    2κθ ≥ σ² → r(t) > 0 strictly
+    2κθ < σ² → r(t) can hit and stay at 0
+
+**Moments:**
+Mean: E[r(t)] = r₀·e^(-κt) + θ·(1 - e^(-κt))
+Variance: Var[r(t)] = r₀·(σ²/κ)·(e^(-κt) - e^(-2κt)) + θ·(σ²/2κ)·(1 - e^(-κt))²
+
+**Asymptotic:**
+Mean: E[r(∞)] = θ
+Variance: Var[r(∞)] = θ·σ²/(2κ)
+Distribution: Gamma(2κθ/σ², 2κ/σ²)
+
+**Autocorrelation:**
+Cov[r(t), r(t+τ)] = (θ·σ²/2κ)·e^(-κ·τ)
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Mean Reversion Speed κ:**
+- Time constant: τ = 1/κ
+- Half-life: ln(2)/κ
+- Typical: 0.1-2.0 (annual)
+
+**Long-Term Mean θ:**
+- Equilibrium level
+- Economic: Long-run average rate
+- Typical: 0.02-0.08 (2%-8%)
+
+**Volatility σ:**
+- Noise intensity
+- Stationary std: √(θ·σ²/2κ)
+- Typical: 0.05-0.20
+
+**Feller Condition:**
+    2κθ ≥ σ²
+
+Ensures positivity. Always verify!
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: r ∈ ℝ₊ = [0, ∞)
+    - Non-negative (strictly positive if Feller holds)
+    - Equilibrium: θ (long-term mean)
+    - Stationary distribution: Gamma
+
+Control: u ∈ ℝ (optional)
+    - Shifts equilibrium to (θ + u/κ)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                 | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------|-----------|
+| kappa  | float  | Mean reversion speed (must be positive) - Typical: 0.1-2.0 (annual) - Time constant: 1/κ    | `0.5`     |
+| theta  | float  | Long-term mean (must be positive) - Typical rates: 0.02-0.08 (2%-8%) - Economic equilibrium | `0.05`    |
+| sigma  | float  | Volatility (must be positive) - Typical: 0.05-0.20 - Check Feller: 2κθ ≥ σ²                 | `0.1`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Noise Type: MULTIPLICATIVE (√r diffusion)
+- SDE Type: Itô (standard)
+- Noise Dimension: nw = 1
+- Stationary: Yes (Gamma distribution)
+- Ergodic: Yes (if Feller holds)
+- Positive: Yes (if Feller holds)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Interest Rate Modeling:**
+- Short-term rate dynamics
+- Bond pricing (analytical formulas)
+- Term structure modeling
+
+**2. Stochastic Volatility:**
+- Heston model (variance process)
+- SABR model component
+- Realized volatility
+
+**3. Credit Risk:**
+- Default intensity (positive, mean-reverting)
+- Spread dynamics
+
+**4. Commodity Prices:**
+- Mean-reverting prices (ensures positive)
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Euler-Maruyama (Simple):**
+    r[k+1] = r[k] + κ·(θ - r[k])·Δt + σ·√r[k]·√Δt·Z[k]
+
+Can go negative! Use reflection or absorption.
+
+**Exact Sampling (Preferred):**
+Use non-central chi-squared transition density.
+No discretization error, always positive.
+
+**Validation:**
+- Check positivity: All r[k] ≥ 0
+- Verify Feller: 2κθ ≥ σ²
+- Test stationary distribution (Gamma)
+
+## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}
+
+**vs. Ornstein-Uhlenbeck:**
+- OU: Additive noise, can be negative
+- CIR: Multiplicative noise, always positive
+
+**vs. Geometric Brownian Motion:**
+- GBM: No mean reversion, log-normal
+- CIR: Mean reversion, Gamma (stationary)
+
+**vs. Vasicek:**
+- Vasicek: Additive σ
+- CIR: Multiplicative σ·√r
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Feller condition restricts parameters
+- Non-Gaussian (complicates filtering)
+- Square-root creates numerical challenges
+- Single-factor (term structure limitations)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Multi-factor CIR (correlated processes)
+- Jump-CIR (Poisson jumps)
+- Regime-switching CIR
+- Time-varying parameters
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.define_system) | Define Cox-Ingersoll-Ross process dynamics. |
+| [get_feller_parameter](#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_feller_parameter) | Get Feller parameter ν = 2κθ/σ². |
+| [get_stationary_mean](#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_mean) | Get stationary mean E[r(∞)] = θ. |
+| [get_stationary_variance](#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_variance) | Get stationary variance Var[r(∞)] = θ·σ²/(2κ). |
+| [get_time_constant](#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_time_constant) | Get mean reversion time constant τ = 1/κ. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.define_system }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss.define_system(
+    kappa=0.5,
+    theta=0.05,
+    sigma=0.1,
+)
+```
+
+Define Cox-Ingersoll-Ross process dynamics.
+
+Sets up the SDE:
+    dr = κ·(θ - r)·dt + σ·√r·dW
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                            | Default   |
+|--------|--------|----------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| kappa  | float  | Mean reversion speed (must be positive) - Controls speed of return to θ - Time constant: τ = 1/κ - Typical: 0.1-2.0 (annual for rates) | `0.5`     |
+| theta  | float  | Long-term mean (must be positive) - Equilibrium level - Typical rates: 0.02-0.08 (2%-8%) - As decimal, not percentage                  | `0.05`    |
+| sigma  | float  | Volatility (must be positive) - Noise intensity - Typical: 0.05-0.20 - Check Feller: 2κθ ≥ σ²                                          | `0.1`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                             |
+|--------|-------------|-----------------------------------------|
+|        | ValueError  | If any parameter is non-positive        |
+|        | UserWarning | If Feller condition violated (2κθ < σ²) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Feller Condition:**
+
+Critical requirement: 2κθ ≥ σ²
+
+If satisfied:
+- r(t) > 0 strictly for all t
+- Boundary r=0 unattainable
+- Well-defined for all time
+
+If violated:
+- r(t) can hit zero and stay there
+- Absorbing boundary
+- Problematic for interest rates
+
+**Parameter Relationships:**
+
+Stationary statistics:
+- Mean: θ
+- Variance: θ·σ²/(2κ)
+- Std: √(θ·σ²/2κ)
+
+Time scales:
+- Mean reversion time: 1/κ
+- Half-life: ln(2)/κ
+
+**Design Guidelines:**
+
+To achieve target mean μ and std s:
+1. Set θ = μ
+2. Set σ² = 2κ·s²/μ
+3. Choose κ for desired time scale
+4. Verify Feller: 2κμ ≥ 2κs²/μ → μ² ≥ s²
+
+**Typical Combinations:**
+
+Conservative (low vol):
+- κ = 0.5, θ = 0.05, σ = 0.05
+- Feller: 0.05 ≥ 0.0025 ✓
+- σ_stat = 0.016 (1.6%)
+
+Standard:
+- κ = 0.5, θ = 0.05, σ = 0.1
+- Feller: 0.05 ≥ 0.01 ✓
+- σ_stat = 0.032 (3.2%)
+
+High volatility:
+- κ = 0.5, θ = 0.05, σ = 0.2
+- Feller: 0.05 < 0.04 ✗ (violates!)
+- Boundary attainable
+
+### get_feller_parameter { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_feller_parameter }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss.get_feller_parameter()
+```
+
+Get Feller parameter ν = 2κθ/σ².
+
+If ν ≥ 1: Feller condition satisfied (strictly positive)
+If ν < 1: Feller condition violated (can hit zero)
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | float  | Feller parameter ν |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Physical interpretation:
+- ν: Degrees of freedom in stationary chi-squared
+- ν >> 1: Far from boundary, nearly Gaussian
+- ν ≈ 1: Near boundary, skewed
+- ν < 1: Boundary attainable
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cir = CoxIngersollRoss(kappa=0.5, theta=0.05, sigma=0.1)
+>>> nu = cir.get_feller_parameter()
+>>> print(f"Feller parameter: {nu:.2f}")
+>>> print(f"Strictly positive: {nu >= 1}")
+```
+
+### get_stationary_mean { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_mean }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_mean()
+```
+
+Get stationary mean E[r(∞)] = θ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description     |
+|--------|--------|-----------------|
+|        | float  | Stationary mean |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cir = CoxIngersollRoss(theta=0.05)
+>>> mean = cir.get_stationary_mean()
+>>> print(f"Long-term mean: {mean:.4f}")  # 0.05
+```
+
+### get_stationary_variance { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_variance }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss.get_stationary_variance()
+```
+
+Get stationary variance Var[r(∞)] = θ·σ²/(2κ).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Stationary variance |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cir = CoxIngersollRoss(kappa=0.5, theta=0.05, sigma=0.1)
+>>> var = cir.get_stationary_variance()
+>>> std = np.sqrt(var)
+>>> print(f"Stationary std: {std:.4f}")
+```
+
+### get_time_constant { #cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss.get_time_constant }
+
+```python
+systems.builtin.stochastic.continuous.CoxIngersollRoss.get_time_constant()
+```
+
+Get mean reversion time constant τ = 1/κ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description   |
+|--------|--------|---------------|
+|        | float  | Time constant |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cir = CoxIngersollRoss(kappa=0.5)
+>>> tau = cir.get_time_constant()
+>>> print(f"Time constant: {tau:.2f} years")  # 2.0
+```

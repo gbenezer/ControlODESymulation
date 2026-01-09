@@ -1,0 +1,495 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticCSTR { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR(*args, **kwargs)
+```
+
+Discrete-time stochastic CSTR with multiple steady states and process noise.
+
+Combines the challenging nonlinear dynamics of the CSTR (multiple equilibria,
+bifurcations) with discrete-time sampling and process noise, creating one of
+the most demanding benchmarks in stochastic process control.
+
+## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}
+
+Difference equation (Euler discretization):
+
+    C_A[k+1] = C_A[k] + [(F/V)·(C_A_feed - C_A[k]) - r[k]]·Δt + w_C[k]
+    T[k+1] = T[k] + [(F/V)·(T_feed - T[k]) + q_gen[k] + q_removal[k]]·Δt + w_T[k]
+
+where:
+    - r[k] = k₀·C_A[k]·exp(-E/T[k]): Reaction rate
+    - q_gen = (-ΔH/ρC_p)·r: Heat generation
+    - q_removal = (UA/VρC_p)·(T_jacket[k] - T[k]): Heat removal
+    - w[k] ~ N(0, diag(σ_C², σ_T²)): Process noise
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Industrial Digital Control:**
+
+CSTR operated with:
+- PLC/DCS sampling: Δt = 1-60 s typical
+- Concentration: Online analyzer (GC, NIR) every 1-5 min
+- Temperature: Fast measurement (1-10 s)
+- Jacket temperature: Control valve updated discretely
+
+**Process Noise Sources:**
+
+1. **Concentration noise (σ_C):**
+   - Feed composition variations (batch-to-batch)
+   - Sampling/analyzer uncertainty
+   - Flow rate fluctuations
+   - Typical: 0.001-0.01 mol/L per step
+
+2. **Temperature noise (σ_T):**
+   - Heat transfer coefficient variations (fouling)
+   - Ambient temperature changes
+   - Flow rate in jacket fluctuations
+   - Most critical: Affects rates exponentially
+   - Typical: 0.1-2.0 K per step
+
+**Why Temperature Noise Dominates:**
+
+Arrhenius: r ∝ exp(-E/T)
+- Small T change → large rate change
+- E/T² ≈ 8750/350² ≈ 0.071 K⁻¹
+- 1 K noise → 7% rate change
+- This creates strong coupling to concentration
+
+## Multiple Steady States Under Noise {.doc-section .doc-section-multiple-steady-states-under-noise}
+
+**Deterministic:** 1, 2, or 3 steady states possible
+
+**With Noise:**
+- States fluctuate around deterministic equilibria
+- Noise can cause transitions between basins
+- Rare events: Escape from desired state
+- Metastability: Long residence time then sudden transition
+
+**Critical for Control:**
+- Must maintain high-conversion despite noise
+- Risk of noise-induced transition to low-conversion
+- Probability of transition depends on σ_T, distance to saddle
+- Requires robust control + risk management
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X[k] = [C_A[k], T[k]]
+    - C_A[k]: Concentration at time k·Δt [mol/L]
+    - T[k]: Temperature at time k·Δt [K]
+    - Stochastic processes (not deterministic)
+
+Control: u[k] = T_jacket[k]
+    - Jacket temperature [K]
+    - Zero-order hold between samples
+
+Noise: w[k] = [w_C[k], w_T[k]]
+    - w[k] ~ N(0, Σ_w)
+    - Σ_w = diag(σ_C², σ_T²)
+    - Independent, Gaussian, white
+
+## Key Properties {.doc-section .doc-section-key-properties}
+
+**1. Markov Property:**
+Essential for dynamic programming, RL, Kalman filtering.
+
+**2. Multiple Modes:**
+State distribution may be multimodal (near bifurcation).
+
+**3. Exponential Sensitivity:**
+Temperature noise amplified exponentially by Arrhenius.
+
+**4. Metastability:**
+System can stay near unstable equilibrium for long time.
+
+**5. Rare Transitions:**
+Low probability but high consequence events.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                                                                                                                         | Default    |
+|----------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| F        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| V        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| C_A_feed | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| T_feed   | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| k0       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| E        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| delta_H  | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| rho      | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| Cp       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| UA       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                     | _required_ |
+| sigma_C  | float  | Process noise std dev for C_A [mol/L per step] - Typical: 0.001-0.01 mol/L - Smaller than batch reactor (continuous operation)                      | `0.001`    |
+| sigma_T  | float  | Process noise std dev for T [K per step] - Typical: 0.1-2.0 K - Most critical parameter - Conversion from continuous: σ_c·√Δt                       | `0.5`      |
+| dt       | float  | Sampling period [s] - CSTR typically slower than batch: 1-60 s - Faster near high-conversion (less stable) - Slower at low-conversion (more stable) | `5.0`      |
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Stochastic MPC:**
+Model Predictive Control with chance constraints:
+    - Probabilistic safety: P(T < T_max) ≥ 0.99
+    - Risk-sensitive objective: E[cost] + λ·Var[cost]
+    - Scenario tree or robust tubes
+
+**2. Particle Filter:**
+State estimation with multiple modes:
+    - Essential near transitions
+    - Handles non-Gaussian distributions
+    - Expensive but necessary
+
+**3. Robust Startup:**
+Transition low → high conversion despite noise:
+    - Tube-based MPC
+    - Barrier certificates
+    - Risk-aware control
+
+**4. Reliability Analysis:**
+Assess transition probability:
+    - Monte Carlo with importance sampling
+    - Large deviations theory
+    - Mean first passage time
+
+**5. Fault Detection:**
+Distinguish faults from noise:
+    - Statistical tests on residuals
+    - Anomaly detection on likelihood
+    - Change point detection
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Monte Carlo Ensemble:**
+
+Critical for CSTR to characterize rare events:
+- N = 1,000-10,000 runs
+- Estimate transition probability
+- Identify escape paths
+- Design robust controllers
+
+**Single Trajectory:**
+
+May not be representative:
+- Could stay in one state by chance
+- May transition unusually fast/slow
+- Always report ensemble statistics
+
+## State Estimation {.doc-section .doc-section-state-estimation}
+
+**Recommended Approach:**
+
+For high-conversion operation:
+1. Use UKF or particle filter (nonlinearity)
+2. Monitor distance to saddle point
+3. Increase measurement rate if approaching instability
+4. Switch to particle filter if bimodality detected
+
+For startup/transitions:
+1. Particle filter essential (multimodal)
+2. Large particle count (N ≥ 1000)
+3. Importance sampling toward rare events
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic Discrete CSTR:**
+- Single trajectory per IC and control
+- Multiple equilibria (1-3)
+- Bifurcations (saddle-node, Hopf)
+
+**Stochastic Discrete CSTR:**
+- Ensemble of trajectories
+- Stochastic equilibria (distributions)
+- Stochastic bifurcations (P and D)
+- Noise-induced transitions
+
+**Critical Difference:**
+Stochastic model essential for:
+- Reliability assessment
+- Risk management
+- Robust control design
+- Safety verification
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Euler discretization: O(Δt) error
+- Additive noise: Not multiplicative
+- Constant noise: Not state/time-dependent
+- White noise: No temporal correlation
+- Gaussian noise: Not heavy-tailed
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Higher-order discretization (RK4)
+- Multiplicative noise: σ_T(T)
+- Colored noise: Autoregressive
+- Jump processes: Fault events
+- Time-varying parameters: Catalyst deactivation
+
+## See Also {.doc-section .doc-section-see-also}
+
+ContinuousStochasticCSTR : Continuous-time version
+DiscreteStochasticBatchReactor : Batch version
+DiscreteCSTR : Deterministic discrete CSTR
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_damkohler_number](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_damkohler_number) | Compute Damköhler number Da = k·τ. |
+| [compute_residence_time](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_residence_time) | Compute residence time τ = V/F. |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.define_system) | Define discrete-time stochastic CSTR dynamics. |
+| [estimate_transition_probability](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.estimate_transition_probability) | Estimate probability of transitioning to low-conversion state. |
+| [find_steady_states](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.find_steady_states) | Find all steady states (deterministic part). |
+| [get_process_noise_covariance](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.get_process_noise_covariance) | Get process noise covariance matrix. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.setup_equilibria) | Set up equilibrium points (deterministic part). |
+
+### compute_damkohler_number { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_damkohler_number }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_damkohler_number(
+    T,
+)
+```
+
+Compute Damköhler number Da = k·τ.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description     | Default    |
+|--------|--------|-----------------|------------|
+| T      | float  | Temperature [K] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description      |
+|--------|--------|------------------|
+|        | float  | Damköhler number |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Da >> 1: Fast reaction, high conversion
+Da << 1: Slow reaction, low conversion
+
+### compute_residence_time { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_residence_time }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.compute_residence_time(
+)
+```
+
+Compute residence time τ = V/F.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | float  | Residence time [s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Natural time scale for CSTR dynamics.
+Sampling period typically: dt ~ 0.5-5·τ
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.define_system(
+    F_val=100.0,
+    V_val=100.0,
+    C_A_feed_val=1.0,
+    T_feed_val=350.0,
+    k0_val=72000000000.0,
+    E_val=8750.0,
+    delta_H_val=-50000.0,
+    rho_val=1000.0,
+    Cp_val=0.239,
+    UA_val=50000.0,
+    sigma_C=0.001,
+    sigma_T=0.5,
+    dt=5.0,
+    discretization_method='euler',
+    x_ss=None,
+    u_ss=None,
+)
+```
+
+Define discrete-time stochastic CSTR dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type                   | Description                                                                                                                                                                       | Default         |
+|-----------------------|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| F_val                 | float                  | Volumetric flow rate [L/s]                                                                                                                                                        | `100.0`         |
+| V_val                 | float                  | Reactor volume [L]                                                                                                                                                                | `100.0`         |
+| C_A_feed_val          | float                  | Feed concentration [mol/L]                                                                                                                                                        | `1.0`           |
+| T_feed_val            | float                  | Feed temperature [K]                                                                                                                                                              | `350.0`         |
+| k0_val                | float                  | Pre-exponential factor [1/s]                                                                                                                                                      | `72000000000.0` |
+| E_val                 | float                  | Activation energy [K] (dimensionless Eₐ/R)                                                                                                                                        | `8750.0`        |
+| delta_H_val           | float                  | Heat of reaction [J/mol] (negative = exothermic)                                                                                                                                  | `-50000.0`      |
+| rho_val               | float                  | Density [kg/L]                                                                                                                                                                    | `1000.0`        |
+| Cp_val                | float                  | Specific heat capacity [J/(kg·K)]                                                                                                                                                 | `0.239`         |
+| UA_val                | float                  | Overall heat transfer coefficient × area [J/(s·K)]                                                                                                                                | `50000.0`       |
+| x_ss                  | Optional\[np.ndarray\] | Steady-state [Cₐ, T] for equilibrium setup                                                                                                                                        | `None`          |
+| u_ss                  | Optional\[np.ndarray\] | Steady-state [T_jacket] for equilibrium setup                                                                                                                                     | `None`          |
+| sigma_C               | float                  | Process noise std dev for C_A [mol/L per step] - Smaller than batch (continuous operation) - Typical: 0.001-0.01 mol/L - Feed variability, analyzer noise                         | `0.001`         |
+| sigma_T               | float                  | Process noise std dev for T [K per step] - Most critical parameter - Typical: 0.1-2.0 K - Heat transfer fluctuations, ambient changes - Conversion: σ_c·√Δt from continuous       | `0.5`           |
+| dt                    | float                  | Sampling period [s] - CSTR slower than batch: 1-60 s typical - Residence time: τ = V/F = 1 s (for defaults) - Guideline: dt ~ 0.5-5·τ - Faster near high-conversion (less stable) | `5.0`           |
+| discretization_method | str                    | 'euler' or 'rk4'                                                                                                                                                                  | `'euler'`       |
+| x_ss                  | Optional\[np.ndarray\] | Steady state (if known)                                                                                                                                                           | `None`          |
+| u_ss                  | Optional\[np.ndarray\] | Steady state (if known)                                                                                                                                                           | `None`          |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Noise Scaling:**
+
+For continuous σ_c [state/√s]:
+    σ_discrete = σ_c·√dt
+
+Example: σ_T_c = 1 K/√s, dt = 5 s
+    → σ_T_d = 1·√5 ≈ 2.24 K per step
+
+**Temperature Noise Criticality:**
+
+Arrhenius sensitivity: ∂r/∂T ≈ r·(E/T²)
+- At T = 390 K, E = 8750 K: sensitivity = 0.058 K⁻¹
+- 1 K noise → 5.8% rate change
+- 2 K noise → 11.6% rate change
+- This is why σ_T most important
+
+**Sampling Time:**
+
+Tradeoffs:
+- Smaller dt: More accurate, faster control, but more noise samples
+- Larger dt: Smoother (less noise), but miss dynamics
+
+For CSTR:
+- High-conversion: dt = 1-5 s (critical, fast control)
+- Low-conversion: dt = 5-30 s (stable, slower)
+- Startup: dt = 1-2 s (transitions critical)
+
+**Multiple Steady States:**
+
+CSTR can have 1-3 steady states. Use find_steady_states()
+to locate all equilibria for given T_jacket.
+
+Noise causes transitions between states!
+- Design σ_T small enough for reliability
+- Or design controller to prevent transitions
+
+### estimate_transition_probability { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.estimate_transition_probability }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.estimate_transition_probability(
+    x_initial,
+    u_sequence,
+    threshold_T,
+    n_simulations=1000,
+)
+```
+
+Estimate probability of transitioning to low-conversion state.
+
+Uses Monte Carlo simulation to estimate rare event probability.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type       | Description                                                                         | Default    |
+|---------------|------------|-------------------------------------------------------------------------------------|------------|
+| x_initial     | np.ndarray | Initial state (e.g., high-conversion)                                               | _required_ |
+| u_sequence    | np.ndarray | Control sequence (n_steps, 1)                                                       | _required_ |
+| threshold_T   | float      | Temperature threshold for transition [K] (e.g., T < 370 K indicates low-conversion) | _required_ |
+| n_simulations | int        | Number of Monte Carlo runs                                                          | `1000`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                  |
+|--------|--------|----------------------------------------------|
+|        | dict   | Statistics: probability, mean_time, std_time |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteStochasticCSTR()
+>>> x0 = np.array([0.1, 390.0])  # High-conversion
+>>> u_seq = np.full((200, 1), 350.0)
+>>> result = cstr.estimate_transition_probability(
+...     x0, u_seq, threshold_T=370.0, n_simulations=1000
+... )
+>>> print(f"P(transition) = {result['probability']:.4f}")
+```
+
+### find_steady_states { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.find_steady_states }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.find_steady_states(
+    T_jacket,
+    T_range=(300.0, 500.0),
+    n_points=100,
+)
+```
+
+Find all steady states (deterministic part).
+
+Uses root finding with multiple initial guesses.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                  | Default          |
+|----------|--------|------------------------------|------------------|
+| T_jacket | float  | Jacket temperature [K]       | _required_       |
+| T_range  | tuple  | Temperature search range [K] | `(300.0, 500.0)` |
+| n_points | int    | Number of initial guesses    | `100`            |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                    |
+|--------|-------------------------------|--------------------------------|
+|        | List\[Tuple\[float, float\]\] | List of (C_A, T) steady states |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For stochastic system, these are centers of probability
+distributions. Actual state fluctuates around these points.
+
+With noise, transitions between states possible!
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteStochasticCSTR()
+>>> states = cstr.find_steady_states(T_jacket=350.0)
+>>> for i, (C_A, T) in enumerate(states):
+...     print(f"State {i+1}: C_A={C_A:.3f}, T={T:.1f}")
+```
+
+### get_process_noise_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.get_process_noise_covariance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.get_process_noise_covariance(
+)
+```
+
+Get process noise covariance matrix.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                    |
+|--------|------------|--------------------------------|
+|        | np.ndarray | 2x2 diagonal covariance matrix |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteStochasticCSTR(sigma_C=0.001, sigma_T=0.5)
+>>> Q = cstr.get_process_noise_covariance()
+>>> print(f"Process noise:\n{Q}")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.setup_equilibria }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.setup_equilibria()
+```
+
+Set up equilibrium points (deterministic part).
+
+Note: With process noise, system doesn't stay at equilibrium
+but fluctuates around it. Multiple equilibria may exist.

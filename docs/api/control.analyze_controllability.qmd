@@ -1,0 +1,56 @@
+# control.analyze_controllability { #cdesym.control.analyze_controllability }
+
+```python
+control.analyze_controllability(A, B, tolerance=1e-10)
+```
+
+Test controllability of linear system (A, B).
+
+A system is controllable if all states can be driven to any desired
+value in finite time using appropriate control inputs.
+
+Controllability test:
+    rank(C) = n, where C = [B, AB, A²B, ..., Aⁿ⁻¹B]
+
+Args:
+    A: State matrix (nx, nx)
+    B: Input matrix (nx, nu)
+    tolerance: Tolerance for rank computation
+
+Returns:
+    ControllabilityInfo containing:
+        - controllability_matrix: C = [B, AB, ...] (nx, nx*nu)
+        - rank: Rank of controllability matrix
+        - is_controllable: True if rank = nx (full rank)
+        - uncontrollable_modes: Eigenvalues of uncontrollable subspace (if any)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Fully controllable
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>> info = analyze_controllability(A, B)
+>>> print(info['is_controllable'])  # True
+>>> print(info['rank'])  # 2
+>>>
+>>> # Uncontrollable system (diagonal with identical input)
+>>> A = np.array([[1, 0], [0, 2]])
+>>> B = np.array([[1], [1]])  # Can't control modes independently
+>>> info = analyze_controllability(A, B)
+>>> print(info['is_controllable'])  # False
+>>> print(info['rank'])  # 1
+>>>
+>>> # Single-input controllable
+>>> A = np.array([[0, 1, 0], [0, 0, 1], [-1, -2, -3]])
+>>> B = np.array([[0], [0], [1]])
+>>> info = analyze_controllability(A, B)
+>>> print(info['is_controllable'])  # True
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+- Controllability is necessary for pole placement
+- Stabilizability: Unstable modes must be controllable (weaker condition)
+- Numerical issues: Use SVD for better numerical stability
+- For large systems, consider PBH test or Gram matrix

@@ -1,0 +1,48 @@
+# types.backends.IntegratorConfig { #cdesym.types.backends.IntegratorConfig }
+
+```python
+types.backends.IntegratorConfig()
+```
+
+Configuration for continuous-time integrators.
+
+Specifies integration method and tolerances.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name         | Type              | Description                              |
+|--------------|-------------------|------------------------------------------|
+| method       | IntegrationMethod | Integration algorithm                    |
+| rtol         | float             | Relative tolerance                       |
+| atol         | float             | Absolute tolerance                       |
+| max_step     | float             | Maximum allowed time step                |
+| first_step   | Optional\[float\] | Initial step size (adaptive methods)     |
+| vectorized   | bool              | Whether dynamics function is vectorized  |
+| dense_output | bool              | Compute dense output (for interpolation) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard configuration
+>>> config: IntegratorConfig = {
+...     'method': 'RK45',
+...     'rtol': 1e-6,
+...     'atol': 1e-9,
+...     'max_step': 0.1
+... }
+>>>
+>>> # High accuracy configuration
+>>> config_accurate: IntegratorConfig = {
+...     'method': 'DOP853',
+...     'rtol': 1e-10,
+...     'atol': 1e-12,
+...     'dense_output': True
+... }
+>>>
+>>> # Stiff system configuration
+>>> config_stiff: IntegratorConfig = {
+...     'method': 'Radau',
+...     'rtol': 1e-6,
+...     'atol': 1e-8,
+... }
+```

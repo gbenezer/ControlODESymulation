@@ -1,0 +1,110 @@
+# visualization.ColorSchemes { #cdesym.visualization.ColorSchemes }
+
+```python
+visualization.ColorSchemes()
+```
+
+Predefined color palettes for plotting.
+
+Provides various color schemes suitable for different visualization types
+and accessibility requirements.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name                   | Type        | Description                                     |
+|------------------------|-------------|-------------------------------------------------|
+| PLOTLY                 | List\[str\] | Default Plotly color sequence (10 colors)       |
+| D3                     | List\[str\] | D3.js Category10 colors (10 colors)             |
+| COLORBLIND_SAFE        | List\[str\] | Wong palette - colorblind accessible (8 colors) |
+| TABLEAU                | List\[str\] | Tableau 10 color palette (10 colors)            |
+| SEQUENTIAL_BLUE        | List\[str\] | Blue sequential scale for heatmaps (9 colors)   |
+| SEQUENTIAL_GREEN       | List\[str\] | Green sequential scale (9 colors)               |
+| DIVERGING_RED_BLUE     | List\[str\] | Red-blue diverging scale (9 colors)             |
+| DIVERGING_PURPLE_GREEN | List\[str\] | Purple-green diverging scale (9 colors)         |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Get Plotly colors
+>>> colors = ColorSchemes.PLOTLY
+>>> print(colors[0])  # '#636EFA'
+>>>
+>>> # Get colorblind-safe palette
+>>> colors = ColorSchemes.get_colors('colorblind_safe', n_colors=3)
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [get_colors](#cdesym.visualization.ColorSchemes.get_colors) | Get color palette by name. |
+| [interpolate_colors](#cdesym.visualization.ColorSchemes.interpolate_colors) | Generate color gradient between two colors. |
+
+### get_colors { #cdesym.visualization.ColorSchemes.get_colors }
+
+```python
+visualization.ColorSchemes.get_colors(scheme='plotly', n_colors=None)
+```
+
+Get color palette by name.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type            | Description                                                                                                                                                                                                                                                                                                           | Default    |
+|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| scheme   | str             | Name of color scheme: - 'plotly': Default Plotly colors - 'd3': D3.js colors - 'colorblind_safe': Colorblind accessible - 'tableau': Tableau 10 palette - 'sequential_blue': Blue gradient - 'sequential_green': Green gradient - 'diverging_red_blue': Red-blue scale - 'diverging_purple_green': Purple-green scale | `'plotly'` |
+| n_colors | Optional\[int\] | Number of colors needed If more than available, cycles through palette                                                                                                                                                                                                                                                | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description             |
+|--------|-------------|-------------------------|
+|        | List\[str\] | List of hex color codes |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> colors = ColorSchemes.get_colors('plotly', n_colors=5)
+>>> print(len(colors))  # 5
+>>>
+>>> # Cycles if more colors needed
+>>> colors = ColorSchemes.get_colors('colorblind_safe', n_colors=10)
+>>> print(len(colors))  # 10 (cycles through 8-color palette)
+```
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                      |
+|--------|------------|----------------------------------|
+|        | ValueError | If scheme name is not recognized |
+
+### interpolate_colors { #cdesym.visualization.ColorSchemes.interpolate_colors }
+
+```python
+visualization.ColorSchemes.interpolate_colors(color1, color2, n_steps=10)
+```
+
+Generate color gradient between two colors.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                   | Default    |
+|---------|--------|-------------------------------|------------|
+| color1  | str    | Starting color (hex code)     | _required_ |
+| color2  | str    | Ending color (hex code)       | _required_ |
+| n_steps | int    | Number of intermediate colors | `10`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description             |
+|--------|-------------|-------------------------|
+|        | List\[str\] | List of hex color codes |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Gradient from red to blue
+>>> gradient = ColorSchemes.interpolate_colors('#FF0000', '#0000FF', n_steps=5)
+>>> print(gradient)
+['#FF0000', '#BF003F', '#7F007F', '#3F00BF', '#0000FF']
+```

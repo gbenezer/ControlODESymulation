@@ -1,0 +1,42 @@
+# types.control_advanced.H2ControlResult { #cdesym.types.control_advanced.H2ControlResult }
+
+```python
+types.control_advanced.H2ControlResult()
+```
+
+H₂ optimal control result.
+
+H₂ control minimizes the RMS (root-mean-square) response to
+white noise disturbances, equivalent to LQG for certain problem setups.
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    H₂ optimal controller gain K (nu, nx)
+h2_norm : float
+    Achieved H₂ norm ‖G‖₂
+cost_to_go : CovarianceMatrix
+    Riccati solution P (nx, nx)
+closed_loop_stable : bool
+    Closed-loop system is stable
+closed_loop_poles : np.ndarray
+    Eigenvalues of (A - BK)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design H₂ controller
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>> C_z = np.eye(2)  # Performance output
+>>> D_zu = np.zeros((2, 1))
+>>>
+>>> result: H2ControlResult = design_h2_controller(A, B, C_z, D_zu)
+>>>
+>>> K = result['gain']
+>>> print(f"H₂ norm: {result['h2_norm']:.3f}")
+>>> print(f"Stable: {result['closed_loop_stable']}")
+>>>
+>>> # Apply control
+>>> u = -K @ x
+```

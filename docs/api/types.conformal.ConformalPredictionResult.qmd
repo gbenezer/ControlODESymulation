@@ -1,0 +1,59 @@
+# types.conformal.ConformalPredictionResult { #cdesym.types.conformal.ConformalPredictionResult }
+
+```python
+types.conformal.ConformalPredictionResult()
+```
+
+Conformal prediction result for test points.
+
+Provides prediction sets with finite-sample coverage guarantees.
+
+## Fields {.doc-section .doc-section-fields}
+
+prediction_set : ConformalPredictionSet
+    Prediction set(s) for test point(s)
+point_prediction : StateVector
+    Point prediction (e.g., set center)
+coverage_guarantee : float
+    Guaranteed coverage level (1 - α)
+average_set_size : float
+    Average size of prediction sets
+nonconformity_score : NonconformityScore
+    Nonconformity score(s) for test point(s)
+threshold : float
+    Threshold q for set construction
+adaptive : bool
+    Whether adaptive to input x
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Create conformal predictor
+>>> cp = ConformalPredictor(
+...     model=my_model,
+...     calibration_data=(x_cal, y_cal)
+... )
+>>>
+>>> # Predict with 90% coverage guarantee
+>>> result: ConformalPredictionResult = cp.predict(
+...     x_test=np.array([1.5, 2.0]),
+...     alpha=0.1
+... )
+>>>
+>>> # Extract prediction set
+>>> if isinstance(result['prediction_set'], tuple):
+...     lower, upper = result['prediction_set']
+...     print(f"Prediction interval: [{lower}, {upper}]")
+...
+>>> print(f"Coverage guarantee: {result['coverage_guarantee']*100:.1f}%")
+>>> print(f"Average set size: {result['average_set_size']:.3f}")
+>>>
+>>> # For multiple test points
+>>> result_batch: ConformalPredictionResult = cp.predict(
+...     x_test=np.random.randn(100, 2),
+...     alpha=0.05  # 95% coverage
+... )
+>>>
+>>> avg_size = result_batch['average_set_size']
+>>> print(f"Average prediction set size: {avg_size:.3f}")
+```

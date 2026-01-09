@@ -1,0 +1,182 @@
+# systems.builtin.deterministic.continuous.Manipulator2Link { #cdesym.systems.builtin.deterministic.continuous.Manipulator2Link }
+
+```python
+systems.builtin.deterministic.continuous.Manipulator2Link(
+    m1=1.0,
+    m2=1.0,
+    l1=1.0,
+    l2=1.0,
+    lc1=0.5,
+    lc2=0.5,
+    I1=0.1,
+    I2=0.1,
+    gravity=9.81,
+    friction1=0.1,
+    friction2=0.1,
+)
+```
+
+Two-link planar robotic manipulator - second-order formulation.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A planar robot arm with two revolute joints, each driven by a motor that
+applies torque.
+
+The system consists of:
+- Two rigid links connected in series
+- Two revolute (rotational) joints at base and elbow
+- Actuators (motors) at each joint providing control torques
+- Gravity acting downward
+- Joint friction opposing motion
+
+## Configuration: {.doc-section .doc-section-configuration}
+
+- Link 1: Attached to fixed base, length l₁, mass m₁
+- Link 2: Attached to end of link 1, length l₂, mass m₂
+- Joint 1 (base): Angle q₁ from horizontal
+- Joint 2 (elbow): Angle q₂ relative to link 1
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [q₁, q₂, q̇₁, q̇₂]
+    Joint angles (configuration):
+    - q₁: Base joint angle [rad]
+      * q₁ = 0: link 1 horizontal to the right
+      * q₁ = π/2: link 1 pointing up
+    - q₂: Elbow joint angle [rad]
+      * q₂ = 0: links aligned (straight arm)
+      * q₂ = π: fully bent (folded back)
+
+    Joint velocities:
+    - q̇₁: Base angular velocity [rad/s]
+    - q̇₂: Elbow angular velocity [rad/s]
+
+Control: u = [τ₁, τ₂]
+    - τ₁: Torque applied at base joint [N·m]
+    - τ₂: Torque applied at elbow joint [N·m]
+
+Output: y = [q₁, q₂]
+    - Measures joint angles (typical for robots with encoders)
+    - Does not directly measure end-effector position
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The manipulator dynamics follow the standard robot equation:
+    M(q)q̈ + C(q,q̇)q̇ + G(q) + F(q̇) = τ
+
+where:
+- M(q): Configuration-dependent inertia matrix (2×2)
+- C(q,q̇): Coriolis and centrifugal terms
+- G(q): Gravity terms
+- F(q̇): Friction terms
+- τ: Applied joint torques (control)
+
+**Inertia Matrix M(q)**:
+The inertia matrix captures how joint accelerations relate to torques.
+It depends on configuration due to changing mass distribution:
+
+    M₁₁ = m₁·lc₁² + m₂·(l₁² + lc₂² + 2·l₁·lc₂·cos(q₂)) + I₁ + I₂
+    M₁₂ = m₂·(lc₂² + l₁·lc₂·cos(q₂)) + I₂
+    M₂₁ = M₁₂  (symmetric)
+    M₂₂ = m₂·lc₂² + I₂
+
+Key features:
+- M is symmetric and positive definite
+- Diagonal terms: self-inertia of each joint
+- Off-diagonal: coupling between joints
+- M₁₁ maximized when arm is extended (q₂ = 0)
+
+**Coriolis and Centrifugal Terms C(q,q̇)**:
+These arise from coordinate system rotation and create coupling:
+
+    h = -m₂·l₁·lc₂·sin(q₂)
+    C₁ = h·(2·q̇₁·q̇₂ + q̇₂²)
+    C₂ = -h·q̇₁²
+
+Physical interpretation:
+- When joint 2 moves, it creates forces on joint 1 (and vice versa)
+- Centrifugal: pushing outward when rotating
+- Coriolis: deflection perpendicular to motion
+
+**Gravity Terms G(q)**:
+Gravitational torques trying to pull arm downward:
+
+    G₁ = (m₁·lc₁ + m₂·l₁)·g·cos(q₁) + m₂·lc₂·g·cos(q₁ + q₂)
+    G₂ = m₂·lc₂·g·cos(q₁ + q₂)
+
+Key features:
+- Maximum when arm horizontal (cos = 1)
+- Zero when arm vertical (cos = 0)
+- Both links contribute to joint 1 torque
+- Only link 2 affects joint 2 torque
+
+**Friction F(q̇)**:
+Simple viscous friction model:
+
+    F₁ = b₁·q̇₁
+    F₂ = b₂·q̇₂
+
+**Solving for Accelerations**:
+The forward dynamics gives:
+    q̈ = M⁻¹(τ - C - G - F)
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+m1 : float, default=1.0
+    Mass of link 1 [kg]. Affects inertia and gravity torques.
+m2 : float, default=1.0
+    Mass of link 2 [kg]. Lighter distal link → faster motion.
+l1 : float, default=1.0
+    Length of link 1 [m]. Distance from base to elbow.
+l2 : float, default=1.0
+    Length of link 2 [m]. Distance from elbow to end-effector.
+lc1 : float, default=0.5
+    Distance from base joint to center of mass of link 1 [m].
+    Typically lc₁ = l₁/2 for uniform link.
+lc2 : float, default=0.5
+    Distance from elbow joint to center of mass of link 2 [m].
+    Typically lc₂ = l₂/2 for uniform link.
+I1 : float, default=0.1
+    Moment of inertia of link 1 about its center of mass [kg·m²].
+    For uniform rod: I = (1/12)·m·l²
+I2 : float, default=0.1
+    Moment of inertia of link 2 about its center of mass [kg·m²].
+gravity : float, default=9.81
+    Gravitational acceleration [m/s²].
+friction1 : float, default=0.1
+    Viscous friction coefficient at joint 1 [N·m·s/rad].
+friction2 : float, default=0.1
+    Viscous friction coefficient at joint 2 [N·m·s/rad].
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+**Hanging down (stable)**:
+    q_eq = [π, 0]  (link 1 down, link 2 aligned)
+    q̇_eq = [0, 0]  (at rest)
+    τ_eq = [0, 0]  (gravity balances)
+
+**Horizontal (unstable without control)**:
+    q_eq = [0, 0]  (both links horizontal)
+    Requires active control due to gravity
+
+**Upright (highly unstable)**:
+    q_eq = [π/2, 0]  (both links pointing up)
+    Requires fast, precise control
+
+## Forward Kinematics: {.doc-section .doc-section-forward-kinematics}
+
+End-effector position in Cartesian space:
+    x_ee = l₁·cos(q₁) + l₂·cos(q₁ + q₂)
+    y_ee = l₁·sin(q₁) + l₂·sin(q₁ + q₂)
+
+Workspace:
+- Circle of radius l₁ + l₂ (maximum reach)
+- Inner circle of radius |l₁ - l₂| (unreachable)
+- Singularities when arm fully extended or folded
+
+## See Also: {.doc-section .doc-section-see-also}
+
+CartPole : Similar dynamics but with prismatic (sliding) joint
+SymbolicPendulum2ndOrder : Single-link version
+PVTOL : Flying robot with similar multi-body coupling

@@ -1,0 +1,47 @@
+# types.control_classical.LuenbergerObserverResult { #cdesym.types.control_classical.LuenbergerObserverResult }
+
+```python
+types.control_classical.LuenbergerObserverResult()
+```
+
+Luenberger observer (deterministic state estimator) design result.
+
+Observer dynamics: x̂˙ = Ax̂ + Bu + L(y - Cx̂)
+Error dynamics: e˙ = (A - LC)e
+
+Choose L to place observer poles (eigenvalues of A - LC).
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    Observer gain L (nx, ny)
+desired_poles : np.ndarray
+    Desired observer eigenvalues
+achieved_poles : np.ndarray
+    Actual eigenvalues of (A - LC)
+is_observable : bool
+    System must be observable for arbitrary placement
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> C = np.array([[1, 0]])  # Measure position
+>>>
+>>> # Place observer poles faster than controller
+>>> desired_poles = np.array([-10, -12])
+>>> result: LuenbergerObserverResult = design_observer(A, C, desired_poles)
+>>>
+>>> L = result['gain']
+>>> print(result['is_observable'])  # True
+>>>
+>>> # Observer-based control
+>>> x_hat = np.zeros(2)
+>>> for k in range(N):
+...     u = -K @ x_hat  # Control law
+...     y_meas = C @ x_true + noise
+...
+...     # Observer update
+...     x_hat_dot = A @ x_hat + B @ u + L @ (y_meas - C @ x_hat)
+...     x_hat = x_hat + dt * x_hat_dot  # Euler integration
+```

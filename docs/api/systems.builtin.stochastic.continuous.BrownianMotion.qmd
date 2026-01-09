@@ -1,0 +1,335 @@
+# systems.builtin.stochastic.continuous.BrownianMotion { #cdesym.systems.builtin.stochastic.continuous.BrownianMotion }
+
+```python
+systems.builtin.stochastic.continuous.BrownianMotion(*args, **kwargs)
+```
+
+Standard Brownian motion (Wiener process) - pure diffusion process.
+
+This is the fundamental stochastic process underlying all stochastic
+differential equations. It represents pure random walk with no
+deterministic drift, making it the stochastic analog of a zero
+dynamics system.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+Continuous-time SDE:
+    dX = σ·dW
+
+where:
+    - X(t): State (position) at time t
+    - σ > 0: Diffusion coefficient (volatility/noise intensity)
+    - W(t): Standard Wiener process
+    - dW: Brownian motion increment (infinitesimal random variable)
+    - No drift term: f(X) = 0
+    - Additive noise: σ is constant (state-independent)
+
+**Key Distinction from Other SDEs:**
+Unlike most SDEs, Brownian motion has:
+- Zero drift (f = 0): No deterministic tendency
+- Constant diffusion (g = σ): Noise intensity independent of state
+- This makes it the "simplest" non-trivial stochastic process
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Distribution:**
+Starting at X(0) = x₀, the solution is:
+    X(t) ~ N(x₀, σ²·t)
+
+**Moments:**
+- Mean: E[X(t)] = x₀ (constant for all time)
+- Variance: Var[X(t)] = σ²·t (grows linearly)
+- Standard Deviation: Std[X(t)] = σ·√t
+- Skewness: 0 (symmetric)
+- Kurtosis: 3 (Gaussian)
+
+**Path Properties:**
+- Continuous everywhere
+- Differentiable nowhere (fractal)
+- Hölder continuous: |X(t) - X(s)| ≤ C·|t-s|^α for α < 1/2
+- Unbounded variation: paths are infinitely "wiggly"
+- Quadratic variation: ∫(dX)² = σ²·t (fundamental to Itô calculus)
+
+**Markov Property:**
+The future evolution depends only on current state, not history:
+    P(X(t) | X(s), s ≤ u) = P(X(t) | X(u)) for t > u
+
+**Martingale Property:**
+Expected future value equals current value:
+    E[X(t) | X(s)] = X(s) for t > s
+
+This makes Brownian motion "fair" - no expected gain or loss.
+
+**Self-Similarity:**
+For any c > 0:
+    {σ·W(c²·t) : t ≥ 0} has the same distribution as {c·σ·W(t) : t ≥ 0}
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Diffusion Coefficient σ:**
+Controls the "speed" of diffusion:
+- Larger σ: Faster diffusion, more volatile paths
+- Smaller σ: Slower diffusion, smoother paths
+- Diffusion length scale: ℓ ~ σ·√t
+
+**Relationship to Temperature:**
+In physical systems:
+    σ = √(2·D) where D = kᵦT/γ
+- D: Diffusion coefficient
+- kᵦ: Boltzmann constant
+- T: Temperature
+- γ: Friction coefficient
+
+Higher temperature → larger σ → faster diffusion
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                                                                                                                                                                                                          | Default   |
+|--------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Diffusion coefficient (volatility) [units depend on application] - Must be positive: σ > 0 - Controls noise intensity - Units: [state]/√[time] - Standard Brownian motion: σ = 1  **Physical Meaning:** - σ² = 2D where D is diffusion coefficient - Variance growth rate: dVar/dt = σ² - RMS displacement in unit time: √(σ²·1) = σ | `1.0`     |
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ (unbounded)
+    - Can take any real value: -∞ < x < +∞
+    - No equilibria (system is non-stationary)
+    - No attractors or repellers
+    - All points equally likely in long-time limit (if unbounded)
+
+Control: None (autonomous system)
+    - nu = 0: No control input
+    - Purely noise-driven
+    - Cannot be "steered" by external input
+
+**Boundary Conditions:**
+For physical applications, boundaries may be imposed:
+- Absorbing: Process stops upon hitting boundary
+- Reflecting: Process bounces back from boundary
+- Periodic: Wraps around (equivalent to circle topology)
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+**Noise Type:** ADDITIVE
+- Diffusion matrix g = σ (constant)
+- Does not depend on state x
+- Simplest form of stochastic dynamics
+
+**SDE Type:** Itô (standard interpretation)
+- Can also use Stratonovich (equivalent for additive noise)
+- No Itô correction needed (f independent of x)
+
+**Noise Dimension:**
+- nw = 1: Single Wiener process drives the system
+- Scalar noise in scalar system
+
+## Simulation Methods {.doc-section .doc-section-simulation-methods}
+
+**Exact Discrete-Time Solution:**
+For time step Δt:
+    X[k+1] = X[k] + σ·√(Δt)·Z[k]
+where Z[k] ~ N(0,1) is standard normal.
+
+This is EXACT - no discretization error for Brownian motion!
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Hypothesis Testing:**
+To verify simulated paths are truly Brownian:
+
+1. **Mean Test**: E[X(T) - X(0)] = 0
+   - Sample mean should be ≈0
+   - Standard error: σ/√(n_samples)
+
+2. **Variance Test**: Var[X(T) - X(0)] = σ²·T
+   - Sample variance should grow linearly with T
+
+3. **Normality Test**: X(T) - X(0) ~ N(0, σ²·T)
+   - Use Shapiro-Wilk or Kolmogorov-Smirnov test
+   - Should not reject normality
+
+4. **Independence Test**: Increments uncorrelated
+   - Autocorrelation of ΔX should be zero
+   - Ljung-Box test for white noise
+
+5. **Quadratic Variation Test**:
+   - Σ(ΔX)² should approach σ²·T as Δt → 0
+   - Fundamental property distinguishing from smooth functions
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Physics:**
+- Particle diffusion in fluids
+- Thermal noise in electronic circuits
+- Quantum fluctuations (simplified model)
+- Langevin equation foundation
+
+**2. Finance:**
+- Building block for stock price models
+- Interest rate dynamics (Vasicek, Hull-White)
+- Option pricing (Black-Scholes foundation)
+- Risk-free asset path (money market account noise)
+
+**3. Biology:**
+- Molecular diffusion in cells
+- Random walk of bacteria (before chemotaxis)
+- Genetic drift in population genetics
+- Neural membrane potential fluctuations
+
+**4. Signal Processing:**
+- White noise integration
+- Random signal generation
+- Filter design and testing
+- Noise modeling
+
+**5. Mathematics:**
+- Foundation of stochastic calculus
+- Benchmark for SDE solvers
+- Example of martingales
+- Study of stochastic processes
+
+**6. Machine Learning:**
+- Stochastic gradient descent noise
+- Diffusion models (score-based generative models)
+- Langevin dynamics sampling
+- Variational inference with reparametrization
+
+## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}
+
+**vs. Geometric Brownian Motion:**
+- GBM: dX = μ·X·dt + σ·X·dW (multiplicative noise)
+- BM: dX = σ·dW (additive noise)
+- GBM stays positive, BM can be negative
+- GBM for stock prices, BM for price returns
+
+**vs. Ornstein-Uhlenbeck:**
+- OU: dX = -α·X·dt + σ·dW (mean-reverting)
+- BM: dX = σ·dW (no mean reversion)
+- OU has stationary distribution, BM does not
+- OU for interest rates, temperatures
+
+**vs. Random Walk:**
+- Random walk: discrete time, discrete space
+- Brownian motion: continuous time, continuous space
+- BM is limit of random walk as Δt, Δx → 0 with Δx² ~ Δt
+
+**vs. Lévy Process:**
+- Lévy: Can have jumps (Poisson, stable processes)
+- Brownian: Continuous paths only
+- Brownian is special case of Lévy (Gaussian Lévy)
+
+## Theoretical Importance {.doc-section .doc-section-theoretical-importance}
+
+**Why Brownian Motion is Fundamental:**
+
+1. **Donsker's Theorem (Functional CLT):**
+   Random walk → Brownian motion as step size → 0
+   Makes BM the universal limit of random walks
+
+2. **Lévy Characterization:**
+   Any continuous martingale with quadratic variation t
+   must be Brownian motion (up to time change)
+
+3. **Feynman-Kac Formula:**
+   Connects SDEs to PDEs via expectation
+   Solution to heat equation = expected value over Brownian paths
+
+4. **Girsanov Theorem:**
+   Change of measure for SDEs
+   Converts drift to diffusion via change of probability measure
+
+5. **Reflection Principle:**
+   P(max X(t) > a) = 2·P(X(T) > a)
+   Used in barrier option pricing
+
+## Limitations and Extensions {.doc-section .doc-section-limitations-and-extensions}
+
+**Standard Brownian Motion Limitations:**
+- No memory (Markov property may be unrealistic)
+- Gaussian increments (real data often heavy-tailed)
+- Continuous paths (no jumps)
+- Constant volatility (time-varying in reality)
+- Linear variance growth (subdiffusion/superdiffusion in complex media)
+
+**Extensions to Address Limitations:**
+- Fractional Brownian motion: Long-range dependence (Hurst parameter)
+- Lévy processes: Jumps and heavy tails
+- Stochastic volatility: Time-varying σ(t)
+- Rough volatility: σ follows rough process
+- Anomalous diffusion: Variance ~ t^α, α ≠ 1
+
+## See Also {.doc-section .doc-section-see-also}
+
+BrownianMotion2D : Two-dimensional independent Brownian motions
+BrownianBridge : Brownian motion conditioned on endpoints
+GeometricBrownianMotion : Multiplicative noise (stock prices)
+OrnsteinUhlenbeck : Mean-reverting Brownian motion
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.BrownianMotion.define_system) | Define standard Brownian motion dynamics. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.BrownianMotion.define_system }
+
+```python
+systems.builtin.stochastic.continuous.BrownianMotion.define_system(sigma=1.0)
+```
+
+Define standard Brownian motion dynamics.
+
+This sets up the stochastic differential equation:
+    dX = σ·dW
+
+with zero drift and constant diffusion.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                               | Default   |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Diffusion coefficient (must be positive) - Standard Brownian motion: σ = 1 - Units: [state]/√[time] - Controls noise intensity - Variance growth rate: σ² | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                                           |
+|--------|------------|-------------------------------------------------------|
+|        | ValueError | If sigma ≤ 0 (diffusion coefficient must be positive) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**System Structure:**
+This is a minimal stochastic system with:
+- Zero drift: f(x) = 0
+- Constant diffusion: g(x) = σ
+- Single noise source: nw = 1
+- No control input: nu = 0
+- First-order dynamics: order = 1
+
+**Special Properties:**
+- Pure diffusion process (no drift component)
+- Autonomous (no time dependence)
+- Additive noise (σ independent of state)
+- Unbounded state space (x ∈ ℝ)
+- No equilibrium points (non-stationary)
+
+**Standard vs. Scaled Brownian Motion:**
+When σ = 1, this is the standard Wiener process W(t).
+For σ ≠ 1, we have scaled Brownian motion: X(t) = σ·W(t)
+
+All Brownian motions can be written as:
+    X(t) = x₀ + σ·W(t)
+where W(t) is standard Brownian motion.
+
+**Discretization:**
+The discrete-time equivalent is:
+    X[k+1] = X[k] + σ·√(dt)·w[k]
+where w[k] ~ N(0,1) and dt is the time step.
+
+This is exact (no discretization error) for Brownian motion.
+
+**Comparison with Other SDEs:**
+Unlike most SDEs:
+- No drift means E[X(t)] = x₀ for all t (constant mean)
+- Constant diffusion means integration is particularly simple
+- Euler-Maruyama method is exact (no approximation error)
+- No stability concerns regardless of time step size

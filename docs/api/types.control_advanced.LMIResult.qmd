@@ -1,0 +1,53 @@
+# types.control_advanced.LMIResult { #cdesym.types.control_advanced.LMIResult }
+
+```python
+types.control_advanced.LMIResult()
+```
+
+Linear Matrix Inequality (LMI) solver result.
+
+LMIs enable convex formulation of many control problems:
+- Lyapunov stability (P > 0, A'P + PA < 0)
+- H∞ synthesis, polytopic systems, etc.
+
+## Fields {.doc-section .doc-section-fields}
+
+decision_variables : Dict[str, ArrayLike]
+    Solved matrix variables (P, Y, etc.)
+objective_value : float
+    Optimal objective function value
+feasible : bool
+    Whether LMI constraints are feasible
+solver : str
+    Solver used ('cvxpy', 'mosek', 'sedumi', etc.)
+solve_time : float
+    Computation time in seconds
+condition_number : float
+    Condition number of solution (numerical health)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Lyapunov stability LMI: find P > 0 s.t. A'P + PA < 0
+>>> import cvxpy as cp
+>>> P = cp.Variable((2, 2), symmetric=True)
+>>> constraints = [
+...     P >> 0,  # P positive definite
+...     A.T @ P + P @ A << 0  # Lyapunov inequality
+... ]
+>>> problem = cp.Problem(cp.Minimize(0), constraints)
+>>> problem.solve()
+>>>
+>>> result: LMIResult = {
+...     'decision_variables': {'P': P.value},
+...     'objective_value': problem.value,
+...     'feasible': problem.status == 'optimal',
+...     'solver': 'cvxpy',
+...     'solve_time': problem.solver_stats.solve_time,
+...     'condition_number': np.linalg.cond(P.value),
+... }
+>>>
+>>> if result['feasible']:
+...     P_lyap = result['decision_variables']['P']
+...     print("System is stable")
+```

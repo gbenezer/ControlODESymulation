@@ -1,0 +1,445 @@
+# systems.builtin.stochastic.discrete.DiscreteVAR1 { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1 }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1(*args, **kwargs)
+```
+
+Vector Autoregressive process of order 1 - multivariate time series model.
+
+The fundamental model for systems of interrelated time series, combining
+multiple variables with dynamic cross-effects. This is the discrete-time
+analog of multivariate Ornstein-Uhlenbeck and the foundation for modern
+macroeconomic analysis.
+
+## Vector Difference Equation {.doc-section .doc-section-vector-difference-equation}
+
+Standard VAR(1) form:
+    X[k] = A·X[k-1] + w[k]
+
+With control:
+    X[k] = A·X[k-1] + B·u[k] + w[k]
+
+where:
+    - X[k] ∈ ℝⁿ: State vector (n time series)
+    - A ∈ ℝⁿˣⁿ: Coefficient matrix (VAR coefficients)
+    - B ∈ ℝⁿˣᵖ: Control matrix (optional)
+    - u[k] ∈ ℝᵖ: Exogenous inputs
+    - w[k] ~ N(0, Σ_w): Vector white noise
+    - Σ_w ∈ ℝⁿˣⁿ: Innovation covariance
+
+**Component Equations:**
+    X_i[k] = Σⱼ A_ij·X_j[k-1] + w_i[k]
+
+Each variable depends on all lagged variables.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Coefficient Matrix A:**
+
+Diagonal elements A_ii:
+- Own-lag effect (like univariate AR)
+- Persistence of variable i
+- Typical: 0.5-0.9 (positive persistence)
+
+Off-diagonal elements A_ij (i ≠ j):
+- Cross-lag effect (variable j → variable i)
+- Spillover, contagion, transmission
+- Can be positive (co-movement) or negative (offset)
+- Zero: No direct effect (X_j doesn't Granger-cause X_i)
+
+**Example (2D Macro Model):**
+    [GDP[k]    ] = [a₁₁  a₁₂]·[GDP[k-1]    ] + [w₁[k]]
+    [Inflation[k]]   [a₂₁  a₂₂] [Inflation[k-1]]   [w₂[k]]
+
+Interpretation:
+- a₁₁: GDP persistence (momentum)
+- a₁₂: Effect of past inflation on GDP (Phillips curve)
+- a₂₁: Effect of past GDP on inflation (demand-pull)
+- a₂₂: Inflation persistence (expectations)
+
+**Innovation Covariance Σ_w:**
+
+Diagonal elements (Σ_w)_ii:
+- Variance of idiosyncratic shock to variable i
+
+Off-diagonal elements (Σ_w)_ij:
+- Contemporaneous correlation between shocks
+- Common factors affecting multiple variables
+- Non-zero typical (shocks correlated)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Multivariate:**
+n variables modeled jointly (not independently).
+
+**Cross-Effects:**
+A_ij captures dynamic interaction (j → i).
+
+**Stationarity:**
+All eigenvalues of A inside unit circle: |λ| < 1
+
+**Symmetry:**
+A can be asymmetric (feedback loops possible).
+
+**Correlated Shocks:**
+Σ_w typically non-diagonal (contemporaneous correlation).
+
+**Markov:**
+Future depends only on X[k], not X[k-2], X[k-3], ...
+
+**Gaussian:**
+If w ~ N(0, Σ_w), then X is multivariate Gaussian.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Eigenvalue Decomposition:**
+    A = V·Λ·V⁻¹
+
+Eigenvalues λ_i determine:
+- Stability: All |λ_i| < 1 required
+- Time scales: τ_i = -1/ln|λ_i| periods
+- Oscillations: Im(λ_i) ≠ 0 → cycles
+
+**Stationary Covariance:**
+
+Discrete Lyapunov:
+    Γ₀ = A·Γ₀·Aᵀ + Σ_w
+
+Numerical solution via:
+- scipy.linalg.solve_discrete_lyapunov
+- Bartels-Stewart algorithm
+- Kronecker form: (I - A⊗A)·vec(Γ₀) = vec(Σ_w)
+
+**Impulse Response:**
+
+h-step response:
+    Ψ_h = Aʰ
+
+Trace shock propagation through system.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Matrix A Structure:**
+
+Full (dense):
+- All variables interact
+- n² parameters
+- Flexible but many parameters
+
+Diagonal:
+- No cross-effects (independent AR(1)s)
+- n parameters
+- Restrictive but parsimonious
+
+Block diagonal:
+- Groups of interacting variables
+- Within-group coupling, no between-group
+- Intermediate complexity
+
+Sparse:
+- Most A_ij = 0 (network structure)
+- Few interactions
+- Common in high-dimensional VARs
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X ∈ ℝⁿ
+    - Vector of n time series
+    - Unbounded (Gaussian)
+
+Control: u ∈ ℝᵖ (optional)
+    - Exogenous inputs
+    - Policy variables
+
+Noise: w ∈ ℝⁿ
+    - Vector white noise
+    - Covariance Σ_w (can be correlated)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                  | Description                                                                                                                                         | Default    |
+|---------|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| A       | (np.ndarray or list, shape(n, n))     | VAR coefficient matrix - Diagonal: Own-lag effects - Off-diagonal: Cross-effects - Eigenvalues must satisfy \|λ\| < 1                               | _required_ |
+| Sigma_w | (np.ndarray or list, shape(n, n))     | Innovation covariance matrix - Must be symmetric positive definite - Diagonal: Idiosyncratic variances - Off-diagonal: Contemporaneous correlations | _required_ |
+| B       | (Optional\[np.ndarray\], shape(n, p)) | Control/exogenous input matrix                                                                                                                      | _required_ |
+| dt      | float                                 | Sampling period (time units)                                                                                                                        | `1.0`      |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR (multivariate AR)
+- Noise Type: ADDITIVE (vector white noise)
+- Markov: Yes (one lag)
+- Stationary: If all |λ(A)| < 1
+- Gaussian: If w ~ N(0, Σ_w)
+- Dimension: n (number of variables)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Macroeconomics:**
+- GDP, inflation, interest rates
+- Unemployment, investment, consumption
+- Fiscal and monetary policy analysis
+
+**2. Finance:**
+- Multi-asset portfolios
+- Volatility spillovers
+- Market contagion
+
+**3. International:**
+- Multi-country models
+- Trade dynamics
+- Exchange rates
+
+**4. Energy:**
+- Electricity, gas, oil prices
+- Demand forecasting
+- Renewable integration
+
+**5. Operations:**
+- Multi-product demand
+- Supply chain dynamics
+- Inventory systems
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Matrix Multiplication:**
+    X[k+1] = A @ X[k] + w[k]
+
+**Efficient:** Use NumPy matrix operations.
+
+**Stability Check:**
+Before long simulation, verify eigenvalues inside unit circle.
+
+## Granger Causality Testing {.doc-section .doc-section-granger-causality-testing}
+
+**Implementation:**
+
+Test if X_j → X_i (j Granger-causes i):
+1. Restricted model: X_i[k] = a_ii·X_i[k-1] + ε[k]
+2. Unrestricted: X_i[k] = a_ii·X_i[k-1] + a_ij·X_j[k-1] + ε[k]
+3. F-test: Is a_ij significantly non-zero?
+
+## Comparison with Scalar AR {.doc-section .doc-section-comparison-with-scalar-ar}
+
+**Scalar AR(1):**
+- 1 variable, 1 lag
+- 1 parameter (φ)
+
+**VAR(1):**
+- n variables, 1 lag
+- n² parameters (A matrix)
+- Captures interactions
+
+**When VAR Essential:**
+- Variables economically related
+- Spillovers/contagion
+- Joint forecasting better
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear dynamics only
+- Constant parameters
+- Short memory (lag 1 only, extend to VAR(p))
+- Many parameters (n² for n variables)
+- Curse of dimensionality (high n)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- VAR(p): Multiple lags
+- VARMA: Add moving average
+- SVAR: Structural identification
+- BVAR: Bayesian shrinkage (Minnesota prior)
+- Factor-Augmented VAR: Handle high dimension
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteAR1 : Univariate version (n=1)
+MultivariateOrnsteinUhlenbeck : Continuous-time analog
+DiscreteARMA11 : Univariate with MA component
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_impulse_response](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.compute_impulse_response) | Compute impulse response function. |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.define_system) | Define VAR(1) process dynamics. |
+| [get_eigenvalues](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_eigenvalues) | Get eigenvalues of A (determines stability and dynamics). |
+| [get_innovation_covariance](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_innovation_covariance) | Get innovation covariance Σ_w. |
+| [get_stationary_covariance](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_stationary_covariance) |         Compute stationary covariance Γ₀. |
+| [get_var_matrix](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_var_matrix) | Get VAR coefficient matrix A. |
+| [test_granger_causality](#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.test_granger_causality) | Test if variable j Granger-causes variable i. |
+
+### compute_impulse_response { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.compute_impulse_response }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.compute_impulse_response(
+    horizon=20,
+)
+```
+
+Compute impulse response function.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description             | Default   |
+|---------|--------|-------------------------|-----------|
+| horizon | int    | Number of periods ahead | `20`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                                                                                      |
+|--------|------------|--------------------------------------------------------------------------------------------------|
+|        | np.ndarray | IRF tensor (horizon+1, n, n) IRF[h, i, j] = response of variable i to shock in j after h periods |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> var = DiscreteVAR1(A=[[0.8, 0.2], [0.1, 0.7]], Sigma_w=np.eye(2)*0.01)
+>>> irf = var.compute_impulse_response(horizon=10)
+>>> print(f"Impact of shock to X₁ on X₂ after 5 periods: {irf[5, 1, 0]:.3f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.define_system(
+    A,
+    Sigma_w,
+    B=None,
+    dt=1.0,
+)
+```
+
+Define VAR(1) process dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                  | Description                                                                                                                                                        | Default    |
+|---------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| A       | (np.ndarray or list, shape(n, n))     | VAR coefficient matrix - Diagonal: Own-lag effects (persistence) - Off-diagonal: Cross-lag effects (spillovers) - Must have eigenvalues \|λ\| < 1 for stationarity | _required_ |
+| Sigma_w | (np.ndarray or list, shape(n, n))     | Innovation covariance matrix - Must be symmetric positive definite - Diagonal: Shock variances - Off-diagonal: Shock correlations                                  | _required_ |
+| B       | (Optional\[np.ndarray\], shape(n, p)) | Control/exogenous input matrix                                                                                                                                     | `None`     |
+| dt      | float                                 | Sampling period (e.g., daily, monthly, quarterly)                                                                                                                  | `1.0`      |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                              |
+|--------|-------------|----------------------------------------------------------|
+|        | ValueError  | If dimensions incompatible or Σ_w not positive definite  |
+|        | UserWarning | If eigenvalues of A outside unit circle (non-stationary) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stationarity:**
+Check all eigenvalues of A: |λ_i| < 1
+
+**Parameter Count:**
+- VAR coefficients: n²
+- Covariance: n(n+1)/2
+- Total: n² + n(n+1)/2
+
+Example: n=3 → 9 + 6 = 15 parameters!
+
+**Granger Causality:**
+X_j Granger-causes X_i if A_ij ≠ 0.
+Test via F-test on individual coefficients.
+
+**Impulse Response:**
+h-step response: Ψ_h = Aʰ
+Trace shock effects over time.
+
+### get_eigenvalues { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_eigenvalues }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.get_eigenvalues()
+```
+
+Get eigenvalues of A (determines stability and dynamics).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                  |
+|--------|------------|------------------------------|
+|        | np.ndarray | Eigenvalues (may be complex) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> var = DiscreteVAR1(A=[[0.8, 0.1], [0.1, 0.7]],
+...                    Sigma_w=np.eye(2)*0.01)
+>>> eigs = var.get_eigenvalues()
+>>> print(f"Eigenvalues: {eigs}")
+```
+
+### get_innovation_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_innovation_covariance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.get_innovation_covariance()
+```
+
+Get innovation covariance Σ_w.
+
+### get_stationary_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_stationary_covariance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.get_stationary_covariance()
+```
+
+        Compute stationary covariance Γ₀.
+
+        Solves: Γ₀ = A·Γ₀·Aᵀ + Σ_w
+
+####         Returns {.doc-section .doc-section---------returns}
+
+        np.ndarray
+            Stationary covariance
+
+####         Examples {.doc-section .doc-section---------examples}
+
+        >>> var = DiscreteVAR1(A=[[0.8, 0], [0, 0.7]], Sigma_w=np.eye(2)*0.01)
+        >>> Gamma = var.get_stationary_covariance()
+        >>> print(f"Stationary covariance:
+{Gamma}")
+
+### get_var_matrix { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.get_var_matrix }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.get_var_matrix()
+```
+
+Get VAR coefficient matrix A.
+
+### test_granger_causality { #cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1.test_granger_causality }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteVAR1.test_granger_causality(i, j)
+```
+
+Test if variable j Granger-causes variable i.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description           | Default    |
+|--------|--------|-----------------------|------------|
+| i      | int    | Target variable index | _required_ |
+| j      | int    | Source variable index | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                            |
+|--------|--------|----------------------------------------|
+|        | dict   | {'causes': bool, 'coefficient': float} |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Simple test: Is A_ij ≠ 0?
+
+For rigorous test, need F-statistic from data.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> var = DiscreteVAR1(A=[[0.8, 0.2], [0.0, 0.7]], Sigma_w=np.eye(2)*0.01)
+>>> test = var.test_granger_causality(i=0, j=1)
+>>> print(f"X₁ causes X₀: {test}")  # True (A₀₁ = 0.2)
+```

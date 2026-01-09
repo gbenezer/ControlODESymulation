@@ -1,0 +1,50 @@
+# types.linearization.DeterministicLinearization { #cdesym.types.linearization.DeterministicLinearization }
+
+`types.linearization.DeterministicLinearization`
+
+Linearization result for deterministic systems: (A, B).
+
+Returns Jacobian matrices of dynamics with respect to state and control.
+
+Continuous systems:
+    dx/dt = f(x, u) linearized to: dx/dt ≈ Ac*δx + Bc*δu
+    Returns: (Ac, Bc) where
+        Ac = ∂f/∂x at (x_eq, u_eq)  (nx, nx)
+        Bc = ∂f/∂u at (x_eq, u_eq)  (nx, nu)
+
+Discrete systems:
+    x[k+1] = f(x, u) linearized to: x[k+1] ≈ Ad*(x[k]-x_eq) + Bd*(u[k]-u_eq) + x_eq
+    Returns: (Ad, Bd) where
+        Ad = ∂f/∂x at (x_eq, u_eq)  (nx, nx)
+        Bd = ∂f/∂u at (x_eq, u_eq)  (nx, nu)
+
+Usage:
+    Ac, Bc = continuous_system.linearize(x_eq, u_eq)
+    Ad, Bd = discrete_system.linearize(x_eq, u_eq)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous system linearization
+>>> Ac, Bc = continuous_system.linearize(
+...     x_eq=np.zeros(2),
+...     u_eq=np.zeros(1)
+... )
+>>> print(Ac.shape)  # (2, 2)
+>>> print(Bc.shape)  # (2, 1)
+>>> 
+>>> # Use for LQR design
+>>> from scipy.linalg import solve_continuous_are
+>>> P = solve_continuous_are(Ac, Bc, Q, R)
+>>> K = np.linalg.inv(R) @ Bc.T @ P
+>>> 
+>>> # Discrete system linearization
+>>> Ad, Bd = discrete_system.linearize(
+...     x_eq=np.zeros(2),
+...     u_eq=np.zeros(1)
+... )
+>>> 
+>>> # Check stability
+>>> eigenvalues = np.linalg.eigvals(Ad)
+>>> is_stable = np.all(np.abs(eigenvalues) < 1.0)
+```

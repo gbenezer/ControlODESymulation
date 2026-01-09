@@ -1,0 +1,35 @@
+# types.trajectories.TimeSpan { #cdesym.types.trajectories.TimeSpan }
+
+`types.trajectories.TimeSpan`
+
+Time interval for continuous integration: (t_start, t_end).
+
+Defines initial and final times for ODE/SDE integration.
+
+Format: (t_start, t_end) where t_start < t_end
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard interval [0, T]
+>>> t_span: TimeSpan = (0.0, 10.0)
+>>> 
+>>> # Non-zero start time
+>>> t_span: TimeSpan = (5.0, 15.0)
+>>> 
+>>> # Short interval for testing
+>>> t_span: TimeSpan = (0.0, 0.1)
+>>> 
+>>> # Use in integration
+>>> from scipy.integrate import solve_ivp
+>>> result = solve_ivp(
+...     fun=dynamics,
+...     t_span=t_span,
+...     y0=x0,
+...     method='RK45'
+... )
+>>> 
+>>> # Extract t_eval from t_span
+>>> t_start, t_end = t_span
+>>> t_eval: TimePoints = np.linspace(t_start, t_end, 1000)
+```

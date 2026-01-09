@@ -1,0 +1,76 @@
+# systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem { #cdesym.systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem }
+
+```python
+systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem(
+    *args,
+    **kwargs,
+)
+```
+
+Fifth-order mechanical system - extremely high-order dynamics.
+
+**WARNING**: This is an artificially complex system designed for testing
+high-order integration schemes. Physical systems rarely exceed third order.
+
+## Physical Interpretation: {.doc-section .doc-section-physical-interpretation}
+
+Could represent:
+- Flexible manipulator with multiple vibration modes
+- Actuator with nested control loops (each adding an order)
+- Academic test case for high-order integration
+
+## Mathematical Formulation: {.doc-section .doc-section-mathematical-formulation}
+
+State: x = [q, q', q'', q''', q⁽⁴⁾]
+where:
+    - q: Position [m]
+    - q': Velocity [m/s]
+    - q'': Acceleration [m/s²]
+    - q''': Jerk [m/s³]
+    - q⁽⁴⁾: Snap (fourth derivative) [m/s⁴]
+
+The system evolves according to:
+    q⁽⁵⁾ = f(q, q', q'', q''', q⁽⁴⁾, u)
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+q⁽⁵⁾ = -(k/m)q - c₁q' - c₂q'' - c₃q''' - 0.01q⁽⁴⁾ - g + u/m
+
+This includes:
+- Stiffness term: -kq (like a spring)
+- Multiple damping terms at each derivative level
+- Gravity: -g
+- Control input: u/m
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+m : float, default=1.0
+    Mass [kg]
+k : float, default=1.0
+    Stiffness coefficient [N/m]
+c1 : float, default=0.1
+    First-order damping (velocity damping) [N⋅s/m]
+c2 : float, default=0.05
+    Second-order damping (acceleration damping) [N⋅s³/m]
+c3 : float, default=0.01
+    Third-order damping (jerk damping) [N⋅s⁵/m]
+g : float, default=9.81
+    Gravitational acceleration [m/s²]
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [q, q', q'', q''', q⁽⁴⁾]  (5D)
+Control: u = [force]  (1D)
+Output: y = [q, q']  (position and velocity)
+
+## Equilibrium: {.doc-section .doc-section-equilibrium}
+
+Static equilibrium (balancing gravity):
+    q_eq = -mg/k  (compressed by gravity)
+    All derivatives zero
+    u_eq = mg  (supporting weight)
+
+## See Also: {.doc-section .doc-section-see-also}
+
+SymbolicPendulum2ndOrder : More typical second-order system
+CoupledOscillatorSystem : More realistic multi-DOF system

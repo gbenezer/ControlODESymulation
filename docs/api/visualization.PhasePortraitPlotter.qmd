@@ -1,0 +1,323 @@
+# visualization.PhasePortraitPlotter { #cdesym.visualization.PhasePortraitPlotter }
+
+```python
+visualization.PhasePortraitPlotter(backend='numpy', default_theme='default')
+```
+
+Phase space visualization for dynamical systems.
+
+Provides interactive Plotly-based plotting for phase portraits in 2D and 3D,
+with optional vector fields, equilibrium points, and direction indicators.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name          | Type    | Description                                        |
+|---------------|---------|----------------------------------------------------|
+| backend       | Backend | Default computational backend for array conversion |
+| default_theme | str     | Default plot theme to apply                        |
+
+## Examples {.doc-section .doc-section-examples}
+
+2D phase portrait:
+
+```python
+>>> plotter = PhasePortraitPlotter()
+>>> x = np.column_stack([np.sin(t), np.cos(t)])  # (T, 2)
+>>> fig = plotter.plot_2d(x, state_names=('sin', 'cos'))
+>>> fig.show()
+```
+
+With vector field and equilibrium:
+
+```python
+>>> def f(x1, x2):
+...     return np.array([x2, -x1 - 0.1*x2])
+>>>
+>>> fig = plotter.plot_2d(
+...     x,
+...     vector_field=f,
+...     equilibria=[np.zeros(2)],
+...     show_direction=True,
+...     theme='publication'
+... )
+```
+
+3D phase portrait (Lorenz attractor):
+
+```python
+>>> fig = plotter.plot_3d(
+...     x_lorenz,  # (T, 3)
+...     state_names=('x', 'y', 'z'),
+...     color_scheme='tableau',
+...     theme='dark'
+... )
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [list_available_color_schemes](#cdesym.visualization.PhasePortraitPlotter.list_available_color_schemes) | List available color schemes. |
+| [list_available_themes](#cdesym.visualization.PhasePortraitPlotter.list_available_themes) | List available plot themes. |
+| [plot_2d](#cdesym.visualization.PhasePortraitPlotter.plot_2d) | Create 2D phase portrait (x₂ vs x₁). |
+| [plot_3d](#cdesym.visualization.PhasePortraitPlotter.plot_3d) | Create 3D phase portrait. |
+| [plot_limit_cycle](#cdesym.visualization.PhasePortraitPlotter.plot_limit_cycle) | Visualize limit cycle (periodic orbit). |
+
+### list_available_color_schemes { #cdesym.visualization.PhasePortraitPlotter.list_available_color_schemes }
+
+```python
+visualization.PhasePortraitPlotter.list_available_color_schemes()
+```
+
+List available color schemes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                  |
+|--------|-------------|------------------------------|
+|        | List\[str\] | Available color scheme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> schemes = PhasePortraitPlotter.list_available_color_schemes()
+>>> print(schemes)
+['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+```
+
+### list_available_themes { #cdesym.visualization.PhasePortraitPlotter.list_available_themes }
+
+```python
+visualization.PhasePortraitPlotter.list_available_themes()
+```
+
+List available plot themes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description           |
+|--------|-------------|-----------------------|
+|        | List\[str\] | Available theme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> themes = PhasePortraitPlotter.list_available_themes()
+>>> print(themes)
+['default', 'publication', 'dark', 'presentation']
+```
+
+### plot_2d { #cdesym.visualization.PhasePortraitPlotter.plot_2d }
+
+```python
+visualization.PhasePortraitPlotter.plot_2d(
+    x,
+    state_names=('x₁', 'x₂'),
+    trajectory_names=None,
+    show_direction=True,
+    show_start_end=True,
+    vector_field=None,
+    equilibria=None,
+    title='2D Phase Portrait',
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Create 2D phase portrait (x₂ vs x₁).
+
+Plots trajectory through 2D state space with optional vector field
+overlay and equilibrium point markers.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                           | Description                                                                                                                                        | Default               |
+|------------------|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| x                | np.ndarray                     | State trajectory, shape (T, 2) or (n_batch, T, 2) Must be 2-dimensional state                                                                      | _required_            |
+| state_names      | Tuple\[str, str\]              | Names for horizontal and vertical axes Default: ('x₁', 'x₂')                                                                                       | `('x₁', 'x₂')`        |
+| trajectory_names | Optional\[List\[str\]\]        | Custom names for each trajectory (for batched trajectories) If None, uses "Trajectory 1", "Trajectory 2", etc. Length must equal number of batches | `None`                |
+| show_direction   | bool                           | If True, add arrows showing trajectory direction                                                                                                   | `True`                |
+| show_start_end   | bool                           | If True, mark initial and final points                                                                                                             | `True`                |
+| vector_field     | Optional\[Callable\]           | Function f(x1, x2) -> [dx1, dx2] for vector field If provided, overlays arrow field showing dynamics                                               | `None`                |
+| equilibria       | Optional\[List\[np.ndarray\]\] | List of equilibrium points to mark, each shape (2,)                                                                                                | `None`                |
+| title            | str                            | Plot title                                                                                                                                         | `'2D Phase Portrait'` |
+| color_scheme     | str                            | Color scheme name Options: 'plotly', 'd3', 'colorblind_safe', 'tableau',          'sequential_blue', 'diverging_red_blue', etc. Default: 'plotly'  | `'plotly'`            |
+| theme            | Optional\[str\]                | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme                                     | `None`                |
+| **kwargs         |                                | Additional customization arguments                                                                                                                 | `{}`                  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description          |
+|--------|-----------|----------------------|
+|        | go.Figure | Plotly figure object |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simple phase portrait
+>>> t = np.linspace(0, 10, 100)
+>>> x = np.column_stack([np.sin(t), np.cos(t)])
+>>> fig = plotter.plot_2d(x, state_names=('Position', 'Velocity'))
+>>> fig.show()
+>>>
+>>> # With vector field (pendulum) and publication theme
+>>> def pendulum_dynamics(x1, x2):
+...     return np.array([x2, -np.sin(x1) - 0.1*x2])
+>>>
+>>> fig = plotter.plot_2d(
+...     x,
+...     vector_field=pendulum_dynamics,
+...     equilibria=[np.array([0, 0]), np.array([np.pi, 0])],
+...     show_direction=True,
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>>
+>>> # Batched trajectories (multiple initial conditions)
+>>> x_batch = np.random.randn(5, 100, 2)
+>>> fig = plotter.plot_2d(
+...     x_batch,
+...     trajectory_names=['IC 1', 'IC 2', 'IC 3', 'IC 4', 'IC 5'],
+...     theme='dark'
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Automatically handles batched trajectories
+- Vector field computed on grid if provided
+- Start point: green circle, End point: red square
+- Direction arrows added at regular intervals
+
+### plot_3d { #cdesym.visualization.PhasePortraitPlotter.plot_3d }
+
+```python
+visualization.PhasePortraitPlotter.plot_3d(
+    x,
+    state_names=('x₁', 'x₂', 'x₃'),
+    trajectory_names=None,
+    show_direction=True,
+    show_start_end=True,
+    title='3D Phase Portrait',
+    color_scheme='plotly',
+    direction_colorscale='Viridis',
+    theme=None,
+    **kwargs,
+)
+```
+
+Create 3D phase portrait.
+
+Plots trajectory through 3D state space with interactive rotation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type                    | Description                                                                                                                                                                                                                                                                    | Default               |
+|----------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| x                    | np.ndarray              | State trajectory, shape (T, 3) or (n_batch, T, 3) Must be 3-dimensional state                                                                                                                                                                                                  | _required_            |
+| state_names          | Tuple\[str, str, str\]  | Names for x, y, z axes Default: ('x₁', 'x₂', 'x₃')                                                                                                                                                                                                                             | `('x₁', 'x₂', 'x₃')`  |
+| trajectory_names     | Optional\[List\[str\]\] | Custom names for each trajectory (for batched trajectories) If None, uses "Trajectory 1", "Trajectory 2", etc. Length must equal number of batches                                                                                                                             | `None`                |
+| show_direction       | bool                    | If True, show temporal direction via line color gradient (single trajectory only)                                                                                                                                                                                              | `True`                |
+| show_start_end       | bool                    | If True, mark initial and final points                                                                                                                                                                                                                                         | `True`                |
+| title                | str                     | Plot title                                                                                                                                                                                                                                                                     | `'3D Phase Portrait'` |
+| color_scheme         | str                     | Color scheme name Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc. Default: 'plotly' Note: Only used for batched trajectories; single trajectories use direction_colorscale                                                                                         | `'plotly'`            |
+| direction_colorscale | str                     | Colorscale for temporal gradient (single trajectory only) Options: 'Viridis', 'Plasma', 'Inferno', 'Magma', 'Cividis',          'Turbo', 'Rainbow', 'Jet', 'Hot', 'Cool', 'Blues', 'Reds',          'Greens', 'Portland', 'Picnic', 'Electric', 'Blackbody' Default: 'Viridis' | `'Viridis'`           |
+| theme                | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme                                                                                                                                                                 | `None`                |
+| **kwargs             |                         | Additional customization arguments                                                                                                                                                                                                                                             | `{}`                  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                  |
+|--------|-----------|------------------------------|
+|        | go.Figure | Interactive 3D Plotly figure |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Lorenz attractor with temporal gradient
+>>> x_lorenz = solve_lorenz(...)  # (T, 3)
+>>> fig = plotter.plot_3d(
+...     x_lorenz,
+...     state_names=('x', 'y', 'z'),
+...     title='Lorenz Attractor',
+...     show_direction=True,
+...     theme='dark'
+... )
+>>> fig.show()
+>>>
+>>> # Multiple trajectories with custom names
+>>> x_batch = np.random.randn(3, 1000, 3)
+>>> fig = plotter.plot_3d(
+...     x_batch,
+...     trajectory_names=['Low Energy', 'Medium Energy', 'High Energy'],
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Interactive: Click and drag to rotate
+- Scroll to zoom
+- Single trajectory: Line color shows time progression (dark→light)
+- Batched trajectories: Each trajectory has distinct solid color
+- Start: green sphere, End: red cube
+
+### plot_limit_cycle { #cdesym.visualization.PhasePortraitPlotter.plot_limit_cycle }
+
+```python
+visualization.PhasePortraitPlotter.plot_limit_cycle(
+    x,
+    state_names=('x₁', 'x₂'),
+    trajectory_names=None,
+    period_estimate=None,
+    title='Limit Cycle',
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Visualize limit cycle (periodic orbit).
+
+Highlights periodic behavior in phase space by overlaying multiple
+periods if detected.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                    | Description                                                                                                    | Default         |
+|------------------|-------------------------|----------------------------------------------------------------------------------------------------------------|-----------------|
+| x                | np.ndarray              | State trajectory, shape (T, 2) Should contain at least one full period                                         | _required_      |
+| state_names      | Tuple\[str, str\]       | Names for axes                                                                                                 | `('x₁', 'x₂')`  |
+| trajectory_names | Optional\[List\[str\]\] | Custom names for trajectories If None, uses "Trajectory 1"                                                     | `None`          |
+| period_estimate  | Optional\[float\]       | Estimated period (in samples) If None, attempts auto-detection                                                 | `None`          |
+| title            | str                     | Plot title                                                                                                     | `'Limit Cycle'` |
+| color_scheme     | str                     | Color scheme name Default: 'plotly'                                                                            | `'plotly'`      |
+| theme            | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`          |
+| **kwargs         |                         | Additional arguments                                                                                           | `{}`            |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                 |
+|--------|-----------|---------------------------------------------|
+|        | go.Figure | Phase portrait with limit cycle highlighted |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Van der Pol oscillator
+>>> x_vdp = solve_van_der_pol(...)  # (T, 2)
+>>> fig = plotter.plot_limit_cycle(
+...     x_vdp,
+...     period_estimate=100,
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Limit cycle detection is heuristic
+- Works best with long trajectories (many periods)
+- Highlights the periodic attractor

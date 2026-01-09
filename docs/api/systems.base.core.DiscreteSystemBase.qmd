@@ -1,0 +1,425 @@
+# systems.base.core.DiscreteSystemBase { #cdesym.systems.base.core.DiscreteSystemBase }
+
+```python
+systems.base.core.DiscreteSystemBase()
+```
+
+Abstract base class for all discrete-time dynamical systems.
+
+All discrete-time systems satisfy:
+    x[k+1] = f(x[k], u[k], k)
+
+Subclasses must implement:
+1. dt (property): Sampling period
+2. step(x, u, k): Single time step update
+3. simulate(x0, u_sequence, n_steps): Multi-step simulation
+4. linearize(x_eq, u_eq): Compute linearization
+
+Additional concrete methods provided:
+- rollout(): Closed-loop simulation with state-feedback policy
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> class MyDiscreteSystem(DiscreteSystemBase):
+...     def __init__(self, dt=0.1):
+...         self._dt = dt
+...         self.nx = 2
+...         self.nu = 1
+...
+...     @property
+...     def dt(self):
+...         return self._dt
+...
+...     def step(self, x, u=None, k=0):
+...         u = u if u is not None else np.zeros(self.nu)
+...         return 0.9 * x + 0.1 * u
+...
+...     def simulate(self, x0, u_sequence, n_steps):
+...         # Implement multi-step simulation
+...         ...
+...
+...     def linearize(self, x_eq, u_eq):
+...         Ad = 0.9 * np.eye(self.nx)
+...         Bd = 0.1 * np.eye(self.nx, self.nu)
+...         return (Ad, Bd)
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [analysis](#cdesym.systems.base.core.DiscreteSystemBase.analysis) | Access system analysis utilities. |
+| [control](#cdesym.systems.base.core.DiscreteSystemBase.control) | Access control synthesis utilities. |
+| [control_plotter](#cdesym.systems.base.core.DiscreteSystemBase.control_plotter) | Access control system analysis plotting utilities. |
+| [dt](#cdesym.systems.base.core.DiscreteSystemBase.dt) | Sampling period / time step of the discrete system. |
+| [is_continuous](#cdesym.systems.base.core.DiscreteSystemBase.is_continuous) | Return False (this is NOT a continuous-time system). |
+| [is_discrete](#cdesym.systems.base.core.DiscreteSystemBase.is_discrete) | Return True (this is a discrete-time system). |
+| [is_stochastic](#cdesym.systems.base.core.DiscreteSystemBase.is_stochastic) | Return True if system has stochastic dynamics. |
+| [is_time_varying](#cdesym.systems.base.core.DiscreteSystemBase.is_time_varying) | Return True if system dynamics depend explicitly on time step k. |
+| [phase_plotter](#cdesym.systems.base.core.DiscreteSystemBase.phase_plotter) | Access phase portrait plotting utilities. |
+| [plotter](#cdesym.systems.base.core.DiscreteSystemBase.plotter) | Access trajectory plotting utilities. |
+| [sampling_frequency](#cdesym.systems.base.core.DiscreteSystemBase.sampling_frequency) | Get sampling frequency in Hz. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [linearize](#cdesym.systems.base.core.DiscreteSystemBase.linearize) | Compute linearized discrete dynamics around an equilibrium point. |
+| [plot](#cdesym.systems.base.core.DiscreteSystemBase.plot) | Plot simulation result (convenience method). |
+| [rollout](#cdesym.systems.base.core.DiscreteSystemBase.rollout) | Rollout system trajectory with optional state-feedback policy. |
+| [simulate](#cdesym.systems.base.core.DiscreteSystemBase.simulate) | Simulate system for multiple discrete time steps. |
+| [step](#cdesym.systems.base.core.DiscreteSystemBase.step) | Compute next state: x[k+1] = f(x[k], u[k], k). |
+
+### linearize { #cdesym.systems.base.core.DiscreteSystemBase.linearize }
+
+```python
+systems.base.core.DiscreteSystemBase.linearize(x_eq, u_eq=None)
+```
+
+Compute linearized discrete dynamics around an equilibrium point.
+
+For a discrete system x[k+1] = f(x[k], u[k]), compute the linearization:
+    δx[k+1] = Ad·δx[k] + Bd·δu[k]
+
+where:
+    Ad = ∂f/∂x|(x_eq, u_eq)  (State Jacobian, nx × nx)
+    Bd = ∂f/∂u|(x_eq, u_eq)  (Control Jacobian, nx × nu)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                          | Default    |
+|--------|---------------------------|------------------------------------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)                              | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,) If None, uses zero control | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                  | Description                                                                                                                           |
+|--------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+|        | DiscreteLinearization | Tuple containing Jacobian matrices: - Deterministic systems: (Ad, Bd) - Stochastic systems: (Ad, Bd, Gd) where Gd is diffusion matrix |
+
+#### Notes {.doc-section .doc-section-notes}
+
+The linearization is valid for small deviations from the equilibrium:
+    δx[k] = x[k] - x_eq
+    δu[k] = u[k] - u_eq
+
+For symbolic systems, Jacobians are computed symbolically then evaluated.
+For data-driven systems, Jacobians may be computed via finite differences.
+
+The equilibrium point should satisfy f(x_eq, u_eq) = x_eq (fixed point).
+
+Stability analysis for discrete systems:
+- Stable if all |eigenvalues(Ad)| < 1
+- Unstable if any |eigenvalue(Ad)| > 1
+- Marginal if |eigenvalue(Ad)| = 1
+
+#### Examples {.doc-section .doc-section-examples}
+
+Linearize at origin:
+
+```python
+>>> x_eq = np.zeros(2)
+>>> u_eq = np.zeros(1)
+>>> Ad, Bd = system.linearize(x_eq, u_eq)
+>>> print(f"Ad matrix:\n{Ad}")
+>>> print(f"Bd matrix:\n{Bd}")
+```
+
+Check discrete stability:
+
+```python
+>>> eigenvalues = np.linalg.eigvals(Ad)
+>>> is_stable = np.all(np.abs(eigenvalues) < 1)
+>>> print(f"System stable: {is_stable}")
+```
+
+Design discrete LQR controller:
+
+```python
+>>> from scipy.linalg import solve_discrete_are
+>>> P = solve_discrete_are(Ad, Bd, Q, R)
+>>> K = np.linalg.inv(R + Bd.T @ P @ Bd) @ (Bd.T @ P @ Ad)
+```
+
+Relationship to continuous linearization:
+
+```python
+>>> # For Euler discretization: Ad ≈ I + dt * A
+>>> dt = system.dt
+>>> A_approx = (Ad - np.eye(system.nx)) / dt
+```
+
+### plot { #cdesym.systems.base.core.DiscreteSystemBase.plot }
+
+```python
+systems.base.core.DiscreteSystemBase.plot(result, state_names=None, **kwargs)
+```
+
+Plot simulation result (convenience method).
+
+Wrapper around plotter.plot_trajectory() for quick visualization
+of discrete-time simulation results.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                     | Description                                                                                                                                                                       | Default    |
+|-------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| result      | DiscreteSimulationResult | Simulation result dictionary with 't' and 'x' keys from simulate() or rollout()                                                                                                   | _required_ |
+| state_names | Optional\[list\]         | Names for state variables (e.g., ['Position', 'Velocity']) If None, uses generic labels ['x₁', 'x₂', ...]                                                                         | `None`     |
+| **kwargs    |                          | Additional arguments passed to plot_trajectory(): - title : str - Plot title - color_scheme : str - Color scheme name - show_legend : bool - Show legend for batched trajectories | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                      |
+|--------|-----------|----------------------------------|
+|        | go.Figure | Interactive Plotly figure object |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simple usage
+>>> result = system.simulate(x0, u_sequence, n_steps=100)
+>>> fig = system.plot(result)
+>>> fig.show()
+>>>
+>>> # With state names and custom title
+>>> fig = system.plot(
+...     result,
+...     state_names=['θ', 'ω'],
+...     title='Discrete Pendulum Dynamics'
+... )
+>>>
+>>> # Export to HTML
+>>> fig.write_html('simulation.html')
+>>>
+>>> # Apply publication theme
+>>> from controldesymulation.visualization.themes import PlotThemes
+>>> fig = system.plot(result)
+>>> fig = PlotThemes.apply_theme(fig, theme='publication')
+>>> fig.show()
+>>>
+>>> # Batched trajectories (Monte Carlo)
+>>> results = []
+>>> for x0 in initial_conditions:
+...     results.append(system.simulate(x0, u_sequence, n_steps=100))
+>>> x_batch = np.stack([r['x'] for r in results])
+>>> result_batch = {'t': results[0]['t'], 'x': x_batch}
+>>> fig = system.plot(result_batch)  # Plots all trajectories
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+plotter.plot_trajectory : Full trajectory plotting method
+plotter.plot_state_and_control : Plot states and controls together
+phase_plotter.plot_2d : Phase space visualization
+control_plotter : Control analysis plots
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is a convenience wrapper that:
+- Extracts time and state from result dictionary
+- Calls plotter.plot_trajectory() with appropriate arguments
+- Returns Plotly figure for further customization
+
+For more control over plotting, use plotter methods directly.
+
+### rollout { #cdesym.systems.base.core.DiscreteSystemBase.rollout }
+
+```python
+systems.base.core.DiscreteSystemBase.rollout(
+    x0,
+    policy=None,
+    n_steps=100,
+    **kwargs,
+)
+```
+
+Rollout system trajectory with optional state-feedback policy.
+
+This is a higher-level alternative to simulate() that provides a cleaner
+interface for closed-loop simulation with state-dependent policies.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                                                        | Description                                                            | Default    |
+|----------|-------------------------------------------------------------|------------------------------------------------------------------------|------------|
+| x0       | StateVector                                                 | Initial state (nx,)                                                    | _required_ |
+| policy   | Optional\[Callable\[\[StateVector, int\], ControlVector\]\] | Control policy u = policy(x, k) If None, uses zero control (open-loop) | `None`     |
+| n_steps  | int                                                         | Number of simulation steps                                             | `100`      |
+| **kwargs |                                                             | Additional arguments (stored in metadata)                              | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                                                                                                                                                                                                |
+|--------|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | DiscreteSimulationResult | TypedDict (returns as dict) containing trajectory and metadata - states: (n_steps+1, nx) - TIME-MAJOR - controls: (n_steps, nu) - TIME-MAJOR - time_steps: (n_steps+1,) - dt: float - metadata: dict with closed_loop flag |
+
+#### Examples {.doc-section .doc-section-examples}
+
+Open-loop rollout:
+
+```python
+>>> result = system.rollout(x0, n_steps=100)
+```
+
+State feedback policy (LQR):
+
+```python
+>>> K = np.array([[-1.0, -2.0]])  # LQR gain
+>>> def policy(x, k):
+...     return -K @ x
+>>> result = system.rollout(x0, policy, n_steps=100)
+```
+
+Time-varying policy with reference:
+
+```python
+>>> x_ref_trajectory = generate_reference()
+>>> def policy(x, k):
+...     x_ref = x_ref_trajectory[k]
+...     return K @ (x_ref - x)
+>>> result = system.rollout(x0, policy, n_steps=100)
+```
+
+MPC policy:
+
+```python
+>>> mpc_controller = system.control.mpc(horizon=10, Q=Q, R=R)
+>>> def policy(x, k):
+...     return mpc_controller.compute_control(x, k)
+>>> result = system.rollout(x0, policy, n_steps=100)
+```
+
+### simulate { #cdesym.systems.base.core.DiscreteSystemBase.simulate }
+
+```python
+systems.base.core.DiscreteSystemBase.simulate(
+    x0,
+    u_sequence=None,
+    n_steps=100,
+    **kwargs,
+)
+```
+
+Simulate system for multiple discrete time steps.
+
+Run the discrete dynamics forward in time:
+    x[0] = x0
+    x[k+1] = f(x[k], u[k], k)  for k = 0, 1, ..., n_steps-1
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                                   | Description                                                                                                                                                                                                                       | Default    |
+|------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| x0         | StateVector                                            | Initial state (nx,)                                                                                                                                                                                                               | _required_ |
+| u_sequence | Optional\[Union\[ControlVector, Sequence, Callable\]\] | Control input sequence, can be: - None: Zero control for all steps - Array (nu,): Constant control u[k] = u for all k - Sequence: Pre-computed sequence u[0], u[1], ..., u[n_steps-1] - Callable: Control policy u[k] = u_func(k) | `None`     |
+| n_steps    | int                                                    | Number of simulation steps (default: 100)                                                                                                                                                                                         | `100`      |
+| **kwargs   |                                                        | Additional simulation options (e.g., save_intermediate)                                                                                                                                                                           | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                                                                                                                                                                                                                                                                |
+|--------|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | DiscreteSimulationResult | TypedDict (returns as dict) containing: - states: State trajectory (nx, n_steps+1) - includes x[0] - controls: Control sequence (nu, n_steps) if applicable - time_steps: Time step indices [0, 1, ..., n_steps] - dt: Sampling period - metadata: Additional info (method, success, etc.) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+The state trajectory includes n_steps+1 points (including x0).
+The control sequence has n_steps points (one for each transition).
+
+For closed-loop simulation with state-dependent control, you can use
+rollout() instead, which provides a cleaner interface for state feedback.
+
+#### Examples {.doc-section .doc-section-examples}
+
+Open-loop with constant control:
+
+```python
+>>> x0 = np.array([1.0, 0.0])
+>>> u = np.array([0.5])
+>>> result = system.simulate(x0, u, n_steps=100)
+>>> plt.step(result["time_steps"], result["states"][0, :])
+```
+
+Pre-computed control sequence:
+
+```python
+>>> u_seq = [np.array([0.5 * np.sin(k * 0.1)]) for k in range(100)]
+>>> result = system.simulate(x0, u_seq, n_steps=100)
+```
+
+Time-indexed control function:
+
+```python
+>>> def u_func(k):
+...     return np.array([0.5 * np.sin(k * system.dt)])
+>>> result = system.simulate(x0, u_func, n_steps=100)
+```
+
+Autonomous system (no control):
+
+```python
+>>> result = system.simulate(x0, u_sequence=None, n_steps=100)
+```
+
+### step { #cdesym.systems.base.core.DiscreteSystemBase.step }
+
+```python
+systems.base.core.DiscreteSystemBase.step(x, u=None, k=0)
+```
+
+Compute next state: x[k+1] = f(x[k], u[k], k).
+
+This is the core state update method. It computes the next state
+given the current state and control input.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                                                                      | Default    |
+|--------|---------------------------|--------------------------------------------------------------------------------------------------|------------|
+| x      | StateVector               | Current state vector (nx,) or (nx, n_batch)                                                      | _required_ |
+| u      | Optional\[ControlVector\] | Control input vector (nu,) or (nu, n_batch) If None, assumes zero control or autonomous dynamics | `None`     |
+| k      | int                       | Current discrete time step (default: 0) Used for time-varying systems                            | `0`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                            |
+|--------|-------------|----------------------------------------|
+|        | StateVector | Next state x[k+1] with same shape as x |
+
+#### Notes {.doc-section .doc-section-notes}
+
+- For autonomous systems, k is ignored
+- For time-invariant systems, k is typically ignored
+- For batch evaluation, x and u should have shape (n_dim, n_batch)
+- The returned state should be in the same backend as the input
+
+#### Examples {.doc-section .doc-section-examples}
+
+Single step update:
+
+```python
+>>> x = np.array([1.0, 2.0])
+>>> u = np.array([0.5])
+>>> x_next = system.step(x, u)
+```
+
+Batch evaluation:
+
+```python
+>>> x_batch = np.random.randn(2, 100)  # 100 states
+>>> u_batch = np.random.randn(1, 100)  # 100 controls
+>>> x_next_batch = system.step(x_batch, u_batch)
+```
+
+Manual simulation loop:
+
+```python
+>>> x = x0
+>>> for k in range(100):
+...     u = controller(x, k)
+...     x = system.step(x, u, k)
+...     # Log or visualize x
+```

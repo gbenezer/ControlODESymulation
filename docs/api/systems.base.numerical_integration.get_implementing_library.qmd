@@ -1,0 +1,32 @@
+# systems.base.numerical_integration.get_implementing_library { #cdesym.systems.base.numerical_integration.get_implementing_library }
+
+```python
+systems.base.numerical_integration.get_implementing_library(
+    method,
+    backend,
+    is_stochastic=False,
+)
+```
+
+Get which library/package implements this method.
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                            |
+|--------|--------|----------------------------------------------------------------------------------------|
+|        | str    | One of: 'scipy', 'diffeqpy', 'torchdiffeq', 'torchsde', 'diffrax', 'manual', 'unknown' |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> get_implementing_library('LSODA', 'numpy', is_stochastic=False)
+'scipy'
+>>> get_implementing_library('Tsit5', 'numpy', is_stochastic=False)
+'diffeqpy'
+>>> get_implementing_library('euler', 'torch', is_stochastic=True)
+'torchsde'
+>>> get_implementing_library('euler', 'numpy', is_stochastic=False)
+'manual'
+>>> get_implementing_library('rk4', 'jax', is_stochastic=False)
+'manual'
+```

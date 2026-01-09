@@ -1,0 +1,347 @@
+# systems.builtin.stochastic.discrete.DiscreteWhiteNoise { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteWhiteNoise(*args, **kwargs)
+```
+
+Pure white noise process - memoryless random sequence.
+
+The fundamental building block of all stochastic processes, representing
+pure randomness with no memory or structure. White noise is the innovation
+sequence underlying ARMA models and the limiting case of AR(1) with φ = 0.
+
+## Difference Equation {.doc-section .doc-section-difference-equation}
+
+X[k] = σ·w[k]
+
+where w[k] ~ N(0,1) are iid standard normal random variables.
+
+**Alternative View:**
+X[k+1] = 0·X[k] + σ·w[k]
+
+This shows white noise as AR(0) - no dependence on past.
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Memorylessness:**
+Zero autocorrelation: Cov[X[k], X[j]] = 0 for k ≠ j
+
+Each observation independent of all others.
+
+**Unpredictability:**
+Best prediction: E[X[k+1] | past] = 0
+Prediction error: MSE = σ²
+
+Cannot be improved by using past information.
+
+**Stationarity:**
+Strictly stationary - distribution invariant to time shifts.
+
+**Flat Spectrum:**
+Power spectral density: S(f) = σ² (constant across frequencies)
+
+Hence "white" - equal power at all frequencies.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Moments:**
+Mean: E[X[k]] = 0 for all k
+Variance: Var[X[k]] = σ² for all k
+Higher moments: Standard Gaussian if w ~ N(0,1)
+
+**Autocorrelation:**
+γ(h) = σ²·δ_h where δ_h is Kronecker delta:
+    γ(0) = σ²
+    γ(h) = 0 for h ≠ 0
+
+**Power Spectrum:**
+S(f) = σ² for all f ∈ [-f_s/2, f_s/2]
+
+where f_s = 1/Δt is sampling frequency.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Standard Deviation σ:**
+- Units: [state]
+- Scale of random fluctuations
+- Examples:
+  * Measurement noise: instrument precision
+  * Thermal noise: √(4·k_B·T·R·Δf)
+  * Financial: daily return volatility
+
+**No Parameters Besides σ:**
+White noise is completely characterized by variance σ².
+No memory, no time constants, no structure.
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ (unbounded)
+    - No persistence between samples
+    - Each value independent
+    - Gaussian: X[k] ~ N(0, σ²)
+
+Control: None (autonomous)
+    - Pure random process
+    - Cannot be controlled or predicted
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                       | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Standard deviation of white noise - Must be positive - σ = 1: Standard white noise - Variance: σ² | `1.0`     |
+| dt     | float  | Sampling period [time units] - Required for discrete system - Sets time scale                     | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Type: Pure random (no deterministic component)
+- Innovation: w[k] ~ N(0,1) iid
+- Memory: None (memoryless)
+- Stationary: Yes (strictly stationary)
+- Ergodic: Yes
+- Predictable: No
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Signal Processing:**
+- Noise modeling in measurements
+- Filter testing and validation
+- System identification (input signal)
+- Detection theory (null hypothesis)
+
+**2. Communications:**
+- AWGN channel model
+- Error analysis
+- Channel capacity calculations
+
+**3. Time Series:**
+- Innovation sequence for ARMA models
+- Residual diagnostics (should be white)
+- Benchmark for forecasting performance
+
+**4. Control Systems:**
+- Process noise in Kalman filter
+- Disturbance modeling
+- Robustness analysis
+
+**5. Finance:**
+- Efficient market hypothesis (returns should be white)
+- Monte Carlo simulation
+- Risk modeling baseline
+
+**6. Testing:**
+- Null hypothesis for independence tests
+- Benchmark for signal detection
+- Residual analysis
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Generation:**
+    X[k] = σ·randn()
+
+Simple, exact, no approximation.
+
+**Quality Checks:**
+- Mean ≈ 0
+- Variance ≈ σ²
+- Autocorrelation ≈ 0 for h > 0
+- Within confidence bands: ±1.96/√N
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Tests for White Noise:**
+- Ljung-Box Q-test (joint autocorrelation)
+- Durbin-Watson (first-order autocorrelation)
+- Runs test (randomness)
+- Portmanteau test
+
+**Diagnostics:**
+- ACF plot: Only lag 0 significant
+- Periodogram: Approximately flat
+- Q-Q plot: Linear (if Gaussian)
+
+## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}
+
+**vs. Random Walk:**
+- RW: Cumulative sum of white noise
+- WN: Memoryless, stationary
+
+**vs. AR(1):**
+- AR(1): X[k] = φ·X[k-1] + w[k]
+- WN: AR(1) with φ = 0
+
+**vs. Brownian Motion:**
+- BM: Continuous-time integral of white noise
+- WN: Discrete-time, no integration
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Idealization (infinite bandwidth)
+- Real noise often band-limited
+- May have weak temporal dependence
+- Gaussian assumption may not hold
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteAR1 : White noise is AR(1) with φ=0
+DiscreteRandomWalk : Cumulative sum of white noise
+BrownianMotion : Continuous-time analog
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system) | Define white noise process. |
+| [get_autocorrelation](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation) | Get theoretical autocorrelation at given lag. |
+| [get_standard_deviation](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation) | Get theoretical standard deviation σ. |
+| [get_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance) | Get theoretical variance σ². |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system(
+    sigma=1.0,
+    dt=1.0,
+)
+```
+
+Define white noise process.
+
+Sets up pure random sequence:
+    X[k] = σ·w[k]
+
+where w[k] ~ N(0,1) are iid.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                         | Default   |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Standard deviation (must be positive) - σ = 1: Standard white noise - σ² = variance - Typical: 0.1 to 10.0 depending on application | `1.0`     |
+| dt     | float  | Sampling period [time units] - Required for discrete system - Sets time scale - Does not affect statistics (memoryless)             | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description   |
+|--------|------------|---------------|
+|        | ValueError | If sigma ≤ 0  |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Complete Characterization:**
+White noise is completely specified by variance σ².
+No other parameters needed - no memory, no time constants.
+
+**Independence:**
+Each sample is independent:
+    P(X[k] | X[k-1], ...) = P(X[k])
+
+This is the strongest form of memorylessness.
+
+**Gaussian White Noise:**
+If w[k] ~ N(0,1), then X[k] ~ N(0, σ²).
+Uncorrelated + Gaussian ⟹ Independent
+
+**Non-Gaussian Extensions:**
+Can use other distributions:
+- Uniform: w[k] ~ U(-√3, √3) (variance 1)
+- Laplace: Heavier tails
+- Student-t: Fat tails
+
+**Sampling Period dt:**
+Unlike AR(1) or OU, dt doesn't affect white noise statistics.
+Samples at any interval are independent with same variance.
+
+**Power Spectral Density:**
+S(f) = σ² for |f| ≤ f_Nyquist = 1/(2·dt)
+
+Flat spectrum - equal power at all frequencies.
+
+**Use Cases:**
+- Testing: Null hypothesis for independence
+- Simulation: Generate innovations for ARMA
+- Benchmarking: Compare signal detection performance
+- Modeling: Measurement noise, residuals
+
+**Relationship to AR(1):**
+White noise is AR(1) with φ = 0:
+    X[k+1] = 0·X[k] + σ·w[k]
+
+**Wold Decomposition:**
+Any stationary process can be written as:
+    X[k] = μ + Σ ψ_j·w[k-j]
+where w[k] is white noise.
+
+### get_autocorrelation { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation(lag)
+```
+
+Get theoretical autocorrelation at given lag.
+
+For white noise:
+    ρ(0) = 1
+    ρ(h) = 0 for h ≠ 0
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description          | Default    |
+|--------|--------|----------------------|------------|
+| lag    | int    | Lag h (non-negative) | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                         |
+|--------|--------|-------------------------------------|
+|        | float  | Autocorrelation: 1 if lag=0, else 0 |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> wn = DiscreteWhiteNoise(sigma=1.0, dt=1.0)
+>>> print(f"ρ(0) = {wn.get_autocorrelation(0)}")  # 1.0
+>>> print(f"ρ(1) = {wn.get_autocorrelation(1)}")  # 0.0
+>>> print(f"ρ(10) = {wn.get_autocorrelation(10)}")  # 0.0
+```
+
+### get_standard_deviation { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation()
+```
+
+Get theoretical standard deviation σ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | float  | Standard deviation |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> wn = DiscreteWhiteNoise(sigma=1.5, dt=1.0)
+>>> std = wn.get_standard_deviation()
+>>> print(f"Std: {std:.3f}")  # 1.5
+```
+
+### get_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance()
+```
+
+Get theoretical variance σ².
+
+For white noise, variance is simply σ².
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description   |
+|--------|--------|---------------|
+|        | float  | Variance      |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Unlike AR(1) or OU, white noise variance doesn't depend
+on any time constants - it's just σ².

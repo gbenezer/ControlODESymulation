@@ -1,0 +1,48 @@
+# types.reachability.CLFResult { #cdesym.types.reachability.CLFResult }
+
+```python
+types.reachability.CLFResult()
+```
+
+Control Lyapunov Function (CLF) result.
+
+Stabilizing control with guaranteed convergence.
+
+## Fields {.doc-section .doc-section-fields}
+
+stabilizing_control : ControlVector
+    Control ensuring V̇ < 0
+lyapunov_value : float
+    V(x) at current state
+lyapunov_derivative : float
+    V̇(x, u) under current control
+stability_margin : float
+    How much V̇ < 0 (larger = faster convergence)
+convergence_rate : float
+    Exponential rate α in V̇ ≤ -αV
+feasible : bool
+    CLF condition feasible
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Quadratic Lyapunov function
+>>> P = np.array([[2, 0], [0, 1]])
+>>> V = lambda x: x.T @ P @ x
+>>>
+>>> # Create CLF controller
+>>> clf = ControlLyapunovFunction(lyapunov=V, system=pendulum, alpha=0.5)
+>>>
+>>> # Compute stabilizing control
+>>> x = np.array([0.5, 0.1])
+>>>
+>>> result: CLFResult = clf.compute_control(x)
+>>>
+>>> if result['feasible']:
+...     u = result['stabilizing_control']
+...     print(f"V(x) = {result['lyapunov_value']:.3f}")
+...     print(f"V̇(x,u) = {result['lyapunov_derivative']:.3f}")
+...     print(f"Convergence rate: {result['convergence_rate']:.2f}")
+... else:
+...     print("CLF condition infeasible")
+```

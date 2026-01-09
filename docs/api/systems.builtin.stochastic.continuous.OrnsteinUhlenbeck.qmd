@@ -1,0 +1,393 @@
+# systems.builtin.stochastic.continuous.OrnsteinUhlenbeck { #cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck }
+
+```python
+systems.builtin.stochastic.continuous.OrnsteinUhlenbeck(*args, **kwargs)
+```
+
+Ornstein-Uhlenbeck process with mean reversion and additive noise.
+
+The fundamental mean-reverting stochastic process, combining deterministic
+relaxation toward an equilibrium with random fluctuations. This is the
+stochastic analog of a damped harmonic oscillator and the continuous-time
+limit of AR(1) processes.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+Centered form (mean = 0):
+    dX = -α·X·dt + σ·dW
+
+With control:
+    dX = (-α·X + u)·dt + σ·dW
+
+where:
+    - X(t) ∈ ℝ: State (velocity, rate, deviation)
+    - α > 0: Mean reversion rate (1/time)
+    - σ > 0: Volatility (noise intensity, state/√time)
+    - u ∈ ℝ: External forcing/control
+    - W(t): Standard Wiener process
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Mean Reversion:**
+Drift term -α·X creates restoring force toward zero:
+- Above zero: Negative drift pushes down
+- Below zero: Positive drift pushes up
+- Strength proportional to displacement
+
+**Stationarity:**
+Unique stationary distribution:
+    X(∞) ~ N(u/α, σ²/(2α))
+
+Unlike Brownian motion or GBM, variance bounded.
+
+**Additive Noise:**
+Diffusion σ constant (state-independent).
+Simplifies analysis and simulation.
+
+**Ergodicity:**
+Time averages equal ensemble averages.
+Can estimate statistics from single long trajectory.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Exact Solution (u = 0, X(0) = X₀):**
+    X(t) = X₀·e^(-α·t) + ∫₀ᵗ σ·e^(-α·(t-s))·dW(s)
+
+**Moments:**
+Mean:
+    E[X(t)] = X₀·e^(-α·t) + (u/α)·(1 - e^(-α·t))
+
+Variance:
+    Var[X(t)] = (σ²/2α)·(1 - e^(-2α·t))
+
+**Asymptotic (t → ∞):**
+Mean: E[X(∞)] = u/α
+Variance: Var[X(∞)] = σ²/(2α)
+Distribution: N(u/α, σ²/(2α))
+
+**Autocorrelation:**
+For stationary process:
+    Cov[X(t), X(t+τ)] = (σ²/2α)·e^(-α·τ)
+
+Exponential decay with rate α.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Mean Reversion Rate α:**
+- Controls speed of return to equilibrium
+- Units: [1/time]
+- Time constant: τ = 1/α
+- Half-life: t₁/₂ = ln(2)/α ≈ 0.693/α
+
+**Examples:**
+- α = 0.1: Slow reversion, τ = 10s
+- α = 1.0: Moderate, τ = 1s
+- α = 10.0: Fast, τ = 0.1s
+
+**Volatility σ:**
+- Instantaneous noise intensity
+- Units: [state]/√[time]
+- Stationary std: σ/√(2α)
+
+**Ratio σ/α:**
+Effective noise level:
+- Large: Weak reversion, large fluctuations
+- Small: Strong reversion, tight around mean
+
+**Stationary Standard Deviation:**
+    σ_stat = σ/√(2α)
+
+Balance between noise injection (σ) and dissipation (α).
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ (unbounded)
+    - Can take any real value
+    - Equilibrium at x = u/α
+    - Fluctuates around equilibrium
+
+Control: u ∈ ℝ (optional)
+    - Shifts equilibrium to u/α
+    - Examples: External force, policy intervention
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                                           | Default   |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| alpha  | float  | Mean reversion rate (must be positive for stability) - Larger α: Faster reversion, smaller steady-state variance - Time constant τ = 1/α - Typical range: 0.1 to 10.0 | `1.0`     |
+| sigma  | float  | Volatility (must be positive) - Controls noise intensity - Stationary std: σ/√(2α) - Typical: 0.1 to 2.0                                                              | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Noise Type: ADDITIVE
+- Diffusion: g(x) = σ (constant, state-independent)
+- SDE Type: Itô (standard)
+- Noise Dimension: nw = 1
+- Stationary: Yes (unique equilibrium distribution)
+- Ergodic: Yes (time averages = ensemble averages)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Physics:**
+- Langevin equation (particle velocity in fluid)
+- Thermal equilibrium (velocity distribution)
+- Optical tweezers (trapped particle)
+- Molecular dynamics
+
+**2. Finance:**
+- Vasicek interest rate model
+- Commodity price spreads
+- Pairs trading (spread between correlated assets)
+- Credit spreads
+
+**3. Neuroscience:**
+- Neural membrane potential between spikes
+- Leaky integrate-and-fire neurons
+- Synaptic conductances
+
+**4. Biology:**
+- Population fluctuations around carrying capacity
+- Gene expression dynamics
+- Ecological systems with noise
+
+**5. Control & Signal Processing:**
+- Colored noise generation
+- Autoregressive processes (continuous AR(1))
+- Kalman filtering benchmark
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Euler-Maruyama:**
+    X[k+1] = (1 - α·Δt)·X[k] + u·Δt + σ·√Δt·Z[k]
+
+Requires α·Δt < 1 for stability.
+
+**Exact Discretization (Preferred):**
+    X[k+1] = e^(-α·Δt)·X[k] + (u/α)·(1-e^(-α·Δt))
+             + σ_eff·Z[k]
+
+where σ_eff = √((σ²/2α)·(1-e^(-2α·Δt)))
+
+**Advantages:**
+- Exact (no discretization error)
+- Unconditionally stable
+- Preserves stationary distribution
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Parameter Estimation:**
+From discrete observations, estimate:
+    α̂ = -ln(autocorr(Δt)) / Δt
+    σ̂ = sample_std · √(2α̂)
+
+**Model Validation:**
+- Check exponential autocorrelation
+- Verify Gaussian residuals
+- Test stationarity (KPSS)
+- Test mean reversion (ADF unit root)
+
+## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}
+
+**vs. Brownian Motion:**
+- BM: No reversion (non-stationary)
+- OU: Mean-reverting (stationary)
+
+**vs. Geometric Brownian Motion:**
+- GBM: Multiplicative noise, for prices
+- OU: Additive noise, for rates/deviations
+
+**vs. CIR Process:**
+- CIR: Multiplicative noise √X (stays positive)
+- OU: Additive noise (can be negative)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Can be negative (problem for rates/prices)
+- Constant volatility (unrealistic for some applications)
+- Linear mean reversion (may be non-linear in reality)
+- Gaussian (real data may have fat tails)
+
+**Solutions:**
+- CIR for positive quantities
+- State-dependent diffusion
+- Non-linear drift functions
+- Jump extensions
+
+## See Also {.doc-section .doc-section-see-also}
+
+BrownianMotion : No mean reversion (α=0 limit)
+GeometricBrownianMotion : Multiplicative noise
+CoxIngersollRoss : Mean-reverting with √X diffusion
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.define_system) | Define Ornstein-Uhlenbeck process dynamics. |
+| [get_half_life](#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_half_life) | Get half-life t₁/₂ = ln(2)/α ≈ 0.693/α. |
+| [get_stationary_std](#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_stationary_std) | Compute theoretical stationary standard deviation. |
+| [get_time_constant](#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_time_constant) | Get mean reversion time constant τ = 1/α. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.define_system }
+
+```python
+systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.define_system(
+    alpha=1.0,
+    sigma=1.0,
+)
+```
+
+Define Ornstein-Uhlenbeck process dynamics.
+
+Sets up the stochastic differential equation:
+    dX = (-α·X + u)·dt + σ·dW
+
+with mean reversion and additive noise.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                     | Default   |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| alpha  | float  | Mean reversion rate (should be positive) - α > 0: Stable (mean-reverting) - α = 0: Brownian motion (no reversion) - α < 0: Unstable (explosive) | `1.0`     |
+| sigma  | float  | Volatility (must be positive) - Controls noise intensity - Stationary std: σ/√(2α)                                                              | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                           |
+|--------|-------------|---------------------------------------|
+|        | ValueError  | If sigma ≤ 0                          |
+|        | UserWarning | If alpha ≤ 0 (unstable/non-reverting) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stability Condition:**
+Require α > 0 for mean reversion and stationarity.
+- α > 0: Process stable, reverts to mean
+- α = 0: Becomes Brownian motion
+- α < 0: Unstable, diverges exponentially
+
+**Time Scales:**
+- Time constant: τ = 1/α
+- Half-life: t₁/₂ = ln(2)/α ≈ 0.693/α
+- Settling time: t_settle ≈ 5/α (1% of initial deviation)
+
+After time τ: Deviation reduced by factor e ≈ 0.368
+After time 5τ: Deviation reduced by factor e⁻⁵ ≈ 0.007 (~99% reverted)
+
+**Stationary Statistics:**
+For u = 0:
+- Mean: E[X(∞)] = 0
+- Variance: Var[X(∞)] = σ²/(2α)
+- Std: σ/√(2α)
+
+For u ≠ 0:
+- Mean: E[X(∞)] = u/α
+- Variance: σ²/(2α) (same)
+
+**Parameter Selection:**
+- Fast reversion: α = 5-10 (τ = 0.1-0.2s)
+- Moderate: α = 1-2 (τ = 0.5-1s)
+- Slow: α = 0.1-0.5 (τ = 2-10s)
+
+**Noise Level:**
+Effective noise (stationary std): σ/√(2α)
+- To achieve desired std s: set σ = s·√(2α)
+
+**Fluctuation-Dissipation:**
+In physical systems at temperature T:
+    σ² = 2α·kᵦ·T/m
+Balance between thermal noise and friction.
+
+### get_half_life { #cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_half_life }
+
+```python
+systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_half_life()
+```
+
+Get half-life t₁/₂ = ln(2)/α ≈ 0.693/α.
+
+Time for deviation from mean to reduce by 50%.
+More intuitive than time constant for some applications.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | float  | Half-life [time units] |
+
+### get_stationary_std { #cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_stationary_std }
+
+```python
+systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_stationary_std()
+```
+
+Compute theoretical stationary standard deviation.
+
+For OU process, stationary distribution is:
+    X(∞) ~ N(u/α, σ²/(2α))
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                            |
+|--------|--------|----------------------------------------|
+|        | float  | Stationary standard deviation: σ/√(2α) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Interpretation:**
+This is the long-term standard deviation around the mean,
+reached after transient dies out (t >> 1/α).
+
+**Relationship to Parameters:**
+- Increases with σ (more noise)
+- Decreases with α (stronger reversion)
+- Ratio σ/α sets scale
+
+**Comparison with σ:**
+- σ: Instantaneous noise intensity
+- σ/√(2α): Accumulated noise effect
+- Always: σ_stat < σ (for α > 0.5)
+
+**Design:**
+To achieve target std s:
+    σ = s · √(2α)
+
+### get_time_constant { #cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_time_constant }
+
+```python
+systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.get_time_constant()
+```
+
+Get mean reversion time constant τ = 1/α.
+
+The time constant is the characteristic time scale for
+the process to revert to its mean. After time τ, the
+deviation from mean is reduced by factor e ≈ 0.368.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | float  | Time constant [time units] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Physical Meaning:**
+- Time to reduce deviation by ~63%
+- Reciprocal of mean reversion rate
+- Sets time scale of dynamics
+
+**Related Quantities:**
+- Half-life: t₁/₂ = ln(2)·τ ≈ 0.693·τ
+- 99% settling: t_99 ≈ 5·τ
+- 1% settling: t_01 ≈ 0.01·τ
+
+**Rule of Thumb:**
+Process reaches stationarity after 3-5 time constants.
+- t < τ: Still in transient
+- t ≈ 5τ: Essentially stationary
+
+**Examples:**
+- τ = 0.1s: Fast dynamics (α = 10)
+- τ = 1.0s: Moderate (α = 1)
+- τ = 10s: Slow (α = 0.1)

@@ -1,0 +1,496 @@
+# systems.builtin.stochastic.discrete.DiscreteGARCH11 { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11 }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11(*args, **kwargs)
+```
+
+GARCH(1,1) - time-varying volatility model (Nobel Prize 2003).
+
+The industry standard for modeling financial volatility, capturing
+volatility clustering, persistence, and mean reversion with just
+three parameters. This represents one of the most important models
+in financial econometrics.
+
+## Model Equations {.doc-section .doc-section-model-equations}
+
+Return process:
+    r[k] = μ + ε[k]
+    ε[k] = σ[k]·w[k]
+
+Variance process (GARCH):
+    σ²[k] = ω + α·ε²[k-1] + β·σ²[k-1]
+
+where:
+    - r[k]: Return (observable)
+    - μ: Mean return (typically ≈ 0 for daily)
+    - ε[k]: Innovation (zero-mean shock)
+    - σ²[k]: Conditional variance (time-varying, latent)
+    - w[k] ~ N(0,1): Standardized innovation (iid)
+    - ω > 0: Constant term
+    - α ≥ 0: ARCH coefficient (shock effect)
+    - β ≥ 0: GARCH coefficient (persistence)
+
+**State-Space Form:**
+
+Augmented state: Z = [r, σ²] (return and variance)
+
+Dynamics (nonlinear!):
+    r[k] = μ + σ[k]·w[k]
+    σ²[k+1] = ω + α·(r[k] - μ)² + β·σ²[k]
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**What GARCH Models:**
+
+Financial markets exhibit **volatility clustering**:
+- Large price movements followed by large movements
+- Calm periods followed by calm periods
+- "Volatility begets volatility"
+
+**Why This Happens:**
+
+1. **Information Flow:**
+   - News arrives in clusters
+   - Uncertainty propagates
+
+2. **Market Microstructure:**
+   - Feedback: Vol → wider spreads → more vol
+   - Herding behavior
+
+3. **Risk Preferences:**
+   - Risk-off → sell → higher vol → more risk-off
+   - Feedback loops
+
+**GARCH Equation Interpretation:**
+
+σ²[k] = ω + α·ε²[k-1] + β·σ²[k-1]
+
+Components:
+1. **ω:** Baseline variance (floor)
+2. **α·ε²[k-1]:** Recent shock (ARCH effect)
+   - Large |ε[k-1]| → high σ²[k]
+   - "News impact curve"
+3. **β·σ²[k-1]:** Past variance (persistence)
+   - High σ²[k-1] → high σ²[k]
+   - Volatility clustering
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Time-Varying Variance:**
+Unlike constant-variance models, σ²[k] changes every period.
+
+**Volatility Clustering:**
+High volatility tends to persist (α + β near 1).
+
+**Mean Reversion:**
+Variance reverts to ω/(1-α-β) over time.
+
+**Conditional vs Unconditional:**
+- Conditional: Var[r[k]|past] = σ²[k] (time-varying)
+- Unconditional: Var[r[k]] = ω/(1-α-β) (constant)
+
+**Heavy Tails:**
+Even with Gaussian w[k], unconditional distribution has excess kurtosis.
+
+**Predictable Volatility:**
+Can forecast σ²[k+h] from past (even if returns unpredictable).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Stationarity Condition:**
+    α + β < 1
+
+If α + β = 1: IGARCH (integrated, non-stationary variance)
+If α + β > 1: Explosive (unstable)
+
+**Unconditional Moments:**
+
+Mean: E[r] = μ
+
+Variance: Var[r] = ω/(1 - α - β)
+
+Kurtosis: Excess kurtosis > 0 (heavy tails)
+    Kurt = 3·(1 - (α+β)²)/(1 - (α+β)² - 2α²)
+
+**Autocorrelation:**
+- Returns r[k]: ρ(h) ≈ 0 (unpredictable)
+- Squared returns ε²[k]: ρ(h) = (α+β)^h (geometric decay)
+
+**Persistence:**
+Measured by α + β (sum of ARCH and GARCH):
+- α + β ≈ 0.99: Very persistent (typical stocks)
+- α + β ≈ 0.95: Persistent
+- α + β ≈ 0.80: Moderate persistence
+
+**Volatility Forecast:**
+h-step ahead:
+    σ²[k+h|k] = σ̄² + (α+β)^h·(σ²[k] - σ̄²)
+
+where σ̄² = ω/(1-α-β) is long-run variance.
+
+Exponential decay to long-run average.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Parameter ω (Baseline):**
+- Units: [return]²
+- Long-run variance: σ̄² = ω/(1-α-β)
+- Typical: Relates to annual volatility
+
+**Parameter α (ARCH Effect):**
+- Dimensionless
+- Weight on recent shock
+- Typical: 0.05-0.15
+- Higher α: More reactive to news
+
+**Parameter β (GARCH Effect):**
+- Dimensionless
+- Weight on past variance
+- Typical: 0.80-0.92
+- Higher β: More persistent
+
+**Sum α + β (Total Persistence):**
+- Typical: 0.95-0.99 (very high!)
+- Near 1: "Volatility never dies"
+- Financial data: Usually >0.90
+
+**Typical Values (Daily Stock Returns):**
+- ω ≈ 0.000001-0.00001 (depends on scaling)
+- α ≈ 0.05-0.10
+- β ≈ 0.85-0.92
+- α + β ≈ 0.95-0.98
+
+## State Space {.doc-section .doc-section-state-space}
+
+Augmented state: Z = [r, σ²] ∈ ℝ²
+    - r: Observable return
+    - σ²: Latent conditional variance
+
+Observable: r ∈ ℝ
+    - What we actually measure (price changes)
+
+Latent: σ² ∈ ℝ₊
+    - Unobserved (must be estimated/filtered)
+
+Control: u (typically none for GARCH)
+    - Could add for interventions
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                       | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------------|-----------|
+| omega  | float  | Constant term (must be positive) - Sets baseline variance - Typical: 1e-6 to 1e-4 (daily returns) | `0.00001` |
+| alpha  | float  | ARCH coefficient (must be non-negative) - News impact (shock sensitivity) - Typical: 0.05-0.15    | `0.1`     |
+| beta   | float  | GARCH coefficient (must be non-negative) - Persistence (volatility memory) - Typical: 0.80-0.92   | `0.85`    |
+| mu     | float  | Mean return - Often ≈ 0 for daily returns - Can estimate or fix                                   | `0.0`     |
+| dt     | float  | Sampling period (1 = daily typical)                                                               | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR (σ² equation)
+- Conditional: Variance time-varying
+- Stationary: If α + β < 1
+- Heavy Tails: Yes (excess kurtosis)
+- Volatility Clustering: Yes (by design)
+- Leverage Effect: No (symmetric)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Risk Management:**
+- VaR calculation
+- Expected shortfall (CVaR)
+- Stress testing
+
+**2. Option Pricing:**
+- Volatility forecasting
+- Monte Carlo with GARCH
+- Implied vs realized vol
+
+**3. Portfolio:**
+- Time-varying covariance (MGARCH)
+- Dynamic hedging
+- Risk parity
+
+**4. Trading:**
+- Volatility strategies
+- Position sizing (risk targeting)
+- Options trading signals
+
+**5. Regulation:**
+- Basel capital requirements
+- Internal VaR models
+- Stress testing
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Recursion:**
+
+Initialize: σ²[0] = ω/(1-α-β)
+
+For k = 0, 1, 2, ...:
+    1. Draw w[k] ~ N(0,1)
+    2. Compute r[k] = μ + σ[k]·w[k]
+    3. Update σ²[k+1] = ω + α·(r[k]-μ)² + β·σ²[k]
+
+**State-Space:**
+State Z = [r, σ²]
+- r observable
+- σ² latent (filtered in practice)
+
+## Comparison with Constant Variance {.doc-section .doc-section-comparison-with-constant-variance}
+
+**Constant Variance:**
+    r[k] = μ + σ·w[k]
+
+Problems:
+- Misses volatility clustering
+- Underestimates tail risk
+- Poor VaR forecasts
+
+**GARCH:**
+    r[k] = μ + σ[k]·w[k]
+    σ²[k] = f(past)
+
+Advantages:
+- Captures clustering
+- Better tail risk
+- Accurate VaR
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Symmetric (leverage effect ignored)
+- Gaussian (can extend to Student-t)
+- Low frequency (daily typically, not intraday)
+- Univariate (for MGARCH extension)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- EGARCH: Asymmetry
+- GJR-GARCH: Threshold effects
+- FIGARCH: Long memory
+- DCC-GARCH: Dynamic conditional correlation
+- GARCH-M: Risk premium in mean
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system) | Define GARCH(1,1) dynamics. |
+| [forecast_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance) | Forecast variance h steps ahead. |
+| [get_half_life](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life) | Get volatility shock half-life (periods to decay by 50%). |
+| [get_persistence](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence) | Get volatility persistence α + β. |
+| [get_unconditional_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance) | Get long-run (unconditional) variance σ̄² = ω/(1-α-β). |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system(
+    omega=1e-05,
+    alpha=0.1,
+    beta=0.85,
+    mu=0.0,
+    dt=1.0,
+)
+```
+
+Define GARCH(1,1) dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                 | Default   |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------|-----------|
+| omega  | float  | Constant term in variance equation (must be positive) - Sets baseline variance - Typical daily: 1e-6 to 1e-4                | `0.00001` |
+| alpha  | float  | ARCH coefficient (must be non-negative) - Weight on past squared shock - Typical: 0.05-0.15 - Higher: More reactive to news | `0.1`     |
+| beta   | float  | GARCH coefficient (must be non-negative) - Weight on past variance - Typical: 0.80-0.92 - Higher: More persistent           | `0.85`    |
+| mu     | float  | Mean return - Typically ≈ 0 for daily - Can be non-zero for longer horizons                                                 | `0.0`     |
+| dt     | float  | Sampling period (1 = daily typical)                                                                                         | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                          |
+|--------|------------|--------------------------------------|
+|        | ValueError | If ω ≤ 0, α < 0, β < 0, or α + β ≥ 1 |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Parameter Constraints:**
+
+1. **Positivity:**
+   - ω > 0: Ensures σ²[k] > 0
+   - α ≥ 0, β ≥ 0: Non-negativity
+
+2. **Stationarity:**
+   - α + β < 1: Variance mean-reverting
+   - α + β = 1: IGARCH (non-stationary)
+   - α + β > 1: Explosive (invalid)
+
+**Long-Run Variance:**
+    σ̄² = ω/(1 - α - β)
+
+Must be finite (requires α + β < 1).
+
+**Persistence:**
+    α + β
+
+Typical values:
+- Stocks: 0.95-0.99 (very persistent!)
+- Bonds: 0.90-0.95
+- FX: 0.93-0.97
+
+**Half-Life:**
+Time for variance shock to decay by 50%:
+    h_{1/2} ≈ ln(0.5)/ln(α+β)
+
+Example: α + β = 0.95 → h ≈ 13.5 days
+
+**Typical Configurations:**
+
+**S&P 500 (daily):**
+- ω ≈ 0.000001
+- α ≈ 0.10
+- β ≈ 0.88
+- α + β = 0.98 (very persistent)
+
+**Emerging Market (more volatile):**
+- ω ≈ 0.00005
+- α ≈ 0.15
+- β ≈ 0.80
+- α + β = 0.95
+
+**Low Volatility Stock:**
+- ω ≈ 0.0000005
+- α ≈ 0.05
+- β ≈ 0.92
+- α + β = 0.97
+
+**Initialization:**
+
+For σ²[0], common choices:
+1. Unconditional: ω/(1-α-β)
+2. Sample variance from data
+3. Estimated as parameter
+
+**State-Space Structure:**
+
+This is NONLINEAR state-space:
+- r[k] depends on σ[k] (multiplicatively)
+- σ²[k+1] depends on ε²[k] (quadratically)
+
+Not amenable to standard Kalman filter.
+Need extended/unscented/particle filter.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard stock GARCH
+>>> stock = DiscreteGARCH11(
+...     omega=0.000002,
+...     alpha=0.08,
+...     beta=0.90,
+...     mu=0.0005
+... )
+>>>
+>>> # Check constraints
+>>> persistence = 0.08 + 0.90
+>>> print(f"Stationary: {persistence < 1}")
+>>>
+>>> # Long-run volatility
+>>> sigma_lr = np.sqrt(0.000002 / (1 - persistence))
+>>> print(f"Long-run daily vol: {sigma_lr:.4f}")
+>>> annual_vol = sigma_lr * np.sqrt(252)
+>>> print(f"Annualized: {annual_vol:.2%}")
+```
+
+### forecast_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance(
+    current_variance,
+    horizon=10,
+)
+```
+
+Forecast variance h steps ahead.
+
+σ²[k+h|k] = σ̄² + (α+β)^h·(σ²[k] - σ̄²)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type   | Description                        | Default    |
+|------------------|--------|------------------------------------|------------|
+| current_variance | float  | Current conditional variance σ²[k] | _required_ |
+| horizon          | int    | Forecast horizon                   | `10`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                            |
+|--------|------------|----------------------------------------|
+|        | np.ndarray | Variance forecasts for h=1,...,horizon |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> garch = DiscreteGARCH11(omega=0.00001, alpha=0.1, beta=0.85)
+>>> forecasts = garch.forecast_variance(current_variance=0.0001, horizon=20)
+>>> print(f"1-day: {np.sqrt(forecasts[0]):.4f}")
+>>> print(f"20-day: {np.sqrt(forecasts[-1]):.4f}")
+```
+
+### get_half_life { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life()
+```
+
+Get volatility shock half-life (periods to decay by 50%).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Half-life [periods] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> garch = DiscreteGARCH11(alpha=0.1, beta=0.85)
+>>> hl = garch.get_half_life()
+>>> print(f"Volatility half-life: {hl:.1f} days")
+```
+
+### get_persistence { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence()
+```
+
+Get volatility persistence α + β.
+
+### get_unconditional_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance()
+```
+
+Get long-run (unconditional) variance σ̄² = ω/(1-α-β).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | float  | Unconditional variance |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                   |
+|--------|------------|-------------------------------|
+|        | ValueError | If α + β ≥ 1 (non-stationary) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> garch = DiscreteGARCH11(omega=0.00001, alpha=0.1, beta=0.85)
+>>> var_uncond = garch.get_unconditional_variance()
+>>> vol_uncond = np.sqrt(var_uncond)
+>>> print(f"Long-run daily vol: {vol_uncond:.4f}")
+```

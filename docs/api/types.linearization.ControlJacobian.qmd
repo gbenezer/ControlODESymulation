@@ -1,0 +1,16 @@
+# types.linearization.ControlJacobian { #cdesym.types.linearization.ControlJacobian }
+
+`types.linearization.ControlJacobian`
+
+Control Jacobian ∂f/∂u.
+
+Matrix of partial derivatives of dynamics with respect to control.
+
+Shape: (nx, nu)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Bc: ControlJacobian = system.control_jacobian(x_eq, u_eq)
+>>> # Often constant: Bc = [[0], [1/m]]
+```

@@ -1,0 +1,24 @@
+# types.core.OutputMatrix { #cdesym.types.core.OutputMatrix }
+
+`types.core.OutputMatrix`
+
+Output/observation matrix (ny, nx).
+
+Maps state to output: y = C*x.
+
+Uses:
+- Observation: C (measurement model)
+- Kalman filter: H (observation matrix)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Full state observation
+>>> C: OutputMatrix = np.eye(3)
+>>> 
+>>> # Partial observation (position only)
+>>> C_partial: OutputMatrix = np.array([[1, 0, 0]])
+>>> 
+>>> # Multi-sensor observation
+>>> C_multi: OutputMatrix = np.array([[1, 0, 0], [0, 1, 0]])
+```

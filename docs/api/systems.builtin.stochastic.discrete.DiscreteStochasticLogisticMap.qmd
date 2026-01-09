@@ -1,0 +1,567 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap(
+    *args,
+    **kwargs,
+)
+```
+
+Discrete-time stochastic logistic map - chaos meets noise.
+
+The paradigmatic example of deterministic chaos with environmental
+stochasticity, demonstrating the full range of nonlinear phenomena:
+fixed points, periodic orbits, period-doubling cascades, chaos, and
+noise-induced transitions.
+
+## Stochastic Difference Equation {.doc-section .doc-section-stochastic-difference-equation}
+
+Additive noise formulation:
+    x[k+1] = r·x[k]·(1 - x[k]) + σ·w[k]
+
+where:
+    - x[k] ∈ [0,1]: Population fraction (normalized)
+    - r ∈ [0,4]: Growth parameter (bifurcation parameter)
+    - σ ≥ 0: Noise intensity (environmental stochasticity)
+    - w[k] ~ N(0,1): Standard Gaussian white noise
+
+**Deterministic Part:**
+    f(x) = r·x·(1 - x)
+
+Classic parabola with single maximum at x = 0.5.
+
+**Stochastic Part:**
+    g(x) = σ (constant, additive)
+
+Environmental noise independent of population size.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Ecological Meaning:**
+
+x[k]: Fraction of carrying capacity
+- x = 0: Extinction
+- x = 1: At carrying capacity K
+- x = 0.5: Half capacity (maximum growth rate)
+
+r: Intrinsic growth rate per generation
+- r < 1: Extinction (death rate > birth rate)
+- 1 < r < 3: Regulated (stable equilibrium)
+- 3 < r < 3.57: Oscillations (periodic)
+- 3.57 < r < 4: Chaos (unpredictable)
+
+σ: Environmental variability
+- Weather fluctuations
+- Resource availability changes
+- Predator abundance variation
+- Typical: σ ~ 0.01-0.1 for small noise
+
+**Nonlinear Regulation:**
+
+Term (1 - x[k]) creates negative feedback:
+- x small: Growth approximately r·x (exponential)
+- x near 1: Growth slows (carrying capacity)
+- x > 1: Negative growth (overcompensation)
+
+## Dynamical Regimes {.doc-section .doc-section-dynamical-regimes}
+
+**Fixed Point Regime (1 < r < 3):**
+
+Deterministic:
+- x* = (r-1)/r stable
+- Monotonic convergence
+
+With noise:
+- Fluctuations around x*
+- Approximately Gaussian
+- Standard deviation ~ σ/√(1-λ²) where λ = |2-r|
+
+**Period-Doubling Regime (3 < r < 3.57):**
+
+Deterministic:
+- Period-2, 4, 8, ... orbits
+- Feigenbaum cascade
+
+With noise:
+- Cycles blur into bands
+- Noise-induced transitions between branches
+- Bimodal distributions
+
+**Chaotic Regime (3.57 < r < 4):**
+
+Deterministic:
+- Sensitive dependence on initial conditions
+- Positive Lyapunov exponent
+- Bounded but unpredictable
+
+With noise:
+- Enhanced unpredictability
+- Noise can fill in gaps (chaotic repellers)
+- Smooth invariant density
+
+**Critical Point (r = 4):**
+
+Deterministic:
+- Fully developed chaos
+- Analytical solution exists
+- Maximum entropy
+
+With noise:
+- Prevents boundary accumulation
+- Regularizes singularities
+
+## Key Properties {.doc-section .doc-section-key-properties}
+
+**Nonlinearity:**
+Quadratic nonlinearity creates:
+- Multiple equilibria (up to 2)
+- Bifurcations (parameter-dependent)
+- Chaos (sensitivity to initial conditions)
+
+**Boundedness:**
+For r ≤ 4 and σ small:
+- Deterministic: x ∈ [0,1] preserved
+- With noise: Can exceed bounds (unphysical)
+- Solution: Truncate or use multiplicative noise
+
+**Sensitive Dependence:**
+In chaotic regime (λ > 0):
+- Prediction horizon: ~1/λ generations
+- Exponential error growth
+- Long-term: Ensemble forecasts only
+
+**Noise Effects:**
+- Smooth attractors
+- Induce transitions
+- Enhance effective Lyapunov exponent
+- Can create or destroy chaos
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Fixed Points (Deterministic):**
+
+x₁* = 0 (extinction)
+- Stable for r < 1
+- Unstable for r > 1
+
+x₂* = (r-1)/r (regulated)
+- Exists for r > 1
+- Stable for 1 < r < 3
+- Unstable for r > 3 (bifurcation)
+
+**Stability (Linearization):**
+
+At x*: f'(x*) = r·(1 - 2·x*)
+- |f'| < 1: Stable
+- |f'| > 1: Unstable
+- f' = -1: Bifurcation
+
+At x₂*: f'(x₂*) = 2 - r
+- Stable: 1 < r < 3
+- Period-doubling: r = 3
+
+**Lyapunov Exponent:**
+
+λ = lim(N→∞) (1/N)·Σ ln|r·(1 - 2·x[k])|
+
+- λ < 0: Stable (r < 3)
+- λ = 0: Critical (r = 3)
+- λ > 0: Chaos (r > 3.57)
+- λ_max = ln(2) at r = 4
+
+**Invariant Density (r = 4):**
+
+ρ(x) = 1/(π·√(x·(1-x)))
+
+U-shaped: Maximum at boundaries, minimum at x = 0.5.
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ [0,1] (bounded interval)
+    - Physical constraint: population fraction
+    - Noise can violate bounds (handle carefully)
+
+Control: None in basic model
+    - Can add control: x[k+1] = r·x[k]·(1-x[k]) + u[k]
+    - Harvest control: u < 0 (remove individuals)
+
+Noise: w[k] ~ N(0,1)
+    - Additive (constant intensity)
+    - Environmental stochasticity
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type   | Description                                                                                                                                                                                                                  | Default   |
+|----------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| r              | float  | Growth parameter (bifurcation parameter) - r < 1: Extinction - 1 < r < 3: Stable fixed point - 3 < r < 3.57: Periodic orbits - 3.57 < r < 4: Chaos - r = 3.8: Generic chaotic (default) - r > 4: Escape from [0,1]           | `3.8`     |
+| sigma          | float  | Noise intensity (environmental stochasticity) - σ = 0: Deterministic - σ ~ 0.01-0.05: Small noise (perturbative) - σ ~ 0.1-0.2: Moderate noise - σ > 0.2: Large noise (dominates) - Typical: σ ~ 0.05 for biological systems | `0.05`    |
+| x0             | float  | Initial condition - Typically x0 = 0.5 (maximum growth rate) - Chaos: Any x0 ∈ (0,1) gives same long-term statistics                                                                                                         | `0.5`     |
+| dt             | float  | Generation time (time units per iteration) - Typically dt = 1 generation                                                                                                                                                     | `1.0`     |
+| enforce_bounds | bool   | Whether to enforce x ∈ [0,1] - True: Truncate to [0,1] (prevents unphysical values) - False: Allow escape (for mathematical studies)                                                                                         | `True`    |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR (quadratic)
+- Noise Type: ADDITIVE (constant intensity)
+- Chaotic: Depends on r (λ(r))
+- Stationary: Yes (for r < 4, bounded noise)
+- Ergodic: Yes (in chaotic regime)
+- Markov: Yes (one-step memory)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Population Ecology:**
+- Insect outbreak dynamics
+- Fish stock assessment
+- Pest management
+- Conservation biology
+
+**2. Time Series Analysis:**
+- Chaos detection
+- Nonlinear prediction
+- Lyapunov exponent estimation
+- Surrogate data testing
+
+**3. Dynamical Systems:**
+- Bifurcation theory
+- Routes to chaos
+- Universality classes
+- Renormalization group
+
+**4. Cryptography:**
+- Pseudorandom number generation
+- Secure communication
+- Chaos-based encryption
+
+**5. Control Theory:**
+- OGY method (chaos control)
+- Stabilizing unstable orbits
+- Adaptive control under uncertainty
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Iteration:**
+    x[k+1] = r·x[k]·(1 - x[k]) + σ·randn()
+
+Exact (no discretization error).
+
+**Boundary Handling:**
+If enforce_bounds:
+    x[k+1] = clip(x[k+1], 0, 1)
+
+**Long-Term Statistics:**
+- Run N >> 1000 iterations
+- Discard initial transient (burn-in)
+- Compute histogram (invariant density)
+- Calculate Lyapunov exponent
+
+## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}
+
+**vs. Ricker Map:**
+- Ricker: x[k+1] = x[k]·exp(r·(1 - x[k]))
+- Logistic: Polynomial, simpler
+- Both show period-doubling
+
+**vs. Tent Map:**
+- Tent: Piecewise linear, chaotic
+- Logistic: Smooth, more realistic
+- Topologically conjugate at r = 4
+
+**vs. Continuous Logistic:**
+- Continuous: dx/dt = r·x·(1 - x)
+- Discrete: Captures generation structure
+- Discrete: Richer dynamics (chaos possible)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Bounded state space (x ∈ [0,1])
+- Single variable (scalar)
+- Additive noise (multiplicative more realistic)
+- Noise can cause boundary violations
+- No age/stage structure
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Multiplicative noise: σ·x·(1-x)·w[k]
+- Two-dimensional: Coupled logistic maps
+- Spatially extended: Lattice of coupled maps
+- Discrete-time: Ricker, Beverton-Holt
+- Continuous-time: Logistic ODE
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteAR1 : Linear analog (no chaos)
+DiscreteRandomWalk : No regulation
+DiscreteStochasticPendulum : Continuous state space nonlinearity
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_bifurcation_diagram](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_bifurcation_diagram) | Compute bifurcation diagram (deterministic). |
+| [compute_lyapunov_exponent](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_lyapunov_exponent) | Estimate Lyapunov exponent from trajectory. |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.define_system) | Define stochastic logistic map dynamics. |
+| [estimate_invariant_density](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.estimate_invariant_density) | Estimate invariant density from long trajectory. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.setup_equilibria) | Set up equilibrium points (deterministic part). |
+| [theoretical_invariant_density](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.theoretical_invariant_density) | Compute theoretical invariant density for r=4 (deterministic). |
+
+### compute_bifurcation_diagram { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_bifurcation_diagram }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_bifurcation_diagram(
+    r_range=(2.5, 4.0),
+    n_r_values=1000,
+    transient=500,
+    n_plot_points=100,
+)
+```
+
+Compute bifurcation diagram (deterministic).
+
+For each r value, iterate map and record long-term behavior.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                  | Description                          | Default      |
+|---------------|-----------------------|--------------------------------------|--------------|
+| r_range       | Tuple\[float, float\] | Range of r values to explore         | `(2.5, 4.0)` |
+| n_r_values    | int                   | Number of r values to sample         | `1000`       |
+| transient     | int                   | Iterations to discard (burn-in)      | `500`        |
+| n_plot_points | int                   | Number of points to keep per r value | `100`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                       |
+|--------|---------------------------------|-----------------------------------|
+|        | Tuple\[np.ndarray, np.ndarray\] | (r_values, x_values) for plotting |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> logistic = DiscreteStochasticLogisticMap(r=3.0, sigma=0.0)
+>>> r_vals, x_vals = logistic.compute_bifurcation_diagram()
+>>> plt.plot(r_vals, x_vals, ',k', alpha=0.5, markersize=0.5)
+>>> plt.xlabel('r')
+>>> plt.ylabel('x')
+>>> plt.title('Bifurcation Diagram')
+```
+
+### compute_lyapunov_exponent { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_lyapunov_exponent }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.compute_lyapunov_exponent(
+    x0=None,
+    n_iterations=10000,
+    transient=1000,
+)
+```
+
+Estimate Lyapunov exponent from trajectory.
+
+λ = lim(N→∞) (1/N)·Σ ln|f'(x[k])|
+
+where f'(x) = r·(1 - 2·x).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type              | Description                                    | Default   |
+|--------------|-------------------|------------------------------------------------|-----------|
+| x0           | Optional\[float\] | Initial condition (uses self.x0_param if None) | `None`    |
+| n_iterations | int               | Number of iterations for estimation            | `10000`   |
+| transient    | int               | Number of initial iterations to discard        | `1000`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                 |
+|--------|--------|-----------------------------|
+|        | float  | Estimated Lyapunov exponent |
+
+#### Notes {.doc-section .doc-section-notes}
+
+- λ < 0: Stable (convergence)
+- λ ≈ 0: Critical (near bifurcation)
+- λ > 0: Chaos (sensitive dependence)
+
+This computes the deterministic Lyapunov exponent
+(noise-free). With noise, use time series methods.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> logistic = DiscreteStochasticLogisticMap(r=3.8, sigma=0.0)
+>>> lambda_est = logistic.compute_lyapunov_exponent()
+>>> print(f"λ ≈ {lambda_est:.3f}")  # Should be ~0.5
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.define_system(
+    r=3.8,
+    sigma=0.05,
+    x0=0.5,
+    dt=1.0,
+    enforce_bounds=True,
+)
+```
+
+Define stochastic logistic map dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type   | Description                                                                                                                                                                                                                                 | Default   |
+|----------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| r              | float  | Growth parameter (must be in [0,4] for boundedness) - r < 1: Extinction regime - 1 < r < 3: Fixed point regime - r = 3: First bifurcation - 3 < r < 3.57: Periodic regime - 3.57 < r < 4: Chaotic regime - r = 3.8: Generic chaos (default) | `3.8`     |
+| sigma          | float  | Noise intensity - σ = 0: Deterministic - σ ~ 0.01-0.05: Small perturbations - σ ~ 0.1: Moderate noise - σ > 0.2: Large noise                                                                                                                | `0.05`    |
+| x0             | float  | Initial condition (must be in [0,1])                                                                                                                                                                                                        | `0.5`     |
+| dt             | float  | Generation time                                                                                                                                                                                                                             | `1.0`     |
+| enforce_bounds | bool   | Whether to clip x to [0,1] each step                                                                                                                                                                                                        | `True`    |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                                |
+|--------|-------------|------------------------------------------------------------|
+|        | ValueError  | If r < 0, r > 4, or x0 not in [0,1]                        |
+|        | UserWarning | If r > 4 (escape from domain) If r < 1 (extinction regime) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Parameter Selection:**
+
+For exploring dynamics:
+- Fixed point: r = 2.5, σ = 0.01
+- Period-2: r = 3.2, σ = 0.02
+- Chaos onset: r = 3.57, σ = 0.03
+- Full chaos: r = 3.8-4.0, σ = 0.05
+
+**Noise Scaling:**
+
+Unlike continuous models, σ doesn't scale with √dt
+because discrete-time noise is per-generation.
+
+**Boundary Enforcement:**
+
+If enforce_bounds=True:
+- Prevents x < 0 (extinction)
+- Prevents x > 1 (exceeding capacity)
+- Reflects or truncates at boundaries
+
+If False:
+- Can escape [0,1] (unphysical)
+- Useful for studying escape rates
+- Most simulations should use True
+
+**Lyapunov Exponent:**
+
+Estimate for deterministic part:
+- r = 2.5: λ ≈ -0.69 (stable)
+- r = 3.0: λ ≈ 0 (critical)
+- r = 3.5: λ ≈ 0.2 (periodic)
+- r = 3.8: λ ≈ 0.5 (chaotic)
+- r = 4.0: λ = ln(2) ≈ 0.693 (maximum)
+
+With noise, effective λ increases.
+
+**Period-Doubling Points:**
+
+Bifurcation cascade:
+- r₁ = 3.0 (period 2)
+- r₂ ≈ 3.449 (period 4)
+- r₃ ≈ 3.544 (period 8)
+- r∞ ≈ 3.5699 (chaos onset)
+
+Feigenbaum ratio: δ = (rₙ₊₁ - rₙ)/(rₙ₊₂ - rₙ₊₁) → 4.669
+
+**Chaos Windows:**
+
+Periodic windows within chaos:
+- r ≈ 3.83: Period-3 window
+- r ≈ 3.74: Period-5 window
+- Many others (dense set)
+
+### estimate_invariant_density { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.estimate_invariant_density }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.estimate_invariant_density(
+    n_iterations=100000,
+    transient=1000,
+    n_bins=100,
+)
+```
+
+Estimate invariant density from long trajectory.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type   | Description                     | Default   |
+|--------------|--------|---------------------------------|-----------|
+| n_iterations | int    | Number of iterations to collect | `100000`  |
+| transient    | int    | Burn-in period                  | `1000`    |
+| n_bins       | int    | Number of histogram bins        | `100`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description            |
+|--------|---------------------------------|------------------------|
+|        | Tuple\[np.ndarray, np.ndarray\] | (bin_centers, density) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> logistic = DiscreteStochasticLogisticMap(r=4.0, sigma=0.0)
+>>> x_bins, density = logistic.estimate_invariant_density()
+>>> plt.plot(x_bins, density)
+>>> plt.xlabel('x')
+>>> plt.ylabel('ρ(x)')
+>>> # Compare with exact: ρ(x) = 1/(π·√(x·(1-x)))
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.setup_equilibria }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.setup_equilibria(
+)
+```
+
+Set up equilibrium points (deterministic part).
+
+Logistic map has up to two fixed points:
+1. x* = 0 (extinction)
+2. x* = (r-1)/r (regulated population)
+
+### theoretical_invariant_density { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.theoretical_invariant_density }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.theoretical_invariant_density(
+    x_values,
+)
+```
+
+Compute theoretical invariant density for r=4 (deterministic).
+
+ρ(x) = 1/(π·√(x·(1-x)))
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type       | Description                         | Default    |
+|----------|------------|-------------------------------------|------------|
+| x_values | np.ndarray | Points at which to evaluate density | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description    |
+|--------|------------|----------------|
+|        | np.ndarray | Density values |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Only valid for r = 4 and σ = 0.
+U-shaped distribution.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = np.linspace(0.01, 0.99, 100)
+>>> logistic = DiscreteStochasticLogisticMap(r=4.0, sigma=0.0)
+>>> rho_theory = logistic.theoretical_invariant_density(x)
+```

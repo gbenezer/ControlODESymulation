@@ -1,0 +1,24 @@
+# types.symbolic.SymbolicExpression { #cdesym.types.symbolic.SymbolicExpression }
+
+`types.symbolic.SymbolicExpression`
+
+Single symbolic expression.
+
+Any SymPy expression representing a mathematical formula.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import sympy as sp
+>>> x, u = sp.symbols('x u')
+>>> expr: SymbolicExpression = x**2 + sp.sin(u)
+>>> 
+>>> # Differentiate
+>>> dexpr_dx = sp.diff(expr, x)  # 2*x
+>>> 
+>>> # Evaluate
+>>> result = expr.subs({x: 1.0, u: 0.0})  # 1.0
+>>> 
+>>> # Simplify
+>>> simplified: SymbolicExpression = sp.simplify(expr)
+```

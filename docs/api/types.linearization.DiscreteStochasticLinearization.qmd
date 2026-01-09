@@ -1,0 +1,15 @@
+# types.linearization.DiscreteStochasticLinearization { #cdesym.types.linearization.DiscreteStochasticLinearization }
+
+`types.linearization.DiscreteStochasticLinearization`
+
+Alias for discrete-time stochastic linearization.
+
+Returns (Ad, Bd, Gd) for discrete stochastic systems.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ad, Bd, Gd = discrete_stochastic.linearize(x_eq, u_eq)
+>>> # Mean-square stability (drift only)
+>>> ms_stable = np.all(np.abs(np.linalg.eigvals(Ad)) < 1.0)
+```

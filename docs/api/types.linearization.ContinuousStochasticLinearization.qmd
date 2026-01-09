@@ -1,0 +1,15 @@
+# types.linearization.ContinuousStochasticLinearization { #cdesym.types.linearization.ContinuousStochasticLinearization }
+
+`types.linearization.ContinuousStochasticLinearization`
+
+Alias for continuous-time stochastic linearization.
+
+Returns (Ac, Bc, Gc) for continuous SDEs.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ac, Bc, Gc = sde_system.linearize(x_eq, u_eq)
+>>> # Drift stability
+>>> drift_stable = np.all(np.real(np.linalg.eigvals(Ac)) < 0)
+```

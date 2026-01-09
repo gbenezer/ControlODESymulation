@@ -1,0 +1,30 @@
+# types.backends.BackendConfig { #cdesym.types.backends.BackendConfig }
+
+```python
+types.backends.BackendConfig()
+```
+
+Backend configuration dictionary.
+
+Specifies backend, device, and precision settings.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name    | Type               | Description                            |
+|---------|--------------------|----------------------------------------|
+| backend | Backend            | Computational backend                  |
+| device  | Optional\[Device\] | Hardware device                        |
+| dtype   | Optional\[str\]    | Data type ('float32', 'float64', etc.) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> config: BackendConfig = {
+...     'backend': 'torch',
+...     'device': 'cuda:0',
+...     'dtype': 'float32'
+... }
+>>>
+>>> # Minimal config
+>>> config_minimal: BackendConfig = {'backend': 'numpy'}
+```

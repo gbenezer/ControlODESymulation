@@ -1,0 +1,45 @@
+# systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce { #cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce(
+    *args,
+    **kwargs,
+)
+```
+
+Discrete double integrator with explicit force input and mass.
+
+This is a convenience alias that creates a DiscreteDoubleIntegrator
+with use_force_input=True, making the mass parameter explicit in
+the dynamics.
+
+Dynamics: p[k+1] = p[k] + dt·v[k] + 0.5·dt²·F[k]/m
+          v[k+1] = v[k] + dt·F[k]/m
+
+See DiscreteDoubleIntegrator for full documentation.
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.define_system) | Define double integrator with force input. |
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.define_system(
+    dt=0.1,
+    mass=1.0,
+    method='zoh',
+)
+```
+
+Define double integrator with force input.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description           | Default   |
+|--------|--------|-----------------------|-----------|
+| dt     | float  | Sampling time [s]     | `0.1`     |
+| mass   | float  | System mass [kg]      | `1.0`     |
+| method | str    | Discretization method | `'zoh'`   |

@@ -1,0 +1,1178 @@
+# systems.builtin.deterministic.discrete.DiscreteOscillator { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator(*args, **kwargs)
+```
+
+Discrete-time damped harmonic oscillator with external forcing.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+The harmonic oscillator models a mass attached to a spring and damper,
+subject to external force. The continuous-time dynamics are:
+
+    m·ẍ + c·ẋ + k·x = F(t)
+
+Dividing by mass and defining natural frequency ωₙ and damping ratio ζ:
+
+    ẍ + 2ζωₙ·ẋ + ωₙ²·x = u(t)
+
+where:
+    ωₙ = √(k/m)  [rad/s] : Natural (undamped) frequency
+    ζ = c/(2√(km)) [-]   : Damping ratio
+
+The discrete-time version depends on the discretization method. This
+implementation provides several options:
+
+**Zero-Order Hold (ZOH) - Exact Discretization:**
+The exact solution assuming piecewise-constant control. For underdamped
+systems (0 < ζ < 1), this gives:
+
+    x[k+1] = e^(-ζωₙdt)·[x[k]·cos(ωd·dt) + v[k]·sin(ωd·dt)/ωd]
+    v[k+1] = e^(-ζωₙdt)·[-x[k]·ωd·sin(ωd·dt) + v[k]·cos(ωd·dt)] + dt·u[k]
+
+where ωd = ωₙ√(1 - ζ²) is the damped natural frequency.
+
+**Tustin/Bilinear Transform:**
+Preserves frequency response characteristics:
+
+    (I - 0.5·dt·A)·x[k+1] = (I + 0.5·dt·A)·x[k] + 0.5·dt·B·(u[k] + u[k+1])
+
+This is the standard method for designing discrete filters from continuous
+prototypes, as it maps the jω axis in s-plane to the unit circle in z-plane.
+
+**Forward Euler:**
+Simple first-order approximation:
+
+    x[k+1] = x[k] + dt·v[k]
+    v[k+1] = v[k] + dt·(-ωₙ²·x[k] - 2ζωₙ·v[k] + u[k])
+
+**Backward Euler:**
+Implicit method with better stability for stiff systems.
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x[k] = [x[k], v[k]]
+    Displacement state:
+    - x: Position/displacement from equilibrium [m]
+      * Can be positive or negative
+      * Zero at equilibrium (spring relaxed)
+      * Bounded for stable systems: |x| < ∞
+      * Oscillates around zero for underdamped systems
+
+    Velocity state:
+    - v: Velocity [m/s]
+      * Rate of change of position
+      * Zero at equilibrium
+      * Phase-shifted 90° from position in steady-state oscillation
+      * Maximum at equilibrium crossing for underdamped
+
+Control: u[k] = [F[k]]
+    - F: External force/acceleration [m/s²] or [N/kg]
+      * Directly enters as acceleration term
+      * Can be used to:
+        - Excite oscillations (resonance testing)
+        - Damp oscillations (active damping)
+        - Track reference trajectories
+        - Reject disturbances
+
+Output: y[k] = [x[k]] or [x[k], v[k]]
+    - Displacement-only measurement (most common):
+      y[k] = x[k]
+      Examples: LVDT, laser displacement, strain gauge
+    - Full state measurement:
+      y[k] = [x[k], v[k]]
+      Examples: accelerometer integration, optical tracking
+
+## Dynamics (General Form): {.doc-section .doc-section-dynamics-general-form}
+
+The discrete dynamics can be written in state-space form:
+
+    x[k+1] = Ad·x[k] + Bd·u[k]
+
+where the matrices Ad and Bd depend on the discretization method and
+system parameters (ωₙ, ζ, dt).
+
+**Physical Interpretation of Parameters:**
+
+Natural Frequency ωₙ [rad/s]:
+- Frequency of oscillation without damping
+- Higher ωₙ → faster oscillations, stiffer spring
+- Related to spring constant: ωₙ = √(k/m)
+- Typical values:
+  * Building structures: 0.1-10 rad/s
+  * Vehicle suspensions: 5-50 rad/s
+  * Machine tools: 100-1000 rad/s
+  * MEMS devices: 10³-10⁶ rad/s
+
+Damping Ratio ζ [-]:
+- Dimensionless measure of energy dissipation
+- Controls how quickly oscillations decay
+- ζ = 0: Undamped (oscillates forever)
+- 0 < ζ < 1: Underdamped (oscillates with decay)
+- ζ = 1: Critically damped (fastest non-oscillatory)
+- ζ > 1: Overdamped (slow return, no oscillation)
+- Typical values:
+  * Air damping: ζ ≈ 0.01-0.1
+  * Automotive shocks: ζ ≈ 0.3-0.7
+  * Seismic isolators: ζ ≈ 0.1-0.3
+  * Critically damped instruments: ζ = 1.0
+
+**Regime Classification:**
+
+1. **Underdamped (0 < ζ < 1):**
+   - Oscillates with exponentially decaying amplitude
+   - Damped frequency: ωd = ωₙ√(1 - ζ²) < ωₙ
+   - Decay rate: σ = ζωₙ
+   - Period: T = 2π/ωd
+   - Envelope: A(t) = A₀·e^(-ζωₙt)
+   - Most common in practice
+
+2. **Critically Damped (ζ = 1):**
+   - Fastest return to equilibrium without overshoot
+   - No oscillation
+   - Optimal for instruments, door closers
+   - Two equal real eigenvalues: λ = -ωₙ
+
+3. **Overdamped (ζ > 1):**
+   - Slow return to equilibrium
+   - No oscillation
+   - Two distinct real eigenvalues
+   - Example: heavily damped pendulum in oil
+
+4. **Undamped (ζ = 0):**
+   - Pure sinusoidal oscillation forever
+   - No energy dissipation
+   - Idealization (never exact in reality)
+   - Eigenvalues on imaginary axis: λ = ±jωₙ
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+omega_n : float, default=1.0
+    Natural frequency [rad/s]
+    Must be positive: ωₙ > 0
+    Controls oscillation speed
+    Related to spring stiffness and mass
+
+zeta : float, default=0.1
+    Damping ratio [-]
+    Must be non-negative: ζ ≥ 0
+    Controls energy dissipation
+    ζ = 0: undamped, ζ < 1: underdamped, ζ = 1: critical, ζ > 1: overdamped
+
+dt : float, default=0.1
+    Sampling/discretization time step [s]
+    Critical parameter affecting:
+    - Accuracy of discrete approximation
+    - Aliasing (must satisfy Nyquist: dt < π/ωₙ)
+    - Numerical stability (depends on method)
+    - Control bandwidth
+
+    Guidelines:
+    - Nyquist: dt < π/ωₙ (sample at least 2× per cycle)
+    - Shannon: dt < 1/(10·fₙ) for good reconstruction
+    - Rule of thumb: 10-20 samples per period T = 2π/ωₙ
+    - For ωₙ = 1 rad/s: dt ≈ 0.1-0.3 s
+    - For ωₙ = 10 rad/s: dt ≈ 0.01-0.03 s
+
+method : str, default='zoh'
+    Discretization method:
+    - 'zoh': Zero-order hold (exact, recommended for control)
+    - 'tustin': Bilinear/trapezoidal (preserves frequency response)
+    - 'euler': Forward Euler (simple, less accurate)
+    - 'backward_euler': Backward Euler (more stable)
+    - 'matched': Matched pole-zero (preserves poles)
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+**Stable equilibrium at origin:**
+    x_eq = [0, 0]  (rest position, spring relaxed)
+    u_eq = 0       (no external force)
+
+Stability depends on damping:
+- ζ > 0: Asymptotically stable (returns to origin)
+- ζ = 0: Marginally stable (oscillates forever)
+
+**Eigenvalue Analysis:**
+
+Continuous-time poles:
+    λ = -ζωₙ ± jωₙ√(1 - ζ²)  (for ζ < 1)
+
+Discrete-time poles (ZOH):
+    z = e^(λdt) = e^(-ζωₙdt)·e^(±jωd·dt)
+
+Stability requires |z| < 1:
+    |z| = e^(-ζωₙdt) < 1  ⟹  ζωₙ > 0
+
+This is always satisfied for ζ > 0 (damped systems).
+
+For undamped (ζ = 0):
+    |z| = 1  (marginally stable, poles on unit circle)
+
+**Forced Oscillation Equilibrium:**
+For constant forcing u = u_ss:
+    x_ss = u_ss/ωₙ²  (static deflection)
+    v_ss = 0
+
+This represents a new equilibrium position where spring force balances
+the constant applied force.
+
+## Controllability: {.doc-section .doc-section-controllability}
+
+The discrete harmonic oscillator is COMPLETELY CONTROLLABLE for all
+discretization methods and parameter values (ωₙ > 0).
+
+**Controllability Matrix:**
+    C = [Bd, Ad·Bd]
+
+**Physical Meaning:**
+- Can move to any position with any velocity
+- Requires at most 2 time steps (for linear systems)
+- Energy required depends on desired state and time
+- Practical limits: actuator force, position/velocity bounds
+
+**Minimum Energy Control:**
+To reach target state x_target from origin in time T:
+    u*(t) = B'·e^(A'(T-t))·[∫₀ᵀ e^(At)·B·B'·e^(A't) dt]⁻¹·x_target
+
+This gives the control that minimizes ∫ u² dt.
+
+## Observability: {.doc-section .doc-section-observability}
+
+**Displacement-only measurement: y[k] = x[k]**
+    C = [1  0]
+
+    Observability matrix:
+    O = [C     ] = [1         0        ]
+        [C·Ad  ]   [Ad[0,0]   Ad[0,1]  ]
+
+    Fully observable for all parameter values.
+    Can reconstruct velocity from position measurements over time.
+
+**Physical Interpretation:**
+Velocity is estimated from position differences:
+    v[k] ≈ (x[k+1] - x[k])/dt
+
+Better estimates use multiple samples (Kalman filter, least squares).
+
+**Full state measurement: y[k] = [x[k], v[k]]**
+    Trivially observable - direct measurement of all states.
+
+## Frequency Response: {.doc-section .doc-section-frequency-response}
+
+The oscillator exhibits characteristic frequency-dependent behavior.
+
+**Continuous-time transfer function:**
+    H(s) = 1/(s² + 2ζωₙs + ωₙ²)
+
+**Key frequencies:**
+
+1. **Natural frequency ωₙ:**
+   - Resonance frequency for undamped system
+   - Determines overall response speed
+
+2. **Damped natural frequency ωd:**
+   ωd = ωₙ√(1 - ζ²)  [rad/s]
+   - Actual oscillation frequency for underdamped
+   - Lower than ωₙ due to damping
+
+3. **Resonant peak frequency ωᵣ:**
+   ωᵣ = ωₙ√(1 - 2ζ²)  [rad/s] (for ζ < 1/√2)
+   - Frequency of maximum gain
+   - Only exists for light damping
+
+**Magnitude response:**
+At resonance (ω = ωᵣ):
+    |H(jωᵣ)| = 1/(2ζ√(1 - ζ²))
+
+For small damping (ζ << 1):
+    |H(jωₙ)| ≈ 1/(2ζ)  (quality factor Q = 1/(2ζ))
+
+**Phase response:**
+- Low frequency (ω << ωₙ): φ ≈ 0° (in-phase)
+- Resonance (ω = ωₙ): φ = -90° (quadrature)
+- High frequency (ω >> ωₙ): φ → -180° (out-of-phase)
+
+## Control Objectives: {.doc-section .doc-section-control-objectives}
+
+Common control goals for harmonic oscillators:
+
+1. **Vibration Damping:**
+   Goal: Increase effective damping to reduce oscillations
+   Methods:
+   - Velocity feedback: u = -k_d·v (adds damping)
+   - LQR with velocity penalty
+   - Active damping control
+   Applications: building isolation, machine tools, aerospace
+
+2. **Resonance Tracking:**
+   Goal: Maintain oscillation at specific frequency and amplitude
+   Methods:
+   - Sinusoidal forcing at ωd
+   - Phase-locked loop
+   Applications: clocks, oscillators, sensors
+
+3. **Position Regulation:**
+   Goal: Drive to desired position and hold
+   Control: u = -K·[x - x_ref, v]
+   Design: LQR, pole placement
+
+4. **Setpoint Tracking:**
+   Goal: Follow time-varying reference position
+   Control: u = -K·[x - x_ref(t), v - v_ref(t)] + u_ff(t)
+   Feedforward: u_ff = ẍ_ref + 2ζωₙv_ref + ωₙ²x_ref
+
+5. **Disturbance Rejection:**
+   Goal: Maintain position despite external forces
+   Methods:
+   - High-gain feedback
+   - Integral action
+   - Disturbance observer
+   Applications: precision positioning, isolation
+
+## State Constraints: {.doc-section .doc-section-state-constraints}
+
+Physical constraints that must be enforced:
+
+1. **Position limits: x_min ≤ x[k] ≤ x_max**
+   - Physical stops, workspace boundaries
+   - Spring compression/extension limits
+   - Typical: |x| ≤ 0.1 m for suspensions
+
+2. **Velocity limits: |v[k]| ≤ v_max**
+   - Material stress limits (fatigue)
+   - Safety considerations
+   - Typical: |v| ≤ 1 m/s for mechanical systems
+
+3. **Control limits: |u[k]| ≤ u_max**
+   - Actuator force saturation
+   - Power constraints
+   - Most critical practical constraint
+   - Typical: |u| ≤ 10 m/s² for active systems
+
+4. **Frequency limits (for tracking):**
+   - Cannot track above Nyquist frequency: f < 1/(2dt)
+   - Anti-aliasing required for higher frequencies
+   - Practical limit: f < 0.1/dt for good control
+
+## Numerical Considerations: {.doc-section .doc-section-numerical-considerations}
+
+**Stability:**
+
+For explicit methods (Euler), stability requires:
+    dt < 2/(ζωₙ + √(ζ²ωₙ² + ωₙ²))
+
+Approximately: dt < 1/ωₙ for ζ small
+
+For ZOH and Tustin, the discretization is always stable if the
+continuous system is stable (ζ > 0).
+
+**Accuracy:**
+- ZOH: Exact for underdamped systems with constant control
+- Tustin: O(dt²) error, preserves frequency response
+- Euler: O(dt) error, can become unstable
+- Matched: Exact pole locations, approximate zeros
+
+**Aliasing:**
+If excited at frequencies above Nyquist (π/dt), aliasing occurs.
+The response appears at lower frequencies:
+    f_apparent = |f_actual - n·f_sample|
+
+Prevention: Use anti-aliasing filters before sampling.
+
+**Resonance Amplification:**
+At resonance with small damping:
+    Gain ≈ Q = 1/(2ζ)
+
+For ζ = 0.01: Q = 50 (34 dB amplification!)
+This can cause:
+- Large displacements from small inputs
+- Control saturation
+- Numerical overflow if not handled
+
+## Control Design Examples: {.doc-section .doc-section-control-design-examples}
+
+**1. Damping Augmentation (Velocity Feedback):**
+    u[k] = -k_d·v[k]
+
+    Effective damping: ζ_eff = ζ + k_d/(2ωₙ)
+
+    Choose k_d to achieve desired damping:
+        k_d = 2ωₙ(ζ_desired - ζ)
+
+    Example: ωₙ = 10 rad/s, ζ = 0.1, ζ_desired = 0.7
+        k_d = 2(10)(0.7 - 0.1) = 12
+
+**2. LQR (Optimal State Feedback):**
+    Minimize: J = Σ (x'·Q·x + u'·R·u)
+
+    Tuning guidelines:
+    - Large Q[0,0]: Penalize position error (stiff response)
+    - Large Q[1,1]: Penalize velocity (add damping)
+    - Large R: Penalize control effort (smooth, slow)
+
+    Example:
+        Q = diag([100, 10])  # Care about position
+        R = 1
+        Result: Fast settling, moderate control
+
+**3. Pole Placement:**
+    Desired continuous-time poles:
+        s = -ζ_d·ωₙ_d ± jωₙ_d√(1 - ζ_d²)
+
+    Map to discrete:
+        z = e^(s·dt)
+
+    Example: ωₙ_d = 10, ζ_d = 0.7, dt = 0.01
+        s = -7 ± j7.14
+        z = 0.932 ± j0.069
+
+**4. Notch Filter (Resonance Suppression):**
+    For systems with known resonance, add notch filter:
+        H_notch(z) = (z² - 2cos(ω_notch·dt)z + 1)/(z² - 2r·cos(ω_notch·dt)z + r²)
+
+    where r < 1 controls notch width.
+
+## Example Usage: {.doc-section .doc-section-example-usage}
+
+>>> # Create underdamped oscillator with natural frequency 2π rad/s (1 Hz)
+>>> system = DiscreteOscillator(omega_n=2*np.pi, zeta=0.1, dt=0.01)
+>>>
+>>> # Initial condition: displaced 1m, at rest
+>>> x0 = np.array([1.0, 0.0])  # [position, velocity]
+>>>
+>>> # Free oscillation (no control)
+>>> result_free = system.simulate(
+...     x0=x0,
+...     u_sequence=None,
+...     n_steps=500
+... )
+>>>
+>>> # Plot free oscillation
+>>> import matplotlib.pyplot as plt
+>>> t = result_free['time_steps'] * system.dt
+>>> fig, axes = plt.subplots(3, 1, figsize=(10, 8))
+>>>
+>>> # Position
+>>> axes[0].plot(t, result_free['states'][:, 0])
+>>> axes[0].set_ylabel('Position [m]')
+>>> axes[0].grid()
+>>> axes[0].set_title('Free Oscillation (Underdamped)')
+>>>
+>>> # Velocity
+>>> axes[1].plot(t, result_free['states'][:, 1])
+>>> axes[1].set_ylabel('Velocity [m/s]')
+>>> axes[1].grid()
+>>>
+>>> # Phase portrait
+>>> axes[2].plot(result_free['states'][:, 0], result_free['states'][:, 1])
+>>> axes[2].set_xlabel('Position [m]')
+>>> axes[2].set_ylabel('Velocity [m/s]')
+>>> axes[2].grid()
+>>> axes[2].set_title('Phase Portrait (Spiral to Origin)')
+>>>
+>>> plt.tight_layout()
+>>> plt.show()
+>>>
+>>> # Compute theoretical decay envelope
+>>> A0 = 1.0  # Initial amplitude
+>>> envelope = A0 * np.exp(-system.zeta * system.omega_n * t)
+>>>
+>>> # Verify decay rate
+>>> peaks = result_free['states'][::int(np.pi/(system.omega_d * system.dt)), 0]
+>>> print(f"Theoretical decay: {envelope[-1]:.4f}")
+>>> print(f"Simulated decay: {np.abs(peaks[-1]):.4f}")
+>>>
+>>> # Design damping augmentation controller
+>>> zeta_desired = 0.7  # Critical damping
+>>> k_d = system.design_damping_controller(zeta_desired)
+>>> print(f"Damping gain: k_d = {k_d:.2f}")
+>>>
+>>> def damping_controller(x, k):
+...     return -k_d * x[1]  # Velocity feedback only
+>>>
+>>> result_damped = system.rollout(x0, damping_controller, n_steps=500)
+>>>
+>>> # Compare settling times
+>>> settling_threshold = 0.02 * A0  # 2% criterion
+>>> free_settling = np.where(np.abs(result_free['states'][:, 0]) < settling_threshold)[0]
+>>> damped_settling = np.where(np.abs(result_damped['states'][:, 0]) < settling_threshold)[0]
+>>>
+>>> if len(free_settling) > 0 and len(damped_settling) > 0:
+...     print(f"Free settling time: {free_settling[0] * system.dt:.2f} s")
+...     print(f"Damped settling time: {damped_settling[0] * system.dt:.2f} s")
+>>>
+>>> # Resonance testing - sweep frequency
+>>> frequencies = np.logspace(-1, 1, 50)  # 0.1 to 10 rad/s
+>>> gains = []
+>>> phases = []
+>>>
+>>> for omega in frequencies:
+...     # Apply sinusoidal input
+...     t_sim = np.arange(0, 20, system.dt)
+...     u_sin = np.sin(omega * t_sim)
+...
+...     result = system.simulate(
+...         x0=np.zeros(2),
+...         u_sequence=u_sin,
+...         n_steps=len(t_sim)
+...     )
+...
+...     # Measure steady-state amplitude and phase
+...     x_ss = result['states'][-100:, 0]
+...     u_ss = u_sin[-100:]
+...
+...     # Compute gain (amplitude ratio)
+...     gain = np.max(np.abs(x_ss)) / np.max(np.abs(u_ss))
+...     gains.append(gain)
+...
+...     # Compute phase (via FFT)
+...     X_fft = np.fft.fft(x_ss)
+...     U_fft = np.fft.fft(u_ss)
+...     phase = np.angle(X_fft[1]) - np.angle(U_fft[1])
+...     phases.append(np.rad2deg(phase))
+>>>
+>>> # Plot Bode diagram
+>>> fig, axes = plt.subplots(2, 1, figsize=(10, 8))
+>>>
+>>> # Magnitude
+>>> axes[0].semilogx(frequencies, 20*np.log10(gains), 'b-', label='Simulated')
+>>> axes[0].axvline(system.omega_n, color='r', linestyle='--', label=f'ωₙ = {system.omega_n:.2f}')
+>>> axes[0].set_ylabel('Magnitude [dB]')
+>>> axes[0].grid(which='both')
+>>> axes[0].legend()
+>>> axes[0].set_title('Frequency Response (Bode Plot)')
+>>>
+>>> # Phase
+>>> axes[1].semilogx(frequencies, phases, 'b-')
+>>> axes[1].axvline(system.omega_n, color='r', linestyle='--')
+>>> axes[1].axhline(-90, color='g', linestyle=':', label='-90° at resonance')
+>>> axes[1].set_xlabel('Frequency [rad/s]')
+>>> axes[1].set_ylabel('Phase [deg]')
+>>> axes[1].grid(which='both')
+>>> axes[1].legend()
+>>>
+>>> plt.tight_layout()
+>>> plt.show()
+>>>
+>>> # Design LQR controller
+>>> Ad, Bd = system.linearize(np.zeros(2), np.zeros(1))
+>>> Q = np.diag([100.0, 1.0])  # Care more about position
+>>> R = np.array([[1.0]])
+>>> lqr_result = system.control.design_lqr(
+...     Ad, Bd, Q, R, system_type='discrete'
+... )
+>>> K = lqr_result['gain']
+>>> print(f"LQR gain: K = {K}")
+>>>
+>>> # Check closed-loop damping
+>>> zeta_cl, omega_cl = system.compute_closed_loop_damping(K)
+>>> print(f"Closed-loop damping: ζ = {zeta_cl:.3f}")
+>>> print(f"Closed-loop frequency: ω = {omega_cl:.2f} rad/s")
+>>>
+>>> # Simulate with LQR
+>>> def lqr_controller(x, k):
+...     return -K @ x
+>>>
+>>> result_lqr = system.rollout(x0, lqr_controller, n_steps=500)
+>>>
+>>> # Tracking example: follow sinusoidal reference
+>>> omega_ref = 0.5  # Below resonance
+>>> A_ref = 0.5      # Amplitude
+>>> t_track = np.arange(0, 10, system.dt)
+>>> x_ref = A_ref * np.sin(omega_ref * t_track)
+>>> v_ref = A_ref * omega_ref * np.cos(omega_ref * t_track)
+>>> a_ref = -A_ref * omega_ref**2 * np.sin(omega_ref * t_track)
+>>>
+>>> def tracking_controller(x, k):
+...     if k >= len(x_ref):
+...         return np.array([0.0])
+...
+...     # Feedforward + feedback
+...     u_ff = a_ref[k] + 2*system.zeta*system.omega_n*v_ref[k] + system.omega_n**2*x_ref[k]
+...     u_fb = -K @ (x - np.array([x_ref[k], v_ref[k]]))
+...     return u_fb + u_ff
+>>>
+>>> result_track = system.rollout(np.zeros(2), tracking_controller, n_steps=len(t_track))
+>>>
+>>> # Plot tracking performance
+>>> plt.figure(figsize=(10, 6))
+>>> plt.plot(t_track, x_ref, 'r--', label='Reference', linewidth=2)
+>>> plt.plot(t_track, result_track['states'][:, 0], 'b-', label='Actual')
+>>> plt.xlabel('Time [s]')
+>>> plt.ylabel('Position [m]')
+>>> plt.legend()
+>>> plt.grid()
+>>> plt.title('Tracking Performance')
+>>> plt.show()
+>>>
+>>> # Compute tracking error
+>>> error = result_track['states'][:, 0] - x_ref
+>>> rms_error = np.sqrt(np.mean(error**2))
+>>> max_error = np.max(np.abs(error))
+>>> print(f"RMS tracking error: {rms_error:.4f} m")
+>>> print(f"Max tracking error: {max_error:.4f} m")
+
+## Physical Insights: {.doc-section .doc-section-physical-insights}
+
+**Energy Considerations:**
+The harmonic oscillator continuously exchanges energy between kinetic
+and potential forms:
+
+    E_kinetic = 0.5·m·v²
+    E_potential = 0.5·k·x²
+    E_total = E_kinetic + E_potential
+
+For undamped (ζ = 0): Total energy is conserved
+For damped (ζ > 0): Energy decreases exponentially
+    E(t) = E₀·e^(-2ζωₙt)
+
+Power dissipated by damping:
+    P_damped = c·v² = 2mζωₙ·v²
+
+**Quality Factor:**
+The quality factor Q measures how underdamped the system is:
+    Q = 1/(2ζ)
+
+High Q (low damping):
+- Sharp resonance peak
+- Long ringing time
+- Narrow bandwidth
+- Examples: tuning forks (Q ~ 1000), quartz crystals (Q ~ 10⁶)
+
+Low Q (high damping):
+- Broad response
+- Fast settling
+- Wide bandwidth
+- Examples: shock absorbers (Q ~ 1), damped doors (Q ~ 0.5)
+
+**Decay Rate vs Oscillation Frequency:**
+For underdamped systems, there's a tradeoff:
+- Decay rate: σ = ζωₙ (controls settling time)
+- Oscillation frequency: ωd = ωₙ√(1 - ζ²)
+
+As damping increases:
+- Decay rate increases (faster settling)
+- Oscillation frequency decreases
+- At critical damping: ωd = 0 (no oscillation)
+
+**Resonance Phenomenon:**
+At resonance, even small periodic forces can produce large displacements.
+Examples:
+- Tacoma Narrows Bridge collapse (1940)
+- Wine glass shattering from sound
+- Building damage in earthquakes
+- Mechanical vibration failures
+
+Prevention strategies:
+- Avoid excitation near ωₙ
+- Increase damping (ζ > 0.1 typically safe)
+- Use vibration isolators
+- Active control
+
+**Time Scales:**
+The system has characteristic time scales:
+
+1. Natural period: T = 2π/ωₙ
+   - Time for one complete oscillation (undamped)
+
+2. Damped period: Td = 2π/ωd
+   - Actual oscillation period (underdamped)
+   - Td > T (damping slows oscillation)
+
+3. Time constant: τ = 1/(ζωₙ)
+   - Time for amplitude to decay by factor e
+   - Envelope decay: e^(-t/τ)
+
+4. Settling time (2% criterion): ts ≈ 4τ = 4/(ζωₙ)
+   - Time to reach 2% of steady-state
+   - Often used as design specification
+
+**Relationship to Electrical Circuits:**
+The RLC circuit is mathematically identical:
+
+    L·d²q/dt² + R·dq/dt + (1/C)·q = V(t)
+
+Analogies:
+    Mechanical    ↔  Electrical
+    Position x    ↔  Charge q
+    Velocity v    ↔  Current i
+    Mass m        ↔  Inductance L
+    Damping c     ↔  Resistance R
+    Spring k      ↔  1/Capacitance
+
+This enables unified analysis and design across domains.
+
+## Common Pitfalls: {.doc-section .doc-section-common-pitfalls}
+
+1. **Aliasing in high-frequency oscillators:**
+   If ωₙ > π/dt (Nyquist), the discrete system appears slower.
+   Fix: Increase sampling rate or add anti-aliasing filter.
+
+2. **Resonance amplification:**
+   Small disturbances at ωₙ cause large response for small ζ.
+   Fix: Avoid excitation near ωₙ or increase damping.
+
+3. **Incorrect damping ratio:**
+   Using damping coefficient c instead of ratio ζ.
+   Remember: ζ = c/(2√(km)) is dimensionless.
+
+4. **Forgetting frequency shift:**
+   Damped frequency ωd ≠ ωₙ for ζ > 0.
+   Use: ωd = ωₙ√(1 - ζ²)
+
+5. **Numerical instability with Euler:**
+   For stiff systems (large ωₙ or ζ), Euler requires tiny dt.
+   Fix: Use ZOH, Tustin, or implicit methods.
+
+6. **Control saturation near resonance:**
+   At resonance, control effort can be excessive.
+   Fix: Use anti-windup, gain scheduling, or notch filters.
+
+## Extensions: {.doc-section .doc-section-extensions}
+
+This basic oscillator can be extended to:
+
+1. **Nonlinear oscillator:**
+   Add nonlinear spring: k → k₁x + k₃x³ (Duffing oscillator)
+   Creates amplitude-dependent frequency
+
+2. **Coupled oscillators:**
+   Multiple masses connected by springs
+   Normal modes and mode shapes
+
+3. **Parametric oscillator:**
+   Time-varying parameters: ωₙ(t)
+   Can cause parametric resonance
+
+4. **Forced oscillator with multiple frequencies:**
+   Beat phenomena, combination tones
+
+5. **With Coulomb friction:**
+   Add dry friction: F_friction = μ·N·sign(v)
+   Creates limit cycles
+
+6. **Nonlinear damping:**
+   Quadratic drag: F_drag = c·v²
+   Common in aerodynamics
+
+## See Also: {.doc-section .doc-section-see-also}
+
+DiscreteDoubleIntegrator : Undamped limit (ζ = 0, ωₙ = 0)
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [damped_period](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.damped_period) | Damped period Td = 2π/ωd [s] (for underdamped only). |
+| [damping_coefficient](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.damping_coefficient) | Damping coefficient c = 2ζ√(km) [N·s/m]. |
+| [natural_period](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.natural_period) | Natural period T = 2π/ωₙ [s]. |
+| [omega_d](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.omega_d) | Damped natural frequency [rad/s]. |
+| [omega_n](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.omega_n) | Natural frequency [rad/s]. |
+| [quality_factor](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.quality_factor) | Quality factor Q = 1/(2ζ) [-]. |
+| [settling_time](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.settling_time) | Settling time (2% criterion) ts ≈ 4τ [s]. |
+| [spring_constant](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.spring_constant) | Spring constant k = m·ωₙ² [N/m]. |
+| [time_constant](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.time_constant) | Time constant τ = 1/(ζωₙ) [s]. |
+| [zeta](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.zeta) | Damping ratio [-]. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_closed_loop_damping](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_closed_loop_damping) | Compute closed-loop damping ratio and natural frequency. |
+| [compute_eigenvalues](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_eigenvalues) | Compute discrete-time eigenvalues. |
+| [compute_frequency_response](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_frequency_response) | Compute frequency response (Bode plot data). |
+| [compute_resonant_frequency](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_frequency) | Compute resonant peak frequency ωᵣ [rad/s]. |
+| [compute_resonant_peak](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_peak) | Compute resonant peak magnitude (gain at resonance). |
+| [compute_step_response_characteristics](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_step_response_characteristics) | Compute step response characteristics. |
+| [compute_system_matrices](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_system_matrices) | Compute discrete-time state-space matrices Ad, Bd. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.define_system) | Define discrete-time harmonic oscillator dynamics. |
+| [design_damping_controller](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.design_damping_controller) | Design velocity feedback gain to achieve desired damping ratio. |
+| [design_stiffness_controller](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.design_stiffness_controller) | Design position feedback gain to achieve desired natural frequency. |
+| [generate_chirp_signal](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.generate_chirp_signal) | Generate chirp (frequency sweep) signal for system identification. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.setup_equilibria) | Set up equilibrium points. |
+
+### compute_closed_loop_damping { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_closed_loop_damping }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_closed_loop_damping(
+    K,
+)
+```
+
+Compute closed-loop damping ratio and natural frequency.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description                    | Default    |
+|--------|------------|--------------------------------|------------|
+| K      | np.ndarray | State feedback gain [k_p, k_d] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                           |
+|--------|--------|-------------------------------------------------------|
+|        | tuple  | (zeta_cl, omega_cl) closed-loop damping and frequency |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> K = np.array([[50, 10]])
+>>> zeta_cl, omega_cl = system.compute_closed_loop_damping(K)
+>>> print(f"Closed-loop: ζ = {zeta_cl:.3f}, ω = {omega_cl:.2f}")
+```
+
+### compute_eigenvalues { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_eigenvalues }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_eigenvalues()
+```
+
+Compute discrete-time eigenvalues.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description              |
+|--------|------------|--------------------------|
+|        | np.ndarray | Complex eigenvalues (2,) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> eigs = system.compute_eigenvalues()
+>>> print(f"Eigenvalues: {eigs}")
+>>> print(f"Magnitude: {np.abs(eigs)}")
+>>> print(f"Stable: {np.all(np.abs(eigs) < 1)}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+For continuous-time poles s = -ζωₙ ± jωₙ√(1-ζ²),
+discrete poles are z = e^(s·dt).
+
+Magnitude |z| = e^(-ζωₙdt) determines stability:
+- |z| < 1: Stable (decays)
+- |z| = 1: Marginally stable (ζ = 0)
+- |z| > 1: Unstable (grows)
+
+### compute_frequency_response { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_frequency_response }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_frequency_response(
+    frequencies,
+)
+```
+
+Compute frequency response (Bode plot data).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type       | Description                     | Default    |
+|-------------|------------|---------------------------------|------------|
+| frequencies | np.ndarray | Frequencies to evaluate [rad/s] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                          |
+|--------|--------|------------------------------------------------------------------------------------------------------|
+|        | tuple  | (magnitude_dB, phase_deg) where: - magnitude_dB: Magnitude in decibels - phase_deg: Phase in degrees |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> freqs = np.logspace(-1, 2, 100)
+>>> mag_dB, phase_deg = system.compute_frequency_response(freqs)
+>>>
+>>> import matplotlib.pyplot as plt
+>>> fig, axes = plt.subplots(2, 1)
+>>> axes[0].semilogx(freqs, mag_dB)
+>>> axes[0].set_ylabel('Magnitude [dB]')
+>>> axes[1].semilogx(freqs, phase_deg)
+>>> axes[1].set_ylabel('Phase [deg]')
+>>> axes[1].set_xlabel('Frequency [rad/s]')
+>>> plt.show()
+```
+
+### compute_resonant_frequency { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_frequency }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_frequency(
+)
+```
+
+Compute resonant peak frequency ωᵣ [rad/s].
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                        |
+|--------|--------|------------------------------------|
+|        | float  | Resonant frequency (0 if ζ ≥ 1/√2) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For ζ < 1/√2:
+    ωᵣ = ωₙ√(1 - 2ζ²)
+
+The resonant frequency is where the magnitude response peaks.
+It's lower than the natural frequency and only exists for
+lightly damped systems.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> omega_r = system.compute_resonant_frequency()
+>>> print(f"Resonant frequency: {omega_r:.2f} rad/s")
+>>> print(f"Natural frequency: {system.omega_n:.2f} rad/s")
+```
+
+### compute_resonant_peak { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_peak }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_resonant_peak(
+)
+```
+
+Compute resonant peak magnitude (gain at resonance).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                        |
+|--------|--------|------------------------------------|
+|        | float  | Peak magnitude (infinity if ζ = 0) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+At resonance (ω = ωᵣ):
+    |H(jωᵣ)| = 1/(2ζ√(1 - ζ²))
+
+For small damping (ζ << 1):
+    |H(jωₙ)| ≈ Q = 1/(2ζ)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.05, dt=0.01)
+>>> peak = system.compute_resonant_peak()
+>>> print(f"Resonant peak: {peak:.1f} ({20*np.log10(peak):.1f} dB)")
+>>> print(f"Quality factor: {system.quality_factor:.1f}")
+```
+
+### compute_step_response_characteristics { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_step_response_characteristics }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_step_response_characteristics(
+)
+```
+
+Compute step response characteristics.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                 |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary containing: - 'rise_time': 10%-90% rise time [s] - 'peak_time': Time to first peak [s] - 'overshoot': Peak overshoot [%] - 'settling_time': 2% settling time [s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.3, dt=0.01)
+>>> chars = system.compute_step_response_characteristics()
+>>> for key, val in chars.items():
+...     print(f"{key}: {val:.3f}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+These formulas are for underdamped systems (0 < ζ < 1).
+For critically/overdamped systems, some metrics don't apply.
+
+### compute_system_matrices { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.compute_system_matrices }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.compute_system_matrices(
+)
+```
+
+Compute discrete-time state-space matrices Ad, Bd.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                          |
+|--------|--------|--------------------------------------------------------------------------------------|
+|        | tuple  | (Ad, Bd) where: - Ad: State transition matrix (2×2) - Bd: Control input matrix (2×1) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=2*np.pi, zeta=0.1, dt=0.01)
+>>> Ad, Bd = system.compute_system_matrices()
+>>> print(f"Ad =\n{Ad}")
+>>> print(f"Bd =\n{Bd}")
+```
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.define_system(
+    omega_n=1.0,
+    zeta=0.1,
+    dt=0.1,
+    method='zoh',
+    mass=1.0,
+    spring_constant=None,
+    damping_coefficient=None,
+)
+```
+
+Define discrete-time harmonic oscillator dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                | Type              | Description                                                                                                                                                                                                                           | Default   |
+|---------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| omega_n             | float             | Natural frequency [rad/s], must be positive                                                                                                                                                                                           | `1.0`     |
+| zeta                | float             | Damping ratio [-], must be non-negative                                                                                                                                                                                               | `0.1`     |
+| dt                  | float             | Sampling time step [s]                                                                                                                                                                                                                | `0.1`     |
+| method              | str               | Discretization method: - 'zoh': Zero-order hold (exact, recommended) - 'tustin': Bilinear/trapezoidal transform - 'euler': Forward Euler (simple) - 'backward_euler': Backward Euler (implicit) - 'matched': Matched pole-zero method | `'zoh'`   |
+| mass                | float             | System mass [kg] (only used with spring_constant/damping_coefficient)                                                                                                                                                                 | `1.0`     |
+| spring_constant     | Optional\[float\] | Spring constant k [N/m] (alternative to omega_n) If provided: omega_n = sqrt(k/m)                                                                                                                                                     | `None`    |
+| damping_coefficient | Optional\[float\] | Damping coefficient c [N·s/m] (alternative to zeta) If provided: zeta = c/(2*sqrt(k*m))                                                                                                                                               | `None`    |
+
+### design_damping_controller { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.design_damping_controller }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.design_damping_controller(
+    zeta_desired,
+)
+```
+
+Design velocity feedback gain to achieve desired damping ratio.
+
+Control law: u[k] = -k_d·v[k]
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type   | Description                       | Default    |
+|--------------|--------|-----------------------------------|------------|
+| zeta_desired | float  | Desired closed-loop damping ratio | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | float  | Velocity feedback gain k_d |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> k_d = system.design_damping_controller(zeta_desired=0.7)
+>>> print(f"Damping gain: k_d = {k_d:.2f}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+This adds damping without changing natural frequency (approximately).
+The effective damping becomes:
+    ζ_eff ≈ ζ + k_d/(2ωₙ)
+
+Solving for k_d:
+    k_d = 2ωₙ(ζ_desired - ζ)
+
+### design_stiffness_controller { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.design_stiffness_controller }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.design_stiffness_controller(
+    omega_n_desired,
+)
+```
+
+Design position feedback gain to achieve desired natural frequency.
+
+Control law: u[k] = -k_p·x[k]
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name            | Type   | Description                                   | Default    |
+|-----------------|--------|-----------------------------------------------|------------|
+| omega_n_desired | float  | Desired closed-loop natural frequency [rad/s] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | float  | Position feedback gain k_p |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=5, zeta=0.1, dt=0.01)
+>>> k_p = system.design_stiffness_controller(omega_n_desired=10)
+>>> print(f"Stiffness gain: k_p = {k_p:.2f}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+This changes the effective natural frequency:
+    ωₙ_eff = √(ωₙ² + k_p)
+
+Solving for k_p:
+    k_p = ωₙ_desired² - ωₙ²
+
+### generate_chirp_signal { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.generate_chirp_signal }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.generate_chirp_signal(
+    f_start,
+    f_end,
+    duration,
+    amplitude=1.0,
+)
+```
+
+Generate chirp (frequency sweep) signal for system identification.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description             | Default    |
+|-----------|--------|-------------------------|------------|
+| f_start   | float  | Starting frequency [Hz] | _required_ |
+| f_end     | float  | Ending frequency [Hz]   | _required_ |
+| duration  | float  | Signal duration [s]     | _required_ |
+| amplitude | float  | Signal amplitude        | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description   |
+|--------|------------|---------------|
+|        | np.ndarray | Chirp signal  |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = DiscreteOscillator(omega_n=10, zeta=0.1, dt=0.01)
+>>> chirp = system.generate_chirp_signal(
+...     f_start=0.1,
+...     f_end=5.0,
+...     duration=10.0
+... )
+>>> result = system.simulate(
+...     x0=np.zeros(2),
+...     u_sequence=chirp,
+...     n_steps=len(chirp)
+... )
+```
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteOscillator.setup_equilibria()
+```
+
+Set up equilibrium points.
+
+Adds the origin (rest position) as the stable equilibrium for damped systems.

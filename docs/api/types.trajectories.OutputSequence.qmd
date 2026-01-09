@@ -1,0 +1,47 @@
+# types.trajectories.OutputSequence { #cdesym.types.trajectories.OutputSequence }
+
+`types.trajectories.OutputSequence`
+
+Output/measurement sequence over time.
+
+Time series of sensor measurements or system outputs.
+
+Shapes:
+- Single sequence: (n_steps, ny)
+  Measurements at each time
+
+- Batched sequences: (n_steps, batch, ny)
+  Multiple measurement streams
+
+Common uses:
+- Sensor data for state estimation
+- System identification datasets
+- Validation data for learned models
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simulate and observe
+>>> trajectory: StateTrajectory = system.simulate(x0, u_seq, steps=100)
+>>> observations: OutputSequence = system.observe(trajectory)
+>>> print(observations.shape)  # (101, ny)
+>>> 
+>>> # Noisy measurements
+>>> y_clean: OutputSequence = C @ trajectory.T  # (ny, n_steps)
+>>> y_noisy: OutputSequence = y_clean + np.random.randn(*y_clean.shape) * 0.1
+>>> y_noisy = y_noisy.T  # (n_steps, ny)
+>>> 
+>>> # Kalman filter with measurements
+>>> x_estimates = []
+>>> for k in range(len(observations)):
+...     y_k = observations[k]
+...     x_hat = kalman_filter.update(y_k, u_seq[k])
+...     x_estimates.append(x_hat)
+>>> 
+>>> # System identification dataset
+>>> dataset = {
+...     'inputs': u_seq,      # (n_steps, nu)
+...     'outputs': y_seq,     # (n_steps, ny)
+...     'time': t_points,     # (n_steps,)
+... }
+```

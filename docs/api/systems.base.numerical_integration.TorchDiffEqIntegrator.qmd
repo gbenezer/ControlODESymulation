@@ -1,0 +1,331 @@
+# systems.base.numerical_integration.TorchDiffEqIntegrator { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator(
+    system,
+    dt=None,
+    step_mode=StepMode.ADAPTIVE,
+    backend='torch',
+    method='dopri5',
+    adjoint=False,
+    **options,
+)
+```
+
+PyTorch-based ODE integrator using the torchdiffeq library.
+
+Supports adaptive and fixed-step integration with various solvers
+and automatic differentiation through PyTorch's autograd.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                                                                                                                                                                                                                                                          | Default             |
+|-----------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| system    | SymbolicDynamicalSystem | Continuous-time system to integrate (controlled or autonomous)                                                                                                                                                                                                                       | _required_          |
+| dt        | Optional\[ScalarLike\]  | Time step size                                                                                                                                                                                                                                                                       | `None`              |
+| step_mode | StepMode                | FIXED or ADAPTIVE stepping mode                                                                                                                                                                                                                                                      | `StepMode.ADAPTIVE` |
+| backend   | str                     | Must be 'torch' for this integrator                                                                                                                                                                                                                                                  | `'torch'`           |
+| method    | str                     | Solver method. Options: 'dopri5', 'dopri8', 'adams', 'bosh3', 'euler', 'midpoint', 'rk4', 'explicit_adams', 'implicit_adams'. Default: 'dopri5'                                                                                                                                      | `'dopri5'`          |
+| adjoint   | bool                    | Use adjoint method for memory-efficient backpropagation. Default: False Note: Adjoint method requires the ODE function to be an nn.Module. Only use adjoint=True for Neural ODE applications where the system is a neural network. For regular dynamical systems, use adjoint=False. | `False`             |
+| **options |                         | Additional options including rtol, atol, max_steps                                                                                                                                                                                                                                   | `{}`                |
+
+## Available Methods {.doc-section .doc-section-available-methods}
+
+**Adaptive (Recommended):**
+- dopri5: Dormand-Prince 5(4) - general purpose [DEFAULT]
+- dopri8: Dormand-Prince 8 - high accuracy
+- bosh3: Bogacki-Shampine 3(2) - lower accuracy
+- adaptive_heun: Adaptive Heun method
+- fehlberg2: Fehlberg method
+
+**Fixed-Step:**
+- euler: Forward Euler (1st order)
+- midpoint: Midpoint method (2nd order)
+- rk4: Classic Runge-Kutta 4 (4th order)
+
+**Multistep:**
+- explicit_adams: Explicit Adams method
+- implicit_adams: Implicit Adams method
+- fixed_adams: Fixed-step Adams method
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import torch
+>>> from torchdiffeq_integrator import TorchDiffEqIntegrator
+>>>
+>>> # Regular controlled dynamical system (adjoint=False)
+>>> integrator = TorchDiffEqIntegrator(
+...     system,
+...     dt=0.01,
+...     backend='torch',
+...     method='dopri5',
+...     adjoint=False  # Default for regular systems
+... )
+>>>
+>>> x0 = torch.tensor([1.0, 0.0])
+>>> result = integrator.integrate(
+...     x0,
+...     lambda t, x: torch.zeros(1),
+...     (0.0, 10.0)
+... )
+>>> print(f"Success: {result['success']}")
+>>> print(f"Steps: {result['nsteps']}")
+>>>
+>>> # Autonomous system
+>>> integrator = TorchDiffEqIntegrator(autonomous_system, backend='torch')
+>>> result = integrator.integrate(
+...     x0=torch.tensor([1.0, 0.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Neural ODE (adjoint=True for memory efficiency)
+>>> class NeuralODE(torch.nn.Module):
+...     def __init__(self):
+...         super().__init__()
+...         self.net = torch.nn.Sequential(
+...             torch.nn.Linear(2, 50),
+...             torch.nn.Tanh(),
+...             torch.nn.Linear(50, 2)
+...         )
+...     def forward(self, t, x):
+...         return self.net(x)
+>>>
+>>> neural_ode = NeuralODE()
+>>> integrator_neural = TorchDiffEqIntegrator(
+...     neural_ode,
+...     backend='torch',
+...     method='dopri5',
+...     adjoint=True  # Memory-efficient for neural networks
+... )
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [name](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.name) | Return the name of the integrator. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [disable_adjoint](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.disable_adjoint) | Disable adjoint method (use standard backpropagation). |
+| [enable_adjoint](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.enable_adjoint) | Enable adjoint method for memory-efficient backpropagation. |
+| [integrate](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.integrate) | Integrate over time interval with control policy. |
+| [integrate_with_gradient](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.integrate_with_gradient) | Integrate and compute gradients w.r.t. initial conditions. |
+| [step](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.step) | Take one integration step: x(t) → x(t + dt). |
+| [to_device](#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.to_device) | Move system parameters to specified device (if applicable). |
+
+### disable_adjoint { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.disable_adjoint }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.disable_adjoint()
+```
+
+Disable adjoint method (use standard backpropagation).
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator.disable_adjoint()
+>>> assert integrator.use_adjoint == False
+```
+
+### enable_adjoint { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.enable_adjoint }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.enable_adjoint()
+```
+
+Enable adjoint method for memory-efficient backpropagation.
+
+#### Notes {.doc-section .doc-section-notes}
+
+Adjoint method trades computation for memory - useful for Neural ODEs
+with many steps. Requires system to be an nn.Module.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator.enable_adjoint()
+>>> assert integrator.use_adjoint == True
+```
+
+### integrate { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.integrate }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.integrate(
+    x0,
+    u_func,
+    t_span,
+    t_eval=None,
+    dense_output=False,
+)
+```
+
+Integrate over time interval with control policy.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                                               | Description                                                                | Default    |
+|--------------|--------------------------------------------------------------------|----------------------------------------------------------------------------|------------|
+| x0           | StateVector                                                        | Initial state (nx,)                                                        | _required_ |
+| u_func       | Callable\[\[ScalarLike, StateVector\], Optional\[ControlVector\]\] | Control policy: (t, x) → u (or None for autonomous systems)                | _required_ |
+| t_span       | TimeSpan                                                           | Integration interval (t_start, t_end)                                      | _required_ |
+| t_eval       | Optional\[TimePoints\]                                             | Specific times at which to store solution                                  | `None`     |
+| dense_output | bool                                                               | If True, return dense interpolated solution (not supported by torchdiffeq) | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                                                                                                                                                                                                                                                                  |
+|--------|-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | IntegrationResult | TypedDict containing: - t: Time points (T,) - x: State trajectory (T, nx) - success: Whether integration succeeded - message: Status message - nfev: Number of function evaluations - nsteps: Number of steps taken - integration_time: Computation time (seconds) - solver: Integrator name |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Controlled system
+>>> result = integrator.integrate(
+...     x0=torch.tensor([1.0, 0.0]),
+...     u_func=lambda t, x: torch.tensor([0.5]),
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Success: {result['success']}")
+>>> print(f"Final state: {result['x'][-1]}")
+>>>
+>>> # Autonomous system
+>>> result = integrator.integrate(
+...     x0=torch.tensor([1.0, 0.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Evaluate at specific times
+>>> t_eval = torch.linspace(0, 10, 1001)
+>>> result = integrator.integrate(x0, u_func, (0, 10), t_eval=t_eval)
+>>> assert result["t"].shape == (1001,)
+```
+
+### integrate_with_gradient { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.integrate_with_gradient }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.integrate_with_gradient(
+    x0,
+    u_func,
+    t_span,
+    loss_fn,
+    t_eval=None,
+)
+```
+
+Integrate and compute gradients w.r.t. initial conditions.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                                               | Description                                      | Default    |
+|---------|--------------------------------------------------------------------|--------------------------------------------------|------------|
+| x0      | StateVector                                                        | Initial state (requires_grad=True for gradients) | _required_ |
+| u_func  | Callable\[\[ScalarLike, StateVector\], Optional\[ControlVector\]\] | Control policy (or None for autonomous)          | _required_ |
+| t_span  | TimeSpan                                                           | Time span (t_start, t_end)                       | _required_ |
+| loss_fn | Callable\[\[IntegrationResult\], torch.Tensor\]                    | Loss function taking IntegrationResult           | _required_ |
+| t_eval  | Optional\[TimePoints\]                                             | Evaluation times                                 | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                       |
+|--------|--------|---------------------------------------------------|
+|        | tuple  | (loss_value: float, gradient_wrt_x0: StateVector) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Define loss (e.g., final state error)
+>>> def loss_fn(result):
+...     x_final = result["x"][-1]
+...     x_target = torch.tensor([1.0, 0.0])
+...     return torch.sum((x_final - x_target)**2)
+>>>
+>>> # Compute loss and gradient
+>>> x0 = torch.tensor([0.0, 0.0], requires_grad=True)
+>>> loss, grad = integrator.integrate_with_gradient(
+...     x0=x0,
+...     u_func=lambda t, x: torch.zeros(1),
+...     t_span=(0.0, 10.0),
+...     loss_fn=loss_fn
+... )
+>>> print(f"Loss: {loss:.4f}")
+>>> print(f"Gradient: {grad}")
+```
+
+### step { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.step }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.step(
+    x,
+    u=None,
+    dt=None,
+)
+```
+
+Take one integration step: x(t) → x(t + dt).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                                        | Default    |
+|--------|---------------------------|--------------------------------------------------------------------|------------|
+| x      | StateVector               | Current state (nx,) or (batch, nx)                                 | _required_ |
+| u      | Optional\[ControlVector\] | Control input (nu,) or (batch, nu), or None for autonomous systems | `None`     |
+| dt     | Optional\[ScalarLike\]    | Step size (uses self.dt if None)                                   | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description          |
+|--------|-------------|----------------------|
+|        | StateVector | Next state x(t + dt) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Controlled system
+>>> x_next = integrator.step(
+...     x=torch.tensor([1.0, 0.0]),
+...     u=torch.tensor([0.5])
+... )
+>>>
+>>> # Autonomous system
+>>> x_next = integrator.step(
+...     x=torch.tensor([1.0, 0.0]),
+...     u=None
+... )
+```
+
+### to_device { #cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator.to_device }
+
+```python
+systems.base.numerical_integration.TorchDiffEqIntegrator.to_device(device)
+```
+
+Move system parameters to specified device (if applicable).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                       | Default    |
+|--------|--------|---------------------------------------------------|------------|
+| device | str    | Device identifier ('cpu', 'cuda', 'cuda:0', etc.) | _required_ |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This only works if the system is a PyTorch nn.Module.
+For regular dynamical systems, this is a no-op.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # For Neural ODE systems
+>>> integrator.to_device('cuda:0')
+>>>
+>>> # For regular systems (no effect)
+>>> integrator.to_device('cpu')
+```

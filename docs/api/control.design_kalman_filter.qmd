@@ -1,0 +1,83 @@
+# control.design_kalman_filter { #cdesym.control.design_kalman_filter }
+
+```python
+control.design_kalman_filter(
+    A,
+    C,
+    Q,
+    R,
+    system_type='discrete',
+    backend='numpy',
+)
+```
+
+Design Kalman filter for optimal state estimation.
+
+For linear system with Gaussian noise:
+    x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q)  (process noise)
+    y[k] = Cx[k] + v[k],            v ~ N(0, R)  (measurement noise)
+
+Kalman filter provides optimal state estimate:
+    Discrete: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+    Continuous: ˙x̂ = Ax̂ + Bu + L(y - Cx̂)
+
+Minimizes steady-state estimation error covariance.
+
+Args:
+    A: State matrix (nx, nx)
+    C: Output matrix (ny, nx)
+    Q: Process noise covariance (nx, nx), Q ≥ 0
+    R: Measurement noise covariance (ny, ny), R > 0
+    system_type: 'continuous' or 'discrete'
+    backend: Computational backend
+
+Returns:
+    KalmanFilterResult containing:
+        - gain: Kalman gain L (nx, ny)
+        - estimation_error_covariance: Steady-state error covariance P (nx, nx)
+        - innovation_covariance: Innovation covariance S = CPC' + R (ny, ny)
+        - estimator_eigenvalues: Eigenvalues of (A - LC)
+
+Raises:
+    ValueError: If matrices have incompatible shapes or invalid system_type
+    LinAlgError: If Riccati equation has no solution
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Discrete Kalman filter
+>>> A = np.array([[1, 0.1], [0, 0.95]])  # Slightly unstable
+>>> C = np.array([[1, 0]])  # Measure position only
+>>> Q = 0.01 * np.eye(2)    # Small process noise
+>>> R = np.array([[0.1]])   # Measurement noise
+>>>
+>>> result = design_kalman_filter(A, C, Q, R, system_type='discrete')
+>>> L = result['gain']
+>>> print(f"Kalman gain: {L}")
+>>>
+>>> # Use in estimation loop
+>>> x_hat = np.zeros(2)
+>>> for k in range(N):
+...     # Prediction
+...     x_hat_pred = A @ x_hat + B @ u[k]
+...
+...     # Correction
+...     innovation = y[k] - C @ x_hat_pred
+...     x_hat = x_hat_pred + L @ innovation
+>>>
+>>> # Check estimator stability
+>>> print(f"Estimator stable: {np.all(np.abs(result['estimator_eigenvalues']) < 1)}")
+>>>
+>>> # Continuous Kalman filter
+>>> result_c = design_kalman_filter(A, C, Q, R, system_type='continuous')
+>>> L_c = result_c['gain']
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+- For observability, (A, C) must be observable
+- For detectability, unstable modes must be observable
+- Q must be positive semi-definite (process noise)
+- R must be positive definite (measurement noise)
+- Kalman filter is optimal for linear Gaussian systems
+- For nonlinear systems, use Extended Kalman Filter (EKF) or Unscented Kalman Filter (UKF)

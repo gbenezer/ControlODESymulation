@@ -1,0 +1,83 @@
+# systems.base.utils.stochastic.NoiseCharacteristics { #cdesym.systems.base.utils.stochastic.NoiseCharacteristics }
+
+```python
+systems.base.utils.stochastic.NoiseCharacteristics(
+    noise_type,
+    num_wiener,
+    is_additive,
+    is_multiplicative,
+    is_diagonal,
+    is_scalar,
+    depends_on_state,
+    depends_on_control,
+    depends_on_time,
+    state_dependencies,
+    control_dependencies,
+)
+```
+
+Container for noise structure analysis results.
+
+This dataclass stores all information about the noise structure,
+enabling automatic solver selection and optimization.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name                 | Type             | Description                                                                 |
+|----------------------|------------------|-----------------------------------------------------------------------------|
+| noise_type           | NoiseType        | Classified noise type (ADDITIVE, SCALAR, DIAGONAL, MULTIPLICATIVE, GENERAL) |
+| num_wiener           | int              | Number of independent Wiener processes (nw)                                 |
+| is_additive          | bool             | True if diffusion is constant (doesn't depend on state/control/time)        |
+| is_multiplicative    | bool             | True if diffusion depends on state                                          |
+| is_diagonal          | bool             | True if noise sources don't couple (diagonal diffusion matrix)              |
+| is_scalar            | bool             | True if single Wiener process (nw = 1)                                      |
+| depends_on_state     | bool             | True if diffusion depends on any state variable                             |
+| depends_on_control   | bool             | True if diffusion depends on any control variable                           |
+| depends_on_time      | bool             | True if diffusion depends on time                                           |
+| state_dependencies   | Set\[sp.Symbol\] | Which specific state variables appear in diffusion                          |
+| control_dependencies | Set\[sp.Symbol\] | Which specific control variables appear in diffusion                        |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> char = NoiseCharacteristics(...)
+>>> if char.is_additive:
+...     G = precompute_constant_noise()  # Optimization!
+>>>
+>>> solvers = char.recommended_solvers('jax')
+>>> print(solvers)  # ['sea', 'shark'] for additive
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [recommended_solvers](#cdesym.systems.base.utils.stochastic.NoiseCharacteristics.recommended_solvers) | Recommend efficient solvers based on noise structure. |
+
+### recommended_solvers { #cdesym.systems.base.utils.stochastic.NoiseCharacteristics.recommended_solvers }
+
+```python
+systems.base.utils.stochastic.NoiseCharacteristics.recommended_solvers(backend)
+```
+
+Recommend efficient solvers based on noise structure.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description                                   | Default    |
+|---------|---------|-----------------------------------------------|------------|
+| backend | Backend | Integration backend ('jax', 'torch', 'numpy') | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                                              |
+|--------|-------------|----------------------------------------------------------|
+|        | List\[str\] | Recommended solver names, ordered by efficiency/accuracy |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> if char.is_additive:
+...     solvers = char.recommended_solvers('jax')
+...     print(solvers)  # ['sea', 'shark', 'sra1']
+```

@@ -1,0 +1,61 @@
+# types.contraction.CCMResult { #cdesym.types.contraction.CCMResult }
+
+```python
+types.contraction.CCMResult()
+```
+
+Control Contraction Metrics (CCM) result.
+
+Controller synthesis ensuring contraction of closed-loop system.
+
+## Fields {.doc-section .doc-section-fields}
+
+feedback_gain : GainMatrix
+    State-dependent K(x) or constant K
+metric : ContractionMetric
+    Contraction metric M(x)
+contraction_rate : ContractionRate
+    Guaranteed contraction rate β
+metric_condition_number : ArrayLike
+    Condition number κ(M(x)) over state space
+contraction_verified : bool
+    LMI/SOS verification succeeded
+robustness_margin : float
+    Margin in contraction condition
+geodesic_distance : Optional[Callable]
+    Distance in M-metric: d_M(x₁, x₂)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design CCM controller
+>>> result: CCMResult = design_ccm_controller(
+...     system=pendulum,
+...     contraction_rate=0.5,
+...     method='SDP'
+... )
+>>>
+>>> if result['contraction_verified']:
+...     K = result['feedback_gain']
+...     M = result['metric']
+...     beta = result['contraction_rate']
+...
+...     print(f"CCM controller designed!")
+...     print(f"Contraction rate: {beta:.3f}")
+...     print(f"Robustness margin: {result['robustness_margin']:.3f}")
+...
+...     # Apply controller
+...     def controller(x):
+...         if callable(K):
+...             return K(x)  # State-dependent
+...         else:
+...             return K @ x  # Constant
+...
+...     # Geodesic distance (if available)
+...     if 'geodesic_distance' in result:
+...         d_M = result['geodesic_distance']
+...         x1 = np.array([1.0, 0.5])
+...         x2 = np.array([0.5, 0.3])
+...         dist = d_M(x1, x2)
+...         print(f"Distance in M-metric: {dist:.3f}")
+```

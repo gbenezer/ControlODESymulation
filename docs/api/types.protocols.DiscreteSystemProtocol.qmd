@@ -1,0 +1,164 @@
+# types.protocols.DiscreteSystemProtocol { #cdesym.types.protocols.DiscreteSystemProtocol }
+
+```python
+types.protocols.DiscreteSystemProtocol()
+```
+
+Minimal interface for discrete-time dynamical systems.
+
+This protocol defines the basic contract that all discrete-time systems must
+satisfy, regardless of their implementation (symbolic, numerical, learned, etc.).
+
+Any object implementing this protocol can be:
+- Simulated forward in time
+- Used in trajectory-based algorithms
+- Rolled out with policies
+- Used in reinforcement learning
+
+## Implementations {.doc-section .doc-section-implementations}
+
+Concrete classes that satisfy this protocol:
+- DiscreteSymbolicSystem: Symbolic discrete-time system
+- DiscreteStochasticSystem: Stochastic discrete-time system
+- DiscretizedSystem: Numerical discretization of continuous system
+- NeuralDiscreteSystem: Neural network dynamics (future)
+- DataDrivenDiscreteSystem: Learned from data (future)
+
+## Required Attributes {.doc-section .doc-section-required-attributes}
+
+dt : float
+    Sampling period in seconds
+nx : int
+    Number of state variables
+nu : int
+    Number of control inputs
+
+## Required Methods {.doc-section .doc-section-required-methods}
+
+step(x, u, k) -> x_next
+    Single time step update: x[k+1] = f(x[k], u[k])
+simulate(x0, u_sequence, n_steps) -> result
+    Multi-step simulation
+
+## Use Cases {.doc-section .doc-section-use-cases}
+
+- Monte Carlo simulation
+- Trajectory collection for learning
+- Rollout with exploration policies
+- Basic dynamics analysis
+
+## Examples {.doc-section .doc-section-examples}
+
+Function accepting any discrete system:
+
+```python
+>>> def collect_trajectories(
+...     system: DiscreteSystemProtocol,
+...     n_trials: int = 100
+... ) -> List[DiscreteSimulationResult]:
+...     '''Collect random trajectories from any discrete system.'''
+...     trajectories = []
+...     for _ in range(n_trials):
+...         x0 = np.random.randn(system.nx)
+...         u_seq = np.random.randn(100, system.nu)
+...         result = system.simulate(x0, u_seq, n_steps=100)
+...         trajectories.append(result)
+...     return trajectories
+>>>
+>>> # Works with any discrete system:
+>>> trajs1 = collect_trajectories(DiscreteSymbolicSystem(...))  # ✓
+>>> trajs2 = collect_trajectories(DiscretizedSystem(...))       # ✓
+```
+
+Reinforcement learning rollout:
+
+```python
+>>> def evaluate_policy(
+...     system: DiscreteSystemProtocol,
+...     policy: Callable,
+...     n_episodes: int
+... ) -> float:
+...     '''Evaluate policy on system.'''
+...     total_reward = 0.0
+...     for _ in range(n_episodes):
+...         x = np.random.randn(system.nx)
+...         for k in range(100):
+...             u = policy(x, k)
+...             x = system.step(x, u, k)
+...             total_reward += reward_function(x, u)
+...     return total_reward / n_episodes
+```
+
+Type checking example:
+
+```python
+>>> def bad_function(system: DiscreteSystemProtocol):
+...     system.linearize(...)  # ✗ mypy error: not in protocol!
+>>>
+>>> def good_function(system: LinearizableDiscreteProtocol):
+...     system.linearize(...)  # ✓ OK: protocol includes this
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+The @runtime_checkable decorator allows isinstance() checks, but this
+should be used sparingly. Prefer static type checking at development time.
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [dt](#cdesym.types.protocols.DiscreteSystemProtocol.dt) | Sampling period in seconds. |
+| [nu](#cdesym.types.protocols.DiscreteSystemProtocol.nu) | Number of control inputs. |
+| [nx](#cdesym.types.protocols.DiscreteSystemProtocol.nx) | Number of state variables. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [simulate](#cdesym.types.protocols.DiscreteSystemProtocol.simulate) | Simulate system for multiple steps. |
+| [step](#cdesym.types.protocols.DiscreteSystemProtocol.step) | Compute next state: x[k+1] = f(x[k], u[k]). |
+
+### simulate { #cdesym.types.protocols.DiscreteSystemProtocol.simulate }
+
+```python
+types.protocols.DiscreteSystemProtocol.simulate(x0, u_sequence, n_steps)
+```
+
+Simulate system for multiple steps.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                 | Description                                  | Default    |
+|------------|----------------------|----------------------------------------------|------------|
+| x0         | StateVector          | Initial state (nx,)                          | _required_ |
+| u_sequence | DiscreteControlInput | Control sequence (various formats supported) | _required_ |
+| n_steps    | int                  | Number of steps to simulate                  | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                              |
+|--------|--------------------------|----------------------------------------------------------|
+|        | DiscreteSimulationResult | Trajectory data including states, controls, time indices |
+
+### step { #cdesym.types.protocols.DiscreteSystemProtocol.step }
+
+```python
+types.protocols.DiscreteSystemProtocol.step(x, u=None, k=0)
+```
+
+Compute next state: x[k+1] = f(x[k], u[k]).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                           | Default    |
+|--------|---------------------------|-------------------------------------------------------|------------|
+| x      | StateVector               | Current state (nx,)                                   | _required_ |
+| u      | Optional\[ControlVector\] | Control input (nu,), None for autonomous/zero control | `None`     |
+| k      | int                       | Time step index (for time-varying systems)            | `0`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description       |
+|--------|-------------|-------------------|
+|        | StateVector | Next state x[k+1] |

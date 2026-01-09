@@ -1,0 +1,485 @@
+# systems.base.core.DiscreteSymbolicSystem { #cdesym.systems.base.core.DiscreteSymbolicSystem }
+
+```python
+systems.base.core.DiscreteSymbolicSystem(*args, **kwargs)
+```
+
+Concrete symbolic discrete-time dynamical system.
+
+Combines symbolic machinery from SymbolicSystemBase with discrete-time
+interface from DiscreteSystemBase.
+
+Represents difference equations:
+    x[k+1] = f(x[k], u[k])
+    y[k] = h(x[k])
+
+where:
+    x[k] ∈ ℝⁿˣ: State at discrete time k
+    u[k] ∈ ℝⁿᵘ: Control input at time k
+    y[k] ∈ ℝⁿʸ: Output at time k
+    k ∈ ℤ: Discrete time index
+
+Users subclass and implement define_system() to specify symbolic dynamics.
+
+**CRITICAL**: Discrete systems must set self._dt in define_system()!
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> class DiscreteOscillator(DiscreteSymbolicSystem):
+...     def define_system(self, a=0.95, b=0.05, dt=0.1):
+...         x, v = sp.symbols('x v', real=True)
+...         u = sp.symbols('u', real=True)
+...         a_sym, b_sym = sp.symbols('a b', real=True)
+...
+...         self.state_vars = [x, v]
+...         self.control_vars = [u]
+...         self._f_sym = sp.Matrix([
+...             a_sym*x + (1-a_sym)*v,
+...             v + b_sym*u
+...         ])
+...         self.parameters = {a_sym: a, b_sym: b}
+...         self._dt = dt  # REQUIRED!
+...         self.order = 1
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [dt](#cdesym.systems.base.core.DiscreteSymbolicSystem.dt) | Sampling period / time step. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [forward](#cdesym.systems.base.core.DiscreteSymbolicSystem.forward) | Alias for step() with explicit backend specification. |
+| [get_performance_stats](#cdesym.systems.base.core.DiscreteSymbolicSystem.get_performance_stats) | Get performance statistics from evaluators. |
+| [h](#cdesym.systems.base.core.DiscreteSymbolicSystem.h) | Evaluate output: y[k] = h(x[k]). |
+| [linearize](#cdesym.systems.base.core.DiscreteSymbolicSystem.linearize) | Compute discrete linearization: Ad = ∂f/∂x, Bd = ∂f/∂u. |
+| [linearized_dynamics](#cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_dynamics) | Compute discrete linearization (alias for linearize()). |
+| [linearized_dynamics_symbolic](#cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_dynamics_symbolic) | Compute symbolic discrete linearization. |
+| [linearized_observation](#cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_observation) | Compute C = ∂h/∂x. |
+| [linearized_observation_symbolic](#cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_observation_symbolic) | Compute symbolic observation Jacobian: C = ∂h/∂x. |
+| [print_equations](#cdesym.systems.base.core.DiscreteSymbolicSystem.print_equations) | Print symbolic equations using discrete-time notation. |
+| [reset_performance_stats](#cdesym.systems.base.core.DiscreteSymbolicSystem.reset_performance_stats) | Reset performance counters. |
+| [simulate](#cdesym.systems.base.core.DiscreteSymbolicSystem.simulate) | Simulate discrete system for multiple steps. |
+| [step](#cdesym.systems.base.core.DiscreteSymbolicSystem.step) | Compute next state: x[k+1] = f(x[k], u[k]). |
+| [verify_jacobians](#cdesym.systems.base.core.DiscreteSymbolicSystem.verify_jacobians) | Verify symbolic Jacobians against automatic differentiation. |
+| [warmup](#cdesym.systems.base.core.DiscreteSymbolicSystem.warmup) | Warm up backend by compiling and running test evaluation. |
+
+### forward { #cdesym.systems.base.core.DiscreteSymbolicSystem.forward }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.forward(x, u=None, backend=None)
+```
+
+Alias for step() with explicit backend specification.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description        | Default    |
+|---------|---------------------------|--------------------|------------|
+| x       | StateVector               | Current state x[k] | _required_ |
+| u       | Optional\[ControlVector\] | Control u[k]       | `None`     |
+| backend | Optional\[Backend\]       | Backend override   | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description       |
+|--------|-------------|-------------------|
+|        | StateVector | Next state x[k+1] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_next = system.forward(x, u)
+>>> x_next = system.forward(x, u, backend='torch')
+```
+
+### get_performance_stats { #cdesym.systems.base.core.DiscreteSymbolicSystem.get_performance_stats }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.get_performance_stats()
+```
+
+Get performance statistics from evaluators.
+
+### h { #cdesym.systems.base.core.DiscreteSymbolicSystem.h }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.h(x, backend=None)
+```
+
+Evaluate output: y[k] = h(x[k]).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                | Description       | Default    |
+|---------|---------------------|-------------------|------------|
+| x       | StateVector         | State x[k]        | _required_ |
+| backend | Optional\[Backend\] | Backend selection | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | ArrayLike | Output y[k]   |
+
+### linearize { #cdesym.systems.base.core.DiscreteSymbolicSystem.linearize }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.linearize(x_eq, u_eq=None)
+```
+
+Compute discrete linearization: Ad = ∂f/∂x, Bd = ∂f/∂u.
+
+For discrete systems: δx[k+1] = Ad·δx[k] + Bd·δu[k]
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description               | Default    |
+|--------|---------------------------|---------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)   | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,) | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                  | Description                                                                                              |
+|--------|-----------------------|----------------------------------------------------------------------------------------------------------|
+|        | DiscreteLinearization | Tuple (Ad, Bd) where: - Ad: State transition matrix, shape (nx, nx) - Bd: Control matrix, shape (nx, nu) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ad, Bd = system.linearize(np.zeros(2), np.zeros(1))
+>>>
+>>> # Check discrete stability: |λ| < 1
+>>> eigenvalues = np.linalg.eigvals(Ad)
+>>> is_stable = np.all(np.abs(eigenvalues) < 1.0)
+>>>
+>>> # Discrete LQR
+>>> from scipy.linalg import solve_discrete_are
+>>> P = solve_discrete_are(Ad, Bd, Q, R)
+>>> K = np.linalg.inv(R + Bd.T @ P @ Bd) @ (Bd.T @ P @ Ad)
+```
+
+### linearized_dynamics { #cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_dynamics }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.linearized_dynamics(
+    x,
+    u=None,
+    backend=None,
+)
+```
+
+Compute discrete linearization (alias for linearize()).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description               | Default    |
+|---------|---------------------------|---------------------------|------------|
+| x       | Union\[StateVector, str\] | State or equilibrium name | _required_ |
+| u       | Optional\[ControlVector\] | Control                   | `None`     |
+| backend | Optional\[Backend\]       | Backend for result        | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                 |
+|--------|-------------------------------|-----------------------------|
+|        | Tuple\[ArrayLike, ArrayLike\] | (Ad, Bd) discrete Jacobians |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ad, Bd = system.linearized_dynamics(np.zeros(2), np.zeros(1))
+>>> Ad, Bd = system.linearized_dynamics('origin')
+```
+
+### linearized_dynamics_symbolic { #cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_dynamics_symbolic }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.linearized_dynamics_symbolic(
+    x_eq=None,
+    u_eq=None,
+)
+```
+
+Compute symbolic discrete linearization.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                | Description               | Default   |
+|--------|-------------------------------------|---------------------------|-----------|
+| x_eq   | Optional\[Union\[sp.Matrix, str\]\] | Equilibrium state or name | `None`    |
+| u_eq   | Optional\[sp.Matrix\]               | Equilibrium control       | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                |
+|--------|-------------------------------|----------------------------|
+|        | Tuple\[sp.Matrix, sp.Matrix\] | (Ad, Bd) symbolic matrices |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ad_sym, Bd_sym = system.linearized_dynamics_symbolic()
+```
+
+### linearized_observation { #cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_observation }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.linearized_observation(x, backend=None)
+```
+
+Compute C = ∂h/∂x.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                | Description   | Default    |
+|---------|---------------------|---------------|------------|
+| x       | StateVector         | State         | _required_ |
+| backend | Optional\[Backend\] | Backend       | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description       |
+|--------|-----------|-------------------|
+|        | ArrayLike | C matrix (ny, nx) |
+
+### linearized_observation_symbolic { #cdesym.systems.base.core.DiscreteSymbolicSystem.linearized_observation_symbolic }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.linearized_observation_symbolic(
+    x_eq=None,
+)
+```
+
+Compute symbolic observation Jacobian: C = ∂h/∂x.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                  | Description                                | Default   |
+|--------|-----------------------|--------------------------------------------|-----------|
+| x_eq   | Optional\[sp.Matrix\] | Equilibrium state (symbolic), None = zeros | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description       |
+|--------|-----------|-------------------|
+|        | sp.Matrix | Symbolic C matrix |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> C_sym = system.linearized_observation_symbolic()
+>>> print(C_sym)
+```
+
+### print_equations { #cdesym.systems.base.core.DiscreteSymbolicSystem.print_equations }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.print_equations(simplify=True)
+```
+
+Print symbolic equations using discrete-time notation.
+
+Uses x[k+1] notation appropriate for difference equations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                   | Default   |
+|----------|--------|-----------------------------------------------|-----------|
+| simplify | bool   | If True, simplify expressions before printing | `True`    |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.print_equations()
+======================================================================
+DiscreteLinear (Discrete-Time, dt=0.01)
+======================================================================
+State Variables: [x]
+Control Variables: [u]
+Dimensions: nx=1, nu=1, ny=1
+```
+
+Dynamics: x[k+1] = f(x[k], u[k])
+  x[k+1] = 0.9*x[k] + 0.1*u[k]
+======================================================================
+
+### reset_performance_stats { #cdesym.systems.base.core.DiscreteSymbolicSystem.reset_performance_stats }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.reset_performance_stats()
+```
+
+Reset performance counters.
+
+### simulate { #cdesym.systems.base.core.DiscreteSymbolicSystem.simulate }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.simulate(
+    x0,
+    u_sequence=None,
+    n_steps=100,
+    **kwargs,
+)
+```
+
+Simulate discrete system for multiple steps.
+
+Repeatedly applies step() to generate state trajectory.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                             | Description                                                                                                                                                      | Default    |
+|------------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| x0         | StateVector                                      | Initial state (nx,)                                                                                                                                              | _required_ |
+| u_sequence | Union\[ControlVector, Sequence, Callable, None\] | Control sequence: - None: Zero control - Array (nu,): Constant control - Array (n_steps, nu): Pre-computed sequence - Callable(k): Time-indexed u[k] = u_func(k) | `None`     |
+| n_steps    | int                                              | Number of simulation steps                                                                                                                                       | `100`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                                                                                                                                                                                         |
+|--------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | DiscreteSimulationResult | TypedDict containing: - states: State trajectory (nx, n_steps+1) - includes x[0] - controls: Control sequence (nu, n_steps) - time_steps: [0, 1, 2, ..., n_steps] - dt: Sampling period - metadata: Additional info |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Constant control
+>>> result = system.simulate(
+...     x0=np.array([1.0]),
+...     u_sequence=np.array([0.5]),
+...     n_steps=100
+... )
+>>>
+>>> # Pre-computed sequence
+>>> u_seq = np.random.randn(100, 1)
+>>> result = system.simulate(x0, u_seq, n_steps=100)
+>>>
+>>> # Time-indexed function
+>>> result = system.simulate(
+...     x0,
+...     u_sequence=lambda k: np.array([np.sin(k*system.dt)]),
+...     n_steps=100
+... )
+```
+
+### step { #cdesym.systems.base.core.DiscreteSymbolicSystem.step }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.step(x, u=None, k=0, backend=None)
+```
+
+Compute next state: x[k+1] = f(x[k], u[k]).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                                    | Default    |
+|--------|---------------------------|----------------------------------------------------------------|------------|
+| x      | StateVector               | Current state x[k], shape (nx,)                                | _required_ |
+| u      | Optional\[ControlVector\] | Control input u[k], shape (nu,) None for autonomous systems    | `None`     |
+| k      | int                       | Time step index (currently ignored for time-invariant systems) | `0`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                                        |
+|--------|-------------|----------------------------------------------------|
+|        | StateVector | Next state x[k+1], same shape and backend as input |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_k = np.array([1.0, 0.0])
+>>> u_k = np.array([0.5])
+>>> x_next = system.step(x_k, u_k)
+>>>
+>>> # Autonomous
+>>> x_next = system.step(x_k)  # u=None
+```
+
+### verify_jacobians { #cdesym.systems.base.core.DiscreteSymbolicSystem.verify_jacobians }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.verify_jacobians(
+    x,
+    u=None,
+    tol=0.001,
+    backend='torch',
+)
+```
+
+Verify symbolic Jacobians against automatic differentiation.
+
+Compares analytically-derived discrete Jacobians (from SymPy) against
+numerically-computed Jacobians (from PyTorch/JAX autodiff).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                                          | Default    |
+|---------|---------------------------|------------------------------------------------------|------------|
+| x       | StateVector               | State at which to verify                             | _required_ |
+| u       | Optional\[ControlVector\] | Control at which to verify (None for autonomous)     | `None`     |
+| tol     | float                     | Tolerance for considering Jacobians equal            | `0.001`    |
+| backend | str                       | Backend for autodiff ('torch' or 'jax', not 'numpy') | `'torch'`  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                              | Description                                                                                                                                                                                                 |
+|--------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | Dict\[str, Union\[bool, float\]\] | Verification results: - 'Ad_match': bool - True if Ad matches - 'Bd_match': bool - True if Bd matches - 'Ad_error': float - Maximum absolute error in Ad - 'Bd_error': float - Maximum absolute error in Bd |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = np.array([0.1, 0.0])
+>>> u = np.array([0.0])
+>>> results = system.verify_jacobians(x, u, backend='torch')
+>>>
+>>> if results['Ad_match'] and results['Bd_match']:
+...     print("✓ Jacobians verified!")
+... else:
+...     print(f"✗ Ad error: {results['Ad_error']:.2e}")
+...     print(f"✗ Bd error: {results['Bd_error']:.2e}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+Requires PyTorch or JAX for automatic differentiation.
+Small errors (< 1e-6) are usually numerical precision issues.
+Large errors indicate bugs in symbolic Jacobian computation.
+
+### warmup { #cdesym.systems.base.core.DiscreteSymbolicSystem.warmup }
+
+```python
+systems.base.core.DiscreteSymbolicSystem.warmup(backend=None, test_point=None)
+```
+
+Warm up backend by compiling and running test evaluation.
+
+Useful for JIT compilation warmup (especially JAX) and validating
+backend configuration before critical operations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                            | Description                                | Default   |
+|------------|-------------------------------------------------|--------------------------------------------|-----------|
+| backend    | Optional\[Backend\]                             | Backend to warm up (None = default)        | `None`    |
+| test_point | Optional\[Tuple\[StateVector, ControlVector\]\] | Test (x, u) point (None = use equilibrium) | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | bool   | True if warmup successful |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.set_default_backend('jax', device='gpu:0')
+>>> success = system.warmup()
+>>> # First call triggers JIT compilation
+```

@@ -1,0 +1,552 @@
+# systems.builtin.stochastic.continuous.ContinuousStochasticCSTR { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR(*args, **kwargs)
+```
+
+Continuous-time stochastic CSTR with multiple equilibria and Brownian noise.
+
+Provides the continuous-time SDE formulation of the CSTR, combining
+nonlinear dynamics (multiple steady states, bifurcations) with continuous
+Brownian noise. This is the theoretical foundation for stochastic analysis,
+optimal control, and rare event estimation.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+Itô SDE form:
+
+    dC_A = [(F/V)·(C_A_feed - C_A) - r]·dt + σ_C·dW_C
+    dT = [(F/V)·(T_feed - T) + q_gen + q_removal]·dt + σ_T·dW_T
+
+where:
+    - r = k₀·C_A·exp(-E/T): Reaction rate (Arrhenius)
+    - q_gen = (-ΔH/ρC_p)·r: Heat generation
+    - q_removal = (UA/VρC_p)·(T_jacket - T): Heat removal
+    - σ_C: Concentration noise intensity [mol/(L·√s)]
+    - σ_T: Temperature noise intensity [K/√s]
+    - W_C(t), W_T(t): Independent Wiener processes
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Continuous-Time Disturbances:**
+
+Unlike discrete models where noise occurs at sampling instants,
+continuous noise represents:
+- Turbulent fluctuations (continuous)
+- Ambient variations (continuous)
+- Molecular stochasticity (continuous at microscale)
+- Unmodeled fast dynamics (continuous effective noise)
+
+**Noise Intensities:**
+
+1. **σ_C [mol/(L·√s)]:**
+   - Feed composition fluctuations
+   - Mixing imperfections (macro-mixing time scale)
+   - Sampling variability
+   - Typical: 0.0001-0.01 mol/(L·√s)
+
+2. **σ_T [K/√s]:**
+   - Heat transfer coefficient variations
+   - Ambient temperature changes
+   - Jacket flow rate fluctuations
+   - Most critical (exponential coupling)
+   - Typical: 0.1-5.0 K/√s
+
+**Why Temperature Noise Dominates:**
+
+Arrhenius exponential sensitivity:
+    ∂r/∂T = r·(E/T²)
+
+At T = 390 K with E = 8750 K:
+    ∂r/∂T ≈ 0.058·r per K
+
+Temperature noise amplified exponentially through reaction rate,
+creating strong coupling to concentration dynamics.
+
+## Multiple Steady States with Noise {.doc-section .doc-section-multiple-steady-states-with-noise}
+
+**Deterministic Equilibria:**
+CSTR can have 1, 2, or 3 steady states (saddle-node bifurcation).
+
+**Stochastic Equilibria:**
+With noise, "equilibria" become probability distributions:
+- Stationary distribution p_∞(C_A, T) from Fokker-Planck
+- May be bimodal (two peaks at stable equilibria)
+- Transitions between basins via noise
+
+**Noise-Induced Transitions:**
+
+Even from stable equilibrium, noise can cause escape:
+- Fluctuations occasionally reach saddle point
+- Once over barrier, fall into other basin
+- Rare but catastrophic for operation
+
+**Mean First Passage Time:**
+
+Expected time to escape from basin:
+    E[τ_escape] ≈ (2π/ω)·exp(ΔV/(σ_T²))
+
+where:
+- ΔV: Potential barrier (related to saddle height)
+- ω: Frequency at bottom of well (linearization eigenvalue)
+
+**Critical Noise Level:**
+
+σ_crit where transitions become frequent (τ_escape ~ operation time).
+
+For typical CSTR:
+    σ_T_crit ~ 1-5 K/√s
+
+Above this, operation at high-conversion becomes unreliable.
+
+## Fokker-Planck Analysis {.doc-section .doc-section-fokker-planck-analysis}
+
+**Stationary Distribution:**
+
+For Itô SDE: dX = f·dt + g·dW
+
+Stationary density satisfies:
+    0 = -∇·(f·p_∞) + (1/2)·∇·∇·(D·p_∞)
+
+where D = g·gᵀ is diffusion matrix.
+
+**For CSTR:**
+    D = diag(σ_C², σ_T²)
+
+In 2D, this is a PDE for p_∞(C_A, T).
+
+**Quasi-Potential:**
+
+For small noise:
+    p_∞ ∝ exp(-2·Φ/σ²)
+
+where Φ satisfies:
+    f·∇Φ - (1/2)·tr(D·∇∇Φ) = 0
+
+**Interpretation:**
+- Φ is like "energy" or "potential"
+- Minima at stable equilibria
+- Maxima at unstable equilibria (saddle points)
+- System prefers low-Φ regions
+
+**Computing Stationary Distribution:**
+
+Methods:
+1. **Long-time simulation:** Histogram after transient
+2. **Fokker-Planck solver:** Finite difference/element on PDE
+3. **Path integral:** Monte Carlo on action functional
+
+## Stochastic Stability {.doc-section .doc-section-stochastic-stability}
+
+
+**Different from Deterministic Stability:**
+
+Deterministic: Eigenvalues of Jacobian at equilibrium
+- All Re(λ) < 0 → stable
+- Any Re(λ) > 0 → unstable
+
+Stochastic: Lyapunov exponent of SDE
+- λ_L = lim_{t→∞} (1/t)·E[ln||δX(t)||]
+- λ_L < 0 → stable (perturbations decay)
+- λ_L > 0 → unstable (perturbations grow)
+
+**Noise Can Stabilize or Destabilize:**
+- Usually: Noise destabilizes (makes λ_L less negative)
+- Rarely: Noise stabilizes (noise-induced stability)
+
+**For CSTR:**
+- High-conversion state: Moderately stable deterministically
+- With noise: Stability margin reduced
+- Large σ_T can make effectively unstable (frequent escapes)
+
+## Optimal Control Under Uncertainty {.doc-section .doc-section-optimal-control-under-uncertainty}
+
+
+**Stochastic HJB Equation:**
+
+For infinite-horizon problem:
+    0 = min_u [L(x,u) + (∂V/∂x)ᵀ·f + (1/2)·tr(gᵀ·∂²V/∂x²·g)]
+
+Optimal control: u*(x) from minimization.
+
+**For CSTR:**
+- Maintain high-conversion despite noise
+- Tradeoff: Performance vs robustness
+- May require backing away from optimal deterministic point
+
+**Risk-Sensitive Control:**
+
+    J_θ = -ln E[exp(-θ·∫₀^∞ L dt)]
+
+Adjusts conservativeness:
+- Small θ: Nearly risk-neutral
+- Large θ: Very risk-averse (stay away from transitions)
+
+**Exit Time Control:**
+
+Minimize: E[∫₀^τ L dt]
+
+where τ is first exit time from safe region.
+
+Maximizes time until failure/transition.
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x = [C_A, T] ∈ ℝ₊ × ℝ₊
+    - Stochastic processes (not deterministic functions)
+    - Multiple modes possible (bimodal distribution)
+
+Control: u = T_jacket ∈ ℝ₊
+    - Deterministic control (no noise in actuation)
+
+Noise: w = [w_C, w_T]
+    - Independent Wiener processes
+    - Continuous-time (Brownian motion)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                                                                                                                          | Default    |
+|----------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| F        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| V        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| C_A_feed | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| T_feed   | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| k0       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| E        | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| delta_H  | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| rho      | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| Cp       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| UA       | float  | Same as deterministic CSTR (see ContinuousCSTR)                                                                                                      | _required_ |
+| sigma_C  | float  | Concentration noise intensity [mol/(L·√s)] - Continuous-time units: per √s - Typical: 0.0001-0.01 mol/(L·√s) - Conversion to discrete: σ_d = σ_c·√Δt | `0.001`    |
+| sigma_T  | float  | Temperature noise intensity [K/√s] - Continuous-time units: per √s - Typical: 0.1-5.0 K/√s - Most critical parameter - Determines transition rates   | `1.0`      |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Noise Type: ADDITIVE (state-independent)
+- SDE Type: Itô (standard interpretation)
+- Noise Dimension: nw = 2
+- Correlation: DIAGONAL (independent)
+- Stationary: Yes (Fokker-Planck stationary distribution)
+- Ergodic: Yes (time averages = ensemble averages)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Theoretical Analysis:**
+- Fokker-Planck equation (stationary distribution)
+- Large deviations (rare events)
+- Stochastic bifurcations
+- Exit time problems
+
+**2. Continuous-Time Control:**
+- Stochastic HJB equation
+- Risk-sensitive control
+- Optimal stopping
+- Barrier certificates
+
+**3. Nonlinear Filtering:**
+- Zakai equation (unnormalized density)
+- Duncan-Mortensen-Zakai equation
+- Path integral formulation
+
+**4. Reliability Analysis:**
+- Mean first passage time
+- Transition rate estimation
+- Safety verification
+
+**5. Validation:**
+- Ground truth for discrete models
+- Benchmark for approximate methods
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Recommended Methods:**
+- Euler-Maruyama: dt = 0.01-0.1 s
+- Milstein: Same as Euler for additive noise
+- Framework stiff solvers: For stiff CSTR
+
+**Convergence Check:**
+- Halve dt, verify moments unchanged
+- Weak convergence: E[X], Var[X]
+- Strong convergence: Sample paths
+
+## Monte Carlo Guidelines {.doc-section .doc-section-monte-carlo-guidelines}
+
+**Sample Size:**
+- Mean/variance: N = 100-1,000
+- Rare events (P ~ 0.01): N = 10,000-100,000
+- Use importance sampling for efficiency
+
+**Statistics:**
+- Mean trajectory: μ(t) = (1/N)·Σ X_i(t)
+- Variance: σ²(t) = (1/N)·Σ (X_i(t) - μ(t))²
+- Percentiles: 5th, 50th, 95th
+
+## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}
+
+**vs. Deterministic CSTR:**
+- Adds process noise
+- Enables reliability analysis
+- Captures transitions
+
+**vs. Discrete Stochastic CSTR:**
+- Continuous time (theoretical)
+- Noise in [state]/√[time]
+- Fokker-Planck equation
+
+**vs. Stochastic Batch Reactor:**
+- CSTR: Multiple equilibria, continuous operation
+- Batch: Transient, finite time
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Additive noise (not multiplicative)
+- Constant noise (not state-dependent)
+- No jumps (only continuous paths)
+- Computational cost (Monte Carlo expensive)
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteStochasticCSTR : Discrete-time version
+ContinuousCSTR : Deterministic version
+OrnsteinUhlenbeck : Simple mean-reverting SDE
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_residence_time](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.compute_residence_time) | Compute residence time τ = V/F [s]. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.define_system) | Define continuous-time stochastic CSTR dynamics. |
+| [estimate_escape_rate](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.estimate_escape_rate) | Estimate escape rate from basin using large deviations theory. |
+| [find_steady_states](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.find_steady_states) | Find all steady states of deterministic part. |
+| [get_noise_intensities](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.get_noise_intensities) | Get continuous-time noise intensities. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.setup_equilibria) | Set up equilibrium points (deterministic part). |
+
+### compute_residence_time { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.compute_residence_time }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.compute_residence_time(
+)
+```
+
+Compute residence time τ = V/F [s].
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description    |
+|--------|--------|----------------|
+|        | float  | Residence time |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.define_system }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.define_system(
+    F_val=100.0,
+    V_val=100.0,
+    C_A_feed_val=1.0,
+    T_feed_val=350.0,
+    k0_val=72000000000.0,
+    E_val=8750.0,
+    delta_H_val=-50000.0,
+    rho_val=1000.0,
+    Cp_val=0.239,
+    UA_val=50000.0,
+    sigma_C=0.001,
+    sigma_T=1.0,
+    x_ss=None,
+    u_ss=None,
+)
+```
+
+Define continuous-time stochastic CSTR dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                   | Description                                                                                                                                                                   | Default         |
+|--------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| F_val        | float                  | Volumetric flow rate [L/s]                                                                                                                                                    | `100.0`         |
+| V_val        | float                  | Reactor volume [L]                                                                                                                                                            | `100.0`         |
+| C_A_feed_val | float                  | Feed concentration [mol/L]                                                                                                                                                    | `1.0`           |
+| T_feed_val   | float                  | Feed temperature [K]                                                                                                                                                          | `350.0`         |
+| k0_val       | float                  | Pre-exponential factor [1/s]                                                                                                                                                  | `72000000000.0` |
+| E_val        | float                  | Activation energy [K] (dimensionless Eₐ/R)                                                                                                                                    | `8750.0`        |
+| delta_H_val  | float                  | Heat of reaction [J/mol] (negative = exothermic)                                                                                                                              | `-50000.0`      |
+| rho_val      | float                  | Density [kg/L]                                                                                                                                                                | `1000.0`        |
+| Cp_val       | float                  | Specific heat capacity [J/(kg·K)]                                                                                                                                             | `0.239`         |
+| UA_val       | float                  | Overall heat transfer coefficient × area [J/(s·K)]                                                                                                                            | `50000.0`       |
+| x_ss         | Optional\[np.ndarray\] | Steady-state [Cₐ, T] for equilibrium setup                                                                                                                                    | `None`          |
+| u_ss         | Optional\[np.ndarray\] | Steady-state [T_jacket] for equilibrium setup                                                                                                                                 | `None`          |
+| sigma_C      | float                  | Concentration noise intensity [mol/(L·√s)] - Continuous-time units: per √s - Typical: 0.0001-0.01 mol/(L·√s) - Smaller than batch reactor (continuous operation)              | `0.001`         |
+| sigma_T      | float                  | Temperature noise intensity [K/√s] - Continuous-time units: per √s - Typical: 0.1-5.0 K/√s - Determines transition rates (exponentially) - Critical parameter for reliability | `1.0`           |
+| x_ss         | Optional\[np.ndarray\] | Known steady state (if available)                                                                                                                                             | `None`          |
+| u_ss         | Optional\[np.ndarray\] | Known steady state (if available)                                                                                                                                             | `None`          |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Noise Intensity Selection:**
+
+Physical reasoning:
+- σ_C ~ 0.001: Precise control, large reactor
+- σ_C ~ 0.01: Typical industrial
+- σ_T ~ 0.5: Good temperature control
+- σ_T ~ 2.0: Poor control, high variability
+
+**Temperature Noise Impact:**
+
+At high-conversion (T ≈ 390 K):
+- σ_T = 0.5 K/√s: Very stable, rare transitions
+- σ_T = 1.0 K/√s: Occasional transitions (hours)
+- σ_T = 2.0 K/√s: Frequent transitions (minutes)
+- σ_T = 5.0 K/√s: Very unstable, constant switching
+
+**Design Criterion:**
+
+Choose σ_T such that mean first passage time:
+    τ_escape > 100·τ_operation
+
+Ensures reliable operation (99% success).
+
+**Conversion to Discrete:**
+
+For discrete model with sampling Δt:
+    σ_discrete = σ_continuous·√Δt
+
+Example: σ_T = 1.0 K/√s, Δt = 5 s
+    → σ_T_discrete = 1.0·√5 ≈ 2.24 K per step
+
+**Additive vs Multiplicative:**
+
+This uses additive (state-independent) noise.
+
+Alternative: Multiplicative noise
+    g(X) = diag(σ_C·C_A, σ_T·T)
+
+Would represent:
+- Relative errors (percentage fluctuations)
+- State-dependent uncertainty
+- More complex analysis
+
+### estimate_escape_rate { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.estimate_escape_rate }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.estimate_escape_rate(
+    x_basin,
+    barrier_height,
+)
+```
+
+Estimate escape rate from basin using large deviations theory.
+
+Approximate formula:
+    Rate ≈ (ω/2π)·exp(-ΔV/σ_T²)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type       | Description                                 | Default    |
+|----------------|------------|---------------------------------------------|------------|
+| x_basin        | np.ndarray | State in basin (stable equilibrium)         | _required_ |
+| barrier_height | float      | Potential barrier height (energy to saddle) | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description       |
+|--------|--------|-------------------|
+|        | float  | Escape rate [1/s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is an approximation valid for small noise.
+For accurate rates, use Monte Carlo simulation.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = ContinuousStochasticCSTR(sigma_T=1.0)
+>>> # Approximate barrier height: 50 K² equivalent
+>>> rate = cstr.estimate_escape_rate(
+...     x_basin=np.array([0.1, 390.0]),
+...     barrier_height=50.0
+... )
+>>> mean_time = 1.0 / rate
+>>> print(f"Mean escape time: {mean_time:.1f} s")
+```
+
+### find_steady_states { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.find_steady_states }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.find_steady_states(
+    T_jacket,
+    T_range=(300.0, 500.0),
+    n_points=100,
+)
+```
+
+Find all steady states of deterministic part.
+
+These are centers of Fokker-Planck stationary distribution.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description            | Default          |
+|----------|--------|------------------------|------------------|
+| T_jacket | float  | Jacket temperature [K] | _required_       |
+| T_range  | tuple  | Search range           | `(300.0, 500.0)` |
+| n_points | int    | Initial guesses        | `100`            |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                   |
+|--------|-------------------------------|-------------------------------|
+|        | List\[Tuple\[float, float\]\] | [(C_A, T), ...] steady states |
+
+#### Notes {.doc-section .doc-section-notes}
+
+With noise, stationary distribution has peaks at these
+points (if stable) or valleys (if unstable).
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = ContinuousStochasticCSTR()
+>>> states = cstr.find_steady_states(T_jacket=350.0)
+>>> print(f"Found {len(states)} steady states")
+```
+
+### get_noise_intensities { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.get_noise_intensities }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.get_noise_intensities(
+)
+```
+
+Get continuous-time noise intensities.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                      |
+|--------|--------|----------------------------------|
+|        | dict   | {'sigma_C': ..., 'sigma_T': ...} |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Units: [state]/√[time]
+To convert to discrete: σ_d = σ_c·√Δt
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = ContinuousStochasticCSTR(sigma_C=0.001, sigma_T=1.0)
+>>> noise = cstr.get_noise_intensities()
+>>> print(f"Temperature noise: {noise['sigma_T']} K/√s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.setup_equilibria(
+)
+```
+
+Set up equilibrium points (deterministic part).
+
+Note: These are centers of stationary distributions.
+Multiple equilibria may exist. Use find_steady_states().

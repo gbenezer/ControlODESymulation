@@ -1,0 +1,169 @@
+# systems.base.utils.LinearizationEngine { #cdesym.systems.base.utils.LinearizationEngine }
+
+```python
+systems.base.utils.LinearizationEngine(system, code_gen, backend_mgr)
+```
+
+Computes linearized dynamics across backends.
+
+Handles computation of A = ∂f/∂x and B = ∂f/∂u matrices both symbolically
+and numerically, with support for higher-order systems and autonomous systems.
+
+For autonomous systems (nu=0):
+- B matrix has shape (nx, 0)
+- u can be None or empty array
+- Only A matrix contains meaningful information
+
+Example:
+    >>> # Controlled system
+    >>> engine = LinearizationEngine(system, code_gen, backend_mgr)
+    >>> lin: DeterministicLinearization = engine.compute_dynamics(x, u, backend='numpy')
+    >>> A, B = lin
+    >>>
+    >>> # Autonomous system
+    >>> A, B = engine.compute_dynamics(x, backend='numpy')  # u=None
+    >>> B.shape  # (nx, 0)
+    >>>
+    >>> # Symbolic linearization
+    >>> A_sym, B_sym = engine.compute_symbolic(x_eq, u_eq)
+    >>>
+    >>> # Verify against autodiff
+    >>> results = engine.verify_jacobians(x, u, backend='torch')
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_dynamics](#cdesym.systems.base.utils.LinearizationEngine.compute_dynamics) | Compute linearized dynamics: A = ∂f/∂x, B = ∂f/∂u. |
+| [compute_symbolic](#cdesym.systems.base.utils.LinearizationEngine.compute_symbolic) | Compute symbolic linearization A = ∂f/∂x, B = ∂f/∂u. |
+| [get_stats](#cdesym.systems.base.utils.LinearizationEngine.get_stats) | Get performance statistics. |
+| [reset_stats](#cdesym.systems.base.utils.LinearizationEngine.reset_stats) | Reset performance counters. |
+| [verify_jacobians](#cdesym.systems.base.utils.LinearizationEngine.verify_jacobians) | Verify symbolic Jacobians against automatic differentiation. |
+
+### compute_dynamics { #cdesym.systems.base.utils.LinearizationEngine.compute_dynamics }
+
+```python
+systems.base.utils.LinearizationEngine.compute_dynamics(x, u=None, backend=None)
+```
+
+Compute linearized dynamics: A = ∂f/∂x, B = ∂f/∂u.
+
+Automatically detects backend from input types.
+Supports both controlled (nu > 0) and autonomous (nu = 0) systems.
+
+Args:
+    x: State at which to linearize
+    u: Control at which to linearize (None for autonomous systems)
+    backend: Backend selection (None = auto-detect)
+
+Returns:
+    DeterministicLinearization
+        Tuple of (A, B) Jacobian matrices:
+        - A: StateMatrix (nx, nx) - state Jacobian ∂f/∂x
+        - B: InputMatrix (nx, nu) - control Jacobian ∂f/∂u, or (nx, 0) if autonomous
+
+Raises:
+    ValueError: If u is None for non-autonomous system
+
+Example:
+    >>> # Controlled system
+    >>> lin: DeterministicLinearization = engine.compute_dynamics(x, u)
+    >>> A, B = lin  # Unpack Jacobians
+    >>> A.shape  # (nx, nx)
+    >>> B.shape  # (nx, nu)
+    >>>
+    >>> # Autonomous system (nu=0)
+    >>> A, B = engine.compute_dynamics(x_np)  # u=None
+    >>> A.shape  # (nx, nx)
+    >>> B.shape  # (nx, 0) - empty but valid
+
+### compute_symbolic { #cdesym.systems.base.utils.LinearizationEngine.compute_symbolic }
+
+```python
+systems.base.utils.LinearizationEngine.compute_symbolic(x_eq=None, u_eq=None)
+```
+
+Compute symbolic linearization A = ∂f/∂x, B = ∂f/∂u.
+
+For higher-order systems, constructs the full state-space linearization.
+For autonomous systems (nu=0), B is an empty matrix (nx, 0).
+
+Args:
+    x_eq: Equilibrium state (zeros if None)
+    u_eq: Equilibrium control (zeros if None, empty if autonomous)
+
+Returns:
+    Tuple of (A, B) symbolic matrices where:
+    - A: (nx, nx) state Jacobian
+    - B: (nx, nu) control Jacobian, or (nx, 0) if autonomous
+
+Example:
+    >>> # Controlled system
+    >>> A_sym, B_sym = engine.compute_symbolic(
+    ...     x_eq=sp.Matrix([0, 0]),
+    ...     u_eq=sp.Matrix([0])
+    ... )
+    >>>
+    >>> # Autonomous system
+    >>> A_sym, B_sym = engine.compute_symbolic(
+    ...     x_eq=sp.Matrix([0, 0])
+    ... )  # u_eq is None/empty for autonomous
+    >>> B_sym.shape  # (2, 0)
+
+### get_stats { #cdesym.systems.base.utils.LinearizationEngine.get_stats }
+
+```python
+systems.base.utils.LinearizationEngine.get_stats()
+```
+
+Get performance statistics.
+
+Returns:
+    Dict with call count, total time, and average time
+
+### reset_stats { #cdesym.systems.base.utils.LinearizationEngine.reset_stats }
+
+```python
+systems.base.utils.LinearizationEngine.reset_stats()
+```
+
+Reset performance counters.
+
+### verify_jacobians { #cdesym.systems.base.utils.LinearizationEngine.verify_jacobians }
+
+```python
+systems.base.utils.LinearizationEngine.verify_jacobians(
+    x,
+    u=None,
+    backend='torch',
+    tol=0.0001,
+)
+```
+
+Verify symbolic Jacobians against automatic differentiation.
+
+Uses autodiff to numerically compute Jacobians and compares against
+symbolic derivation. Requires autodiff backend (torch or jax).
+
+Args:
+    x: State at which to verify
+    u: Control at which to verify (None for autonomous systems)
+    backend: Backend for autodiff ('torch' or 'jax', not 'numpy')
+    tol: Tolerance for considering Jacobians equal
+
+Returns:
+    Dict with 'A_match', 'B_match' booleans and error magnitudes
+
+Raises:
+    ValueError: If backend doesn't support autodiff or u is None for non-autonomous
+
+Example:
+    >>> # Controlled system
+    >>> results = engine.verify_jacobians(x, u, backend='torch', tol=1e-4)
+    >>> assert results['A_match'] is True
+    >>> assert results['B_match'] is True
+    >>>
+    >>> # Autonomous system
+    >>> results = engine.verify_jacobians(x, backend='torch')  # u=None
+    >>> assert results['A_match'] is True
+    >>> # B_match will be True trivially for empty matrix

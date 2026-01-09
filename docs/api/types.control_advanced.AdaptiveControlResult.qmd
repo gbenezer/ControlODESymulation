@@ -1,0 +1,54 @@
+# types.control_advanced.AdaptiveControlResult { #cdesym.types.control_advanced.AdaptiveControlResult }
+
+```python
+types.control_advanced.AdaptiveControlResult()
+```
+
+Adaptive control result.
+
+Adaptive controllers adjust gains online to handle unknown or
+time-varying parameters.
+
+## Fields {.doc-section .doc-section-fields}
+
+current_gain : GainMatrix
+    Current adapted controller gain K(t) (nu, nx)
+parameter_estimate : ParameterVector
+    Current parameter estimate θ̂(t) (nθ,)
+parameter_covariance : CovarianceMatrix
+    Parameter uncertainty P_θ(t) (nθ, nθ)
+adaptation_rate : float
+    Current learning rate Γ
+tracking_error : float
+    Output tracking error ‖y - y_ref‖
+parameter_error : Optional[ParameterVector]
+    True error θ̂ - θ (if θ known, for testing)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Model Reference Adaptive Control (MRAC)
+>>> adaptive_ctrl = AdaptiveController(
+...     reference_model, adaptation_rate=0.1
+... )
+>>>
+>>> # Update at each time step
+>>> result: AdaptiveControlResult = adaptive_ctrl.update(
+...     x_current, y_measured, y_reference
+... )
+>>>
+>>> # Apply adapted control
+>>> K = result['current_gain']
+>>> u = -K @ x_current
+>>>
+>>> # Monitor adaptation
+>>> theta_hat = result['parameter_estimate']
+>>> tracking_err = result['tracking_error']
+>>> print(f"Tracking error: {tracking_err:.3f}")
+>>> print(f"Parameter estimate: {theta_hat}")
+>>>
+>>> # Check convergence (if true parameters known)
+>>> if result['parameter_error'] is not None:
+...     param_err_norm = np.linalg.norm(result['parameter_error'])
+...     print(f"Parameter error: {param_err_norm:.3f}")
+```

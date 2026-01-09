@@ -1,0 +1,59 @@
+# types.learning.RLTrainingResult { #cdesym.types.learning.RLTrainingResult }
+
+```python
+types.learning.RLTrainingResult()
+```
+
+Reinforcement learning training result.
+
+## Fields {.doc-section .doc-section-fields}
+
+learned_policy : Callable
+    Trained policy π(s) → a
+episode_returns : List[float]
+    Cumulative return per episode
+episode_lengths : List[int]
+    Episode length (steps) per episode
+average_return : float
+    Average return over last N episodes
+best_return : float
+    Best episode return achieved
+total_timesteps : int
+    Total environment steps
+training_time : float
+    Training time in seconds
+converged : bool
+    Whether training converged
+algorithm : str
+    RL algorithm used ('DQN', 'PPO', 'SAC', 'TD3', etc.)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Train RL agent
+>>> result: RLTrainingResult = train_rl_agent(
+...     env=pendulum_env,
+...     algorithm='SAC',
+...     episodes=1000,
+...     learning_rate=3e-4
+... )
+>>>
+>>> # Extract policy
+>>> policy = result['learned_policy']
+>>>
+>>> # Evaluate
+>>> print(f"Algorithm: {result['algorithm']}")
+>>> print(f"Average return: {result['average_return']:.2f}")
+>>> print(f"Best return: {result['best_return']:.2f}")
+>>>
+>>> # Plot learning curve
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(result['episode_returns'])
+>>> plt.xlabel('Episode')
+>>> plt.ylabel('Return')
+>>> plt.title('RL Training Progress')
+>>>
+>>> # Deploy policy
+>>> state = env.reset()
+>>> action = policy(state)
+```

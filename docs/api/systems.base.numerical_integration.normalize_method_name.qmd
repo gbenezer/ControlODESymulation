@@ -1,0 +1,201 @@
+# systems.base.numerical_integration.normalize_method_name { #cdesym.systems.base.numerical_integration.normalize_method_name }
+
+```python
+systems.base.numerical_integration.normalize_method_name(
+    method,
+    backend='numpy',
+)
+```
+
+Normalize method names across backends to canonical form.
+
+Provides user-friendly aliases while maintaining backend compatibility.
+Handles both deterministic and stochastic (SDE) methods. This enables
+portable code: users can write 'euler_maruyama' and it automatically
+becomes 'EM' (NumPy), 'euler' (PyTorch), or 'Euler' (JAX).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description                                               | Default    |
+|---------|---------|-----------------------------------------------------------|------------|
+| method  | str     | User-provided method name (canonical or backend-specific) | _required_ |
+| backend | Backend | Target backend: 'numpy', 'torch', or 'jax'                | `'numpy'`  |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                    |
+|--------|--------|------------------------------------------------|
+|        | str    | Normalized method name appropriate for backend |
+
+## Normalization Logic {.doc-section .doc-section-normalization-logic}
+
+1. **Auto-switching methods** → Pass through unchanged
+   - Julia methods with parentheses (e.g., 'AutoTsit5(Rosenbrock23())')
+
+2. **Already valid for backend?** → Return (with special upgrades)
+   - Check if method is in BACKEND_METHODS[backend]
+   - Special case: lowercase euler/heun/midpoint on numpy → upgrade to Julia
+   - Avoids breaking SDE methods (e.g., 'Euler' on jax stays 'Euler')
+
+3. **In normalization map?** → Map to backend-specific name
+   - Check both exact case and lowercase versions
+   - Handles canonical names like 'euler_maruyama', 'rk45'
+   - Handles explicit manual requests like 'manual_euler'
+
+4. **Unknown method?** → Pass through unchanged
+   - Will fail at integrator level with appropriate error
+   - Allows custom methods to pass through
+
+## Backend Conventions {.doc-section .doc-section-backend-conventions}
+
+- **NumPy/Julia (DiffEqPy)**: Capitalized (e.g., 'EM', 'Tsit5', 'SRIW1')
+- **PyTorch (TorchSDE/TorchDiffEq)**: lowercase (e.g., 'euler', 'dopri5')
+- **JAX (Diffrax)**: PascalCase (e.g., 'Euler', 'ItoMilstein', 'Tsit5')
+
+## Julia Preference for ODE Methods {.doc-section .doc-section-julia-preference-for-ode-methods}
+
+On NumPy backend, lowercase ODE methods automatically prefer Julia:
+- 'euler' → 'Euler' (Julia's implementation)
+- 'heun' → 'Heun' (Julia's implementation)
+- 'midpoint' → 'Midpoint' (Julia's implementation)
+
+To explicitly use manual implementations on NumPy:
+- Use 'manual_euler', 'manual_heun', 'manual_midpoint'
+
+## Idempotency {.doc-section .doc-section-idempotency}
+
+Normalization is idempotent:
+>>> normalize_method_name(normalize_method_name('euler_maruyama', 'jax'), 'jax')
+'Euler'
+
+Once normalized, subsequent calls return the same result.
+
+## Examples {.doc-section .doc-section-examples}
+
+**Canonical SDE names → backend-specific:**
+
+```python
+>>> normalize_method_name('euler_maruyama', 'numpy')
+'EM'
+>>> normalize_method_name('euler_maruyama', 'torch')
+'euler'
+>>> normalize_method_name('euler_maruyama', 'jax')
+'Euler'
+```
+
+**Canonical ODE names → backend-specific:**
+
+```python
+>>> normalize_method_name('rk45', 'numpy')
+'RK45'
+>>> normalize_method_name('rk45', 'torch')
+'dopri5'
+>>> normalize_method_name('rk45', 'jax')
+'tsit5'
+```
+
+**Julia preference for ODE methods on NumPy:**
+
+```python
+>>> normalize_method_name('euler', 'numpy')
+'Euler'  # Upgraded to Julia
+>>> normalize_method_name('heun', 'numpy')
+'Heun'   # Upgraded to Julia
+>>> normalize_method_name('midpoint', 'numpy')
+'Midpoint'  # Upgraded to Julia
+```
+
+**Manual implementations on NumPy:**
+
+```python
+>>> normalize_method_name('manual_euler', 'numpy')
+'euler'  # Explicit manual request
+>>> normalize_method_name('manual_heun', 'numpy')
+'heun'   # Explicit manual request
+```
+
+**SDE methods preserved (critical for correctness):**
+
+```python
+>>> normalize_method_name('Euler', 'jax')
+'Euler'  # SDE method, NOT normalized to 'euler'
+>>> normalize_method_name('Heun', 'jax')
+'Heun'   # SDE method, NOT normalized to 'heun'
+```
+
+**ODE methods on torch/jax use manual implementations:**
+
+```python
+>>> normalize_method_name('euler', 'torch')
+'euler'
+>>> normalize_method_name('heun', 'jax')
+'heun'
+```
+
+**Cross-backend normalization (torch → jax):**
+
+```python
+>>> normalize_method_name('dopri5', 'jax')
+'dopri5'  # Note: 'dopri5' exists in JAX, so no mapping needed
+```
+
+**Already correct for backend → unchanged:**
+
+```python
+>>> normalize_method_name('EM', 'numpy')
+'EM'
+>>> normalize_method_name('ItoMilstein', 'jax')
+'ItoMilstein'
+```
+
+**Manual implementations (portable):**
+
+```python
+>>> normalize_method_name('rk4', 'numpy')
+'rk4'
+>>> normalize_method_name('rk4', 'torch')
+'rk4'
+>>> normalize_method_name('rk4', 'jax')
+'rk4'
+```
+
+**Unknown method → pass through:**
+
+```python
+>>> normalize_method_name('my_custom_method', 'numpy')
+'my_custom_method'
+# Will be validated at integrator creation
+```
+
+**Case-insensitive lookup (canonical names only):**
+
+```python
+>>> normalize_method_name('RK45', 'torch')
+'dopri5'
+>>> normalize_method_name('rk45', 'torch')
+'dopri5'
+```
+
+## Usage in DiscretizedSystem {.doc-section .doc-section-usage-in-discretizedsystem}
+
+>>> # Automatic normalization in __init__
+>>> backend = getattr(continuous_system, '_default_backend', 'numpy')
+>>> method = normalize_method_name(user_method, backend)
+>>> # Now 'method' is guaranteed to use backend conventions
+
+## Notes {.doc-section .doc-section-notes}
+
+- Normalization happens before any method classification
+- Original method name should be preserved for debugging/logging
+- Some canonical names map to different methods on different backends
+  (e.g., 'rk45' → 'RK45'/'dopri5'/'tsit5')
+- Not all methods can be perfectly mapped across backends (e.g., 'lsoda'
+  doesn't exist on PyTorch/JAX, maps to nearest equivalent)
+- **Critical**: Methods already valid for a backend are preserved to avoid
+  breaking SDE integration (e.g., 'Euler' on jax must stay 'Euler')
+
+## See Also {.doc-section .doc-section-see-also}
+
+validate_method : Check if method is valid for backend
+is_sde_method : Check if method is for stochastic systems
+is_fixed_step : Check if method uses fixed time stepping

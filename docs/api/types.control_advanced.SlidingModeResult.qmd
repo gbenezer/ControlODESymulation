@@ -1,0 +1,55 @@
+# types.control_advanced.SlidingModeResult { #cdesym.types.control_advanced.SlidingModeResult }
+
+```python
+types.control_advanced.SlidingModeResult()
+```
+
+Sliding Mode Control (SMC) result.
+
+SMC uses discontinuous control to drive system to a sliding
+surface in finite time, providing robustness to uncertainties.
+
+## Fields {.doc-section .doc-section-fields}
+
+control : ControlVector
+    SMC control signal u (nu,)
+sliding_variable : ArrayLike
+    Sliding surface variable s = Cx (ns,)
+on_sliding_surface : bool
+    Whether |s| < ε (in sliding mode)
+reaching_time_estimate : Optional[float]
+    Estimated time to reach surface (if not on surface)
+chattering_magnitude : float
+    Control chattering level (high-frequency switching)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Sliding mode controller
+>>> smc = SlidingModeController(
+...     sliding_surface_gain=np.array([[1, 1]]),
+...     switching_gain=5.0,
+...     boundary_layer=0.1
+... )
+>>>
+>>> # Compute control
+>>> x = np.array([1.0, 0.5])
+>>> x_desired = np.zeros(2)
+>>> result: SlidingModeResult = smc.compute_control(x, x_desired)
+>>>
+>>> # Apply control
+>>> u = result['control']
+>>>
+>>> # Check sliding mode
+>>> s = result['sliding_variable']
+>>> if result['on_sliding_surface']:
+...     print("In sliding mode - tracking achieved")
+... else:
+...     t_reach = result['reaching_time_estimate']
+...     print(f"Reaching surface in ~{t_reach:.2f} seconds")
+>>>
+>>> # Monitor chattering
+>>> chattering = result['chattering_magnitude']
+>>> if chattering > 1.0:
+...     print("High chattering - consider boundary layer")
+```

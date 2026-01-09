@@ -1,0 +1,306 @@
+# systems.base.numerical_integration.IntegratorBase { #cdesym.systems.base.numerical_integration.IntegratorBase }
+
+```python
+systems.base.numerical_integration.IntegratorBase(
+    system,
+    dt=None,
+    step_mode=StepMode.FIXED,
+    backend='numpy',
+    **options,
+)
+```
+
+Abstract base class for numerical integrators.
+
+Provides a unified interface for integrating continuous-time dynamical
+systems with multiple backends and both fixed/adaptive step sizes.
+
+All integrators must implement:
+- step(): Single integration step
+- integrate(): Multi-step integration over interval
+- name: Integrator name for display
+
+Subclasses handle backend-specific implementations for NumPy, PyTorch, JAX.
+
+## Result Types {.doc-section .doc-section-result-types}
+
+All integrators return IntegrationResult TypedDict with:
+- t: Time points (T,)
+- x: State trajectory (T, nx)
+- success: Integration succeeded
+- message: Status message
+- nfev: Number of function evaluations
+- nsteps: Number of steps taken
+- integration_time: Computation time
+- solver: Integrator name
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Create integrator
+>>> integrator = RK4Integrator(system, dt=0.01, backend='numpy')
+>>>
+>>> # Single step
+>>> x_next = integrator.step(x, u)
+>>>
+>>> # Multi-step integration
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: np.zeros(1),
+...     t_span=(0.0, 10.0)
+... )
+>>> t, x_traj = result["t"], result["x"]
+>>> print(f"Integration {'succeeded' if result['success'] else 'failed'}")
+>>> print(f"Steps: {result['nsteps']}, Function evals: {result['nfev']}")
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [name](#cdesym.systems.base.numerical_integration.IntegratorBase.name) | Get integrator name for display and logging. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [get_stats](#cdesym.systems.base.numerical_integration.IntegratorBase.get_stats) | Get integration statistics. |
+| [integrate](#cdesym.systems.base.numerical_integration.IntegratorBase.integrate) | Integrate over time interval with control policy. |
+| [reset_stats](#cdesym.systems.base.numerical_integration.IntegratorBase.reset_stats) | Reset integration statistics to zero. |
+| [step](#cdesym.systems.base.numerical_integration.IntegratorBase.step) | Take one integration step: x(t) → x(t + dt). |
+
+### get_stats { #cdesym.systems.base.numerical_integration.IntegratorBase.get_stats }
+
+```python
+systems.base.numerical_integration.IntegratorBase.get_stats()
+```
+
+Get integration statistics.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                                                       |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Statistics with keys: - 'total_steps': Total integration steps taken - 'total_fev': Total function evaluations - 'total_time': Total integration time - 'avg_fev_per_step': Average function evaluations per step |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> result = integrator.integrate(x0, u_func, (0, 10))
+>>> stats = integrator.get_stats()
+>>> print(f"Steps: {stats['total_steps']}")
+>>> print(f"Function evals: {stats['total_fev']}")
+>>> print(f"Evals/step: {stats['avg_fev_per_step']:.1f}")
+```
+
+### integrate { #cdesym.systems.base.numerical_integration.IntegratorBase.integrate }
+
+```python
+systems.base.numerical_integration.IntegratorBase.integrate(
+    x0,
+    u_func,
+    t_span,
+    t_eval=None,
+    dense_output=False,
+)
+```
+
+Integrate over time interval with control policy.
+
+**API Level**: This is a **low-level integration method** that directly interfaces
+with numerical ODE/SDE solvers. For typical use cases, prefer the high-level
+`simulate()` method which provides a cleaner interface.
+
+**Control Function Convention**: This method uses the **scipy/ODE solver convention**
+where control functions have signature **(t, x) → u**, with time as the FIRST argument.
+This differs from the high-level `simulate()` API which uses **(x, t) → u** with state
+as the primary argument. The difference is intentional:
+
+- **Low-level** `integrate()`: Uses (t, x) for direct solver compatibility
+- **High-level** `simulate()`: Uses (x, t) for intuitive control-theoretic API
+
+If you're implementing controllers for `simulate()`, use (x, t) order. If calling
+`integrate()` directly, use (t, x) order as shown in the examples below.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                        | Description                                                                                                                                                                                                                                                                                                                                                                     | Default    |
+|--------------|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| x0           | ArrayLike                                   | Initial state (nx,)                                                                                                                                                                                                                                                                                                                                                             | _required_ |
+| u_func       | Callable\[\[float, ArrayLike\], ArrayLike\] | Control policy with **low-level convention**: (t, x) → u - t: float - current time (**FIRST** argument, scipy convention) - x: ArrayLike - current state (**SECOND** argument) - Returns: ArrayLike - control input u  Can be: - Constant control: lambda t, x: u_const - State feedback: lambda t, x: -K @ x - Time-varying: lambda t, x: u(t) - Autonomous: lambda t, x: None | _required_ |
+| t_span       | Tuple\[float, float\]                       | Integration interval (t_start, t_end)                                                                                                                                                                                                                                                                                                                                           | _required_ |
+| t_eval       | Optional\[ArrayLike\]                       | Specific times at which to store solution If None: - FIXED mode: Uses t = t_start + k*dt for k=0,1,2,... - ADAPTIVE mode: Uses solver's internal time points                                                                                                                                                                                                                    | `None`     |
+| dense_output | bool                                        | If True, return dense interpolated solution (adaptive only)                                                                                                                                                                                                                                                                                                                     | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                                                                                                                                                                                                                                                                                                                                              |
+|--------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | IntegrationResult | TypedDict containing: - t: Time points (T,) - x: State trajectory (T, nx) - **time-major ordering** - success: Whether integration succeeded - message: Status message - nfev: Number of function evaluations - nsteps: Number of steps taken - integration_time: Computation time (seconds) - solver: Integrator name - sol: Dense output object (if dense_output=True) |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type         | Description                                                          |
+|--------|--------------|----------------------------------------------------------------------|
+|        | RuntimeError | If integration fails (e.g., step size too small, max steps exceeded) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Low-level integrate() usage** (uses (t, x) convention):
+
+Zero control (autonomous):
+
+```python
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: None,  # Autonomous
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Final state: {result['x'][-1]}")
+```
+
+Constant control:
+
+```python
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: np.array([0.5]),  # Note: (t, x) order
+...     t_span=(0.0, 10.0)
+... )
+```
+
+State feedback controller (note time-first order):
+
+```python
+>>> K = np.array([[1.0, 2.0]])
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: -K @ x,  # (t, x) order for integrate()
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Function evaluations: {result['nfev']}")
+```
+
+Time-varying control:
+
+```python
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: np.array([np.sin(t)]),  # Time-dependent
+...     t_span=(0.0, 10.0)
+... )
+```
+
+Evaluate at specific times:
+
+```python
+>>> t_eval = np.linspace(0, 10, 1001)
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: np.zeros(1),
+...     t_span=(0, 10),
+...     t_eval=t_eval
+... )
+>>> assert len(result["t"]) == 1001
+```
+
+**High-level simulate() usage** (uses (x, t) convention - recommended):
+
+For typical use cases, prefer `system.simulate()` which uses the more intuitive
+(x, t) convention:
+
+```python
+>>> # Controller with (x, t) order - state is primary
+>>> def controller(x, t):  # Note: (x, t) order for simulate()
+...     K = np.array([[1.0, 2.0]])
+...     return -K @ x
+>>>
+>>> result = system.simulate(
+...     x0=np.array([1.0, 0.0]),
+...     controller=controller,  # Uses (x, t) signature
+...     t_span=(0.0, 10.0),
+...     dt=0.01
+... )
+```
+
+**Converting between conventions**:
+
+If you have a controller designed for simulate() and need to use integrate():
+
+```python
+>>> # Controller for simulate() - uses (x, t)
+>>> def my_controller(x, t):
+...     return -K @ x
+>>>
+>>> # Wrap for integrate() - convert to (t, x)
+>>> result = integrator.integrate(
+...     x0=x0,
+...     u_func=lambda t, x: my_controller(x, t),  # Swap argument order
+...     t_span=(0, 10)
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- The (t, x) signature matches `scipy.integrate.solve_ivp` convention
+- This allows direct compatibility with numerical solver libraries
+- The high-level `simulate()` method handles the conversion automatically
+- Most users should use `simulate()` instead of calling `integrate()` directly
+
+#### See Also {.doc-section .doc-section-see-also}
+
+simulate : High-level simulation with (x, t) controller convention (recommended)
+step : Single integration step
+
+### reset_stats { #cdesym.systems.base.numerical_integration.IntegratorBase.reset_stats }
+
+```python
+systems.base.numerical_integration.IntegratorBase.reset_stats()
+```
+
+Reset integration statistics to zero.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator.reset_stats()
+>>> integrator.get_stats()['total_steps']
+0
+```
+
+### step { #cdesym.systems.base.numerical_integration.IntegratorBase.step }
+
+```python
+systems.base.numerical_integration.IntegratorBase.step(x, u, dt=None)
+```
+
+Take one integration step: x(t) → x(t + dt).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type              | Description                        | Default    |
+|--------|-------------------|------------------------------------|------------|
+| x      | ArrayLike         | Current state (nx,) or (batch, nx) | _required_ |
+| u      | ArrayLike         | Control input (nu,) or (batch, nu) | _required_ |
+| dt     | Optional\[float\] | Step size (uses self.dt if None)   | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                        |
+|--------|-----------|----------------------------------------------------|
+|        | ArrayLike | Next state x(t + dt), same shape and type as input |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For fixed-step integrators, dt should match self.dt.
+For adaptive integrators, dt may be adjusted internally.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = np.array([1.0, 0.0])
+>>> u = np.array([0.5])
+>>> x_next = integrator.step(x, u)
+>>> x_next.shape
+(2,)
+```

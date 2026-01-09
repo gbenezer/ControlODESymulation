@@ -1,0 +1,19 @@
+# types.linearization.StateJacobian { #cdesym.types.linearization.StateJacobian }
+
+`types.linearization.StateJacobian`
+
+State Jacobian ∂f/∂x.
+
+Matrix of partial derivatives of dynamics with respect to state.
+
+Continuous: Ac = ∂f/∂x where f is drift
+Discrete: Ad = ∂f/∂x where f is next-state function
+
+Shape: (nx, nx)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ac: StateJacobian = system.state_jacobian(x_eq, u_eq)
+>>> # For pendulum: Ac = [[0, 1], [-g/L*cos(θ), -b]]
+```

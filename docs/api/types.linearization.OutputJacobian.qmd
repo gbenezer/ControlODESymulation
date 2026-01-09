@@ -1,0 +1,16 @@
+# types.linearization.OutputJacobian { #cdesym.types.linearization.OutputJacobian }
+
+`types.linearization.OutputJacobian`
+
+Output Jacobian ∂h/∂x.
+
+Matrix of partial derivatives of output with respect to state.
+
+Shape: (ny, nx)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Cc: OutputJacobian = system.output_jacobian(x_eq)
+>>> # Position measurement: Cc = [[1, 0]] (measure position, not velocity)
+```

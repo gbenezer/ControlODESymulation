@@ -1,0 +1,159 @@
+# systems.base.numerical_integration.get_available_methods { #cdesym.systems.base.numerical_integration.get_available_methods }
+
+```python
+systems.base.numerical_integration.get_available_methods(
+    backend='numpy',
+    method_type='all',
+)
+```
+
+    Get available integration methods for a backend.
+
+    Returns a dictionary of methods organized by category (deterministic vs
+    stochastic, fixed-step vs adaptive) along with canonical aliases that
+    work across all backends.
+
+##     Parameters {.doc-section .doc-section-----parameters}
+
+    backend : Backend, default='numpy'
+        Backend to query: 'numpy', 'torch', or 'jax'
+    method_type : str, default='all'
+        Filter by method type:
+        - 'all': All methods (default)
+        - 'deterministic': Only ODE methods
+        - 'stochastic': Only SDE methods
+        - 'fixed_step': Only fixed-step methods (both ODE and SDE)
+        - 'adaptive': Only adaptive methods (both ODE and SDE)
+
+##     Returns {.doc-section .doc-section-----returns}
+
+    dict
+        Dictionary with method categories as keys:
+
+        - **deterministic_fixed_step** : list of str
+            Fixed-step ODE methods (euler, rk4, heun, midpoint)
+
+        - **deterministic_adaptive** : list of str
+            Adaptive ODE methods (RK45, LSODA, dopri5, tsit5, etc.)
+
+        - **sde_fixed_step** : list of str
+            Fixed-step SDE methods (EM, euler_maruyama, milstein, etc.)
+
+        - **sde_adaptive** : list of str
+            Adaptive SDE methods (LambaEM, AutoEM, adaptive_heun)
+
+        - **canonical_aliases** : list of str
+            User-friendly canonical names that work on all backends
+            (euler_maruyama, milstein, rk45, rk23, etc.)
+
+##     Method Availability {.doc-section .doc-section-----method-availability}
+
+    Actual availability depends on installed packages:
+
+    - **NumPy backend**:
+      - Requires: scipy (always available)
+      - Optional: diffeqpy (Julia integration, enables high-accuracy SDE solvers)
+      - Without diffeqpy: Only scipy methods + manual implementations
+
+    - **PyTorch backend**:
+      - Requires: torch (for basic functionality)
+      - Optional: torchdiffeq (ODE solvers), torchsde (SDE solvers)
+      - Without packages: Only manual implementations (euler, rk4, heun)
+
+    - **JAX backend**:
+      - Requires: jax, jaxlib
+      - Optional: diffrax (comprehensive ODE/SDE solvers)
+      - Without diffrax: Only manual implementations
+
+    This function returns ALL methods that COULD be available, not just
+    those currently installed. Use validate_method() to check if a specific
+    method is actually available.
+
+##     Examples {.doc-section .doc-section-----examples}
+
+    **Get all methods for PyTorch:**
+
+    >>> methods = get_available_methods('torch', method_type='all')
+    >>> print(methods.keys())
+    dict_keys(['deterministic_fixed_step', 'deterministic_adaptive',
+               'sde_fixed_step', 'sde_adaptive', 'canonical_aliases'])
+    >>>
+    >>> print(methods['sde_fixed_step'])
+    ['euler', 'milstein', 'srk', 'midpoint']
+
+    **Get only stochastic methods:**
+
+    >>> sde_methods = get_available_methods('jax', method_type='stochastic')
+    >>> print(sde_methods['sde_fixed_step'])
+    ['Euler', 'EulerHeun', 'Heun', 'ItoMilstein', 'StratonovichMilstein',
+     'SEA', 'SHARK', 'SRA1']
+    >>>
+    >>> print(sde_methods['canonical_aliases'])
+    ['euler_maruyama', 'milstein', 'rk45', 'rk23', 'tsit5']
+
+    **Get only fixed-step methods (both ODE and SDE):**
+
+    >>> fixed = get_available_methods('numpy', method_type='fixed_step')
+    >>> print(fixed['deterministic_fixed_step'])
+    ['euler', 'midpoint', 'rk4', 'heun']
+    >>> print(fixed['sde_fixed_step'])
+    ['EM', 'EulerHeun', 'SRIW1', 'SRIW2', 'SRA1', 'SRA3', 'RKMil', 'ImplicitEM']
+
+    **Compare backends:**
+
+    >>> for backend in ['numpy', 'torch', 'jax']:
+    ...     methods = get_available_methods(backend, method_type='stochastic')
+    ...     n_sde = len(methods['sde_fixed_step']) + len(methods['sde_adaptive'])
+    ...     print(f"{backend:6s}: {n_sde} SDE methods")
+    numpy : 10 SDE methods
+    torch : 6 SDE methods
+    jax   : 9 SDE methods
+
+    **Discover canonical aliases:**
+
+    >>> methods = get_available_methods('torch')
+    >>> print("Portable canonical names:")
+    >>> for alias in methods['canonical_aliases']:
+    ...     print(f"  - {alias}")
+    Portable canonical names:
+      - euler_maruyama
+      - milstein
+      - rk45
+      - rk23
+
+    **Filter and format for user display:**
+
+    >>> methods = get_available_methods('numpy', method_type='deterministic')
+    >>>
+    >>> print("Fixed-step methods:")
+    >>> for method in sorted(methods['deterministic_fixed_step']):
+    ...     print(f"  - {method}")
+    >>>
+    >>> print("
+Adaptive methods:")
+    >>> for method in sorted(methods['deterministic_adaptive']):
+    ...     print(f"  - {method}")
+
+    **Usage in DiscretizedSystem.get_available_methods():**
+
+    >>> # Delegate to this utility function
+    >>> @staticmethod
+    >>> def get_available_methods(*args, **kwargs):
+    ...     from cdesym.systems.base.numerical_integration.method_registry import (
+    ...         get_available_methods as _get_available_methods
+    ...     )
+    ...     return _get_available_methods(*args, **kwargs)
+
+##     Notes {.doc-section .doc-section-----notes}
+
+    - Returns potential methods, not necessarily installed/working
+    - Manual implementations (euler, rk4, heun) work on all backends
+    - Some method names appear in multiple categories due to backend conventions
+    - Canonical aliases provide portable names across backends
+    - Filter results by method_type to reduce information overload
+
+##     See Also {.doc-section .doc-section-----see-also}
+
+    validate_method : Check if specific method is actually available
+    normalize_method_name : Convert canonical to backend-specific names
+    BACKEND_METHODS : Complete set of methods per backend

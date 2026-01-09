@@ -1,0 +1,100 @@
+# visualization.PlotThemes { #cdesym.visualization.PlotThemes }
+
+```python
+visualization.PlotThemes()
+```
+
+Complete plotting theme configurations.
+
+Provides preset themes that combine colors, fonts, templates, and styling
+for consistent professional visualization.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name         | Type   | Description                                      |
+|--------------|--------|--------------------------------------------------|
+| DEFAULT      | dict   | Standard Plotly white theme                      |
+| PUBLICATION  | dict   | Publication-ready styling (clean, high-contrast) |
+| DARK         | dict   | Dark mode theme                                  |
+| PRESENTATION | dict   | Large fonts and high contrast for presentations  |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Apply theme to figure
+>>> fig = plotter.plot_trajectory(t, x)
+>>> fig = PlotThemes.apply_theme(fig, theme='publication')
+>>> fig.show()
+>>>
+>>> # Custom theme
+>>> custom = PlotThemes.DEFAULT.copy()
+>>> custom['font_size'] = 16
+>>> fig = PlotThemes.apply_theme(fig, theme=custom)
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [apply_theme](#cdesym.visualization.PlotThemes.apply_theme) | Apply complete theme to Plotly figure. |
+| [get_line_styles](#cdesym.visualization.PlotThemes.get_line_styles) | Get available line dash patterns. |
+
+### apply_theme { #cdesym.visualization.PlotThemes.apply_theme }
+
+```python
+visualization.PlotThemes.apply_theme(fig, theme='default')
+```
+
+Apply complete theme to Plotly figure.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type        | Description                                                                              | Default     |
+|--------|-------------|------------------------------------------------------------------------------------------|-------------|
+| fig    | go.Figure   | Plotly figure to style                                                                   | _required_  |
+| theme  | str or dict | Theme name ('default', 'publication', 'dark', 'presentation') or custom theme dictionary | `'default'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | go.Figure | Styled figure |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Apply publication theme
+>>> fig = plotter.plot_trajectory(t, x)
+>>> fig = PlotThemes.apply_theme(fig, theme='publication')
+>>> fig.write_html('figure.html')
+>>>
+>>> # Custom theme
+>>> custom = {
+...     'template': 'plotly_white',
+...     'font_family': 'Helvetica',
+...     'font_size': 16,
+... }
+>>> fig = PlotThemes.apply_theme(fig, theme=custom)
+```
+
+### get_line_styles { #cdesym.visualization.PlotThemes.get_line_styles }
+
+```python
+visualization.PlotThemes.get_line_styles()
+```
+
+Get available line dash patterns.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                       |
+|--------|-------------|-----------------------------------|
+|        | List\[str\] | List of Plotly line dash patterns |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> styles = PlotThemes.get_line_styles()
+>>> print(styles)
+['solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot']
+```

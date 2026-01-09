@@ -1,0 +1,26 @@
+# types.core.ControlVector { #cdesym.types.core.ControlVector }
+
+`types.core.ControlVector`
+
+Control input vector u ∈ ℝⁿᵘ.
+
+Actuator commands that influence system dynamics.
+
+Shapes:
+- Single control: (nu,)
+- Batched controls: (batch, nu)
+- Control sequence: (n_steps, nu)
+- Batched sequence: (n_steps, batch, nu)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Single control
+>>> u: ControlVector = np.array([0.5])
+>>> 
+>>> # Control sequence (100 steps)
+>>> u_seq: ControlVector = np.zeros((100, 1))
+>>> 
+>>> # For autonomous systems (nu=0)
+>>> u_autonomous: Optional[ControlVector] = None
+```

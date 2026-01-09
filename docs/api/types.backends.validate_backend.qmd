@@ -1,0 +1,33 @@
+# types.backends.validate_backend { #cdesym.types.backends.validate_backend }
+
+```python
+types.backends.validate_backend(backend)
+```
+
+Validate and normalize backend string.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description              | Default    |
+|---------|--------|--------------------------|------------|
+| backend | str    | Backend name to validate | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type    | Description               |
+|--------|---------|---------------------------|
+|        | Backend | Validated backend (typed) |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description             |
+|--------|------------|-------------------------|
+|        | ValueError | If backend is not valid |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> validate_backend('numpy')
+'numpy'
+>>> validate_backend('pytorch')  # ValueError
+```

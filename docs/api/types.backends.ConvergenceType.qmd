@@ -1,0 +1,25 @@
+# types.backends.ConvergenceType { #cdesym.types.backends.ConvergenceType }
+
+```python
+types.backends.ConvergenceType()
+```
+
+SDE convergence type for numerical integration.
+
+Types:
+- 'strong': Pathwise/strong convergence
+* Individual sample paths converge
+* E[|X_numerical - X_true|] → 0
+* Needed for: Filtering, control synthesis, single trajectory accuracy
+* More expensive to achieve
+
+- 'weak': Weak convergence
+* Distributions/moments converge
+* E[φ(X_numerical)] → E[φ(X_true)] for test functions φ
+* Needed for: Monte Carlo, statistics, ensemble behavior
+* Easier to achieve (higher order possible)
+
+Order Comparison:
+- Euler-Maruyama: Strong order 0.5, weak order 1.0
+- Milstein: Strong order 1.0
+- SRA1: Weak order 2.0

@@ -1,0 +1,34 @@
+# types.backends.validate_device { #cdesym.types.backends.validate_device }
+
+```python
+types.backends.validate_device(device, backend)
+```
+
+Validate device for given backend.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description        | Default    |
+|---------|---------|--------------------|------------|
+| device  | str     | Device identifier  | _required_ |
+| backend | Backend | Backend being used | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description      |
+|--------|--------|------------------|
+|        | Device | Validated device |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                         |
+|--------|------------|-------------------------------------|
+|        | ValueError | If device incompatible with backend |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> validate_device('cuda', 'torch')
+'cuda'
+>>> validate_device('cuda', 'numpy')  # ValueError - NumPy is CPU-only
+```

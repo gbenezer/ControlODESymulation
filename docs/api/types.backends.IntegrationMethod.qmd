@@ -1,0 +1,5 @@
+# types.backends.IntegrationMethod { #cdesym.types.backends.IntegrationMethod }
+
+`types.backends.IntegrationMethod`
+
+Integration method for continuous-time systems (ODEs).

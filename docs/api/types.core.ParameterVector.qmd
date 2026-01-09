@@ -1,0 +1,17 @@
+# types.core.ParameterVector { #cdesym.types.core.ParameterVector }
+
+`types.core.ParameterVector`
+
+Parameter vector θ ∈ ℝⁿᵖ.
+
+System parameters for identification, adaptation, or learning.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Physical parameters
+>>> theta: ParameterVector = np.array([mass, damping, stiffness])
+>>> 
+>>> # Neural network parameters (flattened)
+>>> theta_nn: ParameterVector = flatten(model.parameters())
+```

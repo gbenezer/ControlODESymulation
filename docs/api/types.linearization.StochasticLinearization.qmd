@@ -1,0 +1,61 @@
+# types.linearization.StochasticLinearization { #cdesym.types.linearization.StochasticLinearization }
+
+`types.linearization.StochasticLinearization`
+
+Linearization result for stochastic systems: (A, B, G).
+
+Returns Jacobians of drift and diffusion terms.
+
+Continuous SDE:
+    dx = f(x,u)dt + g(x,u)dW linearized to:
+    dx ≈ (Ac*δx + Bc*δu)dt + Gc*dW
+
+    Returns: (Ac, Bc, Gc) where
+        Ac = ∂f/∂x at (x_eq, u_eq)  (nx, nx)
+        Bc = ∂f/∂u at (x_eq, u_eq)  (nx, nu)
+        Gc = ∂g/∂x at (x_eq, u_eq) or g(x_eq) if additive  (nx, nw)
+
+Discrete stochastic:
+    x[k+1] = f(x,u) + g(x,u)*w[k] linearized to:
+    x[k+1] ≈ Ad*δx + Bd*δu + Gd*w[k]
+
+    Returns: (Ad, Bd, Gd) where
+        Ad = ∂f/∂x  (nx, nx)
+        Bd = ∂f/∂u  (nx, nu)
+        Gd = g(x_eq) or ∂g/∂x  (nx, nw)
+
+Usage:
+    Ac, Bc, Gc = sde_system.linearize(x_eq, u_eq)
+    Ad, Bd, Gd = discrete_stochastic.linearize(x_eq, u_eq)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous SDE linearization
+>>> Ac, Bc, Gc = sde_system.linearize(
+...     x_eq=np.zeros(2),
+...     u_eq=np.zeros(1)
+... )
+>>> print(Ac.shape)  # (2, 2)
+>>> print(Bc.shape)  # (2, 1)
+>>> print(Gc.shape)  # (2, nw)
+>>> 
+>>> # Process noise covariance
+>>> Q = Gc @ Gc.T
+>>> 
+>>> # Discrete stochastic linearization
+>>> Ad, Bd, Gd = discrete_stochastic.linearize(
+...     x_eq=np.zeros(2),
+...     u_eq=np.zeros(1)
+... )
+>>> 
+>>> # Design LQG controller
+>>> # 1. LQR for control
+>>> P_control = solve_discrete_are(Ad, Bd, Q_cost, R_cost)
+>>> K_lqr = np.linalg.inv(R_cost + Bd.T @ P_control @ Bd) @ (Bd.T @ P_control @ Ad)
+>>> 
+>>> # 2. Kalman for estimation
+>>> Q_noise = Gd @ Gd.T
+>>> P_estimate = solve_discrete_are(Ad.T, Cd.T, Q_noise, R_noise)
+>>> L_kalman = Ad @ P_estimate @ Cd.T @ np.linalg.inv(Cd @ P_estimate @ Cd.T + R_noise)
+```

@@ -1,0 +1,51 @@
+# types.linearization.LinearizationResult { #cdesym.types.linearization.LinearizationResult }
+
+`types.linearization.LinearizationResult`
+
+Flexible linearization result type.
+
+Can be either:
+- (A, B) for deterministic systems
+- (A, B, G) for stochastic systems
+
+This union type enables polymorphic code that handles both deterministic
+and stochastic systems with a single function signature.
+
+Polymorphic Unpacking Pattern:
+    result = system.linearize(x_eq, u_eq)
+    A, B = result[0], result[1]  # Always available
+    if len(result) == 3:
+        G = result[2]  # Stochastic only
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Polymorphic function
+>>> def analyze_linearization(
+...     system,
+...     x_eq: StateVector,
+...     u_eq: ControlVector
+... ) -> dict:
+...     '''Works with deterministic AND stochastic systems.'''
+...     result: LinearizationResult = system.linearize(x_eq, u_eq)
+...     
+...     A = result[0]  # State matrix (always present)
+...     B = result[1]  # Control matrix (always present)
+...     
+...     info = {
+...         'eigenvalues': np.linalg.eigvals(A),
+...         'is_stochastic': len(result) == 3
+...     }
+...     
+...     if len(result) == 3:
+...         G = result[2]
+...         info['process_noise_cov'] = G @ G.T
+...     
+...     return info
+>>> 
+>>> # Use with deterministic
+>>> result_det = analyze_linearization(ode_system, x_eq, u_eq)
+>>> 
+>>> # Use with stochastic
+>>> result_stoch = analyze_linearization(sde_system, x_eq, u_eq)
+```

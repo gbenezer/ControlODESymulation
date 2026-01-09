@@ -1,0 +1,98 @@
+# systems.builtin.deterministic.continuous.PathTracking { #cdesym.systems.builtin.deterministic.continuous.PathTracking }
+
+```python
+systems.builtin.deterministic.continuous.PathTracking(*args, **kwargs)
+```
+
+Path tracking error dynamics for a vehicle following a circular reference path.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+Models the error dynamics of a kinematic vehicle (car, robot, boat) as it
+attempts to follow a circular trajectory.
+
+The vehicle uses a bicycle model (front-wheel steering) and the error
+coordinates are relative to the closest point on the reference circle.
+
+## Coordinate Frames: {.doc-section .doc-section-coordinate-frames}
+
+- **Reference path**: Circular trajectory with radius R
+- **Path frame**: Moving frame tangent to reference path
+- **Vehicle frame**: Body-fixed frame of the vehicle
+- **Error coordinates**: Deviations from reference path in path frame
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [d_e, θ_e]
+    - d_e: Lateral (cross-track) error [m]
+      * d_e > 0: vehicle is to the left of the path
+      * d_e < 0: vehicle is to the right of the path
+      * d_e = 0: vehicle is exactly on the path
+
+    - θ_e: Heading error [rad]
+      * θ_e > 0: vehicle heading points left of desired direction
+      * θ_e < 0: vehicle heading points right of desired direction
+      * θ_e = 0: vehicle heading is tangent to path
+
+Control: u = [δ]
+    - δ (delta): Front wheel steering angle [rad]
+      * δ > 0: steer left
+      * δ < 0: steer right
+      * δ = 0: straight ahead
+
+Output: y = [d_e, θ_e]
+    - Full state observation (both errors measured)
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The error dynamics describe how tracking errors evolve:
+
+    ḋ_e = v·sin(θ_e)
+
+    θ̇_e = (v·δ)/L - cos(θ_e)/(R/v - sin(θ_e))
+
+**Lateral error rate ḋ_e**:
+- Proportional to forward speed v
+- Depends on heading error through sin(θ_e)
+- When θ_e > 0 (heading left), d_e increases (moves left)
+- When θ_e < 0 (heading right), d_e decreases (moves right)
+
+**Heading error rate θ̇_e**:
+- First term (v·δ)/L: Vehicle's turning rate (Ackermann steering)
+- Second term: Path's curvature rate projection
+- At equilibrium, these balance to track the circle
+
+Physical interpretation:
+- If vehicle steers more than needed → heading error increases
+- If vehicle steers less than needed → heading error decreases
+- Coupling: lateral error affects required steering through geometry
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+speed : float, default=1.0
+    Constant forward speed of vehicle [m/s]. Assumed to be maintained
+    by a low-level speed controller. Higher speed → faster error dynamics.
+length : float, default=1.0
+    Vehicle wheelbase [m]. Distance between front and rear axles.
+    Longer wheelbase → less maneuverable (smaller turning rate).
+radius : float, default=10.0
+    Radius of the circular reference path [m]. Larger radius → gentler
+    turn, easier to track. radius → ∞ approaches straight line tracking.
+
+## Equilibrium: {.doc-section .doc-section-equilibrium}
+
+Perfect tracking equilibrium:
+    x_eq = [0, 0]  (no lateral error, no heading error)
+    u_eq = L/R     (steady-state steering angle for circle)
+
+At equilibrium:
+- Vehicle is on the path (d_e = 0)
+- Vehicle heading is tangent to path (θ_e = 0)
+- Steering angle exactly matches path curvature
+- Steady-state steering: δ = L/R = wheelbase/radius
+
+## See Also: {.doc-section .doc-section-see-also}
+
+DubinsVehicle : Full kinematic model (not error dynamics)
+PVTOL : Another vehicle with reference tracking
+CartPole : Another system with error dynamics formulation

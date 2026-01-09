@@ -1,0 +1,41 @@
+# systems.base.numerical_integration.stochastic.create_custom_or_random_brownian { #cdesym.systems.base.numerical_integration.stochastic.create_custom_or_random_brownian }
+
+```python
+systems.base.numerical_integration.stochastic.create_custom_or_random_brownian(
+    key,
+    t0,
+    t1,
+    shape,
+    dW=None,
+)
+```
+
+Create either custom or random Brownian motion for Diffrax.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                  | Description                                           | Default    |
+|--------|-----------------------|-------------------------------------------------------|------------|
+| key    | jax.random.PRNGKey    | Random key (used if dW is None)                       | _required_ |
+| t0     | ScalarLike            | Start time                                            | _required_ |
+| t1     | ScalarLike            | End time                                              | _required_ |
+| shape  | tuple                 | Noise shape (nw,)                                     | _required_ |
+| dW     | Optional\[ArrayLike\] | Custom Brownian increment. If None, generates random. | `None`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                               | Description   |
+|--------|------------------------------------|---------------|
+|        | Brownian motion object for Diffrax |               |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Random noise
+>>> key = jax.random.PRNGKey(42)
+>>> brownian = create_custom_or_random_brownian(key, 0, 0.01, (1,))
+>>>
+>>> # Custom noise (deterministic)
+>>> dW = jnp.array([0.5])
+>>> brownian = create_custom_or_random_brownian(key, 0, 0.01, (1,), dW=dW)
+```

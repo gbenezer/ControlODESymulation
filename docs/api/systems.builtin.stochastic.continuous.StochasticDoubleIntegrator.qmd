@@ -1,0 +1,523 @@
+# systems.builtin.stochastic.continuous.StochasticDoubleIntegrator { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator(
+    *args,
+    **kwargs,
+)
+```
+
+Stochastic double integrator - canonical LQG benchmark system.
+
+The fundamental linear stochastic system combining position-velocity
+dynamics with random forcing. This is the "hello world" of stochastic
+control theory and the canonical example for LQG control and Kalman filtering.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+State-space form:
+    dx = v·dt
+    dv = u·dt + σ·dW
+
+Matrix form:
+    dX = (A·X + B·u)·dt + G·dW
+
+where:
+    X = [x, v]ᵀ: Position and velocity
+    A = [0  1]: Drift matrix (double integrator)
+        [0  0]
+    B = [0]: Control input matrix
+        [1]
+    G = [0]: Noise input matrix (velocity noise only)
+        [σ]
+    u: Control force
+    W(t): Standard Wiener process
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Newton's Second Law with Random Forces:**
+
+For unit mass: F = ma
+    a = u + w(t)
+
+where u is applied force and w(t) is random disturbance.
+
+**State Variables:**
+- x: Position [m] (unbounded)
+- v: Velocity [m/s] (unbounded)
+
+**Control:**
+- u: Applied force [m/s²] (acceleration)
+
+**Noise:**
+- σ: Force noise intensity [m/(s²·√s)]
+- Enters velocity equation (Newton's law)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Linearity:**
+Linear drift (A·X + B·u) enables exact solution.
+
+**Additive Noise:**
+Constant diffusion G (state-independent).
+
+**Double Integration:**
+Control u → velocity v → position x (two integrations).
+
+**Marginally Stable:**
+Eigenvalues: {0, 0} (poles at origin).
+- Not asymptotically stable
+- Requires feedback for regulation
+
+**Non-Stationary:**
+Variance grows unboundedly without control.
+
+**Gaussian:**
+Linear dynamics preserve Gaussianity.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Exact Solution (u constant):**
+
+Position:
+    x(t) = x₀ + v₀·t + (1/2)·u·t² + ∫₀ᵗ σ·(t-s)·dW(s)
+
+Velocity:
+    v(t) = v₀ + u·t + σ·W(t)
+
+**Moments:**
+Mean:
+    E[x(t)] = x₀ + v₀·t + (1/2)·u·t²
+    E[v(t)] = v₀ + u·t
+
+Variance:
+    Var[x(t)] = σ²·t³/3
+    Var[v(t)] = σ²·t
+
+Covariance:
+    Cov[x(t), v(t)] = σ²·t²/2
+
+**Distribution:**
+    [x(t)]     [E[x]]     σ²·[t³/3   t²/2]
+    [v(t)] ~ N([E[v]],        [t²/2   t  ])
+
+**Variance Growth:**
+- Position: O(t³) - very fast!
+- Velocity: O(t) - moderate
+- Correlation: O(t²)
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Noise Intensity σ:**
+- Units: [m/(s²·√s)] = [m/s^(3/2)]
+- Controls disturbance force magnitude
+- Typical: 0.01-1.0 depending on application
+
+**RMS Values:**
+After time t:
+- Position RMS: σ·t^(3/2)/√3
+- Velocity RMS: σ·√t
+
+**Why Position Variance Grows Faster:**
+Noise on velocity integrates to position:
+- Small velocity errors accumulate
+- Integration amplifies uncertainty
+- Requires active control to bound
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [x, v] ∈ ℝ²
+    - Unbounded (can take any real values)
+    - No equilibrium without control
+    - Non-stationary (variance grows)
+
+Control: u ∈ ℝ
+    - Force/acceleration input
+    - Can be state feedback: u = u(x, v)
+
+Noise: w ∈ ℝ
+    - Single Wiener process
+    - Enters velocity equation only
+    - G = [0, σ]ᵀ
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                           | Default   |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Noise intensity [m/(s²·√s)] - Controls disturbance magnitude - Typical: 0.01-1.0 - Larger σ → more uncertainty        | `0.1`     |
+| m      | float  | Mass [kg] (optional, typically normalized to 1) - Can include for dimensional analysis - Usually set to 1 (unit mass) | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR
+- Noise Type: ADDITIVE (constant)
+- SDE Type: Itô
+- Noise Dimension: nw = 1
+- Stationary: No (open-loop)
+- Gaussian: Yes (linear dynamics)
+- Controllable: Yes (completely)
+- Observable: Depends on measurement
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. LQG Control:**
+Canonical benchmark for Linear-Quadratic-Gaussian:
+- Separation principle demonstration
+- Kalman filter + LQR combination
+- Optimal for quadratic cost
+
+**2. Kalman Filtering:**
+Test state estimation algorithms:
+- Position measurement → estimate velocity
+- Optimal for Gaussian noise
+- Benchmark filter performance
+
+**3. Robotics:**
+- UAV position control (per axis)
+- Robot manipulator (per joint)
+- Mobile robot navigation
+
+**4. Aerospace:**
+- Spacecraft position control
+- Missile guidance
+- Aircraft lateral control
+
+**5. Economics:**
+- Capital accumulation models
+- Inventory control
+- Policy design under uncertainty
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Exact Discretization (Recommended):**
+Use closed-form discrete-time model:
+    X[k+1] = Φ·X[k] + Γ·u + w_d
+
+No discretization error, preserves all properties.
+
+**SDE Integration:**
+- Euler-Maruyama: Simple, O(√Δt) strong convergence
+- Milstein: Same as Euler for additive noise
+- Framework solvers: All work well (linear, non-stiff)
+
+## LQG Control Design {.doc-section .doc-section-lqg-control-design}
+
+**Cost Function:**
+    J = E[∫ (Xᵀ·Q·X + u·R·u)·dt]
+
+**Optimal Control:**
+    u* = -K·X̂
+
+where K from LQR, X̂ from Kalman filter.
+
+**Separation Principle:**
+Design independently:
+- LQR gain K (assume perfect state)
+- Kalman gain L (estimate state)
+- Combine: u = -K·X̂
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic:**
+- ẍ = u (no noise)
+- Perfect control possible
+- Exact regulation
+
+**Stochastic:**
+- ẍ = u + w (noise)
+- Minimum variance limit
+- Probabilistic regulation
+
+**Critical Difference:**
+Cannot eliminate noise effect - fundamental limit
+on achievable performance.
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- No damping (purely integrating)
+- Linear (no nonlinear effects)
+- Additive noise only
+- Single control input
+- No constraints
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Add damping: -b·v term
+- Nonlinear: u·v coupling
+- Multiplicative noise
+- Constraints: |x| ≤ x_max
+- Higher dimensions: 2D, 3D
+
+## Examples {.doc-section .doc-section-examples}
+
+Basic double integrator:
+
+```python
+>>> # Standard configuration
+>>> system = StochasticDoubleIntegrator(sigma=0.1)
+>>>
+>>> # Check properties
+>>> print(f"Linear system: {system.is_linear()}")  # True
+>>> print(f"Additive noise: {system.is_additive_noise()}")  # True
+>>> print(f"State dimension: {system.nx}")  # 2
+```
+
+Evaluate dynamics:
+
+```python
+>>> # At rest with unit force
+>>> x = np.array([0.0, 0.0])
+>>> u = np.array([1.0])
+>>> drift = system.drift(x, u)  # [0, 1]
+>>> diffusion = system.diffusion(x, u)  # [[0], [0.1]]
+```
+
+Different noise levels:
+
+```python
+>>> # Low noise (precise environment)
+>>> low_noise = StochasticDoubleIntegrator(sigma=0.01)
+>>>
+>>> # High noise (harsh environment)
+>>> high_noise = StochasticDoubleIntegrator(sigma=1.0)
+```
+
+Simulation:
+
+```python
+>>> # Free motion with noise (u=0)
+>>> x0 = np.array([1.0, 0.0])  # Start at x=1, v=0
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,  # Zero control
+...     t_span=(0, 10),
+...     method='euler-maruyama',
+...     dt=0.01
+... )
+>>>
+>>> # Variance should grow
+>>> positions = result['y'][0, :]
+>>> velocities = result['y'][1, :]
+>>> print(f"Position variance: {np.var(positions):.3f}")
+```
+
+## See Also {.doc-section .doc-section-see-also}
+
+DoubleIntegrator : Deterministic version
+OrnsteinUhlenbeck : With damping (stable)
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.define_system) | Define stochastic double integrator dynamics. |
+| [get_position_std](#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_position_std) | Get analytical position standard deviation at time t. |
+| [get_variance_at_time](#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_variance_at_time) | Get analytical variance matrix at time t (open-loop, u=0, X₀=0). |
+| [get_velocity_std](#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_velocity_std) | Get analytical velocity standard deviation at time t. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.setup_equilibria) | Set up equilibrium points. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.define_system }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.define_system(
+    sigma=0.1,
+    m=1.0,
+)
+```
+
+Define stochastic double integrator dynamics.
+
+Sets up linear SDE:
+    dx = v·dt
+    dv = u·dt + σ·dW
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                          | Default   |
+|--------|--------|----------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma  | float  | Noise intensity [m/(s²·√s)] - Controls disturbance force magnitude - Typical: 0.01-1.0 - Larger σ → more uncertainty | `0.1`     |
+| m      | float  | Mass [kg] (optional, typically 1) - Usually normalized to unit mass - Can include for dimensional analysis           | `1.0`     |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**System Structure:**
+
+Linear drift:
+    A = [0  1]  (standard double integrator)
+        [0  0]
+
+Control matrix:
+    B = [0]  (force affects acceleration)
+        [1/m]
+
+Noise matrix:
+    G = [0]  (noise on velocity only)
+        [σ]
+
+**Eigenvalues:**
+λ = {0, 0} - double pole at origin (marginally stable).
+
+**Controllability:**
+rank[B, A·B] = 2 - completely controllable.
+
+**Observability:**
+If measuring x: rank[C; C·A] = 2 - observable
+If measuring v: NOT observable (x decoupled)
+
+**Noise Placement:**
+Physically correct: Noise on velocity (forces cause accelerations).
+
+Alternative (wrong): G = [σ, 0]ᵀ would be position noise,
+violating Newton's law.
+
+**Variance Growth:**
+Without control:
+- Var[x(t)] = σ²·t³/3 (cubic!)
+- Var[v(t)] = σ²·t (linear)
+
+Requires feedback to stabilize.
+
+**Parameter Scaling:**
+
+For spacecraft (SI units):
+- Position: meters
+- Velocity: m/s
+- Force: Newtons (= kg·m/s² = m/s² for m=1)
+- σ: m/s^(3/2)
+
+For normalized units:
+- Set m = 1 (dimensionless)
+- Position, velocity in natural units
+- Force = acceleration
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard unit mass system
+>>> system = StochasticDoubleIntegrator(sigma=0.1, m=1.0)
+>>>
+>>> # Spacecraft (1000 kg)
+>>> spacecraft = StochasticDoubleIntegrator(
+...     sigma=0.01,  # Small disturbances
+...     m=1000.0
+... )
+>>>
+>>> # High noise environment
+>>> harsh = StochasticDoubleIntegrator(sigma=1.0, m=1.0)
+```
+
+### get_position_std { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_position_std }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_position_std(
+    t,
+)
+```
+
+Get analytical position standard deviation at time t.
+
+σ_x(t) = σ·t^(3/2)/√3
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description   | Default    |
+|--------|--------|---------------|------------|
+| t      | float  | Time [s]      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                 |
+|--------|--------|-----------------------------|
+|        | float  | Position standard deviation |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = StochasticDoubleIntegrator(sigma=0.1)
+>>> std_10s = system.get_position_std(t=10.0)
+>>> print(f"Position std after 10s: {std_10s:.3f} m")
+```
+
+### get_variance_at_time { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_variance_at_time }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_variance_at_time(
+    t,
+)
+```
+
+Get analytical variance matrix at time t (open-loop, u=0, X₀=0).
+
+Returns 2×2 covariance matrix.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description   | Default    |
+|--------|--------|---------------|------------|
+| t      | float  | Time [s]      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                                                                   |
+|--------|------------|-------------------------------------------------------------------------------|
+|        | np.ndarray | Covariance matrix [[Var(x), Cov(x,v)],                    [Cov(x,v), Var(v)]] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For open-loop (u=0) starting from origin:
+    Var[x] = σ²·t³/3
+    Var[v] = σ²·t
+    Cov[x,v] = σ²·t²/2
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = StochasticDoubleIntegrator(sigma=0.1)
+>>> Sigma = system.get_variance_at_time(t=10.0)
+>>> print(f"Position variance: {Sigma[0,0]:.2f}")
+>>> print(f"Velocity variance: {Sigma[1,1]:.2f}")
+```
+
+### get_velocity_std { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_velocity_std }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.get_velocity_std(
+    t,
+)
+```
+
+Get analytical velocity standard deviation at time t.
+
+σ_v(t) = σ·√t
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description   | Default    |
+|--------|--------|---------------|------------|
+| t      | float  | Time [s]      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                 |
+|--------|--------|-----------------------------|
+|        | float  | Velocity standard deviation |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = StochasticDoubleIntegrator(sigma=0.1)
+>>> std_10s = system.get_velocity_std(t=10.0)
+>>> print(f"Velocity std after 10s: {std_10s:.3f} m/s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.setup_equilibria(
+)
+```
+
+Set up equilibrium points.
+
+For open-loop double integrator, only equilibrium is origin
+with zero control. System is marginally stable (not asymptotically).

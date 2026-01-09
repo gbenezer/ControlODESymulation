@@ -1,0 +1,35 @@
+# types.core.OutputFunction { #cdesym.types.core.OutputFunction }
+
+`types.core.OutputFunction`
+
+Output/observation function h(x).
+
+Maps state to measurement: y = h(x).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type        | Description   | Default    |
+|--------|-------------|---------------|------------|
+| x      | StateVector | State (nx,)   | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description   |
+|--------|--------------|---------------|
+|        | OutputVector | Output (ny,)  |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Full state observation
+>>> def h_full(x: StateVector) -> OutputVector:
+...     return x  # y = x
+>>> 
+>>> # Partial observation (position only)
+>>> def h_partial(x: StateVector) -> OutputVector:
+...     return x[0:2]  # First two states
+>>> 
+>>> # Nonlinear observation
+>>> def h_nonlinear(x: StateVector) -> OutputVector:
+...     return np.array([np.linalg.norm(x)])  # Distance from origin
+```

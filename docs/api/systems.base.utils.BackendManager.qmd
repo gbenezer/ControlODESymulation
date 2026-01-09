@@ -1,0 +1,304 @@
+# systems.base.utils.BackendManager { #cdesym.systems.base.utils.BackendManager }
+
+```python
+systems.base.utils.BackendManager(
+    default_backend=DEFAULT_BACKEND,
+    default_device=DEFAULT_DEVICE,
+)
+```
+
+Manages backend detection, conversion, and device placement.
+
+Supports NumPy, PyTorch, and JAX backends with automatic detection
+and conversion between them.
+
+Example:
+    >>> mgr = BackendManager()
+    >>> mgr.set_default('torch', device='cuda')
+    >>>
+    >>> # Auto-detect backend
+    >>> x = torch.tensor([1.0])
+    >>> backend = mgr.detect(x)  # Returns 'torch'
+    >>>
+    >>> # Convert between backends
+    >>> x_jax = mgr.convert(x, 'jax')
+    >>>
+    >>> # Temporary backend switching
+    >>> with mgr.use_backend('numpy'):
+    ...     # Operations use NumPy
+    ...     pass
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [available_backends](#cdesym.systems.base.utils.BackendManager.available_backends) | Get list of available backends |
+| [default_backend](#cdesym.systems.base.utils.BackendManager.default_backend) | Get current default backend |
+| [preferred_device](#cdesym.systems.base.utils.BackendManager.preferred_device) | Get current preferred device |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [check_available](#cdesym.systems.base.utils.BackendManager.check_available) | Check if a backend is available. |
+| [convert](#cdesym.systems.base.utils.BackendManager.convert) | Convert array to target backend with optional device placement. |
+| [detect](#cdesym.systems.base.utils.BackendManager.detect) | Detect backend from array type. |
+| [ensure_type](#cdesym.systems.base.utils.BackendManager.ensure_type) | Ensure array is in specified backend type. |
+| [get_extended_info](#cdesym.systems.base.utils.BackendManager.get_extended_info) | Get extended backend information including versions. |
+| [get_info](#cdesym.systems.base.utils.BackendManager.get_info) | Get backend configuration. |
+| [require_backend](#cdesym.systems.base.utils.BackendManager.require_backend) | Raise error if backend is not available. |
+| [reset](#cdesym.systems.base.utils.BackendManager.reset) | Reset to default configuration (NumPy backend, CPU device). |
+| [set_default](#cdesym.systems.base.utils.BackendManager.set_default) | Set default backend and optionally device. |
+| [to_device](#cdesym.systems.base.utils.BackendManager.to_device) | Set preferred device for GPU-capable backends. |
+| [use_backend](#cdesym.systems.base.utils.BackendManager.use_backend) | Temporarily switch to a different backend and/or device. |
+
+### check_available { #cdesym.systems.base.utils.BackendManager.check_available }
+
+```python
+systems.base.utils.BackendManager.check_available(backend)
+```
+
+Check if a backend is available.
+
+Args:
+    backend: Backend name to check
+
+Returns:
+    True if backend is available, False otherwise
+
+### convert { #cdesym.systems.base.utils.BackendManager.convert }
+
+```python
+systems.base.utils.BackendManager.convert(
+    array,
+    target_backend=None,
+    device=None,
+)
+```
+
+Convert array to target backend with optional device placement.
+
+This is the primary conversion method that combines backend conversion
+and device placement in a single operation. This method allows explicit device control.
+
+Args:
+    array: Source array (numpy.ndarray, torch.Tensor, or jax.numpy.ndarray)
+    target_backend: Target backend (None = use default_backend)
+    device: Target device (None = use preferred_device)
+
+Returns:
+    Array in target backend format on specified device
+
+Raises:
+    RuntimeError: If target backend is not available
+    ValueError: If device is incompatible with target backend
+    TypeError: If array type is not recognized
+
+Example:
+    >>> mgr = BackendManager()
+    >>> x_np = np.array([1.0, 2.0, 3.0])
+    >>>
+    >>> # Convert to PyTorch on CPU
+    >>> x_torch = mgr.to_backend(x_np, 'torch', device='cpu')
+    >>>
+    >>> # Convert to JAX (uses default device)
+    >>> x_jax = mgr.to_backend(x_np, 'jax')
+    >>>
+    >>> # Convert to default backend
+    >>> x_default = mgr.to_backend(x_jax)  # Uses default_backend
+
+Note:
+    - If target_backend is None, uses self.default_backend
+    - If device is None, uses self.preferred_device
+    - For numpy backend, device parameter is ignored (always CPU)
+    - Performs no-op if array is already in target backend on correct device
+
+### detect { #cdesym.systems.base.utils.BackendManager.detect }
+
+```python
+systems.base.utils.BackendManager.detect(array)
+```
+
+Detect backend from array type.
+
+Uses centralized type guards from utilities module for consistent
+backend detection across the framework.
+
+Args:
+    array: Input array/tensor
+
+Returns:
+    Backend identifier ('numpy', 'torch', or 'jax')
+
+Raises:
+    TypeError: If array type is not recognized
+
+Example:
+    >>> mgr = BackendManager()
+    >>> x = np.array([1.0])
+    >>> mgr.detect(x)  # Returns 'numpy'
+    >>>
+    >>> import torch
+    >>> x_torch = torch.tensor([1.0])
+    >>> mgr.detect(x_torch)  # Returns 'torch'
+
+### ensure_type { #cdesym.systems.base.utils.BackendManager.ensure_type }
+
+```python
+systems.base.utils.BackendManager.ensure_type(arr, backend=None)
+```
+
+Ensure array is in specified backend type.
+
+Converts array only if it's not already the correct type.
+Less aggressive than convert() - preserves existing type if compatible.
+
+Args:
+    arr: Array to check/convert
+    backend: Target backend (None = use default_backend)
+
+Returns:
+    Array in correct backend type
+
+Example:
+    >>> mgr = BackendManager()
+    >>> x_np = np.array([1.0])
+    >>> x_ensured = mgr.ensure_type(x_np, 'numpy')
+    >>> assert x_ensured is x_np  # Same object (no conversion)
+
+### get_extended_info { #cdesym.systems.base.utils.BackendManager.get_extended_info }
+
+```python
+systems.base.utils.BackendManager.get_extended_info()
+```
+
+Get extended backend information including versions.
+
+Returns:
+    Dictionary with backend configuration and metadata
+
+Example:
+    >>> mgr = BackendManager()
+    >>> info = mgr.get_extended_info()
+    >>> print(info['available_backends'])
+    ['numpy', 'torch', 'jax']
+
+### get_info { #cdesym.systems.base.utils.BackendManager.get_info }
+
+```python
+systems.base.utils.BackendManager.get_info()
+```
+
+Get backend configuration.
+
+Returns:
+    Structured backend configuration
+
+Example:
+    >>> mgr = BackendManager()
+    >>> config = mgr.get_info()
+    >>> print(config['backend'])
+    'numpy'
+
+### require_backend { #cdesym.systems.base.utils.BackendManager.require_backend }
+
+```python
+systems.base.utils.BackendManager.require_backend(backend)
+```
+
+Raise error if backend is not available.
+
+Args:
+    backend: Backend name to check
+
+Raises:
+    RuntimeError: If backend is not available
+
+Example:
+    >>> mgr = BackendManager()
+    >>> mgr.require_backend('torch')  # Raises if PyTorch not installed
+
+### reset { #cdesym.systems.base.utils.BackendManager.reset }
+
+```python
+systems.base.utils.BackendManager.reset()
+```
+
+Reset to default configuration (NumPy backend, CPU device).
+
+Example:
+    >>> mgr = BackendManager()
+    >>> mgr.set_default('torch', device='cuda')
+    >>> mgr.reset()
+    >>> mgr.default_backend  # Returns 'numpy'
+    >>> mgr.preferred_device  # Returns 'cpu'
+
+### set_default { #cdesym.systems.base.utils.BackendManager.set_default }
+
+```python
+systems.base.utils.BackendManager.set_default(backend, device=None)
+```
+
+Set default backend and optionally device.
+
+Args:
+    backend: Backend name
+    device: Device name (if None, device is not changed)
+
+Returns:
+    Self for method chaining
+
+Raises:
+    ValueError: If backend name is invalid or device incompatible
+    RuntimeError: If backend is not available
+
+### to_device { #cdesym.systems.base.utils.BackendManager.to_device }
+
+```python
+systems.base.utils.BackendManager.to_device(device)
+```
+
+Set preferred device for GPU-capable backends.
+
+Args:
+    device: Device string ('cpu', 'cuda', 'cuda:0', 'gpu:0', etc.)
+
+Returns:
+    Self for method chaining
+
+Note:
+    Device is stored as a preference. Actual validation happens when
+    backend is set or arrays are converted. This allows setting a
+    preferred GPU device before switching to a GPU-capable backend.
+
+Example:
+    >>> mgr = BackendManager()
+    >>> mgr.to_device('cuda:0')  # Store preference
+    >>> mgr.set_default('torch')  # Now validates cuda:0 for torch
+
+### use_backend { #cdesym.systems.base.utils.BackendManager.use_backend }
+
+```python
+systems.base.utils.BackendManager.use_backend(backend, device=None)
+```
+
+Temporarily switch to a different backend and/or device.
+
+This is a context manager that temporarily changes the default backend
+and device, restoring the original configuration when the context exits.
+
+Args:
+    backend: Temporary backend to use
+    device: Optional temporary device
+
+Returns:
+    Generator[BackendManager, None, None]: Context manager yielding self
+        with temporary configuration
+
+Example:
+    >>> mgr = BackendManager(default_backend='numpy')
+    >>> with mgr.use_backend('torch', device='cuda'):
+    ...     # Code here uses torch backend on CUDA
+    ...     x = mgr.convert(x_np, mgr.default_backend)
+    >>> # Back to NumPy after context
+    >>> mgr.default_backend  # Returns 'numpy'

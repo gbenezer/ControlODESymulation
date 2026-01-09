@@ -1,0 +1,505 @@
+# systems.base.numerical_integration.IntegratorFactory { #cdesym.systems.base.numerical_integration.IntegratorFactory }
+
+```python
+systems.base.numerical_integration.IntegratorFactory()
+```
+
+Factory for creating numerical integrators.
+
+Provides convenient methods for creating integrators based on:
+- Backend (numpy, torch, jax)
+- Method (RK45, dopri5, tsit5, Tsit5, etc.)
+- Use case (production, optimization, neural ODE, julia)
+
+Supports:
+- Scipy (numpy): LSODA, RK45, BDF, Radau, etc.
+- DiffEqPy (numpy): Tsit5, Vern9, Rosenbrock23, etc. (Julia solvers)
+- TorchDiffEq (torch): dopri5, dopri8, etc.
+- Diffrax (jax): tsit5, dopri5, etc.
+- Manual (any): euler, midpoint, rk4
+
+All integrators support autonomous systems (nu=0) by passing u=None.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Create integrator by backend and method
+>>> integrator = IntegratorFactory.create(
+...     system,
+...     backend='numpy',
+...     method='LSODA'
+... )
+>>>
+>>> # Julia solver
+>>> integrator = IntegratorFactory.create(
+...     system,
+...     backend='numpy',
+...     method='Tsit5'  # Capital T = Julia
+... )
+>>>
+>>> # Automatic selection
+>>> integrator = IntegratorFactory.auto(system)
+>>>
+>>> # Use case-specific
+>>> integrator = IntegratorFactory.for_optimization(system)
+>>> integrator = IntegratorFactory.for_production(system)
+>>> integrator = IntegratorFactory.for_julia(system, algorithm='Vern9')
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [auto](#cdesym.systems.base.numerical_integration.IntegratorFactory.auto) | Automatically select best integrator for system. |
+| [create](#cdesym.systems.base.numerical_integration.IntegratorFactory.create) | Create an integrator with specified backend and method. |
+| [for_educational](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational) | Create Euler fixed-step integrator. |
+| [for_julia](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia) | Create Julia-based integrator using DiffEqPy. |
+| [for_neural_ode](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode) | Create integrator for Neural ODE training. |
+| [for_optimization](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization) | Create integrator optimized for gradient-based optimization. |
+| [for_production](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_production) | Create integrator for production use. |
+| [for_simple](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple) | Create simple RK4 fixed-step integrator. |
+| [get_info](#cdesym.systems.base.numerical_integration.IntegratorFactory.get_info) | Get information about a specific integrator configuration. |
+| [list_methods](#cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods) | List available methods for each backend. |
+| [recommend](#cdesym.systems.base.numerical_integration.IntegratorFactory.recommend) | Get recommended integrator configuration for a use case. |
+
+### auto { #cdesym.systems.base.numerical_integration.IntegratorFactory.auto }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.auto(
+    system,
+    prefer_backend=None,
+    **options,
+)
+```
+
+Automatically select best integrator for system.
+
+Selection logic:
+1. If JAX available and no backend preference → Diffrax (fast + accurate)
+2. If PyTorch available and no backend preference → TorchDiffEq
+3. Otherwise → Scipy (always available)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                    | Description                                    | Default    |
+|----------------|-------------------------|------------------------------------------------|------------|
+| system         | SymbolicDynamicalSystem | System to integrate (controlled or autonomous) | _required_ |
+| prefer_backend | Optional\[str\]         | Preferred backend if available                 | `None`     |
+| **options      |                         | Additional options                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description               |
+|--------|----------------|---------------------------|
+|        | IntegratorBase | Best available integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator = IntegratorFactory.auto(system)
+>>> integrator = IntegratorFactory.auto(system, prefer_backend='jax')
+>>>
+>>> # Works with autonomous systems
+>>> integrator = IntegratorFactory.auto(autonomous_system)
+```
+
+### create { #cdesym.systems.base.numerical_integration.IntegratorFactory.create }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.create(
+    system,
+    backend='numpy',
+    method=None,
+    dt=None,
+    step_mode=StepMode.ADAPTIVE,
+    **options,
+)
+```
+
+Create an integrator with specified backend and method.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                                                                                                                                                                                      | Default             |
+|-----------|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| system    | SymbolicDynamicalSystem | System to integrate (controlled or autonomous)                                                                                                                                                                   | _required_          |
+| backend   | str                     | Backend: 'numpy', 'torch', 'jax'. Default: 'numpy'                                                                                                                                                               | `'numpy'`           |
+| method    | Optional\[str\]         | Solver method. If None, uses backend default. - numpy: 'LSODA' (scipy, auto-stiffness) - numpy with capital: 'Tsit5' (Julia via DiffEqPy) - torch: 'dopri5' (general adaptive) - jax: 'tsit5' (general adaptive) | `None`              |
+| dt        | Optional\[ScalarLike\]  | Time step (required for FIXED mode)                                                                                                                                                                              | `None`              |
+| step_mode | StepMode                | FIXED or ADAPTIVE stepping                                                                                                                                                                                       | `StepMode.ADAPTIVE` |
+| **options |                         | Additional integrator options (rtol, atol, etc.) Note: For JAX backend, 'solver' in options will be treated as 'method'                                                                                          | `{}`                |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description           |
+|--------|----------------|-----------------------|
+|        | IntegratorBase | Configured integrator |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                              |
+|--------|-------------|------------------------------------------|
+|        | ValueError  | If backend/method combination is invalid |
+|        | ImportError | If required package not installed        |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Use defaults (scipy)
+>>> integrator = IntegratorFactory.create(system)
+>>>
+>>> # Julia solver
+>>> integrator = IntegratorFactory.create(
+...     system, backend='numpy', method='Tsit5'
+... )
+>>>
+>>> # Specify JAX method (both calling styles work)
+>>> integrator = IntegratorFactory.create(
+...     system, backend='jax', method='dopri5'
+... )
+>>> # OR
+>>> integrator = IntegratorFactory.create(
+...     system, backend='jax', solver='dopri5'
+... )
+>>>
+>>> # Fixed-step
+>>> integrator = IntegratorFactory.create(
+...     system,
+...     backend='numpy',
+...     method='rk4',
+...     dt=0.01,
+...     step_mode=StepMode.FIXED
+... )
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.create(autonomous_system)
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+```
+
+### for_educational { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_educational(
+    system,
+    dt=0.01,
+    backend='numpy',
+    **options,
+)
+```
+
+Create Euler fixed-step integrator.
+
+Simplest method for learning and debugging.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                    | Default    |
+|-----------|-------------------------|------------------------------------------------|------------|
+| system    | SymbolicDynamicalSystem | System to integrate (controlled or autonomous) | _required_ |
+| dt        | ScalarLike              | Time step                                      | `0.01`     |
+| backend   | str                     | Backend to use                                 | `'numpy'`  |
+| **options |                         | Additional options                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description      |
+|--------|----------------|------------------|
+|        | IntegratorBase | Euler integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator = IntegratorFactory.for_educational(system, dt=0.001)
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.for_educational(autonomous_system)
+```
+
+### for_julia { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_julia(
+    system,
+    algorithm='Tsit5',
+    **options,
+)
+```
+
+Create Julia-based integrator using DiffEqPy.
+
+Provides access to Julia's extensive solver library.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                                                                           | Default    |
+|-----------|-------------------------|-------------------------------------------------------------------------------------------------------|------------|
+| system    | SymbolicDynamicalSystem | System to integrate (controlled or autonomous)                                                        | _required_ |
+| algorithm | str                     | Julia algorithm name. Default: 'Tsit5' Examples: 'Vern9', 'Rosenbrock23', 'AutoTsit5(Rosenbrock23())' | `'Tsit5'`  |
+| **options |                         | Additional options (reltol, abstol, etc.)                                                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description              |
+|--------|----------------|--------------------------|
+|        | IntegratorBase | Julia-powered integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # High-accuracy solver
+>>> integrator = IntegratorFactory.for_julia(system, algorithm='Vern9')
+>>>
+>>> # Stiff system
+>>> integrator = IntegratorFactory.for_julia(
+...     system, algorithm='Rosenbrock23'
+... )
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.for_julia(autonomous_system)
+```
+
+### for_neural_ode { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_neural_ode(
+    system,
+    use_adjoint=True,
+    **options,
+)
+```
+
+Create integrator for Neural ODE training.
+
+Uses PyTorch with adjoint method for memory-efficient backpropagation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                    | Description                                    | Default    |
+|-------------|-------------------------|------------------------------------------------|------------|
+| system      | SymbolicDynamicalSystem | Neural ODE system (should be torch.nn.Module)  | _required_ |
+| use_adjoint | bool                    | Use adjoint method for backprop. Default: True | `True`     |
+| **options   |                         | Additional options                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description           |
+|--------|----------------|-----------------------|
+|        | IntegratorBase | Neural ODE integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> neural_ode = MyNeuralODE()  # torch.nn.Module
+>>> integrator = IntegratorFactory.for_neural_ode(neural_ode)
+```
+
+### for_optimization { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_optimization(
+    system,
+    prefer_backend=None,
+    **options,
+)
+```
+
+Create integrator optimized for gradient-based optimization.
+
+Prefers JAX (Diffrax) for best performance with gradients.
+Falls back to PyTorch if JAX unavailable.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                    | Description                                    | Default    |
+|----------------|-------------------------|------------------------------------------------|------------|
+| system         | SymbolicDynamicalSystem | System to integrate (controlled or autonomous) | _required_ |
+| prefer_backend | Optional\[str\]         | Force specific backend ('jax' or 'torch')      | `None`     |
+| **options      |                         | Additional options                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                   |
+|--------|----------------|-------------------------------|
+|        | IntegratorBase | Optimization-ready integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator = IntegratorFactory.for_optimization(system)
+>>> integrator = IntegratorFactory.for_optimization(system, prefer_backend='torch')
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.for_optimization(autonomous_system)
+```
+
+### for_production { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_production }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_production(
+    system,
+    use_julia=False,
+    **options,
+)
+```
+
+Create integrator for production use.
+
+Uses scipy.LSODA (default) or Julia's AutoTsit5 (if use_julia=True)
+with automatic stiffness detection. Most reliable choices.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                            | Default    |
+|-----------|-------------------------|--------------------------------------------------------|------------|
+| system    | SymbolicDynamicalSystem | System to integrate (controlled or autonomous)         | _required_ |
+| use_julia | bool                    | If True, use Julia's AutoTsit5. Default: False (scipy) | `False`    |
+| **options |                         | Additional options (rtol, atol, etc.)                  | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                 |
+|--------|----------------|-----------------------------|
+|        | IntegratorBase | Production-grade integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Scipy (default)
+>>> integrator = IntegratorFactory.for_production(
+...     system, rtol=1e-9, atol=1e-11
+... )
+>>>
+>>> # Julia (if installed)
+>>> integrator = IntegratorFactory.for_production(
+...     system, use_julia=True
+... )
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.for_production(autonomous_system)
+```
+
+### for_simple { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.for_simple(
+    system,
+    dt=0.01,
+    backend='numpy',
+    **options,
+)
+```
+
+Create simple RK4 fixed-step integrator.
+
+Good for prototyping and educational purposes.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                    | Description                                    | Default    |
+|-----------|-------------------------|------------------------------------------------|------------|
+| system    | SymbolicDynamicalSystem | System to integrate (controlled or autonomous) | _required_ |
+| dt        | ScalarLike              | Time step                                      | `0.01`     |
+| backend   | str                     | Backend to use                                 | `'numpy'`  |
+| **options |                         | Additional options                             | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description    |
+|--------|----------------|----------------|
+|        | IntegratorBase | RK4 integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> integrator = IntegratorFactory.for_simple(system, dt=0.01)
+>>>
+>>> # Autonomous system
+>>> integrator = IntegratorFactory.for_simple(autonomous_system)
+```
+
+### get_info { #cdesym.systems.base.numerical_integration.IntegratorFactory.get_info }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.get_info(backend, method)
+```
+
+Get information about a specific integrator configuration.
+
+Delegates to integrator-specific info functions where available.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description   | Default    |
+|---------|--------|---------------|------------|
+| backend | str    | Backend name  | _required_ |
+| method  | str    | Method name   | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                      |
+|--------|------------------|----------------------------------|
+|        | Dict\[str, Any\] | Information about the integrator |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = IntegratorFactory.get_info('jax', 'tsit5')
+>>> print(info['description'])
+'Excellent general purpose, JAX-optimized'
+>>>
+>>> info = IntegratorFactory.get_info('numpy', 'Tsit5')
+>>> print(info['description'])
+'Excellent general-purpose solver with good efficiency'
+>>>
+>>> info = IntegratorFactory.get_info('numpy', 'Vern7')
+>>> print(info['description'])  # Works even if not in hardcoded list!
+```
+
+### list_methods { #cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.list_methods(backend=None)
+```
+
+List available methods for each backend.
+
+Delegates to method_registry for base methods, then adds Julia ODE methods.
+
+### recommend { #cdesym.systems.base.numerical_integration.IntegratorFactory.recommend }
+
+```python
+systems.base.numerical_integration.IntegratorFactory.recommend(
+    use_case,
+    has_gpu=False,
+)
+```
+
+Get recommended integrator configuration for a use case.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                                                            | Default    |
+|----------|--------|----------------------------------------------------------------------------------------|------------|
+| use_case | str    | Use case: 'production', 'optimization', 'neural_ode', 'simple', 'julia', 'educational' | _required_ |
+| has_gpu  | bool   | Whether GPU is available                                                               | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                                       |
+|--------|------------------|-------------------------------------------------------------------|
+|        | Dict\[str, Any\] | Recommended configuration with 'backend', 'method', 'description' |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> rec = IntegratorFactory.recommend('optimization')
+>>> print(rec['backend'], rec['method'])
+'jax' 'tsit5'
+>>>
+>>> rec = IntegratorFactory.recommend('production')
+>>> print(rec['description'])
+```

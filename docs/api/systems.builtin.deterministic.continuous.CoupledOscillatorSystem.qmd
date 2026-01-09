@@ -1,0 +1,98 @@
+# systems.builtin.deterministic.continuous.CoupledOscillatorSystem { #cdesym.systems.builtin.deterministic.continuous.CoupledOscillatorSystem }
+
+```python
+systems.builtin.deterministic.continuous.CoupledOscillatorSystem(
+    *args,
+    **kwargs,
+)
+```
+
+Coupled mass-spring-damper system with rotational coupling - first-order formulation.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+Two masses connected by springs to fixed walls and to each other, with an
+additional rotational degree of freedom that couples to the second mass.
+
+The system consists of:
+- Two point masses (m₁, m₂) that can move horizontally
+- Springs connecting each mass to ground (k₁, k₂)
+- Coupling spring between the masses (k_coupling)
+- Viscous dampers on both masses (shared coefficient c)
+- Rotational element (moment of inertia J) coupled to mass 2
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [x₁, x₂, v₁, v₂, θ]
+    Position coordinates:
+    - x₁: Position of mass 1 [m]
+    - x₂: Position of mass 2 [m]
+    - θ (theta): Rotational angle [rad]
+
+    Velocity coordinates:
+    - v₁: Velocity of mass 1 [m/s]
+    - v₂: Velocity of mass 2 [m/s]
+
+Control: u = [u₁, u₂]
+    - u₁: Force applied to mass 1 [N]
+    - u₂: Combined force/torque applied to mass 2 and rotational element
+
+Output: y = [x₁, x₂, θ]
+    - Measures positions of both masses and rotational angle
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The equations of motion are:
+
+Mass 1 (standard spring-mass-damper):
+    dx₁/dt = v₁
+    dv₁/dt = -(k₁/m₁)x₁ - (k_c/m₁)(x₁ - x₂) - (c/m₁)v₁ + u₁/m₁
+
+Mass 2 (coupled to rotation):
+    dx₂/dt = v₂
+    dv₂/dt = -(k₂/m₂)x₂ - (k_c/m₂)(x₂ - x₁) - (c/m₂)v₂ + sin(θ)/m₂ + u₂/m₂
+
+Rotational element:
+    dθ/dt = -θ/J - x₂/J + u₂/(2J)
+
+Physical interpretation:
+- Springs create restoring forces proportional to displacement
+- Coupling spring connects the two masses
+- Dampers dissipate energy proportionally to velocity
+- Rotation affects mass 2 through sin(θ) term (nonlinear coupling)
+- Control u₂ affects both mass 2 translation and rotation
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+m1 : float, default=1.0
+    Mass of first oscillator [kg]. Larger m₁ → slower response to forces.
+m2 : float, default=0.5
+    Mass of second oscillator [kg]. Typically different from m₁ to create
+    interesting modal behavior.
+k1 : float, default=2.0
+    Spring stiffness connecting mass 1 to ground [N/m]. Higher k₁ →
+    higher natural frequency for mass 1.
+k2 : float, default=1.0
+    Spring stiffness connecting mass 2 to ground [N/m].
+k_coupling : float, default=0.5
+    Coupling spring stiffness between masses [N/m]. Controls strength of
+    interaction between oscillators. Higher k_c → stronger coupling.
+c : float, default=0.1
+    Damping coefficient [N·s/m]. Applied to both masses. Higher c →
+    more energy dissipation.
+J : float, default=0.1
+    Moment of inertia for rotational element [kg·m²]. Affects rotational
+    response time.
+
+## Equilibrium: {.doc-section .doc-section-equilibrium}
+
+Origin equilibrium (all zeros):
+    x_eq = [0, 0, 0, 0, 0]  (masses at rest, no rotation)
+    u_eq = [0, 0]  (no external forces)
+
+This equilibrium is stable due to spring restoring forces and damping.
+
+## See Also: {.doc-section .doc-section-see-also}
+
+NonlinearChainSystem : Chain of coupled oscillators
+Manipulator2Link : Another coupled multi-body system

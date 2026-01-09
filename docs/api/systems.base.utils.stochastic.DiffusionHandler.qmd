@@ -1,0 +1,411 @@
+# systems.base.utils.stochastic.DiffusionHandler { #cdesym.systems.base.utils.stochastic.DiffusionHandler }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler(
+    diffusion_expr,
+    state_vars,
+    control_vars,
+    time_var=None,
+    parameters=None,
+)
+```
+
+Handles code generation and caching for diffusion terms.
+
+Responsibilities:
+- Generate backend-specific g(x, u) functions via codegen_utils
+- Cache generated functions (avoid recompilation)
+- Compose with NoiseCharacterizer for automatic analysis
+- Provide constant noise matrices for additive case
+- Track generation statistics
+
+This class mirrors CodeGenerator's interface and patterns for consistency.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> from sympy import symbols, Matrix
+>>> x1, x2, u = symbols('x1 x2 u')
+>>>
+>>> # State-independent (additive) noise
+>>> diffusion = Matrix([[0.1], [0.2]])
+>>> handler = DiffusionHandler(diffusion, [x1, x2], [u])
+>>>
+>>> # Automatic analysis
+>>> print(handler.characteristics.noise_type)
+NoiseType.ADDITIVE
+>>>
+>>> print(handler.characteristics.recommended_solvers('jax'))
+['sea', 'shark', 'sra1']
+>>>
+>>> # Generate function with caching
+>>> g_numpy = handler.generate_function('numpy')
+>>> g_val = g_numpy(1.0, 0.5, 0.0)  # g(x1=1.0, x2=0.5, u=0.0)
+>>>
+>>> # Second call returns cached
+>>> g_numpy_cached = handler.generate_function('numpy')
+>>> assert g_numpy is g_numpy_cached
+>>>
+>>> # For additive noise, get constant matrix
+>>> if handler.characteristics.is_additive:
+...     G = handler.get_constant_noise('numpy')
+...     print(G)  # [[0.1], [0.2]] - precomputed!
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [characteristics](#cdesym.systems.base.utils.stochastic.DiffusionHandler.characteristics) | Get noise characteristics from automatic analysis. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [can_optimize_for_additive](#cdesym.systems.base.utils.stochastic.DiffusionHandler.can_optimize_for_additive) | Check if additive-noise optimizations are applicable. |
+| [compile_all](#cdesym.systems.base.utils.stochastic.DiffusionHandler.compile_all) | Pre-compile diffusion functions for multiple backends. |
+| [generate_function](#cdesym.systems.base.utils.stochastic.DiffusionHandler.generate_function) | Generate g(x, u) function for specified backend. |
+| [get_constant_noise](#cdesym.systems.base.utils.stochastic.DiffusionHandler.get_constant_noise) | Get constant noise matrix for additive noise. |
+| [get_function](#cdesym.systems.base.utils.stochastic.DiffusionHandler.get_function) | Get cached diffusion function without generating. |
+| [get_info](#cdesym.systems.base.utils.stochastic.DiffusionHandler.get_info) | Get comprehensive information about diffusion handler state. |
+| [get_optimization_opportunities](#cdesym.systems.base.utils.stochastic.DiffusionHandler.get_optimization_opportunities) | Identify optimization opportunities based on noise structure. |
+| [get_stats](#cdesym.systems.base.utils.stochastic.DiffusionHandler.get_stats) | Get generation statistics. |
+| [has_constant_noise](#cdesym.systems.base.utils.stochastic.DiffusionHandler.has_constant_noise) | Check if constant noise has been computed and cached. |
+| [is_compiled](#cdesym.systems.base.utils.stochastic.DiffusionHandler.is_compiled) | Check if diffusion function is compiled for backend. |
+| [reset_cache](#cdesym.systems.base.utils.stochastic.DiffusionHandler.reset_cache) | Clear cached functions for specified backends. |
+| [reset_stats](#cdesym.systems.base.utils.stochastic.DiffusionHandler.reset_stats) | Reset generation statistics. |
+| [warmup](#cdesym.systems.base.utils.stochastic.DiffusionHandler.warmup) | Warm up function compilation (especially useful for JAX JIT). |
+
+### can_optimize_for_additive { #cdesym.systems.base.utils.stochastic.DiffusionHandler.can_optimize_for_additive }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.can_optimize_for_additive()
+```
+
+Check if additive-noise optimizations are applicable.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                          |
+|--------|--------|------------------------------------------------------|
+|        | bool   | True if diffusion is constant and can be precomputed |
+
+### compile_all { #cdesym.systems.base.utils.stochastic.DiffusionHandler.compile_all }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.compile_all(
+    backends=None,
+    verbose=False,
+    **kwargs,
+)
+```
+
+Pre-compile diffusion functions for multiple backends.
+
+Mirrors CodeGenerator.compile_all() for consistency.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type            | Description                                | Default   |
+|----------|-----------------|--------------------------------------------|-----------|
+| backends | List\[Backend\] | Backends to compile (None = all available) | `None`    |
+| verbose  | bool            | Print compilation progress                 | `False`   |
+| **kwargs |                 | Backend-specific options                   | `{}`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                        |
+|--------|--------------------|------------------------------------|
+|        | Dict\[str, float\] | Mapping backend → compilation_time |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> timings = handler.compile_all(verbose=True)
+Compiling diffusion for numpy: 0.05s
+Compiling diffusion for torch: 0.12s
+Compiling diffusion for jax: 0.08s
+>>>
+>>> print(timings)
+{'numpy': 0.05, 'torch': 0.12, 'jax': 0.08}
+```
+
+### generate_function { #cdesym.systems.base.utils.stochastic.DiffusionHandler.generate_function }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.generate_function(
+    backend,
+    **kwargs,
+)
+```
+
+Generate g(x, u) function for specified backend.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type    | Description                                | Default    |
+|----------|---------|--------------------------------------------|------------|
+| backend  | Backend | Target backend ('numpy', 'torch', 'jax')   | _required_ |
+| **kwargs |         | Additional arguments for generate_function | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                         |
+|--------|-------------------|-------------------------------------|
+|        | DiffusionFunction | Callable g(x, u) → diffusion matrix |
+
+### get_constant_noise { #cdesym.systems.base.utils.stochastic.DiffusionHandler.get_constant_noise }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.get_constant_noise(
+    backend='numpy',
+)
+```
+
+Get constant noise matrix for additive noise.
+
+For additive noise, diffusion doesn't depend on state, control, or time,
+so it can be precomputed once and reused. This is a significant
+performance optimization for SDE solving.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description            | Default   |
+|---------|---------|------------------------|-----------|
+| backend | Backend | Backend for array type | `'numpy'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type            | Description                               |
+|--------|-----------------|-------------------------------------------|
+|        | DiffusionMatrix | Constant diffusion matrix, shape (nx, nw) |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                                              |
+|--------|------------|----------------------------------------------------------|
+|        | ValueError | If noise is not additive (use generate_function instead) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> if handler.characteristics.is_additive:
+...     G = handler.get_constant_noise('numpy')
+...     # G is constant - precompute once, reuse everywhere!
+...     for t in range(1000):
+...         # No need to evaluate diffusion - just use G
+...         pass
+```
+
+### get_function { #cdesym.systems.base.utils.stochastic.DiffusionHandler.get_function }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.get_function(backend)
+```
+
+Get cached diffusion function without generating.
+
+Mirrors CodeGenerator.get_dynamics().
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description    | Default    |
+|---------|---------|----------------|------------|
+| backend | Backend | Target backend | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                                  |
+|--------|-------------------------------|----------------------------------------------|
+|        | Optional\[DiffusionFunction\] | Cached function or None if not yet generated |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> g = handler.get_function('numpy')
+>>> if g is None:
+...     g = handler.generate_function('numpy')
+```
+
+### get_info { #cdesym.systems.base.utils.stochastic.DiffusionHandler.get_info }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.get_info()
+```
+
+Get comprehensive information about diffusion handler state.
+
+Mirrors CodeGenerator.get_info() for consistent API.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                            |
+|--------|------------------|--------------------------------------------------------|
+|        | Dict\[str, any\] | Status, characteristics, compilation state, statistics |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = handler.get_info()
+>>> print(info)
+{
+    'dimensions': {'nx': 2, 'nw': 1},
+    'noise_type': 'additive',
+    'characteristics': {...},
+    'compiled': {'numpy': True, 'torch': False, 'jax': True},
+    'constant_noise_cached': True,
+    'statistics': {...}
+}
+```
+
+### get_optimization_opportunities { #cdesym.systems.base.utils.stochastic.DiffusionHandler.get_optimization_opportunities }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.get_optimization_opportunities()
+```
+
+Identify optimization opportunities based on noise structure.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                               |
+|--------|-------------------|-------------------------------------------|
+|        | Dict\[str, bool\] | Flags for various optimization strategies |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> opts = handler.get_optimization_opportunities()
+>>> if opts['precompute_diffusion']:
+...     G = handler.get_constant_noise()
+...     # Use G directly instead of calling diffusion(x, u)
+```
+
+### get_stats { #cdesym.systems.base.utils.stochastic.DiffusionHandler.get_stats }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.get_stats()
+```
+
+Get generation statistics.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                          |
+|--------|------------------|--------------------------------------|
+|        | Dict\[str, any\] | Generation count, cache hits, timing |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> stats = handler.get_stats()
+>>> print(f"Cache hit rate: {stats['cache_hit_rate']:.1%}")
+```
+
+### has_constant_noise { #cdesym.systems.base.utils.stochastic.DiffusionHandler.has_constant_noise }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.has_constant_noise()
+```
+
+Check if constant noise has been computed and cached.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                   |
+|--------|--------|-----------------------------------------------|
+|        | bool   | True if any backend has cached constant noise |
+
+### is_compiled { #cdesym.systems.base.utils.stochastic.DiffusionHandler.is_compiled }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.is_compiled(backend)
+```
+
+Check if diffusion function is compiled for backend.
+
+Mirrors CodeGenerator.is_compiled() but simpler (only one function type).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description      | Default    |
+|---------|---------|------------------|------------|
+| backend | Backend | Backend to check | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                         |
+|--------|--------|-------------------------------------|
+|        | bool   | True if function is cached/compiled |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> if not handler.is_compiled('jax'):
+...     handler.generate_function('jax')
+```
+
+### reset_cache { #cdesym.systems.base.utils.stochastic.DiffusionHandler.reset_cache }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.reset_cache(backends=None)
+```
+
+Clear cached functions for specified backends.
+
+Mirrors CodeGenerator.reset_cache().
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type            | Description                    | Default   |
+|----------|-----------------|--------------------------------|-----------|
+| backends | List\[Backend\] | Backends to reset (None = all) | `None`    |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Clear all caches
+>>> handler.reset_cache()
+>>>
+>>> # Clear only torch (e.g., after device change)
+>>> handler.reset_cache(['torch'])
+```
+
+### reset_stats { #cdesym.systems.base.utils.stochastic.DiffusionHandler.reset_stats }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.reset_stats()
+```
+
+Reset generation statistics.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> handler.reset_stats()
+>>> stats = handler.get_stats()
+>>> assert stats['generations'] == 0
+```
+
+### warmup { #cdesym.systems.base.utils.stochastic.DiffusionHandler.warmup }
+
+```python
+systems.base.utils.stochastic.DiffusionHandler.warmup(backend, **kwargs)
+```
+
+Warm up function compilation (especially useful for JAX JIT).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type    | Description                 | Default    |
+|----------|---------|-----------------------------|------------|
+| backend  | Backend | Backend to warm up          | _required_ |
+| **kwargs |         | Test inputs for warmup call | `{}`       |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # JAX JIT warmup
+>>> handler.warmup('jax')
+>>> # First call compiled, subsequent calls fast
+```

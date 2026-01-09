@@ -1,0 +1,83 @@
+# systems.base.numerical_integration.is_sde_method { #cdesym.systems.base.numerical_integration.is_sde_method }
+
+```python
+systems.base.numerical_integration.is_sde_method(method)
+```
+
+Check if integration method is for stochastic differential equations.
+
+Determines whether a given method name is designed for SDE integration
+(stochastic systems) or deterministic ODE integration.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                      | Default    |
+|--------|--------|--------------------------------------------------|------------|
+| method | str    | Integration method name (normalized or original) | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                     |
+|--------|--------|-----------------------------------------------------------------|
+|        | bool   | True if method is for stochastic systems (SDE), False otherwise |
+
+## Notes {.doc-section .doc-section-notes}
+
+- Checks against `SDE_METHODS` frozenset (union of fixed-step and adaptive)
+- Works with both canonical names ('euler_maruyama') and backend-specific
+  names ('EM', 'euler', 'Euler')
+- Method name should ideally be normalized first, but works with any name
+  in the `SDE_METHODS` set
+- Returns False for deterministic methods (euler, rk4, RK45, etc.)
+
+## Ambiguous Cases {.doc-section .doc-section-ambiguous-cases}
+
+Some method names appear in both deterministic and stochastic contexts:
+
+- 'euler': Both a deterministic method (Forward Euler) and SDE method
+  (Euler-Maruyama for PyTorch/TorchSDE). In `SDE_METHODS`, so returns True.
+- 'midpoint': Similar ambiguity. Returns True (in `SDE_METHODS`).
+
+For these cases, normalization to canonical names ('euler_maruyama' vs 'rk4')
+is recommended before calling this function.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Canonical SDE names
+>>> is_sde_method('euler_maruyama')
+True
+>>> is_sde_method('milstein')
+True
+```
+
+```python
+>>> # Backend-specific SDE names
+>>> is_sde_method('EM')  # NumPy/Julia
+True
+>>> is_sde_method('euler')  # PyTorch (ambiguous!)
+True
+>>> is_sde_method('ItoMilstein')  # JAX
+True
+```
+
+```python
+>>> # Deterministic methods
+>>> is_sde_method('rk4')
+False
+>>> is_sde_method('RK45')
+False
+>>> is_sde_method('dopri5')
+False
+```
+
+```python
+>>> # Unknown methods
+>>> is_sde_method('my_custom_method')
+False
+```
+
+## See Also {.doc-section .doc-section-see-also}
+
+is_fixed_step : Classify method by time-stepping strategy
+normalize_method_name : Convert canonical names to backend-specific

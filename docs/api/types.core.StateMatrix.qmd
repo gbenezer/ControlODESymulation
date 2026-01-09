@@ -1,0 +1,29 @@
+# types.core.StateMatrix { #cdesym.types.core.StateMatrix }
+
+`types.core.StateMatrix`
+
+State matrix (nx, nx).
+
+Represents state-to-state coupling in linear(ized) systems.
+
+Uses:
+- Continuous: Ac (drift Jacobian ∂f/∂x)
+- Discrete: Ad (state transition matrix)
+- Covariance: P (state covariance E[(x-x̄)(x-x̄)'])
+- Cost: Q (state cost weight in LQR)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous linearization
+>>> Ac: StateMatrix = np.array([[0, 1], [-1, 0]])
+>>> 
+>>> # Discrete transition
+>>> Ad: StateMatrix = np.eye(2) + dt*Ac
+>>> 
+>>> # Covariance
+>>> P: StateMatrix = np.eye(2)
+>>> 
+>>> # LQR cost
+>>> Q: StateMatrix = np.diag([10, 1])
+```

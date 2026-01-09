@@ -1,0 +1,41 @@
+# types.control_classical.PolePlacementResult { #cdesym.types.control_classical.PolePlacementResult }
+
+```python
+types.control_classical.PolePlacementResult()
+```
+
+Pole placement (eigenvalue assignment) result.
+
+Design state feedback gain K such that closed-loop system
+(A - BK) has desired eigenvalues (poles).
+
+## Fields {.doc-section .doc-section-fields}
+
+gain : GainMatrix
+    State feedback gain K (nu, nx)
+desired_poles : np.ndarray
+    Desired closed-loop eigenvalues
+achieved_poles : np.ndarray
+    Actual achieved eigenvalues of (A - BK)
+is_controllable : bool
+    System must be controllable for arbitrary placement
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> B = np.array([[0], [1]])
+>>>
+>>> # Place poles for faster response
+>>> desired_poles = np.array([-5, -6])
+>>> result: PolePlacementResult = pole_placement(A, B, desired_poles)
+>>>
+>>> K = result['gain']
+>>> print(result['is_controllable'])  # True
+>>> print(np.allclose(result['achieved_poles'], result['desired_poles']))  # True
+>>>
+>>> # Verify
+>>> A_cl = A - B @ K
+>>> actual_poles = np.linalg.eigvals(A_cl)
+>>> print(np.sort(actual_poles))  # [-6, -5]
+```

@@ -1,0 +1,27 @@
+# types.backends.NoiseType { #cdesym.types.backends.NoiseType }
+
+```python
+types.backends.NoiseType()
+```
+
+Noise structure classification for stochastic systems.
+
+Categories:
+- 'additive': g(x,u,t) = constant (state-independent)
+* Most efficient - can precompute
+* Example: dx = f(x)dt + σ*dW
+
+- 'multiplicative': g(x,u,t) depends on state
+* State-dependent noise intensity
+* Example: dx = f(x)dt + σ*x*dW (Geometric Brownian Motion)
+
+- 'diagonal': g(x,u,t) is diagonal matrix
+* Independent noise sources
+* Enables element-wise solvers
+
+- 'scalar': Single noise source (nw=1)
+* Simplest stochastic case
+* One Wiener process
+
+- 'general': Full coupling, no special structure
+* Most general, least efficient

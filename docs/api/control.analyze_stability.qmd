@@ -1,0 +1,60 @@
+# control.analyze_stability { #cdesym.control.analyze_stability }
+
+```python
+control.analyze_stability(A, system_type='continuous', tolerance=1e-10)
+```
+
+Analyze system stability via eigenvalue analysis.
+
+Stability criteria:
+    Continuous (dx/dt = Ax): All Re(λ) < 0 (left half-plane)
+    Discrete (x[k+1] = Ax): All |λ| < 1 (inside unit circle)
+
+Args:
+    A: State matrix (nx, nx)
+    system_type: 'continuous' or 'discrete'
+    tolerance: Tolerance for marginal stability detection
+
+Returns:
+    StabilityInfo containing:
+        - eigenvalues: Eigenvalues of A (complex array)
+        - magnitudes: |λ| for all eigenvalues
+        - max_magnitude: max(|λ|) = spectral radius
+        - spectral_radius: Same as max_magnitude
+        - is_stable: True if asymptotically stable
+        - is_marginally_stable: True if critically stable
+        - is_unstable: True if unstable
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Stable continuous system
+>>> A = np.array([[0, 1], [-2, -3]])
+>>> stability = analyze_stability(A, system_type='continuous')
+>>> print(stability['is_stable'])  # True
+>>> print(stability['eigenvalues'])  # [-1, -2]
+>>>
+>>> # Unstable continuous system
+>>> A_unstable = np.array([[1, 1], [0, 1]])
+>>> stability = analyze_stability(A_unstable, system_type='continuous')
+>>> print(stability['is_unstable'])  # True
+>>>
+>>> # Stable discrete system
+>>> Ad = np.array([[0.9, 0.1], [0, 0.8]])
+>>> stability = analyze_stability(Ad, system_type='discrete')
+>>> print(stability['is_stable'])  # True
+>>> print(stability['spectral_radius'])  # 0.9
+>>>
+>>> # Marginally stable (on boundary)
+>>> A_marginal = np.array([[0, 1], [-1, 0]])  # Pure oscillation
+>>> stability = analyze_stability(A_marginal, system_type='continuous')
+>>> print(stability['is_marginally_stable'])  # True
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+- Marginal stability: Eigenvalues on stability boundary
+    - Continuous: Re(λ) = 0 (imaginary axis)
+    - Discrete: |λ| = 1 (unit circle)
+- Asymptotic stability: All trajectories converge to zero
+- Lyapunov stability: Bounded trajectories (includes marginal)

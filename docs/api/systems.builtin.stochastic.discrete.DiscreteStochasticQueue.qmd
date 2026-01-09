@@ -1,0 +1,415 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticQueue { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticQueue(*args, **kwargs)
+```
+
+Discrete-time stochastic queue with random arrivals and service.
+
+Models a queueing system sampled at discrete time intervals, with
+random arrivals and state-dependent service. Fundamental for analyzing
+congestion, capacity planning, and performance under uncertainty.
+
+## Queue Dynamics {.doc-section .doc-section-queue-dynamics}
+
+Basic queue evolution:
+    Q[k+1] = max(0, Q[k] + A[k] - S[k])
+
+where:
+    - Q[k]: Queue length (number in system) at time k
+    - A[k]: Arrivals during slot k (random, ≥ 0)
+    - S[k]: Service completions during slot k (random, ≤ Q[k])
+    - max(0, ...): Queue cannot be negative
+
+**Linearized (around equilibrium Q̄):**
+    Q[k+1] ≈ Q[k] + (λ - μ) + w_A[k] - w_S[k]
+
+where w_A, w_S represent arrival and service noise.
+
+**State-Space (Simplified Diffusion Approximation):**
+    Q[k+1] = Q[k] + (λ - μ)·Δt + σ_net·w[k]
+
+where σ_net combines arrival and service variability.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Queue Length Q[k]:**
+- Number of customers/packets/jobs in system
+- Q = 0: Empty (idle server)
+- Large Q: Congestion (long waits)
+
+**Arrivals A[k]:**
+- New customers entering system
+- Distribution: Poisson (λ parameter), binomial, general
+- Typical: 0-10 per slot (depends on λ·Δt)
+
+**Service S[k]:**
+- Completions (customers leaving)
+- Depends on Q: Can't serve more than present
+- Capacity: μ (maximum service rate)
+
+**Traffic Intensity:**
+    ρ = λ/μ
+
+Critical parameter:
+- ρ < 1: Stable (queue bounded on average)
+- ρ = 1: Critical (marginal)
+- ρ > 1: Unstable (queue grows to infinity)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Non-Negativity:**
+Q ≥ 0 enforced via max(0, ...) operation.
+
+**Stability Threshold:**
+ρ = λ/μ determines long-run behavior.
+
+**State-Dependent Service:**
+When Q = 0, no service possible (idle server).
+
+**Stochastic Fluctuations:**
+Even stable queue (ρ < 1) exhibits large fluctuations.
+
+**Heavy Traffic:**
+Near ρ = 1, queue becomes very sensitive to perturbations.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Stability:**
+For ρ < 1, queue has stationary distribution.
+
+**Mean Queue Length (Steady-State):**
+Approximate (diffusion limit):
+    E[Q] ≈ ρ/(1-ρ) (for M/M/1 analog)
+
+**Waiting Time:**
+Little's Law (exact):
+    E[W] = E[Q]/λ
+
+Average waiting time = average queue / arrival rate.
+
+**Variance:**
+Queue length variance high near ρ = 1.
+
+**Distribution:**
+For M/M/1 continuous analog:
+    P(Q = n) = (1-ρ)·ρⁿ (geometric)
+
+Discrete-time: Similar but modified.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Arrival Rate λ:**
+- Units: [customers/time]
+- Average arrivals per unit time
+- Typical: 0.1-10 depending on system
+
+**Service Rate μ:**
+- Units: [customers/time]
+- Average service capacity
+- Must be μ > λ for stability
+
+**Traffic Intensity ρ = λ/μ:**
+- Dimensionless (utilization)
+- ρ = 0.5: 50% utilized (stable, low wait)
+- ρ = 0.8: 80% utilized (moderate wait)
+- ρ = 0.95: 95% utilized (high wait, fragile)
+- ρ > 1: Overloaded (unstable)
+
+**Design Rule:**
+Keep ρ < 0.8 for reliable operation.
+- Buffer for variability
+- Acceptable waiting times
+- Robustness to perturbations
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: Q ∈ ℤ₊ = {0, 1, 2, ...}
+    - Non-negative integer (count of items)
+    - Unbounded (unless capacity limit)
+
+Control: u (optional)
+    - Admission control (reject arrivals)
+    - Service rate adjustment
+    - Server allocation
+
+Noise: w_A, w_S
+    - Arrival noise (Poisson fluctuations)
+    - Service noise (randomness in completion)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type   | Description                                                                                         | Default   |
+|---------------|--------|-----------------------------------------------------------------------------------------------------|-----------|
+| lambda_rate   | float  | Mean arrival rate [customers/slot] - Must be positive - Typical: 0.1-10                             | `0.8`     |
+| mu_rate       | float  | Mean service rate [customers/slot] - Must be positive - Must have μ > λ for stability               | `1.0`     |
+| sigma_arrival | float  | Arrival noise std dev [customers/slot] - From Poisson: σ_A ≈ √λ - Can be different (overdispersion) | `0.3`     |
+| sigma_service | float  | Service noise std dev [customers/slot] - Variability in service times - Typical: 0.1-1.0            | `0.3`     |
+| dt            | float  | Time slot duration [s]                                                                              | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR (max operator)
+- Noise Type: ADDITIVE (approximate)
+- State: Discrete (integer-valued ideally)
+- Stationary: If ρ < 1
+- Heavy Tails: Geometric distribution (M/M/1 analog)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Network Engineering:**
+- Router queue sizing
+- Bandwidth provisioning
+- QoS guarantees
+
+**2. Call Centers:**
+- Staffing optimization
+- Service level targets
+- Abandonment modeling
+
+**3. Manufacturing:**
+- WIP inventory control
+- Buffer sizing
+- Throughput analysis
+
+**4. Healthcare:**
+- ER capacity planning
+- Surgery scheduling
+- Bed management
+
+**5. Cloud Computing:**
+- Auto-scaling triggers
+- Load balancing
+- SLA compliance
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Simulation:**
+
+```python
+Q = np.zeros(N+1)
+Q[0] = Q0
+
+for k in range(N):
+    A_k = np.random.poisson(lambda_rate)
+    S_k = np.random.poisson(min(Q[k], mu_rate))
+    Q[k+1] = max(0, Q[k] + A_k - S_k)
+```
+
+**Issues:**
+- Integer-valued (exact Poisson)
+- Max operator (non-smooth)
+- State-dependent service
+
+**Diffusion Approximation:**
+For large λ, μ, treat as continuous:
+    Q[k+1] ≈ Q[k] + (λ-μ)·Δt + σ_net·w[k]
+
+Smoother, easier analysis.
+
+## Performance Metrics {.doc-section .doc-section-performance-metrics}
+
+**Mean Queue Length:**
+    E[Q] (average number waiting)
+
+**Mean Waiting Time:**
+    E[W] = E[Q]/λ (Little's Law)
+
+**Server Utilization:**
+    ρ = λ/μ (fraction time busy)
+
+**Probability of Delay:**
+    P(Q > 0) (chance of waiting)
+
+**Percentiles:**
+    P(Q ≤ q_95) = 0.95 (95th percentile)
+
+## Comparison with M/M/1 {.doc-section .doc-section-comparison-with-mm1}
+
+**M/M/1 (Continuous-Time):**
+- Poisson arrivals (rate λ)
+- Exponential service (rate μ)
+- Analytical formulas
+
+**Discrete Queue:**
+- Arrivals per slot (mean λ·Δt)
+- Service per slot (mean μ·Δt)
+- Numerical/simulation
+
+**Convergence:**
+As Δt → 0, discrete → continuous M/M/1.
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Single server (extend to M/M/c)
+- Infinite capacity (no buffer limit)
+- FIFO discipline (no priorities)
+- Stationary (time-invariant λ, μ)
+- Independence (no batch arrivals)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- M/M/c: Multiple servers
+- Finite capacity: M/M/1/K
+- Priority queues
+- Time-varying rates: λ(t), μ(t)
+- Network of queues (Jackson networks)
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteAR1 : Simpler linear stochastic system
+DiscreteRandomWalk : No bounds (queue has Q ≥ 0)
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.define_system) | Define discrete stochastic queue dynamics. |
+| [get_mean_queue_length](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_queue_length) | Get theoretical mean queue length E[Q] ≈ ρ/(1-ρ). |
+| [get_mean_waiting_time](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_waiting_time) | Get mean waiting time via Little's Law: E[W] = E[Q]/λ. |
+| [get_utilization](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_utilization) | Get server utilization (traffic intensity) ρ = λ/μ. |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticQueue.define_system(
+    lambda_rate=0.8,
+    mu_rate=1.0,
+    sigma_arrival=0.3,
+    sigma_service=0.3,
+    dt=1.0,
+)
+```
+
+Define discrete stochastic queue dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type   | Description                                                                           | Default   |
+|---------------|--------|---------------------------------------------------------------------------------------|-----------|
+| lambda_rate   | float  | Mean arrival rate [customers/slot] - Must be positive - Typical: 0.1-10               | `0.8`     |
+| mu_rate       | float  | Mean service rate [customers/slot] - Must be positive - Must have μ > λ for stability | `1.0`     |
+| sigma_arrival | float  | Arrival noise std dev - For Poisson: σ_A = √λ - Can differ (overdispersion)           | `0.3`     |
+| sigma_service | float  | Service noise std dev                                                                 | `0.3`     |
+| dt            | float  | Time slot duration [s]                                                                | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                         |
+|--------|-------------|-------------------------------------|
+|        | ValueError  | If λ ≤ 0, μ ≤ 0, or ρ ≥ 1           |
+|        | UserWarning | If ρ > 0.9 (near critical, fragile) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Traffic Intensity:**
+    ρ = λ/μ
+
+**Stability:**
+- ρ < 1: Stable (queue finite on average)
+- ρ ≥ 1: Unstable (queue → ∞)
+
+**Mean Queue (Approximate):**
+    E[Q] ≈ ρ/(1-ρ)
+
+For ρ = 0.8: E[Q] ≈ 4
+For ρ = 0.9: E[Q] ≈ 9
+For ρ = 0.95: E[Q] ≈ 19
+
+**Design Guideline:**
+Keep ρ < 0.8 for good performance:
+- Reasonable wait times
+- Robustness to variability
+- Avoid heavy traffic regime
+
+**Noise Structure:**
+
+Arrival noise: From Poisson statistics
+    σ_A ≈ √λ (for Poisson)
+
+Service noise: From variability
+    σ_S depends on distribution
+
+Net noise:
+    σ_net = √(σ_A² + σ_S²)
+
+**Simplified Model:**
+
+This uses diffusion approximation:
+    Q[k+1] = max(0, Q[k] + (λ-μ) + w[k])
+
+where w[k] ~ N(0, σ_net²).
+
+More accurate: Exact Poisson simulation (Gillespie-like).
+
+### get_mean_queue_length { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_queue_length }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_queue_length(
+)
+```
+
+Get theoretical mean queue length E[Q] ≈ ρ/(1-ρ).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                      |
+|--------|--------|----------------------------------|
+|        | float  | Mean queue length (steady-state) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Approximate formula (diffusion/M/M/1 analog).
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> queue = DiscreteStochasticQueue(lambda_rate=0.8, mu_rate=1.0)
+>>> E_Q = queue.get_mean_queue_length()
+>>> print(f"Mean queue: {E_Q:.2f}")
+```
+
+### get_mean_waiting_time { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_waiting_time }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_mean_waiting_time(
+)
+```
+
+Get mean waiting time via Little's Law: E[W] = E[Q]/λ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | float  | Mean waiting time [slots] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> queue = DiscreteStochasticQueue(lambda_rate=0.8, mu_rate=1.0)
+>>> E_W = queue.get_mean_waiting_time()
+>>> print(f"Mean wait: {E_W:.2f} slots")
+```
+
+### get_utilization { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_utilization }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticQueue.get_utilization()
+```
+
+Get server utilization (traffic intensity) ρ = λ/μ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description          |
+|--------|--------|----------------------|
+|        | float  | Utilization (0 to 1) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> queue = DiscreteStochasticQueue(lambda_rate=0.8, mu_rate=1.0)
+>>> util = queue.get_utilization()
+>>> print(f"Utilization: {util:.1%}")
+```

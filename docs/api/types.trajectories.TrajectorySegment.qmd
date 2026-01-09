@@ -1,0 +1,45 @@
+# types.trajectories.TrajectorySegment { #cdesym.types.trajectories.TrajectorySegment }
+
+```python
+types.trajectories.TrajectorySegment()
+```
+
+Segment of trajectory between two time points.
+
+Extracted portion of full trajectory for analysis.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name        | Type                        | Description                                       |
+|-------------|-----------------------------|---------------------------------------------------|
+| states      | StateTrajectory             | State trajectory segment                          |
+| controls    | Optional\[ControlSequence\] | Control sequence segment                          |
+| time        | TimePoints                  | Time points for segment                           |
+| start_index | int                         | Index in original trajectory where segment starts |
+| end_index   | int                         | Index in original trajectory where segment ends   |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def extract_segment(
+...     result: SimulationResult,
+...     t_start: float,
+...     t_end: float
+... ) -> TrajectorySegment:
+...     '''Extract trajectory segment.'''
+...     time = result['time']
+...     mask = (time >= t_start) & (time <= t_end)
+...     indices = np.where(mask)[0]
+...
+...     return TrajectorySegment(
+...         states=result['states'][mask],
+...         controls=result['controls'][mask[:-1]] if 'controls' in result else None,
+...         time=time[mask],
+...         start_index=indices[0],
+...         end_index=indices[-1],
+...     )
+>>>
+>>> # Extract transient response (first 2 seconds)
+>>> segment: TrajectorySegment = extract_segment(result, 0.0, 2.0)
+>>> transient_states = segment['states']
+```

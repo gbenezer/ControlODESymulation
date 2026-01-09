@@ -1,0 +1,32 @@
+# types.symbolic.SymbolicMatrix { #cdesym.types.symbolic.SymbolicMatrix }
+
+`types.symbolic.SymbolicMatrix`
+
+Matrix of symbolic expressions.
+
+Used for vector-valued functions like state equations.
+
+Shape: Can be any (m, n), commonly (n, 1) for column vectors
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import sympy as sp
+>>> x1, x2 = sp.symbols('x1 x2')
+>>> u = sp.symbols('u')
+>>> 
+>>> # Dynamics: dx/dt = f(x, u)
+>>> f: SymbolicMatrix = sp.Matrix([
+...     x2,
+...     -x1 + u
+... ])
+>>> 
+>>> # Jacobian
+>>> A = f.jacobian([x1, x2])  # 2x2 matrix
+>>> print(A)
+>>> # Matrix([[0, 1], [-1, 0]])
+>>> 
+>>> # Access elements
+>>> f[0]  # x2
+>>> f[1]  # -x1 + u
+```

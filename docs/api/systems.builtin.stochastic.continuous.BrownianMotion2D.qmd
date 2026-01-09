@@ -1,0 +1,263 @@
+# systems.builtin.stochastic.continuous.BrownianMotion2D { #cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D }
+
+```python
+systems.builtin.stochastic.continuous.BrownianMotion2D(*args, **kwargs)
+```
+
+Two-dimensional Brownian motion with independent components.
+
+This represents two independent scalar Brownian motions evolving
+simultaneously. It models diffusion in a two-dimensional space
+with possibly different diffusion rates in each direction.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+System of two SDEs:
+    dX₁ = σ₁·dW₁
+    dX₂ = σ₂·dW₂
+
+where:
+    - X₁, X₂: Position coordinates in 2D space
+    - σ₁, σ₂: Diffusion coefficients for each dimension
+    - W₁, W₂: Independent standard Wiener processes
+    - dW₁, dW₂: Independent Brownian motion increments
+
+**Key Features:**
+- Two independent noise sources (nw = 2)
+- No coupling between dimensions
+- Diagonal diffusion matrix: G = diag(σ₁, σ₂)
+- Can be anisotropic (σ₁ ≠ σ₂)
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Joint Distribution:**
+The state vector [X₁(t), X₂(t)] starting at [x₁₀, x₂₀] has distribution:
+    [X₁(t)]     [x₁₀]     [σ₁²·t    0   ]
+    [X₂(t)] ~ N([x₂₀]  ,  [  0   σ₂²·t])
+
+**Independence:**
+X₁(t) and X₂(t) are independent for all t:
+    Cov[X₁(t), X₂(t)] = 0
+
+**Radial Distance:**
+The distance from origin R(t) = √(X₁² + X₂²) follows:
+    E[R²(t)] = r₀² + (σ₁² + σ₂²)·t
+where r₀² = x₁₀² + x₂₀².
+
+**First Passage Time:**
+For hitting a circle of radius a:
+    E[τ_a] = a²/(2D) where D = (σ₁² + σ₂²)/2
+(For σ₁ = σ₂ = σ, this gives E[τ_a] = a²/(2σ²))
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Isotropic vs. Anisotropic Diffusion:**
+
+1. **Isotropic (σ₁ = σ₂):**
+   - Diffuses equally in all directions
+   - Circular symmetry
+   - Examples: Particle in homogeneous fluid, thermal diffusion
+
+2. **Anisotropic (σ₁ ≠ σ₂):**
+   - Different diffusion rates in x and y
+   - Elliptical symmetry
+   - Examples: Diffusion in crystals, flow in porous media
+
+**Applications:**
+- Particle tracking in 2D microscopy
+- Random walk on plane (e.g., animal foraging)
+- 2D heat diffusion with noise
+- Currency pair exchange rate fluctuations
+- Spatial point processes
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                           | Default   |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma1 | float  | Diffusion coefficient for first dimension - Must be positive: σ₁ > 0 - Controls diffusion rate in X₁ direction - Variance growth: Var[X₁(t)] = σ₁²·t  | `1.0`     |
+| sigma2 | float  | Diffusion coefficient for second dimension - Must be positive: σ₂ > 0 - Controls diffusion rate in X₂ direction - Variance growth: Var[X₂(t)] = σ₂²·t | `1.0`     |
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x = [x₁, x₂] ∈ ℝ² (unbounded 2D space)
+    - First component: x₁ (arbitrary real number)
+    - Second component: x₂ (arbitrary real number)
+    - Joint distribution is bivariate normal
+    - No boundaries (can go anywhere in plane)
+
+Control: None (autonomous)
+    - nu = 0: No control inputs
+    - Purely noise-driven motion
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+**Noise Structure:**
+- Type: ADDITIVE (diffusion matrix constant)
+- Dimension: nw = 2 (two independent noise sources)
+- Coupling: DIAGONAL (no cross-terms)
+- Independence: W₁ ⊥ W₂ (orthogonal noise sources)
+
+**Diffusion Matrix:**
+    G(x) = [σ₁  0 ]
+           [0   σ₂]
+
+This diagonal structure means:
+- Each dimension has its own noise source
+- No correlation between dimensions
+- Can be simulated independently
+
+**Covariance Structure:**
+For times s < t:
+    Cov[X₁(s), X₁(t)] = σ₁²·s
+    Cov[X₂(s), X₂(t)] = σ₂²·s
+    Cov[X₁(s), X₂(t)] = 0 (independent)
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Hypothesis Tests:**
+
+1. **Independence Test:**
+   - H₀: X₁ and X₂ are independent
+   - Test: Correlation should be ≈0
+   - Method: Pearson correlation test
+
+2. **Isotropy Test:**
+   - H₀: σ₁ = σ₂ (isotropic diffusion)
+   - Test: Var[X₁] = Var[X₂]
+   - Method: F-test for equal variances
+
+3. **Normality Test:**
+   - H₀: (X₁, X₂) follows bivariate normal
+   - Test: Mardia's test, Henze-Zirkler test
+   - Alternative: Q-Q plot for each dimension
+
+4. **Radial Distribution:**
+   - Distance R = √(X₁² + X₂²)
+   - For isotropic case: R²/t ~ χ²(2) scaled
+   - Test: Goodness-of-fit to chi-squared
+
+## Simulation Considerations {.doc-section .doc-section-simulation-considerations}
+
+**Independent Sampling:**
+Each dimension can be sampled independently:
+    X₁[k+1] = X₁[k] + σ₁·√(Δt)·Z₁[k]
+    X₂[k+1] = X₂[k] + σ₂·√(Δt)·Z₂[k]
+where Z₁[k], Z₂[k] ~ N(0,1) are independent.
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Particle Tracking:**
+- Track particles in microscopy
+- Determine diffusion coefficients
+- Identify anisotropy in medium
+- Classify motion types (confined, free, directed)
+
+**2. Animal Movement:**
+- Random walk models of foraging
+- Home range estimation
+- Habitat selection analysis
+- Dispersal modeling
+
+**3. Financial Markets:**
+- Correlated asset pairs (when extended to non-zero correlation)
+- Exchange rate dynamics
+- Portfolio diffusion
+- Risk analysis
+
+**4. Physics:**
+- 2D diffusion in membranes
+- Molecular motion on surfaces
+- Colloidal particle dynamics
+- Thermal fluctuations
+
+**5. Spatial Statistics:**
+- Point process backgrounds
+- Spatial inhomogeneity detection
+- Landscape ecology
+- Epidemiology (disease spread)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+**Correlated Brownian Motion:**
+For correlated noise:
+    G = [σ₁        ρ·σ₁·σ₂]
+        [ρ·σ₁·σ₂       σ₂  ]
+where ρ is correlation coefficient (-1 ≤ ρ ≤ 1).
+
+**Reflected Brownian Motion:**
+Bounce off rectangular boundary:
+    [0, L₁] × [0, L₂]
+
+**Drift Addition:**
+Add deterministic drift:
+    dX₁ = μ₁·dt + σ₁·dW₁
+    dX₂ = μ₂·dt + σ₂·dW₂
+
+**Time-Varying Diffusion:**
+Allow σ₁(t), σ₂(t) to vary with time.
+
+## See Also {.doc-section .doc-section-see-also}
+
+BrownianMotion : One-dimensional version
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D.define_system) | Define 2D Brownian motion dynamics. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D.define_system }
+
+```python
+systems.builtin.stochastic.continuous.BrownianMotion2D.define_system(
+    sigma1=1.0,
+    sigma2=1.0,
+)
+```
+
+Define 2D Brownian motion dynamics.
+
+Sets up the system:
+    dX₁ = σ₁·dW₁
+    dX₂ = σ₂·dW₂
+
+with two independent noise sources.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                        | Default   |
+|--------|--------|----------------------------------------------------------------------------------------------------|-----------|
+| sigma1 | float  | Diffusion coefficient for first dimension - Must be positive: σ₁ > 0 - Controls X₁ diffusion rate  | `1.0`     |
+| sigma2 | float  | Diffusion coefficient for second dimension - Must be positive: σ₂ > 0 - Controls X₂ diffusion rate | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                           |
+|--------|------------|---------------------------------------|
+|        | ValueError | If either sigma value is non-positive |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Diffusion Matrix Structure:**
+The diffusion matrix is diagonal:
+    G = diag(σ₁, σ₂)
+
+This means:
+- Independent noise sources for each dimension
+- No correlation between X₁ and X₂ dynamics
+- Can simulate each dimension separately
+
+**Isotropy Condition:**
+The system is isotropic if and only if σ₁ = σ₂.
+- Isotropic: Diffusion looks the same in all directions
+- Anisotropic: Preferred directions of diffusion
+
+**Effective Diffusion Coefficient:**
+For radial distance R = √(X₁² + X₂²):
+    D_eff = (σ₁² + σ₂²)/2
+
+**Variance Ellipse:**
+At time t, the state variance forms an ellipse:
+- Semi-major axis: max(σ₁, σ₂)·√t
+- Semi-minor axis: min(σ₁, σ₂)·√t
+- Aligned with coordinate axes (uncorrelated)

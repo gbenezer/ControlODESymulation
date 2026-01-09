@@ -1,0 +1,10 @@
+# systems.builtin.stochastic.continuous.BrownianMotionWithDrift { #cdesym.systems.builtin.stochastic.continuous.BrownianMotionWithDrift }
+
+```python
+systems.builtin.stochastic.continuous.BrownianMotionWithDrift(*args, **kwargs)
+```
+
+Alias for GeometricBrownianMotion.
+
+Alternative name sometimes used in literature.
+Mathematically identical to GBM.

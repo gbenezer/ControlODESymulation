@@ -1,0 +1,500 @@
+# systems.builtin.deterministic.discrete.DiscreteBatchReactor { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor(*args, **kwargs)
+```
+
+Discrete-time chemical batch reactor with temperature control.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A well-mixed batch reactor where chemical species A converts to B,
+which then converts to product C. The reactor operates in discrete
+time steps (sampling intervals) typical of:
+- Digital control systems with periodic measurements
+- Batch processing with staged operations
+- Industrial reactors with discrete valve/heater actuation
+
+The reaction sequence is:
+    A → B → C
+
+Both reactions are first-order and temperature-dependent following
+Arrhenius kinetics. Temperature affects reaction rates exponentially,
+creating strong nonlinear coupling between composition and thermal
+dynamics.
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x[k] = [Cₐ[k], Cᵦ[k], T[k]]
+    Concentration states:
+    - Cₐ: Concentration of reactant A [mol/L]
+      * Initial concentration typically Cₐ[0] = 1.0 mol/L
+      * Decreases monotonically (consumed by first reaction)
+      * Must remain non-negative: Cₐ ≥ 0
+
+    - Cᵦ: Concentration of intermediate B [mol/L]
+      * Produced from A, consumed to form C
+      * Non-monotonic: rises then falls
+      * Maximum occurs when r₁ = r₂ (production = consumption)
+      * Must remain non-negative: Cᵦ ≥ 0
+
+    Temperature state:
+    - T: Reactor temperature [K]
+      * Typical range: 300-400 K (27-127°C)
+      * Affects reaction rates exponentially via Arrhenius
+      * Subject to heat loss to ambient (cooling)
+      * Controlled by external heating Q
+
+Control: u[k] = [Q[k]]
+    - Q: Heating/cooling rate [K/s]
+      * Q > 0: Heating applied
+      * Q < 0: Active cooling
+      * Q = 0: Natural heat loss only
+      * Typical range: -50 to +50 K/s
+
+Output: y[k] = [Cₐ[k], Cᵦ[k], T[k]]
+    - Full state measurement (all concentrations and temperature)
+    - In practice, concentration may be measured via:
+      * Spectroscopy (UV-Vis, IR)
+      * Chromatography (GC, HPLC)
+      * Online analyzers
+    - Temperature measured via thermocouple or RTD
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The discrete-time dynamics use Euler discretization:
+
+    Cₐ[k+1] = Cₐ[k] - dt·r₁[k]
+    Cᵦ[k+1] = Cᵦ[k] + dt·(r₁[k] - r₂[k])
+    T[k+1] = T[k] + dt·(Q[k] - α·(T[k] - Tₐₘᵦ))
+
+**Reaction Rates (Arrhenius kinetics)**:
+    r₁[k] = k₁·Cₐ[k]·exp(-E₁/T[k])    [mol/(L·s)]
+    r₂[k] = k₂·Cᵦ[k]·exp(-E₂/T[k])    [mol/(L·s)]
+
+where:
+- k₁, k₂: Pre-exponential factors (frequency factors)
+- E₁, E₂: Activation energies [K] (using Eₐ/R as temperature)
+- exp(-E/T): Arrhenius temperature dependence
+
+**Physical Interpretation**:
+
+Reaction 1 (A → B):
+- Rate r₁ proportional to Cₐ (first-order kinetics)
+- Exponentially increases with temperature
+- Higher E₁ → more temperature sensitive
+- Depletes reactant A, produces intermediate B
+
+Reaction 2 (B → C):
+- Rate r₂ proportional to Cᵦ (first-order kinetics)
+- Exponentially increases with temperature
+- Higher E₂ → more temperature sensitive
+- Consumes intermediate B, produces final product C
+
+Temperature dynamics:
+- Q[k]: External heating/cooling control
+- -α·(T - Tₐₘᵦ): Heat loss to ambient (Newton's cooling)
+- α: Heat transfer coefficient [1/s]
+- Tₐₘᵦ: Ambient temperature [K]
+
+**Nonlinear Coupling**:
+The system exhibits strong nonlinear coupling:
+1. Temperature affects reaction rates exponentially
+2. Reactions may be exothermic/endothermic (not modeled here)
+3. Competing reactions create non-monotonic Cᵦ profile
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+k1 : float, default=0.5
+    Pre-exponential factor for reaction 1 (A→B) [1/s]
+    Higher k₁ → faster depletion of A
+    Typical range: 0.1 - 10.0
+
+k2 : float, default=0.3
+    Pre-exponential factor for reaction 2 (B→C) [1/s]
+    Higher k₂ → faster conversion of B to C
+    Typical range: 0.1 - 10.0
+
+E1 : float, default=1000.0
+    Activation energy for reaction 1 [K] (actually Eₐ/R)
+    Higher E₁ → more sensitive to temperature
+    Physical Eₐ typically 8,000 - 30,000 K
+
+E2 : float, default=1500.0
+    Activation energy for reaction 2 [K] (actually Eₐ/R)
+    E₂ > E₁ means reaction 2 is more temperature-sensitive
+    Creates selectivity control via temperature
+
+alpha : float, default=0.1
+    Heat transfer coefficient [1/s]
+    Characterizes cooling rate to ambient
+    Higher α → faster heat loss, harder to maintain temperature
+
+T_amb : float, default=300.0
+    Ambient temperature [K] (27°C)
+    System equilibrium temperature with Q = 0
+
+dt : float, default=1.0
+    Sampling/discretization time step [s]
+    Critical parameter affecting stability:
+    - Too large → numerical instability
+    - Too small → slow simulation, control system bandwidth
+    Typical: 0.1 - 10.0 seconds
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+**Steady-state (complete conversion)**:
+    x_eq = [0, 0, Tₐₘᵦ]  (all reactants consumed, cooled to ambient)
+    u_eq = 0  (no heating needed)
+
+This equilibrium is reached after sufficient batch time when:
+- All A has converted to B: Cₐ → 0
+- All B has converted to C: Cᵦ → 0
+- Temperature equilibrates with ambient: T → Tₐₘᵦ
+
+This is a **stable equilibrium** (globally attracting).
+
+**Optimal operating point** (maximum B yield):
+    If goal is to maximize Cᵦ at a specific time, equilibrium
+    concept doesn't apply. Instead, use optimal control to find
+    temperature trajectory Q[k] that maximizes Cᵦ at final time.
+
+**Temperature setpoint equilibrium** (partial reaction):
+    For constant T* > Tₐₘᵦ maintained by control:
+    - Requires Q_eq = α·(T* - Tₐₘᵦ) to balance heat loss
+    - Concentrations evolve according to reaction kinetics at T*
+    - Not a true equilibrium (Cₐ, Cᵦ still changing)
+
+## Control Objectives: {.doc-section .doc-section-control-objectives}
+
+Common control goals for batch reactors:
+
+1. **Temperature tracking**: Maintain T[k] ≈ T_ref[k]
+   - Maximize reaction rate
+   - Ensure safety (prevent runaway)
+   - LQR/MPC controllers typical
+
+2. **Yield optimization**: Maximize Cᵦ at final time
+   - Requires optimal temperature trajectory
+   - May involve heating → cooling profile
+   - Dynamic programming or direct optimization
+
+3. **Batch time minimization**: Reach Cₐ < ε in minimum time
+   - Subject to temperature constraints (T_min ≤ T ≤ T_max)
+   - Bang-bang control often optimal
+
+4. **Selectivity control**: Maximize ratio Cᵦ/Cᶜ
+   - Exploit different activation energies (E₁ vs E₂)
+   - Intermediate temperature maximizes B
+
+## State Constraints: {.doc-section .doc-section-state-constraints}
+
+Physical constraints that must be enforced:
+
+1. **Non-negativity**: Cₐ[k] ≥ 0, Cᵦ[k] ≥ 0
+   - Concentrations cannot be negative
+   - Euler discretization may violate if dt too large
+
+2. **Conservation**: Cₐ[k] + Cᵦ[k] + Cᶜ[k] = Cₐ[0]
+   - Total moles conserved (if C tracked)
+   - Useful for validation
+
+3. **Temperature limits**: T_min ≤ T[k] ≤ T_max
+   - Safety: prevent runaway or solidification
+   - Typical: 280 K ≤ T ≤ 450 K
+
+4. **Actuation limits**: Q_min ≤ Q[k] ≤ Q_max
+   - Physical heating/cooling capacity
+   - Typical: -50 ≤ Q ≤ 50 K/s
+
+## Numerical Considerations: {.doc-section .doc-section-numerical-considerations}
+
+**Stability**: The explicit Euler discretization is stable if:
+    dt < 1/λ_max
+
+where λ_max is the maximum eigenvalue of the Jacobian.
+
+For this system, linearizing around typical operating points:
+    λ_max ≈ max(k₁·exp(-E₁/T), k₂·exp(-E₂/T), α)
+
+At high temperature, reaction rates can be very fast, requiring
+small dt for stability. Rule of thumb:
+    dt < 0.1 / max(k₁·exp(-E₁/T), k₂·exp(-E₂/T))
+
+**Accuracy**: Higher-order methods (RK4, etc.) can be used:
+    system_continuous = ContinuousBatchReactor(...)
+    system_discrete = system_continuous.discretize(dt=1.0, method='rk4')
+
+**Stiffness**: If E₁ ≫ E₂ or vice versa, system may be stiff,
+requiring implicit methods or very small dt.
+
+## Example Usage: {.doc-section .doc-section-example-usage}
+
+>>> # Create reactor with default parameters
+>>> reactor = DiscreteBatchReactor(dt=0.5)
+>>>
+>>> # Initial condition: fresh batch
+>>> x0 = np.array([1.0, 0.0, 350.0])  # [Cₐ, Cᵦ, T]
+>>>
+>>> # Simulate with constant heating
+>>> result = reactor.simulate(
+...     x0=x0,
+...     u_sequence=np.array([10.0]),  # Constant Q = 10 K/s
+...     n_steps=100
+... )
+>>>
+>>> # Plot concentration profiles
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(result['time_steps'], result['states'][:, 0], label='Cₐ')
+>>> plt.plot(result['time_steps'], result['states'][:, 1], label='Cᵦ')
+>>> plt.xlabel('Time step')
+>>> plt.ylabel('Concentration [mol/L]')
+>>> plt.legend()
+>>>
+>>> # Design LQR temperature controller
+>>> T_ref = 360.0  # Reference temperature
+>>> x_ref = np.array([0.5, 0.3, T_ref])
+>>> u_ref = reactor._calculate_steady_heating(T_ref)
+>>>
+>>> Ad, Bd = reactor.linearize(x_ref, u_ref)
+>>> Q_lqr = np.diag([0, 0, 100])  # Only care about temperature
+>>> R_lqr = np.array([[1.0]])
+>>> lqr_result = reactor.control.design_lqr(Ad, Bd, Q_lqr, R_lqr,
+...                                          system_type='discrete')
+>>> K = lqr_result['gain']
+>>>
+>>> # Simulate with LQR control
+>>> def lqr_controller(x, k):
+...     return -K @ (x - x_ref) + u_ref
+>>>
+>>> result_lqr = reactor.rollout(x0, lqr_controller, n_steps=100)
+
+## Physical Insights: {.doc-section .doc-section-physical-insights}
+
+**Reaction Selectivity**:
+Since E₂ > E₁ (default), reaction 2 is more temperature-sensitive.
+This means:
+- Low T: Slow r₂, Cᵦ accumulates (favors intermediate)
+- High T: Fast r₂, Cᵦ depletes quickly (favors product)
+
+**Temperature Control Strategy**:
+To maximize Cᵦ yield:
+1. Heat initially to accelerate reaction 1 (produce B)
+2. Cool before reaction 2 becomes too fast (preserve B)
+3. Optimal trajectory: heating → plateau → cooling
+
+**Batch Time vs. Yield Tradeoff**:
+- High temperature: Fast reactions, short batch time, but may
+  overshoot optimal Cᵦ (too much conversion to C)
+- Low temperature: Slow reactions, long batch time, but can
+  maintain high Cᵦ for longer
+- Economic optimum balances these factors
+
+**Safety Considerations**:
+- Exothermic reactions (not modeled) can cause thermal runaway
+- High temperature reduces selectivity, may form byproducts
+- Emergency cooling (Q < 0) must be available
+- Temperature constraints critical for safe operation
+
+## See Also: {.doc-section .doc-section-see-also}
+
+ContinuousBatchReactor : Continuous-time version of this system
+DiscreteCSTR : Continuous stirred-tank reactor (continuous flow)
+LogisticMap : Simpler discrete nonlinear dynamics
+DiscretePendulum : Another discrete nonlinear control problem
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [calculate_steady_heating](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating) | Calculate steady-state heating required to maintain temperature setpoint. |
+| [compute_conversion](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion) | Compute fractional conversion of reactant A. |
+| [compute_selectivity](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity) | Compute selectivity to intermediate B. |
+| [compute_yield](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield) | Compute yield of intermediate B. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system) | Define symbolic discrete-time batch reactor dynamics. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria) | Set up equilibrium points for the batch reactor. |
+
+### calculate_steady_heating { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating(
+    T_setpoint,
+)
+```
+
+Calculate steady-state heating required to maintain temperature setpoint.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type   | Description                     | Default    |
+|------------|--------|---------------------------------|------------|
+| T_setpoint | float  | Desired reactor temperature [K] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                   |
+|--------|--------|-------------------------------|
+|        | float  | Required heating rate Q [K/s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+At steady state (constant T), heat input must balance heat loss:
+    Q = α·(T - T_amb)
+
+### compute_conversion { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion(
+    C_A,
+    C_A0,
+)
+```
+
+Compute fractional conversion of reactant A.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                        | Default    |
+|--------|--------|------------------------------------|------------|
+| C_A    | float  | Current concentration of A [mol/L] | _required_ |
+| C_A0   | float  | Initial concentration of A [mol/L] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                               |
+|--------|--------|-----------------------------------------------------------|
+|        | float  | Conversion fraction X_A (0 = no conversion, 1 = complete) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteBatchReactor()
+>>> X = reactor.compute_conversion(C_A=0.3, C_A0=1.0)
+>>> print(f"Conversion: {X*100:.1f}%")
+Conversion: 70.0%
+```
+
+### compute_selectivity { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity(
+    C_B,
+    C_A,
+    C_A0,
+)
+```
+
+Compute selectivity to intermediate B.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                        | Default    |
+|--------|--------|------------------------------------|------------|
+| C_B    | float  | Current concentration of B [mol/L] | _required_ |
+| C_A    | float  | Current concentration of A [mol/L] | _required_ |
+| C_A0   | float  | Initial concentration of A [mol/L] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                         |
+|--------|--------|---------------------------------------------------------------------|
+|        | float  | Selectivity S_B = C_B / (C_A0 - C_A) (moles B per mole A converted) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Selectivity measures how much intermediate B is produced per
+mole of A consumed. Values:
+- S_B = 1.0: Perfect selectivity (all A → B, no B → C yet)
+- S_B < 1.0: Some B has already converted to C
+- S_B → 0: Most B has converted to C (over-reacted)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteBatchReactor()
+>>> S = reactor.compute_selectivity(C_B=0.5, C_A=0.3, C_A0=1.0)
+>>> print(f"Selectivity: {S:.2f} mol B / mol A converted")
+```
+
+### compute_yield { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield(
+    C_B,
+    C_A0,
+)
+```
+
+Compute yield of intermediate B.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                        | Default    |
+|--------|--------|------------------------------------|------------|
+| C_B    | float  | Current concentration of B [mol/L] | _required_ |
+| C_A0   | float  | Initial concentration of A [mol/L] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                         |
+|--------|--------|-----------------------------------------------------|
+|        | float  | Yield Y_B = C_B / C_A0 (moles B per initial mole A) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Yield is the most important metric for batch optimization.
+Combines both conversion and selectivity:
+    Y_B = X_A · S_B
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteBatchReactor()
+>>> Y = reactor.compute_yield(C_B=0.4, C_A0=1.0)
+>>> print(f"Yield: {Y*100:.1f}%")
+Yield: 40.0%
+```
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system(
+    k1_val=0.5,
+    k2_val=0.3,
+    E1_val=1000.0,
+    E2_val=1500.0,
+    alpha_val=0.1,
+    T_amb_val=300.0,
+    dt=1.0,
+    C_A0=None,
+    T0=None,
+)
+```
+
+Define symbolic discrete-time batch reactor dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type              | Description                                              | Default   |
+|-----------|-------------------|----------------------------------------------------------|-----------|
+| k1_val    | float             | Pre-exponential factor for A→B reaction [1/s]            | `0.5`     |
+| k2_val    | float             | Pre-exponential factor for B→C reaction [1/s]            | `0.3`     |
+| E1_val    | float             | Activation energy for reaction 1 [K]                     | `1000.0`  |
+| E2_val    | float             | Activation energy for reaction 2 [K]                     | `1500.0`  |
+| alpha_val | float             | Heat transfer coefficient [1/s]                          | `0.1`     |
+| T_amb_val | float             | Ambient temperature [K]                                  | `300.0`   |
+| dt        | float             | Discretization time step [s]                             | `1.0`     |
+| C_A0      | Optional\[float\] | Initial concentration of A for equilibrium setup [mol/L] | `None`    |
+| T0        | Optional\[float\] | Initial temperature for equilibrium setup [K]            | `None`    |
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria()
+```
+
+Set up equilibrium points for the batch reactor.
+
+Adds two equilibria:
+1. 'complete': Complete conversion (Cₐ=0, Cᵦ=0, T=Tₐₘᵦ)
+2. 'initial': Optional initial state if C_A0 and T0 specified

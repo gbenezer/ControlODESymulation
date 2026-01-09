@@ -1,0 +1,76 @@
+# types.core.ControlInput { #cdesym.types.core.ControlInput }
+
+`types.core.ControlInput`
+
+Unified type for control inputs to integration methods.
+
+Allows flexible specification of control in numerical integration:
+- Constant control: Fixed array applied for all t
+- Time-varying control: Function u(t) evaluated at each time step  
+- Autonomous: None implies zero control
+
+This type is primarily used in integration methods where the control
+strategy needs to be specified.
+
+## Type Variants {.doc-section .doc-section-type-variants}
+
+ControlVector : ArrayLike
+    Constant control u(t) = u_const for all t ∈ [t0, tf]
+    Shape: (nu,)
+
+TimeVaryingControl : Callable[[float], ControlVector]
+    Time-dependent control u(t) = u_func(t)
+    Evaluated by integrator at each time point
+
+None
+    Zero control or autonomous dynamics
+    Equivalent to u(t) = 0 for all t
+
+## Examples {.doc-section .doc-section-examples}
+
+Constant control:
+
+```python
+>>> u_const = np.array([1.0, 0.5])
+>>> result = system.integrate(x0, u=u_const, t_span=(0, 10))
+```
+
+Time-varying control:
+
+```python
+>>> def u_func(t):
+...     return np.array([np.sin(t), np.cos(t)])
+>>> result = system.integrate(x0, u=u_func, t_span=(0, 10))
+```
+
+Autonomous (no control):
+
+```python
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+```
+
+## Usage in Integration {.doc-section .doc-section-usage-in-integration}
+
+The integration method handles each variant:
+
+>>> def integrate(self, x0: StateVector, u: ControlInput = None, ...):
+...     def rhs(t, x):
+...         if u is None:
+...             u_t = None
+...         elif callable(u):
+...             u_t = u(t)  # Evaluate time-varying control
+...         else:
+...             u_t = u     # Use constant control
+...         return self(x, u_t, t)
+
+## Notes {.doc-section .doc-section-notes}
+
+For closed-loop simulation with state feedback, use FeedbackController
+in the simulate() method instead. ControlInput is for open-loop or
+pre-planned trajectories in integrate().
+
+## See Also {.doc-section .doc-section-see-also}
+
+FeedbackController : Closed-loop control for simulate()
+TimeVaryingControl : Component type for time-varying control
+ControlVector : Component type for constant control

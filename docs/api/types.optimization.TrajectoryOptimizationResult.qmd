@@ -1,0 +1,66 @@
+# types.optimization.TrajectoryOptimizationResult { #cdesym.types.optimization.TrajectoryOptimizationResult }
+
+```python
+types.optimization.TrajectoryOptimizationResult()
+```
+
+Trajectory optimization result.
+
+Result from optimal control problem (OCP) solved via
+direct transcription, shooting, or collocation.
+
+## Fields {.doc-section .doc-section-fields}
+
+state_trajectory : StateTrajectory
+    Optimal state trajectory x*(t) (N+1, nx)
+control_trajectory : ControlSequence
+    Optimal control trajectory u*(t) (N, nu)
+cost : float
+    Total cost J = Σ L(x,u) + Φ(x[N])
+success : bool
+    Whether optimization converged
+message : str
+    Solver message
+solve_time : float
+    Computation time in seconds
+iterations : int
+    Number of optimization iterations
+constraint_violations : Optional[ArrayLike]
+    Dynamics and path constraint violations
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Minimum-time problem
+>>> def running_cost(x, u):
+...     return 1.0  # Time-optimal
+>>>
+>>> def terminal_cost(x):
+...     return 0.0
+>>>
+>>> result: TrajectoryOptimizationResult = solve_ocp(
+...     system=pendulum,
+...     x0=np.array([np.pi, 0]),     # Hanging down
+...     xf=np.array([0, 0]),         # Upright
+...     running_cost=running_cost,
+...     terminal_cost=terminal_cost,
+...     horizon=100,
+...     dt=0.05
+... )
+>>>
+>>> if result['success']:
+...     x_traj = result['state_trajectory']
+...     u_traj = result['control_trajectory']
+...
+...     import matplotlib.pyplot as plt
+...     plt.plot(x_traj[:, 0], label='theta')
+...     plt.plot(u_traj[:, 0], label='torque')
+...     plt.legend()
+...
+...     print(f"Minimum time: {result['cost']:.3f} seconds")
+>>>
+>>> # Check dynamics constraints
+>>> if 'constraint_violations' in result:
+...     max_viol = np.max(np.abs(result['constraint_violations']))
+...     print(f"Max constraint violation: {max_viol:.2e}")
+```

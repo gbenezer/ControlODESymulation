@@ -1,0 +1,293 @@
+# visualization.TrajectoryPlotter { #cdesym.visualization.TrajectoryPlotter }
+
+```python
+visualization.TrajectoryPlotter(backend='numpy', default_theme='default')
+```
+
+Time-domain trajectory visualization.
+
+Provides interactive Plotly-based plotting for state and control trajectories
+with automatic handling of batched data, backend conversion, and adaptive layouts.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name          | Type    | Description                                        |
+|---------------|---------|----------------------------------------------------|
+| backend       | Backend | Default computational backend for array conversion |
+| default_theme | str     | Default plot theme to apply                        |
+
+## Examples {.doc-section .doc-section-examples}
+
+Basic trajectory plotting:
+
+```python
+>>> plotter = TrajectoryPlotter()
+>>> t = np.linspace(0, 10, 100)
+>>> x = np.sin(t)[:, None]  # (100, 1)
+>>> fig = plotter.plot_trajectory(t, x, state_names=['sin(t)'])
+>>> fig.show()
+```
+
+Batched trajectories (Monte Carlo):
+
+```python
+>>> x_batch = np.stack([np.sin(t + phi)[:, None] for phi in [0, 0.5, 1.0]])
+>>> # x_batch shape: (3, 100, 1)
+>>> fig = plotter.plot_trajectory(t, x_batch)
+>>> fig.show()  # Shows all 3 trajectories
+```
+
+State and control with publication theme:
+
+```python
+>>> u = 0.1 * np.random.randn(100, 1)
+>>> fig = plotter.plot_state_and_control(
+...     t, x, u,
+...     theme='publication',
+...     color_scheme='colorblind_safe'
+... )
+>>> fig.show()
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [list_available_color_schemes](#cdesym.visualization.TrajectoryPlotter.list_available_color_schemes) | List available color schemes. |
+| [list_available_themes](#cdesym.visualization.TrajectoryPlotter.list_available_themes) | List available plot themes. |
+| [plot_comparison](#cdesym.visualization.TrajectoryPlotter.plot_comparison) | Compare multiple simulation runs. |
+| [plot_state_and_control](#cdesym.visualization.TrajectoryPlotter.plot_state_and_control) | Plot states and controls in synchronized subplots. |
+| [plot_trajectory](#cdesym.visualization.TrajectoryPlotter.plot_trajectory) | Plot state trajectories over time. |
+
+### list_available_color_schemes { #cdesym.visualization.TrajectoryPlotter.list_available_color_schemes }
+
+```python
+visualization.TrajectoryPlotter.list_available_color_schemes()
+```
+
+List available color schemes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                  |
+|--------|-------------|------------------------------|
+|        | List\[str\] | Available color scheme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> schemes = TrajectoryPlotter.list_available_color_schemes()
+>>> print(schemes)
+['plotly', 'd3', 'colorblind_safe', 'tableau', ...]
+```
+
+### list_available_themes { #cdesym.visualization.TrajectoryPlotter.list_available_themes }
+
+```python
+visualization.TrajectoryPlotter.list_available_themes()
+```
+
+List available plot themes.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description           |
+|--------|-------------|-----------------------|
+|        | List\[str\] | Available theme names |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> themes = TrajectoryPlotter.list_available_themes()
+>>> print(themes)
+['default', 'publication', 'dark', 'presentation']
+```
+
+### plot_comparison { #cdesym.visualization.TrajectoryPlotter.plot_comparison }
+
+```python
+visualization.TrajectoryPlotter.plot_comparison(
+    t,
+    trajectories,
+    state_names=None,
+    title='Trajectory Comparison',
+    mode='overlay',
+    color_scheme='plotly',
+    theme=None,
+    **kwargs,
+)
+```
+
+Compare multiple simulation runs.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                    | Description                                                                                                    | Default                   |
+|--------------|-------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------|
+| t            | np.ndarray              | Time points, shape (T,)                                                                                        | _required_                |
+| trajectories | Dict\[str, np.ndarray\] | Dictionary mapping labels to trajectories Each trajectory: (T, nx) array                                       | _required_                |
+| state_names  | Optional\[List\[str\]\] | Names for state variables                                                                                      | `None`                    |
+| title        | str                     | Overall plot title                                                                                             | `'Trajectory Comparison'` |
+| mode         | str                     | Comparison mode: 'overlay' or 'side-by-side'                                                                   | `'overlay'`               |
+| color_scheme | str                     | Color scheme name Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.                                  | `'plotly'`                |
+| theme        | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                    |
+| **kwargs     |                         | Additional arguments                                                                                           | `{}`                      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description     |
+|--------|-----------|-----------------|
+|        | go.Figure | Comparison plot |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Compare controlled vs uncontrolled
+>>> trajectories = {
+...     'Controlled': x_controlled,
+...     'Uncontrolled': x_uncontrolled,
+... }
+>>> fig = plotter.plot_comparison(
+...     t, trajectories,
+...     mode='overlay',
+...     color_scheme='colorblind_safe',
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+### plot_state_and_control { #cdesym.visualization.TrajectoryPlotter.plot_state_and_control }
+
+```python
+visualization.TrajectoryPlotter.plot_state_and_control(
+    t,
+    x,
+    u,
+    state_names=None,
+    control_names=None,
+    title='State and Control Trajectories',
+    color_scheme='plotly',
+    theme=None,
+    show_legend=True,
+    **kwargs,
+)
+```
+
+Plot states and controls in synchronized subplots.
+
+Creates two subplot groups: states (top) and controls (bottom),
+with synchronized time axes.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                    | Description                                                                                                    | Default                            |
+|---------------|-------------------------|----------------------------------------------------------------------------------------------------------------|------------------------------------|
+| t             | np.ndarray              | Time points, shape (T,) or (n_batch, T)                                                                        | _required_                         |
+| x             | np.ndarray              | State trajectories, shape (T, nx) or (n_batch, T, nx)                                                          | _required_                         |
+| u             | np.ndarray              | Control inputs, shape (T, nu) or (n_batch, T, nu)                                                              | _required_                         |
+| state_names   | Optional\[List\[str\]\] | Names for state variables                                                                                      | `None`                             |
+| control_names | Optional\[List\[str\]\] | Names for control inputs                                                                                       | `None`                             |
+| title         | str                     | Overall plot title                                                                                             | `'State and Control Trajectories'` |
+| color_scheme  | str                     | Color scheme name Options: 'plotly', 'd3', 'colorblind_safe', 'tableau', etc.                                  | `'plotly'`                         |
+| theme         | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme | `None`                             |
+| show_legend   | bool                    | Whether to show legend Default: True                                                                           | `True`                             |
+| **kwargs      |                         | Additional arguments                                                                                           | `{}`                               |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                   |
+|--------|-----------|-----------------------------------------------|
+|        | go.Figure | Plotly figure with state and control subplots |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> t = np.linspace(0, 10, 100)
+>>> x = np.column_stack([np.sin(t), np.cos(t)])
+>>> u = 0.1 * np.random.randn(100, 1)
+>>> fig = plotter.plot_state_and_control(
+...     t, x, u,
+...     state_names=['Position', 'Velocity'],
+...     control_names=['Force'],
+...     theme='publication'
+... )
+>>> fig.show()
+```
+
+### plot_trajectory { #cdesym.visualization.TrajectoryPlotter.plot_trajectory }
+
+```python
+visualization.TrajectoryPlotter.plot_trajectory(
+    t,
+    x,
+    u=None,
+    state_names=None,
+    control_names=None,
+    title='State Trajectories',
+    color_scheme='plotly',
+    theme=None,
+    show_legend=True,
+    **kwargs,
+)
+```
+
+Plot state trajectories over time.
+
+Creates subplots for each state variable showing evolution over time.
+Automatically handles single or batched trajectories.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                    | Description                                                                                                                                       | Default                |
+|---------------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|------------------------|
+| t             | np.ndarray              | Time points, shape (T,) or (n_batch, T)                                                                                                           | _required_             |
+| x             | np.ndarray              | State trajectories, shape (T, nx) or (n_batch, T, nx)                                                                                             | _required_             |
+| u             | Optional\[np.ndarray\]  | Control inputs, shape (T, nu) or (n_batch, T, nu) If provided, adds control subplot(s)                                                            | `None`                 |
+| state_names   | Optional\[List\[str\]\] | Names for state variables, length nx Default: ['x₁', 'x₂', ...]                                                                                   | `None`                 |
+| control_names | Optional\[List\[str\]\] | Names for control inputs, length nu                                                                                                               | `None`                 |
+| title         | str                     | Overall plot title                                                                                                                                | `'State Trajectories'` |
+| color_scheme  | str                     | Color scheme name Options: 'plotly', 'd3', 'colorblind_safe', 'tableau',          'sequential_blue', 'diverging_red_blue', etc. Default: 'plotly' | `'plotly'`             |
+| theme         | Optional\[str\]         | Plot theme to apply Options: 'default', 'publication', 'dark', 'presentation' If None, uses self.default_theme                                    | `None`                 |
+| show_legend   | bool                    | Whether to show legend for batched trajectories                                                                                                   | `True`                 |
+| **kwargs      |                         | Additional arguments for customization                                                                                                            | `{}`                   |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description          |
+|--------|-----------|----------------------|
+|        | go.Figure | Plotly figure object |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Single trajectory
+>>> t = np.linspace(0, 10, 100)
+>>> x = np.column_stack([np.sin(t), np.cos(t)])
+>>> fig = plotter.plot_trajectory(t, x, state_names=['sin', 'cos'])
+>>> fig.show()
+>>>
+>>> # Batched trajectories with colorblind-safe palette
+>>> x_batch = np.random.randn(5, 100, 2)
+>>> fig = plotter.plot_trajectory(
+...     t, x_batch,
+...     color_scheme='colorblind_safe'
+... )
+>>>
+>>> # Publication-ready plot
+>>> fig = plotter.plot_trajectory(
+...     t, x,
+...     theme='publication',
+...     color_scheme='colorblind_safe'
+... )
+>>>
+>>> # With control
+>>> u = 0.1 * np.random.randn(100, 1)
+>>> fig = plotter.plot_trajectory(t, x, u=u)
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Automatically detects batched vs single trajectories
+- Converts from PyTorch/JAX to NumPy internally
+- Adaptive subplot layout based on number of states
+- Interactive: zoom, pan, hover tooltips

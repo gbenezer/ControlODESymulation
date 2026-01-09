@@ -1,0 +1,61 @@
+# types.optimization.OptimizationResult { #cdesym.types.optimization.OptimizationResult }
+
+```python
+types.optimization.OptimizationResult()
+```
+
+General nonlinear optimization result.
+
+Compatible with scipy.optimize return format.
+
+## Fields {.doc-section .doc-section-fields}
+
+x : ArrayLike
+    Optimal solution x* (n,)
+fun : float
+    Optimal objective value f(x*)
+success : bool
+    Whether optimization converged successfully
+message : str
+    Solver status message
+nit : int
+    Number of iterations performed
+nfev : int
+    Number of objective function evaluations
+njev : int
+    Number of Jacobian evaluations (if applicable)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Unconstrained optimization
+>>> def rosenbrock(x):
+...     return (1 - x[0])**2 + 100*(x[1] - x[0]**2)**2
+>>>
+>>> from scipy.optimize import minimize
+>>> result: OptimizationResult = minimize(
+...     rosenbrock,
+...     x0=np.array([0.0, 0.0]),
+...     method='BFGS'
+... )
+>>>
+>>> if result['success']:
+...     print(f"Optimum: {result['x']}")  # [1, 1]
+...     print(f"Cost: {result['fun']}")   # ~0
+...     print(f"Iterations: {result['nit']}")
+>>>
+>>> # Constrained optimization
+>>> def objective(x):
+...     return x[0]**2 + x[1]**2
+>>>
+>>> def constraint(x):
+...     return x[0] + x[1] - 1  # x[0] + x[1] >= 1
+>>>
+>>> from scipy.optimize import NonlinearConstraint
+>>> result: OptimizationResult = minimize(
+...     objective,
+...     x0=np.array([1.0, 1.0]),
+...     method='SLSQP',
+...     constraints=NonlinearConstraint(constraint, 0, np.inf)
+... )
+```

@@ -1,0 +1,317 @@
+# systems.base.numerical_integration.stochastic.TorchSDEIntegrator { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator(
+    sde_system,
+    dt=None,
+    step_mode=StepMode.FIXED,
+    backend='torch',
+    method='euler',
+    sde_type=None,
+    convergence_type=ConvergenceType.STRONG,
+    seed=None,
+    adjoint=False,
+    noise_type=None,
+    **options,
+)
+```
+
+PyTorch-based SDE integrator using the torchsde library.
+
+Provides GPU-accelerated SDE integration with automatic differentiation
+support. Ideal for neural SDEs and deep learning applications.
+
+##     Parameters {.doc-section .doc-section-----parameters}
+
+sde_system : StochasticDynamicalSystem
+    SDE system to integrate (controlled or autonomous)
+dt : Optional[ScalarLike]
+    Time step size
+step_mode : StepMode
+    FIXED or ADAPTIVE stepping mode
+backend : str
+    Must be 'torch' for this integrator
+method : str
+    Integration method (default: 'euler')
+    Options: 'euler', 'milstein', 'srk', 'midpoint', 'reversible_heun'
+sde_type : Optional[SDEType]
+    SDE interpretation (None = use system's type)
+convergence_type : ConvergenceType
+    Strong or weak convergence
+seed : Optional[int]
+    Random seed for reproducibility
+adjoint : bool
+    Use adjoint method for memory-efficient backpropagation
+    Recommended for neural SDEs (default: False)
+noise_type : Optional[str]
+    Noise type: 'diagonal', 'additive', 'scalar', 'general'
+    Auto-detected from system if not specified
+**options
+    Additional options:
+    - rtol : float (default: 1e-3) - Relative tolerance
+    - atol : float (default: 1e-6) - Absolute tolerance
+    - dt_min : float - Minimum step size (adaptive only)
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                          |
+|--------|-------------|--------------------------------------|
+|        | ValueError  | If backend is not 'torch'            |
+|        | ImportError | If PyTorch or torchsde not installed |
+
+## Notes {.doc-section .doc-section-notes}
+
+- Backend must be 'torch' (torchsde is PyTorch-only)
+- Adjoint method recommended for neural SDEs to save memory
+- GPU acceleration via .to_device('cuda')
+- Excellent gradient support for training
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Basic usage
+>>> integrator = TorchSDEIntegrator(
+...     sde_system,
+...     dt=0.01,
+...     method='euler'
+... )
+>>>
+>>> # High accuracy
+>>> integrator = TorchSDEIntegrator(
+...     sde_system,
+...     dt=0.001,
+...     method='srk'
+... )
+>>>
+>>> # Neural SDE with adjoint
+>>> integrator = TorchSDEIntegrator(
+...     neural_sde,
+...     dt=0.01,
+...     method='euler',
+...     adjoint=True
+... )
+>>>
+>>> # GPU acceleration
+>>> integrator = TorchSDEIntegrator(
+...     sde_system,
+...     dt=0.01,
+...     method='euler'
+... )
+>>> integrator.to_device('cuda:0')
+```
+
+**IMPORTANT LIMITATION**: TorchSDE does NOT support custom Brownian motion.
+The library generates noise internally and cannot accept user-provided dW values.
+This is an architectural design decision that enables:
+- Efficient GPU-based noise generation
+- Adjoint method for backpropagation
+- Optimized batched operations
+
+For custom noise needs (deterministic testing, quasi-Monte Carlo, antithetic
+variates), use JAX/Diffrax which has full custom noise support.
+
+All methods listed below are verified to work with TorchSDE.
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [name](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.name) | Return integrator name. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [disable_adjoint](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.disable_adjoint) | Disable adjoint method. |
+| [enable_adjoint](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.enable_adjoint) | Enable adjoint method. |
+| [get_method_info](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.get_method_info) | Get method information. |
+| [integrate](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate) | Integrate SDE over time interval. |
+| [integrate_with_gradient](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate_with_gradient) | Integrate and compute gradients. |
+| [list_methods](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.list_methods) | List available methods. |
+| [recommend_method](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.recommend_method) | Recommend method based on use case. |
+| [step](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.step) | Take one SDE integration step. |
+| [to_device](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.to_device) | Move to device. |
+| [vectorized_step](#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.vectorized_step) | Vectorized step over batch. |
+
+### disable_adjoint { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.disable_adjoint }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.disable_adjoint(
+)
+```
+
+Disable adjoint method.
+
+### enable_adjoint { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.enable_adjoint }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.enable_adjoint(
+)
+```
+
+Enable adjoint method.
+
+### get_method_info { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.get_method_info }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.get_method_info(
+    method,
+)
+```
+
+Get method information.
+
+### integrate { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate(
+    x0,
+    u_func,
+    t_span,
+    t_eval=None,
+    dense_output=False,
+)
+```
+
+Integrate SDE over time interval.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                                               | Description                                              | Default    |
+|--------------|--------------------------------------------------------------------|----------------------------------------------------------|------------|
+| x0           | StateVector                                                        | Initial state (nx,)                                      | _required_ |
+| u_func       | Callable\[\[ScalarLike, StateVector\], Optional\[ControlVector\]\] | Control policy: (t, x) → u or None                       | _required_ |
+| t_span       | TimeSpan                                                           | Time interval (t_start, t_end)                           | _required_ |
+| t_eval       | Optional\[TimePoints\]                                             | Specific times to evaluate (uses automatic grid if None) | `None`     |
+| dense_output | bool                                                               | Not used (TorchSDE doesn't support dense output)         | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description                                        |
+|--------|----------------------|----------------------------------------------------|
+|        | SDEIntegrationResult | Integration result with trajectory and diagnostics |
+
+### integrate_with_gradient { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate_with_gradient }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.integrate_with_gradient(
+    x0,
+    u_func,
+    t_span,
+    loss_fn,
+    t_eval=None,
+)
+```
+
+Integrate and compute gradients.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                   | Description                                   | Default    |
+|---------|------------------------|-----------------------------------------------|------------|
+| x0      | StateVector            | Initial state (requires gradient)             | _required_ |
+| u_func  | Callable               | Control policy                                | _required_ |
+| t_span  | TimeSpan               | Time interval                                 | _required_ |
+| loss_fn | Callable               | Loss function operating on integration result | _required_ |
+| t_eval  | Optional\[TimePoints\] | Evaluation times                              | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | tuple  | (loss_value, gradient) |
+
+### list_methods { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.list_methods }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.list_methods()
+```
+
+List available methods.
+
+### recommend_method { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.recommend_method }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.recommend_method(
+    use_case='general',
+    has_gpu=False,
+)
+```
+
+Recommend method based on use case.
+
+### step { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.step }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.step(
+    x,
+    u=None,
+    dt=None,
+    dW=None,
+)
+```
+
+Take one SDE integration step.
+
+Handles both single and batched inputs automatically:
+- Input (nx,) → Output (nx,)
+- Input (batch, nx) → Output (batch, nx)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                                                                                              | Default    |
+|--------|---------------------------|--------------------------------------------------------------------------------------------------------------------------|------------|
+| x      | StateVector               | Current state (nx,) or (batch, nx)                                                                                       | _required_ |
+| u      | Optional\[ControlVector\] | Control input (nu,) or (batch, nu), or None for autonomous                                                               | `None`     |
+| dt     | Optional\[ScalarLike\]    | Step size (uses self.dt if None)                                                                                         | `None`     |
+| dW     | Optional\[StateVector\]   | **NOT SUPPORTED** - TorchSDE does NOT support custom noise. This parameter is IGNORED. Use JAX/Diffrax for custom noise. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description          |
+|--------|-------------|----------------------|
+|        | StateVector | Next state x(t + dt) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_next = integrator.step(torch.tensor([1.0]), None)
+>>> # Custom noise ignored:
+>>> x_next = integrator.step(x, u, dW=torch.zeros(1))  # dW ignored!
+```
+
+### to_device { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.to_device }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.to_device(
+    device,
+)
+```
+
+Move to device.
+
+### vectorized_step { #cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator.vectorized_step }
+
+```python
+systems.base.numerical_integration.stochastic.TorchSDEIntegrator.vectorized_step(
+    x_batch,
+    u_batch=None,
+    dt=None,
+)
+```
+
+Vectorized step over batch.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                  | Default    |
+|---------|---------------------------|------------------------------|------------|
+| x_batch | StateVector               | Batched states (batch, nx)   | _required_ |
+| u_batch | Optional\[ControlVector\] | Batched controls (batch, nu) | `None`     |
+| dt      | Optional\[ScalarLike\]    | Step size                    | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description             |
+|--------|-------------|-------------------------|
+|        | StateVector | Next states (batch, nx) |

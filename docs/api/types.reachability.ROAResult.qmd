@@ -1,0 +1,53 @@
+# types.reachability.ROAResult { #cdesym.types.reachability.ROAResult }
+
+```python
+types.reachability.ROAResult()
+```
+
+Region of Attraction (ROA) analysis result.
+
+Estimates basin of attraction for equilibrium point via Lyapunov analysis.
+
+## Fields {.doc-section .doc-section-fields}
+
+region_of_attraction : SafeSet
+    ROA estimate (level set of Lyapunov function)
+lyapunov_function : Callable
+    V(x) Lyapunov function
+lyapunov_matrix : CovarianceMatrix
+    P matrix if V(x) = x'Px (quadratic)
+level_set : float
+    c where {x : V(x) ≤ c} defines ROA
+volume_estimate : float
+    Estimated volume of ROA
+verification_samples : int
+    Number of samples used for verification
+certification_method : str
+    Method used ('SOS', 'sampling', 'LMI', 'bisection')
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Quadratic Lyapunov function
+>>> P = np.array([[2, 0], [0, 1]])
+>>> V = lambda x: x.T @ P @ x
+>>>
+>>> result: ROAResult = compute_roa(
+...     system=pendulum,
+...     equilibrium=np.array([0, 0]),
+...     lyapunov_function=V,
+...     method='SOS'
+... )
+>>>
+>>> # Extract ROA
+>>> roa = result['region_of_attraction']
+>>> c = result['level_set']
+>>>
+>>> # Check if state in ROA
+>>> x_test = np.array([0.5, 0.1])
+>>> if V(x_test) <= c:
+...     print("State in ROA - will converge to equilibrium")
+>>>
+>>> print(f"ROA volume: {result['volume_estimate']:.3f}")
+>>> print(f"Certified by: {result['certification_method']}")
+```

@@ -1,0 +1,313 @@
+# systems.builtin.stochastic.discrete.DiscreteAR1 { #cdesym.systems.builtin.stochastic.discrete.DiscreteAR1 }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteAR1(*args, **kwargs)
+```
+
+First-order autoregressive process with additive noise.
+
+The AR(1) model is the fundamental discrete-time stochastic process
+exhibiting memory and mean reversion. It is the discrete analog of
+the Ornstein-Uhlenbeck process and the building block for ARMA and
+ARIMA models.
+
+## Difference Equation {.doc-section .doc-section-difference-equation}
+
+Standard form:
+    X[k+1] = φ·X[k] + σ·w[k]
+
+With control:
+    X[k+1] = φ·X[k] + u[k] + σ·w[k]
+
+where:
+    - X[k]: State at time k
+    - φ: Autoregressive coefficient (persistence parameter)
+    - u[k]: Control input (optional)
+    - σ: Innovation standard deviation
+    - w[k] ~ N(0,1): Standard normal white noise
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Persistence:**
+Parameter φ controls memory:
+- φ near 1: High persistence (long memory)
+- φ near 0: Low persistence (short memory)
+- φ = 0: White noise (no memory)
+
+**Stationarity:**
+Process stationary if and only if |φ| < 1:
+- |φ| < 1: Stable, mean-reverting
+- φ = 1: Unit root (random walk)
+- |φ| > 1: Explosive
+
+**Additive Noise:**
+Innovation w[k] independent of state.
+Constant variance σ².
+
+**Markov Property:**
+Future depends only on present, not past history.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Stationary Distribution (|φ| < 1):**
+Mean: E[X[∞]] = u/(1-φ)
+Variance: Var[X[∞]] = σ²/(1-φ²)
+Distribution: N(u/(1-φ), σ²/(1-φ²))
+
+**Autocorrelation:**
+ρ(h) = φ^h
+
+Geometric decay with lag h.
+
+**Mean Reversion:**
+Half-life: h = ln(0.5)/ln(φ) periods
+Time constant: τ = -1/ln(φ) periods
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Autoregressive Coefficient φ:**
+- Dimensionless (ratio)
+- Fraction of value persisting to next period
+- Typical range: 0 to 0.95
+
+**Interpretation by Value:**
+- φ = 0.9: High persistence, slow decay
+- φ = 0.5: Moderate persistence
+- φ = 0.1: Low persistence, fast decay
+- φ = 1: Random walk (non-stationary)
+
+**Innovation Variance σ²:**
+- Units: [state]²
+- Shock variance each period
+- Stationary variance: σ²/(1-φ²)
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ
+    - Unbounded (can take any real value)
+    - Equilibrium: u/(1-φ) (for |φ| < 1)
+
+Control: u ∈ ℝ (optional)
+    - Shifts equilibrium
+    - External forcing
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                          | Default   |
+|--------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| phi    | float  | Autoregressive coefficient - \|φ\| < 1: Stationary (typical) - φ = 1: Unit root (special case) - \|φ\| > 1: Explosive (avoid) - Typical: 0.5 to 0.95 | `0.9`     |
+| sigma  | float  | Innovation standard deviation (must be positive) - Controls noise magnitude - Stationary std: σ/√(1-φ²)                                              | `0.1`     |
+| dt     | float  | Sampling period (time between observations) - Sets time units - Needed for discrete system                                                           | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Noise Type: ADDITIVE
+- Innovation: w[k] ~ N(0,1) iid
+- Markov: Memoryless given current state
+- Stationary: If |φ| < 1
+- Ergodic: If |φ| < 1
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Econometrics:**
+- GDP growth (quarterly data)
+- Inflation rates (monthly data)
+- Interest rates (daily/weekly)
+- Unemployment rates
+
+**2. Finance:**
+- Asset returns (daily)
+- Volatility models (log-volatility)
+- Exchange rates
+
+**3. Signal Processing:**
+- Colored noise generation
+- Digital filtering (one-pole filter)
+- Prediction algorithms
+
+**4. Control Systems:**
+- Disturbance models
+- State estimation (Kalman filter)
+- Model predictive control
+
+**5. Time Series:**
+- Foundation for ARMA, ARIMA
+- Benchmark for forecasting
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Exact Sampling:**
+    X[k+1] = φ·X[k] + u + σ·Z[k]
+
+where Z[k] ~ N(0,1).
+
+This is exact (no discretization needed).
+
+**Vectorized:**
+Can use scipy.signal.lfilter for efficient generation.
+
+## Statistical Analysis {.doc-section .doc-section-statistical-analysis}
+
+**Parameter Estimation:**
+- OLS: φ̂ = Σ X[k]·X[k+1] / Σ X[k]²
+- MLE: Same as OLS for Gaussian
+- Yule-Walker: From autocorrelations
+
+**Model Validation:**
+- Unit root test (Dickey-Fuller)
+- Residual diagnostics (Ljung-Box)
+- Information criteria (AIC, BIC)
+
+## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}
+
+**vs. White Noise:**
+- WN: φ = 0 (no persistence)
+- AR(1): φ ≠ 0 (memory)
+
+**vs. Random Walk:**
+- RW: φ = 1 (unit root)
+- AR(1): |φ| < 1 (stationary)
+
+**vs. Ornstein-Uhlenbeck:**
+- OU: Continuous time
+- AR(1): Discrete time
+- Connection: φ = e^(-α·Δt)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear dynamics only
+- Constant parameters
+- Gaussian innovations
+- Short memory (one lag)
+
+**Extensions:**
+- AR(p): Higher-order lags
+- ARMA: Add moving average
+- GARCH: Time-varying variance
+- TAR: Threshold/regime-switching
+
+## See Also {.doc-section .doc-section-see-also}
+
+OrnsteinUhlenbeck : Continuous-time analog
+DiscreteRandomWalk : Unit root case (φ=1)
+DiscreteWhiteNoise : No persistence (φ=0)
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.define_system) | Define AR(1) process dynamics. |
+| [get_half_life](#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.get_half_life) | Get half-life: number of periods to reduce deviation by 50%. |
+| [get_stationary_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.get_stationary_variance) | Get theoretical stationary variance σ²/(1-φ²). |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteAR1.define_system(
+    phi=0.9,
+    sigma=0.1,
+    dt=1.0,
+)
+```
+
+Define AR(1) process dynamics.
+
+Sets up the difference equation:
+    X[k+1] = φ·X[k] + u[k] + σ·w[k]
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                                   | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| phi    | float  | Autoregressive coefficient - \|φ\| < 1: Stationary (mean-reverting) - φ = 1: Unit root (random walk) - \|φ\| > 1: Explosive (unstable) - Typical: 0.5 to 0.95 | `0.9`     |
+| sigma  | float  | Innovation standard deviation (must be positive) - Controls shock magnitude - Stationary std: σ/√(1-φ²)                                                       | `0.1`     |
+| dt     | float  | Sampling period [time units] - Required for discrete system - Sets time scale                                                                                 | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                     |
+|--------|-------------|---------------------------------|
+|        | ValueError  | If sigma ≤ 0                    |
+|        | UserWarning | If \|phi\| ≥ 1 (non-stationary) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stationarity Condition:**
+Process is stationary if and only if |φ| < 1.
+
+**Critical Cases:**
+- φ = 1: Unit root (random walk)
+  * Non-stationary
+  * Variance grows linearly: Var[X[k]] = k·σ²
+  * Requires different statistical treatment
+
+- φ = -1: Perfect negative autocorrelation
+  * Alternates between extremes
+  * Non-stationary
+
+- |φ| > 1: Explosive
+  * Variance grows exponentially
+  * Diverges to ±∞
+
+**Stationary Properties:**
+For |φ| < 1:
+- Mean: μ = u/(1-φ)
+- Variance: γ(0) = σ²/(1-φ²)
+- Autocorrelation: ρ(h) = φ^h
+- Half-life: ln(0.5)/ln(φ) periods
+
+**Relationship to Continuous Time:**
+If discretizing OU process with parameter α:
+    φ = exp(-α·dt)
+    σ ≈ σ_continuous·√(2α·dt) (approximate)
+
+**Parameter Selection:**
+- High persistence (φ ≈ 0.9): Financial returns, macro data
+- Moderate (φ ≈ 0.5): GDP growth, some commodities
+- Low (φ ≈ 0.1): Nearly white noise
+
+**Innovation Variance:**
+Total variance decomposes:
+- Stationary variance: σ²/(1-φ²)
+- Innovation variance: σ²
+- Ratio: 1/(1-φ²) ≥ 1
+
+### get_half_life { #cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.get_half_life }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteAR1.get_half_life()
+```
+
+Get half-life: number of periods to reduce deviation by 50%.
+
+Formula: h = ln(0.5) / ln(φ)
+
+Only meaningful for 0 < φ < 1.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Half-life [periods] |
+
+### get_stationary_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteAR1.get_stationary_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteAR1.get_stationary_variance()
+```
+
+Get theoretical stationary variance σ²/(1-φ²).
+
+Only valid for |φ| < 1.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Stationary variance |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                   |
+|--------|------------|-------------------------------|
+|        | ValueError | If \|φ\| ≥ 1 (non-stationary) |

@@ -1,0 +1,51 @@
+# types.symbolic.SymbolicStateEquations { #cdesym.types.symbolic.SymbolicStateEquations }
+
+`types.symbolic.SymbolicStateEquations`
+
+Symbolic state equations: f(x, u, params).
+
+Column vector representing dx/dt (continuous) or x[k+1] (discrete).
+Each row is one state derivative or next-state equation.
+
+Shape: (nx, 1)
+
+Continuous systems:
+    dx/dt = f(x, u) where each element is dxᵢ/dt
+
+Discrete systems:
+    x[k+1] = f(x[k], u[k]) where each element is xᵢ[k+1]
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import sympy as sp
+>>> 
+>>> # Simple pendulum
+>>> theta, omega = sp.symbols('theta omega', real=True)
+>>> u = sp.symbols('u', real=True)
+>>> m, l, g, b = sp.symbols('m l g b', positive=True)
+>>> 
+>>> # Continuous dynamics: [dθ/dt, dω/dt]
+>>> f: SymbolicStateEquations = sp.Matrix([
+...     omega,
+...     -(g/l)*sp.sin(theta) - (b/m)*omega + u/(m*l**2)
+... ])
+>>> 
+>>> # Compile to callable function
+>>> from sympy import lambdify
+>>> f_func = lambdify(
+...     ([theta, omega], u, [m, l, g, b]),
+...     f,
+...     'numpy'
+... )
+>>> 
+>>> # Linear system
+>>> x1, x2, u = sp.symbols('x1 x2 u')
+>>> A11, A12, A21, A22 = sp.symbols('A11 A12 A21 A22')
+>>> B1, B2 = sp.symbols('B1 B2')
+>>> 
+>>> f_linear: SymbolicStateEquations = sp.Matrix([
+...     A11*x1 + A12*x2 + B1*u,
+...     A21*x1 + A22*x2 + B2*u
+... ])
+```

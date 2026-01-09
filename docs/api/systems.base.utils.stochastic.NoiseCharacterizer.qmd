@@ -1,0 +1,183 @@
+# systems.base.utils.stochastic.NoiseCharacterizer { #cdesym.systems.base.utils.stochastic.NoiseCharacterizer }
+
+```python
+systems.base.utils.stochastic.NoiseCharacterizer(
+    diffusion_expr,
+    state_vars,
+    control_vars,
+    time_var=None,
+)
+```
+
+Analyzes symbolic diffusion expressions to determine noise structure.
+
+This is PURE ANALYSIS using only SymPy - no code generation,
+no numerical evaluation, no backend dependencies.
+
+The analysis results enable:
+- Automatic selection of efficient specialized solvers
+- Validation of noise type claims
+- Optimization opportunities identification
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Additive noise (constant)
+>>> diffusion = sp.Matrix([[0.1], [0.2]])
+>>> char = NoiseCharacterizer(diffusion, [x1, x2], [u])
+>>> results = char.analyze()
+>>> print(results.noise_type)
+NoiseType.ADDITIVE
+>>>
+>>> # Multiplicative noise (state-dependent, non-diagonal)
+>>> diffusion = sp.Matrix([[0.1 * x1, 0.05 * x2]])
+>>> char = NoiseCharacterizer(diffusion, [x1, x2], [u])
+>>> results = char.analyze()
+>>> print(results.noise_type)
+NoiseType.MULTIPLICATIVE
+>>> print(results.is_multiplicative)
+True
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [characteristics](#cdesym.systems.base.utils.stochastic.NoiseCharacterizer.characteristics) | Get noise characteristics (cached after first analysis). |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [analyze](#cdesym.systems.base.utils.stochastic.NoiseCharacterizer.analyze) | Analyze diffusion expression structure. |
+| [from_dict](#cdesym.systems.base.utils.stochastic.NoiseCharacterizer.from_dict) | Create NoiseCharacterizer from configuration dictionary. |
+| [get_optimization_hints](#cdesym.systems.base.utils.stochastic.NoiseCharacterizer.get_optimization_hints) | Provide optimization hints based on noise structure. |
+| [validate_noise_type_claim](#cdesym.systems.base.utils.stochastic.NoiseCharacterizer.validate_noise_type_claim) | Validate that a claimed noise_type matches actual structure. |
+
+### analyze { #cdesym.systems.base.utils.stochastic.NoiseCharacterizer.analyze }
+
+```python
+systems.base.utils.stochastic.NoiseCharacterizer.analyze()
+```
+
+Analyze diffusion expression structure.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description                          |
+|--------|----------------------|--------------------------------------|
+|        | NoiseCharacteristics | Complete analysis of noise structure |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> char = NoiseCharacterizer(diffusion, states, controls)
+>>> results = char.analyze()
+>>> if results.is_additive:
+...     print("Use specialized additive-noise solver!")
+```
+
+### from_dict { #cdesym.systems.base.utils.stochastic.NoiseCharacterizer.from_dict }
+
+```python
+systems.base.utils.stochastic.NoiseCharacterizer.from_dict(config)
+```
+
+Create NoiseCharacterizer from configuration dictionary.
+
+This is a convenience factory method for creating characterizers from
+dictionaries, such as test fixtures or saved configurations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                                                                                           | Default    |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| config | Dict   | Configuration dictionary with keys: - "diffusion" or "diffusion_expr": Symbolic diffusion matrix - "state_vars": List of state symbols - "control_vars": List of control symbols - "time_var" (optional): Time symbol | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description               |
+|--------|--------------------|---------------------------|
+|        | NoiseCharacterizer | Initialized characterizer |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> config = {
+...     "diffusion": sp.Matrix([[0.1*x]]),
+...     "state_vars": [x],
+...     "control_vars": [u]
+... }
+>>> char = NoiseCharacterizer.from_dict(config)
+>>> result = char.analyze()
+```
+
+With test fixtures:
+
+```python
+>>> @pytest.fixture
+... def my_noise():
+...     return {"diffusion": ..., "state_vars": ..., "control_vars": ...}
+>>>
+>>> def test_something(my_noise):
+...     char = NoiseCharacterizer.from_dict(my_noise)
+...     # or equivalently:
+...     char = NoiseCharacterizer(**my_noise)  # Now works!
+```
+
+### get_optimization_hints { #cdesym.systems.base.utils.stochastic.NoiseCharacterizer.get_optimization_hints }
+
+```python
+systems.base.utils.stochastic.NoiseCharacterizer.get_optimization_hints()
+```
+
+Provide optimization hints based on noise structure.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                    |
+|--------|------------------|------------------------------------------------|
+|        | Dict\[str, any\] | Optimization opportunities and recommendations |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> hints = char.get_optimization_hints()
+>>> if hints['can_precompute']:
+...     print("Can precompute constant noise!")
+```
+
+### validate_noise_type_claim { #cdesym.systems.base.utils.stochastic.NoiseCharacterizer.validate_noise_type_claim }
+
+```python
+systems.base.utils.stochastic.NoiseCharacterizer.validate_noise_type_claim(
+    claimed_type,
+)
+```
+
+Validate that a claimed noise_type matches actual structure.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type   | Description                                                  | Default    |
+|--------------|--------|--------------------------------------------------------------|------------|
+| claimed_type | str    | User's claim about noise type ('additive', 'diagonal', etc.) | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                    |
+|--------|--------|--------------------------------|
+|        | bool   | True if claim matches analysis |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                          |
+|--------|------------|--------------------------------------|
+|        | ValueError | If claimed type contradicts analysis |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> char = NoiseCharacterizer(diffusion, states, controls)
+>>> char.validate_noise_type_claim('additive')  # Validates
+```

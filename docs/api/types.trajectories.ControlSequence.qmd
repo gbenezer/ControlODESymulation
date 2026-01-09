@@ -1,0 +1,49 @@
+# types.trajectories.ControlSequence { #cdesym.types.trajectories.ControlSequence }
+
+`types.trajectories.ControlSequence`
+
+Control input sequence over time.
+
+Time series of control vectors applied to system.
+
+Shapes:
+- Single sequence: (n_steps, nu)
+  Control at each time step
+
+- Batched sequences: (n_steps, batch, nu)
+  Different controls for each batch
+
+- Open-loop: (n_steps, nu)
+  Pre-computed control sequence
+
+Note: Length is typically n_steps (not n_steps+1) since u[k] affects
+x[k] → x[k+1], and we don't need u at final state.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Zero control
+>>> u_seq: ControlSequence = np.zeros((100, 1))
+>>> 
+>>> # Sinusoidal control
+>>> t = np.linspace(0, 10, 100)
+>>> u_seq: ControlSequence = np.sin(t).reshape(-1, 1)
+>>> 
+>>> # MPC generates control sequence
+>>> u_optimal: ControlSequence = mpc.solve(x0, horizon=20)
+>>> print(u_optimal.shape)  # (20, nu)
+>>> 
+>>> # Feedback control sequence (computed online)
+>>> trajectory = [x0]
+>>> controls = []
+>>> x = x0
+>>> for k in range(100):
+...     u = controller(x)  # Feedback policy
+...     controls.append(u)
+...     x = system.step(x, u)
+...     trajectory.append(x)
+>>> u_seq: ControlSequence = np.array(controls)
+>>> 
+>>> # Batched control for multiple systems
+>>> u_batch: ControlSequence = np.random.randn(100, 50, 2)  # 50 systems
+```

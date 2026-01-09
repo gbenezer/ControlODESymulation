@@ -1,0 +1,794 @@
+# systems.base.core.ContinuousSymbolicSystem { #cdesym.systems.base.core.ContinuousSymbolicSystem }
+
+```python
+systems.base.core.ContinuousSymbolicSystem(*args, **kwargs)
+```
+
+Concrete symbolic continuous-time dynamical system.
+
+Combines symbolic machinery from SymbolicSystemBase with the continuous-time
+interface from ContinuousSystemBase to provide a complete implementation for
+symbolic continuous-time systems.
+
+This class represents systems of the form:
+    dx/dt = f(x, u, t)
+    y = h(x)
+
+where:
+    x ∈ ℝⁿˣ: State vector
+    u ∈ ℝⁿᵘ: Control input
+    y ∈ ℝⁿʸ: Output vector
+    t ∈ ℝ: Time
+
+Users subclass and implement define_system() to specify symbolic dynamics.
+
+## Examples {.doc-section .doc-section-examples}
+
+Define a linear oscillator:
+
+```python
+>>> class Oscillator(ContinuousSymbolicSystem):
+...     def define_system(self, k=1.0, c=0.1):
+...         x, v = sp.symbols('x v', real=True)
+...         u = sp.symbols('u', real=True)
+...         k_sym, c_sym = sp.symbols('k c', positive=True)
+...
+...         self.state_vars = [x, v]
+...         self.control_vars = [u]
+...         self._f_sym = sp.Matrix([v, -k_sym*x - c_sym*v + u])
+...         self.parameters = {k_sym: k, c_sym: c}
+...         self.order = 1
+...
+>>> system = Oscillator(k=2.0, c=0.5)
+>>> x = np.array([0.1, 0.0])
+>>> dx = system(x, u=None)  # Evaluate dynamics
+>>>
+>>> # Integrate
+>>> result = system.integrate(x, t_span=(0, 10), method='RK45')
+>>>
+>>> # Linearize
+>>> A, B = system.linearize(np.zeros(2), np.zeros(1))
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [forward](#cdesym.systems.base.core.ContinuousSymbolicSystem.forward) | Alias for dynamics evaluation with explicit backend specification. |
+| [get_performance_stats](#cdesym.systems.base.core.ContinuousSymbolicSystem.get_performance_stats) | Get performance statistics from all components. |
+| [h](#cdesym.systems.base.core.ContinuousSymbolicSystem.h) | Evaluate output equation: y = h(x). |
+| [integrate](#cdesym.systems.base.core.ContinuousSymbolicSystem.integrate) | Integrate continuous system using numerical ODE solver. |
+| [linearize](#cdesym.systems.base.core.ContinuousSymbolicSystem.linearize) | Compute linearization of continuous dynamics: A = ∂f/∂x, B = ∂f/∂u. |
+| [linearized_dynamics](#cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_dynamics) | Compute numerical linearization: A = ∂f/∂x, B = ∂f/∂u. |
+| [linearized_dynamics_symbolic](#cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_dynamics_symbolic) | Compute symbolic linearization: A = ∂f/∂x, B = ∂f/∂u. |
+| [linearized_observation](#cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_observation) | Compute linearized observation matrix: C = ∂h/∂x. |
+| [linearized_observation_symbolic](#cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_observation_symbolic) | Compute symbolic observation Jacobian: C = ∂h/∂x. |
+| [print_equations](#cdesym.systems.base.core.ContinuousSymbolicSystem.print_equations) | Print symbolic equations using continuous-time notation. |
+| [reset_performance_stats](#cdesym.systems.base.core.ContinuousSymbolicSystem.reset_performance_stats) | Reset all performance counters to zero. |
+| [verify_jacobians](#cdesym.systems.base.core.ContinuousSymbolicSystem.verify_jacobians) | Verify symbolic Jacobians against automatic differentiation. |
+| [warmup](#cdesym.systems.base.core.ContinuousSymbolicSystem.warmup) | Warm up backend by compiling and running test evaluation. |
+
+### forward { #cdesym.systems.base.core.ContinuousSymbolicSystem.forward }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.forward(x, u=None, backend=None)
+```
+
+Alias for dynamics evaluation with explicit backend specification.
+
+Equivalent to __call__ but allows explicit backend override.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                           | Default    |
+|---------|---------------------------|---------------------------------------|------------|
+| x       | StateVector               | State (nx,)                           | _required_ |
+| u       | Optional\[ControlVector\] | Control (nu,)                         | `None`     |
+| backend | Optional\[Backend\]       | Backend override (None = use default) | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description            |
+|--------|-------------|------------------------|
+|        | StateVector | State derivative dx/dt |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> dx = system.forward(x, u)  # Use default backend
+>>> dx = system.forward(x, u, backend='torch')  # Force PyTorch
+```
+
+### get_performance_stats { #cdesym.systems.base.core.ContinuousSymbolicSystem.get_performance_stats }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.get_performance_stats()
+```
+
+Get performance statistics from all components.
+
+Collects timing and call count from DynamicsEvaluator and
+LinearizationEngine.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                                                                                                                                                                                                                                                                                                         |
+|--------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | Dict\[str, float\] | Statistics: - 'forward_calls': Number of forward dynamics calls - 'forward_time': Total forward time (seconds) - 'avg_forward_time': Average forward time - 'linearization_calls': Number of linearizations - 'linearization_time': Total linearization time - 'avg_linearization_time': Average linearization time |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> for _ in range(100):
+...     dx = system(x, u)
+>>>
+>>> stats = system.get_performance_stats()
+>>> print(f"Forward calls: {stats['forward_calls']}")
+>>> print(f"Avg time: {stats['avg_forward_time']:.6f}s")
+```
+
+### h { #cdesym.systems.base.core.ContinuousSymbolicSystem.h }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.h(x, backend=None)
+```
+
+Evaluate output equation: y = h(x).
+
+Computes the system output at the given state. If no custom output
+function is defined, returns the full state (identity map).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                | Description                               | Default    |
+|---------|---------------------|-------------------------------------------|------------|
+| x       | StateVector         | State vector (nx,) or batched (batch, nx) | _required_ |
+| backend | Optional\[Backend\] | Backend selection (None = auto-detect)    | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                 |
+|--------|-----------|---------------------------------------------|
+|        | ArrayLike | Output vector y, shape (ny,) or (batch, ny) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Identity output
+>>> y = system.h(x)
+>>> np.allclose(y, x)
+True
+>>>
+>>> # Custom output
+>>> x = np.array([1.0, 2.0])
+>>> y = system.h(x)  # Might return energy, distance, etc.
+```
+
+### integrate { #cdesym.systems.base.core.ContinuousSymbolicSystem.integrate }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.integrate(
+    x0,
+    u=None,
+    t_span=(0.0, 10.0),
+    method='RK45',
+    t_eval=None,
+    dense_output=False,
+    **integrator_kwargs,
+)
+```
+
+Integrate continuous system using numerical ODE solver.
+
+This method creates an appropriate integrator via IntegratorFactory and delegates
+the integration. Different methods can be used for different calls without storing
+integrator state, making it flexible and stateless.
+
+**Control Input Handling**: This method accepts flexible control input formats
+and automatically converts them to the internal (t, x) → u function signature
+expected by numerical solvers. The conversion is handled by `_prepare_control_input()`,
+which intelligently detects function signatures and wraps appropriately.
+
+**Integration Strategy**: Creates a fresh integrator for each call via the factory
+pattern. This allows:
+- Different methods for different integration tasks
+- No state management overhead
+- Clean separation between system and integrator
+- Easy backend/method switching
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                | Type                                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Default       |
+|---------------------|----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| x0                  | StateVector                            | Initial state (nx,)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | _required_    |
+| u                   | Union\[ControlVector, Callable, None\] | Control input in flexible formats:  - **None**: Zero control or autonomous system - **Array (nu,)**: Constant control u(t) = u_const for all t - **Callable u(t)**: Time-varying control, signature: t → u - **Callable u(t, x)**: State-feedback, scipy convention (time first) - **Callable u(x, t)**: State-feedback, control theory convention (state first)  The method automatically detects callable signatures by: 1. Checking parameter names ('t', 'x', 'time', 'state') 2. Testing with dummy values if names are ambiguous 3. Falling back to (t, x) assumption with warning  **Recommendation**: For two-parameter callables, use standard (t, x) order to avoid ambiguity. If your controller uses (x, t), the wrapper will attempt detection, but explicit wrapping is safer: ```python     u_func = lambda t, x: my_controller(x, t) ``` | `None`        |
+| t_span              | TimeSpan                               | Integration interval (t_start, t_end)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `(0.0, 10.0)` |
+| method              | IntegrationMethod                      | Integration method. Options:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | `'RK45'`      |
+| t_eval              | Optional\[TimePoints\]                 | Specific times to return solution. If provided, interpolates/evaluates solution at these times. If None: - Adaptive methods: Returns solver's internal time points - Fixed-step methods: Returns uniform grid with spacing dt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `None`        |
+| dense_output        | bool                                   | If True, return dense interpolated solution object (adaptive methods only). Allows evaluating solution at arbitrary times post-integration via result['sol'](t). Default: False                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | `False`       |
+| **integrator_kwargs |                                        | Additional integrator options passed to the solver:  **Required for fixed-step methods**: - **dt** : float - Time step (required for 'euler', 'midpoint', 'rk4')  **Tolerance control (adaptive methods)**: - **rtol** : float - Relative tolerance (default: 1e-6) - **atol** : float - Absolute tolerance (default: 1e-8)  **Step size control (adaptive methods)**: - **max_step** : float - Maximum step size (default: inf) - **first_step** : float - Initial step size guess (default: auto) - **min_step** : float - Minimum step size (default: 0)  **Limits**: - **max_steps** : int - Maximum number of steps (default: 10000)  **Backend-specific** (see integrator documentation): - JAX: 'stepsize_controller', 'adjoint' - PyTorch: 'adjoint', 'method_options' - Julia: 'reltol', 'abstol' (note different names)                        | `{}`          |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|--------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | IntegrationResult | TypedDict containing:  **Always present**: - **t**: Time points (T,) - adaptive or uniform grid - **x**: State trajectory (T, nx) - **time-major ordering** - **success**: bool - Whether integration succeeded - **message**: str - Status message or error description - **solver**: str - Name of integrator used  **Performance metrics**: - **nfev**: int - Number of function evaluations (dynamics calls) - **nsteps**: int - Number of integration steps taken - **integration_time**: float - Wall-clock time (seconds)  **Optional (method-dependent)**: - **njev**: int - Number of Jacobian evaluations (implicit methods) - **nlu**: int - Number of LU decompositions (implicit methods) - **sol**: Callable - Dense output interpolant (if dense_output=True) - **status**: int - Termination status code |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type         | Description                                                                                                                       |
+|--------|--------------|-----------------------------------------------------------------------------------------------------------------------------------|
+|        | ValueError   | - If fixed-step method specified without dt - If backend/method combination is invalid - If control dimensions don't match system |
+|        | RuntimeError | - If integration fails (convergence, step size issues) - If backend is not available (library not installed)                      |
+|        | ImportError  | - If required integrator backend is not installed                                                                                 |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Factory Pattern**: Creates a fresh integrator for each call. Benefits:
+- No state management between calls
+- Different methods for different integration tasks
+- Clean separation of concerns
+- Easy to switch backends/methods
+
+**Control Input Processing**: The `_prepare_control_input()` method handles
+conversion of various control formats to the internal (t, x) → u signature:
+1. None → returns None (autonomous) or zeros (nu > 0)
+2. Array → wraps as constant function
+3. Callable(t) → wraps to (t, x) → u(t)
+4. Callable(t, x) or (x, t) → detects order, normalizes to (t, x)
+
+**Autonomous Systems**: For systems with nu=0, control input is ignored.
+Pass u=None for clarity.
+
+**Time-Major Ordering**: Unlike `simulate()` which returns (nx, T) for backward
+compatibility, this method returns (T, nx) time-major ordering, which is:
+- Standard for numerical solvers
+- Efficient for time-series operations
+- Compatible with pandas DataFrames
+
+**Backend Selection**: Uses system's default backend. Change with:
+    ```python
+    system.set_default_backend('jax')
+    result = system.integrate(...)  # Uses JAX
+    ```
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Basic integration** - autonomous system:
+
+```python
+>>> result = system.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u=None,  # Autonomous
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Success: {result['success']}")
+>>> print(f"Steps taken: {result['nsteps']}")
+>>> plt.plot(result['t'], result['x'][:, 0])
+```
+
+**Constant control**:
+
+```python
+>>> result = system.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u=np.array([0.5]),  # Constant
+...     t_span=(0.0, 10.0)
+... )
+```
+
+**Time-varying control** - single parameter:
+
+```python
+>>> def u_func(t):
+...     return np.array([np.sin(t)])
+>>> result = system.integrate(x0, u=u_func, t_span=(0, 10))
+```
+
+**State feedback** - standard (t, x) order:
+
+```python
+>>> def controller(t, x):
+...     K = np.array([[-1.0, -2.0]])
+...     return -K @ x
+>>> result = system.integrate(x0, u=controller, t_span=(0, 5))
+```
+
+**State feedback** - control theory (x, t) order (auto-detected):
+
+```python
+>>> def my_controller(x, t):
+...     # State-first convention
+...     K = np.array([[-1.0, -2.0]])
+...     return -K @ x
+>>> result = system.integrate(x0, u=my_controller, t_span=(0, 5))
+>>> # Method detects (x, t) order and adapts automatically
+```
+
+**Stiff system** with tight tolerances:
+
+```python
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 100),
+...     method='Radau',
+...     rtol=1e-9,
+...     atol=1e-11
+... )
+>>> print(f"Stiff solver used {result['nfev']} function evaluations")
+```
+
+**High-accuracy Julia solver**:
+
+```python
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='Vern9',  # Julia high-accuracy
+...     rtol=1e-12
+... )
+>>> print(f"Julia solver: {result['solver']}")
+```
+
+**Auto-switching for unknown stiffness**:
+
+```python
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='LSODA'  # scipy auto-switching
+... )
+>>> # Or use Julia:
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='AutoTsit5(Rosenbrock23())'
+... )
+```
+
+**Fixed-step RK4** for predictable behavior:
+
+```python
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='rk4',
+...     dt=0.01  # Required!
+... )
+>>> assert len(result['t']) == 1001  # 0 to 10 with dt=0.01
+```
+
+**Specific evaluation times**:
+
+```python
+>>> t_eval = np.array([0.0, 1.0, 2.0, 5.0, 10.0])
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     t_eval=t_eval
+... )
+>>> assert len(result['t']) == 5
+```
+
+**Dense output** for post-hoc interpolation:
+
+```python
+>>> result = system.integrate(
+...     x0=x0,
+...     u=None,
+...     t_span=(0, 10),
+...     dense_output=True
+... )
+>>> if 'sol' in result:
+...     t_fine = np.linspace(0, 10, 10000)
+...     x_fine = result['sol'](t_fine)
+...     plt.plot(t_fine, x_fine[:, 0])
+```
+
+**Backend switching**:
+
+```python
+>>> # NumPy (scipy)
+>>> result_np = system.integrate(x0, u=None, t_span=(0, 10))
+>>>
+>>> # JAX (JIT-compiled)
+>>> system.set_default_backend('jax')
+>>> result_jax = system.integrate(x0, u=None, t_span=(0, 10), method='tsit5')
+>>>
+>>> # PyTorch (autodiff)
+>>> system.set_default_backend('torch')
+>>> result_torch = system.integrate(x0, u=None, t_span=(0, 10), method='dopri5')
+```
+
+**Performance monitoring**:
+
+```python
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+>>> print(f"Steps: {result['nsteps']}")
+>>> print(f"Function evals: {result['nfev']}")
+>>> print(f"Time: {result['integration_time']:.4f}s")
+>>>
+>>> if result['nfev'] > 10000:
+...     print("⚠ Warning: Many function evaluations!")
+...     print("Consider: stiff solver, relaxed tolerances, or check dynamics")
+```
+
+**Error handling**:
+
+```python
+>>> try:
+...     result = system.integrate(
+...         x0=x0,
+...         u=None,
+...         t_span=(0, 10),
+...         method='Radau',
+...         max_steps=10  # Too low!
+...     )
+...     if not result['success']:
+...         print(f"Failed: {result['message']}")
+... except RuntimeError as e:
+...     print(f"Integration error: {e}")
+```
+
+**Comparing methods**:
+
+```python
+>>> methods = ['RK45', 'Tsit5', 'Vern9', 'rk4']
+>>> for method in methods:
+...     try:
+...         result = system.integrate(
+...             x0, u=None, t_span=(0, 10),
+...             method=method,
+...             dt=0.01 if method == 'rk4' else None
+...         )
+...         print(f"{method}: {result['nfev']} evals, {result['nsteps']} steps")
+...     except ImportError:
+...         print(f"{method}: Backend not available")
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+simulate : High-level simulation with regular time grid (recommended for most users)
+IntegratorFactory : Create custom integrators with specific methods
+_prepare_control_input : Internal method for control input conversion
+linearize : Compute linearized dynamics at equilibrium
+set_default_backend : Change backend for integration
+
+### linearize { #cdesym.systems.base.core.ContinuousSymbolicSystem.linearize }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.linearize(x_eq, u_eq=None)
+```
+
+Compute linearization of continuous dynamics: A = ∂f/∂x, B = ∂f/∂u.
+
+For continuous systems, this returns the continuous-time Jacobian matrices
+that define the linearized system: d(δx)/dt = A·δx + B·δu
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                          | Default    |
+|--------|---------------------------|------------------------------------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)                              | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,) If None, uses zero control | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                | Description                                                                                               |
+|--------|---------------------|-----------------------------------------------------------------------------------------------------------|
+|        | LinearizationResult | Tuple (A, B) where: - A: State Jacobian ∂f/∂x, shape (nx, nx) - B: Control Jacobian ∂f/∂u, shape (nx, nu) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_eq = np.zeros(2)
+>>> u_eq = np.zeros(1)
+>>> A, B = system.linearize(x_eq, u_eq)
+>>>
+>>> # Check continuous stability: Re(λ) < 0
+>>> eigenvalues = np.linalg.eigvals(A)
+>>> is_stable = np.all(np.real(eigenvalues) < 0)
+>>>
+>>> # LQR design
+>>> from scipy.linalg import solve_continuous_are
+>>> P = solve_continuous_are(A, B, Q, R)
+>>> K = np.linalg.inv(R) @ B.T @ P
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+For higher-order systems, automatically constructs the full
+state-space representation with kinematic relationships.
+
+For autonomous systems (nu=0), B will be an empty (nx, 0) matrix.
+
+### linearized_dynamics { #cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_dynamics }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.linearized_dynamics(
+    x,
+    u=None,
+    backend=None,
+)
+```
+
+Compute numerical linearization: A = ∂f/∂x, B = ∂f/∂u.
+
+Alias for linearize() with support for named equilibria and
+explicit backend specification.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                                      | Default    |
+|---------|---------------------------|--------------------------------------------------|------------|
+| x       | Union\[StateVector, str\] | State to linearize at, OR equilibrium name       | _required_ |
+| u       | Optional\[ControlVector\] | Control to linearize at (ignored if x is string) | `None`     |
+| backend | Optional\[Backend\]       | Backend for result arrays                        | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description              |
+|--------|-------------------------------|--------------------------|
+|        | Tuple\[ArrayLike, ArrayLike\] | (A, B) Jacobian matrices |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # By state/control
+>>> A, B = system.linearized_dynamics(
+...     np.array([0.0, 0.0]),
+...     np.array([0.0])
+... )
+>>>
+>>> # By equilibrium name
+>>> A, B = system.linearized_dynamics('inverted')
+>>>
+>>> # Force PyTorch backend
+>>> A, B = system.linearized_dynamics(x, u, backend='torch')
+```
+
+### linearized_dynamics_symbolic { #cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_dynamics_symbolic }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.linearized_dynamics_symbolic(
+    x_eq=None,
+    u_eq=None,
+)
+```
+
+Compute symbolic linearization: A = ∂f/∂x, B = ∂f/∂u.
+
+Returns symbolic matrices for analytical analysis.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                | Description                                                          | Default   |
+|--------|-------------------------------------|----------------------------------------------------------------------|-----------|
+| x_eq   | Optional\[Union\[sp.Matrix, str\]\] | Equilibrium state (symbolic) OR equilibrium name If None, uses zeros | `None`    |
+| u_eq   | Optional\[sp.Matrix\]               | Equilibrium control (symbolic) If None, uses zeros                   | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                                          |
+|--------|-------------------------------|------------------------------------------------------|
+|        | Tuple\[sp.Matrix, sp.Matrix\] | (A, B) symbolic matrices with parameters substituted |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> A_sym, B_sym = system.linearized_dynamics_symbolic()
+>>> print(A_sym)
+Matrix([[0, 1], [-10.0, -0.5]])
+>>>
+>>> # At named equilibrium
+>>> A_sym, B_sym = system.linearized_dynamics_symbolic('inverted')
+>>>
+>>> # Convert to NumPy
+>>> A_np = np.array(A_sym, dtype=float)
+```
+
+### linearized_observation { #cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_observation }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.linearized_observation(
+    x,
+    backend=None,
+)
+```
+
+Compute linearized observation matrix: C = ∂h/∂x.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                | Description                       | Default    |
+|---------|---------------------|-----------------------------------|------------|
+| x       | StateVector         | State at which to linearize (nx,) | _required_ |
+| backend | Optional\[Backend\] | Backend selection                 | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description              |
+|--------|-----------|--------------------------|
+|        | ArrayLike | C matrix, shape (ny, nx) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = np.array([1.0, 2.0])
+>>> C = system.linearized_observation(x)
+>>>
+>>> # For identity output
+>>> np.allclose(C, np.eye(system.nx))
+True
+```
+
+### linearized_observation_symbolic { #cdesym.systems.base.core.ContinuousSymbolicSystem.linearized_observation_symbolic }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.linearized_observation_symbolic(
+    x_eq=None,
+)
+```
+
+Compute symbolic observation Jacobian: C = ∂h/∂x.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                  | Description                                | Default   |
+|--------|-----------------------|--------------------------------------------|-----------|
+| x_eq   | Optional\[sp.Matrix\] | Equilibrium state (symbolic), None = zeros | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description       |
+|--------|-----------|-------------------|
+|        | sp.Matrix | Symbolic C matrix |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> C_sym = system.linearized_observation_symbolic()
+>>> print(C_sym)
+```
+
+### print_equations { #cdesym.systems.base.core.ContinuousSymbolicSystem.print_equations }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.print_equations(simplify=True)
+```
+
+Print symbolic equations using continuous-time notation.
+
+Displays the system's symbolic dynamics and output equations
+with d/dt notation appropriate for continuous systems.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                   | Default   |
+|----------|--------|-----------------------------------------------|-----------|
+| simplify | bool   | If True, simplify expressions before printing | `True`    |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.print_equations()
+======================================================================
+Pendulum
+======================================================================
+State Variables: [theta, omega]
+Control Variables: [u]
+System Order: 1
+Dimensions: nx=2, nu=1, ny=2
+```
+
+Dynamics: dx/dt = f(x, u)
+  dtheta/dt = omega
+  domega/dt = -19.62*sin(theta) - 0.1*omega + 4.0*u
+======================================================================
+
+### reset_performance_stats { #cdesym.systems.base.core.ContinuousSymbolicSystem.reset_performance_stats }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.reset_performance_stats()
+```
+
+Reset all performance counters to zero.
+
+Clears statistics in DynamicsEvaluator and LinearizationEngine.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.reset_performance_stats()
+>>> stats = system.get_performance_stats()
+>>> assert stats['forward_calls'] == 0
+```
+
+### verify_jacobians { #cdesym.systems.base.core.ContinuousSymbolicSystem.verify_jacobians }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.verify_jacobians(
+    x,
+    u=None,
+    tol=0.001,
+    backend='torch',
+)
+```
+
+Verify symbolic Jacobians against automatic differentiation.
+
+Compares analytically-derived Jacobians (from SymPy) against
+numerically-computed Jacobians (from PyTorch/JAX autodiff).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                                          | Default    |
+|---------|---------------------------|------------------------------------------------------|------------|
+| x       | StateVector               | State at which to verify                             | _required_ |
+| u       | Optional\[ControlVector\] | Control at which to verify (None for autonomous)     | `None`     |
+| tol     | float                     | Tolerance for considering Jacobians equal            | `0.001`    |
+| backend | str                       | Backend for autodiff ('torch' or 'jax', not 'numpy') | `'torch'`  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                              | Description                                                                                                                                                                                         |
+|--------|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | Dict\[str, Union\[bool, float\]\] | Verification results: - 'A_match': bool - True if A matches - 'B_match': bool - True if B matches - 'A_error': float - Maximum absolute error in A - 'B_error': float - Maximum absolute error in B |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = np.array([0.1, 0.0])
+>>> u = np.array([0.0])
+>>> results = system.verify_jacobians(x, u, backend='torch')
+>>>
+>>> if results['A_match'] and results['B_match']:
+...     print("✓ Jacobians verified!")
+... else:
+...     print(f"✗ A error: {results['A_error']:.2e}")
+...     print(f"✗ B error: {results['B_error']:.2e}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+Requires PyTorch or JAX for automatic differentiation.
+Small errors (< 1e-6) are usually numerical precision issues.
+Large errors indicate bugs in symbolic Jacobian computation.
+
+### warmup { #cdesym.systems.base.core.ContinuousSymbolicSystem.warmup }
+
+```python
+systems.base.core.ContinuousSymbolicSystem.warmup(backend=None, test_point=None)
+```
+
+Warm up backend by compiling and running test evaluation.
+
+Useful for JIT compilation warmup (especially JAX) and validating
+backend configuration before critical operations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                            | Description                                | Default   |
+|------------|-------------------------------------------------|--------------------------------------------|-----------|
+| backend    | Optional\[Backend\]                             | Backend to warm up (None = default)        | `None`    |
+| test_point | Optional\[Tuple\[StateVector, ControlVector\]\] | Test (x, u) point (None = use equilibrium) | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | bool   | True if warmup successful |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.set_default_backend('jax', device='gpu:0')
+>>> success = system.warmup()
+>>> # First call triggers JIT compilation
+```

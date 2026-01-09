@@ -1,0 +1,49 @@
+# types.core.TimeVaryingControl { #cdesym.types.core.TimeVaryingControl }
+
+`types.core.TimeVaryingControl`
+
+Time-varying control function u(t).
+
+Maps time to control action: u = u_func(t).
+
+This is useful for pre-planned control trajectories or time-scheduled
+controllers where the control depends explicitly on time.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description   | Default    |
+|--------|--------|---------------|------------|
+| t      | float  | Current time  | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type          | Description                    |
+|--------|---------------|--------------------------------|
+|        | ControlVector | Control action (nu,) at time t |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Sinusoidal control
+>>> def sine_control(t: float) -> ControlVector:
+...     return np.array([np.sin(t)])
+>>> 
+>>> # Exponential decay
+>>> def decaying_control(t: float) -> ControlVector:
+...     return u0 * np.exp(-t / tau)
+>>> 
+>>> # Piecewise constant
+>>> def switched_control(t: float) -> ControlVector:
+...     if t < 5.0:
+...         return np.array([1.0])
+...     else:
+...         return np.array([-1.0])
+>>> 
+>>> # Use in integration
+>>> result = system.integrate(x0, u=sine_control, t_span=(0, 10))
+```
+
+## See Also {.doc-section .doc-section-see-also}
+
+ControlPolicy : State-feedback control u = π(x)
+FeedbackController : Combined state-time feedback u = π(x, t)

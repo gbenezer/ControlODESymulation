@@ -1,0 +1,38 @@
+# types.core.DynamicsFunction { #cdesym.types.core.DynamicsFunction }
+
+`types.core.DynamicsFunction`
+
+Dynamics function f(x, u).
+
+Continuous: f(x, u, t) → dx/dt (rate of change)
+Discrete: f(x, u) → x[k+1] (next state)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                | Default    |
+|--------|---------------------------|--------------------------------------------|------------|
+| x      | StateVector               | Current state (nx,)                        | _required_ |
+| u      | Optional\[ControlVector\] | Control input (nu,) or None for autonomous | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description               |
+|--------|-------------|---------------------------|
+|        | StateVector | Dynamics evaluation (nx,) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Linear dynamics
+>>> def f_linear(x: StateVector, u: ControlVector) -> StateVector:
+...     return A @ x + B @ u
+>>> 
+>>> # Nonlinear dynamics
+>>> def f_nonlinear(x: StateVector, u: ControlVector) -> StateVector:
+...     x1, x2 = x
+...     return np.array([x2, -np.sin(x1) + u[0]])
+>>> 
+>>> # Autonomous
+>>> def f_autonomous(x: StateVector, u: Optional[ControlVector] = None) -> StateVector:
+...     return -alpha * x
+```

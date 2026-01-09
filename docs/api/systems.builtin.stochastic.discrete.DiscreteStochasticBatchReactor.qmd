@@ -1,0 +1,450 @@
+# systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor(
+    *args,
+    **kwargs,
+)
+```
+
+Discrete-time stochastic batch reactor for digital control and estimation.
+
+Implements a sampled-data model of the chemical batch reactor with process
+noise, suitable for discrete-time control algorithms, Kalman filtering, and
+reinforcement learning applications.
+
+## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}
+
+Difference equation (Euler discretization):
+
+    C_A[k+1] = C_A[k] - r₁(X[k])·Δt + w_A[k]
+    C_B[k+1] = C_B[k] + (r₁(X[k]) - r₂(X[k]))·Δt + w_B[k]
+    T[k+1] = T[k] + (Q[k] - α·(T[k] - T_amb))·Δt + w_T[k]
+
+where:
+    - X[k] = [C_A[k], C_B[k], T[k]]: State at time step k
+    - r₁, r₂: Reaction rates (Arrhenius kinetics)
+    - w[k] = [w_A[k], w_B[k], w_T[k]]: Process noise
+    - w[k] ~ N(0, diag(σ_A², σ_B², σ_T²))
+    - Δt: Sampling period
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Discrete-Time Operation:**
+
+Industrial batch reactors operate with digital control:
+- Sensors sampled every Δt seconds (PLC scan rate)
+- Control computed and applied at discrete intervals
+- Zero-order hold: Q[k] constant during [k·Δt, (k+1)·Δt]
+- Measurements: y[k] available at t = k·Δt
+
+**Process Noise Sources:**
+
+w[k] represents accumulated disturbances over sampling interval:
+1. **Concentration noise:** Feed variations, mixing imperfections
+2. **Temperature noise:** Heat transfer fluctuations, ambient changes
+3. **Model uncertainty:** Discretization errors, parameter drift
+
+**Noise Scaling from Continuous:**
+
+If continuous noise intensity is σ_c [state/√time]:
+    σ_discrete = σ_c·√Δt [state]
+
+Example: σ_T = 1 K/√s continuous, Δt = 1 s
+    → σ_T_discrete = 1·√1 = 1 K per time step
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X[k] = [C_A[k], C_B[k], T[k]]
+    Discrete-time samples of concentrations and temperature:
+    - C_A[k]: Concentration of A at time k·Δt [mol/L]
+    - C_B[k]: Concentration of B at time k·Δt [mol/L]
+    - T[k]: Temperature at time k·Δt [K]
+
+Control: u[k] = Q[k]
+    - Q[k]: Heating rate during interval [k·Δt, (k+1)·Δt] [K/s]
+    - Zero-order hold: Constant between samples
+
+Noise: w[k] = [w_A[k], w_B[k], w_T[k]]
+    - Gaussian white noise: w[k] ~ N(0, Σ_w)
+    - Independent over time: w[k] ⊥ w[j] for k ≠ j
+    - Diagonal covariance: Σ_w = diag(σ_A², σ_B², σ_T²)
+
+## Key Properties {.doc-section .doc-section-key-properties}
+
+**Markov Property:**
+X[k+1] depends only on X[k], enabling:
+    - Dynamic programming
+    - Kalman filtering
+    - Reinforcement learning
+
+**Time-Invariant:**
+Dynamics f same at all time steps (constant parameters).
+
+**Gaussian Noise:**
+Enables analytical Kalman filter (optimal for Gaussian).
+
+**Additive Noise:**
+Simplifies estimation (linearity in noise).
+
+**Discrete-Time Native:**
+Exact for digital control (no continuous-time approximation).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type              | Description                                                                                                                                                  | Default    |
+|-----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| k1                    | float             | Pre-exponential factor for A→B reaction [1/s]                                                                                                                | _required_ |
+| k2                    | float             | Pre-exponential factor for B→C reaction [1/s]                                                                                                                | _required_ |
+| E1                    | float             | Activation energy for reaction 1 [K]                                                                                                                         | _required_ |
+| E2                    | float             | Activation energy for reaction 2 [K]                                                                                                                         | _required_ |
+| alpha                 | float             | Heat transfer coefficient [1/s]                                                                                                                              | _required_ |
+| T_amb                 | float             | Ambient temperature [K]                                                                                                                                      | _required_ |
+| C_A0                  | Optional\[float\] | Initial concentration of A for equilibrium setup [mol/L]                                                                                                     | _required_ |
+| T0                    | Optional\[float\] | Initial temperature for equilibrium setup [K]                                                                                                                | _required_ |
+| sigma_A               | float             | Process noise std dev for C_A [mol/L per step] - Typical: 0.001-0.1 mol/L - Conversion from continuous: σ_c·√Δt                                              | `0.01`     |
+| sigma_B               | float             | Process noise std dev for C_B [mol/L per step]                                                                                                               | `0.01`     |
+| sigma_T               | float             | Process noise std dev for T [K per step] - Typical: 0.1-5.0 K - Conversion from continuous: σ_c·√Δt                                                          | `1.0`      |
+| dt                    | float             | Sampling period [s] - Typical: 0.1-10 s for batch reactors - Smaller dt → more accurate, more computation - Must satisfy Nyquist: dt < 1/(2·f_max)           | `1.0`      |
+| discretization_method | str               | Discretization method for continuous dynamics - 'euler': Forward Euler (first-order) - 'rk4': Runge-Kutta 4 (fourth-order) - 'exact': Exact for linear parts | `'euler'`  |
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Discrete-Time MPC:**
+Model Predictive Control with constraints:
+    - Optimization horizon: N steps
+    - Constraints: X_min ≤ X[k] ≤ X_max
+    - Receding horizon: Solve at each k
+
+**2. Discrete Kalman Filter:**
+Optimal state estimation:
+    - Process model: This discrete stochastic system
+    - Measurement model: y[k] = h(X[k]) + v[k]
+    - Extended or Unscented KF for nonlinearity
+
+**3. LQG Control:**
+Linear-Quadratic-Gaussian:
+    - Kalman filter for state estimation
+    - LQR for optimal control
+    - Certainty equivalence principle
+
+**4. Reinforcement Learning:**
+Discrete-time RL algorithms:
+    - Q-learning: Discrete state/action
+    - Policy gradient: Episodic updates
+    - Model-based RL: Use this as forward model
+
+**5. Batch-to-Batch Optimization:**
+Iterative learning control:
+    - Update policy based on previous batches
+    - Stochastic gradient descent
+    - Safe learning with constraints
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Direct Simulation:**
+No integration needed - direct evaluation:
+    for k in range(N):
+        X[k+1] = f(X[k], u[k]) + w[k]
+
+where w[k] ~ N(0, Σ_w).
+
+**Monte Carlo Ensemble:**
+Run multiple simulations to characterize stochasticity:
+    - Mean trajectory
+    - Variance growth
+    - Confidence intervals
+
+**Deterministic Part:**
+Set σ_A = σ_B = σ_T = 0 to recover deterministic discrete system.
+
+## Comparison with Continuous Stochastic {.doc-section .doc-section-comparison-with-continuous-stochastic}
+
+**Continuous Stochastic:**
+- SDE: dX = f·dt + g·dW
+- Requires SDE integration
+- Theoretical foundation
+- Noise intensity in [state]/√[time]
+
+**Discrete Stochastic:**
+- Difference equation: X[k+1] = f + w[k]
+- Direct evaluation (no integration)
+- Implementation ready
+- Noise variance in [state]²
+
+**Conversion:**
+σ_discrete = σ_continuous·√Δt
+
+## Discrete Kalman Filter Usage {.doc-section .doc-section-discrete-kalman-filter-usage}
+
+This system provides process model for EKF:
+
+```python
+# Process model
+X_pred = reactor.step(X_est, u[k])
+F = reactor.linearize(X_est, u[k])[0]  # Jacobian
+P_pred = F @ P @ F.T + Q
+
+# Measurement update (if measurement available)
+y_pred = h(X_pred)
+H = jacobian(h, X_pred)
+K = P_pred @ H.T @ inv(H @ P_pred @ H.T + R)
+X_est = X_pred + K @ (y[k] - y_pred)
+P = (I - K @ H) @ P_pred
+```
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Euler discretization: O(Δt) error
+- Additive noise only (not multiplicative)
+- Constant noise variance (not state-dependent)
+- Independent noise (no correlation)
+- White noise (no temporal correlation)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Higher-order discretization (RK4)
+- Multiplicative noise: w[k] depends on X[k]
+- Colored noise: w[k] correlated over time
+- Measurement delays: y[k] = h(X[k-d]) + v[k]
+- Time-varying parameters: θ[k+1] = θ[k] + ε[k]
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [convert_from_continuous_noise](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise) | Convert continuous noise intensities to discrete. |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system) | Define discrete-time stochastic batch reactor dynamics. |
+| [estimate_discretization_error](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error) | Estimate discretization error (Euler vs exact). |
+| [get_process_noise_covariance](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance) | Get process noise covariance matrix Σ_w. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria) | Set up equilibrium points (for deterministic part). |
+
+### convert_from_continuous_noise { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise(
+    sigma_A_continuous,
+    sigma_B_continuous,
+    sigma_T_continuous,
+)
+```
+
+Convert continuous noise intensities to discrete.
+
+For continuous noise σ_c [state/√s], discrete noise is:
+    σ_d = σ_c·√dt
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name               | Type   | Description                                     | Default    |
+|--------------------|--------|-------------------------------------------------|------------|
+| sigma_A_continuous | float  | Continuous noise intensity for C_A [mol/(L·√s)] | _required_ |
+| sigma_B_continuous | float  | Continuous noise intensity for C_B [mol/(L·√s)] | _required_ |
+| sigma_T_continuous | float  | Continuous noise intensity for T [K/√s]         | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | dict   | Discrete noise parameters |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteStochasticBatchReactor(dt=1.0)
+>>> discrete_noise = reactor.convert_from_continuous_noise(
+...     sigma_A_continuous=0.01,
+...     sigma_B_continuous=0.01,
+...     sigma_T_continuous=1.0
+... )
+>>> print(f"Discrete σ_A: {discrete_noise['sigma_A']:.4f}")
+>>> print(f"Discrete σ_T: {discrete_noise['sigma_T']:.4f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system(
+    k1_val=0.5,
+    k2_val=0.3,
+    E1_val=1000.0,
+    E2_val=1500.0,
+    alpha_val=0.1,
+    T_amb_val=300.0,
+    sigma_A=0.01,
+    sigma_B=0.01,
+    sigma_T=1.0,
+    dt=1.0,
+    discretization_method='euler',
+    C_A0=None,
+    T0=None,
+)
+```
+
+Define discrete-time stochastic batch reactor dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type              | Description                                                                                                               | Default   |
+|-----------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------|-----------|
+| k1_val                | float             | Pre-exponential factor for A→B reaction [1/s]                                                                             | `0.5`     |
+| k2_val                | float             | Pre-exponential factor for B→C reaction [1/s]                                                                             | `0.3`     |
+| E1_val                | float             | Activation energy for reaction 1 [K]                                                                                      | `1000.0`  |
+| E2_val                | float             | Activation energy for reaction 2 [K]                                                                                      | `1500.0`  |
+| alpha_val             | float             | Heat transfer coefficient [1/s]                                                                                           | `0.1`     |
+| T_amb_val             | float             | Ambient temperature [K]                                                                                                   | `300.0`   |
+| sigma_A               | float             | Process noise std dev for C_A [mol/L per step] - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.001-0.1 mol/L | `0.01`    |
+| sigma_B               | float             | Process noise std dev for C_B [mol/L per step]                                                                            | `0.01`    |
+| sigma_T               | float             | Process noise std dev for T [K per step] - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.1-5.0 K             | `1.0`     |
+| dt                    | float             | Sampling period [s] - Typical: 0.1-10 s for batch reactors - Rule: dt < τ_system/10 - Affects both dynamics and noise     | `1.0`     |
+| discretization_method | str               | Discretization method: - 'euler': Forward Euler (simple, first-order) - 'rk4': Runge-Kutta 4 (accurate, fourth-order)     | `'euler'` |
+| C_A0                  | Optional\[float\] | Initial conditions for equilibrium setup                                                                                  | `None`    |
+| T0                    | Optional\[float\] | Initial conditions for equilibrium setup                                                                                  | `None`    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Discretization (Euler):**
+
+Continuous: dx/dt = f(x, u)
+Discrete: x[k+1] = x[k] + f(x[k], u[k])·dt
+
+For reactions:
+    C_A[k+1] = C_A[k] - r₁·dt
+    C_B[k+1] = C_B[k] + (r₁ - r₂)·dt
+    T[k+1] = T[k] + (Q - α·(T - T_amb))·dt
+
+**Process Noise:**
+
+Additive Gaussian white noise:
+    w[k] ~ N(0, Σ_w)
+    Σ_w = diag(σ_A², σ_B², σ_T²)
+
+**Noise Scaling:**
+
+From continuous σ_c [state/√s]:
+    σ_discrete = σ_c·√dt
+
+Example: σ_T_c = 1 K/√s, dt = 1 s
+    → σ_T_d = 1·√1 = 1 K per step
+
+Example: σ_T_c = 1 K/√s, dt = 0.1 s
+    → σ_T_d = 1·√0.1 ≈ 0.316 K per step
+
+**Sampling Period Selection:**
+
+Guidelines:
+1. Nyquist: dt < 1/(2·f_max)
+2. Control: dt < τ_cl/10 (closed-loop time constant)
+3. Reactor: dt < τ_reaction/5
+
+For typical batch reactor:
+- Fast control: dt = 0.1-0.5 s
+- Moderate: dt = 1.0-5.0 s
+- Slow: dt = 5.0-10.0 s
+
+**Discretization Method:**
+
+Euler (default):
+- Simple, explicit
+- O(dt) accuracy
+- May need small dt for accuracy
+- Most common in industrial control
+
+RK4 (optional):
+- More accurate: O(dt⁴)
+- Can use larger dt
+- More computation per step
+- Better for simulation studies
+
+**Validation:**
+
+Check discretization accuracy:
+1. Compare with continuous simulation
+2. Verify mass conservation (approximately)
+3. Check final concentrations converge as dt → 0
+
+### estimate_discretization_error { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error(
+    x,
+    u,
+)
+```
+
+Estimate discretization error (Euler vs exact).
+
+Returns approximate relative error in state update.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description   | Default    |
+|--------|------------|---------------|------------|
+| x      | np.ndarray | Current state | _required_ |
+| u      | np.ndarray | Control input | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                              |
+|--------|--------|------------------------------------------|
+|        | float  | Estimated relative error (dimensionless) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Euler discretization has O(dt) error.
+Error estimate: ||f(x)||·dt²/||x||
+
+Large error → Consider smaller dt or higher-order method.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteStochasticBatchReactor(dt=1.0)
+>>> x = np.array([0.5, 0.3, 360.0])
+>>> u = np.array([10.0])
+>>> error = reactor.estimate_discretization_error(x, u)
+>>> print(f"Estimated error: {error:.2e}")
+```
+
+### get_process_noise_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance(
+)
+```
+
+Get process noise covariance matrix Σ_w.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                    |
+|--------|------------|--------------------------------|
+|        | np.ndarray | 3x3 diagonal covariance matrix |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Σ_w = diag(σ_A², σ_B², σ_T²)
+
+Diagonal → independent noise sources.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> reactor = DiscreteStochasticBatchReactor(
+...     sigma_A=0.01, sigma_B=0.01, sigma_T=1.0
+... )
+>>> Q = reactor.get_process_noise_covariance()
+>>> print(f"Process noise covariance:\n{Q}")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria(
+)
+```
+
+Set up equilibrium points (for deterministic part).
+
+Note: In discrete time, equilibria are fixed points of f:
+    x_eq = f(x_eq, u_eq)

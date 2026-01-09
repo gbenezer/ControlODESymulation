@@ -1,0 +1,19 @@
+# types.core.FeedthroughMatrix { #cdesym.types.core.FeedthroughMatrix }
+
+`types.core.FeedthroughMatrix`
+
+Feedthrough/direct transmission matrix (ny, nu).
+
+Direct control-to-output coupling: y = C*x + D*u.
+
+Typically D = 0 (no direct feedthrough).
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # No feedthrough (most common)
+>>> D: FeedthroughMatrix = np.zeros((2, 1))
+>>> 
+>>> # Direct feedthrough (sensor measures control)
+>>> D_direct: FeedthroughMatrix = np.array([[1.0]])
+```

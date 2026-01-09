@@ -1,0 +1,14 @@
+# types.core.ScalarLike { #cdesym.types.core.ScalarLike }
+
+`types.core.ScalarLike`
+
+Scalar value in any backend.
+
+Can be Python float/int, NumPy scalar, or 0-d tensor.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> dt: ScalarLike = 0.01
+>>> learning_rate: ScalarLike = 1e-3
+```

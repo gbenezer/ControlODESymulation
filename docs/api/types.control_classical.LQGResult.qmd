@@ -1,0 +1,74 @@
+# types.control_classical.LQGResult { #cdesym.types.control_classical.LQGResult }
+
+```python
+types.control_classical.LQGResult()
+```
+
+Linear Quadratic Gaussian (LQG) controller design result.
+
+LQG combines optimal control (LQR) with optimal estimation (Kalman):
+- LQR: Optimal state feedback u = -Kx (if state known)
+- Kalman: Optimal state estimate x̂ from measurements
+- LQG: Certainty equivalence u = -Kx̂
+
+Separation Principle:
+- Design LQR and Kalman independently
+- Combine for optimal performance under Gaussian noise
+
+## Fields {.doc-section .doc-section-fields}
+
+control_gain : GainMatrix
+    LQR feedback gain K (nu, nx)
+estimator_gain : GainMatrix
+    Kalman gain L (nx, ny)
+control_cost_to_go : CovarianceMatrix
+    Controller Riccati solution P_control
+estimation_error_covariance : CovarianceMatrix
+    Estimator Riccati solution P_estimate
+separation_verified : bool
+    Confirms separation principle holds
+closed_loop_stable : bool
+    Combined controller-estimator system is stable
+controller_eigenvalues : np.ndarray
+    Eigenvalues of (A - BK) - control loop
+estimator_eigenvalues : np.ndarray
+    Eigenvalues of (A - LC) - estimation loop
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # System matrices
+>>> A = np.array([[1, 0.1], [0, 0.9]])
+>>> B = np.array([[0], [0.1]])
+>>> C = np.array([[1, 0]])  # Measure position only
+>>>
+>>> # Design weights
+>>> Q_control = np.diag([10, 1])   # State cost
+>>> R_control = np.array([[0.1]])  # Control cost
+>>> Q_process = 0.01 * np.eye(2)   # Process noise
+>>> R_meas = 0.1 * np.eye(1)       # Measurement noise
+>>>
+>>> result: LQGResult = design_lqg(A, B, C, Q_control, R_control, Q_process, R_meas)
+>>>
+>>> K = result['control_gain']
+>>> L = result['estimator_gain']
+>>> print(result['closed_loop_stable'])  # True
+>>> print(result['separation_verified'])  # True
+>>>
+>>> # Implement LQG controller
+>>> x_hat = np.zeros(2)  # Initial estimate
+>>> for k in range(N):
+...     # Control (certainty equivalence)
+...     u[k] = -K @ x_hat
+...
+...     # Prediction
+...     x_hat = A @ x_hat + B @ u[k]
+...
+...     # Measurement update
+...     innovation = y[k] - C @ x_hat
+...     x_hat = x_hat + L @ innovation
+>>>
+>>> # Check eigenvalues
+>>> print("Controller poles:", result['controller_eigenvalues'])
+>>> print("Estimator poles:", result['estimator_eigenvalues'])
+```

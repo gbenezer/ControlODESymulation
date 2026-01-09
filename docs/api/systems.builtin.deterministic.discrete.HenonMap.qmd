@@ -1,0 +1,1017 @@
+# systems.builtin.deterministic.discrete.HenonMap { #cdesym.systems.builtin.deterministic.discrete.HenonMap }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap(*args, **kwargs)
+```
+
+The Hénon Map: Paradigm of 2D dissipative chaos and strange attractors.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+The Hénon map was introduced by Michel Hénon (1976) as a simplified
+model for the Poincaré section of the Lorenz equations. It represents
+a generic quadratic area-contracting map that captures essential features
+of dissipative chaos.
+
+**Mathematical Form:**
+The defining equations are remarkably simple:
+
+    x[n+1] = 1 - a·x[n]² + y[n]
+    y[n+1] = b·x[n]
+
+Despite this simplicity, the map exhibits:
+- Chaotic attractors (strange attractors)
+- Period-doubling cascades
+- Fractal basin boundaries
+- Sensitive dependence on initial conditions
+- Homoclinic bifurcations
+
+**Physical Interpretation:**
+While originally a mathematical abstraction, the Hénon map can model:
+1. **Poincaré sections** of 3D continuous flows
+2. **Population dynamics** with two age classes
+3. **Chemical reactions** with two coupled species
+4. **Economic models** with production and capital
+5. **Fluid mixing** and turbulence onset
+
+The key feature is DISSIPATION: phase space volume contracts,
+leading to attractors (unlike conservative Hamiltonian systems).
+
+**Dissipation and Attractors:**
+The Jacobian determinant is:
+    det(J) = -b
+
+For |b| < 1, the map is area-contracting:
+- Phase space volume shrinks by factor |b| each iteration
+- Asymptotically, dynamics confined to attractor
+- Attractor has dimension < 2 (fractal)
+
+This contrasts with:
+- Logistic map (1D): Dimension 0 or 1 attractors
+- Standard map (conservative): No attractors, volume-preserving
+- Hénon map (2D dissipative): Dimension ~1.26 attractor (fractal!)
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x[n] = [x[n], y[n]]
+    First coordinate:
+    - x: "Position" or primary variable
+      * Unbounded in principle: -∞ < x < ∞
+      * Typically confined to bounded region by attractor
+      * For standard parameters: -1.5 < x < 1.5
+
+    Second coordinate:
+    - y: "Velocity" or secondary variable
+      * Coupled to previous x value: y[n] = b·x[n-1]
+      * Acts as delayed feedback
+      * For standard parameters: -0.4 < y < 0.4
+
+**Phase Space Structure:**
+The (x, y) plane contains:
+- Attractors (where orbits converge)
+- Basins of attraction (initial conditions leading to each attractor)
+- Basin boundaries (separating different basins)
+- Saddle points and unstable manifolds
+
+Control: u[n] (optional, for controlled Hénon map)
+    - Can represent:
+      * Perturbation to x dynamics: x[n+1] = 1 - a·x[n]² + y[n] + u[n]
+      * External forcing or feedback control
+      * Stabilization of unstable periodic orbits
+    - Standard map: u = 0 (autonomous)
+
+Output: y[n] = [x[n], y[n]]
+    - Full state measurement (both coordinates)
+    - In practice, may observe only x (partial observation)
+    - Time-delay embedding can reconstruct attractor from x alone
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The Hénon map is defined by:
+
+    x[n+1] = 1 - a·x[n]² + y[n]
+    y[n+1] = b·x[n]
+
+**Key Mathematical Properties:**
+
+1. **Quadratic nonlinearity:**
+   - The x² term creates folding in phase space
+   - Enables period-doubling and chaos
+   - Simplest polynomial map with strange attractor
+
+2. **Area contraction (dissipation):**
+   Jacobian: J = | -2ax   1 |
+                 |   b    0 |
+
+   det(J) = -b (constant, independent of state!)
+
+   For |b| < 1:
+   - Area contracts by factor |b| per iteration
+   - Volume of phase space → 0 as n → ∞
+   - Dynamics attracted to lower-dimensional set
+
+3. **Invertibility:**
+   The map has a unique inverse (for b ≠ 0):
+
+   x[n] = y[n+1]/b
+   y[n] = x[n+1] - 1 + a·(y[n+1]/b)²
+
+   This allows backward iteration (unlike logistic map).
+
+4. **Time-reversal symmetry (special case):**
+   For b = -1, map is time-reversible (area-preserving)
+   This is the limit connecting to Hamiltonian systems.
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+a : float, default=1.4
+    Nonlinearity parameter (controls folding strength)
+
+    **Physical Meaning:**
+    - Controls strength of quadratic nonlinearity
+    - Larger |a| → stronger folding
+    - Determines attractor complexity
+
+    **Parameter Regimes:**
+
+    **a = 0:**
+    - Linear map: x[n+1] = 1 + y[n], y[n+1] = b·x[n]
+    - Simple dynamics, no chaos
+    - All orbits converge or diverge simply
+
+    **0 < a < 0.368:**
+    - Stable fixed point
+    - All trajectories converge to single point
+    - No oscillations or complexity
+
+    **a ≈ 0.368:**
+    - Flip bifurcation (period-doubling)
+    - Fixed point becomes unstable
+    - Period-2 orbit appears
+
+    **0.368 < a < 1.06:**
+    - Periodic attractors (period-2, 4, 8, ...)
+    - Period-doubling cascade
+    - Feigenbaum scaling (universal constants)
+    - Resembles logistic map behavior
+
+    **a ≈ 1.06:**
+    - Onset of chaos
+    - Accumulation point of period-doubling cascade
+    - Transition from periodic to chaotic
+
+    **1.06 < a < 1.4:**
+    - Chaotic attractor (strange attractor)
+    - Positive Lyapunov exponent
+    - Fractal structure
+    - Sensitive dependence on initial conditions
+
+    **a = 1.4 (canonical value):**
+    - Classic Hénon attractor
+    - Well-studied strange attractor
+    - Fractal dimension ≈ 1.26
+    - Hausdorff dimension ≈ 1.261
+    - Correlation dimension ≈ 1.25
+
+    **a > 1.4:**
+    - Attractor may fragment or disappear
+    - Escape to infinity possible
+    - Multiple attractors may coexist
+    - Complex basin boundaries
+
+    **a >> 1:**
+    - Most orbits escape to infinity
+    - Bounded attractors rare
+    - Chaotic scattering regime
+
+b : float, default=0.3
+    Dissipation parameter (controls area contraction)
+
+    **Physical Meaning:**
+    - Controls phase space volume contraction rate
+    - |det(J)| = |b| = volume contraction factor
+    - Larger |b| → slower contraction, less dissipation
+    - Smaller |b| → faster contraction, more dissipation
+
+    **Special Values:**
+
+    **b = 0:**
+    - Extreme dissipation (collapse to 1D)
+    - y coordinate decouples: y[n+1] = 0
+    - Effectively becomes 1D logistic-like map
+    - Loses 2D structure
+
+    **0 < b < 1:**
+    - Standard dissipative regime
+    - Area-contracting (det(J) < 1)
+    - Attractors exist (typical case)
+    - b = 0.3 is canonical value
+
+    **b = 1:**
+    - Borderline case (area-preserving)
+    - Conservative limit
+    - No attractors (like Standard Map)
+    - Unlikely for physical dissipative systems
+
+    **b = -1:**
+    - Area-preserving AND time-reversible
+    - Special mathematical interest
+    - Connects to Hamiltonian dynamics
+    - Not typical for dissipative systems
+
+    **-1 < b < 0:**
+    - Orientation-reversing
+    - Still dissipative (|b| < 1)
+    - Can have strange attractors
+    - Less commonly studied
+
+    **|b| > 1:**
+    - Area-expanding
+    - No bounded attractors
+    - Orbits typically escape
+    - Not physical for dissipative systems
+
+dt : float, default=1.0
+    Time step between iterations
+    - Usually normalized to 1
+    - Represents sampling period
+    - Only affects interpretation, not dynamics
+
+## Equilibria and Fixed Points: {.doc-section .doc-section-equilibria-and-fixed-points}
+
+Fixed points satisfy:
+    x* = 1 - a·x*² + y*
+    y* = b·x*
+
+Substituting second into first:
+    x* = 1 - a·x*² + b·x*
+    a·x*² - (b-1)·x* + 1 = 0
+
+Solutions (for standard b = 0.3, a varies):
+    x* = [(b-1) ± √((b-1)² - 4a)] / (2a)
+
+**Fixed points exist if:**
+    (b-1)² ≥ 4a
+
+For b = 0.3:
+    0.49 ≥ 4a
+    a ≤ 0.1225
+
+For a > 0.1225, fixed points are complex (no real equilibria).
+
+**Typical scenario (a = 1.4, b = 0.3):**
+- No real fixed points
+- System has no equilibria
+- All dynamics are transient or on attractor
+- Attractor is only long-term behavior
+
+**Stability of fixed points:**
+When fixed points exist, linearization gives:
+    λ₁, λ₂ = eigenvalues of Jacobian
+
+Fixed point is stable if |λ₁|, |λ₂| < 1.
+
+## Strange Attractor: {.doc-section .doc-section-strange-attractor}
+
+The Hénon attractor (a = 1.4, b = 0.3) is a STRANGE ATTRACTOR:
+
+**Definition:** A strange attractor is an attracting set that:
+1. Is an attractor (nearby trajectories approach it)
+2. Is strange (exhibits sensitive dependence on IC)
+3. Has fractal structure (non-integer dimension)
+
+**Properties of Hénon attractor:**
+- **Fractal dimension:** D ≈ 1.26 (between 1D and 2D)
+- **Correlation dimension:** d_c ≈ 1.25
+- **Lyapunov exponents:** λ₁ ≈ 0.42, λ₂ ≈ -1.62
+- **Lyapunov dimension:** D_L = 1 + λ₁/|λ₂| ≈ 1.26
+- **Information dimension:** Similar to fractal dimension
+
+**Visual structure:**
+- Appears as collection of parallel curves (bands)
+- Actually infinitely many curves (fractal layering)
+- Self-similar structure at all scales
+- Gaps between bands contain saddle points
+
+**Unstable manifolds:**
+- Curves connecting unstable fixed points/periodic orbits
+- Create complicated tangles (homoclinic tangles)
+- Fold back on themselves infinitely
+- Define skeleton of attractor
+
+## Chaos Characterization: {.doc-section .doc-section-chaos-characterization}
+
+**Lyapunov Exponents:**
+For canonical Hénon map (a = 1.4, b = 0.3):
+    λ₁ ≈ 0.42 (positive → chaos)
+    λ₂ ≈ -1.62 (negative → dissipation)
+    λ₁ + λ₂ = ln|b| ≈ -1.20 (contraction rate)
+
+The positive Lyapunov exponent confirms:
+- Exponential divergence of nearby trajectories
+- Sensitive dependence on initial conditions
+- Chaotic dynamics (deterministic but unpredictable)
+
+**Basin of Attraction:**
+The set of initial conditions leading to the attractor.
+For Hénon map:
+- Basin is typically simply connected (single piece)
+- But can have fractal boundary
+- Some parameters → multiple attractors with intertwined basins
+
+**Periodic Orbits:**
+Embedded in attractor are infinitely many unstable periodic orbits:
+- Period-1, 2, 3, 4, ... orbits
+- All are unstable (saddles)
+- Dense in the attractor
+- Can be used for control (OGY method)
+
+## Bifurcations and Route to Chaos: {.doc-section .doc-section-bifurcations-and-route-to-chaos}
+
+As 'a' increases (with b = 0.3 fixed), the Hénon map undergoes:
+
+**1. Fixed point stability loss (a ≈ 0.37):**
+   - Flip bifurcation (period-doubling)
+   - Stable fixed point → period-2 orbit
+
+**2. Period-doubling cascade (0.37 < a < 1.06):**
+   - Period-2 → period-4 → period-8 → ...
+   - Geometric convergence (Feigenbaum constants)
+   - δ ≈ 4.669... (universal)
+   - α ≈ 2.502... (universal)
+
+**3. Onset of chaos (a ≈ 1.06):**
+   - Accumulation point of cascade
+   - Lyapunov exponent becomes positive
+   - Attractor dimension becomes fractal
+
+**4. Fully developed chaos (1.06 < a < 1.4):**
+   - Strange attractor forms
+   - Sensitive dependence maximizes
+   - Periodic windows may appear
+
+**5. Attractor crisis (a > 1.4):**
+   - Attractor may collide with unstable manifold
+   - Sudden destruction or enlargement
+   - Possible escape to infinity
+
+This sequence is the **period-doubling route to chaos**, one of
+three universal routes (along with intermittency and quasi-periodicity).
+
+## Control Objectives: {.doc-section .doc-section-control-objectives}
+
+**1. Chaos Control (OGY Method):**
+   Goal: Stabilize unstable periodic orbits embedded in attractor
+   Method: Apply small parameter perturbations
+   - Locate periodic orbit (e.g., period-1)
+   - Compute local stable/unstable directions
+   - Apply control when trajectory near orbit
+   - Perturbation: u[n] = -K·(x[n] - x_orbit)
+
+**2. Chaos Synchronization:**
+   Goal: Make two Hénon maps follow same trajectory
+   Applications: Secure communication, pattern recognition
+   Method: Couple systems or drive-response configuration
+
+**3. Targeting:**
+   Goal: Steer trajectory to specific location on attractor
+   Useful for optimization and search
+
+**4. Anti-control (Chaotification):**
+   Goal: Make periodic system chaotic
+   Applications: Mixing, encryption, avoiding resonance
+
+**5. Basin of attraction enlargement:**
+   Goal: Expand region attracting to desired attractor
+   Important when multiple attractors coexist
+
+## Numerical Considerations: {.doc-section .doc-section-numerical-considerations}
+
+**Attractor Visualization:**
+Standard method:
+1. Choose initial condition (often random)
+2. Discard first ~1000 iterations (transient)
+3. Plot next 10,000+ points
+4. Result shows attractor structure
+
+**Transient Behavior:**
+- First iterations may not reflect attractor
+- Discard typically 100-1000 initial points
+- Longer transients near bifurcations
+
+**Numerical Precision:**
+- Double precision (64-bit) sufficient
+- Chaos amplifies roundoff errors exponentially
+- Long-term trajectories unreliable (>1000 iterations)
+- Statistical properties converge faster than trajectories
+
+**Basin of Attraction Computation:**
+- Grid initial conditions in (x, y) plane
+- Iterate each until convergence or escape
+- Color-code by attractor reached
+- Reveals basin structure and boundaries
+
+**Dimension Estimation:**
+Several algorithms available:
+- Box-counting dimension (covers attractor with boxes)
+- Correlation dimension (uses point correlations)
+- Lyapunov dimension (from Lyapunov exponents)
+- Information dimension (uses entropies)
+
+All give similar values (~1.26) for canonical Hénon attractor.
+
+## Example Usage: {.doc-section .doc-section-example-usage}
+
+>>> # Create canonical Hénon map
+>>> system = HenonMap(a=1.4, b=0.3)
+>>>
+>>> # Visualize strange attractor
+>>> x0 = np.array([0.1, 0.1])
+>>> result = system.simulate(
+...     x0=x0,
+...     u_sequence=None,
+...     n_steps=10000
+... )
+>>>
+>>> # Plot attractor (discard transient)
+>>> import plotly.graph_objects as go
+>>> states_attractor = result['states'][1000:, :]  # Skip first 1000
+>>>
+>>> fig = go.Figure()
+>>> fig.add_trace(go.Scatter(
+...     x=states_attractor[:, 0],
+...     y=states_attractor[:, 1],
+...     mode='markers',
+...     marker=dict(size=1, color='blue', opacity=0.5),
+...     name='Hénon Attractor'
+... ))
+>>>
+>>> fig.update_layout(
+...     title=f'Hénon Attractor (a={system.a}, b={system.b})',
+...     xaxis_title='x',
+...     yaxis_title='y',
+...     width=800,
+...     height=600,
+...     plot_bgcolor='white'
+... )
+>>> fig.show()
+>>>
+>>> # Compute Lyapunov exponents
+>>> lyap_exp = system.compute_lyapunov_exponents(
+...     x0=np.array([0.1, 0.1]),
+...     n_iterations=50000
+... )
+>>> print(f"Lyapunov exponents: λ₁ = {lyap_exp[0]:.4f}, λ₂ = {lyap_exp[1]:.4f}")
+>>> print(f"Sum: λ₁ + λ₂ = {sum(lyap_exp):.4f} (should ≈ ln|b| = {np.log(abs(system.b)):.4f})")
+>>>
+>>> if lyap_exp[0] > 0:
+...     print("System is CHAOTIC")
+...     # Estimate attractor dimension
+...     D_L = 1 + lyap_exp[0] / abs(lyap_exp[1])
+...     print(f"Lyapunov dimension: D_L ≈ {D_L:.3f}")
+>>>
+>>> # Sensitive dependence on initial conditions
+>>> x0_a = np.array([0.1, 0.1])
+>>> x0_b = np.array([0.1 + 1e-10, 0.1])  # Tiny difference
+>>>
+>>> result_a = system.simulate(x0_a, None, n_steps=50)
+>>> result_b = system.simulate(x0_b, None, n_steps=50)
+>>>
+>>> divergence = np.linalg.norm(
+...     result_a['states'] - result_b['states'],
+...     axis=1
+... )
+>>>
+>>> fig = go.Figure()
+>>> fig.add_trace(go.Scatter(
+...     x=np.arange(51),
+...     y=divergence,
+...     mode='lines+markers',
+...     name='Distance'
+... ))
+>>> fig.update_yaxes(type='log')
+>>> fig.update_layout(
+...     title='Exponential Divergence (Sensitive Dependence)',
+...     xaxis_title='Iteration n',
+...     yaxis_title='||x_a - x_b||',
+... )
+>>> fig.show()
+>>>
+>>> # Generate bifurcation diagram (varying 'a')
+>>> bifurcation_data = system.generate_bifurcation_diagram(
+...     parameter='a',
+...     param_range=(0.8, 1.5),
+...     n_points=500,
+...     n_transient=500,
+...     n_samples=200
+... )
+>>>
+>>> fig = go.Figure()
+>>> fig.add_trace(go.Scatter(
+...     x=bifurcation_data['param'],
+...     y=bifurcation_data['x'],
+...     mode='markers',
+...     marker=dict(size=0.5, color='black'),
+...     name='Bifurcation'
+... ))
+>>> fig.update_layout(
+...     title='Hénon Map Bifurcation Diagram',
+...     xaxis_title='a (nonlinearity parameter)',
+...     yaxis_title='x*',
+...     width=1000,
+...     height=600
+... )
+>>> fig.show()
+>>>
+>>> # Explore basin of attraction
+>>> basin_data = system.compute_basin_of_attraction(
+...     x_range=(-2, 2),
+...     y_range=(-2, 2),
+...     resolution=400,
+...     max_iterations=100
+... )
+>>>
+>>> fig = go.Figure(data=go.Heatmap(
+...     z=basin_data['converged'],
+...     x=basin_data['x_grid'][0, :],
+...     y=basin_data['y_grid'][:, 0],
+...     colorscale='RdBu',
+...     showscale=True
+... ))
+>>> fig.update_layout(
+...     title='Basin of Attraction (blue=converges, red=escapes)',
+...     xaxis_title='x₀',
+...     yaxis_title='y₀',
+...     width=800,
+...     height=800
+... )
+>>> fig.show()
+>>>
+>>> # Compare multiple parameter values
+>>> from plotly.subplots import make_subplots
+>>>
+>>> a_values = [0.9, 1.1, 1.3, 1.4]
+>>> fig = make_subplots(
+...     rows=2, cols=2,
+...     subplot_titles=[f'a = {a}' for a in a_values]
+... )
+>>>
+>>> for idx, a_val in enumerate(a_values):
+...     row = idx // 2 + 1
+...     col = idx % 2 + 1
+...
+...     sys_temp = HenonMap(a=a_val, b=0.3)
+...     res_temp = sys_temp.simulate(
+...         x0=np.array([0.1, 0.1]),
+...         u_sequence=None,
+...         n_steps=5000
+...     )
+...
+...     states_plot = res_temp['states'][1000:, :]
+...
+...     fig.add_trace(
+...         go.Scatter(
+...             x=states_plot[:, 0],
+...             y=states_plot[:, 1],
+...             mode='markers',
+...             marker=dict(size=0.5),
+...             showlegend=False
+...         ),
+...         row=row, col=col
+...     )
+>>>
+>>> fig.update_xaxes(title_text='x')
+>>> fig.update_yaxes(title_text='y')
+>>> fig.update_layout(
+...     title_text='Hénon Map: Transition to Chaos',
+...     height=800,
+...     width=1000
+... )
+>>> fig.show()
+>>>
+>>> # Estimate correlation dimension
+>>> corr_dim = system.estimate_correlation_dimension(
+...     x0=np.array([0.1, 0.1]),
+...     n_points=5000,
+...     n_transient=1000
+... )
+>>> print(f"Correlation dimension: d_c ≈ {corr_dim:.3f}")
+>>> print(f"(Theoretical for Hénon attractor: ≈ 1.25)")
+
+## Physical Insights: {.doc-section .doc-section-physical-insights}
+
+**Why 2D is Different from 1D:**
+- 1D maps (logistic): Attractors are points or periodic cycles
+- 2D maps (Hénon): Attractors can be STRANGE (fractal curves)
+- Dimension 1 < D < 2 possible (impossible in 1D!)
+- Richer dynamics: homoclinic tangles, cantori, etc.
+
+**Dissipation Creates Attractors:**
+- Area contraction (det(J) = -b with |b| < 1) crucial
+- Without dissipation: no attractors (like Standard Map)
+- Dissipation "squeezes" phase space onto lower-dimensional set
+- Competition: folding (nonlinearity) vs contraction (dissipation)
+
+**Folding Mechanism:**
+The x² term creates quadratic folding:
+- Phase space is stretched along one direction
+- Then folded back on itself
+- Repeated stretching + folding → fractal structure
+- This is the "baker's transformation" in disguise
+
+**Connection to Continuous Systems:**
+Hénon map approximates Poincaré section of:
+- Lorenz system (chaotic convection)
+- Duffing oscillator (forced nonlinear pendulum)
+- Other 3D continuous flows with strange attractors
+
+Discrete map captures essential features while being:
+- Easier to compute (no integration)
+- Easier to analyze (algebraic not differential)
+- Still exhibiting all chaos phenomena
+
+**Universality:**
+The period-doubling cascade in Hénon map obeys same scaling laws
+(Feigenbaum constants) as logistic map, forced pendulum, and
+countless other systems. This is UNIVERSAL - a profound discovery
+showing chaos theory has quantitative predictions!
+
+**Fractal Basin Boundaries:**
+When multiple attractors coexist, basin boundaries can be fractal:
+- Impossibly complicated boundary structure
+- Arbitrarily close ICs can lead to different attractors
+- "Riddled basins" - attractor's basin has holes everywhere
+- Final-state uncertainty for practical systems
+
+## Common Pitfalls: {.doc-section .doc-section-common-pitfalls}
+
+1. **Not discarding transient:**
+   First hundreds of iterations may not show attractor
+   Always skip initial points before plotting
+
+2. **Wrong parameter values:**
+   Using a > 1.5 or b > 1 can cause escape to infinity
+   Canonical values (a=1.4, b=0.3) are well-behaved
+
+3. **Insufficient points:**
+   Need thousands of points to see attractor structure
+   Fractal detail requires high point density
+
+4. **Confusing with Hamiltonian systems:**
+   Hénon map is DISSIPATIVE (area-contracting)
+   Has attractors (unlike Standard Map)
+   Lyapunov exponents sum to negative value
+
+5. **Expecting simple fixed points:**
+   For typical parameters, no real fixed points exist
+   All dynamics are transient or on attractor
+   Cannot linearize around equilibrium (none exists!)
+
+6. **Ignoring basin of attraction:**
+   Not all ICs converge to same attractor
+   Some ICs escape to infinity
+   Basin can have complex structure
+
+## Extensions and Variations: {.doc-section .doc-section-extensions-and-variations}
+
+1. **Generalized Hénon map:**
+   x[n+1] = c - a·x[n]^p + y[n]
+   y[n+1] = b·x[n]
+   Different exponents p change dynamics
+
+2. **Lozi map:**
+   x[n+1] = 1 - a·|x[n]| + y[n]
+   y[n+1] = b·x[n]
+   Piecewise-linear version (easier analysis)
+
+3. **Coupled Hénon maps:**
+   Network of interacting Hénon maps
+   Models spatiotemporal chaos
+
+4. **3D Hénon map:**
+   Extension to three dimensions
+   Hyperchaos (multiple positive Lyapunov exponents)
+
+5. **Delayed Hénon map:**
+   Include time delays in coupling
+   Richer bifurcation structure
+
+6. **Noisy Hénon map:**
+   Add stochastic perturbations
+   Studies chaos-noise interaction
+
+## See Also: {.doc-section .doc-section-see-also}
+
+LogisticMap : 1D chaotic map
+StandardMap : 2D conservative (Hamiltonian) chaos
+Lorenz : Continuous 3D chaos (Hénon as Poincaré section)
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [a](#cdesym.systems.builtin.deterministic.discrete.HenonMap.a) | Nonlinearity parameter. |
+| [area_contraction_rate](#cdesym.systems.builtin.deterministic.discrete.HenonMap.area_contraction_rate) | Phase space area contraction rate (\|det(J)\| = \|b\|). |
+| [b](#cdesym.systems.builtin.deterministic.discrete.HenonMap.b) | Dissipation parameter. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [classify_regime](#cdesym.systems.builtin.deterministic.discrete.HenonMap.classify_regime) | Classify dynamical regime based on parameters. |
+| [compute_basin_of_attraction](#cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_basin_of_attraction) | Compute basin of attraction. |
+| [compute_jacobian](#cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_jacobian) | Compute Jacobian matrix at state x. |
+| [compute_lyapunov_exponents](#cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_lyapunov_exponents) | Compute both Lyapunov exponents using QR decomposition method. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.HenonMap.define_system) | Define Hénon map dynamics. |
+| [estimate_correlation_dimension](#cdesym.systems.builtin.deterministic.discrete.HenonMap.estimate_correlation_dimension) | Estimate correlation dimension using Grassberger-Procaccia algorithm. |
+| [generate_bifurcation_diagram](#cdesym.systems.builtin.deterministic.discrete.HenonMap.generate_bifurcation_diagram) | Generate bifurcation diagram by varying a parameter. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.HenonMap.setup_equilibria) | Set up fixed points if they exist. |
+
+### classify_regime { #cdesym.systems.builtin.deterministic.discrete.HenonMap.classify_regime }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.classify_regime()
+```
+
+Classify dynamical regime based on parameters.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | str    | Regime description |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = HenonMap(a=1.4, b=0.3)
+>>> print(system.classify_regime())
+'strange_attractor'
+```
+
+### compute_basin_of_attraction { #cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_basin_of_attraction }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.compute_basin_of_attraction(
+    x_range=(-2, 2),
+    y_range=(-2, 2),
+    resolution=400,
+    max_iterations=100,
+    escape_radius=1000.0,
+)
+```
+
+Compute basin of attraction.
+
+Grids initial conditions and determines which converge to attractor
+vs escape to infinity.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type   | Description                                    | Default   |
+|----------------|--------|------------------------------------------------|-----------|
+| x_range        | tuple  | Range of x initial conditions                  | `(-2, 2)` |
+| y_range        | tuple  | Range of y initial conditions                  | `(-2, 2)` |
+| resolution     | int    | Grid resolution (points per dimension)         | `400`     |
+| max_iterations | int    | Iterations before declaring convergence/escape | `100`     |
+| escape_radius  | float  | Radius beyond which orbit considered escaped   | `1000.0`  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                     |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary with: - 'x_grid': Meshgrid of x values - 'y_grid': Meshgrid of y values - 'converged': Boolean array (True=converged, False=escaped) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = HenonMap(a=1.4, b=0.3)
+>>> basin = system.compute_basin_of_attraction(resolution=300)
+>>>
+>>> import plotly.graph_objects as go
+>>> fig = go.Figure(data=go.Heatmap(
+...     z=basin['converged'].astype(int),
+...     x=basin['x_grid'][0, :],
+...     y=basin['y_grid'][:, 0],
+...     colorscale='RdBu'
+... ))
+>>> fig.show()
+```
+
+### compute_jacobian { #cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_jacobian }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.compute_jacobian(x)
+```
+
+Compute Jacobian matrix at state x.
+
+For Hénon map:
+    J = | -2ax    1 |
+        |   b     0 |
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description   | Default    |
+|--------|------------|---------------|------------|
+| x      | np.ndarray | State [x, y]  | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description           |
+|--------|------------|-----------------------|
+|        | np.ndarray | Jacobian matrix (2×2) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Determinant is constant: det(J) = -b (independent of state!)
+This gives constant area contraction rate.
+
+### compute_lyapunov_exponents { #cdesym.systems.builtin.deterministic.discrete.HenonMap.compute_lyapunov_exponents }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.compute_lyapunov_exponents(
+    x0,
+    n_iterations=50000,
+    n_transient=1000,
+)
+```
+
+Compute both Lyapunov exponents using QR decomposition method.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type       | Description                             | Default    |
+|--------------|------------|-----------------------------------------|------------|
+| x0           | np.ndarray | Initial state [x₀, y₀]                  | _required_ |
+| n_iterations | int        | Number of iterations for averaging      | `50000`    |
+| n_transient  | int        | Number of initial iterations to discard | `1000`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                                                                                           |
+|--------|------------|-------------------------------------------------------------------------------------------------------|
+|        | np.ndarray | Array of two Lyapunov exponents [λ₁, λ₂] λ₁: Largest (expansion rate) λ₂: Smallest (contraction rate) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For dissipative systems: λ₁ + λ₂ = ln|det(J)| = ln|b|
+
+For canonical Hénon (a=1.4, b=0.3):
+    λ₁ ≈ 0.42 (positive → chaos)
+    λ₂ ≈ -1.62 (negative → dissipation)
+    λ₁ + λ₂ ≈ -1.20 ≈ ln(0.3)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = HenonMap(a=1.4, b=0.3)
+>>> lyap = system.compute_lyapunov_exponents(
+...     x0=np.array([0.1, 0.1]),
+...     n_iterations=100000
+... )
+>>> print(f"λ₁ = {lyap[0]:.4f}, λ₂ = {lyap[1]:.4f}")
+>>> print(f"Sum = {sum(lyap):.4f} (should be ln|b| = {np.log(abs(system.b)):.4f})")
+```
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.HenonMap.define_system }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.define_system(
+    a=1.4,
+    b=0.3,
+    dt=1.0,
+    use_controlled_version=False,
+)
+```
+
+Define Hénon map dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                   | Type   | Description                                       | Default   |
+|------------------------|--------|---------------------------------------------------|-----------|
+| a                      | float  | Nonlinearity parameter (controls folding)         | `1.4`     |
+| b                      | float  | Dissipation parameter (controls area contraction) | `0.3`     |
+| dt                     | float  | Time step between iterations (usually 1.0)        | `1.0`     |
+| use_controlled_version | bool   | If True, adds control input u[n] to x dynamics    | `False`   |
+
+### estimate_correlation_dimension { #cdesym.systems.builtin.deterministic.discrete.HenonMap.estimate_correlation_dimension }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.estimate_correlation_dimension(
+    x0,
+    n_points=5000,
+    n_transient=1000,
+    r_min=0.001,
+    r_max=1.0,
+    n_radii=50,
+)
+```
+
+Estimate correlation dimension using Grassberger-Procaccia algorithm.
+
+The correlation dimension d_c characterizes the fractal structure
+of the attractor.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type       | Description                          | Default    |
+|-------------|------------|--------------------------------------|------------|
+| x0          | np.ndarray | Initial state                        | _required_ |
+| n_points    | int        | Number of points on attractor to use | `5000`     |
+| n_transient | int        | Points to discard as transient       | `1000`     |
+| r_min       | float      | Minimum radius for correlation sum   | `0.001`    |
+| r_max       | float      | Maximum radius                       | `1.0`      |
+| n_radii     | int        | Number of radii to test              | `50`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                     |
+|--------|--------|---------------------------------|
+|        | float  | Estimated correlation dimension |
+
+#### Notes {.doc-section .doc-section-notes}
+
+For canonical Hénon attractor: d_c ≈ 1.25
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = HenonMap(a=1.4, b=0.3)
+>>> d_c = system.estimate_correlation_dimension(
+...     x0=np.array([0.1, 0.1]),
+...     n_points=10000
+... )
+>>> print(f"Correlation dimension: {d_c:.3f}")
+```
+
+### generate_bifurcation_diagram { #cdesym.systems.builtin.deterministic.discrete.HenonMap.generate_bifurcation_diagram }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.generate_bifurcation_diagram(
+    parameter='a',
+    param_range=(0.8, 1.5),
+    n_points=500,
+    n_transient=500,
+    n_samples=200,
+    x0=None,
+)
+```
+
+Generate bifurcation diagram by varying a parameter.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                   | Description                               | Default      |
+|-------------|------------------------|-------------------------------------------|--------------|
+| parameter   | str                    | Parameter to vary ('a' or 'b')            | `'a'`        |
+| param_range | tuple                  | Range of parameter values (min, max)      | `(0.8, 1.5)` |
+| n_points    | int                    | Number of parameter values to test        | `500`        |
+| n_transient | int                    | Iterations to discard (transient)         | `500`        |
+| n_samples   | int                    | Points to sample after transient          | `200`        |
+| x0          | Optional\[np.ndarray\] | Initial condition (None = use [0.1, 0.1]) | `None`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                   |
+|--------|--------|---------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary with: - 'param': Parameter values - 'x': x-coordinate values - 'y': y-coordinate values (optional) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = HenonMap()
+>>> bifurc_data = system.generate_bifurcation_diagram(
+...     parameter='a',
+...     param_range=(0.8, 1.5),
+...     n_points=1000
+... )
+>>>
+>>> import plotly.graph_objects as go
+>>> fig = go.Figure()
+>>> fig.add_trace(go.Scatter(
+...     x=bifurc_data['param'],
+...     y=bifurc_data['x'],
+...     mode='markers',
+...     marker=dict(size=0.3, color='black')
+... ))
+>>> fig.update_layout(title='Hénon Bifurcation Diagram')
+>>> fig.show()
+```
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.HenonMap.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.HenonMap.setup_equilibria()
+```
+
+Set up fixed points if they exist.
+
+Fixed points satisfy:
+    x* = 1 - a·x*² + y*
+    y* = b·x*
+
+Substituting: a·x*² - (b-1)·x* + 1 = 0
+
+Real solutions exist only if (b-1)² ≥ 4a.

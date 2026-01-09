@@ -1,0 +1,790 @@
+# systems.base.core.ContinuousSystemBase { #cdesym.systems.base.core.ContinuousSystemBase }
+
+```python
+systems.base.core.ContinuousSystemBase()
+```
+
+Abstract base class for all continuous-time dynamical systems.
+
+This class defines the fundamental interface that all continuous-time systems
+must implement. All continuous-time systems satisfy:
+    dx/dt = f(x, u, t)
+
+Subclasses must implement:
+1. __call__(x, u, t): Evaluate dynamics at a point
+2. integrate(x0, u, t_span): Low-level numerical integration with solver diagnostics
+3. linearize(x_eq, u_eq): Compute linearization
+
+Additional concrete methods provided:
+- simulate(): High-level simulation with regular time grid (wraps integrate())
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> class MyODESystem(ContinuousSystemBase):
+...     def __call__(self, x, u=None, t=0.0):
+...         return -x + (u if u is not None else 0.0)
+...
+...     def integrate(self, x0, u, t_span, method="RK45", **kwargs):
+...         # Use scipy.integrate.solve_ivp or similar
+...         result = solve_ivp(...)
+...         return {
+...             "t": result.t,
+...             "y": result.y,
+...             "success": result.success,
+...             "nfev": result.nfev,
+...             ...
+...         }
+...
+...     def linearize(self, x_eq, u_eq):
+...         A = -np.eye(self.nx)
+...         B = np.eye(self.nx, self.nu)
+...         return (A, B)
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [analysis](#cdesym.systems.base.core.ContinuousSystemBase.analysis) | Access system analysis utilities. |
+| [control](#cdesym.systems.base.core.ContinuousSystemBase.control) | Access control synthesis utilities. |
+| [control_plotter](#cdesym.systems.base.core.ContinuousSystemBase.control_plotter) | Access control system analysis plotting utilities. |
+| [is_continuous](#cdesym.systems.base.core.ContinuousSystemBase.is_continuous) | Return True (this is a continuous-time system). |
+| [is_discrete](#cdesym.systems.base.core.ContinuousSystemBase.is_discrete) | Return False (this is NOT a discrete-time system). |
+| [is_stochastic](#cdesym.systems.base.core.ContinuousSystemBase.is_stochastic) | Return True if system has stochastic dynamics. |
+| [is_time_varying](#cdesym.systems.base.core.ContinuousSystemBase.is_time_varying) | Return True if system dynamics depend explicitly on time. |
+| [phase_plotter](#cdesym.systems.base.core.ContinuousSystemBase.phase_plotter) | Access phase portrait plotting utilities. |
+| [plotter](#cdesym.systems.base.core.ContinuousSystemBase.plotter) | Access trajectory plotting utilities. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [integrate](#cdesym.systems.base.core.ContinuousSystemBase.integrate) | Low-level numerical integration with ODE solver diagnostics. |
+| [linearize](#cdesym.systems.base.core.ContinuousSystemBase.linearize) | Compute linearized dynamics around an equilibrium point. |
+| [plot](#cdesym.systems.base.core.ContinuousSystemBase.plot) | Plot integration result (convenience method). |
+| [rollout](#cdesym.systems.base.core.ContinuousSystemBase.rollout) | Rollout system trajectory with optional state-feedback policy. |
+| [simulate](#cdesym.systems.base.core.ContinuousSystemBase.simulate) | High-level simulation interface with regular time grid. |
+
+### integrate { #cdesym.systems.base.core.ContinuousSystemBase.integrate }
+
+```python
+systems.base.core.ContinuousSystemBase.integrate(
+    x0,
+    u=None,
+    t_span=(0.0, 10.0),
+    method='RK45',
+    **integrator_kwargs,
+)
+```
+
+Low-level numerical integration with ODE solver diagnostics.
+
+Numerically solve the initial value problem:
+    dx/dt = f(x, u, t)
+    x(t0) = x0
+
+**API Level**: This is a **low-level integration method** that exposes raw solver
+output including adaptive time points, convergence information, and performance
+metrics. For typical use cases, prefer `simulate()` which provides a cleaner
+interface with regular time grids and the intuitive (x, t) controller convention.
+
+**Control Input Handling**: This method accepts flexible control input formats
+and automatically converts them to the internal (t, x) → u function signature
+expected by numerical solvers. You can provide:
+- None for autonomous/zero control
+- Arrays for constant control
+- Functions with various signatures (see below)
+
+The conversion to solver convention is handled internally - you don't need to
+worry about the (t, x) vs (x, t) distinction at this level.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                | Type                                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Default       |
+|---------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| x0                  | StateVector                                                        | Initial state (nx,)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | _required_    |
+| u                   | Union\[ControlVector, Callable\[\[float\], ControlVector\], None\] | Control input in flexible formats:  - **None**: Zero control or autonomous system - **Array (nu,)**: Constant control u(t) = u_const for all t - **Callable u(t)**: Time-varying control, signature: t → u - **Callable u(t, x)**: State-feedback control (auto-detected) - **Callable u(x, t)**: State-feedback control (auto-detected)  The method will automatically detect the function signature and convert to the internal (t, x) → u convention used by solvers. For callables with two parameters, it attempts to detect the order by inspecting parameter names or testing with dummy values.  **Standard Convention**: Functions with two parameters should use (t, x) order to avoid ambiguity. If using (x, t) order, the wrapper will attempt detection but may fail on edge cases - prefer wrapping explicitly: | `None`        |
+| t_span              | tuple\[float, float\]                                              | Time interval (t_start, t_end)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `(0.0, 10.0)` |
+| method              | str                                                                | Integration method. Options:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `'RK45'`      |
+| **integrator_kwargs |                                                                    | Additional arguments passed to the ODE solver:  - **dt** : float (required for fixed-step methods) - **rtol** : float (relative tolerance, default: 1e-6) - **atol** : float (absolute tolerance, default: 1e-8) - **max_steps** : int (maximum steps, default: 10000) - **t_eval** : ArrayLike (specific times to return solution) - **dense_output** : bool (return interpolant, default: False) - **first_step** : float (initial step size guess) - **max_step** : float (maximum step size)                                                                                                                                                                                                                                                                                                                               | `{}`          |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+|--------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | IntegrationResult | TypedDict containing:  - **t**: Time points (T,) - adaptive, chosen by solver - **x** or **y**: State trajectory - scipy returns 'y' with shape (nx, T) - other backends return 'x' with shape (T, nx) - **success**: bool - whether integration succeeded - **message**: str - solver status message - **nfev**: int - number of function evaluations - **nsteps**: int - number of steps taken - **integration_time**: float - computation time (seconds) - **solver**: str - integrator name used - **njev**: int - number of Jacobian evaluations (if applicable) - **nlu**: int - number of LU decompositions (implicit methods) - **status**: int - termination status code |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Adaptive Time Points**: The time points in the result are chosen adaptively
+by the solver based on error control, NOT on a regular grid. This means:
+- Solver takes larger steps when dynamics are smooth
+- Solver takes smaller steps when dynamics change rapidly
+- Time points are NOT uniformly spaced
+
+For a regular time grid suitable for plotting or analysis, use `simulate()`
+instead, or provide `t_eval` parameter.
+
+**Backend Differences**:
+- **scipy**: Returns 'y' with shape (nx, T) - state-major
+- **torchdiffeq/diffrax**: Return 'x' with shape (T, nx) - time-major
+- This method handles both conventions automatically in `simulate()`
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Basic usage** - autonomous system:
+
+```python
+>>> x0 = np.array([1.0, 0.0])
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+>>> print(f"Success: {result['success']}")
+>>> print(f"Function evaluations: {result['nfev']}")
+>>>
+>>> # Handle both scipy and other backends
+>>> if 'y' in result:
+>>>     trajectory = result['y']  # scipy: (nx, T)
+>>>     plt.plot(result['t'], trajectory[0, :])
+>>> else:
+>>>     trajectory = result['x']  # others: (T, nx)
+>>>     plt.plot(result['t'], trajectory[:, 0])
+```
+
+**Constant control**:
+
+```python
+>>> u_const = np.array([0.5])
+>>> result = system.integrate(x0, u=u_const, t_span=(0, 10))
+```
+
+**Time-varying control** - single parameter function:
+
+```python
+>>> def u_func(t):
+...     return np.array([np.sin(t)])
+>>> result = system.integrate(x0, u=u_func, t_span=(0, 10))
+```
+
+**State feedback** - two parameter function (auto-detected):
+
+```python
+>>> def u_func(t, x):
+...     K = np.array([[1.0, 2.0]])
+...     return -K @ x
+>>> result = system.integrate(x0, u=u_func, t_span=(0, 10))
+```
+
+**Stiff system** with tight tolerances:
+
+```python
+>>> result = system.integrate(
+...     x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='Radau',
+...     rtol=1e-8,
+...     atol=1e-10
+... )
+>>> print(f"Stiff solver steps: {result['nsteps']}")
+```
+
+**High-accuracy Julia solver**:
+
+```python
+>>> result = system.integrate(
+...     x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='Vern9',  # Julia high-accuracy
+...     rtol=1e-12,
+...     atol=1e-14
+... )
+```
+
+**Regular time grid** for plotting:
+
+```python
+>>> t_eval = np.linspace(0, 10, 1001)  # 1001 points
+>>> result = system.integrate(
+...     x0,
+...     u=None,
+...     t_span=(0, 10),
+...     t_eval=t_eval
+... )
+>>> assert len(result['t']) == 1001
+```
+
+**Fixed-step integration** (RK4):
+
+```python
+>>> result = system.integrate(
+...     x0,
+...     u=None,
+...     t_span=(0, 10),
+...     method='rk4',
+...     dt=0.01  # Required for fixed-step
+... )
+```
+
+**Check solver performance**:
+
+```python
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+>>> if result['nfev'] > 10000:
+...     print("⚠ Warning: Many function evaluations!")
+...     print("Consider:")
+...     print("  - Using stiff solver (Radau, BDF)")
+...     print("  - Relaxing tolerances")
+...     print("  - Checking for stiffness")
+```
+
+**Dense output** (interpolation):
+
+```python
+>>> result = system.integrate(
+...     x0,
+...     u=None,
+...     t_span=(0, 10),
+...     dense_output=True
+... )
+>>> if 'sol' in result:
+...     # Evaluate at arbitrary times
+...     t_fine = np.linspace(0, 10, 10000)
+...     x_fine = result['sol'](t_fine)
+```
+
+**Comparing backends**:
+
+```python
+>>> # NumPy (scipy)
+>>> result_np = system.integrate(x0, u=None, t_span=(0, 10), method='RK45')
+>>>
+>>> # Julia (DiffEqPy)
+>>> result_jl = system.integrate(x0, u=None, t_span=(0, 10), method='Tsit5')
+>>>
+>>> # JAX (diffrax)
+>>> system.set_default_backend('jax')
+>>> result_jax = system.integrate(x0, u=None, t_span=(0, 10), method='tsit5')
+```
+
+**Error handling**:
+
+```python
+>>> try:
+...     result = system.integrate(
+...         x0,
+...         u=None,
+...         t_span=(0, 10),
+...         method='RK45',
+...         max_steps=100  # Very low limit
+...     )
+...     if not result['success']:
+...         print(f"Integration failed: {result['message']}")
+... except RuntimeError as e:
+...     print(f"Runtime error: {e}")
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+simulate : High-level simulation with regular time grid (recommended)
+IntegratorFactory : Create custom integrators with specific methods
+linearize : Compute linearized dynamics at equilibrium
+
+### linearize { #cdesym.systems.base.core.ContinuousSystemBase.linearize }
+
+```python
+systems.base.core.ContinuousSystemBase.linearize(x_eq, u_eq=None)
+```
+
+Compute linearized dynamics around an equilibrium point.
+
+For a continuous-time system dx/dt = f(x, u), compute the linearization:
+    d(δx)/dt = A·δx + B·δu
+
+where:
+    A = ∂f/∂x|(x_eq, u_eq)  (State Jacobian, nx × nx)
+    B = ∂f/∂u|(x_eq, u_eq)  (Control Jacobian, nx × nu)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description                                          | Default    |
+|--------|---------------------------|------------------------------------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)                              | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,) If None, uses zero control | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                | Description                                                                                                                     |
+|--------|---------------------|---------------------------------------------------------------------------------------------------------------------------------|
+|        | LinearizationResult | Tuple containing Jacobian matrices: - Deterministic systems: (A, B) - Stochastic systems: (A, B, G) where G is diffusion matrix |
+
+#### Notes {.doc-section .doc-section-notes}
+
+The linearization is valid for small deviations from the equilibrium:
+    δx = x - x_eq
+    δu = u - u_eq
+
+For symbolic systems, Jacobians are computed symbolically then evaluated.
+For data-driven systems, Jacobians may be computed via finite differences
+or automatic differentiation.
+
+The equilibrium point should satisfy f(x_eq, u_eq) ≈ 0 (within tolerance).
+
+#### Examples {.doc-section .doc-section-examples}
+
+Linearize at origin:
+
+```python
+>>> x_eq = np.zeros(2)
+>>> u_eq = np.zeros(1)
+>>> A, B = system.linearize(x_eq, u_eq)
+>>> print(f"A matrix:\n{A}")
+>>> print(f"B matrix:\n{B}")
+```
+
+Check stability (continuous-time):
+
+```python
+>>> eigenvalues = np.linalg.eigvals(A)
+>>> is_stable = np.all(np.real(eigenvalues) < 0)
+>>> print(f"System stable: {is_stable}")
+```
+
+Design LQR controller:
+
+```python
+>>> from scipy.linalg import solve_continuous_are
+>>> P = solve_continuous_are(A, B, Q, R)
+>>> K = np.linalg.inv(R) @ B.T @ P
+```
+
+### plot { #cdesym.systems.base.core.ContinuousSystemBase.plot }
+
+```python
+systems.base.core.ContinuousSystemBase.plot(result, state_names=None, **kwargs)
+```
+
+Plot integration result (convenience method).
+
+Wrapper around plotter.plot_trajectory() for quick visualization
+of continuous-time integration results.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type              | Description                                                                                                                                                                       | Default    |
+|-------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| result      | IntegrationResult | Integration result dictionary with 't' and 'x' keys from integrate() or simulate()                                                                                                | _required_ |
+| state_names | Optional\[list\]  | Names for state variables (e.g., ['Position', 'Velocity']) If None, uses generic labels ['x₁', 'x₂', ...]                                                                         | `None`     |
+| **kwargs    |                   | Additional arguments passed to plot_trajectory(): - title : str - Plot title - color_scheme : str - Color scheme name - show_legend : bool - Show legend for batched trajectories | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                      |
+|--------|-----------|----------------------------------|
+|        | go.Figure | Interactive Plotly figure object |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Simple usage
+>>> result = system.integrate(x0, u=None, t_span=(0, 10))
+>>> fig = system.plot(result)
+>>> fig.show()
+>>>
+>>> # With state names and custom title
+>>> fig = system.plot(
+...     result,
+...     state_names=['θ', 'ω'],
+...     title='Pendulum Dynamics'
+... )
+>>>
+>>> # Export to HTML
+>>> fig.write_html('simulation.html')
+>>>
+>>> # Apply publication theme
+>>> from controldesymulation.visualization.themes import PlotThemes
+>>> fig = system.plot(result)
+>>> fig = PlotThemes.apply_theme(fig, theme='publication')
+>>> fig.show()
+>>>
+>>> # Batched trajectories (Monte Carlo for stochastic systems)
+>>> results = []
+>>> for trial in range(10):
+...     results.append(system.integrate(x0, u=None, t_span=(0, 10)))
+>>> x_batch = np.stack([r['x'] for r in results])
+>>> result_batch = {'t': results[0]['t'], 'x': x_batch}
+>>> fig = system.plot(result_batch)  # Plots all 10 trajectories
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+plotter.plot_trajectory : Full trajectory plotting method
+plotter.plot_state_and_control : Plot states and controls together
+phase_plotter.plot_2d : Phase space visualization
+control_plotter : Control analysis plots
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is a convenience wrapper that:
+- Extracts time and state from result dictionary
+- Calls plotter.plot_trajectory() with appropriate arguments
+- Returns Plotly figure for further customization
+
+For more control over plotting, use plotter methods directly.
+
+### rollout { #cdesym.systems.base.core.ContinuousSystemBase.rollout }
+
+```python
+systems.base.core.ContinuousSystemBase.rollout(
+    x0,
+    policy=None,
+    t_span=(0.0, 10.0),
+    dt=0.01,
+    method='RK45',
+    **kwargs,
+)
+```
+
+Rollout system trajectory with optional state-feedback policy.
+
+This is an alias for simulate() that provides API consistency with discrete
+systems. The name "rollout" is commonly used in reinforcement learning and
+control theory for executing a policy over time.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                                                          | Description                                                                                                                                         | Default       |
+|----------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| x0       | StateVector                                                   | Initial state (nx,)                                                                                                                                 | _required_    |
+| policy   | Optional\[Callable\[\[StateVector, float\], ControlVector\]\] | State-feedback policy u = policy(x, t) **STANDARD CONVENTION**: State is primary argument, time is secondary If None, uses zero control (open-loop) | `None`        |
+| t_span   | tuple\[float, float\]                                         | Simulation time interval (t_start, t_end)                                                                                                           | `(0.0, 10.0)` |
+| dt       | float                                                         | Output time step for regular grid (default: 0.01)                                                                                                   | `0.01`        |
+| method   | str                                                           | Integration method passed to integrate()                                                                                                            | `'RK45'`      |
+| **kwargs |                                                               | Additional arguments passed to integrate()                                                                                                          | `{}`          |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                                                                                                                                                                                                                                                |
+|--------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | SimulationResult | TypedDict containing: - **time**: Time points array (T,) with uniform spacing dt - **states**: State trajectory (T, nx) - TIME-MAJOR ordering - **controls**: Control trajectory (T, nu) if policy provided - **metadata**: Additional information with 'closed_loop' flag |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**API Consistency**: This method provides the same interface as
+DiscreteSystemBase.rollout(), making it easier to work with both
+continuous and discrete systems using identical code patterns.
+
+The only difference from simulate() is:
+- Parameter name: "policy" instead of "controller" (same semantics)
+- Metadata includes 'closed_loop' flag for compatibility
+- Name emphasizes trajectory generation with state feedback
+
+**When to Use**:
+- Use rollout() when emphasizing policy execution (RL/control context)
+- Use simulate() for general-purpose simulation
+- Both methods are functionally equivalent for continuous systems
+
+#### Policy Signature {.doc-section .doc-section-policy-signature}
+
+Policies must have signature (x, t) -> u:
+- x: StateVector - current state (PRIMARY argument)
+- t: float - current time (secondary argument)
+- Returns: ControlVector - control input
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Open-loop rollout**:
+
+```python
+>>> result = system.rollout(x0, t_span=(0, 10), dt=0.01)
+>>> plt.plot(result["time"], result["states"][:, 0])
+```
+
+**State feedback policy** (LQR):
+
+```python
+>>> K = np.array([[-1.0, -2.0]])  # LQR gain
+>>> def policy(x, t):
+...     return -K @ x
+>>> result = system.rollout(x0, policy, t_span=(0, 10))
+```
+
+**Time-varying policy with reference**:
+
+```python
+>>> x_ref_func = lambda t: np.array([np.sin(t), np.cos(t)])
+>>> def policy(x, t):
+...     x_ref = x_ref_func(t)
+...     K = np.array([[1.0, 0.5]])
+...     return K @ (x_ref - x)
+>>> result = system.rollout(x0, policy, t_span=(0, 10))
+```
+
+**Nonlinear policy** (e.g., neural network):
+
+```python
+>>> def neural_policy(x, t):
+...     # Example: simple nonlinear policy
+...     hidden = np.tanh(W1 @ x + b1)
+...     u = W2 @ hidden + b2
+...     return u
+>>> result = system.rollout(x0, neural_policy, t_span=(0, 5))
+```
+
+**MPC-style receding horizon**:
+
+```python
+>>> def mpc_policy(x, t):
+...     # Solve optimization at each step
+...     u_opt = solve_mpc(x, horizon=10, Q=Q, R=R)
+...     return u_opt
+>>> result = system.rollout(x0, mpc_policy, t_span=(0, 10), dt=0.1)
+```
+
+**Comparing policies**:
+
+```python
+>>> policies = {
+...     "LQR": lqr_policy,
+...     "MPC": mpc_policy,
+...     "Neural": neural_policy
+... }
+>>>
+>>> results = {}
+>>> for name, policy in policies.items():
+...     results[name] = system.rollout(x0, policy, t_span=(0, 10))
+...
+>>> # Plot comparison
+>>> for name, result in results.items():
+...     plt.plot(result["time"], result["states"][:, 0], label=name)
+>>> plt.legend()
+```
+
+**Trajectory optimization context**:
+
+```python
+>>> # Generate initial trajectory
+>>> result = system.rollout(x0, initial_policy, t_span=(0, 5))
+>>>
+>>> # Extract trajectory for optimization
+>>> trajectory = result["states"]  # (T, nx)
+>>>
+>>> # Optimize policy
+>>> optimized_policy = optimize_policy(trajectory)
+>>>
+>>> # Re-rollout with optimized policy
+>>> final_result = system.rollout(x0, optimized_policy, t_span=(0, 5))
+```
+
+**Reinforcement learning context**:
+
+```python
+>>> # Collect rollout for policy gradient
+>>> def stochastic_policy(x, t):
+...     mu = policy_network(x)
+...     u = mu + np.random.randn(*mu.shape) * sigma
+...     return u
+>>>
+>>> rollouts = []
+>>> for episode in range(num_episodes):
+...     result = system.rollout(x0, stochastic_policy, t_span=(0, 10))
+...     reward = compute_reward(result["states"], result["controls"])
+...     rollouts.append((result, reward))
+```
+
+**Monte Carlo evaluation**:
+
+```python
+>>> # Evaluate policy robustness
+>>> results = []
+>>> for _ in range(100):
+...     x0_perturbed = x0 + np.random.randn(len(x0)) * 0.1
+...     result = system.rollout(x0_perturbed, policy, t_span=(0, 10))
+...     results.append(result)
+>>>
+>>> # Analyze performance distribution
+>>> final_errors = [np.linalg.norm(r["states"][-1, :]) for r in results]
+>>> print(f"Mean final error: {np.mean(final_errors):.3f}")
+>>> print(f"Std final error: {np.std(final_errors):.3f}")
+```
+
+**Using metadata closed_loop flag**:
+
+```python
+>>> result = system.rollout(x0, policy, t_span=(0, 10))
+>>> if result["metadata"]["closed_loop"]:
+...     print("Closed-loop rollout with state feedback")
+... else:
+...     print("Open-loop rollout")
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+simulate : Equivalent method with "controller" parameter name
+integrate : Low-level integration with solver diagnostics
+DiscreteSystemBase.rollout : Discrete-time analog
+
+### simulate { #cdesym.systems.base.core.ContinuousSystemBase.simulate }
+
+```python
+systems.base.core.ContinuousSystemBase.simulate(
+    x0,
+    controller=None,
+    t_span=(0.0, 10.0),
+    dt=0.01,
+    method='RK45',
+    **kwargs,
+)
+```
+
+High-level simulation interface with regular time grid.
+
+This method wraps integrate() and post-processes the result to provide
+a regular time grid and cleaner output. This is the recommended method
+for most use cases (currently, may be deprecated once DiscretizedSystem is
+developed).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                                          | Description                                                                                                                                                                                                     | Default       |
+|------------|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| x0         | StateVector                                                   | Initial state (nx,)                                                                                                                                                                                             | _required_    |
+| controller | Optional\[Callable\[\[StateVector, float\], ControlVector\]\] | Feedback controller u = controller(x, t) **STANDARD CONVENTION**: State is primary argument, time is secondary This aligns with discrete systems' policy(x, k) signature If None, uses zero control (open-loop) | `None`        |
+| t_span     | tuple\[float, float\]                                         | Simulation time interval (t_start, t_end)                                                                                                                                                                       | `(0.0, 10.0)` |
+| dt         | float                                                         | Output time step for regular grid (default: 0.01)                                                                                                                                                               | `0.01`        |
+| method     | str                                                           | Integration method passed to integrate()                                                                                                                                                                        | `'RK45'`      |
+| **kwargs   |                                                               | Additional arguments passed to integrate()                                                                                                                                                                      | `{}`          |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                                                                                                                                                                                                                                                            |
+|--------|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | SimulationResult | TypedDict containing: - **time**: Time points array (T,) with uniform spacing dt - **states**: State trajectory (T, nx) - **TIME-MAJOR ordering** - **controls**: Control trajectory (T, nu) if controller provided - **metadata**: Additional information (method, dt, success, nfev) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Time-Major Convention**: This method returns states in (T, nx) shape,
+which is the modern standard for time series data:
+- Compatible with pandas DataFrames
+- Natural for time-series analysis
+- Consistent with ML/data science conventions
+- Matches discrete systems' output format
+
+
+Unlike integrate(), this method:
+- Returns states on a regular time grid (not adaptive)
+- Supports state-feedback controllers
+- Hides solver diagnostics (cleaner output)
+- Is easier to use for plotting and analysis
+
+#### Controller Signature {.doc-section .doc-section-controller-signature}
+
+Controllers must have signature (x, t) -> u:
+- x: StateVector - current state (PRIMARY argument)
+- t: float - current time (secondary argument)
+- Returns: ControlVector - control input
+
+This matches the discrete systems' policy(x, k) convention where state
+is the primary argument. An internal adapter converts to scipy's (t, x)
+convention when calling integrate().
+
+#### Examples {.doc-section .doc-section-examples}
+
+**Open-loop simulation**:
+
+```python
+>>> result = system.simulate(x0, t_span=(0, 5), dt=0.01)
+>>> # Time-major indexing
+>>> plt.plot(result["time"], result["states"][:, 0])  # First state
+>>> plt.plot(result["time"], result["states"][:, 1])  # Second state
+>>> plt.xlabel("Time (s)")
+>>> plt.ylabel("State")
+```
+
+**Using with pandas** (natural with time-major):
+
+```python
+>>> import pandas as pd
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+>>> df = pd.DataFrame(
+...     result["states"],
+...     index=result["time"],
+...     columns=[f"x{i}" for i in range(system.nx)]
+... )
+>>> df.plot()
+```
+
+**Closed-loop with state feedback**:
+
+```python
+>>> K = np.array([[-1.0, -2.0]])  # LQR gain
+>>> def controller(x, t):
+...     return -K @ x
+>>> result = system.simulate(x0, controller, t_span=(0, 5))
+>>>
+>>> # Extract trajectory
+>>> t = result["time"]
+>>> x = result["states"]  # (T, nx)
+>>> u = result["controls"]  # (T, nu)
+```
+
+**Time-varying reference tracking**:
+
+```python
+>>> def controller(x, t):
+...     x_ref = np.array([np.sin(t), np.cos(t)])
+...     K = np.array([[1.0, 0.5]])
+...     return K @ (x_ref - x)
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+```
+
+**Adaptive gain controller**:
+
+```python
+>>> def controller(x, t):
+...     K = 1.0 + 0.1 * t  # Gain increases with time
+...     return np.array([-K * x[0]])
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+```
+
+**Saturated control**:
+
+```python
+>>> def controller(x, t):
+...     u_raw = -2.0 * x[0] - 0.5 * x[1]
+...     return np.array([np.clip(u_raw, -1.0, 1.0)])
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+```
+
+**Time-only control** (uncommon, but supported):
+
+```python
+>>> def controller(x, t):
+...     return np.array([np.sin(2 * np.pi * t)])
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+```
+
+**Batch plotting multiple states**:
+
+```python
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+>>> fig, axes = plt.subplots(system.nx, 1, sharex=True)
+>>> for i, ax in enumerate(axes):
+...     ax.plot(result["time"], result["states"][:, i])
+...     ax.set_ylabel(f"$x_{i}$")
+>>> axes[-1].set_xlabel("Time (s)")
+```
+
+**Phase portrait** (using time-major indexing):
+
+```python
+>>> result = system.simulate(x0, controller, t_span=(0, 10))
+>>> plt.plot(result["states"][:, 0], result["states"][:, 1])
+>>> plt.xlabel("$x_0$")
+>>> plt.ylabel("$x_1$")
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+integrate : Low-level integration with solver diagnostics
+rollout : Alternative name for simulation

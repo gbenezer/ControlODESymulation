@@ -1,0 +1,35 @@
+# types.core.ControlPolicy { #cdesym.types.core.ControlPolicy }
+
+`types.core.ControlPolicy`
+
+Control policy/controller π(x).
+
+Maps state to control action: u = π(x).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type        | Description         | Default    |
+|--------|-------------|---------------------|------------|
+| x      | StateVector | Current state (nx,) | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type          | Description          |
+|--------|---------------|----------------------|
+|        | ControlVector | Control action (nu,) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # LQR policy
+>>> def lqr_policy(x: StateVector) -> ControlVector:
+...     return -K @ x
+>>> 
+>>> # Nonlinear policy
+>>> def nonlinear_policy(x: StateVector) -> ControlVector:
+...     return -np.tanh(K @ x)
+>>> 
+>>> # Neural network policy
+>>> def nn_policy(x: StateVector) -> ControlVector:
+...     return model.forward(torch.tensor(x)).numpy()
+```

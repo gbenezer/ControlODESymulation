@@ -1,0 +1,166 @@
+# observers.ExtendedKalmanFilter { #cdesym.observers.ExtendedKalmanFilter }
+
+```python
+observers.ExtendedKalmanFilter(system, Q_process, R_measurement)
+```
+
+Extended Kalman Filter (EKF) for nonlinear state estimation.
+
+The EKF estimates the state of a nonlinear system by:
+1. Propagating state through NONLINEAR dynamics
+2. Re-linearizing at the current estimate each time step
+3. Using the linearization to propagate uncertainty
+4. Updating based on measurements
+
+## Theory: {.doc-section .doc-section-theory}
+
+**Predict Step**:
+    x̂[k|k-1] = f(x̂[k-1|k-1], u[k-1])               [Nonlinear dynamics]
+    A[k] = ∂f/∂x |_{x̂[k-1|k-1], u[k-1]}            [Linearization at current estimate]
+    P[k|k-1] = A[k] P[k-1|k-1] A[k]^T + Q          [Covariance propagation]
+
+**Update Step**:
+    ŷ[k|k-1] = h(x̂[k|k-1])                         [Nonlinear observation]
+    C[k] = ∂h/∂x |_{x̂[k|k-1]}                      [Observation Jacobian]
+    S[k] = C[k] P[k|k-1] C[k]^T + R                [Innovation covariance]
+    K[k] = P[k|k-1] C[k]^T S[k]^{-1}               [Kalman gain - varies with time!]
+    x̂[k|k] = x̂[k|k-1] + K[k](y[k] - ŷ[k|k-1])      [State update]
+    P[k|k] = (I - K[k]C[k]) P[k|k-1]               [Covariance update]
+
+Attributes:
+    system: SymbolicDynamicalSystem or GenericDiscreteTimeSystem
+    Q: Process noise covariance (nx, nx)
+    R: Measurement noise covariance (ny, ny)
+    x_hat: Current state estimate (nx,)
+    P: Current covariance estimate (nx, nx)
+    is_discrete: Whether system is discrete or continuous
+
+Example:
+    >>> # Create EKF for pendulum
+    >>> pendulum = SymbolicPendulum(m=0.15, l=0.5, beta=0.1, g=9.81)
+    >>> Q_process = np.diag([0.001, 0.01])
+    >>> R_measurement = np.array([[0.1]])
+    >>>
+    >>> ekf = ExtendedKalmanFilter(pendulum, Q_process, R_measurement)
+    >>>
+    >>> # Initialize at origin
+    >>> ekf.reset(x0=torch.tensor([0.1, 0.0]))
+    >>>
+    >>> # Estimation loop
+    >>> for t in range(num_steps):
+    >>>     # Predict
+    >>>     ekf.predict(u[t], dt=0.01)
+    >>>
+    >>>     # Get noisy measurement
+    >>>     y_measured = measure_angle(x_true[t]) + np.random.randn() * 0.1
+    >>>
+    >>>     # Update
+    >>>     ekf.update(torch.tensor([y_measured]))
+    >>>
+    >>>     # Get estimate
+    >>>     x_estimate = ekf.x_hat
+    >>>     uncertainty = ekf.P
+    >>>
+    >>> # EKF can track large swings
+    >>> # Unlike constant-gain observer which is only valid near equilibrium
+
+Notes:
+    - Process noise Q represents model uncertainty and disturbances
+    - Measurement noise R represents sensor characteristics
+    - Larger Q → trust measurements more (higher gain)
+    - Larger R → trust model more (lower gain)
+    - Covariance P tracks estimate uncertainty
+    - Can be used with nonlinear controllers (MPC, feedback linearization)
+
+See Also:
+    kalman_gain: Constant-gain observer for linear systems
+    LinearObserver: Linear observer with constant gain
+    discrete_kalman_gain: Discrete-time constant-gain design
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [predict](#cdesym.observers.ExtendedKalmanFilter.predict) | EKF prediction step: propagate state estimate and covariance. |
+| [reset](#cdesym.observers.ExtendedKalmanFilter.reset) | Reset filter to initial state and covariance. |
+| [update](#cdesym.observers.ExtendedKalmanFilter.update) | EKF update step: correct estimate using measurement. |
+
+### predict { #cdesym.observers.ExtendedKalmanFilter.predict }
+
+```python
+observers.ExtendedKalmanFilter.predict(u, dt=None)
+```
+
+EKF prediction step: propagate state estimate and covariance.
+
+Args:
+    u: Control input (nu,)
+    dt: Time step (required for continuous-time systems, ignored for discrete)
+
+Example:
+    >>> ekf.predict(u=torch.tensor([1.0]), dt=0.01)
+    >>> print(f"Predicted state: {ekf.x_hat}")
+    >>> print(f"Predicted covariance: {ekf.P}")
+
+Notes:
+    - Must call predict() before update() in each cycle
+    - For discrete systems, dt is ignored
+    - For continuous systems, uses Euler integration
+    - Covariance grows during prediction (adds Q)
+
+### reset { #cdesym.observers.ExtendedKalmanFilter.reset }
+
+```python
+observers.ExtendedKalmanFilter.reset(x0=None, P0=None)
+```
+
+Reset filter to initial state and covariance.
+
+Useful for:
+- Starting a new estimation sequence
+- Recovering from filter divergence
+- Testing different initial conditions
+
+Args:
+    x0: Initial state estimate (nx,). Uses equilibrium if None.
+    P0: Initial covariance (nx, nx). Uses 0.1*I if None.
+
+Example:
+    >>> # Reset to known initial condition
+    >>> ekf.reset(x0=torch.tensor([0.1, 0.0]),
+    ...           P0=torch.eye(2) * 0.01)  # Low initial uncertainty
+    >>>
+    >>> # Reset to equilibrium with high uncertainty
+    >>> ekf.reset()  # Uses default x_equilibrium and 0.1*I
+
+Notes:
+    - Called automatically in __init__()
+    - P0 represents initial uncertainty about x0
+    - Larger P0 → less confident in initial estimate
+    - After reset, start with predict() then update()
+
+### update { #cdesym.observers.ExtendedKalmanFilter.update }
+
+```python
+observers.ExtendedKalmanFilter.update(y_measurement)
+```
+
+EKF update step: correct estimate using measurement.
+
+Args:
+    y_measurement: Measurement vector (ny,). Should match the
+                  output dimension of h(x).
+
+Example:
+    >>> # After prediction
+    >>> y_measured = torch.tensor([0.15, 2.1, 0.05])  # Noisy measurement
+    >>> ekf.update(y_measured)
+    >>> print(f"Updated state: {ekf.x_hat}")
+    >>> print(f"Updated covariance: {ekf.P}")
+    >>> print(f"Uncertainty reduced: {np.trace(ekf.P)}")
+
+Notes:
+    - Covariance shrinks during update (information gained)
+    - Large innovation → either bad estimate or bad measurement
+    - Gain K[k] adapts based on current uncertainty P
+    - Must call predict() before update()

@@ -1,0 +1,70 @@
+# types.estimation.EKFResult { #cdesym.types.estimation.EKFResult }
+
+```python
+types.estimation.EKFResult()
+```
+
+Extended Kalman Filter (EKF) state and result.
+
+EKF extends the Kalman filter to nonlinear systems by linearizing
+the dynamics and measurement functions at each time step via Jacobians.
+
+## Fields {.doc-section .doc-section-fields}
+
+state_estimate : StateVector
+    Current state estimate x̂[k] (nx,)
+covariance : CovarianceMatrix
+    Current error covariance P[k] (nx, nx)
+innovation : OutputVector
+    Measurement innovation y[k] - h(x̂⁻[k]) (ny,)
+innovation_covariance : CovarianceMatrix
+    Innovation covariance S[k] = H P⁻ H' + R (ny, ny)
+kalman_gain : GainMatrix
+    Kalman gain K[k] = P⁻ H' S⁻¹ (nx, ny)
+likelihood : float
+    Log-likelihood of measurement log p(y[k]|y[1:k-1])
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Nonlinear pendulum system
+>>> def dynamics(x, u):
+...     theta, omega = x
+...     return np.array([omega, -np.sin(theta) + u[0]])
+>>>
+>>> def measurement(x):
+...     return np.array([x[0]])  # Measure angle only
+>>>
+>>> # Create EKF
+>>> ekf = ExtendedKalmanFilter(
+...     dynamics_fn=dynamics,
+...     measurement_fn=measurement,
+...     Q=0.01 * np.eye(2),
+...     R=0.1 * np.eye(1)
+... )
+>>>
+>>> # Initialize
+>>> ekf.initialize(x0=np.array([0.1, 0.0]), P0=np.eye(2))
+>>>
+>>> # Update loop
+>>> for k in range(N):
+...     # Predict
+...     ekf.predict(u[k])
+...
+...     # Update with measurement
+...     result: EKFResult = ekf.update(y[k])
+...
+...     # Extract estimate
+...     x_hat = result['state_estimate']
+...     P = result['covariance']
+...
+...     # Check innovation
+...     innovation = result['innovation']
+...     if np.linalg.norm(innovation) > 3.0:
+...         print(f"Large innovation at k={k}")
+>>>
+>>> # Examine likelihood for outlier detection
+>>> log_likelihood = result['likelihood']
+>>> if log_likelihood < -10:
+...     print("Possible outlier measurement")
+```

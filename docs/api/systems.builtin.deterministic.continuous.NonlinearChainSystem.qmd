@@ -1,0 +1,91 @@
+# systems.builtin.deterministic.continuous.NonlinearChainSystem { #cdesym.systems.builtin.deterministic.continuous.NonlinearChainSystem }
+
+```python
+systems.builtin.deterministic.continuous.NonlinearChainSystem(*args, **kwargs)
+```
+
+Chain of five coupled nonlinear oscillators - first-order formulation.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A one-dimensional chain of five oscillators where each element influences
+its neighbors through nonlinear coupling.
+
+Each oscillator has:
+- Linear restoring force (spring-like: -kx)
+- Linear damping (viscous: -cx)
+- Nonlinear coupling to neighbors via sin(x_j - x_i)
+- Only the first oscillator receives external control
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [x₁, x₂, x₃, x₄, x₅]
+    - x₁: State of oscillator 1 [rad or m]
+    - x₂: State of oscillator 2 [rad or m]
+    - x₃: State of oscillator 3 [rad or m]
+    - x₄: State of oscillator 4 [rad or m]
+    - x₅: State of oscillator 5 [rad or m]
+
+Control: u = [u]
+    - u: External force/torque applied only to first oscillator
+    - Influence propagates to other oscillators through coupling
+
+Output: y = [x₁, x₃, x₅]
+    - Sparse observation: only odd-numbered oscillators measured
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The equations of motion form a nearest-neighbor coupling structure:
+
+Oscillator 1 (left boundary, receives control):
+    dx₁/dt = -k·x₁ - c·x₁ + α·sin(x₂ - x₁) + u
+
+Oscillator 2 (interior, coupled to neighbors):
+    dx₂/dt = -k·x₂ - c·x₂ + α·sin(x₁ - x₂) + α·sin(x₃ - x₂)
+
+Oscillator 3 (interior, coupled to neighbors):
+    dx₃/dt = -k·x₃ - c·x₃ + α·sin(x₂ - x₃) + α·sin(x₄ - x₃)
+
+Oscillator 4 (interior, coupled to neighbors):
+    dx₄/dt = -k·x₄ - c·x₄ + α·sin(x₃ - x₄) + α·sin(x₅ - x₄)
+
+Oscillator 5 (right boundary, no control):
+    dx₅/dt = -k·x₅ - c·x₅ + α·sin(x₄ - x₅)
+
+Physical interpretation:
+- Linear terms (-kx, -cx): individual oscillator wants to return to zero
+- Nonlinear coupling α·sin(x_j - x_i): synchronization force
+  * When x_j > x_i: positive force on i (speeds it up)
+  * When x_j < x_i: negative force on i (slows it down)
+  * Maximum coupling at π/2 phase difference
+- Control u propagates through chain via coupling
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+k : float, default=1.0
+    Linear stiffness/restoring coefficient [1/s]. Higher k → stronger
+    individual oscillator dynamics, weaker relative coupling influence.
+c : float, default=0.1
+    Damping coefficient [1/s]. Higher c → faster energy dissipation.
+    Damps out transients and oscillations.
+alpha : float, default=0.1
+    Nonlinear coupling strength. Controls interaction between neighbors:
+    - α = 0: Uncoupled oscillators
+    - Small α: Weak coupling, local behavior dominates
+    - Large α: Strong coupling, collective behavior emerges
+    - α > k+c: Coupling-dominated dynamics, synchronization possible
+
+## Equilibrium: {.doc-section .doc-section-equilibrium}
+
+Synchronous equilibrium (all at origin):
+    x_eq = [0, 0, 0, 0, 0]  (all oscillators aligned at zero)
+    u_eq = 0  (no external force)
+
+This equilibrium is stable due to damping. Other synchronized states
+(all x_i equal) are also equilibria for u=0.
+
+## See Also: {.doc-section .doc-section-see-also}
+
+CoupledOscillatorSystem : Smaller coupled system with different structure
+VanDerPolOscillator : Single nonlinear oscillator with limit cycle
+Lorenz : Another system with complex nonlinear dynamics

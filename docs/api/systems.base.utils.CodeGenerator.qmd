@@ -1,0 +1,266 @@
+# systems.base.utils.CodeGenerator { #cdesym.systems.base.utils.CodeGenerator }
+
+```python
+systems.base.utils.CodeGenerator(system)
+```
+
+Orchestrates code generation and caching for a dynamical system.
+
+Manages generation of numerical functions from symbolic expressions,
+with per-backend caching to avoid redundant compilation.
+
+Example:
+    >>> code_gen = CodeGenerator(system)
+    >>>
+    >>> # Generate dynamics function (with caching)
+    >>> f_numpy = code_gen.generate_dynamics('numpy')
+    >>> f_numpy_again = code_gen.generate_dynamics('numpy')  # Returns cached
+    >>> assert f_numpy is f_numpy_again
+    >>>
+    >>> # Compile all backends
+    >>> timings = code_gen.compile_all(backends=['numpy', 'torch', 'jax'])
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compile_all](#cdesym.systems.base.utils.CodeGenerator.compile_all) | Pre-compile functions for multiple backends. |
+| [generate_dynamics](#cdesym.systems.base.utils.CodeGenerator.generate_dynamics) | Generate f(x, u) function for specified backend. |
+| [generate_dynamics_jacobians](#cdesym.systems.base.utils.CodeGenerator.generate_dynamics_jacobians) | Generate A and B Jacobian functions. |
+| [generate_observation_jacobian](#cdesym.systems.base.utils.CodeGenerator.generate_observation_jacobian) | Generate C Jacobian function (∂h/∂x). |
+| [generate_output](#cdesym.systems.base.utils.CodeGenerator.generate_output) | Generate h(x) function for specified backend. |
+| [get_dynamics](#cdesym.systems.base.utils.CodeGenerator.get_dynamics) | Get cached dynamics function without generating. |
+| [get_info](#cdesym.systems.base.utils.CodeGenerator.get_info) | Get comprehensive information about code generation status. |
+| [get_jacobians](#cdesym.systems.base.utils.CodeGenerator.get_jacobians) | Get cached Jacobian functions without generating. |
+| [get_output](#cdesym.systems.base.utils.CodeGenerator.get_output) | Get cached output function without generating. |
+| [is_compiled](#cdesym.systems.base.utils.CodeGenerator.is_compiled) | Check which functions are compiled for a backend. |
+| [reset_cache](#cdesym.systems.base.utils.CodeGenerator.reset_cache) | Clear cached functions for specified backends. |
+
+### compile_all { #cdesym.systems.base.utils.CodeGenerator.compile_all }
+
+```python
+systems.base.utils.CodeGenerator.compile_all(
+    backends=None,
+    include_jacobians=False,
+    verbose=False,
+    **kwargs,
+)
+```
+
+Pre-compile functions for multiple backends.
+
+Useful for:
+- Reducing first-call latency
+- Validating code generation
+- Warming up JIT compilers (JAX)
+
+Args:
+    backends: List of backends to compile (None = all available)
+    include_jacobians: Also compile Jacobian functions
+    verbose: Print compilation progress
+    **kwargs: Backend-specific options
+
+Returns:
+    Dict mapping backend → function_name → compilation_time
+
+Example:
+    >>> timings = code_gen.compile_all(
+    ...     backends=['numpy', 'torch'],
+    ...     include_jacobians=True,
+    ...     verbose=True
+    ... )
+    Compiling numpy...
+      f: 0.05s
+      h: 0.03s
+      A, B: 0.08s
+    Compiling torch...
+      f: 0.12s
+
+### generate_dynamics { #cdesym.systems.base.utils.CodeGenerator.generate_dynamics }
+
+```python
+systems.base.utils.CodeGenerator.generate_dynamics(backend, **kwargs)
+```
+
+Generate f(x, u) function for specified backend.
+
+Uses caching - if function already generated, returns cached version.
+
+Args:
+    backend: Target backend ('numpy', 'torch', 'jax')
+    **kwargs: Backend-specific options (e.g., jit=True for JAX)
+
+Returns:
+    DynamicsFunction: (x, u) → dx/dt
+
+Example:
+    >>> f_numpy = code_gen.generate_dynamics('numpy')
+    >>> dx = f_numpy(x_vals, u_vals)
+
+### generate_dynamics_jacobians { #cdesym.systems.base.utils.CodeGenerator.generate_dynamics_jacobians }
+
+```python
+systems.base.utils.CodeGenerator.generate_dynamics_jacobians(backend, **kwargs)
+```
+
+Generate A and B Jacobian functions.
+
+Args:
+    backend: Target backend
+    **kwargs: Backend-specific options
+
+Returns:
+    Tuple of (A_func, B_func) where:
+        A_func: (x, u) → ∂f/∂x
+        B_func: (x, u) → ∂f/∂u
+
+Example:
+    >>> A_func, B_func = code_gen.generate_dynamics_jacobians('numpy')
+    >>> A = A_func(x_vals, u_vals)
+    >>> B = B_func(x_vals, u_vals)
+
+### generate_observation_jacobian { #cdesym.systems.base.utils.CodeGenerator.generate_observation_jacobian }
+
+```python
+systems.base.utils.CodeGenerator.generate_observation_jacobian(
+    backend,
+    **kwargs,
+)
+```
+
+Generate C Jacobian function (∂h/∂x).
+
+Returns None if no custom output function.
+
+Args:
+    backend: Target backend
+    **kwargs: Backend-specific options
+
+Returns:
+    C_func: (x) → ∂h/∂x, or None if no custom output
+
+### generate_output { #cdesym.systems.base.utils.CodeGenerator.generate_output }
+
+```python
+systems.base.utils.CodeGenerator.generate_output(backend, **kwargs)
+```
+
+Generate h(x) function for specified backend.
+
+Returns None if system has no custom output function (uses identity).
+
+Args:
+    backend: Target backend ('numpy', 'torch', 'jax')
+    **kwargs: Backend-specific options
+
+Returns:
+    OutputFunction: (x) → y, or None if no custom output
+
+Example:
+    >>> h_numpy = code_gen.generate_output('numpy')
+    >>> if h_numpy is not None:
+    >>>     y = h_numpy(x_vals)
+
+### get_dynamics { #cdesym.systems.base.utils.CodeGenerator.get_dynamics }
+
+```python
+systems.base.utils.CodeGenerator.get_dynamics(backend)
+```
+
+Get cached dynamics function without generating.
+
+Args:
+    backend: Target backend
+
+Returns:
+    Cached function or None if not yet generated
+
+### get_info { #cdesym.systems.base.utils.CodeGenerator.get_info }
+
+```python
+systems.base.utils.CodeGenerator.get_info()
+```
+
+Get comprehensive information about code generation status.
+
+Returns:
+    Dict with compilation status for all backends
+
+Example:
+    >>> info = code_gen.get_info()
+    >>> print(info)
+    {
+        'numpy': {'f': True, 'h': True, 'A': True, 'B': True, 'C': False},
+        'torch': {'f': True, 'h': False, 'A': False, 'B': False, 'C': False},
+        'jax': {'f': False, 'h': False, 'A': False, 'B': False, 'C': False}
+    }
+
+### get_jacobians { #cdesym.systems.base.utils.CodeGenerator.get_jacobians }
+
+```python
+systems.base.utils.CodeGenerator.get_jacobians(backend)
+```
+
+Get cached Jacobian functions without generating.
+
+Args:
+    backend: Target backend
+
+Returns:
+    Tuple of (A_func, B_func, C_func) or None if not yet generated
+
+### get_output { #cdesym.systems.base.utils.CodeGenerator.get_output }
+
+```python
+systems.base.utils.CodeGenerator.get_output(backend)
+```
+
+Get cached output function without generating.
+
+Args:
+    backend: Target backend
+
+Returns:
+    Cached function or None if not yet generated
+
+### is_compiled { #cdesym.systems.base.utils.CodeGenerator.is_compiled }
+
+```python
+systems.base.utils.CodeGenerator.is_compiled(backend)
+```
+
+Check which functions are compiled for a backend.
+
+Args:
+    backend: Backend to check
+
+Returns:
+    Dict mapping function_name → is_compiled
+
+Example:
+    >>> status = code_gen.is_compiled('numpy')
+    >>> print(status)
+    {'f': True, 'h': False, 'A': True, 'B': True, 'C': False}
+
+### reset_cache { #cdesym.systems.base.utils.CodeGenerator.reset_cache }
+
+```python
+systems.base.utils.CodeGenerator.reset_cache(backends=None)
+```
+
+Clear cached functions for specified backends.
+
+Useful when:
+- Changing devices (need recompilation)
+- Freeing memory
+- Debugging
+
+Args:
+    backends: List of backends to reset (None = all)
+
+Example:
+    >>> # Clear all caches
+    >>> code_gen.reset_cache()
+    >>>
+    >>> # Clear only torch cache (e.g., after device change)
+    >>> code_gen.reset_cache(['torch'])

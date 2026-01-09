@@ -1,0 +1,21 @@
+# systems.base.numerical_integration.list_all_methods { #cdesym.systems.base.numerical_integration.list_all_methods }
+
+```python
+systems.base.numerical_integration.list_all_methods()
+```
+
+List all integration methods across all categories.
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                               |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary with all methods organized by category: - deterministic_fixed_step : list - deterministic_adaptive : list - sde_fixed_step : list - sde_adaptive : list - all_canonical : list |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> methods = list_all_methods()
+>>> print(f"Total methods: {sum(len(v) for v in methods.values())}")
+>>> print(f"SDE methods: {len(methods['sde_fixed_step']) + len(methods['sde_adaptive'])}")
+```

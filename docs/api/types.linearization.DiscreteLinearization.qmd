@@ -1,0 +1,17 @@
+# types.linearization.DiscreteLinearization { #cdesym.types.linearization.DiscreteLinearization }
+
+`types.linearization.DiscreteLinearization`
+
+Alias for discrete-time deterministic linearization.
+
+Same as DeterministicLinearization but emphasizes discrete-time context.
+Returns (Ad, Bd) where d indicates discrete.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ad, Bd = discrete_system.linearize(x_eq, u_eq)
+>>> # Discrete-time stability: |λ| < 1
+>>> eigenvalues = np.linalg.eigvals(Ad)
+>>> is_stable = np.all(np.abs(eigenvalues) < 1.0)
+```

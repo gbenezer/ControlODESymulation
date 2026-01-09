@@ -1,0 +1,922 @@
+# systems.builtin.deterministic.discrete.LogisticMap { #cdesym.systems.builtin.deterministic.discrete.LogisticMap }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap(*args, **kwargs)
+```
+
+The logistic map: x[k+1] = r·x[k]·(1 - x[k])
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+The logistic map was introduced by Robert May in 1976 as a discrete-time
+model for population dynamics with limited resources. It represents the
+simplest nonlinear difference equation exhibiting complex behavior.
+
+**Biological Interpretation:**
+Consider a population with:
+- x[k]: Population at generation k (normalized: 0 ≤ x ≤ 1)
+  * x = 0: Extinction
+  * x = 1: Maximum carrying capacity
+  * x = 0.5: Half of carrying capacity
+
+- r: Growth rate parameter (0 ≤ r ≤ 4)
+  * Controls reproduction rate
+  * Higher r → faster growth
+  * Too high r → instability, chaos
+
+The dynamics capture:
+1. **Reproduction**: r·x[k] term (proportional to population)
+2. **Competition**: -r·x[k]² term (limited resources)
+3. **Net growth**: Balance between birth and death
+
+**Discrete Time Steps:**
+Unlike continuous models (differential equations), the logistic map
+assumes discrete generations with no overlap. This is appropriate for:
+- Insects with distinct seasonal generations
+- Annual plants
+- Laboratory populations with controlled breeding
+- Economic cycles with discrete time periods
+- Digital sampling of continuous processes
+
+**The Remarkable Complexity:**
+Despite having only ONE parameter (r) and ONE state variable (x),
+the logistic map exhibits virtually all known behaviors of dynamical
+systems:
+- Fixed points (equilibria)
+- Periodic orbits (period-2, 4, 8, 16, ...)
+- Period-doubling cascades
+- Deterministic chaos
+- Intermittency
+- Crises and sudden changes
+- Strange attractors
+
+This makes it a "Rosetta Stone" for understanding nonlinear dynamics.
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x[k] ∈ [0, 1]
+    Population fraction:
+    - x[k] = 0: Extinction
+    - x[k] = 1: Maximum capacity
+    - 0 < x[k] < 1: Viable population
+
+    **Physical meaning:**
+    If N_max is carrying capacity, actual population is:
+        N[k] = x[k]·N_max
+
+Control: u[k] (optional, for controlled logistic map)
+    - Can represent:
+      * Harvesting/culling: u < 0
+      * Stocking/immigration: u > 0
+      * Environmental intervention
+    - Standard logistic map: u = 0 (autonomous)
+
+Output: y[k] = x[k]
+    - Direct observation of population fraction
+    - In practice, population counts with measurement noise
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The defining equation is deceptively simple:
+
+    x[k+1] = r·x[k]·(1 - x[k])
+
+**Mathematical Properties:**
+
+1. **Quadratic map:**
+   - Second-order polynomial
+   - Single hump (inverted parabola)
+   - Maximum at x = 0.5: f(0.5) = r/4
+
+2. **Bounded dynamics:**
+   - If x[0] ∈ [0, 1], then x[k] ∈ [0, 1] for all k (when r ≤ 4)
+   - Invariant interval: [0, 1]
+   - Escape possible if r > 4
+
+3. **Two fixed points:**
+   Setting x[k+1] = x[k]:
+       x* = r·x*·(1 - x*)
+
+   Solutions:
+       x₁* = 0  (extinction)
+       x₂* = 1 - 1/r  (nontrivial equilibrium)
+
+4. **Stability via eigenvalue:**
+   The Jacobian is just a scalar:
+       λ(x*) = df/dx|_{x*} = r·(1 - 2x*)
+
+   Fixed point is stable if |λ| < 1.
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+r : float, default=3.5
+    Growth rate parameter (must satisfy 0 < r ≤ 4 for bounded dynamics)
+
+    **Parameter Regimes:**
+
+    **0 < r < 1:**
+    - Extinction regime
+    - All initial conditions → 0
+    - Both fixed points unstable or non-existent
+    - Not biologically realistic (population dies out)
+
+    **1 ≤ r < 3:**
+    - Stable fixed point regime
+    - Population converges to x* = 1 - 1/r
+    - Monotonic approach (no oscillations)
+    - λ = r·(1 - 2x*) = 2 - r
+    - |λ| < 1 requires r < 3
+
+    **3 ≤ r < 1 + √6 ≈ 3.449:**
+    - Period-2 oscillations
+    - Fixed point becomes unstable (|λ| > 1)
+    - Population oscillates between two values
+    - First period-doubling bifurcation at r = 3
+
+    **3.449 < r < 3.544:**
+    - Period-doubling cascade
+    - Period-4, 8, 16, 32, ... orbits
+    - Feigenbaum cascade to chaos
+    - Each bifurcation occurs at specific r values
+    - Spacing between bifurcations decreases geometrically
+
+    **3.544 < r < 3.569:**
+    - Onset of chaos
+    - Aperiodic, bounded, deterministic behavior
+    - Sensitive dependence on initial conditions
+    - Strange attractor forms
+    - Lyapunov exponent becomes positive
+
+    **3.569 < r < 4:**
+    - Fully developed chaos with periodic windows
+    - Period-3 window at r ≈ 3.83 (remarkable!)
+    - Li-Yorke theorem: period-3 implies chaos
+    - Infinitely many periodic windows
+    - Fractal structure in bifurcation diagram
+
+    **r = 4:**
+    - Special case: fully chaotic
+    - Exact solution possible (analytically)
+    - Probability density: ρ(x) = 1/(π√(x(1-x)))
+    - Maximum Lyapunov exponent: λ = ln(2)
+
+    **r > 4:**
+    - Escape regime
+    - Trajectories can leave [0, 1]
+    - Eventually diverge to -∞
+    - Not physically meaningful for population model
+
+dt : float, default=1.0
+    Time step between generations
+    - Usually normalized to 1 (one generation)
+    - Can represent actual time scale (years, days, etc.)
+    - Purely for interpretation (doesn't affect dynamics)
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+The logistic map has two fixed points:
+
+**1. Extinction equilibrium: x* = 0**
+   Stability: λ = r
+   - Stable if r < 1 (low growth → extinction)
+   - Unstable if r > 1 (population survives)
+
+   Biological meaning: If population is too small (below critical
+   threshold), it cannot sustain itself and dies out.
+
+**2. Nontrivial equilibrium: x* = 1 - 1/r (for r > 1)**
+   Stability: λ = 2 - r
+   - Stable if 1 < r < 3 (|λ| < 1)
+   - Unstable if r > 3 (period-doubling begins)
+
+   Biological meaning: Population reaches carrying capacity balance
+   where births equal deaths.
+
+**Bifurcation Points:**
+- r = 1: Transcritical bifurcation (extinction ↔ survival)
+- r = 3: Period-doubling bifurcation (fixed point → period-2)
+- r ≈ 3.449: Period-4 bifurcation
+- r ≈ 3.544: Period-8 bifurcation
+- r ≈ 3.569: Onset of chaos (accumulation point)
+- r ≈ 3.83: Period-3 window opens
+
+**Feigenbaum Constants:**
+The period-doubling cascade follows universal scaling:
+    δ = lim (rₙ - rₙ₋₁)/(rₙ₊₁ - rₙ) = 4.669...
+    α = lim (dₙ/dₙ₊₁) = 2.502...
+
+These constants are universal across all period-doubling systems!
+
+## Chaos Theory Concepts: {.doc-section .doc-section-chaos-theory-concepts}
+
+**Sensitive Dependence on Initial Conditions:**
+The hallmark of chaos. Two trajectories starting infinitesimally
+close diverge exponentially:
+
+    |δx(k)| ≈ |δx(0)|·e^(λk)
+
+where λ > 0 is the Lyapunov exponent.
+
+For logistic map in chaotic regime:
+    λ = lim (1/N)·Σ ln|r·(1 - 2x[k])|
+    N→∞
+
+- λ < 0: Periodic or fixed point (convergence)
+- λ = 0: Neutral stability (period-doubling point)
+- λ > 0: Chaos (divergence)
+
+**Predictability Horizon:**
+If measurement accuracy is ε, prediction fails after time:
+    T_predict ~ |λ|⁻¹·ln(ε)
+
+Example: For λ = 0.5 and ε = 10⁻⁶:
+    T_predict ~ 2·ln(10⁶) ≈ 28 generations
+
+This is why weather prediction is limited despite deterministic physics!
+
+**Strange Attractor:**
+In chaotic regime, the system visits a fractal set:
+- Infinite complexity at all scales
+- Non-integer (fractal) dimension
+- Dense periodic orbits
+- Mixing property (ergodic)
+
+**Determinism vs Randomness:**
+The logistic map is COMPLETELY DETERMINISTIC (no randomness), yet
+produces output that appears random:
+- Passes statistical tests for randomness
+- Used in pseudo-random number generation
+- Cannot predict long-term behavior
+- "Deterministic chaos" is not an oxymoron!
+
+## Control Objectives: {.doc-section .doc-section-control-objectives}
+
+Unlike typical control systems, controlling chaos involves different goals:
+
+1. **Chaos Control (OGY Method):**
+   Goal: Stabilize unstable periodic orbits embedded in attractor
+   Method: Small perturbations to system parameter
+   Applications: Laser dynamics, cardiac arrhythmias
+
+2. **Chaos Synchronization:**
+   Goal: Make two chaotic systems follow same trajectory
+   Applications: Secure communications, neural networks
+
+3. **Anti-control (Chaotification):**
+   Goal: Make periodic system chaotic
+   Applications: Mixing, encryption, avoiding resonance
+
+4. **Harvesting Optimization:**
+   Goal: Maximize sustainable yield while maintaining stability
+   Control: u[k] = h·x[k] (proportional harvesting)
+   Constraint: Keep r_effective in stable regime
+
+5. **Bifurcation Control:**
+   Goal: Move bifurcation points by parameter variation
+   Applications: Preventing unwanted oscillations
+
+## Bifurcation Analysis: {.doc-section .doc-section-bifurcation-analysis}
+
+**Creating Bifurcation Diagrams:**
+1. Choose r values from 0 to 4
+2. For each r:
+   a. Iterate from random initial condition
+   b. Discard transient (e.g., first 1000 iterations)
+   c. Plot next 100 iterations
+3. Result: shows all attractors vs parameter
+
+**Reading Bifurcation Diagrams:**
+- Single line: Fixed point
+- Two lines: Period-2 orbit
+- Four lines: Period-4 orbit
+- Dense region: Chaos
+- White gaps: Periodic windows
+
+**Universality:**
+All unimodal maps with quadratic maximum exhibit same qualitative
+bifurcation structure. The Feigenbaum constants are universal!
+
+## Numerical Considerations: {.doc-section .doc-section-numerical-considerations}
+
+**Floating-Point Precision:**
+Computer arithmetic introduces errors that can affect long-term behavior:
+- Chaotic systems amplify roundoff errors exponentially
+- Cannot compute trajectory accurately beyond predictability horizon
+- Use high-precision arithmetic for numerical studies
+- Machine epsilon (≈10⁻¹⁶) limits practical predictions
+
+**Initial Condition Sensitivity:**
+Even tiny errors in initial condition grow exponentially:
+    |error[k]| ≈ |error[0]|·e^(λk)
+
+For λ = 0.5 and error[0] = 10⁻¹⁵:
+    error[50] ≈ 10⁻¹⁵·e²⁵ ≈ 10⁻²
+
+**Stability of Fixed Points:**
+To find stability, compute derivative:
+    λ = df/dx = r·(1 - 2x)
+
+At x* = 1 - 1/r:
+    λ = r·(1 - 2(1 - 1/r)) = 2 - r
+
+Stable if |2 - r| < 1, i.e., 1 < r < 3.
+
+**Cobweb Diagrams:**
+Graphical method to visualize iterations:
+1. Plot y = f(x) and y = x
+2. Start at (x₀, 0)
+3. Go vertically to curve: (x₀, f(x₀))
+4. Go horizontally to diagonal: (f(x₀), f(x₀))
+5. Repeat
+
+Patterns:
+- Spiral inward → stable fixed point
+- Spiral outward → unstable fixed point
+- Rectangle → period-2 orbit
+- Complicated path → chaos
+
+## Example Usage: {.doc-section .doc-section-example-usage}
+
+>>> # Create logistic map in chaotic regime
+>>> system = LogisticMap(r=3.9)
+>>>
+>>> # Simulate from random initial condition
+>>> x0 = np.array([0.4])
+>>> result = system.simulate(
+...     x0=x0,
+...     u_sequence=None,  # Autonomous system
+...     n_steps=100
+... )
+>>>
+>>> # Plot trajectory
+>>> import matplotlib.pyplot as plt
+>>> plt.figure(figsize=(10, 6))
+>>> plt.plot(result['time_steps'], result['states'][:, 0], 'b.-', markersize=3)
+>>> plt.xlabel('Generation k')
+>>> plt.ylabel('Population x[k]')
+>>> plt.title(f'Logistic Map (r = {system.r})')
+>>> plt.grid(alpha=0.3)
+>>> plt.show()
+>>>
+>>> # Demonstrate sensitivity to initial conditions
+>>> x0_a = np.array([0.4])
+>>> x0_b = np.array([0.4 + 1e-10])  # Tiny difference
+>>>
+>>> result_a = system.simulate(x0_a, None, n_steps=50)
+>>> result_b = system.simulate(x0_b, None, n_steps=50)
+>>>
+>>> # Compute divergence
+>>> divergence = np.abs(result_a['states'][:, 0] - result_b['states'][:, 0])
+>>>
+>>> plt.figure(figsize=(10, 6))
+>>> plt.semilogy(result_a['time_steps'], divergence, 'r-', linewidth=2)
+>>> plt.xlabel('Generation k')
+>>> plt.ylabel('|x_a[k] - x_b[k]|')
+>>> plt.title('Exponential Divergence (Sensitive Dependence)')
+>>> plt.grid(alpha=0.3)
+>>> plt.show()
+>>>
+>>> # Estimate Lyapunov exponent
+>>> lyapunov = system.compute_lyapunov_exponent(x0=0.4, n_iterations=10000)
+>>> print(f"Lyapunov exponent: λ = {lyapunov:.4f}")
+>>> if lyapunov > 0:
+...     print("System is CHAOTIC")
+... else:
+...     print("System is NOT chaotic (periodic or fixed point)")
+>>>
+>>> # Generate bifurcation diagram
+>>> r_values = np.linspace(2.5, 4.0, 1000)
+>>> bifurcation_data = system.generate_bifurcation_diagram(
+...     r_values=r_values,
+...     n_transient=500,
+...     n_samples=100
+... )
+>>>
+>>> plt.figure(figsize=(12, 8))
+>>> plt.plot(bifurcation_data['r'], bifurcation_data['x'],
+...          'k.', markersize=0.5, alpha=0.5)
+>>> plt.xlabel('Growth Rate r')
+>>> plt.ylabel('Population x*')
+>>> plt.title('Bifurcation Diagram: Period-Doubling Route to Chaos')
+>>> plt.xlim(2.5, 4.0)
+>>> plt.ylim(0, 1)
+>>> plt.grid(alpha=0.3)
+>>>
+>>> # Annotate key bifurcation points
+>>> plt.axvline(3.0, color='r', linestyle='--', alpha=0.5, label='Period-2 bifurcation')
+>>> plt.axvline(3.449, color='g', linestyle='--', alpha=0.5, label='Period-4')
+>>> plt.axvline(3.569, color='b', linestyle='--', alpha=0.5, label='Chaos onset')
+>>> plt.legend()
+>>> plt.show()
+>>>
+>>> # Find fixed points and check stability
+>>> fixed_points = system.find_fixed_points()
+>>> print("\nFixed Points:")
+>>> for fp in fixed_points:
+...     x_star = fp['x']
+...     lambda_val = fp['eigenvalue']
+...     stable = fp['stable']
+...     print(f"  x* = {x_star:.4f}, λ = {lambda_val:.4f}, stable = {stable}")
+>>>
+>>> # Cobweb diagram for visualization
+>>> fig, ax = plt.subplots(figsize=(8, 8))
+>>> system.plot_cobweb(ax, x0=0.1, n_iterations=50)
+>>> plt.show()
+>>>
+>>> # Period-3 window (r ≈ 3.83)
+>>> system_p3 = LogisticMap(r=3.83)
+>>> result_p3 = system_p3.simulate(x0=np.array([0.5]), u_sequence=None, n_steps=100)
+>>>
+>>> # Check for period-3 by looking at every 3rd point
+>>> period = system_p3.detect_period(result_p3['states'][:, 0])
+>>> print(f"\nDetected period: {period}")
+>>>
+>>> # Compare different r values
+>>> r_test = [2.8, 3.2, 3.5, 3.9]
+>>> fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+>>>
+>>> for idx, r_val in enumerate(r_test):
+...     ax = axes[idx // 2, idx % 2]
+...     sys_temp = LogisticMap(r=r_val)
+...     res_temp = sys_temp.simulate(x0=np.array([0.4]), u_sequence=None, n_steps=100)
+...
+...     ax.plot(res_temp['time_steps'], res_temp['states'][:, 0], 'b.-', markersize=3)
+...     ax.set_xlabel('Generation k')
+...     ax.set_ylabel('Population x[k]')
+...     ax.set_title(f'r = {r_val}')
+...     ax.grid(alpha=0.3)
+...     ax.set_ylim(0, 1)
+>>>
+>>> plt.tight_layout()
+>>> plt.show()
+>>>
+>>> # Analyze return map (x[k+1] vs x[k])
+>>> result_long = system.simulate(x0=np.array([0.4]), u_sequence=None, n_steps=1000)
+>>> x_k = result_long['states'][:-1, 0]
+>>> x_k1 = result_long['states'][1:, 0]
+>>>
+>>> plt.figure(figsize=(8, 8))
+>>> plt.plot(x_k, x_k1, 'b.', markersize=1, alpha=0.5)
+>>> plt.plot([0, 1], [0, 1], 'r--', label='y = x (fixed points)')
+>>> x_plot = np.linspace(0, 1, 1000)
+>>> plt.plot(x_plot, system.r * x_plot * (1 - x_plot), 'g-', linewidth=2,
+...          label=f'y = {system.r}x(1-x)')
+>>> plt.xlabel('x[k]')
+>>> plt.ylabel('x[k+1]')
+>>> plt.title('Return Map (First-Return Plot)')
+>>> plt.legend()
+>>> plt.grid(alpha=0.3)
+>>> plt.axis('equal')
+>>> plt.xlim(0, 1)
+>>> plt.ylim(0, 1)
+>>> plt.show()
+>>>
+>>> # Compute histogram (invariant measure)
+>>> result_hist = system.simulate(x0=np.array([0.4]), u_sequence=None, n_steps=50000)
+>>> x_hist = result_hist['states'][10000:, 0]  # Discard transient
+>>>
+>>> plt.figure(figsize=(10, 6))
+>>> plt.hist(x_hist, bins=100, density=True, alpha=0.7, edgecolor='black')
+>>> plt.xlabel('Population x')
+>>> plt.ylabel('Probability Density')
+>>> plt.title(f'Invariant Measure (r = {system.r})')
+>>> plt.grid(alpha=0.3)
+>>> plt.show()
+
+## Physical Insights: {.doc-section .doc-section-physical-insights}
+
+**Why Does Chaos Occur?**
+The logistic map has two competing effects:
+1. **Expansion**: For small x, f(x) ≈ rx (exponential growth)
+2. **Folding**: For x near 1, f(x) decreases (resource limitation)
+
+When r is large, expansion is strong, stretching the interval.
+The folding then brings points back, but in a complicated way.
+This "stretch and fold" mechanism creates sensitive dependence.
+
+**Biological Meaning of Chaos:**
+Chaotic population dynamics mean:
+- Population never settles to equilibrium
+- Year-to-year populations appear random
+- Long-term prediction impossible
+- Small environmental changes → large effects
+
+Examples in nature:
+- Measles epidemics (pre-vaccination)
+- Lynx-hare population cycles
+- Plankton blooms
+- Insect outbreaks
+
+**Period-3 and Li-Yorke Theorem:**
+"Period-3 implies chaos" (Li and Yorke, 1975)
+
+If a continuous map has a period-3 orbit, then:
+- It has periodic orbits of all periods
+- It has uncountably many aperiodic orbits
+- It exhibits sensitive dependence
+
+This is why the period-3 window at r ≈ 3.83 is remarkable!
+
+**Feigenbaum Universality:**
+Mitchell Feigenbaum (1975) discovered that ALL unimodal maps with
+quadratic maximum exhibit the same scaling:
+    - δ = 4.669... (bifurcation spacing ratio)
+    - α = 2.502... (parameter scaling)
+
+This means chaos theory has universal laws, like physics!
+
+**Tent Map and Topological Conjugacy:**
+The logistic map at r = 4 is topologically conjugate to the tent map:
+    g(x) = { 2x       if x < 0.5
+           { 2(1-x)   if x ≥ 0.5
+
+Transformation: x = sin²(πy/2)
+
+This allows exact analytical solutions for r = 4.
+
+**Connection to Cryptography:**
+Chaotic maps used in encryption because:
+- Deterministic (key = initial condition and parameter)
+- Sensitive dependence (good mixing)
+- Appears random (passes statistical tests)
+- Fast computation
+
+However, not cryptographically secure due to:
+- Finite precision issues
+- Reconstructability from time series
+
+**Control Paradox:**
+It's often EASIER to control chaotic systems than periodic ones!
+- Chaos has dense set of unstable periodic orbits
+- Can stabilize any orbit with small perturbations
+- Periodic systems may need large control effort to change behavior
+
+## Common Pitfalls: {.doc-section .doc-section-common-pitfalls}
+
+1. **Escaping the unit interval:**
+   For r > 4, trajectories can escape [0, 1] and diverge to -∞.
+   Always check x[k] ∈ [0, 1].
+
+2. **Transient vs asymptotic behavior:**
+   Must discard initial transient before analyzing attractor.
+   Typical: skip first 500-1000 iterations.
+
+3. **Numerical precision limits:**
+   Cannot compute chaotic trajectory accurately beyond ~50-100 iterations.
+   Use double precision and be aware of limitations.
+
+4. **Mistaking chaos for randomness:**
+   Chaos is deterministic! Same initial condition → same trajectory.
+   But prediction is practically impossible for long times.
+
+5. **Period detection:**
+   Short period easy to detect, but high-period orbits hard to distinguish
+   from chaos. Use Lyapunov exponent, not just visual inspection.
+
+6. **Parameter precision:**
+   Bifurcation points occur at specific r values.
+   Need high precision to locate them accurately.
+
+## Extensions and Variations: {.doc-section .doc-section-extensions-and-variations}
+
+1. **Generalized logistic map:**
+   x[k+1] = r·x[k]^α·(1 - x[k])
+   Different values of α change bifurcation structure
+
+2. **Coupled logistic maps:**
+   Spatial extension: x_i[k+1] = f(x_i[k]) + ε·(x_{i-1} + x_{i+1} - 2x_i)
+   Creates spatiotemporal chaos
+
+3. **Delayed logistic map:**
+   x[k+1] = r·x[k]·(1 - x[k-τ])
+   Time delay increases complexity
+
+4. **Stochastic logistic map:**
+   x[k+1] = r·x[k]·(1 - x[k]) + σ·ξ[k]
+   Noise + deterministic chaos = rich dynamics
+
+5. **Discrete-time Ricker model:**
+   x[k+1] = x[k]·exp(r·(1 - x[k]))
+   Similar dynamics, different form
+
+6. **Henon map (2D):**
+   x[k+1] = 1 - a·x[k]² + y[k]
+   y[k+1] = b·x[k]
+   Classic 2D chaotic map
+
+## See Also: {.doc-section .doc-section-see-also}
+
+HenonMap : 2D chaotic map
+StandardMap : Hamiltonian chaos
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [r](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.r) | Growth rate parameter. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [classify_regime](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.classify_regime) | Classify dynamical regime based on r value. |
+| [compute_bifurcation_points](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_bifurcation_points) | Compute key bifurcation points. |
+| [compute_feigenbaum_delta](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_feigenbaum_delta) | Estimate Feigenbaum delta constant from period-doubling sequence. |
+| [compute_lyapunov_exponent](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_lyapunov_exponent) | Compute Lyapunov exponent to quantify chaos. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.define_system) | Define logistic map dynamics. |
+| [detect_period](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.detect_period) | Detect period of orbit from trajectory. |
+| [find_fixed_points](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.find_fixed_points) | Find all fixed points and their stability. |
+| [generate_bifurcation_diagram](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.generate_bifurcation_diagram) | Generate bifurcation diagram data. |
+| [plot_cobweb](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.plot_cobweb) | Create cobweb diagram visualization. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.LogisticMap.setup_equilibria) | Set up fixed points of the logistic map. |
+
+### classify_regime { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.classify_regime }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.classify_regime()
+```
+
+Classify dynamical regime based on r value.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description           |
+|--------|--------|-----------------------|
+|        | str    | Regime classification |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap(r=2.8)
+>>> print(system.classify_regime())
+'stable_fixed_point'
+>>>
+>>> system = LogisticMap(r=3.9)
+>>> print(system.classify_regime())
+'chaos'
+```
+
+### compute_bifurcation_points { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_bifurcation_points }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.compute_bifurcation_points()
+```
+
+Compute key bifurcation points.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                                                                                                                                                                                                                         |
+|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary of bifurcation points: - 'transcritical': r = 1 (extinction ↔ nontrivial) - 'period_2': r = 3 (fixed point → period-2) - 'period_4': r ≈ 3.449 (period-2 → period-4) - 'period_8': r ≈ 3.544 (period-4 → period-8) - 'chaos_onset': r ≈ 3.569 (accumulation point) - 'period_3_window': r ≈ 3.83 (period-3 window opens) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap()
+>>> bifurc_points = system.compute_bifurcation_points()
+>>> for name, r_val in bifurc_points.items():
+...     print(f"{name}: r = {r_val:.4f}")
+```
+
+### compute_feigenbaum_delta { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_feigenbaum_delta }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.compute_feigenbaum_delta(
+    n_bifurcations=10,
+)
+```
+
+Estimate Feigenbaum delta constant from period-doubling sequence.
+
+δ = lim (rₙ - rₙ₋₁)/(rₙ₊₁ - rₙ) ≈ 4.669...
+   n→∞
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type   | Description                         | Default   |
+|----------------|--------|-------------------------------------|-----------|
+| n_bifurcations | int    | Number of bifurcation points to use | `10`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description       |
+|--------|--------|-------------------|
+|        | float  | Estimated δ value |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is a simplified estimation. Accurate computation requires
+finding bifurcation points numerically to high precision.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap()
+>>> delta = system.compute_feigenbaum_delta()
+>>> print(f"Feigenbaum δ ≈ {delta:.3f} (theoretical: 4.669)")
+```
+
+### compute_lyapunov_exponent { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.compute_lyapunov_exponent }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.compute_lyapunov_exponent(
+    x0=0.4,
+    n_iterations=10000,
+    n_transient=1000,
+)
+```
+
+Compute Lyapunov exponent to quantify chaos.
+
+The Lyapunov exponent λ measures average exponential divergence rate:
+    λ = lim (1/N)·Σ ln|df/dx|
+       N→∞
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type   | Description                             | Default   |
+|--------------|--------|-----------------------------------------|-----------|
+| x0           | float  | Initial condition                       | `0.4`     |
+| n_iterations | int    | Number of iterations for averaging      | `10000`   |
+| n_transient  | int    | Number of initial iterations to discard | `1000`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                         |
+|--------|--------|---------------------------------------------------------------------------------------------------------------------|
+|        | float  | Lyapunov exponent - λ < 0: Stable fixed point or periodic orbit - λ = 0: Neutral (bifurcation point) - λ > 0: Chaos |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap(r=3.9)
+>>> lyapunov = system.compute_lyapunov_exponent(n_iterations=50000)
+>>> print(f"Lyapunov exponent: {lyapunov:.4f}")
+>>> if lyapunov > 0.01:
+...     print("System is CHAOTIC")
+```
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.define_system }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.define_system(
+    r=3.5,
+    dt=1.0,
+    use_controlled_version=False,
+)
+```
+
+Define logistic map dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                   | Type   | Description                                                                     | Default   |
+|------------------------|--------|---------------------------------------------------------------------------------|-----------|
+| r                      | float  | Growth rate parameter (typically 0 < r ≤ 4)                                     | `3.5`     |
+| dt                     | float  | Time step between generations (typically 1.0)                                   | `1.0`     |
+| use_controlled_version | bool   | If True, adds control input u[k] to dynamics: x[k+1] = r·x[k]·(1 - x[k]) + u[k] | `False`   |
+
+### detect_period { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.detect_period }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.detect_period(
+    trajectory,
+    max_period=20,
+    tolerance=1e-06,
+)
+```
+
+Detect period of orbit from trajectory.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type       | Description               | Default    |
+|------------|------------|---------------------------|------------|
+| trajectory | np.ndarray | Time series data          | _required_ |
+| max_period | int        | Maximum period to check   | `20`       |
+| tolerance  | float      | Tolerance for periodicity | `1e-06`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                           |
+|--------|-------------|---------------------------------------|
+|        | int or None | Detected period, or None if aperiodic |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap(r=3.2)
+>>> result = system.simulate(x0=np.array([0.5]), u_sequence=None, n_steps=200)
+>>> period = system.detect_period(result['states'][:, 0])
+>>> print(f"Detected period: {period}")
+```
+
+### find_fixed_points { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.find_fixed_points }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.find_fixed_points()
+```
+
+Find all fixed points and their stability.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                                       |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------------------------|
+|        | list   | List of dictionaries containing: - 'x': Fixed point value - 'eigenvalue': Stability eigenvalue - 'stable': Boolean stability flag |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap(r=2.5)
+>>> fixed_points = system.find_fixed_points()
+>>> for fp in fixed_points:
+...     print(f"x* = {fp['x']:.3f}, λ = {fp['eigenvalue']:.3f}, stable = {fp['stable']}")
+```
+
+### generate_bifurcation_diagram { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.generate_bifurcation_diagram }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.generate_bifurcation_diagram(
+    r_values,
+    n_transient=500,
+    n_samples=100,
+    x0=0.5,
+)
+```
+
+Generate bifurcation diagram data.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type       | Description                                 | Default    |
+|-------------|------------|---------------------------------------------|------------|
+| r_values    | np.ndarray | Array of r values to test                   | _required_ |
+| n_transient | int        | Number of iterations to discard (transient) | `500`      |
+| n_samples   | int        | Number of points to sample after transient  | `100`      |
+| x0          | float      | Initial condition for each r                | `0.5`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                                                                     |
+|--------|--------|-----------------------------------------------------------------------------------------------------------------|
+|        | dict   | Dictionary with keys: - 'r': Array of r values (repeated for each sample) - 'x': Array of x values at attractor |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system = LogisticMap()
+>>> r_vals = np.linspace(2.5, 4.0, 1000)
+>>> bifurc_data = system.generate_bifurcation_diagram(r_vals)
+>>>
+>>> import matplotlib.pyplot as plt
+>>> plt.figure(figsize=(12, 8))
+>>> plt.plot(bifurc_data['r'], bifurc_data['x'], 'k.', markersize=0.2)
+>>> plt.xlabel('r')
+>>> plt.ylabel('x*')
+>>> plt.title('Bifurcation Diagram')
+>>> plt.show()
+```
+
+### plot_cobweb { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.plot_cobweb }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.plot_cobweb(
+    ax,
+    x0=0.1,
+    n_iterations=50,
+)
+```
+
+Create cobweb diagram visualization.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                 | Description                  | Default    |
+|--------------|----------------------|------------------------------|------------|
+| ax           | matplotlib.axes.Axes | Axes to plot on              | _required_ |
+| x0           | float                | Initial condition            | `0.1`      |
+| n_iterations | int                  | Number of iterations to plot | `50`       |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> import matplotlib.pyplot as plt
+>>> fig, ax = plt.subplots(figsize=(8, 8))
+>>> system = LogisticMap(r=3.5)
+>>> system.plot_cobweb(ax, x0=0.1, n_iterations=50)
+>>> plt.show()
+```
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.LogisticMap.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.LogisticMap.setup_equilibria()
+```
+
+Set up fixed points of the logistic map.
+
+Adds:
+- Extinction equilibrium (x* = 0)
+- Nontrivial equilibrium (x* = 1 - 1/r) if r > 1

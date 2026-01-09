@@ -1,0 +1,556 @@
+# systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck(
+    *args,
+    **kwargs,
+)
+```
+
+Multivariate Ornstein-Uhlenbeck process with coupling and correlated noise.
+
+Generalizes scalar OU to vector-valued process with interaction between
+components and correlated noise sources. This is the fundamental linear
+stochastic system for modeling coupled mean-reverting processes.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+Vector SDE:
+    dX = A·X·dt + Σ·dW
+
+With control:
+    dX = (A·X + B·u)·dt + Σ·dW
+
+where:
+    - X ∈ ℝⁿ: State vector
+    - A ∈ ℝⁿˣⁿ: Drift matrix (coupling + mean reversion)
+    - B ∈ ℝⁿˣᵖ: Control matrix
+    - u ∈ ℝᵖ: Control input
+    - Σ ∈ ℝⁿˣᵐ: Diffusion matrix
+    - W ∈ ℝᵐ: Vector Wiener process (m noise sources)
+    - dW ~ N(0, I_m·dt): Independent increments
+
+**Matrix Dimensions:**
+- n states
+- m noise sources (typically m ≤ n)
+- p control inputs
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Drift Matrix A:**
+
+Diagonal elements A_ii:
+- Mean reversion for X_i
+- Must be negative for stability: A_ii < 0
+- Time constant: τ_i = -1/A_ii
+
+Off-diagonal elements A_ij (i ≠ j):
+- Coupling from X_j to dX_i/dt
+- Positive: X_j increases → X_i increases (co-movement)
+- Negative: X_j increases → X_i decreases (opposition)
+- Zero: No direct coupling
+
+**Example (2D):**
+    A = [-α₁   γ  ]
+        [ γ   -α₂ ]
+
+- Own reversion: -α₁, -α₂ (diagonal)
+- Cross-coupling: γ (off-diagonal)
+- Symmetric: Bidirectional coupling
+
+**Diffusion Matrix Σ:**
+
+Each row Σ_i,· determines noise for X_i:
+- If m = n and Σ diagonal: Independent noise per component
+- If m < n: Common factors (dimension reduction)
+- Non-diagonal: Correlated noise sources
+
+**Noise Covariance:**
+    Q = Σ·Σᵀ ∈ ℝⁿˣⁿ
+
+Instantaneous noise covariance:
+- Q_ii: Variance rate for X_i
+- Q_ij: Covariance rate between X_i and X_j
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Coupling:**
+Components interact via drift matrix A.
+Creates rich dynamics impossible in independent processes.
+
+**Correlation:**
+Noise sources can be correlated via Σ.
+Models common shocks affecting multiple variables.
+
+**Stability:**
+Stable if all eigenvalues of A have Re(λ) < 0.
+
+**Stationary Distribution:**
+X(∞) ~ N(-A^(-1)·B·u, Σ_∞)
+
+where Σ_∞ from Lyapunov equation.
+
+**Gaussian:**
+Linear dynamics preserve multivariate Gaussianity.
+
+**Dimension Reduction:**
+If m < n, dynamics driven by m < n factors.
+Used in factor models (finance).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Stationary Covariance:**
+
+Lyapunov equation:
+    A·Σ_∞ + Σ_∞·Aᵀ + Q = 0
+
+where Q = Σ·Σᵀ.
+
+Solutions:
+- Direct: Analytical (small n)
+- Numerical: scipy.linalg.solve_continuous_lyapunov
+- Eigenvalue: Via eigendecomposition of A
+
+**Autocorrelation:**
+    Cov[X(t), X(t+τ)] = Σ_∞·exp(Aᵀτ)
+
+Matrix exponential decay.
+
+**Eigenvalue Decomposition:**
+    A = V·Λ·V^(-1)
+
+Solution in eigenbasis:
+    Y = V^(-1)·X (modal coordinates)
+    Y_i(t) = Y_i(0)·exp(λ_i·t) + noise
+
+Each mode independent OU with rate λ_i.
+
+**Cross-Correlation Structure:**
+
+For components i, j:
+    Corr[X_i(t), X_j(t+τ)] = (Σ_∞)_ij·exp(dominant eigenvalue·τ)
+
+Determined by slowest (least negative) eigenvalue.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Two-Asset Example:**
+
+Consider two correlated assets:
+    dX₁ = -α₁·X₁·dt + γ·X₂·dt + σ₁·dW₁
+    dX₂ = γ·X₁·dt - α₂·X₂·dt + σ₂·dW₂
+
+Interpretation:
+- -α_i·X_i: Own mean reversion
+- γ·X_j: Spillover from other asset
+- σ_i·dW_i: Idiosyncratic shocks
+
+**Yield Curve Example:**
+
+Interest rates at different maturities:
+    dr_short = -κ_s·r_short·dt + ...
+    dr_long = -κ_l·r_long·dt + coupling·dr_short·dt + ...
+
+Short rate affects long rate (term structure).
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X ∈ ℝⁿ
+    - Vector of coupled variables
+    - Unbounded (Gaussian)
+    - Equilibrium at -A^(-1)·B·u
+
+Control: u ∈ ℝᵖ (optional)
+    - Vector control input
+    - Can be state feedback: u = u(X)
+
+Noise: W ∈ ℝᵐ
+    - m independent Wiener processes
+    - m ≤ n typically (factor structure)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                  | Description                                                                                                               | Default    |
+|--------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------|
+| A      | (np.ndarray or list, shape(n, n))     | Drift matrix (must have eigenvalues with Re(λ) < 0 for stability) - Diagonal: Own mean reversion - Off-diagonal: Coupling | _required_ |
+| Sigma  | (np.ndarray or list, shape(n, m))     | Diffusion matrix - Each row: Noise coefficients for one state - Can be square (m=n) or rectangular (m<n)                  | _required_ |
+| B      | (Optional\[np.ndarray\], shape(n, p)) | Control matrix (if system is controlled)                                                                                  | _required_ |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR
+- Noise Type: ADDITIVE (constant Σ)
+- SDE Type: Itô
+- Noise Dimension: nw = m
+- Stationary: Yes (if A stable)
+- Ergodic: Yes (if A stable)
+- Gaussian: Yes (always)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Finance:**
+- Multi-factor interest rate models
+- Correlated asset dynamics
+- Yield curve modeling
+- Portfolio optimization
+
+**2. Physics:**
+- Coupled Langevin equations
+- Multiple particles in potential
+- Collective modes
+
+**3. Economics:**
+- Multi-country VAR models
+- Spillover effects
+- Policy transmission
+
+**4. Neuroscience:**
+- Neural population dynamics
+- Synaptic coupling
+- Network oscillations
+
+**5. Climate:**
+- Multi-region temperatures
+- Heat transport coupling
+
+**6. Control:**
+- Multi-variable LQG
+- Coordinated control
+- Decentralized vs centralized
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Euler-Maruyama:**
+    X[k+1] = X[k] + A·X[k]·Δt + Σ·√Δt·Z[k]
+
+**Exact Discretization:**
+    X[k+1] = Φ·X[k] + w[k]
+
+where Φ = exp(A·Δt) (matrix exponential).
+
+**Recommended:** Exact for moderate n (fast matrix exponential).
+
+## Eigenvalue Analysis {.doc-section .doc-section-eigenvalue-analysis}
+
+**Stability Check:**
+    eigenvalues, eigenvectors = np.linalg.eig(A)
+    stable = np.all(np.real(eigenvalues) < 0)
+
+**Time Scales:**
+    time_constants = -1 / np.real(eigenvalues)
+
+**Oscillatory Modes:**
+    frequencies = np.imag(eigenvalues) / (2*np.pi)
+
+## Comparison with Scalar OU {.doc-section .doc-section-comparison-with-scalar-ou}
+
+**Scalar OU:**
+- 1D, no coupling
+- Single time constant
+- Exponential correlation
+
+**Multivariate OU:**
+- nD, with coupling
+- Multiple time scales
+- Complex correlation structure
+
+**When Coupling Matters:**
+- Asset correlations (portfolio risk)
+- Spillover effects (contagion)
+- Coordinated control (multi-agent)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear dynamics only
+- Constant A, Σ
+- Gaussian distribution
+- No jumps
+- Stationary assumptions
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Nonlinear: dX = f(X)·dt + Σ·dW
+- Time-varying: A(t), Σ(t)
+- Regime-switching: Parameters switch
+- Infinite-dimensional: SPDE
+
+## See Also {.doc-section .doc-section-see-also}
+
+OrnsteinUhlenbeck : Scalar version
+VectorAutoRegressive : Discrete-time analog
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.define_system) | Define multivariate OU process dynamics. |
+| [get_correlation_matrix](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_correlation_matrix) | Get stationary correlation matrix. |
+| [get_diffusion_matrix](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_diffusion_matrix) | Get diffusion matrix Σ. |
+| [get_drift_matrix](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_drift_matrix) | Get drift matrix A. |
+| [get_eigenvalues](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_eigenvalues) | Get eigenvalues of drift matrix A. |
+| [get_noise_covariance](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_noise_covariance) | Get instantaneous noise covariance Q = Σ·Σᵀ. |
+| [get_stationary_covariance](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_stationary_covariance) | Compute stationary covariance Σ_∞. |
+| [get_time_constants](#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_time_constants) | Get time constants from eigenvalues: τ_i = -1/Re(λ_i). |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.define_system }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.define_system(
+    A,
+    Sigma,
+    B=None,
+)
+```
+
+Define multivariate OU process dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                  | Description                                                                                                                         | Default    |
+|--------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|------------|
+| A      | (np.ndarray or list, shape(n, n))     | Drift matrix - Diagonal: Mean reversion rates (must be negative) - Off-diagonal: Coupling strengths - Must be stable: All Re(λ) < 0 | _required_ |
+| Sigma  | (np.ndarray or list, shape(n, m))     | Diffusion matrix - n states, m noise sources - Can be square (m=n) or rectangular (m<n) - Q = Σ·Σᵀ is noise covariance              | _required_ |
+| B      | (Optional\[np.ndarray\], shape(n, p)) | Control matrix (if controlled system) - p control inputs - If None, system is autonomous                                            | `None`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                    |
+|--------|-------------|------------------------------------------------|
+|        | ValueError  | If A is not square, or dimensions incompatible |
+|        | UserWarning | If A has eigenvalues with Re(λ) ≥ 0 (unstable) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stability Requirement:**
+
+For stationary distribution, A must be stable:
+    All eigenvalues: Re(λ) < 0
+
+Check: eigenvalues, _ = np.linalg.eig(A)
+
+**Coupling Structure:**
+
+A encodes interactions:
+- Diagonal elements: Self-dynamics (must be negative)
+- Off-diagonal: Cross-effects
+- Symmetric A: Detailed balance (reversible)
+- Asymmetric A: Non-reversible (cycles possible)
+
+**Noise Structure:**
+
+Common configurations:
+1. **Independent (m=n, Σ diagonal):**
+   Each component has own noise source
+
+2. **Factor model (m<n):**
+   States driven by fewer factors
+   Example: n=10 rates, m=3 factors (level, slope, curvature)
+
+3. **Correlated (Σ non-diagonal):**
+   Common shocks affect multiple components
+
+**Stationary Covariance:**
+
+Solve Lyapunov equation:
+    A·Σ_∞ + Σ_∞·Aᵀ + Σ·Σᵀ = 0
+
+Gives long-term covariance structure.
+
+**Dimension Guidelines:**
+- Small (n ≤ 5): Fully coupled, dense A
+- Medium (n = 5-20): Sparse A (limited coupling)
+- Large (n > 20): Factor structure (m << n)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # 2D coupled OU
+>>> A = [[-1.0, 0.2],    # X₂ pulls on X₁
+...      [0.3, -2.0]]    # X₁ pulls on X₂
+>>> Sigma = [[0.5, 0.0],
+...          [0.0, 1.0]]
+>>>
+>>> mou = MultivariateOrnsteinUhlenbeck(A=A, Sigma=Sigma)
+>>>
+>>> # Check stability
+>>> eigenvalues = np.linalg.eigvals(np.array(A))
+>>> print(f"Eigenvalues: {eigenvalues}")
+>>> print(f"Stable: {np.all(np.real(eigenvalues) < 0)}")
+```
+
+### get_correlation_matrix { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_correlation_matrix }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_correlation_matrix(
+)
+```
+
+Get stationary correlation matrix.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                                   |
+|--------|------------|-----------------------------------------------|
+|        | np.ndarray | Correlation matrix (n, n) with 1s on diagonal |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> mou = MultivariateOrnsteinUhlenbeck(
+...     A=[[-1, 0.5], [0.5, -1]],
+...     Sigma=[[1, 0], [0, 1]]
+... )
+>>> rho = mou.get_correlation_matrix()
+>>> print(f"Correlation:\n{rho}")
+```
+
+### get_diffusion_matrix { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_diffusion_matrix }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_diffusion_matrix(
+)
+```
+
+Get diffusion matrix Σ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description             |
+|--------|------------|-------------------------|
+|        | np.ndarray | Diffusion matrix (n, m) |
+
+### get_drift_matrix { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_drift_matrix }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_drift_matrix(
+)
+```
+
+Get drift matrix A.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description         |
+|--------|------------|---------------------|
+|        | np.ndarray | Drift matrix (n, n) |
+
+### get_eigenvalues { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_eigenvalues }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_eigenvalues(
+)
+```
+
+Get eigenvalues of drift matrix A.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                  |
+|--------|------------|------------------------------|
+|        | np.ndarray | Eigenvalues (may be complex) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Eigenvalues determine:
+- Stability: All Re(λ) < 0 required
+- Time scales: τ_i = -1/Re(λ_i)
+- Oscillations: Im(λ) ≠ 0 → periodic components
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> mou = MultivariateOrnsteinUhlenbeck(
+...     A=[[-1, 2], [-2, -1]],
+...     Sigma=[[1, 0], [0, 1]]
+... )
+>>> eigs = mou.get_eigenvalues()
+>>> print(f"Eigenvalues: {eigs}")
+>>> if np.any(np.imag(eigs) != 0):
+...     print("System has oscillatory modes")
+```
+
+### get_noise_covariance { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_noise_covariance }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_noise_covariance(
+)
+```
+
+Get instantaneous noise covariance Q = Σ·Σᵀ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description             |
+|--------|------------|-------------------------|
+|        | np.ndarray | Noise covariance (n, n) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> mou = MultivariateOrnsteinUhlenbeck(
+...     A=[[-1, 0], [0, -2]],
+...     Sigma=[[1, 0], [0, 2]]
+... )
+>>> Q = mou.get_noise_covariance()
+>>> print(f"Noise covariance:\n{Q}")
+```
+
+### get_stationary_covariance { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_stationary_covariance }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_stationary_covariance(
+)
+```
+
+Compute stationary covariance Σ_∞.
+
+Solves Lyapunov equation: A·Σ_∞ + Σ_∞·Aᵀ + Q = 0
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                  |
+|--------|------------|------------------------------|
+|        | np.ndarray | Stationary covariance (n, n) |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                                   |
+|--------|------------|-----------------------------------------------|
+|        | ValueError | If A is unstable (no stationary distribution) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> mou = MultivariateOrnsteinUhlenbeck(
+...     A=[[-1, 0], [0, -2]],
+...     Sigma=[[1, 0], [0, 1]]
+... )
+>>> Sigma_inf = mou.get_stationary_covariance()
+>>> print(f"Stationary covariance:\n{Sigma_inf}")
+```
+
+### get_time_constants { #cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_time_constants }
+
+```python
+systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.get_time_constants(
+)
+```
+
+Get time constants from eigenvalues: τ_i = -1/Re(λ_i).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description        |
+|--------|------------|--------------------|
+|        | np.ndarray | Time constants [s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> mou = MultivariateOrnsteinUhlenbeck(
+...     A=[[-1, 0], [0, -5]],
+...     Sigma=[[1, 0], [0, 1]]
+... )
+>>> tau = mou.get_time_constants()
+>>> print(f"Time constants: {tau}")  # [1.0, 0.2]
+```

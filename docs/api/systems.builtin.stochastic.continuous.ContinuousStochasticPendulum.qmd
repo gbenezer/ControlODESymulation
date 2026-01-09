@@ -1,0 +1,484 @@
+# systems.builtin.stochastic.continuous.ContinuousStochasticPendulum { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum(
+    *args,
+    **kwargs,
+)
+```
+
+Stochastic pendulum with random forcing - canonical nonlinear stochastic system.
+
+Combines the nonlinear dynamics of a simple pendulum with continuous random
+forcing, creating a fundamental model for studying noise-induced phenomena,
+Kramers' escape theory, stochastic resonance, and nonlinear stochastic control.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+State-space form:
+    dθ = ω·dt
+    dω = (-(g/L)·sin(θ) - b·ω + u)·dt + σ·dW
+
+Normalized form (g/L = 1):
+    dθ = ω·dt
+    dω = (-sin(θ) - b·ω + u)·dt + σ·dW
+
+where:
+    - θ: Angle from downward vertical [rad]
+    - ω: Angular velocity [rad/s]
+    - g/L: Gravitational constant (normalized to 1)
+    - b: Damping coefficient [1/s]
+    - u: Applied torque [rad/s²]
+    - σ: Noise intensity [rad/(s²·√s)]
+    - W(t): Standard Wiener process
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Equation of Motion:**
+
+Newton's rotational law: I·θ̈ = τ_total
+
+For unit moment of inertia (I=1):
+    θ̈ = τ_gravity + τ_damping + τ_control + τ_noise
+    θ̈ = -(g/L)·sin(θ) - b·θ̇ + u + σ·ξ(t)
+
+where ξ(t) is white noise (formal derivative of W).
+
+**Torque Components:**
+1. Gravity: -(g/L)·sin(θ) - Restoring torque toward θ=0
+2. Damping: -b·ω - Dissipative (energy removal)
+3. Control: u - Applied torque
+4. Noise: σ·dW/dt - Random disturbances
+
+**Energy:**
+    E = (1/2)·ω² + (g/L)·(1 - cos(θ))
+
+Kinetic + potential (normalized).
+
+**Noise Sources:**
+- Mechanical: Air currents, vibrations
+- Thermal: Brownian motion at pivot
+- Model uncertainty: Unmodeled dynamics
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Nonlinearity:**
+sin(θ) creates fundamentally different behavior from linear oscillator.
+
+**Bistability:**
+Two potential wells (θ = 0, ±2π, ...).
+Noise causes transitions.
+
+**Energy Barrier:**
+ΔE = 2·g/L separates downward from inverted.
+
+**Additive Noise:**
+Constant σ (state-independent).
+Enters velocity equation (physical forces).
+
+**Damping:**
+b > 0 required for stationary distribution.
+Without damping: Energy fluctuates, no equilibrium.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Small Angle Approximation (|θ| << 1):**
+
+sin(θ) ≈ θ gives linearized SDE:
+    dθ = ω·dt
+    dω = (-(g/L)·θ - b·ω + u)·dt + σ·dW
+
+This is linear (harmonic oscillator with noise).
+
+**Stationary Distribution (b > 0, u = 0):**
+
+For damped pendulum:
+    p_∞(θ, ω) ∝ exp(-E(θ,ω)/(σ²/b))
+
+where E = (1/2)·ω² - (g/L)·cos(θ).
+
+**Effective Temperature:**
+    T_eff = σ²/b
+
+Ratio of noise injection to dissipation.
+
+**Kramers' Escape Rate:**
+
+From θ = 0 over barrier to θ = π:
+    k_escape ≈ (ω_well²/2πb)·exp(-ΔE·b/σ²)
+
+Exponentially small for σ << √(ΔE·b).
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Damping b:**
+- Units: [1/s]
+- Controls energy dissipation
+- Time constant: τ = 1/b
+- Quality factor: Q = (g/L)^(1/2)/b
+
+**Examples:**
+- b = 0.1: Underdamped (Q = 10)
+- b = 1.0: Moderate damping
+- b = 10.0: Overdamped (creeping motion)
+
+**Noise Intensity σ:**
+- Units: [rad/(s²·√s)]
+- Controls random torque magnitude
+- Effective temperature: σ²/b
+
+**Examples:**
+- σ = 0.1: Small noise (rare escapes)
+- σ = 0.5: Moderate (occasional escapes)
+- σ = 1.0: Large (frequent escapes)
+
+**Ratio σ/√b:**
+Dimensionless noise level:
+- Small: Deep potential wells, rare transitions
+- Large: Shallow effective wells, frequent transitions
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [θ, ω]
+    - θ ∈ ℝ or S¹: Angle (unwrapped or periodic)
+    - ω ∈ ℝ: Angular velocity
+
+Control: u ∈ ℝ
+    - Applied torque
+
+Noise: w ∈ ℝ
+    - Single Wiener process
+    - Enters velocity equation
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                       | Default   |
+|--------|--------|-----------------------------------------------------------------------------------|-----------|
+| g      | float  | Gravitational acceleration [m/s²]                                                 | `9.81`    |
+| L      | float  | Pendulum length [m]                                                               | `1.0`     |
+| b      | float  | Damping coefficient [1/s] - b > 0 for stationary distribution - Typical: 0.1-10.0 | `0.5`     |
+| sigma  | float  | Noise intensity [rad/(s²·√s)] - Controls random torque - Typical: 0.1-2.0         | `0.5`     |
+| m      | float  | Mass [kg] (optional, for dimensional analysis)                                    | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR
+- Noise Type: ADDITIVE
+- SDE Type: Itô
+- Noise Dimension: nw = 1
+- Stationary: Yes (if b > 0)
+- Ergodic: Yes (if b > 0)
+- Bistable: Yes (multiple wells)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Kramers' Escape Theory:**
+- Noise-activated barrier crossing
+- Chemical reaction rates
+- Exponential escape time
+
+**2. Stochastic Resonance:**
+- Weak periodic signal enhanced by noise
+- Optimal noise level exists
+- Biology, climate, electronics
+
+**3. Coherence Resonance:**
+- Noise creates coherent oscillations
+- No periodic forcing needed
+- Maximum regularity at optimal σ
+
+**4. Nonlinear Control:**
+- Swing-up with noise
+- Stabilization at inverted
+- Robust control design
+
+**5. Synchronization:**
+- Coupled oscillators
+- Common noise induces correlation
+- Phase locking
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Recommended:**
+- Euler-Maruyama: dt = 0.01-0.1 s
+- Check angle wrapping (if needed)
+- Monitor energy (should fluctuate)
+
+**Convergence:**
+- Weak: O(dt) for moments
+- Strong: O(√dt) for paths
+
+## Kramers Escape Analysis {.doc-section .doc-section-kramers-escape-analysis}
+
+**Escape Time:**
+Mean time to cross barrier:
+    τ ~ exp(ΔE·b/σ²)
+
+Exponentially sensitive to:
+- Barrier height ΔE
+- Damping b (appears in exponent!)
+- Noise σ² (inverse in exponent)
+
+## Comparison with Linear Oscillator {.doc-section .doc-section-comparison-with-linear-oscillator}
+
+**Linear (Harmonic):**
+- sin(θ) ≈ θ
+- Gaussian stationary distribution
+- No bistability
+
+**Nonlinear (Pendulum):**
+- Full sin(θ)
+- Non-Gaussian stationary distribution
+- Bistable (multiple wells)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- 1D angle (no spatial motion)
+- Additive noise only
+- Constant parameters
+- No joint flexibility
+- Rigid body assumption
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Double pendulum (chaos + noise)
+- Elastic pendulum (variable length)
+- Spherical pendulum (2D angle)
+- Coupled pendulums (arrays)
+- Parametric noise (variable g or L)
+
+## See Also {.doc-section .doc-section-see-also}
+
+Pendulum : Deterministic version
+StochasticDoubleIntegrator : Linear analog
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_energy](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.compute_energy) | Compute mechanical energy. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.define_system) | Define stochastic pendulum dynamics. |
+| [estimate_kramers_escape_time](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.estimate_kramers_escape_time) | Estimate mean escape time using Kramers formula. |
+| [get_effective_temperature](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_effective_temperature) | Get effective temperature T_eff = σ²/b. |
+| [get_natural_frequency](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_natural_frequency) | Get natural frequency ω_0 = √(g/L). |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.setup_equilibria) | Set up equilibrium points (deterministic part). |
+
+### compute_energy { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.compute_energy }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.compute_energy(
+    theta,
+    omega,
+)
+```
+
+Compute mechanical energy.
+
+E = (1/2)·ω² + (g/L)·(1 - cos(θ))
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description              | Default    |
+|--------|--------|--------------------------|------------|
+| theta  | float  | Angle [rad]              | _required_ |
+| omega  | float  | Angular velocity [rad/s] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                   |
+|--------|--------|-------------------------------|
+|        | float  | Energy [J/kg] (or normalized) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Energy fluctuates randomly due to noise.
+With damping: Mean energy dissipates to T_eff = σ²/b.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = ContinuousStochasticPendulum()
+>>> E = pend.compute_energy(theta=0.5, omega=1.0)
+>>> print(f"Energy: {E:.3f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.define_system }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.define_system(
+    g=9.81,
+    L=1.0,
+    b=0.5,
+    sigma=0.5,
+    m=1.0,
+)
+```
+
+Define stochastic pendulum dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                               | Default   |
+|--------|--------|---------------------------------------------------------------------------------------------------------------------------|-----------|
+| g      | float  | Gravitational acceleration [m/s²]                                                                                         | `9.81`    |
+| L      | float  | Pendulum length [m]                                                                                                       | `1.0`     |
+| b      | float  | Damping coefficient [1/s] - b > 0 required for stationary distribution - Typical: 0.1-10.0 - Quality factor: Q = √(g/L)/b | `0.5`     |
+| sigma  | float  | Noise intensity [rad/(s²·√s)] - Controls random torque magnitude - Typical: 0.1-2.0 - Effective temperature: T_eff = σ²/b | `0.5`     |
+| m      | float  | Mass [kg] (optional, for dimensional analysis)                                                                            | `1.0`     |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Natural Frequency:**
+    ω_0 = √(g/L)
+
+For g=9.81, L=1: ω_0 ≈ 3.13 rad/s, Period ≈ 2 s
+
+**Damping Regimes:**
+
+Damping ratio: ζ = b/(2·ω_0)
+- ζ < 1: Underdamped (oscillatory decay)
+- ζ = 1: Critically damped (fastest non-oscillatory)
+- ζ > 1: Overdamped (slow exponential decay)
+
+**Effective Temperature:**
+    T_eff = σ²/b
+
+Analogy with thermodynamics:
+- Noise injects energy: ~ σ²
+- Damping removes energy: ~ b
+- Equilibrium: Balance at T_eff
+
+**Energy Barrier:**
+From stable (θ=0) to unstable (θ=π):
+    ΔE = 2·g/L
+
+For g=9.81, L=1: ΔE = 19.62 J/kg
+
+**Kramers Time:**
+Mean escape time:
+    τ_escape ~ (b/ω_0²)·exp(ΔE·b/σ²)
+
+Example: b=0.5, σ=0.5, ΔE≈20
+    → τ ~ 0.05·exp(20) ~ 2.4×10⁸ seconds!
+
+**Noise Level Guidelines:**
+
+Low noise (σ < 0.3):
+- Rare escapes (τ > hours)
+- Nearly deterministic
+- Small fluctuations around equilibrium
+
+Moderate noise (σ = 0.3-1.0):
+- Occasional escapes (τ ~ minutes to hours)
+- Visible stochastic effects
+- Coherence resonance regime
+
+High noise (σ > 1.0):
+- Frequent escapes (τ ~ seconds)
+- Dominated by randomness
+- Large fluctuations
+
+**Stochastic Resonance Regime:**
+For periodic forcing u = A·cos(ω·t):
+- Optimal σ ≈ √(ΔE·b) ≈ √(2·g/L·b)
+- Maximizes response to weak signal
+
+### estimate_kramers_escape_time { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.estimate_kramers_escape_time }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.estimate_kramers_escape_time(
+)
+```
+
+Estimate mean escape time using Kramers formula.
+
+τ ~ (2πb/ω_0²)·exp(ΔE·b/σ²)
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                    |
+|--------|--------|--------------------------------|
+|        | float  | Estimated mean escape time [s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is approximate, valid for:
+- Small noise: σ² << ΔE·b
+- Moderate damping: b ~ ω_0
+
+For accurate times, use Monte Carlo simulation.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = ContinuousStochasticPendulum(b=0.5, sigma=0.5)
+>>> tau = pend.estimate_kramers_escape_time()
+>>> print(f"Mean escape time: {tau:.2e} s")
+```
+
+### get_effective_temperature { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_effective_temperature }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_effective_temperature(
+)
+```
+
+Get effective temperature T_eff = σ²/b.
+
+Ratio of noise injection to dissipation.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description           |
+|--------|--------|-----------------------|
+|        | float  | Effective temperature |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Analogy with thermodynamics:
+- Higher T_eff: More energetic fluctuations
+- Lower T_eff: Smaller fluctuations
+- Controls stationary distribution width
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = ContinuousStochasticPendulum(b=0.5, sigma=0.5)
+>>> T_eff = pend.get_effective_temperature()
+>>> print(f"T_eff: {T_eff:.3f}")
+```
+
+### get_natural_frequency { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_natural_frequency }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.get_natural_frequency(
+)
+```
+
+Get natural frequency ω_0 = √(g/L).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description               |
+|--------|--------|---------------------------|
+|        | float  | Natural frequency [rad/s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> pend = ContinuousStochasticPendulum(g=9.81, L=1.0)
+>>> omega_0 = pend.get_natural_frequency()
+>>> period = 2 * np.pi / omega_0
+>>> print(f"Period: {period:.2f} s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.setup_equilibria(
+)
+```
+
+Set up equilibrium points (deterministic part).
+
+Pendulum has periodic equilibria at θ = n·π.

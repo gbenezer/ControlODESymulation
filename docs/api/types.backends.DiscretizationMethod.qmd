@@ -1,0 +1,5 @@
+# types.backends.DiscretizationMethod { #cdesym.types.backends.DiscretizationMethod }
+
+`types.backends.DiscretizationMethod`
+
+Discretization method for continuous → discrete transformation.

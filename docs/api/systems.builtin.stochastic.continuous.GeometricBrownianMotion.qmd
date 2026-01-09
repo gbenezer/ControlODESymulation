@@ -1,0 +1,218 @@
+# systems.builtin.stochastic.continuous.GeometricBrownianMotion { #cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion }
+
+```python
+systems.builtin.stochastic.continuous.GeometricBrownianMotion(*args, **kwargs)
+```
+
+Geometric Brownian motion with multiplicative (state-dependent) noise.
+
+Foundation of Black-Scholes model. Ensures positive states and
+naturally expresses percentage returns.
+
+## Stochastic Differential Equation {.doc-section .doc-section-stochastic-differential-equation}
+
+dX = (μ·X + u)·dt + σ·X·dW
+
+where:
+    X(t) ∈ ℝ₊: State (price, population)
+    μ: Drift (expected growth rate)
+    σ > 0: Volatility (noise intensity)
+    u: Control (optional, additive)
+    W(t): Standard Wiener process
+
+## Key Features {.doc-section .doc-section-key-features}
+
+- **Multiplicative Noise:** σ·X scales with state
+- **Positivity:** X(t) > 0 if X₀ > 0
+- **Log-Normality:** X(t) ~ LogNormal
+- **Exponential Growth:** E[X(t)] = X₀·exp(μ·t)
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Exact Solution (u=0):**
+    X(t) = X₀·exp((μ - σ²/2)·t + σ·W(t))
+
+**Moments:**
+- Mean: E[X(t)] = X₀·exp(μ·t)
+- Variance: Var[X(t)] = X₀²·exp(2μ·t)·(exp(σ²·t) - 1)
+- Median: X₀·exp((μ - σ²/2)·t)
+
+**Asymptotic Behavior:**
+- μ > σ²/2: Growth to ∞
+- μ = σ²/2: Oscillates
+- μ < σ²/2: Decay to 0
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                              | Default   |
+|--------|--------|--------------------------------------------------------------------------|-----------|
+| mu     | float  | Drift coefficient (expected growth rate) Typical: -0.1 to 0.3 for stocks | `0.1`     |
+| sigma  | float  | Volatility (must be positive) Typical stocks: 0.15-0.30 (15-30% annual)  | `0.2`     |
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: x ∈ ℝ₊ = (0, ∞)
+Control: u ∈ ℝ (optional)
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- Noise Type: MULTIPLICATIVE
+- Diffusion: g(x) = σ·x (state-dependent)
+- SDE Type: Itô (standard)
+- Noise Dimension: nw = 1
+
+## Applications {.doc-section .doc-section-applications}
+
+**Finance:** Stock prices, Black-Scholes model
+**Biology:** Population dynamics with noise
+**Economics:** GDP growth models
+**Physics:** Multiplicative noise processes
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**Exact Scheme (Recommended):**
+    X[k+1] = X[k]·exp((μ - σ²/2)·Δt + σ·√Δt·Z[k])
+
+Always positive, no discretization error.
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Assumes constant volatility
+- No jumps (continuous paths only)
+- No mean reversion
+- Empirical returns show fat tails
+
+## See Also {.doc-section .doc-section-see-also}
+
+BrownianMotion : Additive noise version
+OrnsteinUhlenbeck : Mean-reverting process
+CoxIngersollRoss : Mean-reverting with multiplicative noise
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.define_system) | Define geometric Brownian motion dynamics. |
+| [get_expected_value](#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_expected_value) | Compute analytical expected value E[X(t)]. |
+| [get_variance](#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_variance) | Compute analytical variance Var[X(t)]. |
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.define_system }
+
+```python
+systems.builtin.stochastic.continuous.GeometricBrownianMotion.define_system(
+    mu=0.1,
+    sigma=0.2,
+)
+```
+
+Define geometric Brownian motion dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                   | Default   |
+|--------|--------|-------------------------------------------------------------------------------|-----------|
+| mu     | float  | Drift coefficient (growth rate) μ > 0: Growth, μ = 0: Fair game, μ < 0: Decay | `0.1`     |
+| sigma  | float  | Volatility (must be positive) Typical stocks: 0.15-0.30                       | `0.2`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description   |
+|--------|------------|---------------|
+|        | ValueError | If sigma ≤ 0  |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Parameter Guidelines:**
+- Large cap stocks: μ≈0.08, σ≈0.15-0.25
+- Small cap stocks: μ≈0.12, σ≈0.30-0.50
+- Sharpe ratio: (μ-r)/σ ≈ 0.3-0.5
+
+**State Positivity:**
+Multiplicative noise g(x) = σ·x ensures X(t) > 0
+for all t if X(0) > 0.
+
+**Itô Correction:**
+Expected log-return is μ - σ²/2, not μ, due to
+quadratic variation.
+
+### get_expected_value { #cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_expected_value }
+
+```python
+systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_expected_value(
+    x0,
+    t,
+    u=0.0,
+)
+```
+
+Compute analytical expected value E[X(t)].
+
+For u=0: E[X(t)] = X₀·exp(μ·t)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                      | Default    |
+|--------|--------|----------------------------------|------------|
+| x0     | float  | Initial state (must be positive) | _required_ |
+| t      | float  | Time (non-negative)              | _required_ |
+| u      | float  | Control (assumed constant)       | `0.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | float  | Expected value E[X(t)] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Mean grows exponentially at rate μ:
+- Doubling time: ln(2)/μ (if μ > 0)
+- Half-life: ln(2)/|μ| (if μ < 0)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> gbm = GeometricBrownianMotion(mu=0.10, sigma=0.20)
+>>> E_1yr = gbm.get_expected_value(x0=100, t=1.0)
+>>> print(f"Expected: ${E_1yr:.2f}")  # $110.52
+```
+
+### get_variance { #cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_variance }
+
+```python
+systems.builtin.stochastic.continuous.GeometricBrownianMotion.get_variance(
+    x0,
+    t,
+)
+```
+
+Compute analytical variance Var[X(t)].
+
+Var[X(t)] = X₀²·exp(2μ·t)·(exp(σ²·t) - 1)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description              | Default    |
+|--------|--------|--------------------------|------------|
+| x0     | float  | Initial state (positive) | _required_ |
+| t      | float  | Time (non-negative)      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | float  | Variance Var[X(t)] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Coefficient of variation grows unboundedly:
+    CV = √(exp(σ²·t) - 1) → ∞ as t → ∞
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> gbm = GeometricBrownianMotion(mu=0.05, sigma=0.20)
+>>> var = gbm.get_variance(x0=100, t=1.0)
+>>> std = np.sqrt(var)
+>>> print(f"Std Dev: ${std:.2f}")
+```

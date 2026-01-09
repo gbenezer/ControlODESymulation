@@ -1,0 +1,30 @@
+# types.backends.Backend { #cdesym.types.backends.Backend }
+
+`types.backends.Backend`
+
+Backend identifier for numerical computation.
+
+Valid values:
+- 'numpy': NumPy arrays (CPU-based, stable, universal)
+- 'torch': PyTorch tensors (GPU support, autodiff, neural networks)
+- 'jax': JAX arrays (JIT compilation, GPU/TPU, functional)
+
+Backend Selection Guide:
+- Production/Stability: 'numpy'
+- GPU acceleration: 'torch' or 'jax'
+- Gradient computation: 'torch' or 'jax'
+- JIT compilation: 'jax'
+- Neural networks: 'torch'
+- Functional programming: 'jax'
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> backend: Backend = 'torch'
+>>> system.set_default_backend('jax')
+>>> 
+>>> # Conditional on backend
+>>> if backend == 'torch':
+...     import torch
+...     x = torch.tensor(x_np)
+```

@@ -1,0 +1,70 @@
+# systems.base.numerical_integration.stochastic.CustomBrownianPath { #cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath }
+
+```python
+systems.base.numerical_integration.stochastic.CustomBrownianPath(t0, t1, dW)
+```
+
+Custom Brownian motion that uses provided dW increments.
+
+This implements Diffrax's AbstractPath interface to allow
+user-specified noise instead of generating random noise.
+
+Uses Equinox Module for proper JAX/Diffrax integration.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name   | Type       | Description                                                                    |
+|--------|------------|--------------------------------------------------------------------------------|
+| t0     | ScalarLike | Start time                                                                     |
+| t1     | ScalarLike | End time                                                                       |
+| dW     | ArrayLike  | Brownian increment for interval (t0, t1) Shape: (nw,) for the noise dimensions |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Zero noise for deterministic testing
+>>> dW = jnp.zeros(1)
+>>> brownian = CustomBrownianPath(0.0, 0.01, dW)
+>>>
+>>> # Custom noise pattern
+>>> dW = jnp.array([0.5])
+>>> brownian = CustomBrownianPath(0.0, 0.01, dW)
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [evaluate](#cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath.evaluate) | Evaluate Brownian increment between t0 and t1. |
+
+### evaluate { #cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath.evaluate }
+
+```python
+systems.base.numerical_integration.stochastic.CustomBrownianPath.evaluate(
+    t0,
+    t1=None,
+    left=True,
+)
+```
+
+Evaluate Brownian increment between t0 and t1.
+
+For custom noise, we provide the exact increment for our interval.
+Diffrax will call this to get dW values.
+
+This method must be JIT-compatible, so we use jnp.where() instead
+of Python if statements to avoid tracer boolean conversion errors.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                   | Description                                     | Default    |
+|--------|------------------------|-------------------------------------------------|------------|
+| t0     | ScalarLike             | Start time of query                             | _required_ |
+| t1     | Optional\[ScalarLike\] | End time of query (if None, return value at t0) | `None`     |
+| left   | bool                   | Whether to use left or right limit              | `True`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                                       |
+|--------|--------|-------------------------------------------------------------------|
+|        | Array  | Brownian increment or value (JAX array for Diffrax compatibility) |

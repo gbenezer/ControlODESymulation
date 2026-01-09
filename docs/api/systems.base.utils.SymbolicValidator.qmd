@@ -1,0 +1,117 @@
+# systems.base.utils.SymbolicValidator { #cdesym.systems.base.utils.SymbolicValidator }
+
+```python
+systems.base.utils.SymbolicValidator(system)
+```
+
+Validates symbolic dynamical system definitions.
+
+Performs comprehensive validation of symbolic system components including
+variable definitions, dimensions, symbolic expressions, and parameter values.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> validator = SymbolicValidator(system)
+>>> result = validator.validate()
+>>>
+>>> if result.is_valid:
+...     print("System is valid!")
+... else:
+...     print(f"Errors: {result.errors}")
+>>>
+>>> # Raise exception on error
+>>> try:
+...     result = validator.validate(raise_on_error=True)
+... except ValidationError as e:
+...     print(f"Validation failed: {e}")
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [validate](#cdesym.systems.base.utils.SymbolicValidator.validate) | Validate system definition. |
+| [validate_system](#cdesym.systems.base.utils.SymbolicValidator.validate_system) | Static convenience method for one-off validation. |
+
+### validate { #cdesym.systems.base.utils.SymbolicValidator.validate }
+
+```python
+systems.base.utils.SymbolicValidator.validate(raise_on_error=True)
+```
+
+Validate system definition.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type   | Description                                                                                                | Default   |
+|----------------|--------|------------------------------------------------------------------------------------------------------------|-----------|
+| raise_on_error | bool   | If True, raise ValidationError on validation failure If False, return SymbolicValidationResult with errors | `True`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                        |
+|--------|--------------------------|----------------------------------------------------|
+|        | SymbolicValidationResult | Validation results with errors, warnings, and info |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type            | Description                                 |
+|--------|-----------------|---------------------------------------------|
+|        | ValidationError | If validation fails and raise_on_error=True |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> result = validator.validate(raise_on_error=False)
+>>> if not result.is_valid:
+...     for error in result.errors:
+...         print(f"Error: {error}")
+>>>
+>>> # Or raise on error
+>>> try:
+...     validator.validate(raise_on_error=True)
+... except ValidationError as e:
+...     print(f"Validation failed: {e}")
+```
+
+### validate_system { #cdesym.systems.base.utils.SymbolicValidator.validate_system }
+
+```python
+systems.base.utils.SymbolicValidator.validate_system(
+    system,
+    raise_on_error=True,
+)
+```
+
+Static convenience method for one-off validation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                    | Description                               | Default    |
+|----------------|-------------------------|-------------------------------------------|------------|
+| system         | SymbolicDynamicalSystem | System to validate                        | _required_ |
+| raise_on_error | bool                    | If True, raise ValidationError on failure | `True`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description        |
+|--------|--------------------------|--------------------|
+|        | SymbolicValidationResult | Validation results |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type            | Description                        |
+|--------|-----------------|------------------------------------|
+|        | ValidationError | If invalid and raise_on_error=True |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> result = SymbolicValidator.validate_system(my_system)
+>>>
+>>> # Or without raising
+>>> result = SymbolicValidator.validate_system(
+...     my_system, raise_on_error=False
+... )
+```

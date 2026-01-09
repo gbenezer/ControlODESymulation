@@ -1,0 +1,54 @@
+# types.reachability.CBFResult { #cdesym.types.reachability.CBFResult }
+
+```python
+types.reachability.CBFResult()
+```
+
+Control Barrier Function (CBF) result.
+
+Safety filter for control ensuring forward invariance of safe set.
+
+## Fields {.doc-section .doc-section-fields}
+
+safe_control : ControlVector
+    Safety-filtered control u_safe
+barrier_value : float
+    B(x) at current state
+barrier_derivative : float
+    dB/dt or ΔB under current dynamics
+constraint_active : bool
+    True if safety constraint is active
+nominal_control : ControlVector
+    Original desired control u_nom
+modification_magnitude : float
+    ||u_safe - u_nom|| control modification
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Define barrier function (distance to obstacle)
+>>> obstacle_center = np.array([5, 5])
+>>> obstacle_radius = 2.0
+>>> B = lambda x: np.linalg.norm(x - obstacle_center)**2 - obstacle_radius**2
+>>>
+>>> # Create CBF controller
+>>> cbf = ControlBarrierFunction(barrier=B, system=robot, gamma=1.0)
+>>>
+>>> # Filter control at each step
+>>> x = np.array([4, 3])
+>>> u_desired = np.array([1, 1])  # Nominal control (move toward obstacle)
+>>>
+>>> result: CBFResult = cbf.filter_control(x, u_desired)
+>>>
+>>> u_safe = result['safe_control']
+>>> print(f"Barrier value: {result['barrier_value']:.3f}")
+>>>
+>>> if result['constraint_active']:
+...     print("Safety filter active!")
+...     print(f"Control modified by: {result['modification_magnitude']:.3f}")
+... else:
+...     print("Nominal control is safe")
+>>>
+>>> # Apply safe control
+>>> x_next = robot.step(x, u_safe)
+```

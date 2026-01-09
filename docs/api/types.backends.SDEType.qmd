@@ -1,0 +1,23 @@
+# types.backends.SDEType { #cdesym.types.backends.SDEType }
+
+```python
+types.backends.SDEType()
+```
+
+SDE interpretation type.
+
+Interpretations:
+- 'ito': Itô interpretation (more common in control/finance)
+* dx = f(x)dt + g(x)dW
+* Martingale property
+* Simpler numerically
+
+- 'stratonovich': Stratonovich interpretation (physics/engineering)
+* dx = f(x)dt + g(x)∘dW
+* Chain rule works normally
+* More intuitive for physical systems
+
+Conversion:
+f_Stratonovich = f_Ito + 0.5 * g * (∂g/∂x)
+
+For discrete systems: No distinction (both equivalent)

@@ -1,0 +1,216 @@
+# systems.base.numerical_integration.ScipyIntegrator { #cdesym.systems.base.numerical_integration.ScipyIntegrator }
+
+```python
+systems.base.numerical_integration.ScipyIntegrator(
+    system,
+    dt=0.01,
+    method='RK45',
+    backend='numpy',
+    **options,
+)
+```
+
+Adaptive integrator using scipy.integrate.solve_ivp.
+
+Provides access to scipy's suite of professional ODE solvers with
+automatic step size control and error estimation.
+
+Key Features:
+- Automatic step size adaptation
+- Error control (rtol, atol)
+- Dense output (interpolated solution)
+- Event detection
+- Stiff system support
+- Supports both controlled and autonomous systems
+
+## Available Methods: {.doc-section .doc-section-available-methods}
+
+**Explicit (Non-Stiff):**
+- 'RK45': Dormand-Prince 5(4) [DEFAULT]
+  * General-purpose, robust
+  * Order 5 with 4th-order error estimate
+  * Good for most problems
+
+- 'RK23': Bogacki-Shampine 3(2)
+  * Lower accuracy, faster
+  * Good for coarse simulations
+
+- 'DOP853': Dormand-Prince 8(5,3)
+  * Very high accuracy
+  * Good for precise orbit calculations
+
+**Implicit (Stiff):**
+- 'Radau': Implicit Runge-Kutta
+  * Stiff-stable
+  * Good for moderately stiff problems
+  * 5th order accuracy
+
+- 'BDF': Backward Differentiation Formula
+  * Very stiff systems
+  * Used in circuit simulation, chemistry
+  * Variable order (1-5)
+
+**Automatic:**
+- 'LSODA': Automatic stiffness detection
+  * Switches between Adams (non-stiff) and BDF (stiff)
+  * Best "set and forget" option
+  * Used in MATLAB's ode15s
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Controlled system - general-purpose adaptive integration
+>>> integrator = ScipyIntegrator(
+...     system,
+...     dt=0.01,  # Initial guess
+...     method='RK45',
+...     rtol=1e-6,
+...     atol=1e-8
+... )
+>>>
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: -K @ x,
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Adaptive steps: {result['nsteps']}")
+>>> print(f"Success: {result['success']}")
+>>>
+>>> # Autonomous system
+>>> integrator = ScipyIntegrator(autonomous_system, method='RK45')
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: None,  # No control
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Stiff system (automatic detection)
+>>> stiff_integrator = ScipyIntegrator(
+...     stiff_system,
+...     method='LSODA',  # Auto-detects stiffness
+...     rtol=1e-8,
+...     atol=1e-10
+... )
+>>>
+>>> # Very stiff system (explicit method)
+>>> very_stiff_integrator = ScipyIntegrator(
+...     chem_system,
+...     method='BDF',  # Backward differentiation
+...     rtol=1e-10
+... )
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [integrate](#cdesym.systems.base.numerical_integration.ScipyIntegrator.integrate) | Integrate using scipy.solve_ivp with adaptive stepping. |
+| [step](#cdesym.systems.base.numerical_integration.ScipyIntegrator.step) | Take one integration step (uses integrate() internally). |
+
+### integrate { #cdesym.systems.base.numerical_integration.ScipyIntegrator.integrate }
+
+```python
+systems.base.numerical_integration.ScipyIntegrator.integrate(
+    x0,
+    u_func,
+    t_span,
+    t_eval=None,
+    dense_output=False,
+    events=None,
+)
+```
+
+Integrate using scipy.solve_ivp with adaptive stepping.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                                    | Description                                                                                 | Default    |
+|--------------|---------------------------------------------------------|---------------------------------------------------------------------------------------------|------------|
+| x0           | ArrayLike                                               | Initial state (nx,)                                                                         | _required_ |
+| u_func       | Callable\[\[float, ArrayLike\], Optional\[ArrayLike\]\] | Control policy (t, x) → u (or None for autonomous systems)                                  | _required_ |
+| t_span       | Tuple\[float, float\]                                   | Integration interval (t_start, t_end)                                                       | _required_ |
+| t_eval       | Optional\[ArrayLike\]                                   | Specific times at which to store solution If None, solver chooses time points automatically | `None`     |
+| dense_output | bool                                                    | If True, compute continuous solution (allows interpolation)                                 | `False`    |
+| events       | Optional\[Callable\]                                    | Event function for detection (e.g., impact, switching)                                      | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+|--------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | IntegrationResult | TypedDict containing: - t: Time points (T,) - x: State trajectory (T, nx) - time-major ordering - success: Whether integration succeeded - message: Status message - nfev: Number of function evaluations - nsteps: Number of steps taken - integration_time: Computation time - solver: Integrator name - njev: Number of Jacobian evaluations (if available) - nlu: Number of LU decompositions (if available) - status: Solver status code (if available) - sol: Dense output object (if dense_output=True) - dense_output: True (if dense_output=True) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Controlled system - let solver choose time points
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: -K @ x,
+...     t_span=(0.0, 10.0)
+... )
+>>> # result["t"] has variable spacing (adaptive!)
+>>> print(f"Used {result['nsteps']} adaptive steps")
+>>>
+>>> # Autonomous system
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+>>> print(f"Autonomous: {result['success']}")
+>>>
+>>> # Evaluate at specific times
+>>> t_eval = np.linspace(0, 10, 1001)
+>>> result = integrator.integrate(
+...     x0, u_func, (0, 10),
+...     t_eval=t_eval
+... )
+>>> # result["t"] matches t_eval
+>>>
+>>> # Dense output for interpolation
+>>> result = integrator.integrate(
+...     x0, u_func, (0, 10),
+...     dense_output=True
+... )
+>>> x_at_5_5 = result["sol"](5.5)  # Interpolate at t=5.5
+>>>
+>>> # Event detection
+>>> def impact_event(t, x):
+...     return x[1]  # Detect when velocity crosses zero
+>>> impact_event.terminal = True
+>>> result = integrator.integrate(
+...     x0, u_func, (0, 10),
+...     events=impact_event
+... )
+```
+
+### step { #cdesym.systems.base.numerical_integration.ScipyIntegrator.step }
+
+```python
+systems.base.numerical_integration.ScipyIntegrator.step(x, u=None, dt=None)
+```
+
+Take one integration step (uses integrate() internally).
+
+For adaptive integrators, this integrates from t=0 to t=dt
+using adaptive stepping internally, then returns the final state.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                  | Description                                                             | Default    |
+|--------|-----------------------|-------------------------------------------------------------------------|------------|
+| x      | ArrayLike             | Current state                                                           | _required_ |
+| u      | Optional\[ArrayLike\] | Control input (None for autonomous systems, assumed constant over step) | `None`     |
+| dt     | Optional\[float\]     | Step size (uses self.dt if None)                                        | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | ArrayLike | Next state    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is less efficient than integrate() for multiple steps
+because it reinitializes the solver each time. Use integrate()
+for trajectory generation.

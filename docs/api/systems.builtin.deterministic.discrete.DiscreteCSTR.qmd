@@ -1,0 +1,679 @@
+# systems.builtin.deterministic.discrete.DiscreteCSTR { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR(*args, **kwargs)
+```
+
+    Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket.
+
+##     Physical System: {.doc-section .doc-section-----physical-system}
+
+    A continuous flow reactor where reactant A converts to product B in
+    an exothermic reaction, modeled in discrete time with periodic sampling
+    and control actuation.
+
+    Unlike batch reactors, CSTRs operate at steady state with continuous
+    feed and product removal. The discrete-time formulation is appropriate
+    for digital control systems with:
+    - Periodic concentration measurements (e.g., via online analyzers)
+    - Discrete temperature sensor readings
+    - Digital control actuation of cooling jacket
+
+    Key features:
+    - Continuous flow: Feed enters, product exits at same rate
+    - Perfect mixing: Uniform concentration and temperature
+    - Exothermic reaction: Heat generation from reaction
+    - Jacket cooling: Heat removal to maintain temperature
+    - Discrete measurements and control updates
+
+    The reactor can exhibit:
+    - Multiple steady states (low/high conversion)
+    - Oscillatory behavior (limit cycles)
+    - Thermal runaway (if cooling insufficient)
+    - Complex bifurcations as parameters vary
+
+##     State Space: {.doc-section .doc-section-----state-space}
+
+    State: x[k] = [Cₐ[k], T[k]]
+        Concentration state:
+        - Cₐ: Concentration of reactant A in reactor [mol/L]
+          * Lower than feed concentration due to reaction
+          * Cₐ,feed > Cₐ > 0
+          * Steady-state value depends on temperature and residence time
+          * High Cₐ → low conversion (inefficient)
+          * Low Cₐ → high conversion (efficient but expensive cooling)
+
+        Temperature state:
+        - T: Reactor temperature [K]
+          * Higher than feed due to exothermic reaction
+          * T > T_feed (for exothermic reactions)
+          * Critical state: affects reaction rate exponentially
+          * Small T change → large rate change (Arrhenius)
+          * Must be controlled to prevent runaway
+
+    Control: u[k] = [T_jacket[k]]
+        - T_jacket: Cooling jacket temperature [K]
+          * Manipulated variable for temperature control
+          * Typically T_jacket < T (removing heat)
+          * Can be T_jacket > T for startup heating
+          * Typical range: 280-340 K
+          * Physical limits: chiller/heater capacity
+
+    Output: y[k] = [Cₐ[k], T[k]]
+        - Full state measurement
+        - In practice:
+          * Cₐ measured via online analyzer (GC, HPLC, spectroscopy)
+          * T measured via thermocouple or RTD
+          * Both have sampling delays and noise
+
+##     Dynamics: {.doc-section .doc-section-----dynamics}
+
+    The discrete-time dynamics use Euler discretization:
+
+        Cₐ[k+1] = Cₐ[k] + dt·[(F/V)·(Cₐ,feed - Cₐ[k]) - r[k]]
+        T[k+1] = T[k] + dt·[(F/V)·(T_feed - T[k]) + (-ΔH/ρCₚ)·r[k] + UA/(VρCₚ)·(T_jacket[k] - T[k])]
+
+    **Reaction Rate (Arrhenius kinetics)**:
+        r[k] = k₀·Cₐ[k]·exp(-E/T[k])  [mol/(L·s)]
+
+    where:
+    - k₀: Pre-exponential factor [1/s]
+    - E: Activation energy [K] (using Eₐ/R as temperature)
+    - exp(-E/T): Arrhenius temperature dependence
+
+    **Physical Interpretation**:
+
+    Material Balance:
+    - (F/V)·(Cₐ,feed - Cₐ): Convective in/out (dilution)
+    - F/V = 1/τ: Inverse residence time [1/s]
+    - τ = V/F: Average time molecule spends in reactor [s]
+    - -r: Consumption by reaction
+    - At steady state: inflow - outflow - reaction = 0
+
+    Energy Balance:
+    - (F/V)·(T_feed - T): Convective heat in/out
+    - (-ΔH/ρCₚ)·r: Heat generation from reaction
+      * ΔH < 0 (exothermic) → heat generation
+      * |ΔH| large → strong thermal coupling
+    - UA/(VρCₚ)·(T_jacket - T): Heat removal via jacket
+      * UA: Overall heat transfer coefficient × area
+      * Larger UA → better temperature control
+      * T_jacket < T → cooling (typical)
+
+    **Nonlinear Coupling**:
+    1. Temperature affects reaction rate exponentially (Arrhenius)
+    2. Reaction generates heat (thermal feedback)
+    3. High T → fast reaction → more heat → higher T (runaway risk)
+    4. Cooling must balance heat generation for stability
+
+##     Parameters: {.doc-section .doc-section-----parameters}
+
+    F : float, default=100.0
+        Volumetric flow rate [L/s]
+        Higher F → shorter residence time → lower conversion
+        Lower F → longer residence time → higher conversion
+
+    V : float, default=100.0
+        Reactor volume [L]
+        Determines residence time τ = V/F
+        Larger V → more conversion for given F
+
+    C_A_feed : float, default=1.0
+        Feed concentration [mol/L]
+        Typical: 0.5-2.0 mol/L
+        Higher feed → more product but more heat generation
+
+    T_feed : float, default=350.0
+        Feed temperature [K]
+        Typical: 300-360 K
+        Pre-heating can improve conversion but reduces stability margin
+
+    k0 : float, default=7.2e10
+        Pre-exponential factor [1/s]
+        Collision frequency in Arrhenius equation
+        Typical: 10⁶-10¹² for liquid phase reactions
+        Determines reaction speed at given temperature
+
+    E : float, default=8750.0
+        Activation energy [K] (actually Eₐ/R)
+        Energy barrier for reaction to occur
+        Typical: 5000-15000 K for Eₐ/R
+        Higher E → more temperature-sensitive
+        Physical Eₐ typically 40-120 kJ/mol
+
+    delta_H : float, default=-5e4
+        Heat of reaction [J/mol]
+        Negative = exothermic (releases heat)
+        Positive = endothermic (absorbs heat)
+        Typical for exothermic: -20,000 to -200,000 J/mol
+        Larger |ΔH| → stronger thermal coupling, harder control
+
+    rho : float, default=1000.0
+        Density [kg/L]
+        Typical for aqueous solutions: 900-1100 kg/L
+        Affects thermal inertia (heat capacity)
+
+    Cp : float, default=0.239
+        Specific heat capacity [J/(kg·K)]
+        Typical for aqueous: 0.2-0.5 J/(kg·K)
+        Higher Cₚ → slower temperature changes (more stable)
+
+    UA : float, default=5e4
+        Overall heat transfer coefficient × area [J/(s·K)]
+        Combines jacket film coefficient, wall conduction, reactor-side film
+        Typical: 10³-10⁵ J/(s·K)
+        Higher UA → better temperature control, faster cooling
+        Limited by physical design (jacket size, flow rate)
+
+    dt : float, default=0.1
+        Sampling/discretization time step [s]
+        Critical parameter for stability!
+        - Too large → numerical instability, oscillations
+        - Too small → slow simulation, high computational cost
+        - Rule of thumb: dt < 0.1/max(λ) where λ are eigenvalues
+        - Typical for CSTR: 0.01-1.0 seconds
+        - Must be smaller than fastest system time scale
+
+##     Equilibria: {.doc-section .doc-section-----equilibria}
+
+    **Multiple Steady States** (hallmark of CSTRs!):
+
+    CSTR can have 1, 2, or 3 steady states depending on parameters.
+    For given feed conditions and jacket temperature:
+
+    1. **Low conversion state** (stable):
+       - Low T ≈ T_feed + small rise
+       - Low reaction rate (slow kinetics)
+       - High Cₐ ≈ Cₐ,feed (minimal conversion)
+       - Heat generation < Heat removal
+       - Easy to control but inefficient
+       - Attractive for cold startup
+
+    2. **High conversion state** (stable):
+       - High T >> T_feed
+       - High reaction rate (fast kinetics)
+       - Low Cₐ << Cₐ,feed (high conversion)
+       - Heat generation balanced by cooling
+       - Desirable operating point (efficient)
+       - Risk: close to instability/runaway
+
+    3. **Intermediate state** (unstable):
+       - Saddle point in phase space
+       - Not physically realizable (unstable)
+       - Forms separatrix between basins of attraction
+       - System will move toward stable states
+
+    **Stability depends on**:
+    - Residence time τ = V/F (longer → more conversion, less stable)
+    - Activation energy E (higher → more sensitive)
+    - Heat of reaction ΔH (larger |ΔH| → more coupling)
+    - Cooling capacity UA (higher → more stable)
+    - Feed temperature T_feed (higher → less stable margin)
+
+    **Bifurcation Behavior**:
+    As cooling capacity (T_jacket) decreases:
+    1. Unique stable high-conversion state
+    2. Saddle-node bifurcation → 3 steady states appear
+    3. Two stable states (low and high conversion)
+    4. Another saddle-node → only low-conversion state
+    5. Further decrease → thermal runaway (no steady state)
+
+##     Control Objectives: {.doc-section .doc-section-----control-objectives}
+
+    Common control goals for CSTR:
+
+    1. **Setpoint tracking**: Maintain T[k] ≈ T_setpoint
+       - Most common objective
+       - Balances conversion and stability
+       - PID/LQR/MPC controllers typical
+       - Challenge: nonlinearity and multiple steady states
+
+    2. **Startup control**: Transition low → high conversion state
+       - Must cross unstable intermediate state
+       - Requires large transient cooling capacity
+       - Bang-bang or optimal trajectory control
+       - Risk of overshoot → runaway
+
+    3. **Disturbance rejection**: Handle feed variations
+       - Feed concentration changes: Cₐ,feed(t)
+       - Feed temperature disturbances: T_feed(t)
+       - Flow rate fluctuations: F(t)
+       - Jacket temperature limits
+
+    4. **Optimal operation**: Maximize profit
+       - Balance conversion (revenue) vs cooling cost
+       - Economic objective: J = price·F·(Cₐ,feed - Cₐ) - cooling_cost
+       - Constraint: T_max safety limit
+       - May operate near instability for profit
+
+    5. **Runaway prevention**: Safety constraint
+       - Monitor temperature rate: dT/dt < threshold
+       - Emergency cooling if T > T_max
+       - May require batch shutdown
+
+##     State Constraints: {.doc-section .doc-section-----state-constraints}
+
+    Physical constraints that must be enforced:
+
+    1. **Non-negativity**: Cₐ[k] ≥ 0
+       - Concentration cannot be negative
+       - Physical meaning: species present or absent
+       - Euler discretization may violate if dt too large
+
+    2. **Concentration bounds**: 0 ≤ Cₐ[k] ≤ Cₐ,feed
+       - Cannot exceed feed concentration (dilution + reaction)
+       - Upper bound: Cₐ ≤ Cₐ,feed (no reaction case)
+       - Useful for validation
+
+    3. **Temperature limits**: T_min ≤ T[k] ≤ T_max
+       - Safety: prevent runaway (T_max ≈ 450-500 K)
+       - Operability: prevent freezing/solidification (T_min ≈ 280 K)
+       - Jacket temperature limits: T_jacket,min ≤ T_jacket ≤ T_jacket,max
+       - Typical limits: 280 K ≤ T ≤ 450 K
+
+    4. **Jacket temperature constraints**: T_jacket,min ≤ T_jacket[k] ≤ T_jacket,max
+       - Physical cooling/heating capacity
+       - Chiller: T_jacket,min ≈ 280 K
+       - Heater: T_jacket,max ≈ 400 K
+       - Rate limit: |T_jacket[k+1] - T_jacket[k]| ≤ ΔT_jacket,max
+
+##     Numerical Considerations: {.doc-section .doc-section-----numerical-considerations}
+
+    **Stability**: The explicit Euler discretization is stable if:
+        dt < 2/λ_max
+
+    where λ_max is the maximum eigenvalue of the Jacobian.
+
+    For CSTR, typical eigenvalues:
+        λ₁ ≈ -(1/τ + k₀·exp(-E/T))  (concentration dynamics)
+        λ₂ ≈ -(1/τ + UA/(VρCₚ))  (temperature dynamics)
+
+    At high temperature, λ_max can be large (fast dynamics), requiring
+    small dt for stability.
+
+    **Rule of thumb**:
+        dt < 0.1 · min(τ, VρCₚ/UA, 1/(k₀·exp(-E/T)))
+
+    **Stiffness**: CSTR is moderately stiff due to:
+    - Fast reaction at high temperature
+    - Different time scales (concentration vs temperature)
+    - Exponential temperature dependence
+
+    For better accuracy, use higher-order discretization:
+```python
+        cstr_continuous = ContinuousCSTR(...)
+        cstr_discrete = cstr_continuous.discretize(dt=0.1, method='rk4')
+```
+
+    **Multiple Steady States**: Discrete system inherits multiple equilibria
+    from continuous system. Simulation starting point determines which
+    equilibrium is reached (basin of attraction).
+
+##     Example Usage: {.doc-section .doc-section-----example-usage}
+
+    >>> # Create CSTR with default parameters
+    >>> cstr = DiscreteCSTR(dt=0.1)
+    >>>
+    >>> # High conversion steady state (typical operating point)
+    >>> x_high = np.array([0.1, 390.0])  # [Low Cₐ, High T]
+    >>> u_high = np.array([350.0])  # [Cool jacket temperature]
+    >>>
+    >>> # Verify it's an equilibrium
+    >>> x_next = cstr.step(x_high, u_high)
+    >>> print(f"Change: {np.linalg.norm(x_next - x_high):.2e}")  # Should be small
+    >>>
+    >>> # Simulate with constant cooling
+    >>> result = cstr.simulate(
+    ...     x0=x_high,
+    ...     u_sequence=np.array([350.0]),  # Constant jacket temp
+    ...     n_steps=100
+    ... )
+    >>>
+    >>> # Plot concentration and temperature
+    >>> import matplotlib.pyplot as plt
+    >>> fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+    >>> axes[0].plot(result['time_steps'] * cstr.dt, result['states'][:, 0])
+    >>> axes[0].set_ylabel('Cₐ [mol/L]')
+    >>> axes[1].plot(result['time_steps'] * cstr.dt, result['states'][:, 1])
+    >>> axes[1].set_ylabel('T [K]')
+    >>> axes[1].set_xlabel('Time [s]')
+    >>>
+    >>> # Design LQR controller for temperature regulation
+    >>> T_setpoint = 390.0
+    >>> C_A_setpoint = 0.1
+    >>> x_ref = np.array([C_A_setpoint, T_setpoint])
+    >>>
+    >>> # Calculate required jacket temperature for steady state
+    >>> # This requires solving energy balance, simplified here
+    >>> u_ref = np.array([350.0])
+    >>>
+    >>> # Linearize at operating point
+    >>> Ad, Bd = cstr.linearize(x_ref, u_ref)
+    >>>
+    >>> # Check discrete stability
+    >>> eigenvalues = np.linalg.eigvals(Ad)
+    >>> print(f"Eigenvalues: {eigenvalues}")
+    >>> print(f"Stable: {np.all(np.abs(eigenvalues) < 1)}")
+    >>>
+    >>> # Design LQR (care more about temperature than concentration)
+    >>> Q_lqr = np.diag([1.0, 100.0])  # Penalize temperature error heavily
+    >>> R_lqr = np.array([[1.0]])
+    >>> lqr_result = cstr.control.design_lqr(Ad, Bd, Q_lqr, R_lqr,
+    ...                                       system_type='discrete')
+    >>> K = lqr_result['gain']
+    >>>
+    >>> # Simulate with LQR control
+    >>> def lqr_controller(x, k):
+    ...     return -K @ (x - x_ref) + u_ref
+    >>>
+    >>> result_lqr = cstr.rollout(x_high, lqr_controller, n_steps=200)
+    >>>
+    >>> # Startup simulation: low conversion → high conversion
+    >>> x_low = np.array([0.9, 355.0])  # Low conversion state
+    >>>
+    >>> def startup_controller(x, k):
+    ...     # Aggressive cooling to reach high-conversion state
+    ...     if k < 50:
+    ...         return np.array([340.0])  # Strong cooling
+    ...     else:
+    ...         return lqr_controller(x, k)  # Switch to regulator
+    >>>
+    >>> result_startup = cstr.rollout(x_low, startup_controller, n_steps=200)
+    >>>
+    >>> # Check if startup was successful
+    >>> final_state = result_startup['states'][-1, :]
+    >>> distance_to_target = np.linalg.norm(final_state - x_ref)
+    >>> print(f"Final state: Cₐ={final_state[0]:.3f}, T={final_state[1]:.1f}")
+    >>> print(f"Distance to target: {distance_to_target:.3f}")
+
+##     Physical Insights: {.doc-section .doc-section-----physical-insights}
+
+    **Thermal Runaway Risk**:
+    If cooling is insufficient, positive feedback occurs:
+    1. Temperature increases
+    2. Reaction rate increases exponentially (Arrhenius)
+    3. More heat generated (exothermic)
+    4. Temperature increases further → runaway!
+
+    Prevention:
+    - Adequate cooling capacity (large UA)
+    - Temperature limits and alarms
+    - Emergency cooling/shutdown procedures
+    - Conservative setpoint selection
+
+    **Multiple Steady States**:
+    Creates control challenges:
+    - Which steady state to operate at?
+    - How to transition between states?
+    - Risk of unintended switching due to disturbances
+    - Hysteresis in startup/shutdown procedures
+
+    **Residence Time Effects**:
+    - Short τ (high F/V): Low conversion, stable, safe
+    - Long τ (low F/V): High conversion, less stable, runaway risk
+    - Economic optimum: maximize profit subject to stability
+
+    **Jacket Temperature Selection**:
+    - Lower T_jacket: More cooling, enables higher conversion
+    - But: smaller stability margin, closer to bifurcation
+    - Higher T_jacket: More stable, but lower conversion
+    - Must balance economics and safety
+
+    **Startup Strategy**:
+    Transitioning from low to high conversion:
+    1. Begin at low-conversion state (safe, stable)
+    2. Gradually decrease T_jacket (increase cooling)
+    3. System may jump to high-conversion state (bifurcation)
+    4. Or use aggressive transient cooling
+    5. Once at high conversion, switch to regulatory control
+
+    **Oscillatory Behavior**:
+    Near instability boundaries, system may exhibit:
+    - Sustained oscillations (Hopf bifurcation)
+    - Limit cycles in Cₐ-T phase plane
+    - Period-doubling route to chaos (rare but possible)
+    - Quasiperiodic dynamics
+
+##     Comparison with Continuous Version: {.doc-section .doc-section-----comparison-with-continuous-version}
+
+    This discrete-time CSTR approximates the continuous-time system:
+    - Continuous system: dx/dt = f(x, u) (ground truth)
+    - Discrete system: x[k+1] = x[k] + dt·f(x[k], u[k]) (Euler approximation)
+
+    Advantages of discrete formulation:
+    - Natural for digital control (computers, PLCs)
+    - Fixed time step (predictable computation)
+    - Easy to implement in simulation
+    - Matches physical sampling of sensors
+
+    Disadvantages:
+    - Approximation error (depends on dt)
+    - Stability limited by time step
+    - May not capture fast transients accurately
+
+    For better accuracy, create from continuous version:
+```python
+    cstr_continuous = ContinuousCSTR(F=100, V=100, ...)
+    cstr_discrete = cstr_continuous.discretize(dt=0.1, method='rk4')
+```
+
+##     See Also: {.doc-section .doc-section-----see-also}
+
+    ContinuousCSTR : Continuous-time version (more accurate)
+    DiscreteBatchReactor : Batch operation instead of continuous
+    ContinuousBatchReactor : Continuous batch reactor
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_conversion](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion) | Compute fractional conversion of reactant A. |
+| [compute_damkohler_number](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number) | Compute Damköhler number Da = k·τ (reaction rate × residence time). |
+| [compute_residence_time](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time) | Compute residence time τ = V/F. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system) | Define discrete-time CSTR dynamics. |
+| [find_steady_states](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states) | Find all steady states for a given jacket temperature. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria) | Set up steady-state equilibrium if provided. |
+
+### compute_conversion { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion(
+    C_A,
+    C_A_feed,
+)
+```
+
+Compute fractional conversion of reactant A.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                           | Default    |
+|----------|--------|---------------------------------------|------------|
+| C_A      | float  | Current reactor concentration [mol/L] | _required_ |
+| C_A_feed | float  | Feed concentration [mol/L]            | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                           |
+|--------|--------|-------------------------------------------------------|
+|        | float  | Conversion fraction X_A = (C_A_feed - C_A) / C_A_feed |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteCSTR()
+>>> X = cstr.compute_conversion(C_A=0.1, C_A_feed=1.0)
+>>> print(f"Conversion: {X*100:.1f}%")
+Conversion: 90.0%
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+High conversion (X > 0.9) typically corresponds to high-temperature
+steady state with fast kinetics and strong exothermic heat generation.
+
+### compute_damkohler_number { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number(T)
+```
+
+Compute Damköhler number Da = k·τ (reaction rate × residence time).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description     | Default    |
+|--------|--------|-----------------|------------|
+| T      | float  | Temperature [K] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                      |
+|--------|--------|----------------------------------|
+|        | float  | Damköhler number [dimensionless] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Damköhler number measures reaction rate relative to flow rate:
+- Da << 1: Reaction slow, flow dominates, low conversion
+- Da >> 1: Reaction fast, kinetics dominate, high conversion
+- Da ≈ 1: Balanced, optimal efficiency
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteCSTR()
+>>> Da_low = cstr.compute_damkohler_number(T=350.0)
+>>> Da_high = cstr.compute_damkohler_number(T=400.0)
+>>> print(f"Da(350K) = {Da_low:.2f}")
+>>> print(f"Da(400K) = {Da_high:.2f}")
+```
+
+### compute_residence_time { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time()
+```
+
+Compute residence time τ = V/F.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description        |
+|--------|--------|--------------------|
+|        | float  | Residence time [s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteCSTR(F=100.0, V=100.0)
+>>> tau = cstr.compute_residence_time()
+>>> print(f"Residence time: {tau} s")
+Residence time: 1.0 s
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+Residence time is the average time a molecule spends in the reactor.
+- Longer τ (smaller F): More conversion, less stable
+- Shorter τ (larger F): Less conversion, more stable
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.define_system(
+    F_val=100.0,
+    V_val=100.0,
+    C_A_feed_val=1.0,
+    T_feed_val=350.0,
+    k0_val=72000000000.0,
+    E_val=8750.0,
+    delta_H_val=-50000.0,
+    rho_val=1000.0,
+    Cp_val=0.239,
+    UA_val=50000.0,
+    dt=0.1,
+    x_ss=None,
+    u_ss=None,
+)
+```
+
+Define discrete-time CSTR dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                   | Description                                        | Default         |
+|--------------|------------------------|----------------------------------------------------|-----------------|
+| F_val        | float                  | Volumetric flow rate [L/s]                         | `100.0`         |
+| V_val        | float                  | Reactor volume [L]                                 | `100.0`         |
+| C_A_feed_val | float                  | Feed concentration [mol/L]                         | `1.0`           |
+| T_feed_val   | float                  | Feed temperature [K]                               | `350.0`         |
+| k0_val       | float                  | Pre-exponential factor [1/s]                       | `72000000000.0` |
+| E_val        | float                  | Activation energy [K]                              | `8750.0`        |
+| delta_H_val  | float                  | Heat of reaction [J/mol] (negative = exothermic)   | `-50000.0`      |
+| rho_val      | float                  | Density [kg/L]                                     | `1000.0`        |
+| Cp_val       | float                  | Specific heat capacity [J/(kg·K)]                  | `0.239`         |
+| UA_val       | float                  | Overall heat transfer coefficient × area [J/(s·K)] | `50000.0`       |
+| dt           | float                  | Sampling time step [s]                             | `0.1`           |
+| x_ss         | Optional\[np.ndarray\] | Steady-state [Cₐ, T] for equilibrium setup         | `None`          |
+| u_ss         | Optional\[np.ndarray\] | Steady-state [T_jacket] for equilibrium setup      | `None`          |
+
+### find_steady_states { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states(
+    T_jacket,
+    T_range=(300.0, 500.0),
+    n_points=100,
+)
+```
+
+Find all steady states for a given jacket temperature.
+
+Uses graphical method: plots dC_A/dt and dT/dt as functions of T,
+finds where both are zero simultaneously.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                    | Default          |
+|----------|--------|------------------------------------------------|------------------|
+| T_jacket | float  | Jacket temperature [K]                         | _required_       |
+| T_range  | tuple  | Temperature range to search (T_min, T_max) [K] | `(300.0, 500.0)` |
+| n_points | int    | Number of points for graphical search          | `100`            |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                    |
+|--------|--------|--------------------------------|
+|        | list   | List of (C_A, T) steady states |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> cstr = DiscreteCSTR()
+>>> steady_states = cstr.find_steady_states(T_jacket=350.0)
+>>> print(f"Found {len(steady_states)} steady states")
+>>> for i, (C_A, T) in enumerate(steady_states):
+...     print(f"  State {i+1}: C_A={C_A:.3f}, T={T:.1f}")
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is a simple implementation. For production code, use:
+- scipy.optimize.fsolve for more robust root finding
+- Continuation methods for bifurcation analysis
+- homotopy methods for finding all solutions
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria()
+```
+
+Set up steady-state equilibrium if provided.
+
+#### Notes {.doc-section .doc-section-notes}
+
+CSTR can have multiple steady states! Only add user-provided
+equilibrium. Finding all equilibria requires solving nonlinear
+algebraic equations (see find_steady_states() method).

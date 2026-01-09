@@ -1,0 +1,445 @@
+# systems.builtin.stochastic.continuous.LangevinDynamics { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics(*args, **kwargs)
+```
+
+Langevin dynamics - particle in viscous fluid with thermal noise.
+
+The fundamental equation of statistical mechanics, combining Newton's law
+with friction and thermal fluctuations. Provides the microscopic foundation
+for Brownian motion and the bridge between mechanics and thermodynamics.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+Full Langevin equation (position + velocity):
+
+    dx = v·dt
+    dv = -(γ/m)·v·dt + (F/m)·dt + √(2·k_B·T/m)·dW
+
+where:
+    - x: Position [m]
+    - v: Velocity [m/s]
+    - m: Particle mass [kg]
+    - γ: Friction coefficient [kg/s]
+    - F: External force (control, potential gradient) [N]
+    - k_B: Boltzmann constant = 1.380649×10⁻²³ J/K
+    - T: Temperature [K]
+    - W: Standard Wiener process
+
+**This is OU Process for Velocity:**
+Velocity component is Ornstein-Uhlenbeck process.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Newton's Law with Fluctuations:**
+
+m·dv/dt = F_total
+        = F_external - γ·v + F_random
+
+Components:
+1. F_external: Applied force (gravity, fields, control)
+2. -γ·v: Friction (Stokes drag, dissipation)
+3. F_random: Thermal fluctuations (molecular collisions)
+
+**Friction:**
+For sphere in fluid (Stokes' law):
+    γ = 6π·η·r
+
+where η is viscosity, r is radius.
+
+**Thermal Noise:**
+Fluctuation-dissipation theorem:
+    ⟨F_random(t)·F_random(s)⟩ = 2·γ·k_B·T·δ(t-s)
+
+White noise with intensity √(2·γ·k_B·T).
+
+**Temperature:**
+Sets equilibrium energy scale:
+    ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T (equipartition)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Fluctuation-Dissipation:**
+Friction γ and noise intensity related by temperature.
+Cannot choose independently!
+
+**Thermal Equilibrium:**
+Velocity distribution: Maxwell-Boltzmann
+    p(v) ∝ exp(-m·v²/2k_B·T)
+
+**Two Time Scales:**
+- Fast: Velocity relaxation τ_v = m/γ
+- Slow: Position diffusion (no natural scale)
+
+**Markov Property:**
+Future depends only on current (x, v), not history.
+
+**Ergodicity:**
+Long trajectory → Boltzmann distribution.
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Velocity (OU Process):**
+
+For F = 0 (free particle):
+Mean: E[v(t)] = v₀·exp(-γ·t/m)
+Variance: Var[v(t)] = (k_B·T/m)·(1 - exp(-2γ·t/m))
+
+Asymptotic: Var[v(∞)] = k_B·T/m (equipartition)
+
+**Position (Diffusion):**
+
+Mean: E[x(t)] = x₀ + (m/γ)·v₀·(1 - exp(-γ·t/m))
+Variance: Var[x(t)] = 2·D·t - 2·D·(m/γ)·(1 - exp(-γ·t/m))
+
+Long time: Var[x] ≈ 2·D·t (Einstein diffusion)
+
+**Diffusion Coefficient:**
+    D = k_B·T/γ (Einstein relation)
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Mass m:**
+- Particle inertia
+- Heavier → slower velocity changes
+- Time scale: m/γ
+
+**Friction γ:**
+- Energy dissipation rate
+- Larger → faster equilibration
+- From Stokes: γ = 6π·η·r
+
+**Temperature T:**
+- Thermal energy reservoir
+- Higher T → larger fluctuations
+- Sets equilibrium distribution
+
+**Boltzmann k_B:**
+- Fundamental constant
+- Connects microscopic and macroscopic
+- Value: 1.380649×10⁻²³ J/K
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [x, v] ∈ ℝ²
+    - x: Position (unbounded, diffuses)
+    - v: Velocity (Boltzmann distributed at equilibrium)
+
+Control: u = F/m ∈ ℝ (optional)
+    - Acceleration input
+    - Can be potential gradient: -∇U/m
+
+Noise: w ∈ ℝ
+    - Single Wiener process
+    - Enters velocity equation (thermal fluctuations)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                      | Default        |
+|--------|--------|--------------------------------------------------------------------------------------------------|----------------|
+| m      | float  | Particle mass [kg] - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Affects time scale m/γ | `1e-15`        |
+| gamma  | float  | Friction coefficient [kg/s] - From Stokes: 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s                | `1e-8`         |
+| T      | float  | Temperature [K] - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T     | `300.0`        |
+| k_B    | float  | Boltzmann constant [J/K] - Fundamental constant (fixed)                                          | `1.380649e-23` |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR (no external force)
+- Noise Type: ADDITIVE (constant)
+- SDE Type: Itô
+- Noise Dimension: nw = 1
+- Stationary: Velocity (yes), Position (no)
+- Ergodic: Yes (for velocity distribution)
+- Physical: Yes (fluctuation-dissipation satisfied)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Molecular Dynamics:**
+- Thermostat (constant T simulations)
+- Protein folding simulations
+- Material properties
+
+**2. Bayesian Sampling:**
+- Langevin MCMC
+- Posterior sampling
+- Optimization with noise
+
+**3. Colloidal Physics:**
+- Optical tweezers experiments
+- Rheology measurements
+- Single-molecule biophysics
+
+**4. Machine Learning:**
+- Stochastic gradient Langevin dynamics
+- Bayesian neural networks
+- Exploration in RL
+
+**5. Statistical Mechanics:**
+- Equilibrium sampling
+- Free energy calculations
+- Rare event simulation
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Time Step Selection:**
+
+Must resolve velocity relaxation:
+    Δt < m/γ (typically 0.1·m/γ)
+
+For colloidal particle (m/γ ~ 10⁻⁷ s):
+    Δt ~ 10⁻⁸ s
+
+**Overdamped Approximation:**
+
+If observation time >> m/γ, use:
+    dx = (F/γ)·dt + √(2·D)·dW
+
+Much larger Δt possible (no velocity constraint).
+
+## Validation {.doc-section .doc-section-validation}
+
+**Physical Checks:**
+
+1. **Equipartition:**
+   Var[v] = k_B·T/m (after equilibration)
+
+2. **Einstein Relation:**
+   D_measured = Var[x]/2t should equal k_B·T/γ
+
+3. **Maxwell-Boltzmann:**
+   Velocity histogram should be Gaussian with variance k_B·T/m
+
+4. **Autocorrelation:**
+   ⟨v(0)·v(t)⟩ = (k_B·T/m)·exp(-γ·t/m)
+
+## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}
+
+**vs. Brownian Motion:**
+- BM: Position only, no velocity
+- Langevin: Position + velocity (more complete)
+
+**vs. Ornstein-Uhlenbeck:**
+- OU: Velocity equation only
+- Langevin: Position + velocity
+
+**vs. Stochastic Double Integrator:**
+- DI: No friction (conservative)
+- Langevin: With friction (dissipative, equilibrium)
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear (no potential in base class)
+- 1D space (extend to 3D for realism)
+- Constant γ, T (no hydrodynamic interactions)
+- Additive noise (no multiplicative)
+- Markov (memoryless, no viscoelasticity)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Potential: Add U(x) via control F = -∇U
+- 3D: Three spatial dimensions
+- Generalized Langevin: Memory kernel (viscoelasticity)
+- Active particles: Self-propulsion
+- Hydrodynamic interactions: Many-body γ_ij
+
+## See Also {.doc-section .doc-section-see-also}
+
+OrnsteinUhlenbeck : Velocity-only version
+StochasticDoubleIntegrator : No friction version
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [check_fluctuation_dissipation](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation) | Verify fluctuation-dissipation theorem is satisfied. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system) | Define Langevin dynamics (position + velocity with thermal noise). |
+| [get_diffusion_coefficient](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient) | Get diffusion coefficient D = k_B·T/γ (Einstein relation). |
+| [get_relaxation_time](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time) | Get velocity relaxation time τ_v = m/γ. |
+| [get_thermal_velocity_std](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std) | Get thermal velocity standard deviation from equipartition. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria) | Set up equilibrium points. |
+
+### check_fluctuation_dissipation { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation(
+)
+```
+
+Verify fluctuation-dissipation theorem is satisfied.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                             |
+|--------|--------|-----------------------------------------|
+|        | dict   | Expected vs implemented noise intensity |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> langevin = LangevinDynamics()
+>>> check = langevin.check_fluctuation_dissipation()
+>>> print(f"FDT satisfied: {check}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.define_system(
+    m=1e-15,
+    gamma=1e-08,
+    T=300.0,
+    k_B=1.380649e-23,
+)
+```
+
+Define Langevin dynamics (position + velocity with thermal noise).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                      | Default        |
+|--------|--------|------------------------------------------------------------------------------------------------------------------|----------------|
+| m      | float  | Particle mass [kg] - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Determines time scale m/γ              | `1e-15`        |
+| gamma  | float  | Friction coefficient [kg/s] - From Stokes: γ = 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s - Controls relaxation rate | `1e-8`         |
+| T      | float  | Temperature [K] - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T                     | `300.0`        |
+| k_B    | float  | Boltzmann constant [J/K] - Physical constant (don't change)                                                      | `1.380649e-23` |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                             |
+|--------|------------|-----------------------------------------|
+|        | ValueError | If m, gamma, T, or k_B are non-positive |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Fluctuation-Dissipation:**
+
+Noise intensity MUST be:
+    σ = √(2·γ·k_B·T/m)
+
+This is not a free parameter! Determined by γ, T.
+
+**Time Scales:**
+
+Velocity relaxation: τ_v = m/γ
+- Fast equilibration of velocity
+- After ~5·τ_v: Velocity is Maxwellian
+
+Position diffusion: No characteristic time
+- Variance grows linearly: 2·D·t
+- Diffusion coefficient: D = k_B·T/γ
+
+**Regime Classification:**
+
+Underdamped: m/γ >> observation time
+- Ballistic short-time: ⟨x²⟩ ~ t² (free flight)
+- Diffusive long-time: ⟨x²⟩ ~ t (Brownian)
+
+Overdamped: m/γ << observation time
+- Pure diffusion: ⟨x²⟩ ~ t always
+- Can use simplified equation (position only)
+
+**Physical Examples:**
+
+Colloidal particle (1 μm, water, 300 K):
+- m ~ 10⁻¹⁵ kg
+- γ ~ 10⁻⁸ kg/s
+- τ_v ~ 10⁻⁷ s (100 ns)
+- D ~ 4×10⁻¹³ m²/s
+
+Protein in water:
+- m ~ 10⁻²⁰ kg
+- γ ~ 10⁻¹¹ kg/s
+- τ_v ~ 10⁻⁹ s (1 ns)
+- D ~ 10⁻¹¹ m²/s
+
+**Validation:**
+
+Check equilibrium properties:
+1. Velocity variance: k_B·T/m
+2. Diffusion coefficient: k_B·T/γ
+3. Velocity autocorrelation: exp(-γ·t/m)
+
+### get_diffusion_coefficient { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient(
+)
+```
+
+Get diffusion coefficient D = k_B·T/γ (Einstein relation).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                  |
+|--------|--------|------------------------------|
+|        | float  | Diffusion coefficient [m²/s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> langevin = LangevinDynamics(gamma=1e-8, T=300)
+>>> D = langevin.get_diffusion_coefficient()
+>>> print(f"Diffusion: {D:.3e} m²/s")
+```
+
+### get_relaxation_time { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time()
+```
+
+Get velocity relaxation time τ_v = m/γ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Relaxation time [s] |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> langevin = LangevinDynamics(m=1e-15, gamma=1e-8)
+>>> tau = langevin.get_relaxation_time()
+>>> print(f"Relaxation: {tau:.3e} s")
+```
+
+### get_thermal_velocity_std { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std(
+)
+```
+
+Get thermal velocity standard deviation from equipartition.
+
+σ_v = √(k_B·T/m)
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | float  | Thermal velocity std [m/s] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+From equipartition: ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> langevin = LangevinDynamics(m=1e-15, T=300)
+>>> sigma_v = langevin.get_thermal_velocity_std()
+>>> print(f"Thermal velocity: {sigma_v:.3e} m/s")
+```
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria()
+```
+
+Set up equilibrium points.
+
+For free Langevin (u=0), equilibrium is origin with thermal velocity.

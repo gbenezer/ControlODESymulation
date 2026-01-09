@@ -1,0 +1,25 @@
+# types.core.DiffusionMatrix { #cdesym.types.core.DiffusionMatrix }
+
+`types.core.DiffusionMatrix`
+
+Diffusion/noise gain matrix (nx, nw) - stochastic systems only.
+
+Scales noise in stochastic dynamics.
+
+Uses:
+- Continuous: Gc (diffusion Jacobian ∂g/∂x, scales dW)
+- Discrete: Gd (noise gain, scales w[k])
+- Process noise: Q = G*W*G' where W is noise intensity
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Continuous SDE
+>>> Gc: DiffusionMatrix = np.array([[0.1], [0.2]])
+>>> 
+>>> # Discrete (Euler-Maruyama)
+>>> Gd: DiffusionMatrix = np.sqrt(dt) * Gc
+>>> 
+>>> # Additive noise (constant)
+>>> G_additive: DiffusionMatrix = 0.1 * np.eye(nx)
+```

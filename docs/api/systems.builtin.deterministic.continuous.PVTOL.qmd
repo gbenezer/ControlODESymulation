@@ -1,0 +1,115 @@
+# systems.builtin.deterministic.continuous.PVTOL { #cdesym.systems.builtin.deterministic.continuous.PVTOL }
+
+```python
+systems.builtin.deterministic.continuous.PVTOL(*args, **kwargs)
+```
+
+Planar Vertical Take-Off and Landing (PVTOL) aircraft - second-order formulation.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A simplified model of a VTOL aircraft (helicopter, drone)
+constrained to move in a vertical plane.
+
+The aircraft has:
+- Two thrust actuators (left and right, or front and back)
+- Ability to rotate (pitch) and translate (x, y)
+- Gravity acting downward
+- Thrust-vectoring through body rotation
+
+**Key feature**: Underactuated with 2 inputs controlling 3 degrees of freedom.
+Must use rotation (θ) to control horizontal motion (x).
+
+## Coordinate Frame: {.doc-section .doc-section-coordinate-frame}
+
+This implementation uses body-fixed velocity coordinates, which is common
+in aircraft dynamics:
+- Position (x, y): In inertial (world) frame
+- Velocities (ẋ, ẏ): In body frame (rotates with aircraft)
+- Angle θ: Pitch angle in inertial frame
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [x, y, θ, ẋ, ẏ, θ̇]
+    Position coordinates (inertial frame):
+    - x: Horizontal position [m] (positive right)
+    - y: Vertical position [m] (positive up)
+    - θ (theta): Pitch angle [rad]
+      * θ = 0: level (horizontal orientation)
+      * θ > 0: nose up (pitched back)
+      * θ < 0: nose down (pitched forward)
+
+    Velocity coordinates (body frame):
+    - ẋ (x_dot): Velocity in body x-direction [m/s]
+    - ẏ (y_dot): Velocity in body y-direction [m/s]
+    - θ̇ (theta_dot): Angular velocity [rad/s]
+
+Control: u = [u₁, u₂]
+    - u₁: Left/front thrust [N]
+    - u₂: Right/back thrust [N]
+    Both must be non-negative in physical systems (thrust-only)
+
+Output: y = [x, y, θ]
+    - Measures position and orientation
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The PVTOL dynamics in body frame are:
+
+    ẍ_body = ẏ·θ̇ - g·sin(θ)
+    ÿ_body = -ẋ·θ̇ - g·cos(θ) + (u₁ + u₂)/m
+    θ̈ = d/I · (u₁ - u₂)
+
+**Horizontal acceleration (ẍ_body)**:
+- ẏ·θ̇: Centrifugal effect from rotation
+- -g·sin(θ): Gravity component in body x-direction
+- Controlled indirectly through angle θ
+
+**Vertical acceleration (ÿ_body)**:
+- -ẋ·θ̇: Coriolis effect from rotation
+- -g·cos(θ): Gravity component in body y-direction
+- (u₁ + u₂)/m: Total thrust divided by mass
+
+**Angular acceleration (θ̈)**:
+- d/I · (u₁ - u₂): Torque from differential thrust
+- d: Distance from center of mass to thrusters
+- I: Moment of inertia
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+length : float, default=0.25
+    Half-distance between thrusters [m]. Also interpreted as distance
+    from center of mass to each thruster. Larger L → more control
+    authority for rotation (more torque per thrust difference).
+mass : float, default=4.0
+    Total mass of aircraft [kg]. Larger mass → slower acceleration
+    response, more thrust needed to hover.
+inertia : float, default=0.0475
+    Moment of inertia about center of mass [kg·m²]. Larger I →
+    slower rotational response.
+gravity : float, default=9.8
+    Gravitational acceleration [m/s²].
+dist : float, default=0.25
+    Lever arm for torque generation [m]. Often equals length.
+    Determines θ̈ = (dist/inertia)·(u₁ - u₂).
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+**Hovering (level flight)**:
+    x_eq = [x*, y*, 0, 0, 0, 0]  (any position, level, stationary)
+    u_eq = [mg/2, mg/2]  (equal thrust, each supporting half weight)
+
+At hover:
+- Total thrust balances gravity: u₁ + u₂ = mg
+- Differential thrust is zero: u₁ - u₂ = 0
+- No rotation: θ = 0
+
+**Tilted hover** (advanced):
+    For x_eq = [x*, y*, θ*, 0, 0, 0] with θ* ≠ 0:
+    Requires different thrust distribution to maintain position
+
+## See Also: {.doc-section .doc-section-see-also}
+
+SymbolicQuadrotor2D : Similar flying vehicle, different parameterization
+CartPole : Another underactuated system
+Manipulator2Link : Multi-body system with coupling

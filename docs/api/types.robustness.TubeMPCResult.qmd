@@ -1,0 +1,61 @@
+# types.robustness.TubeMPCResult { #cdesym.types.robustness.TubeMPCResult }
+
+```python
+types.robustness.TubeMPCResult()
+```
+
+Tube-based MPC result.
+
+Robust MPC using disturbance-invariant tubes.
+
+## Fields {.doc-section .doc-section-fields}
+
+nominal_control : ControlSequence
+    Nominal control sequence v (N, nu)
+feedback_control : GainMatrix
+    Ancillary feedback gain K (nu, nx)
+actual_control : ControlSequence
+    Applied control u = v + K(x - x̄) (N, nu)
+nominal_trajectory : StateTrajectory
+    Nominal state trajectory x̄ (N+1, nx)
+tube_definition : TubeDefinition
+    Robust invariant tube
+tightened_constraints : ArrayLike
+    Tightened constraints accounting for tube
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Setup tube MPC
+>>> tube_mpc = TubeMPC(
+...     system=A, B,
+...     Q=Q, R=R,
+...     disturbance_bound=0.1,
+...     horizon=20
+... )
+>>>
+>>> # Solve at current state
+>>> x_current = np.array([1.0, 0.5])
+>>> result: TubeMPCResult = tube_mpc.solve(x_current)
+>>>
+>>> # Extract control
+>>> v_nom = result['nominal_control'][0]
+>>> K = result['feedback_control']
+>>> x_nom = result['nominal_trajectory'][0]
+>>>
+>>> # Actual control with feedback
+>>> u = v_nom + K @ (x_current - x_nom)
+>>>
+>>> # Visualize tube
+>>> tube = result['tube_definition']
+>>> center = tube['center_trajectory']
+>>> radii = tube['tube_radii']
+>>>
+>>> import matplotlib.pyplot as plt
+>>> plt.plot(center[:, 0], center[:, 1], 'b-', label='Nominal')
+>>> plt.fill_between(
+...     center[:, 0] - radii,
+...     center[:, 0] + radii,
+...     alpha=0.3, label='Tube'
+... )
+```

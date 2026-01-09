@@ -1,0 +1,17 @@
+# types.linearization.ContinuousLinearization { #cdesym.types.linearization.ContinuousLinearization }
+
+`types.linearization.ContinuousLinearization`
+
+Alias for continuous-time deterministic linearization.
+
+Same as DeterministicLinearization but emphasizes continuous-time context.
+Returns (Ac, Bc) where c indicates continuous.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> Ac, Bc = continuous_system.linearize(x_eq, u_eq)
+>>> # Continuous-time stability: Re(λ) < 0
+>>> eigenvalues = np.linalg.eigvals(Ac)
+>>> is_stable = np.all(np.real(eigenvalues) < 0)
+```

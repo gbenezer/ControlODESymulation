@@ -1,0 +1,82 @@
+# systems.builtin.deterministic.continuous.SymbolicQuadrotor2D { #cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2D }
+
+```python
+systems.builtin.deterministic.continuous.SymbolicQuadrotor2D(*args, **kwargs)
+```
+
+Planar quadrotor (quadcopter) - second-order formulation.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A quadrotor constrained to move in a 2D vertical plane with two rotors
+providing thrust. The system has:
+- 3 degrees of freedom: (x, y) position and pitch angle θ
+- 2 control inputs: thrust forces from left and right rotors
+- Underactuated: 3 DOF controlled by 2 inputs
+- Nonlinear coupling between rotation and translation
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [x, y, θ, ẋ, ẏ, θ̇]
+    Position coordinates:
+    - x: Horizontal position [m] (positive right)
+    - y: Vertical position [m] (positive up)
+    - θ (theta): Pitch angle [rad] (positive counterclockwise)
+      * θ = 0: level orientation
+
+    Velocity coordinates:
+    - ẋ (x_dot): Horizontal velocity [m/s]
+    - ẏ (y_dot): Vertical velocity [m/s]
+    - θ̇ (theta_dot): Angular velocity [rad/s]
+
+Control: u = [u₁, u₂]
+    - u₁: Left rotor thrust [N]
+    - u₂: Right rotor thrust [N]
+    Both must be non-negative in physical systems (thrust-only)
+
+Output: y = [x, y, θ]
+    - Measures position and orientation
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The equations of motion are:
+    ẍ = -(u₁ + u₂)/m · sin(θ)
+    ÿ = (u₁ + u₂)/m · cos(θ) - g
+    θ̈ = L/I · (u₁ - u₂)
+
+Physical interpretation:
+- Total thrust (u₁ + u₂) provides vertical lift and horizontal acceleration
+- Differential thrust (u₁ - u₂) creates torque for rotation
+- Gravity acts downward with acceleration g
+- Thrust direction rotates with pitch angle θ
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+length : float, default=0.25
+    Half-distance between rotors [m]. Larger L → more control authority
+    for rotation (more torque from differential thrust).
+mass : float, default=0.486
+    Total mass of quadrotor [kg]. Based on Crazyflie 2.0 specs.
+inertia : float, default=0.00383
+    Moment of inertia about center of mass [kg⋅m²].
+gravity : float, default=9.81
+    Gravitational acceleration [m/s²].
+
+## Equilibrium: {.doc-section .doc-section-equilibrium}
+
+Hovering equilibrium (level flight):
+    x_eq = [x*, y*, 0, 0, 0, 0]  (any (x*, y*), level, stationary)
+    u_eq = [mg/2, mg/2]  (each rotor supports half the weight)
+
+## Default Physical Parameters: {.doc-section .doc-section-default-physical-parameters}
+
+- Mass: 0.025 kg (25 grams)
+- Length: 0.046 m (rotor arm)
+- Inertia: 0.00383 kg⋅m²
+- Gravity: 9.81 m/s²
+
+## See Also: {.doc-section .doc-section-see-also}
+
+SymbolicQuadrotor2DState : Full-state observation variant
+PVTOL : Similar dynamics but different parameterization
+CartPole : Another underactuated 2D system

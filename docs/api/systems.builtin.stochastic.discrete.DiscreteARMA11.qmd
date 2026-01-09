@@ -1,0 +1,554 @@
+# systems.builtin.stochastic.discrete.DiscreteARMA11 { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11 }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteARMA11(*args, **kwargs)
+```
+
+ARMA(1,1) process - combines autoregressive and moving average.
+
+The simplest non-trivial ARMA model, combining one AR lag with one MA lag
+to create a flexible yet parsimonious time series model. This is the
+workhorse of Box-Jenkins methodology and the foundation of modern
+forecasting in econometrics.
+
+## Difference Equation {.doc-section .doc-section-difference-equation}
+
+Standard ARMA(1,1) form:
+    X[k] = φ·X[k-1] + w[k] + θ·w[k-1]
+
+With control:
+    X[k] = φ·X[k-1] + u[k] + w[k] + θ·w[k-1]
+
+where:
+    - X[k]: Observed series (state)
+    - φ: AR coefficient (persistence, -∞ < φ < ∞)
+    - θ: MA coefficient (smoothing, -∞ < θ < ∞)
+    - w[k]: White noise innovation ~ N(0, σ²)
+    - u[k]: Control/external input
+
+**State-Space Form (for simulation):**
+    Z[k] = [X[k], w[k-1]]ᵀ (augmented state)
+
+    Z[k+1] = [φ  θ]·Z[k] + [1]·w[k+1]
+             [0  0]        [1]
+
+Output: X[k] = [1, 0]·Z[k]
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**AR Component (φ):**
+- Past observation influences current
+- φ > 0: Positive persistence (typical)
+- φ < 0: Alternation (rare)
+- Recursive: Memory of all past (exponentially weighted)
+
+**MA Component (θ):**
+- Past innovation influences current
+- θ > 0: Smoothing (positive autocorrelation at lag 1)
+- θ < 0: Overshoot (negative autocorrelation)
+- Finite: Only immediate past innovation matters
+
+**Combined Effect:**
+- AR provides long memory (slow decay)
+- MA adjusts short-term behavior (lag 1)
+- Together: More flexible than either alone
+
+**Why ARMA(1,1) is Popular:**
+
+Can approximate:
+- AR(∞): Via MA(∞) representation
+- MA(∞): Via AR(∞) representation
+- Complex ACF: With just 3 parameters
+
+More parsimonious than high-order AR or MA.
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Stationarity:**
+Requires |φ| < 1 (from AR part).
+
+**Invertibility:**
+Requires |θ| < 1 (from MA part).
+
+**Parsimony:**
+3 parameters (φ, θ, σ) provide flexibility of high-order models.
+
+**Autocorrelation:**
+- ρ(1): Affected by both φ and θ
+- ρ(h ≥ 2): Geometric decay at rate φ
+
+**Spectral Density:**
+Rational function (ratio of polynomials).
+
+**Markov (in Augmented State):**
+State-space form is Markov in (X, w_prev).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Stationarity Condition:**
+    |φ| < 1
+
+**Invertibility Condition:**
+    |θ| < 1
+
+**Variance:**
+    Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)
+
+**Autocorrelation:**
+    ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)
+    ρ(h) = φ·ρ(h-1) for h ≥ 2
+
+**Impulse Response:**
+    ψ₀ = 1
+    ψ₁ = φ + θ
+    ψⱼ = φ^(j-1)·(φ + θ) for j ≥ 2
+
+**MA(∞) Representation:**
+    X[k] = Σψⱼ·w[k-j]
+
+Coefficients decay geometrically: ψⱼ ~ φ^j
+
+**AR(∞) Representation:**
+    w[k] = Σπⱼ·X[k-j]
+
+Coefficients decay geometrically: πⱼ ~ θ^j (if |θ| < 1)
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**AR Coefficient φ:**
+- Dimensionless
+- Fraction of past persisting
+- Typical: 0.3-0.9 (positive persistence)
+
+**MA Coefficient θ:**
+- Dimensionless
+- Weight on past shock
+- Typical: -0.5 to +0.5
+- θ > 0: Smoothing (positive lag-1 correlation)
+- θ < 0: Overshoot (negative lag-1 correlation)
+
+**Innovation Variance σ²:**
+- Units: [state]²
+- Unpredictable component each period
+
+**Special Cases:**
+
+φ = 0.8, θ = 0:    Pure AR(1)
+φ = 0, θ = -0.5:   Pure MA(1)
+φ = 0.8, θ = -0.6: Typical ARMA(1,1)
+
+## State Space {.doc-section .doc-section-state-space}
+
+Augmented state: Z = [X, w_prev] ∈ ℝ²
+    - X: Observed series
+    - w_prev: Past innovation (latent)
+
+Observable state: X ∈ ℝ
+    - What we actually measure
+
+Control: u ∈ ℝ (optional)
+    - External input
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                              | Default   |
+|--------|--------|------------------------------------------------------------------------------------------|-----------|
+| phi    | float  | AR coefficient - Typical: 0.3-0.9 - Must satisfy \|φ\| < 1 for stationarity              | `0.7`     |
+| theta  | float  | MA coefficient - Typical: -0.5 to +0.5 - Should satisfy \|θ\| < 1 for invertibility      | `0.3`     |
+| sigma  | float  | Innovation standard deviation - Must be positive - Sets scale of unpredictable component | `0.1`     |
+| dt     | float  | Sampling period - Required for discrete system                                           | `1.0`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: LINEAR (ARMA)
+- Noise Type: ADDITIVE (white noise)
+- Markov: In augmented state (X, w_prev)
+- Stationary: If |φ| < 1
+- Invertible: If |θ| < 1
+- Gaussian: If w ~ N(0,σ²)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Economic Forecasting:**
+- GDP growth
+- Inflation
+- Unemployment
+- Sales data
+
+**2. Financial Time Series:**
+- Asset returns
+- Interest rate spreads
+- Volume data
+
+**3. Signal Processing:**
+- Digital filter design
+- Prediction algorithms
+- Spectral estimation
+
+**4. Engineering:**
+- Vibration analysis
+- Quality control
+- Process monitoring
+
+**5. Environmental:**
+- Temperature series
+- Rainfall
+- Pollution levels
+
+## Numerical Simulation {.doc-section .doc-section-numerical-simulation}
+
+**State-Space Implementation:**
+
+Augment state with past innovation:
+    Z[k+1] = F·Z[k] + G·w[k+1]
+
+where:
+    Z = [X, w_prev]ᵀ
+    F = [φ  θ]
+        [0  0]
+    G = [1]
+        [1]
+
+Extract: X[k] = Z[k][0]
+
+## Forecasting {.doc-section .doc-section-forecasting}
+
+**One-Step-Ahead:**
+    X̂[k+1|k] = φ·X[k] + θ·ε[k]
+
+where ε[k] = X[k] - X̂[k|k-1] is innovation.
+
+**h-Step-Ahead:**
+    X̂[k+h|k] = φ^h·X[k] + θ·Σφ^(h-1-j)·ε[k-j]
+
+Forecast variance increases with horizon.
+
+## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}
+
+**vs. AR(1):**
+- AR(1): Only φ parameter
+- ARMA(1,1): Adds θ (more flexible)
+- Same asymptotic ACF (h → ∞)
+- Different ρ(1)
+
+**vs. MA(1):**
+- MA(1): Only θ parameter
+- ARMA(1,1): Adds φ (long memory)
+
+**vs. AR(2):**
+- AR(2): Two AR lags (4 parameters with σ, μ)
+- ARMA(1,1): One AR, one MA (3 parameters)
+- Often ARMA(1,1) more parsimonious
+
+**vs. ARMA(p,q):**
+- ARMA(1,1): Simplest non-trivial
+- Higher order: More flexible but more parameters
+- Start with ARMA(1,1), increase if needed
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Linear only
+- Constant parameters
+- Gaussian innovations (typically)
+- Stationary (no trends)
+- Low order (1,1 may not suffice)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- ARMA(p,q): Higher order
+- ARIMA: Integrated (for non-stationary)
+- SARIMA: Seasonal patterns
+- GARCH: Time-varying variance
+- Regime-switching ARMA
+
+## Examples {.doc-section .doc-section-examples}
+
+Standard ARMA(1,1):
+
+```python
+>>> # Typical configuration
+>>> arma = DiscreteARMA11(
+...     phi=0.7,    # Moderate persistence
+...     theta=0.3,  # Positive MA (smoothing)
+...     sigma=0.1,
+...     dt=1.0
+... )
+>>>
+>>> # Check stationarity and invertibility
+>>> print(f"|φ| < 1: {abs(0.7) < 1}")  # Stationary
+>>> print(f"|θ| < 1: {abs(0.3) < 1}")  # Invertible
+```
+
+Different configurations:
+
+```python
+>>> # High persistence, low MA
+>>> high_ar = DiscreteARMA11(phi=0.9, theta=0.1, sigma=0.1)
+>>>
+>>> # Moderate AR, negative MA (overshoot)
+>>> negative_ma = DiscreteARMA11(phi=0.5, theta=-0.3, sigma=0.1)
+>>>
+>>> # Balanced AR and MA
+>>> balanced = DiscreteARMA11(phi=0.6, theta=0.4, sigma=0.1)
+```
+
+Simulation:
+
+```python
+>>> # Generate ARMA series
+>>> z0 = np.array([0.0, 0.0])  # [X[0], w[-1]]
+>>> u_seq = np.zeros((100, 1))
+>>>
+>>> result = arma.simulate(z0, u_seq, n_steps=100)
+>>>
+>>> # Extract observed series (first component of augmented state)
+>>> X_series = result['states'][:, 0]
+>>>
+>>> # Compute sample ACF
+>>> from statsmodels.tsa.stattools import acf
+>>> acf_values = acf(X_series, nlags=20)
+```
+
+## See Also {.doc-section .doc-section-see-also}
+
+DiscreteAR1 : Pure autoregressive (θ=0)
+DiscreteMA1 : Pure moving average (φ=0, future)
+DiscreteARMA : General ARMA(p,q) (future)
+
+## References {.doc-section .doc-section-references}
+
+.. [1] Box, G.E.P. & Jenkins, G.M. (1970). "Time Series Analysis:
+       Forecasting and Control"
+.. [2] Hamilton, J.D. (1994). "Time Series Analysis"
+.. [3] Brockwell, P.J. & Davis, R.A. (2016). "Introduction to Time
+       Series and Forecasting"
+.. [4] Shumway, R.H. & Stoffer, D.S. (2017). "Time Series Analysis
+       and Its Applications"
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [define_system](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system) | Define ARMA(1,1) process dynamics in state-space form. |
+| [get_acf](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf) | Get theoretical autocorrelation function. |
+| [get_acf_lag1](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1) | Get theoretical autocorrelation at lag 1. |
+| [get_stationary_variance](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance) | Get theoretical stationary variance of X. |
+
+### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteARMA11.define_system(
+    phi=0.7,
+    theta=0.3,
+    sigma=0.1,
+    dt=1.0,
+)
+```
+
+Define ARMA(1,1) process dynamics in state-space form.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description                                                                                                                                                  | Default   |
+|--------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| phi    | float  | AR coefficient (persistence) - Typical: 0.3-0.9 - Should satisfy \|φ\| < 1 for stationarity - Similar to AR(1)                                               | `0.7`     |
+| theta  | float  | MA coefficient (smoothing) - Typical: -0.5 to +0.5 - Should satisfy \|θ\| < 1 for invertibility - θ > 0: Smoothing (common) - θ < 0: Overshoot (less common) | `0.3`     |
+| sigma  | float  | Innovation standard deviation - Must be positive - Sets scale of unpredictable shocks                                                                        | `0.1`     |
+| dt     | float  | Sampling period - Required for discrete system                                                                                                               | `1.0`     |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type        | Description                                                 |
+|--------|-------------|-------------------------------------------------------------|
+|        | ValueError  | If sigma ≤ 0                                                |
+|        | UserWarning | If \|φ\| ≥ 1 (non-stationary) If \|θ\| ≥ 1 (non-invertible) |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Stationarity:**
+Requires |φ| < 1 (from AR component).
+- φ = 1: Unit root (ARIMA needed)
+- |φ| > 1: Explosive (unstable)
+
+**Invertibility:**
+Requires |θ| < 1 (from MA component).
+- |θ| ≥ 1: Non-unique representation
+- Multiple ARMA models give same ACF
+- Estimation problems
+
+**Parameter Space:**
+Valid region: |φ| < 1 AND |θ| < 1
+
+**State-Space Formulation:**
+
+To simulate ARMA, augment state with past innovation:
+    Z = [X, w_prev]ᵀ
+
+Dynamics:
+    Z[k+1] = F·Z[k] + G·w[k+1]
+
+where:
+    F = [φ  θ]
+        [0  0]
+
+    G = [1]
+        [1]
+
+**Why Augmented State?**
+Cannot write X[k+1] = f(X[k]) alone because depends on w[k].
+Need to track w[k] as auxiliary state.
+
+**Variance (Stationary):**
+    Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)
+
+**Autocorrelation:**
+    ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)
+    ρ(h) = φ·ρ(h-1) for h ≥ 2
+
+**Special Cases:**
+
+θ = 0: Reduces to AR(1)
+    X[k] = φ·X[k-1] + w[k]
+
+φ = 0: Reduces to MA(1)
+    X[k] = θ·w[k-1] + w[k]
+
+φ = -θ: Simplifies significantly
+    X[k] = φ·(X[k-1] - w[k-1]) + w[k]
+    (Differencing form)
+
+**Typical Configurations:**
+
+Economic data:
+- φ = 0.6-0.9 (high persistence)
+- θ = 0.1-0.5 (moderate smoothing)
+
+Financial returns:
+- φ = 0.0-0.3 (low persistence)
+- θ = -0.3-0.0 (slight overshoot or none)
+
+Physical measurements:
+- φ = 0.5-0.8 (moderate persistence)
+- θ = 0.2-0.5 (smoothing from measurement)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard economic series
+>>> economic = DiscreteARMA11(
+...     phi=0.7,    # High persistence
+...     theta=0.3,  # Smoothing
+...     sigma=0.1
+... )
+>>>
+>>> # Financial returns (low persistence)
+>>> returns = DiscreteARMA11(
+...     phi=0.1,     # Weak persistence
+...     theta=-0.2,  # Slight overshoot
+...     sigma=0.2
+... )
+>>>
+>>> # Physical sensor (measurement smoothing)
+>>> sensor = DiscreteARMA11(
+...     phi=0.6,
+...     theta=0.4,   # Strong smoothing
+...     sigma=0.05
+... )
+```
+
+### get_acf { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf(max_lag=20)
+```
+
+Get theoretical autocorrelation function.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description   | Default   |
+|---------|--------|---------------|-----------|
+| max_lag | int    | Maximum lag   | `20`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                              |
+|--------|------------|------------------------------------------|
+|        | np.ndarray | ACF values [ρ(0), ρ(1), ..., ρ(max_lag)] |
+
+#### Notes {.doc-section .doc-section-notes}
+
+ρ(0) = 1
+ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)
+ρ(h) = φ·ρ(h-1) for h ≥ 2
+
+Geometric decay after lag 1.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> arma = DiscreteARMA11(phi=0.7, theta=0.3, sigma=0.1)
+>>> acf = arma.get_acf(max_lag=10)
+>>> print(f"ACF: {acf}")
+```
+
+### get_acf_lag1 { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1 }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1()
+```
+
+Get theoretical autocorrelation at lag 1.
+
+ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description           |
+|--------|--------|-----------------------|
+|        | float  | Lag-1 autocorrelation |
+
+#### Notes {.doc-section .doc-section-notes}
+
+This is where ARMA differs from AR(1).
+For AR(1): ρ(1) = φ
+For ARMA(1,1): ρ(1) ≠ φ (MA effect)
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> arma = DiscreteARMA11(phi=0.7, theta=0.3, sigma=0.1)
+>>> rho1 = arma.get_acf_lag1()
+>>> print(f"ρ(1) = {rho1:.3f}")
+>>> print(f"Compare with φ = 0.7")
+```
+
+### get_stationary_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance }
+
+```python
+systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance()
+```
+
+Get theoretical stationary variance of X.
+
+Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description         |
+|--------|--------|---------------------|
+|        | float  | Stationary variance |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                   |
+|--------|------------|-------------------------------|
+|        | ValueError | If \|φ\| ≥ 1 (non-stationary) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> arma = DiscreteARMA11(phi=0.7, theta=0.3, sigma=0.1)
+>>> var = arma.get_stationary_variance()
+>>> print(f"Stationary variance: {var:.4f}")
+```

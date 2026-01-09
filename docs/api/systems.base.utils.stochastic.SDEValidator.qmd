@@ -1,0 +1,96 @@
+# systems.base.utils.stochastic.SDEValidator { #cdesym.systems.base.utils.stochastic.SDEValidator }
+
+```python
+systems.base.utils.stochastic.SDEValidator(
+    drift_expr,
+    diffusion_expr,
+    state_vars,
+    control_vars,
+    time_var=None,
+    parameters=None,
+)
+```
+
+Validates stochastic dynamical system definitions.
+
+Performs comprehensive validation including:
+- Drift validation (reuses SymbolicValidator)
+- Diffusion dimension compatibility
+- Symbol resolution
+- Type checking
+- Noise structure validation
+- Zero diffusion detection
+- Parameter validation (via SymbolicValidator)
+- Physical constraints (via SymbolicValidator)
+- Naming conventions (via SymbolicValidator)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> from sympy import symbols, Matrix
+>>> x1, x2, u = symbols('x1 x2 u')
+>>>
+>>> drift = Matrix([[x2], [-x1 + u]])
+>>> diffusion = Matrix([[0.1], [0.2]])
+>>>
+>>> validator = SDEValidator(drift, diffusion, [x1, x2], [u])
+>>> result = validator.validate()
+>>>
+>>> if result.is_valid:
+...     print("System is valid!")
+... else:
+...     print(f"Errors: {result.errors}")
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [validate](#cdesym.systems.base.utils.stochastic.SDEValidator.validate) | Perform comprehensive SDE validation. |
+
+### validate { #cdesym.systems.base.utils.stochastic.SDEValidator.validate }
+
+```python
+systems.base.utils.stochastic.SDEValidator.validate(
+    claimed_noise_type=None,
+    raise_on_error=False,
+)
+```
+
+Perform comprehensive SDE validation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name               | Type   | Description                                                                                                            | Default   |
+|--------------------|--------|------------------------------------------------------------------------------------------------------------------------|-----------|
+| claimed_noise_type | str    | User's claim about noise type ('additive', 'diagonal', 'scalar') If provided, validates claim matches actual structure | `None`    |
+| raise_on_error     | bool   | If True, raise ValidationError on validation failure                                                                   | `False`   |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                        |
+|--------|--------------------------|----------------------------------------------------|
+|        | SymbolicValidationResult | Validation results with errors, warnings, and info |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type            | Description                                 |
+|--------|-----------------|---------------------------------------------|
+|        | ValidationError | If validation fails and raise_on_error=True |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> result = validator.validate()
+>>> if not result.is_valid:
+...     print(f"Validation failed: {result.errors}")
+>>>
+>>> # Validate claimed noise type
+>>> result = validator.validate(claimed_noise_type='additive')
+>>>
+>>> # Raise exception on error
+>>> try:
+...     result = validator.validate(raise_on_error=True)
+... except ValidationError as e:
+...     print(f"Validation failed: {e}")
+```

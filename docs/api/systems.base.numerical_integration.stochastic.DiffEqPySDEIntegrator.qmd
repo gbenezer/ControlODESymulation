@@ -1,0 +1,328 @@
+# systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator(
+    sde_system,
+    dt=0.01,
+    step_mode=StepMode.FIXED,
+    backend='numpy',
+    algorithm='EM',
+    sde_type=None,
+    convergence_type=ConvergenceType.STRONG,
+    seed=None,
+    **options,
+)
+```
+
+Julia-based SDE integrator using DifferentialEquations.jl via diffeqpy.
+
+Provides access to Julia's extensive SDE solver ecosystem with superior
+performance and accuracy compared to pure Python implementations.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                      | Description                                                                                                                                                                                                                                           | Default                  |
+|------------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|
+| sde_system       | StochasticDynamicalSystem | SDE system to integrate (controlled or autonomous)                                                                                                                                                                                                    | _required_               |
+| dt               | Optional\[float\]         | Time step (initial guess for adaptive, fixed for non-adaptive)                                                                                                                                                                                        | `0.01`                   |
+| step_mode        | StepMode                  | FIXED or ADAPTIVE stepping (default: FIXED) Note: Many Julia SDE solvers (like EM) only support fixed stepping Use adaptive algorithms like 'LambaEM' for adaptive stepping                                                                           | `StepMode.FIXED`         |
+| backend          | str                       | Must be 'numpy' (Julia returns NumPy arrays via diffeqpy)                                                                                                                                                                                             | `'numpy'`                |
+| algorithm        | str                       | Julia SDE algorithm name (default: 'EM') See list_algorithms() for available options                                                                                                                                                                  | `'EM'`                   |
+| sde_type         | Optional\[SDEType\]       | SDE interpretation (None = use system's type)                                                                                                                                                                                                         | `None`                   |
+| convergence_type | ConvergenceType           | Strong or weak convergence                                                                                                                                                                                                                            | `ConvergenceType.STRONG` |
+| seed             | Optional\[int\]           | Random seed for reproducibility NOTE: Seed control via diffeqpy is limited. Julia generates random numbers internally and setting the seed via Python is unreliable. For reproducible results, use JAX/PyTorch integrators instead.                   | `None`                   |
+| **options        |                           | Additional options: - rtol : float (default: 1e-3) - Relative tolerance - atol : float (default: 1e-6) - Absolute tolerance - save_everystep : bool (default: True) - Save at every step - dense : bool (default: False) - Dense output interpolation | `{}`                     |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type         | Description                                        |
+|--------|--------------|----------------------------------------------------|
+|        | ImportError  | If diffeqpy is not installed                       |
+|        | RuntimeError | If Julia DifferentialEquations.jl is not available |
+
+## Notes {.doc-section .doc-section-notes}
+
+- Backend must be 'numpy' (Julia/Python bridge uses NumPy)
+- Statistics tracking is estimated (Julia doesn't expose call counts)
+- Random seed control is limited (Julia manages its own RNG)
+- For reproducible Monte Carlo, use JAX or PyTorch integrators
+- For custom noise specification, use JAX/Diffrax (simpler API)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Basic usage with Euler-Maruyama
+>>> integrator = DiffEqPySDEIntegrator(
+...     sde_system,
+...     dt=0.01,
+...     algorithm='EM'
+... )
+>>>
+>>> # High accuracy adaptive solver
+>>> integrator = DiffEqPySDEIntegrator(
+...     sde_system,
+...     dt=0.001,
+...     algorithm='SRIW1',
+...     rtol=1e-6,
+...     atol=1e-8
+... )
+>>>
+>>> # Stiff drift with implicit solver
+>>> integrator = DiffEqPySDEIntegrator(
+...     stiff_sde,
+...     algorithm='ImplicitEM',
+...     dt=0.01
+... )
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [name](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.name) | Return integrator name. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [get_algorithm_info](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.get_algorithm_info) | Get detailed information about a specific algorithm. |
+| [integrate](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.integrate) | Integrate SDE over time interval using Julia solver. |
+| [list_algorithms](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.list_algorithms) | List available Julia SDE algorithms by category. |
+| [recommend_algorithm](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.recommend_algorithm) | Recommend Julia SDE algorithm based on problem characteristics. |
+| [step](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.step) | Take one SDE integration step. |
+| [validate_julia_setup](#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.validate_julia_setup) | Validate that Julia and DifferentialEquations.jl are properly set up. |
+
+### get_algorithm_info { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.get_algorithm_info }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.get_algorithm_info(
+    algorithm,
+)
+```
+
+Get detailed information about a specific algorithm.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type   | Description    | Default    |
+|-----------|--------|----------------|------------|
+| algorithm | str    | Algorithm name | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                              |
+|--------|------------------|------------------------------------------|
+|        | Dict\[str, Any\] | Algorithm properties and recommendations |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> info = DiffEqPySDEIntegrator.get_algorithm_info('SRIW1')
+>>> print(info['description'])
+'High accuracy for diagonal noise'
+```
+
+### integrate { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.integrate }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.integrate(
+    x0,
+    u_func,
+    t_span,
+    t_eval=None,
+    dense_output=False,
+)
+```
+
+Integrate SDE over time interval using Julia solver.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                  | Description                                          | Default    |
+|--------------|-----------------------|------------------------------------------------------|------------|
+| x0           | ArrayLike             | Initial state (nx,)                                  | _required_ |
+| u_func       | Callable              | Control policy: (t, x) -> u (or None for autonomous) | _required_ |
+| t_span       | Tuple\[float, float\] | Integration interval (t_start, t_end)                | _required_ |
+| t_eval       | Optional\[ArrayLike\] | Specific times at which to save solution             | `None`     |
+| dense_output | bool                  | If True, enable dense output interpolation           | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description                                       |
+|--------|----------------------|---------------------------------------------------|
+|        | SDEIntegrationResult | Integration result with trajectory and statistics |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Autonomous SDE
+>>> result = integrator.integrate(
+...     x0=np.array([1.0]),
+...     u_func=lambda t, x: None,
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Controlled SDE
+>>> result = integrator.integrate(
+...     x0=np.array([1.0, 0.0]),
+...     u_func=lambda t, x: -K @ x,
+...     t_span=(0.0, 10.0)
+... )
+>>>
+>>> # Save at specific times
+>>> t_eval = np.linspace(0, 10, 1001)
+>>> result = integrator.integrate(x0, u_func, (0, 10), t_eval=t_eval)
+```
+
+### list_algorithms { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.list_algorithms }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.list_algorithms(
+)
+```
+
+List available Julia SDE algorithms by category.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                      |
+|--------|--------------------------|----------------------------------|
+|        | Dict\[str, List\[str\]\] | Algorithms organized by category |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> algorithms = DiffEqPySDEIntegrator.list_algorithms()
+>>> print(algorithms['euler_maruyama'])
+['EM', 'LambaEM', 'EulerHeun']
+```
+
+### recommend_algorithm { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.recommend_algorithm }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.recommend_algorithm(
+    noise_type,
+    stiffness='none',
+    accuracy='medium',
+)
+```
+
+Recommend Julia SDE algorithm based on problem characteristics.
+
+**IMPORTANT**: Not all recommended algorithms work via diffeqpy!
+- SRIW1/SRIW2: Don't work (use JAX/Diffrax instead)
+- EM: Always works
+- SRA3: Verified to work
+
+For guaranteed compatibility, use 'EM' or 'SRA3' only.
+For high accuracy with diagonal noise, use JAX/Diffrax.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type   | Description                                    | Default    |
+|------------|--------|------------------------------------------------|------------|
+| noise_type | str    | 'additive', 'diagonal', 'scalar', or 'general' | _required_ |
+| stiffness  | str    | 'none', 'moderate', or 'severe'                | `'none'`   |
+| accuracy   | str    | 'low', 'medium', or 'high'                     | `'medium'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                |
+|--------|--------|----------------------------|
+|        | str    | Recommended algorithm name |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Additive noise, high accuracy (WORKS)
+>>> alg = DiffEqPySDEIntegrator.recommend_algorithm(
+...     noise_type='additive',
+...     stiffness='none',
+...     accuracy='high'
+... )
+>>> print(alg)
+'SRA3'  # Verified to work
+>>>
+>>> # Diagonal noise, high accuracy (DOESN'T WORK via diffeqpy)
+>>> alg = DiffEqPySDEIntegrator.recommend_algorithm(
+...     noise_type='diagonal',
+...     stiffness='none',
+...     accuracy='high'
+... )
+>>> print(alg)
+'SRIW1'  # Won't work - use JAX/Diffrax SHARK instead
+```
+
+### step { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.step }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.step(
+    x,
+    u=None,
+    dt=None,
+    dW=None,
+)
+```
+
+Take one SDE integration step.
+
+Note: Julia's solvers are optimized for full trajectory integration.
+Single-step interface is less efficient due to problem setup overhead.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                             | Default    |
+|--------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| x      | ArrayLike             | Current state                                                                                                                                                                                                                                                                                                                                                                                                                           | _required_ |
+| u      | Optional\[ArrayLike\] | Control input (None for autonomous)                                                                                                                                                                                                                                                                                                                                                                                                     | `None`     |
+| dt     | Optional\[float\]     | Step size                                                                                                                                                                                                                                                                                                                                                                                                                               | `None`     |
+| dW     | Optional\[ArrayLike\] | Brownian increments (nw,)  **EXPERIMENTAL**: Julia DOES support custom noise via NoiseGrid, but implementing it reliably for single-step integration through diffeqpy is complex and may not work as expected.  Current behavior: - If dW provided: Attempts to create NoiseGrid (may fail or be ignored) - If dW is None: Uses Julia's default random Brownian motion  For reliable custom noise, use backend='jax' (Diffrax) instead. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description   |
+|--------|-----------|---------------|
+|        | ArrayLike | Next state    |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Custom noise limitations with Julia/diffeqpy:
+1. NoiseGrid requires cumulative Brownian values, not just increments
+2. Python-Julia bridging for noise objects is fragile
+3. Single-step interface makes this awkward (need full grid)
+4. May require DiffEqNoiseProcess.jl which isn't always exposed
+
+Recommendation: For custom noise (deterministic testing, antithetic
+variates, etc.), use JAX/Diffrax which has clean custom noise support.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard usage (random noise)
+>>> x_next = integrator.step(x, u, dt=0.01)
+>>>
+>>> # Attempted custom noise (experimental, may not work)
+>>> x_next = integrator.step(x, u, dt=0.01, dW=np.array([0.5]))
+>>> # Warning: May generate random noise anyway
+```
+
+### validate_julia_setup { #cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.validate_julia_setup }
+
+```python
+systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.validate_julia_setup(
+)
+```
+
+Validate that Julia and DifferentialEquations.jl are properly set up.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | bool   | True if setup is valid |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type         | Description                      |
+|--------|--------------|----------------------------------|
+|        | RuntimeError | If validation fails with details |

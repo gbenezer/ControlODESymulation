@@ -1,0 +1,100 @@
+# systems.base.utils.EquilibriumHandler { #cdesym.systems.base.utils.EquilibriumHandler }
+
+```python
+systems.base.utils.EquilibriumHandler(nx, nu)
+```
+
+Manages multiple equilibrium points for a dynamical system.
+
+Stores equilibria as backend-neutral NumPy arrays and provides
+conversion to any backend on demand.
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [nu](#cdesym.systems.base.utils.EquilibriumHandler.nu) | Number of controls |
+| [nx](#cdesym.systems.base.utils.EquilibriumHandler.nx) | Number of states |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [add](#cdesym.systems.base.utils.EquilibriumHandler.add) | Add named equilibrium point. |
+| [get_both](#cdesym.systems.base.utils.EquilibriumHandler.get_both) | Get both state and control equilibria |
+| [get_metadata](#cdesym.systems.base.utils.EquilibriumHandler.get_metadata) | Get metadata for equilibrium |
+| [get_u](#cdesym.systems.base.utils.EquilibriumHandler.get_u) | Get equilibrium control in specified backend |
+| [get_x](#cdesym.systems.base.utils.EquilibriumHandler.get_x) | Get equilibrium state in specified backend |
+| [list_names](#cdesym.systems.base.utils.EquilibriumHandler.list_names) | List all equilibrium names |
+| [set_default](#cdesym.systems.base.utils.EquilibriumHandler.set_default) | Set default equilibrium |
+
+### add { #cdesym.systems.base.utils.EquilibriumHandler.add }
+
+```python
+systems.base.utils.EquilibriumHandler.add(
+    name,
+    x_eq,
+    u_eq,
+    verify_fn=None,
+    tol=1e-06,
+    **metadata,
+)
+```
+
+Add named equilibrium point.
+
+Args:
+    name: Equilibrium name
+    x_eq: Equilibrium state
+    u_eq: Equilibrium control
+    verify_fn: Optional function(x, u) -> dx to verify equilibrium
+    tol: Tolerance for verification
+    **metadata: Additional info (stability, description, etc.)
+
+### get_both { #cdesym.systems.base.utils.EquilibriumHandler.get_both }
+
+```python
+systems.base.utils.EquilibriumHandler.get_both(name=None, backend='numpy')
+```
+
+Get both state and control equilibria
+
+### get_metadata { #cdesym.systems.base.utils.EquilibriumHandler.get_metadata }
+
+```python
+systems.base.utils.EquilibriumHandler.get_metadata(name=None)
+```
+
+Get metadata for equilibrium
+
+### get_u { #cdesym.systems.base.utils.EquilibriumHandler.get_u }
+
+```python
+systems.base.utils.EquilibriumHandler.get_u(name=None, backend='numpy')
+```
+
+Get equilibrium control in specified backend
+
+### get_x { #cdesym.systems.base.utils.EquilibriumHandler.get_x }
+
+```python
+systems.base.utils.EquilibriumHandler.get_x(name=None, backend='numpy')
+```
+
+Get equilibrium state in specified backend
+
+### list_names { #cdesym.systems.base.utils.EquilibriumHandler.list_names }
+
+```python
+systems.base.utils.EquilibriumHandler.list_names()
+```
+
+List all equilibrium names
+
+### set_default { #cdesym.systems.base.utils.EquilibriumHandler.set_default }
+
+```python
+systems.base.utils.EquilibriumHandler.set_default(name)
+```
+
+Set default equilibrium

@@ -1,0 +1,63 @@
+# systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder { #cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder }
+
+```python
+systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder(
+    *args,
+    **kwargs,
+)
+```
+
+Inverted pendulum - second-order formulation (returns ONLY acceleration).
+
+**CRITICAL BEHAVIOR**: The forward() method returns ONLY θ̈, not [θ̇, θ̈].
+This is the correct formulation for second-order systems.
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+Identical physics to SymbolicPendulum, but formulated as a second-order
+differential equation rather than a first-order state-space system.
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [θ, θ̇]  (same as first-order variant)
+
+## Dynamics Representation: {.doc-section .doc-section-dynamics-representation}
+
+Second-order form:
+    θ̈ = -(β/I)θ̇ + (g/l)sin(θ) + τ/I
+
+The forward() method computes and returns ONLY the acceleration θ̈.
+
+State-space conversion (handled automatically):
+    dx/dt = [θ̇    ] = [      θ̇       ]
+            [θ̈    ]   [f(θ, θ̇, τ)]
+
+The GenericDiscreteTimeSystem integrator handles the conversion:
+1. Calls forward(x, u) to get θ̈
+2. Integrates θ̈ to get θ̇_{k+1}
+3. Integrates θ̇ to get θ_{k+1}
+4. Returns x_{k+1} = [θ_{k+1}, θ̇_{k+1}]
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+m, l, beta, g : Same as SymbolicPendulum
+
+## Properties: {.doc-section .doc-section-properties}
+
+order : int = 2
+    Marks system as second-order (changes integration behavior)
+nq : int = 1
+    Number of generalized coordinates (just θ)
+
+## Notes: {.doc-section .doc-section-notes}
+
+- forward() output shape is (1,) for scalar acceleration, NOT (2,)
+- The state x is still (2,) = [θ, θ̇]
+- Integrators automatically handle the state-space conversion
+- Can use different integration methods for position vs velocity
+- Linearization returns full 2×2 state-space matrices
+
+## See Also: {.doc-section .doc-section-see-also}
+
+SymbolicPendulum : First-order state-space formulation
+SymbolicQuadrotor2D : Another second-order system (3 accelerations)

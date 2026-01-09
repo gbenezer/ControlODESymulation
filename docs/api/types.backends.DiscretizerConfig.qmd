@@ -1,0 +1,44 @@
+# types.backends.DiscretizerConfig { #cdesym.types.backends.DiscretizerConfig }
+
+```python
+types.backends.DiscretizerConfig()
+```
+
+Configuration for system discretization.
+
+Specifies how continuous system is converted to discrete.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name               | Type                 | Description                                    |
+|--------------------|----------------------|------------------------------------------------|
+| dt                 | float                | Time step (sampling period)                    |
+| method             | DiscretizationMethod | Discretization algorithm                       |
+| backend            | Backend              | Backend for discrete system                    |
+| order              | int                  | Approximation order (for taylor-based methods) |
+| preserve_stability | bool                 | Whether to preserve continuous-time stability  |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Standard configuration
+>>> config: DiscretizerConfig = {
+...     'dt': 0.01,
+...     'method': 'exact',
+...     'backend': 'numpy'
+... }
+>>>
+>>> # Digital control design
+>>> config_control: DiscretizerConfig = {
+...     'dt': 0.01,
+...     'method': 'zoh',
+...     'preserve_stability': True
+... }
+>>>
+>>> # Fast simulation
+>>> config_fast: DiscretizerConfig = {
+...     'dt': 0.001,
+...     'method': 'euler',
+...     'backend': 'torch'
+... }
+```

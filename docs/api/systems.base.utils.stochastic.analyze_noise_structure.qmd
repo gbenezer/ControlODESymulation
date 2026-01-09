@@ -1,0 +1,37 @@
+# systems.base.utils.stochastic.analyze_noise_structure { #cdesym.systems.base.utils.stochastic.analyze_noise_structure }
+
+```python
+systems.base.utils.stochastic.analyze_noise_structure(
+    diffusion_expr,
+    state_vars,
+    control_vars,
+    time_var=None,
+)
+```
+
+Convenience function for analyzing noise structure.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type              | Description               | Default    |
+|----------------|-------------------|---------------------------|------------|
+| diffusion_expr | sp.Matrix         | Symbolic diffusion matrix | _required_ |
+| state_vars     | List\[sp.Symbol\] | State variables           | _required_ |
+| control_vars   | List\[sp.Symbol\] | Control variables         | _required_ |
+| time_var       | sp.Symbol         | Time variable             | `None`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description      |
+|--------|----------------------|------------------|
+|        | NoiseCharacteristics | Analysis results |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x = sp.symbols('x')
+>>> diffusion = sp.Matrix([[0.1 * x, 0.05 * x]])
+>>> char = analyze_noise_structure(diffusion, [x], [])
+>>> print(char.noise_type)
+NoiseType.MULTIPLICATIVE
+```

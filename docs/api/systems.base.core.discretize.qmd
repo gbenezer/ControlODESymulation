@@ -1,0 +1,34 @@
+# systems.base.core.discretize { #cdesym.systems.base.core.discretize }
+
+```python
+systems.base.core.discretize(continuous_system, dt, method='rk4', **kwargs)
+```
+
+Convenience wrapper for creating a discretized system.
+
+Creates a DiscretizedSystem with automatic mode selection based on the
+chosen integration method. This is the recommended way to discretize
+systems for step-by-step simulation and control applications.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name              | Type                 | Description                                                                                                                                                         | Default    |
+|-------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| continuous_system | ContinuousSystemBase | Continuous system to discretize                                                                                                                                     | _required_ |
+| dt                | float                | Sampling time step (seconds)                                                                                                                                        | _required_ |
+| method            | str                  | Integration method. Can use canonical names ('euler_maruyama', 'rk45') or backend-specific names. Method name is automatically normalized for the system's backend. | `'rk4'`    |
+| **kwargs          |                      | Additional arguments passed to DiscretizedSystem                                                                                                                    | `{}`       |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type              | Description                             |
+|--------|-------------------|-----------------------------------------|
+|        | DiscretizedSystem | Discretized system ready for simulation |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> from controldesymulation.systems.examples import Pendulum
+>>> continuous = Pendulum(m=1.0, l=0.5)
+>>> discrete = discretize(continuous, dt=0.01)
+```

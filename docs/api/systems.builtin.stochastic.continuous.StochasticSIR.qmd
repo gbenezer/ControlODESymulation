@@ -1,0 +1,470 @@
+# systems.builtin.stochastic.continuous.StochasticSIR { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR(*args, **kwargs)
+```
+
+Stochastic SIR epidemic model with demographic noise.
+
+Models disease spread in a finite population with inherent randomness
+from discrete infection and recovery events. Essential for understanding
+outbreak extinction, variability in epidemic outcomes, and uncertainty
+in disease forecasting.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+Diffusion approximation of discrete SIR:
+
+    dS = -β·S·I/N·dt + σ_S·dW_S
+    dI = (β·S·I/N - γ·I)·dt + σ_I·dW_I
+    dR = γ·I·dt + σ_R·dW_R
+
+where:
+    - S(t): Number susceptible (can be infected)
+    - I(t): Number infected (infectious)
+    - R(t): Number recovered (immune)
+    - N = S + I + R: Total population (constant)
+    - β: Transmission rate [1/time]
+    - γ: Recovery rate [1/time]
+    - σ_S, σ_I, σ_R: Noise intensities
+    - W_S, W_I, W_R: Wiener processes
+
+**Physical Meaning:**
+
+Transmission: β·S·I/N
+- Rate of new infections
+- Mass action: Proportional to S·I
+- β: Contacts per time × transmission probability
+
+Recovery: γ·I
+- Rate of recoveries
+- First-order: Proportional to I
+- γ = 1/(infectious period)
+
+**Demographic Noise:**
+
+True stochastic SIR has √ diffusion:
+    Diffusion ~ √(rate)
+
+From Poisson statistics of discrete events.
+
+This implementation: Simplified additive noise for tractability.
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Susceptibles S:**
+
+Decrease only (monotonic):
+- Start: S(0) ≈ N (nearly all susceptible)
+- End: S(∞) > 0 (some escape infection)
+- Never increases (no loss of immunity modeled)
+
+**Infected I:**
+
+Non-monotonic (rise then fall):
+- Start: I(0) = small (index cases)
+- Peak: I_max at t_peak (outbreak peak)
+- End: I(∞) = 0 (disease dies out)
+
+**Recovered R:**
+
+Increase only (monotonic):
+- Start: R(0) = 0 (no immunity initially)
+- End: R(∞) = final outbreak size
+- Measure of epidemic impact
+
+**Conservation:**
+S + I + R = N (total population constant)
+
+## Key Features {.doc-section .doc-section-key-features}
+
+**Nonlinearity:**
+S·I term creates threshold behavior and epidemic curve.
+
+**Positivity:**
+Must have S, I, R ≥ 0 (counts of people).
+
+**Conservation:**
+S + I + R = N always (no births/deaths).
+
+**Extinction:**
+I → 0 eventually (disease dies out).
+Time random, final size random.
+
+**Threshold (R₀):**
+Probabilistic in stochastic model.
+
+**Finite Time:**
+Epidemic is transient (not steady state).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**Basic Reproduction Number:**
+    R₀ = β/γ
+
+Critical threshold (deterministic):
+- R₀ < 1: Dies out
+- R₀ > 1: Epidemic
+
+**Stochastic Threshold:**
+Even R₀ > 1: Can die out with probability (1/R₀)^{I₀}
+
+**Final Size Relation:**
+
+Deterministic: R_∞ satisfies
+    R_∞ = N - S₀·exp(-R₀·R_∞/N)
+
+Stochastic: Distribution around this value.
+
+**Epidemic Peak:**
+
+Deterministic:
+    I_max ≈ I₀ + S₀ - N/R₀ - (N/R₀)·ln(S₀·R₀/N)
+    t_peak ≈ (1/γ)·ln(R₀·S₀/N)
+
+Stochastic: Random variables (compute via simulation).
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Transmission Rate β:**
+- Units: [1/time]
+- β = contact rate × transmission probability
+- Typical: 0.2-2.0 per day
+
+**Examples:**
+- Influenza: β ≈ 0.5 per day
+- Measles: β ≈ 1.5 per day
+- COVID-19: β ≈ 0.3-0.6 per day (varies)
+
+**Recovery Rate γ:**
+- Units: [1/time]
+- γ = 1/(infectious period)
+- Typical: 0.1-1.0 per day
+
+**Examples:**
+- Influenza: γ ≈ 0.5 per day (2 days infectious)
+- COVID-19: γ ≈ 0.1 per day (10 days)
+- Measles: γ ≈ 0.1 per day (10 days)
+
+**Basic Reproduction Number:**
+    R₀ = β/γ
+
+**Examples:**
+- Influenza: R₀ ≈ 1-2
+- COVID-19: R₀ ≈ 2-5 (variant dependent)
+- Measles: R₀ ≈ 12-18
+
+**Noise Intensity:**
+
+From demographic stochasticity (Poisson):
+    σ ≈ √(rate/N)
+
+Relative noise: 1/√N
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [S, I, R] ∈ ℝ₊³
+    - S, I, R ≥ 0 (non-negative counts)
+    - S + I + R = N (conservation)
+    - Bounded: 0 ≤ S, I, R ≤ N
+
+Control: u (optional, interventions)
+    - Reduce β (social distancing)
+    - Increase recovery (treatment)
+    - Vaccination (move S → R)
+
+Noise: w = [w_S, w_I, w_R] ∈ ℝ³
+    - Demographic stochasticity
+    - Should be correlated (conservation)
+    - This implementation: Simplified independent
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                                                                                        | Default   |
+|---------|--------|----------------------------------------------------------------------------------------------------|-----------|
+| beta    | float  | Transmission rate [1/day] - Typical: 0.2-2.0 - Disease and behavior dependent                      | `0.5`     |
+| gamma   | float  | Recovery rate [1/day] - 1/γ = infectious period - Typical: 0.1-1.0                                 | `0.1`     |
+| N       | float  | Total population - Larger N: More deterministic - Smaller N: More stochastic                       | `1000.0`  |
+| sigma_S | float  | Susceptible noise intensity [1/√day] - From √(rate/N) for demographic noise - Typical: √(β·S·I/N²) | `0.1`     |
+| sigma_I | float  | Infected noise intensity [1/√day]                                                                  | `0.1`     |
+| sigma_R | float  | Recovered noise intensity [1/√day]                                                                 | `0.1`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR
+- Noise Type: ADDITIVE (simplified)
+- SDE Type: Itô
+- Noise Dimension: nw = 3
+- Stationary: No (epidemic is transient)
+- Positive: Should be (may need projection)
+- Conserved: S + I + R = N (approximately)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Epidemiology:**
+- COVID-19, influenza, measles modeling
+- Outbreak prediction with uncertainty
+- Intervention timing and effectiveness
+
+**2. Parameter Estimation:**
+- Estimate β, γ from outbreak data
+- Bayesian inference with uncertainty
+- Real-time estimation (particle filter)
+
+**3. Public Health Policy:**
+- Vaccination strategies
+- Social distancing timing
+- Resource allocation (ICU beds)
+
+**4. Extinction Analysis:**
+- Probability small outbreak dies out
+- Early intervention effectiveness
+- Import risk assessment
+
+**5. Rare Events:**
+- Superspreading events
+- Large outbreaks in small populations
+- Timing of peak (ICU planning)
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Recommended:**
+- Euler-Maruyama: dt = 0.01-0.1 days
+- Project to non-negative: max(X, 0)
+- Check conservation: S+I+R ≈ N
+
+**Event Detection:**
+- Extinction: I < 0.5 (declare extinct)
+- Peak: Max I(t)
+- Duration: Time I > threshold
+
+## Monte Carlo Guidelines {.doc-section .doc-section-monte-carlo-guidelines}
+
+**Ensemble Analysis:**
+- N_runs = 100-1,000
+- Compute: Extinction probability, mean final size
+- Histogram: Final R (bimodal if near threshold)
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic:**
+- Smooth epidemic curve
+- Single final size
+- R₀ sharp threshold
+
+**Stochastic:**
+- Variable epidemic curves
+- Distribution of final sizes
+- R₀ probabilistic threshold
+- Extinction possible
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Additive noise (not √ diffusion)
+- Independent noise (should be correlated)
+- Homogeneous mixing (no network structure)
+- Constant β, γ (no seasonality)
+- Closed population (no births/deaths)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- SEIR: Add Exposed class
+- Age structure: Multiple age groups
+- Spatial: Geographic spread
+- Network: Contact structure
+- Time-varying: Seasonal β(t)
+- Vaccination: Control via S → R
+
+## See Also {.doc-section .doc-section-see-also}
+
+CoxIngersollRoss : Similar √ diffusion structure
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [check_conservation](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation) | Check conservation constraint S + I + R = N. |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system) | Define stochastic SIR epidemic dynamics. |
+| [estimate_extinction_probability](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability) | Estimate probability of stochastic extinction (approximation). |
+| [get_basic_reproduction_number](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number) | Get basic reproduction number R₀ = β/γ. |
+| [get_herd_immunity_threshold](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold) | Get herd immunity threshold H = 1 - 1/R₀. |
+
+### check_conservation { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR.check_conservation(x)
+```
+
+Check conservation constraint S + I + R = N.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type       | Description     | Default    |
+|--------|------------|-----------------|------------|
+| x      | np.ndarray | State [S, I, R] | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                  |
+|--------|--------|------------------------------|
+|        | float  | Absolute error \|S+I+R - N\| |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> sir = StochasticSIR(N=1000)
+>>> x = np.array([500, 200, 300])
+>>> error = sir.check_conservation(x)
+>>> print(f"Conservation error: {error:.2f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR.define_system(
+    beta=0.5,
+    gamma=0.1,
+    N=1000.0,
+    sigma_S=0.1,
+    sigma_I=0.1,
+    sigma_R=0.1,
+)
+```
+
+Define stochastic SIR epidemic dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                                                                                                                   | Default   |
+|---------|--------|-------------------------------------------------------------------------------------------------------------------------------|-----------|
+| beta    | float  | Transmission rate [1/day] - β = contact rate × transmission probability - Typical: 0.2-2.0 per day - Higher → faster spread   | `0.5`     |
+| gamma   | float  | Recovery rate [1/day] - γ = 1/(infectious period) - Typical: 0.1-1.0 per day - Higher → faster recovery                       | `0.1`     |
+| N       | float  | Total population (constant) - Larger N: More deterministic - Smaller N: More stochastic - Typical: 100-1,000,000              | `1000.0`  |
+| sigma_S | float  | Susceptible noise intensity [1/√day] - From demographic noise: ~ √(β·S·I/N²) - Typical: 0.01-1.0                              | `0.1`     |
+| sigma_I | float  | Infected noise intensity [1/√day] - From demographic noise: ~ √(β·S·I/N² + γ·I/N) - Most critical (affects outbreak dynamics) | `0.1`     |
+| sigma_R | float  | Recovered noise intensity [1/√day] - From demographic noise: ~ √(γ·I/N)                                                       | `0.1`     |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Basic Reproduction Number:**
+    R₀ = β/γ
+
+Determines epidemic threshold:
+- R₀ < 1: Dies out (subcritical)
+- R₀ = 1: Critical (boundary)
+- R₀ > 1: Epidemic (supercritical)
+
+**Stochastic Extinction:**
+
+Even if R₀ > 1, can randomly die out:
+    P(extinction | I₀) ≈ (1/R₀)^{I₀}
+
+**Example:** R₀ = 2, I₀ = 1 → P_ext = 50%
+
+**Noise Scaling:**
+
+Physical demographic noise:
+    σ_physical ~ √(rate/N)
+
+For N = 1000, typical rates ~ 0.1-1:
+    σ ~ 0.01-0.1
+
+Larger population → smaller relative noise.
+
+**Infectious Period:**
+    T_inf = 1/γ
+
+**Examples:**
+- Influenza: 2-3 days (γ ≈ 0.4)
+- COVID-19: 7-14 days (γ ≈ 0.1)
+- Measles: 7-10 days (γ ≈ 0.12)
+
+**Herd Immunity:**
+    H = 1 - 1/R₀
+
+Fraction immune needed to prevent epidemic.
+
+**Validation:**
+
+Check conservation: S + I + R should equal N.
+If drifts: Renormalize periodically.
+
+### estimate_extinction_probability { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability(
+    I0,
+)
+```
+
+Estimate probability of stochastic extinction (approximation).
+
+For R₀ > 1: P_ext ≈ (1/R₀)^{I₀}
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type   | Description             | Default    |
+|--------|--------|-------------------------|------------|
+| I0     | float  | Initial number infected | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description            |
+|--------|--------|------------------------|
+|        | float  | Extinction probability |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> sir = StochasticSIR(beta=0.6, gamma=0.2)  # R₀=3
+>>> P_ext_1 = sir.estimate_extinction_probability(I0=1)
+>>> P_ext_10 = sir.estimate_extinction_probability(I0=10)
+>>> print(f"1 infected: P_ext = {P_ext_1:.2%}")
+>>> print(f"10 infected: P_ext = {P_ext_10:.2%}")
+```
+
+### get_basic_reproduction_number { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number(
+)
+```
+
+Get basic reproduction number R₀ = β/γ.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description   |
+|--------|--------|---------------|
+|        | float  | R₀            |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> sir = StochasticSIR(beta=0.5, gamma=0.1)
+>>> R0 = sir.get_basic_reproduction_number()
+>>> print(f"R₀ = {R0:.2f}")
+```
+
+### get_herd_immunity_threshold { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold }
+
+```python
+systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold(
+)
+```
+
+Get herd immunity threshold H = 1 - 1/R₀.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                        |
+|--------|--------|------------------------------------|
+|        | float  | Herd immunity threshold (fraction) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> sir = StochasticSIR(beta=0.5, gamma=0.1)
+>>> H = sir.get_herd_immunity_threshold()
+>>> print(f"Herd immunity: {H:.1%}")
+```

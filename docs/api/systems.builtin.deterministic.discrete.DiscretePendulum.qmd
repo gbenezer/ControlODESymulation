@@ -1,0 +1,625 @@
+# systems.builtin.deterministic.discrete.DiscretePendulum { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum(*args, **kwargs)
+```
+
+    Discrete-time simple pendulum with friction and optional control.
+
+##     Physical System: {.doc-section .doc-section-----physical-system}
+
+    A point mass m suspended by a massless, rigid rod of length L, swinging
+    in a vertical plane under the influence of gravity. The pendulum can be:
+    - Free (no control): Natural oscillatory motion
+    - Forced (with control): External torque applied at pivot
+
+    **Mechanical Configuration:**
+```
+              ● Pivot (fixed)
+              |
+              | L (rod length)
+              |
+              ● m (point mass)
+              ↓
+              g (gravity)
+```
+
+    Angle θ measured from downward vertical:
+    - θ = 0: Hanging down (stable equilibrium)
+    - θ = π: Standing up (unstable equilibrium)
+    - θ = π/2: Horizontal position (maximum potential energy during swing)
+
+    **Equation of Motion (from Newton's Second Law):**
+    The continuous-time dynamics are:
+
+        m·L²·θ̈ = -m·g·L·sin(θ) - b·θ̇ + τ
+
+    Dividing by m·L²:
+
+        θ̈ = -(g/L)·sin(θ) - (b/m·L²)·θ̇ + τ/(m·L²)
+
+    Define:
+        ω₀² = g/L: Natural frequency squared [rad²/s²]
+        β = b/(m·L²): Damping coefficient [1/s]
+        u = τ/(m·L²): Normalized torque [rad/s²]
+
+    Then:
+        θ̈ = -ω₀²·sin(θ) - β·θ̇ + u
+
+    **Discrete-Time Dynamics:**
+    Multiple discretization methods available (see parameters).
+
+##     State Space: {.doc-section .doc-section-----state-space}
+
+    State: x[k] = [θ[k], ω[k]]
+        Angular position:
+        - θ: Angle from vertical [rad]
+          * θ = 0: Downward equilibrium (lowest energy)
+          * θ = π: Upward equilibrium (highest energy)
+          * θ = ±π/2: Horizontal (maximum torque)
+          * Periodic: sin(θ) and cos(θ) are 2π-periodic
+          * Can be wrapped to [-π, π] or left unwrapped
+
+        Angular velocity:
+        - ω: Rate of change of angle [rad/s]
+          * ω > 0: Counterclockwise rotation
+          * ω < 0: Clockwise rotation
+          * ω = 0: Instantaneous rest
+          * In phase space: forms closed curves (periodic) or rotations
+
+    Control: u[k] = [τ[k]]
+        Applied torque (optional):
+        - τ: External torque at pivot [N·m]
+          * Normalized: u = τ/(m·L²) [rad/s²]
+          * τ > 0: Pushes pendulum counterclockwise
+          * τ < 0: Pushes pendulum clockwise
+          * For swing-up or stabilization control
+
+    Output: y[k] = [θ[k]] or [θ[k], ω[k]]
+        - Position-only measurement (typical)
+        - Full state if velocity sensor available
+        - In practice: encoder for θ, gyroscope for ω
+
+##     Dynamics (Physical Regimes): {.doc-section .doc-section-----dynamics-physical-regimes}
+
+    **Small Angle Approximation (|θ| << 1):**
+    For small displacements, sin(θ) ≈ θ:
+        θ̈ ≈ -ω₀²·θ - β·θ̇
+
+    This is a LINEAR harmonic oscillator! (See DiscreteOscillator)
+    - Valid for θ < 0.2 rad (~10°)
+    - Error: O(θ³)
+
+    **Nonlinear Regime (arbitrary θ):**
+    Must use full sin(θ) term:
+    - Period depends on amplitude (not constant like linear!)
+    - Large swings take longer
+    - Complete rotation possible if sufficient energy
+
+    **Phase Space Structure:**
+    The (θ, ω) phase portrait has rich structure:
+
+    1. **Fixed points:**
+       - (0, 0): Stable focus/center (depends on damping)
+       - (±π, 0): Saddle points (unstable)
+
+    2. **Periodic orbits (β = 0):**
+       - Closed curves around (0, 0)
+       - Period increases with amplitude
+
+    3. **Separatrix (β = 0):**
+       - Special trajectory through saddle points
+       - Separates oscillations from rotations
+       - Homoclinic orbit (starts and ends at saddle)
+
+    4. **Rotations (high energy):**
+       - Open curves (pendulum goes over the top)
+       - ω doesn't change sign
+       - Continuous rotation in one direction
+
+##     Parameters: {.doc-section .doc-section-----parameters}
+
+    m : float, default=1.0
+        Mass of the pendulum bob [kg]
+        - Affects inertia (m·L²)
+        - Typical: 0.1-10 kg
+
+    L : float, default=1.0
+        Length of the pendulum rod [m]
+        - Determines natural frequency: ω₀ = √(g/L)
+        - Longer pendulum → slower oscillations
+        - Typical: 0.1-2.0 m
+
+    g : float, default=9.81
+        Gravitational acceleration [m/s²]
+        - Earth: 9.81
+        - Moon: 1.62
+        - Mars: 3.71
+
+    b : float, default=0.1
+        Damping coefficient [N·m·s/rad]
+        - Air resistance + friction at pivot
+        - Larger b → faster decay
+        - b = 0: Undamped (conservative, energy-preserving)
+        - Typical: 0.01-1.0
+
+    dt : float, default=0.01
+        Sampling period [s]
+        - Digital control update rate
+        - Must satisfy Nyquist criterion
+        - Smaller dt → better accuracy
+        - Typical: 0.001-0.1 s
+
+    method : str, default='zoh'
+        Discretization method:
+        - 'zoh': Zero-order hold (exact for constant τ)
+        - 'euler': Forward Euler (simple, O(dt))
+        - 'rk4': Runge-Kutta 4th order (accurate, O(dt⁴))
+        - 'exact': Exact discretization for linear approximation
+
+    use_control : bool, default=True
+        If True, includes control input τ
+        If False, free pendulum (autonomous)
+
+##     Equilibria: {.doc-section .doc-section-----equilibria}
+
+    **Downward Equilibrium (θ = 0, ω = 0):**
+    Stability: STABLE (center if undamped, stable focus if damped)
+    - Minimum potential energy
+    - Small perturbations oscillate (if β > 0: with decay)
+    - Linearization: θ̈ = -ω₀²·θ - β·θ̇ (harmonic oscillator)
+
+    **Upward Equilibrium (θ = ±π, ω = 0):**
+    Stability: UNSTABLE (saddle point)
+    - Maximum potential energy
+    - Small perturbations grow exponentially
+    - Linearization: θ̈ = +ω₀²·(θ - π) - β·θ̇ (inverted)
+    - Famous "inverted pendulum" control problem
+
+    **Separatrix Energy (undamped):**
+    The energy separating oscillations from rotations:
+        E_sep = 2·m·g·L
+
+    If E < E_sep: Oscillation (back and forth)
+    If E > E_sep: Rotation (goes over the top)
+    If E = E_sep: Asymptotic approach to upward position
+
+##     Controllability: {.doc-section .doc-section-----controllability}
+
+    **With Control (u ≠ 0):**
+    Completely controllable - can reach any state from any other state.
+
+    **Without Control (Free Pendulum):**
+    NOT controllable - energy determines accessible states.
+    Can only reach states with same or lower energy (due to damping).
+
+##     Observability: {.doc-section .doc-section-----observability}
+
+    **Position-only measurement (y = θ):**
+    Observable almost everywhere.
+    - Can reconstruct ω from θ measurements over time
+    - Singularity at equilibria (θ = constant → ω ambiguous)
+
+    **Full state measurement:**
+    Trivially observable.
+
+##     Energy and Integrals of Motion: {.doc-section .doc-section-----energy-and-integrals-of-motion}
+
+    **Total Mechanical Energy:**
+        E = (1/2)·m·L²·ω² + m·g·L·(1 - cos(θ))
+
+    Kinetic: K = (1/2)·m·L²·ω²
+    Potential: V = m·g·L·(1 - cos(θ))
+
+    **For Undamped, Unforced Pendulum (β = 0, u = 0):**
+    Energy is conserved: dE/dt = 0
+    Phase space trajectories are level sets of E(θ, ω).
+
+    **For Damped Pendulum (β > 0, u = 0):**
+    Energy decreases: dE/dt = -b·ω² ≤ 0
+    All trajectories asymptotically approach (0, 0).
+
+    **For Forced Pendulum (u ≠ 0):**
+    Energy can increase or decrease:
+        dE/dt = (m·L²·u - b)·ω²
+
+##     Control Objectives: {.doc-section .doc-section-----control-objectives}
+
+    **1. Stabilization at Downward Position:**
+       Goal: θ → 0, ω → 0
+       Method: PD control works well (linear regime)
+       Challenge: Minimal (natural equilibrium)
+
+    **2. Swing-Up Control:**
+       Goal: Move from θ = 0 to θ = π
+       Methods:
+       - Energy-based: Pump energy until E ≈ E_target
+       - Bang-bang: Apply maximum torque
+       - Trajectory optimization
+       Challenge: Large control effort, multiple rotations
+
+    **3. Inverted Stabilization:**
+       Goal: Stabilize at θ = π, ω = 0
+       Method: LQR around linearization
+       Challenge: Unstable equilibrium, requires continuous control
+
+    **4. Trajectory Tracking:**
+       Goal: Follow θ_ref(t), ω_ref(t)
+       Method: Feedforward + feedback
+       Application: Robotic manipulation
+
+    **5. Limit Cycle Creation:**
+       Goal: Create stable periodic oscillation
+       Method: Nonlinear feedback
+       Application: Rhythmic motion generation
+
+##     State Constraints: {.doc-section .doc-section-----state-constraints}
+
+    **1. Angle Limits (if physical stops exist):**
+       θ_min ≤ θ ≤ θ_max
+       Otherwise: θ ∈ ℝ (unbounded rotations possible)
+
+    **2. Velocity Limits:**
+       |ω| ≤ ω_max
+       Physical: Limited by energy or mechanism
+
+    **3. Torque Limits:**
+       |τ| ≤ τ_max
+       Most critical practical constraint
+       Determines controllability
+
+##     Numerical Considerations: {.doc-section .doc-section-----numerical-considerations}
+
+    **Discretization Accuracy:**
+    - ZOH: Good for control applications
+    - Euler: Simple but may be inaccurate/unstable for large dt
+    - RK4: High accuracy, recommended for simulation
+
+    **Angle Wrapping:**
+    For visualization and analysis:
+    - Wrap θ to [-π, π]: θ_wrapped = atan2(sin(θ), cos(θ))
+    - Or leave unwrapped to count rotations
+
+    **Energy Verification:**
+    For undamped case, check energy conservation:
+        |E[k+1] - E[k]| should be small (numerical precision)
+
+##     Example Usage: {.doc-section .doc-section-----example-usage}
+
+    >>> # Create pendulum with realistic parameters
+    >>> system = DiscretePendulum(
+    ...     m=0.5,      # 500g mass
+    ...     L=1.0,      # 1m length
+    ...     g=9.81,
+    ...     b=0.05,     # Light damping
+    ...     dt=0.01,
+    ...     method='rk4'
+    ... )
+    >>>
+    >>> print(f"Natural frequency: {system.natural_frequency:.3f} rad/s")
+    >>> print(f"Period: {system.period:.3f} s")
+    >>> print(f"Damping ratio: {system.damping_ratio:.4f}")
+    >>>
+    >>> # Free oscillation from initial displacement
+    >>> x0 = np.array([np.pi/4, 0.0])  # 45° release from rest
+    >>> result_free = system.simulate(
+    ...     x0=x0,
+    ...     u_sequence=None,
+    ...     n_steps=1000
+    ... )
+    >>>
+    >>> # Plot phase portrait
+    >>> import plotly.graph_objects as go
+    >>> fig = go.Figure()
+    >>> fig.add_trace(go.Scatter(
+    ...     x=result_free['states'][:, 0],
+    ...     y=result_free['states'][:, 1],
+    ...     mode='lines',
+    ...     name='Trajectory'
+    ... ))
+    >>> fig.update_layout(
+    ...     title='Pendulum Phase Portrait',
+    ...     xaxis_title='θ [rad]',
+    ...     yaxis_title='ω [rad/s]'
+    ... )
+    >>> fig.show()
+    >>>
+    >>> # Energy analysis
+    >>> energies = np.array([
+    ...     system.compute_total_energy(x[0], x[1])
+    ...     for x in result_free['states']
+    ... ])
+    >>>
+    >>> fig_energy = go.Figure()
+    >>> fig_energy.add_trace(go.Scatter(
+    ...     x=result_free['time_steps'] * system.dt,
+    ...     y=energies,
+    ...     name='Total Energy'
+    ... ))
+    >>> fig_energy.update_layout(
+    ...     title='Energy vs Time (should decrease with damping)',
+    ...     xaxis_title='Time [s]',
+    ...     yaxis_title='Energy [J]'
+    ... )
+    >>> fig_energy.show()
+    >>>
+    >>> # Swing-up control (energy-based)
+    >>> def swing_up_energy_control(x, k):
+    ...     theta, omega = x
+    ...
+    ...     # Current energy
+    ...     E = system.compute_total_energy(theta, omega)
+    ...
+    ...     # Target energy (upward position)
+    ...     E_target = system.m * system.g * system.L * 2
+    ...
+    ...     # Energy error
+    ...     E_error = E - E_target
+    ...
+    ...     # If close to upward, switch to stabilization
+    ...     if abs(theta - np.pi) < 0.3 and abs(omega) < 1.0:
+    ...         # LQR around upward
+    ...         K_up = system.design_upward_stabilizer()
+    ...         return -K_up @ np.array([theta - np.pi, omega])
+    ...     else:
+    ...         # Energy pumping: add energy when moving in right direction
+    ...         k_swing = 5.0
+    ...         return k_swing * E_error * np.sign(omega * np.cos(theta))
+    >>>
+    >>> result_swing = system.rollout(
+    ...     x0=np.array([0.0, 0.0]),
+    ...     policy=swing_up_energy_control,
+    ...     n_steps=2000
+    ... )
+    >>>
+    >>> # Visualize swing-up in phase space
+    >>> fig_swing = system.plot_phase_portrait_with_separatrix()
+    >>> fig_swing.add_trace(go.Scatter(
+    ...     x=result_swing['states'][:, 0],
+    ...     y=result_swing['states'][:, 1],
+    ...     mode='lines',
+    ...     line=dict(color='red', width=2),
+    ...     name='Swing-up trajectory'
+    ... ))
+    >>> fig_swing.show()
+    >>>
+    >>> # Compare small vs large angle dynamics
+    >>> # Small angle (linear regime)
+    >>> x0_small = np.array([0.1, 0.0])  # ~6°
+    >>> result_small = system.simulate(x0_small, None, n_steps=500)
+    >>>
+    >>> # Large angle (nonlinear regime)
+    >>> x0_large = np.array([2.0, 0.0])  # ~115°
+    >>> result_large = system.simulate(x0_large, None, n_steps=500)
+    >>>
+    >>> # Compare periods
+    >>> def find_period(states, dt):
+    ...     # Find zero crossings
+    ...     theta = states[:, 0]
+    ...     crossings = np.where(np.diff(np.sign(theta)))[0]
+    ...     if len(crossings) >= 2:
+    ...         period = 2 * (crossings[1] - crossings[0]) * dt
+    ...         return period
+    ...     return None
+    >>>
+    >>> period_small = find_period(result_small['states'], system.dt)
+    >>> period_large = find_period(result_large['states'], system.dt)
+    >>>
+    >>> print(f"Small angle period: {period_small:.3f} s")
+    >>> print(f"Large angle period: {period_large:.3f} s")
+    >>> print(f"Linear theory: {system.period:.3f} s")
+    >>> print("Note: Large angle period > small angle period (nonlinearity)")
+
+##     Physical Insights: {.doc-section .doc-section-----physical-insights}
+
+    **Isochronism (Small Angles Only):**
+    For small oscillations, period is independent of amplitude:
+        T = 2π√(L/g) = 2π/ω₀
+
+    This is why pendulum clocks work! (But only for small swings)
+
+    **Anharmonicity (Large Angles):**
+    For large amplitudes, period increases with amplitude:
+        T(θ₀) ≈ T₀·(1 + θ₀²/16 + ...) for initial angle θ₀
+
+    This breaks isochronism → pendulum clocks must limit amplitude.
+
+    **Separatrix Dynamics:**
+    Trajectories on the separatrix (E = E_sep) take infinite time to reach
+    the unstable equilibrium. This is a homoclinic orbit.
+
+    **Conservation vs Dissipation:**
+    - No damping: Phase space filled with nested closed curves
+    - With damping: Spiral inward to stable equilibrium
+    - Energy landscape funnels trajectories toward rest
+
+    **Chaotic Forcing:**
+    Add periodic forcing: θ̈ = -ω₀²·sin(θ) + A·cos(Ω·t)
+    Can produce chaos (sensitive dependence on initial conditions)!
+    This is the "driven damped pendulum" - route to chaos.
+
+##     Common Pitfalls: {.doc-section .doc-section-----common-pitfalls}
+
+    1. **Using linear approximation for large angles:**
+       sin(θ) ≈ θ only valid for |θ| < 0.2 rad
+       Large errors for θ > π/4
+
+    2. **Forgetting angle periodicity:**
+       θ = 0 and θ = 2π are the same state
+       Important for phase portraits
+
+    3. **Ignoring separatrix:**
+       Qualitative dynamics change across separatrix
+       Control strategies differ for oscillations vs rotations
+
+    4. **Wrong linearization for upward:**
+       Linearizing at θ = π gives θ̈ = +ω₀²·(θ - π)
+       Note: POSITIVE coefficient (unstable)
+
+    5. **Energy not conserved numerically:**
+       Discretization introduces energy errors
+       Use symplectic integrators for better conservation
+
+    6. **Insufficient damping modeling:**
+       Real pendulums have complex friction
+       Viscous approximation b·ω may be inadequate
+
+##     Extensions: {.doc-section .doc-section-----extensions}
+
+    1. **Driven pendulum:**
+       Add periodic forcing: u[k] = A·cos(Ω·k·dt)
+       Can produce chaos and strange attractors
+
+    2. **Double pendulum:**
+       Two coupled pendula
+       Exhibits deterministic chaos
+
+    3. **Spherical pendulum:**
+       3D motion (θ, φ)
+       Rich dynamics, Coriolis effects
+
+    4. **Elastic pendulum:**
+       Pendulum with spring (varying L)
+       Coupled radial-angular motion
+
+    5. **Pendulum on cart:**
+       Inverted pendulum (classic underactuated system)
+       Noncollocated control problem
+
+    6. **Parametric excitation:**
+       Varying L sinusoidally
+       Parametric resonance effects
+
+##     See Also: {.doc-section .doc-section-----see-also}
+
+    DiscreteRobotArm : Similar dynamics (different notation)
+    DiscreteOscillator : Linear limit (small angles)
+    DoublePendulum : Chaotic extension
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [damping_ratio](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.damping_ratio) | Damping ratio ζ = β/(2ω₀) [-]. |
+| [natural_frequency](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.natural_frequency) | Natural frequency ω₀ = √(g/L) [rad/s]. |
+| [period](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.period) | Period of small oscillations T = 2π/ω₀ [s]. |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_kinetic_energy](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy) | Kinetic energy K = (1/2)·I·ω² [J]. |
+| [compute_potential_energy](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy) | Potential energy V = m·g·L·(1 - cos(θ)) [J]. |
+| [compute_separatrix](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix) | Compute separatrix trajectory (for undamped case). |
+| [compute_separatrix_energy](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy) | Energy of separatrix (boundary between oscillation/rotation) [J]. |
+| [compute_total_energy](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy) | Total mechanical energy E = K + V [J]. |
+| [define_system](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system) | Define discrete-time pendulum dynamics. |
+| [design_upward_stabilizer](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer) | Design LQR controller for upward stabilization. |
+| [setup_equilibria](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria) | Set up downward and upward equilibria. |
+
+### compute_kinetic_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy(
+    omega,
+)
+```
+
+Kinetic energy K = (1/2)·I·ω² [J].
+
+### compute_potential_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy(
+    theta,
+)
+```
+
+Potential energy V = m·g·L·(1 - cos(θ)) [J].
+
+### compute_separatrix { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix(
+    n_points=1000,
+)
+```
+
+Compute separatrix trajectory (for undamped case).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                         |
+|--------|--------|-------------------------------------|
+|        | tuple  | (theta, omega) points on separatrix |
+
+### compute_separatrix_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy(
+)
+```
+
+Energy of separatrix (boundary between oscillation/rotation) [J].
+
+### compute_total_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy(
+    theta,
+    omega,
+)
+```
+
+Total mechanical energy E = K + V [J].
+
+### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.define_system(
+    m=1.0,
+    L=1.0,
+    g=9.81,
+    b=0.1,
+    dt=0.01,
+    method='zoh',
+    use_control=True,
+)
+```
+
+Define discrete-time pendulum dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type   | Description                                   | Default   |
+|-------------|--------|-----------------------------------------------|-----------|
+| m           | float  | Mass [kg]                                     | `1.0`     |
+| L           | float  | Length [m]                                    | `1.0`     |
+| g           | float  | Gravity [m/s²]                                | `9.81`    |
+| b           | float  | Damping coefficient [N·m·s/rad]               | `0.1`     |
+| dt          | float  | Sampling period [s]                           | `0.01`    |
+| method      | str    | Discretization method ('zoh', 'euler', 'rk4') | `'zoh'`   |
+| use_control | bool   | If True, include control input                | `True`    |
+
+### design_upward_stabilizer { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer(
+)
+```
+
+Design LQR controller for upward stabilization.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description   |
+|--------|------------|---------------|
+|        | np.ndarray | LQR gain K    |
+
+### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria }
+
+```python
+systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria()
+```
+
+Set up downward and upward equilibria.

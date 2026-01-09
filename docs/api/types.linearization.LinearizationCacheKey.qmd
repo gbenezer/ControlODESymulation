@@ -1,0 +1,16 @@
+# types.linearization.LinearizationCacheKey { #cdesym.types.linearization.LinearizationCacheKey }
+
+`types.linearization.LinearizationCacheKey`
+
+Cache key for linearization results.
+
+Typically includes equilibrium point and method.
+
+Format: "x_eq=<hash>_u_eq=<hash>_method=<name>"
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> key: LinearizationCacheKey = "x_eq=abc123_u_eq=def456_method=euler"
+>>> cache[key] = (Ad, Bd)
+```

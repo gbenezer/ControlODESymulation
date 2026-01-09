@@ -1,0 +1,26 @@
+# types.core.StateVector { #cdesym.types.core.StateVector }
+
+`types.core.StateVector`
+
+State vector x ∈ ℝⁿˣ.
+
+The fundamental variable describing system configuration.
+
+Shapes:
+- Single state: (nx,)
+- Batched states: (batch, nx)
+- Trajectory: (n_steps, nx)
+- Batched trajectory: (n_steps, batch, nx)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Single state
+>>> x: StateVector = np.array([1.0, 0.0, 0.5])
+>>> 
+>>> # Batched (100 states)
+>>> x_batch: StateVector = np.random.randn(100, 3)
+>>> 
+>>> # Trajectory (101 time steps)
+>>> x_traj: StateVector = np.random.randn(101, 3)
+```

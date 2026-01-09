@@ -1,0 +1,64 @@
+# types.core.FeedbackController { #cdesym.types.core.FeedbackController }
+
+`types.core.FeedbackController`
+
+Feedback controller with time awareness π(x, t).
+
+Maps (state, time) to control action: u = π(x, t).
+
+This generalizes ControlPolicy to include explicit time-dependence,
+allowing for time-varying gains, scheduled controllers, or reference
+tracking with time-varying setpoints.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type        | Description         | Default    |
+|--------|-------------|---------------------|------------|
+| x      | StateVector | Current state (nx,) | _required_ |
+| t      | float       | Current time        | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type          | Description          |
+|--------|---------------|----------------------|
+|        | ControlVector | Control action (nu,) |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Time-varying LQR (scheduled gain)
+>>> def scheduled_lqr(x: StateVector, t: float) -> ControlVector:
+...     K_t = K0 * np.exp(-t / tau)  # Decaying gain
+...     return -K_t @ x
+>>> 
+>>> # Reference tracking with time-varying setpoint
+>>> def tracking_controller(x: StateVector, t: float) -> ControlVector:
+...     x_ref_t = np.array([np.sin(t), np.cos(t)])
+...     error = x - x_ref_t
+...     return -K @ error
+>>> 
+>>> # Gain scheduling based on time
+>>> def gain_scheduled(x: StateVector, t: float) -> ControlVector:
+...     if t < 5.0:
+...         return -K_low @ x   # Low gain initially
+...     else:
+...         return -K_high @ x  # High gain later
+>>> 
+>>> # Model predictive control with receding horizon
+>>> def mpc_controller(x: StateVector, t: float) -> ControlVector:
+...     horizon = [t, t + T_horizon]
+...     return solve_mpc(x, horizon)
+>>> 
+>>> # Use in simulation
+>>> result = system.simulate(x0, controller=tracking_controller, t_span=(0, 10))
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+For purely state-dependent control (no time dependence), prefer ControlPolicy
+which has the simpler signature u = π(x).
+
+## See Also {.doc-section .doc-section-see-also}
+
+ControlPolicy : Pure state feedback u = π(x)
+TimeVaryingControl : Pure time-varying u = u(t)

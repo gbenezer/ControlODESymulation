@@ -1,0 +1,631 @@
+# systems.base.core.DiscreteStochasticSystem { #cdesym.systems.base.core.DiscreteStochasticSystem }
+
+```python
+systems.base.core.DiscreteStochasticSystem(*args, **kwargs)
+```
+
+Concrete symbolic discrete-time stochastic dynamical system.
+
+Extends DiscreteSymbolicSystem to handle stochastic difference equations.
+Users subclass this and implement define_system() to specify both deterministic
+and stochastic terms.
+
+Represents systems of the form:
+    x[k+1] = f(x[k], u[k]) + g(x[k], u[k]) * w[k]
+    y[k] = h(x[k])
+
+where:
+    f: Deterministic next state (inherited from parent)
+    g: Noise gain matrix (diffusion)
+    w[k]: IID standard normal noise ~ N(0, I)
+
+The noise enters additively through the gain matrix g, which can be:
+- Constant (additive noise): g(x, u) = G
+- State-dependent (multiplicative): g(x, u) = G(x, u)
+- Control-dependent: g(x, u) = G(x, u)
+
+Users must define both dynamics (_f_sym) and diffusion (diffusion_expr)
+in define_system().
+
+## Attributes (Set by User in define_system) {.doc-section .doc-section-attributes-set-by-user-in-definesystem}
+
+diffusion_expr : sp.Matrix
+    Symbolic diffusion matrix g(x, u), shape (nx, nw)
+    REQUIRED - must be set in define_system()
+sde_type : SDEType or str
+    SDE interpretation ('ito' or 'stratonovich')
+    Optional - defaults to Itô (convention for discrete time)
+    Note: In discrete time, both interpretations are equivalent
+
+## Attributes (Created Automatically) {.doc-section .doc-section-attributes-created-automatically}
+
+diffusion_handler : DiffusionHandler
+    Generates and caches diffusion functions
+noise_characteristics : NoiseCharacteristics
+    Automatic noise structure analysis results
+nw : int
+    Number of independent noise sources
+is_stochastic : bool
+    Always True for this class
+
+## Examples {.doc-section .doc-section-examples}
+
+Discrete-time Ornstein-Uhlenbeck process:
+
+```python
+>>> class DiscreteOU(DiscreteStochasticSystem):
+...     '''AR(1) process with mean reversion.'''
+...
+...     def define_system(self, alpha=1.0, sigma=0.5, dt=0.1):
+...         x = sp.symbols('x')
+...         u = sp.symbols('u')
+...         alpha_sym = sp.symbols('alpha', positive=True)
+...         sigma_sym = sp.symbols('sigma', positive=True)
+...         dt_sym = sp.symbols('dt', positive=True)
+...
+...         # Deterministic part (Euler discretization)
+...         self.state_vars = [x]
+...         self.control_vars = [u]
+...         self._f_sym = sp.Matrix([(1 - alpha_sym*dt_sym) * x + u])
+...         self.parameters = {alpha_sym: alpha, sigma_sym: sigma, dt_sym: dt}
+...         self._dt = dt  # REQUIRED!
+...         self.order = 1
+...
+...         # Stochastic part (additive noise)
+...         self.diffusion_expr = sp.Matrix([[sigma_sym]])
+...         self.sde_type = 'ito'
+>>>
+>>> # Instantiate system
+>>> system = DiscreteOU(alpha=2.0, sigma=0.3, dt=0.1)
+>>>
+>>> # Automatic noise analysis
+>>> print(system.noise_characteristics.noise_type)
+NoiseType.ADDITIVE
+>>>
+>>> # Evaluate deterministic and stochastic parts
+>>> x_k = np.array([1.0])
+>>> u_k = np.array([0.0])
+>>> f = system(x_k, u_k)  # Deterministic next state mean
+>>> g = system.diffusion(x_k, u_k)  # Noise gain
+>>>
+>>> # Full stochastic step
+>>> w_k = np.random.randn(1)
+>>> x_next = f + g @ w_k
+```
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [diffusion_expr](#cdesym.systems.base.core.DiscreteStochasticSystem.diffusion_expr) | Symbolic diffusion matrix g(x, u) - MUST be set in define_system() |
+| [is_stochastic](#cdesym.systems.base.core.DiscreteStochasticSystem.is_stochastic) | Return True (this is a stochastic system). |
+| [sde_type](#cdesym.systems.base.core.DiscreteStochasticSystem.sde_type) | SDE interpretation - 'ito' or 'stratonovich' (equivalent in discrete time) |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [can_optimize_for_additive](#cdesym.systems.base.core.DiscreteStochasticSystem.can_optimize_for_additive) | Check if additive-noise optimizations are applicable. |
+| [compile_all](#cdesym.systems.base.core.DiscreteStochasticSystem.compile_all) | Compile both deterministic and diffusion for all backends. |
+| [compile_diffusion](#cdesym.systems.base.core.DiscreteStochasticSystem.compile_diffusion) | Pre-compile diffusion functions for specified backends. |
+| [depends_on_control](#cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_control) | Check if diffusion depends on control inputs. |
+| [depends_on_state](#cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_state) | Check if diffusion depends on state variables. |
+| [depends_on_time](#cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_time) | Check if diffusion depends on time (always False for time-invariant). |
+| [diffusion](#cdesym.systems.base.core.DiscreteStochasticSystem.diffusion) | Evaluate diffusion term g(x[k], u[k]). |
+| [get_constant_noise](#cdesym.systems.base.core.DiscreteStochasticSystem.get_constant_noise) | Get constant noise matrix for additive noise. |
+| [get_info](#cdesym.systems.base.core.DiscreteStochasticSystem.get_info) | Get comprehensive system information. |
+| [get_noise_type](#cdesym.systems.base.core.DiscreteStochasticSystem.get_noise_type) | Get classified noise type. |
+| [get_optimization_opportunities](#cdesym.systems.base.core.DiscreteStochasticSystem.get_optimization_opportunities) | Get optimization opportunities based on noise structure. |
+| [get_sde_type](#cdesym.systems.base.core.DiscreteStochasticSystem.get_sde_type) | Get SDE interpretation type (Itô convention for discrete). |
+| [is_additive_noise](#cdesym.systems.base.core.DiscreteStochasticSystem.is_additive_noise) | Check if noise is additive (constant, state-independent). |
+| [is_diagonal_noise](#cdesym.systems.base.core.DiscreteStochasticSystem.is_diagonal_noise) | Check if noise sources are independent (diagonal diffusion). |
+| [is_multiplicative_noise](#cdesym.systems.base.core.DiscreteStochasticSystem.is_multiplicative_noise) | Check if noise is multiplicative (state-dependent). |
+| [is_pure_diffusion](#cdesym.systems.base.core.DiscreteStochasticSystem.is_pure_diffusion) | Check if system is pure diffusion (zero deterministic part). |
+| [is_scalar_noise](#cdesym.systems.base.core.DiscreteStochasticSystem.is_scalar_noise) | Check if system has single noise source. |
+| [linearize](#cdesym.systems.base.core.DiscreteStochasticSystem.linearize) | Compute linearization including diffusion: Ad = ∂f/∂x, Bd = ∂f/∂u, Gd = g(x_eq). |
+| [print_equations](#cdesym.systems.base.core.DiscreteStochasticSystem.print_equations) | Print symbolic equations using discrete-time stochastic notation. |
+| [print_stochastic_info](#cdesym.systems.base.core.DiscreteStochasticSystem.print_stochastic_info) | Print formatted stochastic system information. |
+| [reset_all_caches](#cdesym.systems.base.core.DiscreteStochasticSystem.reset_all_caches) | Clear both deterministic and diffusion caches. |
+| [reset_diffusion_cache](#cdesym.systems.base.core.DiscreteStochasticSystem.reset_diffusion_cache) | Clear cached diffusion functions. |
+| [simulate_stochastic](#cdesym.systems.base.core.DiscreteStochasticSystem.simulate_stochastic) | Simulate stochastic discrete system with optional Monte Carlo. |
+| [step_stochastic](#cdesym.systems.base.core.DiscreteStochasticSystem.step_stochastic) | Compute full stochastic step: x[k+1] = f(x[k], u[k]) + g(x[k], u[k]) * w[k]. |
+
+### can_optimize_for_additive { #cdesym.systems.base.core.DiscreteStochasticSystem.can_optimize_for_additive }
+
+```python
+systems.base.core.DiscreteStochasticSystem.can_optimize_for_additive()
+```
+
+Check if additive-noise optimizations are applicable.
+
+### compile_all { #cdesym.systems.base.core.DiscreteStochasticSystem.compile_all }
+
+```python
+systems.base.core.DiscreteStochasticSystem.compile_all(
+    backends=None,
+    verbose=False,
+    **kwargs,
+)
+```
+
+Compile both deterministic and diffusion for all backends.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                | Description                                                       |
+|--------|-------------------------------------|-------------------------------------------------------------------|
+|        | Dict\[Backend, Dict\[str, float\]\] | Nested dict: backend → {'deterministic': time, 'diffusion': time} |
+
+### compile_diffusion { #cdesym.systems.base.core.DiscreteStochasticSystem.compile_diffusion }
+
+```python
+systems.base.core.DiscreteStochasticSystem.compile_diffusion(
+    backends=None,
+    verbose=False,
+    **kwargs,
+)
+```
+
+Pre-compile diffusion functions for specified backends.
+
+### depends_on_control { #cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_control }
+
+```python
+systems.base.core.DiscreteStochasticSystem.depends_on_control()
+```
+
+Check if diffusion depends on control inputs.
+
+### depends_on_state { #cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_state }
+
+```python
+systems.base.core.DiscreteStochasticSystem.depends_on_state()
+```
+
+Check if diffusion depends on state variables.
+
+### depends_on_time { #cdesym.systems.base.core.DiscreteStochasticSystem.depends_on_time }
+
+```python
+systems.base.core.DiscreteStochasticSystem.depends_on_time()
+```
+
+Check if diffusion depends on time (always False for time-invariant).
+
+### diffusion { #cdesym.systems.base.core.DiscreteStochasticSystem.diffusion }
+
+```python
+systems.base.core.DiscreteStochasticSystem.diffusion(
+    x,
+    u=None,
+    k=0,
+    backend=None,
+)
+```
+
+Evaluate diffusion term g(x[k], u[k]).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                                                             | Default    |
+|---------|---------------------------|-------------------------------------------------------------------------|------------|
+| x       | StateVector               | State vector (nx,) or batched (batch, nx)                               | _required_ |
+| u       | Optional\[ControlVector\] | Control vector (nu,) or batched (batch, nu) None for autonomous systems | `None`     |
+| k       | int                       | Time step (currently ignored for time-invariant systems)                | `0`        |
+| backend | Optional\[Backend\]       | Backend selection (None = auto-detect)                                  | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                                                 |
+|--------|-----------|-------------------------------------------------------------|
+|        | ArrayLike | Diffusion matrix g(x, u), shape (nx, nw) or (batch, nx, nw) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+Controlled system:
+
+```python
+>>> g = system.diffusion(np.array([2.0]), np.array([0.0]))
+>>> print(g.shape)
+(1, 1)
+```
+
+Autonomous system:
+
+```python
+>>> g = system.diffusion(np.array([2.0]))  # u=None
+>>> print(g.shape)
+(1, 1)
+```
+
+For additive noise (precompute once):
+
+```python
+>>> if system.is_additive_noise():
+...     G = system.get_constant_noise()  # Precompute once
+...     # Use G directly in simulation - huge speedup!
+```
+
+### get_constant_noise { #cdesym.systems.base.core.DiscreteStochasticSystem.get_constant_noise }
+
+```python
+systems.base.core.DiscreteStochasticSystem.get_constant_noise(backend='numpy')
+```
+
+Get constant noise matrix for additive noise.
+
+For additive noise, diffusion is constant and can be precomputed
+once for significant performance gains.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type    | Description            | Default   |
+|---------|---------|------------------------|-----------|
+| backend | Backend | Backend for array type | `'numpy'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type      | Description                        |
+|--------|-----------|------------------------------------|
+|        | ArrayLike | Constant diffusion matrix (nx, nw) |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description              |
+|--------|------------|--------------------------|
+|        | ValueError | If noise is not additive |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> if system.is_additive_noise():
+...     G = system.get_constant_noise('numpy')
+...     print(G)
+...     [[0.3]]
+...
+...     # Simulation loop with precomputed noise
+...     for k in range(1000):
+...         w_k = np.random.randn(nw)
+...         x_next = system(x, u) + G @ w_k
+...         x = x_next
+```
+
+### get_info { #cdesym.systems.base.core.DiscreteStochasticSystem.get_info }
+
+```python
+systems.base.core.DiscreteStochasticSystem.get_info()
+```
+
+Get comprehensive system information.
+
+### get_noise_type { #cdesym.systems.base.core.DiscreteStochasticSystem.get_noise_type }
+
+```python
+systems.base.core.DiscreteStochasticSystem.get_noise_type()
+```
+
+Get classified noise type.
+
+### get_optimization_opportunities { #cdesym.systems.base.core.DiscreteStochasticSystem.get_optimization_opportunities }
+
+```python
+systems.base.core.DiscreteStochasticSystem.get_optimization_opportunities()
+```
+
+Get optimization opportunities based on noise structure.
+
+### get_sde_type { #cdesym.systems.base.core.DiscreteStochasticSystem.get_sde_type }
+
+```python
+systems.base.core.DiscreteStochasticSystem.get_sde_type()
+```
+
+Get SDE interpretation type (Itô convention for discrete).
+
+### is_additive_noise { #cdesym.systems.base.core.DiscreteStochasticSystem.is_additive_noise }
+
+```python
+systems.base.core.DiscreteStochasticSystem.is_additive_noise()
+```
+
+Check if noise is additive (constant, state-independent).
+
+### is_diagonal_noise { #cdesym.systems.base.core.DiscreteStochasticSystem.is_diagonal_noise }
+
+```python
+systems.base.core.DiscreteStochasticSystem.is_diagonal_noise()
+```
+
+Check if noise sources are independent (diagonal diffusion).
+
+### is_multiplicative_noise { #cdesym.systems.base.core.DiscreteStochasticSystem.is_multiplicative_noise }
+
+```python
+systems.base.core.DiscreteStochasticSystem.is_multiplicative_noise()
+```
+
+Check if noise is multiplicative (state-dependent).
+
+### is_pure_diffusion { #cdesym.systems.base.core.DiscreteStochasticSystem.is_pure_diffusion }
+
+```python
+systems.base.core.DiscreteStochasticSystem.is_pure_diffusion()
+```
+
+Check if system is pure diffusion (zero deterministic part).
+
+### is_scalar_noise { #cdesym.systems.base.core.DiscreteStochasticSystem.is_scalar_noise }
+
+```python
+systems.base.core.DiscreteStochasticSystem.is_scalar_noise()
+```
+
+Check if system has single noise source.
+
+### linearize { #cdesym.systems.base.core.DiscreteStochasticSystem.linearize }
+
+```python
+systems.base.core.DiscreteStochasticSystem.linearize(x_eq, u_eq=None)
+```
+
+Compute linearization including diffusion: Ad = ∂f/∂x, Bd = ∂f/∂u, Gd = g(x_eq).
+
+For stochastic systems, linearization returns three matrices:
+- Ad: State Jacobian ∂f/∂x
+- Bd: Control Jacobian ∂f/∂u
+- Gd: Diffusion matrix evaluated at equilibrium g(x_eq, u_eq)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                      | Description               | Default    |
+|--------|---------------------------|---------------------------|------------|
+| x_eq   | StateVector               | Equilibrium state (nx,)   | _required_ |
+| u_eq   | Optional\[ControlVector\] | Equilibrium control (nu,) | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                     | Description                                                                                                       |
+|--------|------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+|        | Tuple\[ArrayLike, ArrayLike, ArrayLike\] | (Ad, Bd, Gd) where: - Ad: State Jacobian (nx, nx) - Bd: Control Jacobian (nx, nu) - Gd: Diffusion matrix (nx, nw) |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> x_eq = np.zeros(2)
+>>> u_eq = np.zeros(1)
+>>> Ad, Bd, Gd = system.linearize(x_eq, u_eq)
+>>>
+>>> # Check discrete stability: |λ| < 1
+>>> eigenvalues = np.linalg.eigvals(Ad)
+>>> is_stable = np.all(np.abs(eigenvalues) < 1)
+>>>
+>>> # Stochastic covariance propagation
+>>> # P[k+1] = Ad @ P[k] @ Ad.T + Gd @ Gd.T
+```
+
+### print_equations { #cdesym.systems.base.core.DiscreteStochasticSystem.print_equations }
+
+```python
+systems.base.core.DiscreteStochasticSystem.print_equations(simplify=True)
+```
+
+Print symbolic equations using discrete-time stochastic notation.
+
+Overrides parent to show both deterministic and stochastic parts.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type   | Description                                   | Default   |
+|----------|--------|-----------------------------------------------|-----------|
+| simplify | bool   | If True, simplify expressions before printing | `True`    |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> system.print_equations()
+======================================================================
+DiscreteOU (Discrete-Time Stochastic, dt=0.1)
+======================================================================
+State Variables: [x]
+Control Variables: [u]
+Dimensions: nx=1, nu=1, nw=1
+Noise Type: additive
+```
+
+Deterministic Part: f(x[k], u[k])
+  f_0 = 0.9*x + u
+
+Stochastic Part: g(x[k], u[k])
+  g_0 = [0.3]
+
+Full Dynamics:
+  x[k+1] = f(x[k], u[k]) + g(x[k], u[k]) * w[k]
+  where w[k] ~ N(0, I)
+======================================================================
+
+### print_stochastic_info { #cdesym.systems.base.core.DiscreteStochasticSystem.print_stochastic_info }
+
+```python
+systems.base.core.DiscreteStochasticSystem.print_stochastic_info()
+```
+
+Print formatted stochastic system information.
+
+### reset_all_caches { #cdesym.systems.base.core.DiscreteStochasticSystem.reset_all_caches }
+
+```python
+systems.base.core.DiscreteStochasticSystem.reset_all_caches(backends=None)
+```
+
+Clear both deterministic and diffusion caches.
+
+### reset_diffusion_cache { #cdesym.systems.base.core.DiscreteStochasticSystem.reset_diffusion_cache }
+
+```python
+systems.base.core.DiscreteStochasticSystem.reset_diffusion_cache(backends=None)
+```
+
+Clear cached diffusion functions.
+
+### simulate_stochastic { #cdesym.systems.base.core.DiscreteStochasticSystem.simulate_stochastic }
+
+```python
+systems.base.core.DiscreteStochasticSystem.simulate_stochastic(
+    x0,
+    u_sequence=None,
+    n_steps=100,
+    n_paths=1,
+    seed=None,
+    **kwargs,
+)
+```
+
+Simulate stochastic discrete system with optional Monte Carlo.
+
+Performs either single-path or Monte Carlo simulation of the stochastic
+difference equation.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                                     | Description                                         | Default    |
+|------------|----------------------------------------------------------|-----------------------------------------------------|------------|
+| x0         | StateVector                                              | Initial state (nx,)                                 | _required_ |
+| u_sequence | Optional\[Union\[ControlVector, DiscreteControlInput\]\] | Control sequence (same format as parent simulate()) | `None`     |
+| n_steps    | int                                                      | Number of simulation steps                          | `100`      |
+| n_paths    | int                                                      | Number of Monte Carlo paths (default: 1)            | `1`        |
+| seed       | Optional\[int\]                                          | Random seed for reproducibility                     | `None`     |
+| **kwargs   |                                                          | Additional simulation options                       | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description                                                                                                                                                                                                                                                                                                                                                             |
+|--------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | DiscreteSimulationResult | TypedDict containing: - states: State trajectories   - Single path: (n_steps+1, nx)   - Multiple paths: (n_paths, n_steps+1, nx) - controls: Control sequence (n_steps, nu) - time_steps: [0, 1, ..., n_steps] - dt: Sampling period - metadata: Additional info including:   - n_paths: Number of paths   - noise_type: Detected noise type   - seed: Random seed used |
+
+#### Examples {.doc-section .doc-section-examples}
+
+Single trajectory:
+
+```python
+>>> result = system.simulate_stochastic(
+...     x0=np.array([1.0]),
+...     u_sequence=None,
+...     n_steps=1000,
+...     seed=42
+... )
+>>> plt.plot(result['time_steps'], result['states'][:, 0])
+```
+
+Monte Carlo simulation:
+
+```python
+>>> result = system.simulate_stochastic(
+...     x0=np.array([1.0]),
+...     u_sequence=None,
+...     n_steps=1000,
+...     n_paths=100,
+...     seed=42
+... )
+>>> # result['states'] has shape (100, 1001, 1)
+>>> mean_traj = result['states'].mean(axis=0)
+>>> std_traj = result['states'].std(axis=0)
+>>>
+>>> plt.plot(result['time_steps'], mean_traj[:, 0], label='Mean')
+>>> plt.fill_between(
+...     result['time_steps'],
+...     mean_traj[:, 0] - std_traj[:, 0],
+...     mean_traj[:, 0] + std_traj[:, 0],
+...     alpha=0.3
+... )
+```
+
+State feedback with stochastic dynamics:
+
+```python
+>>> def policy(x, k):
+...     return -0.5 * x
+>>> result = system.simulate_stochastic(
+...     x0=np.array([1.0]),
+...     u_sequence=policy,
+...     n_steps=1000
+... )
+```
+
+### step_stochastic { #cdesym.systems.base.core.DiscreteStochasticSystem.step_stochastic }
+
+```python
+systems.base.core.DiscreteStochasticSystem.step_stochastic(
+    x,
+    u=None,
+    w=None,
+    k=0,
+    backend=None,
+)
+```
+
+Compute full stochastic step: x[k+1] = f(x[k], u[k]) + g(x[k], u[k]) * w[k].
+
+This is the primary method for stochastic simulation, computing the complete
+state update including both deterministic and stochastic components.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                      | Description                                                                         | Default    |
+|---------|---------------------------|-------------------------------------------------------------------------------------|------------|
+| x       | StateVector               | Current state (nx,) or batched (batch, nx)                                          | _required_ |
+| u       | Optional\[ControlVector\] | Control (nu,) or batched (batch, nu), None for autonomous                           | `None`     |
+| w       | Optional\[ArrayLike\]     | Standard normal noise (nw,) or batched (batch, nw) If None, generated automatically | `None`     |
+| k       | int                       | Time step (currently ignored for time-invariant systems)                            | `0`        |
+| backend | Optional\[Backend\]       | Backend selection (None = auto-detect)                                              | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                                        |
+|--------|-------------|----------------------------------------------------|
+|        | StateVector | Next state x[k+1], same shape and backend as input |
+
+#### Examples {.doc-section .doc-section-examples}
+
+Automatic noise generation:
+
+```python
+>>> x_next = system.step_stochastic(x_k, u_k)
+```
+
+Custom noise (for reproducibility):
+
+```python
+>>> w_k = np.random.randn(system.nw)
+>>> x_next = system.step_stochastic(x_k, u_k, w=w_k)
+```
+
+Deterministic (w=0):
+
+```python
+>>> x_next = system.step_stochastic(x_k, u_k, w=np.zeros(system.nw))
+```
+
+Batched inputs:
+
+```python
+>>> x_batch = np.random.randn(100, 2)  # 100 states
+>>> u_batch = np.random.randn(100, 1)  # 100 controls
+>>> w_batch = np.random.randn(100, 1)  # 100 noise samples
+>>> x_next_batch = system.step_stochastic(x_batch, u_batch, w_batch)
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+For batched inputs:
+    x: (batch, nx)
+    u: (batch, nu) or None
+    w: (batch, nw) or None
+    → x_next: (batch, nx)
+
+If w is None, noise is generated per sample in batch.
+
+With DiffusionHandler batching support:
+- Additive noise: g returns (nx, nw) - constant
+- Multiplicative noise: g returns (batch, nx, nw) - state-dependent
+
+The function automatically handles both cases efficiently.

@@ -1,0 +1,22 @@
+# types.core.OutputVector { #cdesym.types.core.OutputVector }
+
+`types.core.OutputVector`
+
+Output/observation/measurement vector y ∈ ℝⁿʸ.
+
+Sensor measurements or system outputs.
+
+Shapes:
+- Single output: (ny,)
+- Batched outputs: (batch, ny)
+- Output sequence: (n_steps, ny)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Full state observation
+>>> y: OutputVector = np.array([1.0, 0.0, 0.5])  # y = x
+>>> 
+>>> # Partial observation (position only)
+>>> y_partial: OutputVector = np.array([1.0])  # y = C*x where C = [1, 0, 0]
+```

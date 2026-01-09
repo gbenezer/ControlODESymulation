@@ -1,0 +1,22 @@
+# types.core.ArrayLike { #cdesym.types.core.ArrayLike }
+
+`types.core.ArrayLike`
+
+Array-like type supporting multiple backends.
+
+Can be NumPy array, PyTorch tensor, or JAX array.
+Use this for maximum flexibility across backends.
+
+Shape conventions:
+- Scalars: ()
+- Vectors: (n,)
+- Matrices: (m, n)
+- Batched: (batch, ...)
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> def process(data: ArrayLike) -> ArrayLike:
+...     # Works with all backends
+...     return data * 2
+```

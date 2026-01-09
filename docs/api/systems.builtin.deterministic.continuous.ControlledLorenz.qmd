@@ -1,0 +1,158 @@
+# systems.builtin.deterministic.continuous.ControlledLorenz { #cdesym.systems.builtin.deterministic.continuous.ControlledLorenz }
+
+```python
+systems.builtin.deterministic.continuous.ControlledLorenz(*args, **kwargs)
+```
+
+Lorenz system - famous chaotic dynamical system from atmospheric convection with a forcing term
+
+## Physical System: {.doc-section .doc-section-physical-system}
+
+A simplified model of atmospheric convection. The system models:
+- Fluid circulation in a heated layer between two plates
+- Rate of convective overturning (x)
+- Horizontal temperature variation (y)
+- Vertical temperature variation (z)
+
+## State Space: {.doc-section .doc-section-state-space}
+
+State: x = [x, y, z]
+    - x: Rate of convective motion [dimensionless]
+      * x > 0: clockwise circulation
+      * x < 0: counterclockwise circulation
+      * Proportional to velocity of fluid flow
+
+    - y: Horizontal temperature variation [dimensionless]
+      * y > 0: warmer on one side
+      * y < 0: warmer on other side
+      * Temperature difference driving convection
+
+    - z: Vertical temperature variation from linearity [dimensionless]
+      * z > 0: more stratified (stable)
+      * z < 0: less stratified (unstable)
+      * Deviation from conductive temperature profile
+
+Control: u = [u]
+    - u: External forcing/perturbation [dimensionless]
+    - Typically u = 0 for studying natural chaos
+    - Can be used to control or suppress chaos
+
+Output: y = [x, y]
+    - Partial observation: measures x and y, not z
+    - Models limited sensor availability
+    - Creates observability challenges for state estimation
+
+## Dynamics: {.doc-section .doc-section-dynamics}
+
+The Lorenz equations with control:
+
+    ẋ = σ(y - x) + u
+    ẏ = x(ρ - z) - y
+    ż = xy - βz
+
+**First equation (convection rate)**:
+- σ(y - x): Proportional to temperature difference
+- σ (sigma): Prandtl number - ratio of viscosity to thermal diffusivity
+- Drives x toward y at rate σ
+- Control u added here for external forcing
+
+**Second equation (horizontal temperature)**:
+- x(ρ - z): Nonlinear coupling - convection affects temperature
+- ρ (rho): Rayleigh number - ratio of buoyancy to viscous forces
+- -y: Damping term (heat diffusion)
+- When z < ρ, convection x amplifies y
+
+**Third equation (vertical temperature)**:
+- xy: Nonlinear product - convection creates temperature gradients
+- -βz: Damping/relaxation toward linear profile
+- β (beta): Geometric factor (aspect ratio of convection cell)
+
+## Parameters: {.doc-section .doc-section-parameters}
+
+sigma : float, default=10.0
+    Prandtl number [dimensionless]. Ratio of momentum diffusivity
+    (viscosity) to thermal diffusivity. Standard Chaotic Lorenz: σ = 10
+    Higher σ → faster adjustment of x to y
+
+rho : float, default=28.0
+    Rayleigh number [dimensionless]. Measures temperature difference
+    driving convection relative to dissipative effects. Critical values:
+    - ρ < 1: No convection (conduction only)
+    - 1 < ρ < 24.74: Steady convection
+    - ρ > 24.74: Chaotic behavior possible
+    - ρ = 28: Classic chaotic Lorenz attractor
+    Higher ρ → stronger driving force
+
+beta : float, default=8/3
+    Geometric factor [dimensionless]. Related to aspect ratio of
+    convection cell (width/height). Standard value 8/3 ≈ 2.667 gives
+    the classic "butterfly" attractor shape.
+    - Affects dissipation rate in z
+    - Controls attractor shape and size
+
+## Equilibria: {.doc-section .doc-section-equilibria}
+
+**Origin (unstable for ρ > 1)**:
+    x_eq = [0, 0, 0]  (no convection)
+    u_eq = 0
+
+Stable when ρ < 1 (conduction dominates).
+Unstable when ρ > 1 (convection develops).
+
+**Convective equilibria (for ρ > 1)**:
+    C+ = [√(β(ρ-1)), √(β(ρ-1)), ρ-1]
+    C- = [-√(β(ρ-1)), -√(β(ρ-1)), ρ-1]
+
+These represent steady clockwise (C+) and counterclockwise (C-)
+convection cells. Both become unstable for ρ > 24.74, leading to chaos.
+
+## Behavior Regimes: {.doc-section .doc-section-behavior-regimes}
+
+1. **ρ < 1 (No convection)**:
+   - Origin is stable
+   - All trajectories decay to zero
+   - Heat transported by conduction only
+
+2. **1 < ρ < 13.926 (Steady convection)**:
+   - Origin becomes unstable
+   - C+ or C- are stable (bistable system)
+   - Steady convection cells form
+
+3. **13.926 < ρ < 24.74 (Periodic/complex)**:
+   - C+ and C- lose stability
+   - Can have limit cycles or complex behavior
+
+4. **ρ > 24.74 (Chaos)**:
+   - Chaotic behavior emerges
+   - Sensitive dependence on initial conditions
+   - Strange attractor (Lorenz butterfly)
+
+5. **ρ = 28 (Classic chaos)**:
+   - Well-studied chaotic attractor
+   - Fractal structure
+   - Positive Lyapunov exponent
+
+## The Lorenz Attractor: {.doc-section .doc-section-the-lorenz-attractor}
+
+For standard parameters (σ=10, ρ=28, β=8/3):
+- **Shape**: Two wing-like lobes (butterfly shape)
+- **Structure**: Strange attractor (fractal dimension ≈ 2.06)
+- **Behavior**: Trajectories spiral around C+ or C-, occasionally
+  switching between wings
+- **Predictability**: Initial condition error doubles ~every 2 time units
+- **Volume contraction**: Phase space volume shrinks → dissipative system
+
+## Physical Interpretation: {.doc-section .doc-section-physical-interpretation}
+
+- x: Velocity of convection roll
+- y: Temperature difference between ascending and descending fluid
+- z: Deviation from linear temperature profile
+- ρ: Driving force (heating from below)
+- σ: Fluid properties (viscosity vs. thermal conductivity)
+- β: Cell geometry
+
+## See Also: {.doc-section .doc-section-see-also}
+
+DuffingOscillator : Another chaotic system (forced oscillator)
+VanDerPolOscillator : Limit cycle oscillator
+NonlinearChainSystem : Coupled oscillators with complex dynamics

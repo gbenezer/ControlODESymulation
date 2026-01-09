@@ -1,0 +1,430 @@
+# systems.builtin.stochastic.continuous.StochasticLorenz { #cdesym.systems.builtin.stochastic.continuous.StochasticLorenz }
+
+```python
+systems.builtin.stochastic.continuous.StochasticLorenz(*args, **kwargs)
+```
+
+Stochastic Lorenz system - deterministic chaos with random perturbations.
+
+Combines the iconic chaotic Lorenz attractor with continuous Brownian
+noise, creating a fundamental model for understanding the interplay
+between deterministic chaos and stochastic fluctuations.
+
+## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}
+
+The stochastic Lorenz equations:
+
+    dx = σ·(y - x)·dt + σ_x·dW_x
+    dy = (x·(ρ - z) - y)·dt + σ_y·dW_y
+    dz = (x·y - β·z)·dt + σ_z·dW_z
+
+where:
+    - x: Convection intensity (horizontal circulation) [dimensionless]
+    - y: Horizontal temperature variation [dimensionless]
+    - z: Vertical temperature variation [dimensionless]
+    - σ: Prandtl number (fluid property, typically 10)
+    - ρ: Rayleigh number (driving force, typically 28 for chaos)
+    - β: Geometric factor (aspect ratio, typically 8/3)
+    - σ_x, σ_y, σ_z: Noise intensities [1/√s]
+    - W_x, W_y, W_z: Independent Wiener processes
+
+**Deterministic Part:**
+Classic Lorenz dynamics - creates strange attractor and chaos.
+
+**Stochastic Part:**
+Additive noise representing:
+- Unresolved turbulent fluctuations
+- Measurement errors
+- Model uncertainty
+- External forcing variability
+
+## Physical Interpretation {.doc-section .doc-section-physical-interpretation}
+
+**Original Context: Rayleigh-Bénard Convection**
+
+Fluid layer heated from below:
+- x: Convection roll intensity
+- y: Temperature difference (horizontal)
+- z: Temperature difference (vertical)
+
+**Parameters:**
+- σ = 10: Prandtl number (momentum/thermal diffusivity)
+- ρ = 28: Rayleigh number (buoyancy/viscosity)
+- β = 8/3: Geometry (cell aspect ratio)
+
+**Atmospheric Interpretation:**
+- x: Zonal wind component
+- y: Meridional wind component
+- z: Temperature deviation
+
+**Noise Sources:**
+- Turbulent eddies below grid scale
+- Latent heat release variations
+- Radiation fluctuations
+- Measurement uncertainty
+
+## Deterministic Chaos Primer {.doc-section .doc-section-deterministic-chaos-primer}
+
+**Strange Attractor:**
+
+For σ=10, ρ=28, β=8/3:
+- Butterfly-shaped attractor in 3D
+- Fractal dimension: D ≈ 2.06
+- Trajectories never repeat
+- Sensitive to initial conditions
+
+**Lyapunov Exponents:**
+- λ₁ ≈ +0.9: Positive (chaos!)
+- λ₂ ≈ 0: Zero (volume-preserving direction)
+- λ₃ ≈ -14.6: Negative (dissipation)
+
+**Predictability Time:**
+- Doubling time: τ ≈ 1/λ₁ ≈ 1.1 Lorenz time units
+- After ~10 doubling times: Completely unpredictable
+
+**Equilibria:**
+- Origin (0,0,0): Unstable for ρ > 1
+- C± = (±√(β(ρ-1)), ±√(β(ρ-1)), ρ-1): Unstable for ρ > ρ_crit
+
+All unstable → trajectories on attractor.
+
+## Effect of Noise on Chaos {.doc-section .doc-section-effect-of-noise-on-chaos}
+
+
+**Small Noise (σ_noise << 1):**
+- Attractor recognizable (slightly blurred)
+- Lyapunov exponent nearly unchanged
+- Chaos dominates, noise is perturbation
+
+**Medium Noise (σ_noise ~ 1):**
+- Attractor significantly blurred
+- Lyapunov exponent increases
+- Chaos and noise comparable
+
+**Large Noise (σ_noise >> 1):**
+- Attractor destroyed (fills volume)
+- Noise dominates dynamics
+- Chaos irrelevant (randomness wins)
+
+**Crossover Scale:**
+When σ_noise ~ √λ_max, chaos and noise equally important.
+
+**Fractal Dimension:**
+Noise increases effective dimension:
+- Deterministic: D ≈ 2.06 (fractal)
+- With noise: D → 3 (fills space)
+
+**Predictability:**
+Combined error growth:
+    δ²(t) = δ_0²·exp(2λt) + (σ²/λ)·(exp(2λt) - 1)
+
+Both exponential growth (chaos) and accumulation (noise).
+
+## Key Properties {.doc-section .doc-section-key-properties}
+
+
+**1. Nonlinearity:**
+Quadratic terms: x·y, x·z create complex dynamics.
+
+**2. Chaos (Deterministic Part):**
+Positive Lyapunov exponent → sensitive dependence.
+
+**3. Strange Attractor:**
+Fractal structure (deterministic) blurred by noise.
+
+**4. Non-Stationary Locally:**
+On attractor, system never settles.
+
+**5. Stationary Globally:**
+Probability distribution on attractor converges (Fokker-Planck).
+
+**6. Three-Dimensional:**
+Minimum dimension for chaos (Poincaré-Bendixson theorem).
+
+**7. Additive Noise (This Implementation):**
+Constant diffusion coefficients (simplest model).
+
+## Mathematical Properties {.doc-section .doc-section-mathematical-properties}
+
+**No Closed-Form Solution:**
+Even deterministic Lorenz has no analytical solution.
+Must integrate numerically.
+
+**Fokker-Planck Equation:**
+
+Probability density p(x,y,z,t) satisfies:
+    ∂p/∂t = -∇·(f·p) + (1/2)·Σᵢ ∂²((σᵢ²)·p)/∂xᵢ²
+
+For stationary distribution: ∂p/∂t = 0
+
+**Stationary Distribution:**
+Concentrated on noise-perturbed attractor:
+- No simple analytical form
+- Compute via long-time simulation (ergodic hypothesis)
+
+**Moments:**
+No simple analytical expressions.
+Compute empirically from ensemble or long trajectory.
+
+## State Space {.doc-section .doc-section-state-space}
+
+State: X = [x, y, z] ∈ ℝ³
+    - Unbounded (but attracted to finite region)
+    - Chaotic wandering on strange attractor
+    - Noise perturbs trajectories
+
+Control: u (optional, not standard)
+    - Can add control to stabilize UPOs
+    - Chaos control applications
+
+Noise: W = [W_x, W_y, W_z] ∈ ℝ³
+    - Three independent Wiener processes
+    - Models unresolved fluctuations
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                                                                                                                                                            | Default   |
+|---------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma   | float  | Prandtl number (deterministic parameter) - Controls x-y coupling strength - Standard: 10                                                                               | `10.0`    |
+| rho     | float  | Rayleigh number (deterministic parameter) - Controls bifurcations - ρ < 1: Stable origin - 1 < ρ < 24.74: Stable C± - ρ > 24.74: Chaos - Standard: 28 (chaotic regime) | `28.0`    |
+| beta    | float  | Geometric factor (deterministic parameter) - Standard: 8/3 ≈ 2.667                                                                                                     | `8/3`     |
+| sigma_x | float  | Noise intensity for x [1/√s]                                                                                                                                           | `0.1`     |
+| sigma_y | float  | Noise intensity for y [1/√s]                                                                                                                                           | `0.1`     |
+| sigma_z | float  | Noise intensity for z [1/√s]                                                                                                                                           | `0.1`     |
+
+## Stochastic Properties {.doc-section .doc-section-stochastic-properties}
+
+- System Type: NONLINEAR (quadratic)
+- Noise Type: ADDITIVE (constant)
+- SDE Type: Itô
+- Noise Dimension: nw = 3
+- Chaotic: Yes (deterministic part)
+- Stationary: Yes (global, on attractor)
+- Ergodic: Yes (time = ensemble averages)
+
+## Applications {.doc-section .doc-section-applications}
+
+**1. Meteorology:**
+- Weather prediction limits
+- Ensemble forecasting
+- Data assimilation (EnKF, 4D-Var)
+
+**2. Climate Science:**
+- Chaos vs variability
+- Tipping points under noise
+- Extreme events
+
+**3. Chaos Theory:**
+- Noise effects on strange attractors
+- Modified Lyapunov exponents
+- Stochastic bifurcations
+
+**4. Signal Processing:**
+- Chaotic time series analysis
+- Noise reduction
+- Chaos vs noise discrimination
+
+**5. Nonlinear Filtering:**
+- Benchmark for EnKF, particle filters
+- Chaotic dynamics challenge
+
+**6. Control:**
+- Chaos control under noise
+- Targeting unstable periodic orbits
+- Synchronization
+
+## Numerical Integration {.doc-section .doc-section-numerical-integration}
+
+**Recommended:**
+- Euler-Maruyama: dt = 0.001-0.01
+- Smaller than deterministic (chaos + noise)
+- Check attractor structure
+
+**Validation:**
+- Small noise: Should resemble Lorenz attractor
+- Statistics: Mean, variance converge
+- Lyapunov: Positive λ₁ (chaos indicator)
+
+## Monte Carlo Analysis {.doc-section .doc-section-monte-carlo-analysis}
+
+**Ensemble Methods:**
+
+Run N = 100-1,000 trajectories:
+- Mean trajectory (climbs to attractor)
+- Spread on attractor
+- Long-time statistics
+
+**Attractor Visualization:**
+- 3D scatter plot of all trajectories
+- Should show butterfly shape (if noise small)
+
+## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}
+
+**Deterministic Lorenz:**
+- Pure chaos (no external randomness)
+- Clean strange attractor
+- Exponential divergence only
+
+**Stochastic Lorenz:**
+- Chaos + noise combined
+- Blurred attractor
+- Exponential + diffusive error growth
+
+**When Stochastic Needed:**
+- Real data has noise (always)
+- Predictability limits more realistic
+- Data assimilation applications
+
+## Limitations {.doc-section .doc-section-limitations}
+
+- Additive noise only
+- Constant noise (not state-dependent)
+- Independent noise (no correlation)
+- No control (in standard form)
+
+## Extensions {.doc-section .doc-section-extensions}
+
+- Multiplicative noise: σᵢ(X)
+- Colored noise: OU driving processes
+- Coupled Lorenz systems
+- Controlled Lorenz
+- Stochastic Rössler system
+
+## See Also {.doc-section .doc-section-see-also}
+
+Lorenz : Deterministic version
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [compute_attractor_size](#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.compute_attractor_size) | Estimate typical attractor size (order of magnitude). |
+| [define_system](#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.define_system) | Define stochastic Lorenz system dynamics. |
+| [get_noise_intensities](#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.get_noise_intensities) | Get noise intensity parameters. |
+| [setup_equilibria](#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.setup_equilibria) | Set up equilibrium points (deterministic part). |
+
+### compute_attractor_size { #cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.compute_attractor_size }
+
+```python
+systems.builtin.stochastic.continuous.StochasticLorenz.compute_attractor_size()
+```
+
+Estimate typical attractor size (order of magnitude).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                    |
+|--------|--------|--------------------------------|
+|        | float  | Approximate attractor diameter |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Rough estimate based on C± equilibria distance from origin.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> lorenz = StochasticLorenz(rho=28.0, beta=8/3)
+>>> size = lorenz.compute_attractor_size()
+>>> print(f"Attractor size: ~{size:.1f}")
+```
+
+### define_system { #cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.define_system }
+
+```python
+systems.builtin.stochastic.continuous.StochasticLorenz.define_system(
+    sigma=10.0,
+    rho=28.0,
+    beta=8.0 / 3.0,
+    sigma_x=0.1,
+    sigma_y=0.1,
+    sigma_z=0.1,
+)
+```
+
+Define stochastic Lorenz system dynamics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                                                                                                                                                                                                                              | Default   |
+|---------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| sigma   | float  | Prandtl number (deterministic parameter) - Controls x-y coupling - Standard: 10 - Ratio of momentum/thermal diffusivity                                                                                                                  | `10.0`    |
+| rho     | float  | Rayleigh number (deterministic parameter) - Controls convection strength - ρ < 1: Stable origin (no convection) - 1 < ρ < 24.74: Stable C± (steady convection) - ρ > 24.74: Chaos (turbulent convection) - Standard: 28 (chaotic regime) | `28.0`    |
+| beta    | float  | Geometric factor (deterministic parameter) - Standard: 8/3 ≈ 2.667 - Related to cell aspect ratio                                                                                                                                        | `8/3`     |
+| sigma_x | float  | Noise intensity for x [1/√s] - Unresolved turbulence - Typical: 0.01-1.0                                                                                                                                                                 | `0.1`     |
+| sigma_y | float  | Noise intensity for y [1/√s]                                                                                                                                                                                                             | `0.1`     |
+| sigma_z | float  | Noise intensity for z [1/√s]                                                                                                                                                                                                             | `0.1`     |
+
+#### Notes {.doc-section .doc-section-notes}
+
+**Parameter Regimes:**
+
+**ρ (Rayleigh Number):**
+- ρ < 1: No convection (stable origin)
+- 1 < ρ < 13.93: Steady convection (stable C±)
+- 13.93 < ρ < 24.06: Transient chaos
+- 24.74 < ρ < 30: Strange attractor (standard)
+- ρ > 30: Different attractor structures
+
+**Classic Chaotic:**
+σ = 10, ρ = 28, β = 8/3
+
+**Noise Intensity Guidelines:**
+
+Relative to chaos strength:
+- σ_noise < 0.1: Noise negligible (chaos dominates)
+- σ_noise ~ 0.1-1.0: Noise perturbs chaos (typical)
+- σ_noise > 1.0: Noise dominates (chaos obscured)
+
+**Physical Interpretation:**
+
+For atmospheric application:
+- σ_noise represents unresolved processes
+- Should be calibrated from data (residuals)
+- Typical: 0.1-0.5 for simplified models
+
+**Noise Correlation:**
+
+Currently: Independent noise on each variable.
+
+In reality: May be correlated (common weather systems).
+Extension: Use full 3×3 covariance matrix.
+
+**Chaos Indicators:**
+
+Check if deterministic part is chaotic:
+- Compute Lyapunov exponents from noise-free simulation
+- λ₁ > 0 indicates chaos
+- For ρ = 28: λ₁ ≈ 0.9 (strongly chaotic)
+
+**Noise Impact on Lyapunov:**
+
+Noise increases apparent Lyapunov exponent:
+    λ_apparent ≈ λ_det + σ²/(2·scale²)
+
+where scale is attractor size.
+
+### get_noise_intensities { #cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.get_noise_intensities }
+
+```python
+systems.builtin.stochastic.continuous.StochasticLorenz.get_noise_intensities()
+```
+
+Get noise intensity parameters.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type   | Description                                      |
+|--------|--------|--------------------------------------------------|
+|        | dict   | {'sigma_x': ..., 'sigma_y': ..., 'sigma_z': ...} |
+
+### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.StochasticLorenz.setup_equilibria }
+
+```python
+systems.builtin.stochastic.continuous.StochasticLorenz.setup_equilibria()
+```
+
+Set up equilibrium points (deterministic part).
+
+Note: All equilibria are unstable in chaotic regime (ρ=28).
+Trajectories never settle but wander on attractor.

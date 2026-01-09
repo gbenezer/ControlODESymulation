@@ -1,0 +1,280 @@
+# control.ControlSynthesis { #cdesym.control.ControlSynthesis }
+
+```python
+control.ControlSynthesis(backend='numpy')
+```
+
+Control synthesis wrapper for system composition.
+
+Thin wrapper that routes to pure control design functions while
+maintaining backend consistency with parent system.
+
+This class holds minimal state (just backend setting) and delegates
+all computation to pure functions in classical_control_functions.py.
+
+## Attributes {.doc-section .doc-section-attributes}
+
+| Name    | Type    | Description                                     |
+|---------|---------|-------------------------------------------------|
+| backend | Backend | Computational backend ('numpy', 'torch', 'jax') |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Via system composition (typical usage)
+>>> system = Pendulum()
+>>>
+>>> # Design LQR controller (unified interface)
+>>> Q = np.diag([10, 1])
+>>> R = np.array([[0.1]])
+>>> result = system.control.design_lqr(
+...     *system.linearize(x_eq, u_eq),
+...     Q, R,
+...     system_type='continuous'
+... )
+>>> K = result['gain']
+>>>
+>>> # Design Kalman filter
+>>> C = np.array([[1, 0]])
+>>> Q_proc = 0.01 * np.eye(2)
+>>> R_meas = np.array([[0.1]])
+>>> A, _ = system.linearize(x_eq, u_eq)
+>>> kalman = system.control.design_kalman(A, C, Q_proc, R_meas)
+>>> L = kalman['gain']
+>>>
+>>> # Design LQG (combined)
+>>> lqg = system.control.design_lqg(
+...     *system.linearize(x_eq, u_eq),
+...     C,
+...     Q, R,  # LQR weights
+...     Q_proc, R_meas  # Kalman noise
+... )
+```
+
+## Notes {.doc-section .doc-section-notes}
+
+This is a thin wrapper - all algorithms are in classical_control_functions.py.
+The wrapper only provides:
+1. Backend consistency with parent system
+2. Clean composition interface
+3. Convenience for system integration
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [design_kalman](#cdesym.control.ControlSynthesis.design_kalman) | Design Kalman filter for optimal state estimation. |
+| [design_lqg](#cdesym.control.ControlSynthesis.design_lqg) | Design Linear Quadratic Gaussian (LQG) controller. |
+| [design_lqr](#cdesym.control.ControlSynthesis.design_lqr) | Design LQR controller (unified interface). |
+
+### design_kalman { #cdesym.control.ControlSynthesis.design_kalman }
+
+```python
+control.ControlSynthesis.design_kalman(A, C, Q, R, system_type='discrete')
+```
+
+Design Kalman filter for optimal state estimation.
+
+Routes to classical.design_kalman_filter() with system backend.
+
+System:
+    x[k+1] = Ax[k] + Bu[k] + w[k],  w ~ N(0, Q)
+    y[k] = Cx[k] + v[k],            v ~ N(0, R)
+
+Estimator:
+    x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+
+Args:
+    A: State matrix (nx, nx)
+    C: Output matrix (ny, nx)
+    Q: Process noise covariance (nx, nx), Q ≥ 0
+    R: Measurement noise covariance (ny, ny), R > 0
+    system_type: 'continuous' or 'discrete'
+
+Returns:
+    KalmanFilterResult with gain, covariances, observer eigenvalues
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design Kalman filter
+>>> A, _ = system.linearize(x_eq, u_eq)
+>>> C = np.array([[1, 0]])  # Measure position only
+>>> Q_proc = 0.01 * np.eye(2)  # Process noise
+>>> R_meas = np.array([[0.1]])  # Measurement noise
+>>>
+>>> kalman = system.control.design_kalman(
+...     A, C, Q_proc, R_meas,
+...     system_type='discrete'
+... )
+>>> L = kalman['gain']
+>>> print(f"Kalman gain shape: {L.shape}")  # (nx, ny)
+>>>
+>>> # Use in estimation loop
+>>> x_hat = np.zeros(2)
+>>> for k in range(N):
+...     # Prediction
+...     x_hat_pred = A @ x_hat + B @ u[k]
+...
+...     # Correction
+...     innovation = y[k] - C @ x_hat_pred
+...     x_hat = x_hat_pred + L @ innovation
+>>>
+>>> # Check observer convergence
+>>> obs_stable = np.all(np.abs(kalman['estimator_eigenvalues']) < 1)
+>>> print(f"Observer stable: {obs_stable}")
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+design_lqg : Combined LQR + Kalman (full LQG controller)
+
+### design_lqg { #cdesym.control.ControlSynthesis.design_lqg }
+
+```python
+control.ControlSynthesis.design_lqg(
+    A,
+    B,
+    C,
+    Q_state,
+    R_control,
+    Q_process,
+    R_measurement,
+    N=None,
+    system_type='discrete',
+)
+```
+
+Design Linear Quadratic Gaussian (LQG) controller.
+
+Routes to classical.design_lqg() with system backend.
+
+Combines LQR controller with Kalman filter estimator via
+separation principle.
+
+Controller: u[k] = -Kx̂[k]
+Estimator: x̂[k+1] = Ax̂[k] + Bu[k] + L(y[k] - Cx̂[k])
+
+Args:
+    A: State matrix (nx, nx)
+    B: Input matrix (nx, nu)
+    C: Output matrix (ny, nx)
+    Q_state: LQR state cost matrix (nx, nx)
+    R_control: LQR control cost matrix (nu, nu)
+    Q_process: Process noise covariance (nx, nx)
+    R_measurement: Measurement noise covariance (ny, ny)
+    N: Cross-coupling matrix (nx, nu), optional
+    system_type: 'continuous' or 'discrete'
+
+Returns:
+    LQGResult with controller gain, estimator gain, Riccati solutions,
+    and eigenvalues
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Design complete LQG controller
+>>> A, B = system.linearize(x_eq, u_eq)
+>>> C = np.array([[1, 0]])  # Partial state measurement
+>>>
+>>> # LQR weights
+>>> Q_state = np.diag([10, 1])
+>>> R_control = np.array([[0.1]])
+>>>
+>>> # Noise covariances
+>>> Q_process = 0.01 * np.eye(2)
+>>> R_measurement = np.array([[0.1]])
+>>>
+>>> lqg = system.control.design_lqg(
+...     A, B, C,
+...     Q_state, R_control,
+...     Q_process, R_measurement,
+...     system_type='discrete'
+... )
+>>>
+>>> K = lqg['control_gain']  # LQR gain
+>>> L = lqg['estimator_gain']   # Kalman gain
+>>>
+>>> # With cross-coupling term
+>>> N = np.array([[0.5], [0.1]])
+>>> lqg = system.control.design_lqg(
+...     A, B, C,
+...     Q_state, R_control,
+...     Q_process, R_measurement,
+...     N=N,
+...     system_type='discrete'
+... )
+```
+
+#### Notes {.doc-section .doc-section-notes}
+
+- Separation principle: LQR and Kalman designed independently
+- LQG optimal for linear Gaussian systems
+- Controller eigenvalues determine regulation performance
+- Observer eigenvalues determine estimation convergence
+- Estimator should converge faster than controller
+
+#### See Also {.doc-section .doc-section-see-also}
+
+design_lqr : Unified LQR controller design
+design_kalman : Kalman filter only
+
+### design_lqr { #cdesym.control.ControlSynthesis.design_lqr }
+
+```python
+control.ControlSynthesis.design_lqr(A, B, Q, R, N=None, system_type='discrete')
+```
+
+Design LQR controller (unified interface).
+
+Routes to classical.design_lqr() with system backend.
+
+Minimizes cost functional:
+    Continuous: J = ∫₀^∞ (x'Qx + u'Ru + 2x'Nu) dt
+    Discrete:   J = Σₖ₌₀^∞ (x[k]'Qx[k] + u[k]'Ru[k] + 2x[k]'Nu[k])
+
+Control law:
+    Continuous: u = -Kx
+    Discrete:   u[k] = -Kx[k]
+
+Args:
+    A: State matrix (nx, nx)
+    B: Input matrix (nx, nu)
+    Q: State cost matrix (nx, nx), Q ≥ 0
+    R: Control cost matrix (nu, nu), R > 0
+    N: Cross-coupling matrix (nx, nu), optional
+    system_type: 'continuous' or 'discrete', default 'discrete'
+
+Returns:
+    LQRResult with gain, cost-to-go, eigenvalues, stability margin
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> # Via system - continuous
+>>> A, B = system.linearize(x_eq, u_eq)
+>>> Q = np.diag([10, 1])
+>>> R = np.array([[0.1]])
+>>>
+>>> result = system.control.design_lqr(
+...     A, B, Q, R,
+...     system_type='continuous'
+... )
+>>> K = result['gain']
+>>>
+>>> # Via system - discrete (default)
+>>> result = discrete_system.control.design_lqr(A, B, Q, R)
+>>> K = result['gain']
+>>>
+>>> # With cross-coupling term
+>>> N = np.array([[0.5], [0.1]])
+>>> result = system.control.design_lqr(
+...     A, B, Q, R, N=N,
+...     system_type='continuous'
+... )
+```
+
+#### See Also {.doc-section .doc-section-see-also}
+
+design_kalman : Kalman filter design
+design_lqg : Combined LQR + Kalman filter
