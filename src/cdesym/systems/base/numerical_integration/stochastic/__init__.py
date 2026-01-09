@@ -58,6 +58,14 @@ from .sde_integrator_factory import (
     create_sde_integrator,
 )
 
+# Backend-specific SDE integrators
+from .diffeqpy_sde_integrator import DiffEqPySDEIntegrator
+from .torchsde_integrator import TorchSDEIntegrator
+from .diffrax_sde_integrator import DiffraxSDEIntegrator
+
+# Custom Brownian path utilities
+from .custom_brownian import CustomBrownianPath, create_custom_or_random_brownian
+
 # Export public API
 __all__ = [
     # Base class
@@ -70,4 +78,11 @@ __all__ = [
     "auto_sde_integrator",
     # Utilities
     "get_trajectory_statistics",
+    # Backend-specific integrators
+    "DiffEqPySDEIntegrator",
+    "TorchSDEIntegrator",
+    "DiffraxSDEIntegrator",
+    # Custom Brownian path
+    "CustomBrownianPath",
+    "create_custom_or_random_brownian",
 ]

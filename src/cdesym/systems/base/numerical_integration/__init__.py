@@ -92,6 +92,23 @@ from .integrator_factory import (
     create_integrator,
 )
 
+# Method registry utilities
+from .method_registry import (
+    is_sde_method,
+    is_fixed_step,
+    normalize_method_name,
+    get_available_methods,
+    validate_method,
+    get_method_info,
+    list_all_methods,
+    get_implementing_library,
+)
+
+# Backend-specific integrators
+from .scipy_integrator import ScipyIntegrator
+from .diffrax_integrator import DiffraxIntegrator
+from .torchdiffeq_integrator import TorchDiffEqIntegrator
+
 # Export public API
 __all__ = [
     # Base classes and enums
@@ -109,6 +126,19 @@ __all__ = [
     "HeunIntegrator",
     "RK4Integrator",
     "create_fixed_step_integrator",
+    # Method registry utilities
+    "is_sde_method",
+    "is_fixed_step",
+    "normalize_method_name",
+    "get_available_methods",
+    "validate_method",
+    "get_method_info",
+    "list_all_methods",
+    "get_implementing_library",
+    # Backend-specific integrators
+    "ScipyIntegrator",
+    "DiffraxIntegrator",
+    "TorchDiffEqIntegrator",
     # Stochastic submodule
     "stochastic",
 ]
