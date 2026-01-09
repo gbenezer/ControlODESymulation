@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>systems.builtin.deterministic.continuous.cartpolesystem – ControlDESymulation</title>
+<title>systems.builtin.deterministic.continuous.symbolicpendulum – ControlDESymulation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -223,9 +223,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#cdesym.systems.builtin.deterministic.continuous.CartPoleSystem" id="toc-cdesym.systems.builtin.deterministic.continuous.CartPoleSystem" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.continuous.CartPoleSystem">systems.builtin.deterministic.continuous.CartPoleSystem</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum" id="toc-cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum">systems.builtin.deterministic.continuous.SymbolicPendulum</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics" id="toc-dynamics" class="nav-link" data-scroll-target="#dynamics">Dynamics:</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.CartPoleSystem.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.SymbolicPendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
@@ -233,13 +239,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="cdesym.systems.builtin.deterministic.continuous.CartPoleSystem" class="level1">
-<h1>systems.builtin.deterministic.continuous.CartPoleSystem</h1>
-<p><code>systems.builtin.deterministic.continuous.CartPoleSystem</code></p>
+<section id="cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum" class="level1">
+<h1>systems.builtin.deterministic.continuous.SymbolicPendulum</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.continuous.SymbolicPendulum(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Simple inverted pendulum system - first-order state-space formulation.</p>
+<section id="physical-system" class="level2 doc-section doc-section-physical-system">
+<h2 class="doc-section doc-section-physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<p>A point mass attached to a massless rigid rod, free to rotate about a fixed pivot. The pendulum experiences: - Gravitational torque (proportional to sin(θ)) - Viscous damping (proportional to angular velocity) - External control torque</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<p>State: x = [θ, θ̇] - θ (theta): Angular position from upward vertical [rad] * θ = 0: upright (unstable equilibrium) * θ = π: hanging down (stable equilibrium) - θ̇ (theta_dot): Angular velocity [rad/s]</p>
+<p>Control: u = [τ] - τ (torque): Applied torque at pivot [N⋅m]</p>
+<p>Output: y = [θ] - Measures only the angle (partial observation)</p>
+</section>
+<section id="dynamics" class="level2 doc-section doc-section-dynamics">
+<h2 class="doc-section doc-section-dynamics anchored" data-anchor-id="dynamics">Dynamics:</h2>
+<p>The equations of motion are: θ̇ = θ̇ θ̈ = -(β/I)θ̇ + (g/l)sin(θ) + τ/I</p>
+<p>where I = ml² is the moment of inertia.</p>
+<p>Rewritten as first-order system: dx/dt = [θ̇, -(β/ml²)θ̇ + (g/l)sin(θ) + τ/(ml²)]ᵀ</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<p>m : float, default=1.0 Mass of the bob [kg]. Larger mass → more inertia, slower response. l : float, default=1.0 Length of the rod [m]. Longer rod → more gravity torque, slower dynamics. beta : float, default=1.0 Damping coefficient [N⋅m⋅s/rad]. Larger β → more energy dissipation. g : float, default=9.81 Gravitational acceleration [m/s²].</p>
 
 
 <!-- -->
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -694,13 +721,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.continuous.CartPoleSystem { #cdesym.systems.builtin.deterministic.continuous.CartPoleSystem }</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="in">`systems.builtin.deterministic.continuous.CartPoleSystem`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.continuous.SymbolicPendulum { #cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum }</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.continuous.SymbolicPendulum(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Simple inverted pendulum system - first-order state-space formulation.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical System: {.doc-section .doc-section-physical-system}</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>A point mass attached to a massless rigid rod, free to rotate about a fixed pivot.</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>The pendulum experiences:</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gravitational torque (proportional to sin(θ))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Viscous damping (proportional to angular velocity)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>External control torque</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space: {.doc-section .doc-section-state-space}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>State: x = <span class="co">[</span><span class="ot">θ, θ̇</span><span class="co">]</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>θ (theta): Angular position from upward vertical <span class="co">[</span><span class="ot">rad</span><span class="co">]</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>θ = 0: upright (unstable equilibrium)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>θ = π: hanging down (stable equilibrium)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>θ̇ (theta_dot): Angular velocity <span class="co">[</span><span class="ot">rad/s</span><span class="co">]</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>Control: u = <span class="co">[</span><span class="ot">τ</span><span class="co">]</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>τ (torque): Applied torque at pivot <span class="co">[</span><span class="ot">N⋅m</span><span class="co">]</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>Output: y = <span class="co">[</span><span class="ot">θ</span><span class="co">]</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Measures only the angle (partial observation)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dynamics: {.doc-section .doc-section-dynamics}</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>The equations of motion are:</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    θ̇ = θ̇</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    θ̈ = -(β/I)θ̇ + (g/l)sin(θ) + τ/I</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>where I = ml² is the moment of inertia.</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>Rewritten as first-order system:</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    dx/dt = <span class="co">[</span><span class="ot">θ̇, -(β/ml²)θ̇ + (g/l)sin(θ) + τ/(ml²)</span><span class="co">]</span>ᵀ</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters: {.doc-section .doc-section-parameters}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>m : float, default=1.0</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    Mass of the bob <span class="co">[</span><span class="ot">kg</span><span class="co">]</span>. Larger mass → more inertia, slower response.</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>l : float, default=1.0</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    Length of the rod <span class="co">[</span><span class="ot">m</span><span class="co">]</span>. Longer rod → more gravity torque, slower dynamics.</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>beta : float, default=1.0</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    Damping coefficient <span class="co">[</span><span class="ot">N⋅m⋅s/rad</span><span class="co">]</span>. Larger β → more energy dissipation.</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>g : float, default=9.81</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    Gravitational acceleration <span class="co">[</span><span class="ot">m/s²</span><span class="co">]</span>.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.CartPoleSystem.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.SymbolicPendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

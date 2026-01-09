@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>systems.builtin.deterministic.continuous.pendulum – ControlDESymulation</title>
+<title>systems.builtin.deterministic.continuous.cartpole – ControlDESymulation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -223,9 +223,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#cdesym.systems.builtin.deterministic.continuous.Pendulum" id="toc-cdesym.systems.builtin.deterministic.continuous.Pendulum" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.continuous.Pendulum">systems.builtin.deterministic.continuous.Pendulum</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.continuous.CartPole" id="toc-cdesym.systems.builtin.deterministic.continuous.CartPole" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.continuous.CartPole">systems.builtin.deterministic.continuous.CartPole</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics" id="toc-dynamics" class="nav-link" data-scroll-target="#dynamics">Dynamics:</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  <li><a href="#equilibria" id="toc-equilibria" class="nav-link" data-scroll-target="#equilibria">Equilibria:</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also:</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.Pendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.CartPole.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
@@ -233,13 +241,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="cdesym.systems.builtin.deterministic.continuous.Pendulum" class="level1">
-<h1>systems.builtin.deterministic.continuous.Pendulum</h1>
-<p><code>systems.builtin.deterministic.continuous.Pendulum</code></p>
+<section id="cdesym.systems.builtin.deterministic.continuous.CartPole" class="level1">
+<h1>systems.builtin.deterministic.continuous.CartPole</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.continuous.CartPole(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Cart-pole system (inverted pendulum on cart) - classic underactuated system.</p>
+<section id="physical-system" class="level2 doc-section doc-section-physical-system">
+<h2 class="doc-section doc-section-physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<p>A pole (inverted pendulum) attached to a cart that moves horizontally. - Cart can slide freely on a horizontal track - Pole is attached to cart via a frictionless pivot - System is underactuated: 1 control input, 2 degrees of freedom - Nonlinear coupling between cart motion and pole angle</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<p>State: x = [x, θ, ẋ, θ̇] Position coordinates: - x: Cart position [m] (positive right) - θ: Pole angle from vertical [rad] * θ = 0: upright (unstable equilibrium) * θ = π: hanging down (stable equilibrium)</p>
+<pre><code>Velocity coordinates:
+- ẋ (x_dot): Cart velocity [m/s]
+- θ̇ (theta_dot): Pole angular velocity [rad/s]</code></pre>
+<p>Control: u = [F] - F: Horizontal force applied to cart [N] Can be positive (push right) or negative (push left)</p>
+<p>Output: y = [x, θ] - Measures cart position and pole angle</p>
+</section>
+<section id="dynamics" class="level2 doc-section doc-section-dynamics">
+<h2 class="doc-section doc-section-dynamics anchored" data-anchor-id="dynamics">Dynamics:</h2>
+<p>The equations of motion (derived from Lagrangian mechanics):</p>
+<p>Let M = m_cart + m_pole, then:</p>
+<pre><code>ẍ = (F - b·ẋ + m_pole·l·θ̇²·sin(θ) - m_pole·g·sin(θ)·cos(θ)) / (M - m_pole·cos²(θ))
+
+θ̈ = (F·cos(θ) - b·ẋ·cos(θ) + m_pole·l·θ̇²·sin(θ)·cos(θ) - M·g·sin(θ)) / (l·(M - m_pole·cos²(θ)))</code></pre>
+<p>Physical interpretation: - Cart accelerates from applied force F - Pole motion creates reaction forces on cart - Centrifugal force (θ̇² term) affects both cart and pole - Gravity pulls pole down (sin(θ) term) - Friction opposes cart motion (b·ẋ)</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<p>m_cart : float, default=1.0 Mass of the cart [kg] m_pole : float, default=0.1 Mass of the pole [kg] Typical: m_pole &lt;&lt; m_cart (light pole, heavy cart) length : float, default=0.5 Length from pivot to pole’s center of mass [m] gravity : float, default=9.81 Gravitational acceleration [m/s²] friction : float, default=0.1 Cart friction coefficient [N⋅s/m] Models bearing friction and air resistance</p>
+</section>
+<section id="equilibria" class="level2 doc-section doc-section-equilibria">
+<h2 class="doc-section doc-section-equilibria anchored" data-anchor-id="equilibria">Equilibria:</h2>
+<ol type="1">
+<li><p><strong>Upright (unstable)</strong>: x_eq = [x*, 0, 0, 0] (any cart position, pole vertical) u_eq = 0 (no force needed)</p></li>
+<li><p><strong>Hanging (stable)</strong>: x_eq = [x*, π, 0, 0] (any cart position, pole hanging) u_eq = 0 (no force needed)</p></li>
+</ol>
+<p>NOTE: this is a different convention than that of the SymbolicPendulum class; that system is defined with π radians being inverted/upward</p>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also:</h2>
+<p>SymbolicPendulum : Simpler version without cart PVTOL : Another underactuated system with similar challenges</p>
 
 
 <!-- -->
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -694,13 +741,95 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.continuous.Pendulum { #cdesym.systems.builtin.deterministic.continuous.Pendulum }</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="in">`systems.builtin.deterministic.continuous.Pendulum`</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.continuous.CartPole { #cdesym.systems.builtin.deterministic.continuous.CartPole }</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.continuous.CartPole(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>Cart-pole system (inverted pendulum on cart) - classic underactuated system.</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical System: {.doc-section .doc-section-physical-system}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>A pole (inverted pendulum) attached to a cart that moves horizontally.</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Cart can slide freely on a horizontal track</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Pole is attached to cart via a frictionless pivot</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System is underactuated: 1 control input, 2 degrees of freedom</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nonlinear coupling between cart motion and pole angle</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space: {.doc-section .doc-section-state-space}</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>State: x = <span class="co">[</span><span class="ot">x, θ, ẋ, θ̇</span><span class="co">]</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    Position coordinates:</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>x: Cart position <span class="co">[</span><span class="ot">m</span><span class="co">]</span> (positive right)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>θ: Pole angle from vertical <span class="co">[</span><span class="ot">rad</span><span class="co">]</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>θ = 0: upright (unstable equilibrium)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>θ = π: hanging down (stable equilibrium)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    Velocity coordinates:</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>ẋ (x_dot): Cart velocity <span class="co">[</span><span class="ot">m/s</span><span class="co">]</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>θ̇ (theta_dot): Pole angular velocity <span class="co">[</span><span class="ot">rad/s</span><span class="co">]</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>Control: u = <span class="co">[</span><span class="ot">F</span><span class="co">]</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>F: Horizontal force applied to cart <span class="co">[</span><span class="ot">N</span><span class="co">]</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    Can be positive (push right) or negative (push left)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>Output: y = <span class="co">[</span><span class="ot">x, θ</span><span class="co">]</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Measures cart position and pole angle</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dynamics: {.doc-section .doc-section-dynamics}</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>The equations of motion (derived from Lagrangian mechanics):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>Let M = m_cart + m_pole, then:</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="in">    ẍ = (F - b·ẋ + m_pole·l·θ̇²·sin(θ) - m_pole·g·sin(θ)·cos(θ)) / (M - m_pole·cos²(θ))</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="in">    θ̈ = (F·cos(θ) - b·ẋ·cos(θ) + m_pole·l·θ̇²·sin(θ)·cos(θ) - M·g·sin(θ)) / (l·(M - m_pole·cos²(θ)))</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>Physical interpretation:</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Cart accelerates from applied force F</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Pole motion creates reaction forces on cart</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Centrifugal force (θ̇² term) affects both cart and pole</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gravity pulls pole down (sin(θ) term)</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Friction opposes cart motion (b·ẋ)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters: {.doc-section .doc-section-parameters}</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>m_cart : float, default=1.0</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    Mass of the cart <span class="co">[</span><span class="ot">kg</span><span class="co">]</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>m_pole : float, default=0.1</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    Mass of the pole <span class="co">[</span><span class="ot">kg</span><span class="co">]</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    Typical: m_pole &lt;&lt; m_cart (light pole, heavy cart)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>length : float, default=0.5</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    Length from pivot to pole's center of mass <span class="co">[</span><span class="ot">m</span><span class="co">]</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>gravity : float, default=9.81</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    Gravitational acceleration <span class="co">[</span><span class="ot">m/s²</span><span class="co">]</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>friction : float, default=0.1</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    Cart friction coefficient <span class="co">[</span><span class="ot">N⋅s/m</span><span class="co">]</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    Models bearing friction and air resistance</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## Equilibria: {.doc-section .doc-section-equilibria}</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Upright (unstable)**:</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>   x_eq = <span class="co">[</span><span class="ot">x*, 0, 0, 0</span><span class="co">]</span>  (any cart position, pole vertical)</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>   u_eq = 0 (no force needed)</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Hanging (stable)**:</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>   x_eq = <span class="co">[</span><span class="ot">x*, π, 0, 0</span><span class="co">]</span>  (any cart position, pole hanging)</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>   u_eq = 0 (no force needed)</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>NOTE: this is a different convention than that of the SymbolicPendulum</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>class; that system is defined with π radians being inverted/upward</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also: {.doc-section .doc-section-see-also}</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>SymbolicPendulum : Simpler version without cart</span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>PVTOL : Another underactuated system with similar challenges</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.Pendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.continuous.CartPole.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
