@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.continuous.stochasticsir – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR">systems.builtin.stochastic.continuous.StochasticSIR</a>
+  <ul>
+  <li><a href="#stochastic-differential-equations" id="toc-stochastic-differential-equations" class="nav-link" data-scroll-target="#stochastic-differential-equations">Stochastic Differential Equations</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation-1" id="toc-physical-interpretation-1" class="nav-link" data-scroll-target="#physical-interpretation-1">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-integration" id="toc-numerical-integration" class="nav-link" data-scroll-target="#numerical-integration">Numerical Integration</a></li>
+  <li><a href="#monte-carlo-guidelines" id="toc-monte-carlo-guidelines" class="nav-link" data-scroll-target="#monte-carlo-guidelines">Monte Carlo Guidelines</a></li>
+  <li><a href="#comparison-with-deterministic" id="toc-comparison-with-deterministic" class="nav-link" data-scroll-target="#comparison-with-deterministic">Comparison with Deterministic</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation">check_conservation</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability">estimate_extinction_probability</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number">get_basic_reproduction_number</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold" id="toc-cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold">get_herd_immunity_threshold</a>
+  <ul class="collapse">
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.continuous.StochasticSIR.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR" class="level1">
+<h1>systems.builtin.stochastic.continuous.StochasticSIR</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Stochastic SIR epidemic model with demographic noise.</p>
+<p>Models disease spread in a finite population with inherent randomness from discrete infection and recovery events. Essential for understanding outbreak extinction, variability in epidemic outcomes, and uncertainty in disease forecasting.</p>
+<section id="stochastic-differential-equations" class="level2 doc-section doc-section-stochastic-differential-equations">
+<h2 class="doc-section doc-section-stochastic-differential-equations anchored" data-anchor-id="stochastic-differential-equations">Stochastic Differential Equations</h2>
+<p>Diffusion approximation of discrete SIR:</p>
+<pre><code>dS = -β·S·I/N·dt + σ_S·dW_S
+dI = (β·S·I/N - γ·I)·dt + σ_I·dW_I
+dR = γ·I·dt + σ_R·dW_R</code></pre>
+<p>where: - S(t): Number susceptible (can be infected) - I(t): Number infected (infectious) - R(t): Number recovered (immune) - N = S + I + R: Total population (constant) - β: Transmission rate [1/time] - γ: Recovery rate [1/time] - σ_S, σ_I, σ_R: Noise intensities - W_S, W_I, W_R: Wiener processes</p>
+<p><strong>Physical Meaning:</strong></p>
+<p>Transmission: β·S·I/N - Rate of new infections - Mass action: Proportional to S·I - β: Contacts per time × transmission probability</p>
+<p>Recovery: γ·I - Rate of recoveries - First-order: Proportional to I - γ = 1/(infectious period)</p>
+<p><strong>Demographic Noise:</strong></p>
+<p>True stochastic SIR has √ diffusion: Diffusion ~ √(rate)</p>
+<p>From Poisson statistics of discrete events.</p>
+<p>This implementation: Simplified additive noise for tractability.</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>Susceptibles S:</strong></p>
+<p>Decrease only (monotonic): - Start: S(0) ≈ N (nearly all susceptible) - End: S(∞) &gt; 0 (some escape infection) - Never increases (no loss of immunity modeled)</p>
+<p><strong>Infected I:</strong></p>
+<p>Non-monotonic (rise then fall): - Start: I(0) = small (index cases) - Peak: I_max at t_peak (outbreak peak) - End: I(∞) = 0 (disease dies out)</p>
+<p><strong>Recovered R:</strong></p>
+<p>Increase only (monotonic): - Start: R(0) = 0 (no immunity initially) - End: R(∞) = final outbreak size - Measure of epidemic impact</p>
+<p><strong>Conservation:</strong> S + I + R = N (total population constant)</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Nonlinearity:</strong> S·I term creates threshold behavior and epidemic curve.</p>
+<p><strong>Positivity:</strong> Must have S, I, R ≥ 0 (counts of people).</p>
+<p><strong>Conservation:</strong> S + I + R = N always (no births/deaths).</p>
+<p><strong>Extinction:</strong> I → 0 eventually (disease dies out). Time random, final size random.</p>
+<p><strong>Threshold (R₀):</strong> Probabilistic in stochastic model.</p>
+<p><strong>Finite Time:</strong> Epidemic is transient (not steady state).</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>Basic Reproduction Number:</strong> R₀ = β/γ</p>
+<p>Critical threshold (deterministic): - R₀ &lt; 1: Dies out - R₀ &gt; 1: Epidemic</p>
+<p><strong>Stochastic Threshold:</strong> Even R₀ &gt; 1: Can die out with probability (1/R₀)^{I₀}</p>
+<p><strong>Final Size Relation:</strong></p>
+<p>Deterministic: R_∞ satisfies R_∞ = N - S₀·exp(-R₀·R_∞/N)</p>
+<p>Stochastic: Distribution around this value.</p>
+<p><strong>Epidemic Peak:</strong></p>
+<p>Deterministic: I_max ≈ I₀ + S₀ - N/R₀ - (N/R₀)·ln(S₀·R₀/N) t_peak ≈ (1/γ)·ln(R₀·S₀/N)</p>
+<p>Stochastic: Random variables (compute via simulation).</p>
+</section>
+<section id="physical-interpretation-1" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation-1">Physical Interpretation</h2>
+<p><strong>Transmission Rate β:</strong> - Units: [1/time] - β = contact rate × transmission probability - Typical: 0.2-2.0 per day</p>
+<p><strong>Examples:</strong> - Influenza: β ≈ 0.5 per day - Measles: β ≈ 1.5 per day - COVID-19: β ≈ 0.3-0.6 per day (varies)</p>
+<p><strong>Recovery Rate γ:</strong> - Units: [1/time] - γ = 1/(infectious period) - Typical: 0.1-1.0 per day</p>
+<p><strong>Examples:</strong> - Influenza: γ ≈ 0.5 per day (2 days infectious) - COVID-19: γ ≈ 0.1 per day (10 days) - Measles: γ ≈ 0.1 per day (10 days)</p>
+<p><strong>Basic Reproduction Number:</strong> R₀ = β/γ</p>
+<p><strong>Examples:</strong> - Influenza: R₀ ≈ 1-2 - COVID-19: R₀ ≈ 2-5 (variant dependent) - Measles: R₀ ≈ 12-18</p>
+<p><strong>Noise Intensity:</strong></p>
+<p>From demographic stochasticity (Poisson): σ ≈ √(rate/N)</p>
+<p>Relative noise: 1/√N</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>State: X = [S, I, R] ∈ ℝ₊³ - S, I, R ≥ 0 (non-negative counts) - S + I + R = N (conservation) - Bounded: 0 ≤ S, I, R ≤ N</p>
+<p>Control: u (optional, interventions) - Reduce β (social distancing) - Increase recovery (treatment) - Vaccination (move S → R)</p>
+<p>Noise: w = [w_S, w_I, w_R] ∈ ℝ³ - Demographic stochasticity - Should be correlated (conservation) - This implementation: Simplified independent</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 78%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>beta</td>
+<td>float</td>
+<td>Transmission rate [1/day] - Typical: 0.2-2.0 - Disease and behavior dependent</td>
+<td><code>0.5</code></td>
+</tr>
+<tr class="even">
+<td>gamma</td>
+<td>float</td>
+<td>Recovery rate [1/day] - 1/γ = infectious period - Typical: 0.1-1.0</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>N</td>
+<td>float</td>
+<td>Total population - Larger N: More deterministic - Smaller N: More stochastic</td>
+<td><code>1000.0</code></td>
+</tr>
+<tr class="even">
+<td>sigma_S</td>
+<td>float</td>
+<td>Susceptible noise intensity [1/√day] - From √(rate/N) for demographic noise - Typical: √(β·S·I/N²)</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>sigma_I</td>
+<td>float</td>
+<td>Infected noise intensity [1/√day]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>sigma_R</td>
+<td>float</td>
+<td>Recovered noise intensity [1/√day]</td>
+<td><code>0.1</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>System Type: NONLINEAR</li>
+<li>Noise Type: ADDITIVE (simplified)</li>
+<li>SDE Type: Itô</li>
+<li>Noise Dimension: nw = 3</li>
+<li>Stationary: No (epidemic is transient)</li>
+<li>Positive: Should be (may need projection)</li>
+<li>Conserved: S + I + R = N (approximately)</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Epidemiology:</strong> - COVID-19, influenza, measles modeling - Outbreak prediction with uncertainty - Intervention timing and effectiveness</p>
+<p><strong>2. Parameter Estimation:</strong> - Estimate β, γ from outbreak data - Bayesian inference with uncertainty - Real-time estimation (particle filter)</p>
+<p><strong>3. Public Health Policy:</strong> - Vaccination strategies - Social distancing timing - Resource allocation (ICU beds)</p>
+<p><strong>4. Extinction Analysis:</strong> - Probability small outbreak dies out - Early intervention effectiveness - Import risk assessment</p>
+<p><strong>5. Rare Events:</strong> - Superspreading events - Large outbreaks in small populations - Timing of peak (ICU planning)</p>
+</section>
+<section id="numerical-integration" class="level2 doc-section doc-section-numerical-integration">
+<h2 class="doc-section doc-section-numerical-integration anchored" data-anchor-id="numerical-integration">Numerical Integration</h2>
+<p><strong>Recommended:</strong> - Euler-Maruyama: dt = 0.01-0.1 days - Project to non-negative: max(X, 0) - Check conservation: S+I+R ≈ N</p>
+<p><strong>Event Detection:</strong> - Extinction: I &lt; 0.5 (declare extinct) - Peak: Max I(t) - Duration: Time I &gt; threshold</p>
+</section>
+<section id="monte-carlo-guidelines" class="level2 doc-section doc-section-monte-carlo-guidelines">
+<h2 class="doc-section doc-section-monte-carlo-guidelines anchored" data-anchor-id="monte-carlo-guidelines">Monte Carlo Guidelines</h2>
+<p><strong>Ensemble Analysis:</strong> - N_runs = 100-1,000 - Compute: Extinction probability, mean final size - Histogram: Final R (bimodal if near threshold)</p>
+</section>
+<section id="comparison-with-deterministic" class="level2 doc-section doc-section-comparison-with-deterministic">
+<h2 class="doc-section doc-section-comparison-with-deterministic anchored" data-anchor-id="comparison-with-deterministic">Comparison with Deterministic</h2>
+<p><strong>Deterministic:</strong> - Smooth epidemic curve - Single final size - R₀ sharp threshold</p>
+<p><strong>Stochastic:</strong> - Variable epidemic curves - Distribution of final sizes - R₀ probabilistic threshold - Extinction possible</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Additive noise (not √ diffusion)</li>
+<li>Independent noise (should be correlated)</li>
+<li>Homogeneous mixing (no network structure)</li>
+<li>Constant β, γ (no seasonality)</li>
+<li>Closed population (no births/deaths)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>SEIR: Add Exposed class</li>
+<li>Age structure: Multiple age groups</li>
+<li>Spatial: Geographic spread</li>
+<li>Network: Contact structure</li>
+<li>Time-varying: Seasonal β(t)</li>
+<li>Vaccination: Control via S → R</li>
+</ul>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<p>CoxIngersollRoss : Similar √ diffusion structure</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation">check_conservation</a></td>
+<td>Check conservation constraint S + I + R = N.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system">define_system</a></td>
+<td>Define stochastic SIR epidemic dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability">estimate_extinction_probability</a></td>
+<td>Estimate probability of stochastic extinction (approximation).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number">get_basic_reproduction_number</a></td>
+<td>Get basic reproduction number R₀ = β/γ.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold">get_herd_immunity_threshold</a></td>
+<td>Get herd immunity threshold H = 1 - 1/R₀.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation">check_conservation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.check_conservation(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Check conservation constraint S + I + R = N.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>x</td>
+<td>np.ndarray</td>
+<td>State [S, I, R]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Absolute error |S+I+R - N|</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(N<span class="op">=</span><span class="dv">1000</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> np.array([<span class="dv">500</span>, <span class="dv">200</span>, <span class="dv">300</span>])</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> error <span class="op">=</span> sir.check_conservation(x)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conservation error: </span><span class="sc">{</span>error<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.define_system(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    gamma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    N<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    sigma_S<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    sigma_I<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    sigma_R<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define stochastic SIR epidemic dynamics.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 81%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>beta</td>
+<td>float</td>
+<td>Transmission rate [1/day] - β = contact rate × transmission probability - Typical: 0.2-2.0 per day - Higher → faster spread</td>
+<td><code>0.5</code></td>
+</tr>
+<tr class="even">
+<td>gamma</td>
+<td>float</td>
+<td>Recovery rate [1/day] - γ = 1/(infectious period) - Typical: 0.1-1.0 per day - Higher → faster recovery</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>N</td>
+<td>float</td>
+<td>Total population (constant) - Larger N: More deterministic - Smaller N: More stochastic - Typical: 100-1,000,000</td>
+<td><code>1000.0</code></td>
+</tr>
+<tr class="even">
+<td>sigma_S</td>
+<td>float</td>
+<td>Susceptible noise intensity [1/√day] - From demographic noise: ~ √(β·S·I/N²) - Typical: 0.01-1.0</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>sigma_I</td>
+<td>float</td>
+<td>Infected noise intensity [1/√day] - From demographic noise: ~ √(β·S·I/N² + γ·I/N) - Most critical (affects outbreak dynamics)</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>sigma_R</td>
+<td>float</td>
+<td>Recovered noise intensity [1/√day] - From demographic noise: ~ √(γ·I/N)</td>
+<td><code>0.1</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Basic Reproduction Number:</strong> R₀ = β/γ</p>
+<p>Determines epidemic threshold: - R₀ &lt; 1: Dies out (subcritical) - R₀ = 1: Critical (boundary) - R₀ &gt; 1: Epidemic (supercritical)</p>
+<p><strong>Stochastic Extinction:</strong></p>
+<p>Even if R₀ &gt; 1, can randomly die out: P(extinction | I₀) ≈ (1/R₀)^{I₀}</p>
+<p><strong>Example:</strong> R₀ = 2, I₀ = 1 → P_ext = 50%</p>
+<p><strong>Noise Scaling:</strong></p>
+<p>Physical demographic noise: σ_physical ~ √(rate/N)</p>
+<p>For N = 1000, typical rates ~ 0.1-1: σ ~ 0.01-0.1</p>
+<p>Larger population → smaller relative noise.</p>
+<p><strong>Infectious Period:</strong> T_inf = 1/γ</p>
+<p><strong>Examples:</strong> - Influenza: 2-3 days (γ ≈ 0.4) - COVID-19: 7-14 days (γ ≈ 0.1) - Measles: 7-10 days (γ ≈ 0.12)</p>
+<p><strong>Herd Immunity:</strong> H = 1 - 1/R₀</p>
+<p>Fraction immune needed to prevent epidemic.</p>
+<p><strong>Validation:</strong></p>
+<p>Check conservation: S + I + R should equal N. If drifts: Renormalize periodically.</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability">estimate_extinction_probability</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    I0,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Estimate probability of stochastic extinction (approximation).</p>
+<p>For R₀ &gt; 1: P_ext ≈ (1/R₀)^{I₀}</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>I0</td>
+<td>float</td>
+<td>Initial number infected</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Extinction probability</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.6</span>, gamma<span class="op">=</span><span class="fl">0.2</span>)  <span class="co"># R₀=3</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> P_ext_1 <span class="op">=</span> sir.estimate_extinction_probability(I0<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> P_ext_10 <span class="op">=</span> sir.estimate_extinction_probability(I0<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"1 infected: P_ext = </span><span class="sc">{</span>P_ext_1<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"10 infected: P_ext = </span><span class="sc">{</span>P_ext_10<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number">get_basic_reproduction_number</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get basic reproduction number R₀ = β/γ.</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>R₀</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.5</span>, gamma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> R0 <span class="op">=</span> sir.get_basic_reproduction_number()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"R₀ = </span><span class="sc">{</span>R0<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold">get_herd_immunity_threshold</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get herd immunity threshold H = 1 - 1/R₀.</p>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Herd immunity threshold (fraction)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.5</span>, gamma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> H <span class="op">=</span> sir.get_herd_immunity_threshold()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Herd immunity: </span><span class="sc">{</span>H<span class="sc">:.1%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.continuous.StochasticSIR { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR }</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>Stochastic SIR epidemic model with demographic noise.</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>Models disease spread in a finite population with inherent randomness</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>from discrete infection and recovery events. Essential for understanding</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>outbreak extinction, variability in epidemic outcomes, and uncertainty</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>in disease forecasting.</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>Diffusion approximation of discrete SIR:</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="in">    dS = -β·S·I/N·dt + σ_S·dW_S</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="in">    dI = (β·S·I/N - γ·I)·dt + σ_I·dW_I</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="in">    dR = γ·I·dt + σ_R·dW_R</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>S(t): Number susceptible (can be infected)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>I(t): Number infected (infectious)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>R(t): Number recovered (immune)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>N = S + I + R: Total population (constant)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>β: Transmission rate <span class="co">[</span><span class="ot">1/time</span><span class="co">]</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>γ: Recovery rate <span class="co">[</span><span class="ot">1/time</span><span class="co">]</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>σ_S, σ_I, σ_R: Noise intensities</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>W_S, W_I, W_R: Wiener processes</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>**Physical Meaning:**</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>Transmission: β·S·I/N</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rate of new infections</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Mass action: Proportional to S·I</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β: Contacts per time × transmission probability</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>Recovery: γ·I</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rate of recoveries</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>First-order: Proportional to I</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>γ = 1/(infectious period)</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>**Demographic Noise:**</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>True stochastic SIR has √ diffusion:</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    Diffusion ~ √(rate)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>From Poisson statistics of discrete events.</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>This implementation: Simplified additive noise for tractability.</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>**Susceptibles S:**</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>Decrease only (monotonic):</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Start: S(0) ≈ N (nearly all susceptible)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>End: S(∞) &gt; 0 (some escape infection)</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Never increases (no loss of immunity modeled)</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>**Infected I:**</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>Non-monotonic (rise then fall):</span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Start: I(0) = small (index cases)</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Peak: I_max at t_peak (outbreak peak)</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>End: I(∞) = 0 (disease dies out)</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>**Recovered R:**</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>Increase only (monotonic):</span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Start: R(0) = 0 (no immunity initially)</span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>End: R(∞) = final outbreak size</span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measure of epidemic impact</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>**Conservation:**</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>S + I + R = N (total population constant)</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>**Nonlinearity:**</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>S·I term creates threshold behavior and epidemic curve.</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>**Positivity:**</span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>Must have S, I, R ≥ 0 (counts of people).</span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>**Conservation:**</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>S + I + R = N always (no births/deaths).</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>**Extinction:**</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>I → 0 eventually (disease dies out).</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>Time random, final size random.</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>**Threshold (R₀):**</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>Probabilistic in stochastic model.</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>**Finite Time:**</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>Epidemic is transient (not steady state).</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>**Basic Reproduction Number:**</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>    R₀ = β/γ</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>Critical threshold (deterministic):</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ &lt; 1: Dies out</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ &gt; 1: Epidemic</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>**Stochastic Threshold:**</span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>Even R₀ &gt; 1: Can die out with probability (1/R₀)^{I₀}</span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>**Final Size Relation:**</span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>Deterministic: R_∞ satisfies</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>    R_∞ = N - S₀·exp(-R₀·R_∞/N)</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>Stochastic: Distribution around this value.</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>**Epidemic Peak:**</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>Deterministic:</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>    I_max ≈ I₀ + S₀ - N/R₀ - (N/R₀)·ln(S₀·R₀/N)</span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>    t_peak ≈ (1/γ)·ln(R₀·S₀/N)</span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>Stochastic: Random variables (compute via simulation).</span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>**Transmission Rate β:**</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Units: <span class="co">[</span><span class="ot">1/time</span><span class="co">]</span></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β = contact rate × transmission probability</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.2-2.0 per day</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a>**Examples:**</span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Influenza: β ≈ 0.5 per day</span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measles: β ≈ 1.5 per day</span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>COVID-19: β ≈ 0.3-0.6 per day (varies)</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>**Recovery Rate γ:**</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Units: <span class="co">[</span><span class="ot">1/time</span><span class="co">]</span></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>γ = 1/(infectious period)</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.1-1.0 per day</span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a>**Examples:**</span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Influenza: γ ≈ 0.5 per day (2 days infectious)</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>COVID-19: γ ≈ 0.1 per day (10 days)</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measles: γ ≈ 0.1 per day (10 days)</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>**Basic Reproduction Number:**</span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>    R₀ = β/γ</span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>**Examples:**</span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Influenza: R₀ ≈ 1-2</span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>COVID-19: R₀ ≈ 2-5 (variant dependent)</span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measles: R₀ ≈ 12-18</span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>**Noise Intensity:**</span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>From demographic stochasticity (Poisson):</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>    σ ≈ √(rate/N)</span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>Relative noise: 1/√N</span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a>State: X = <span class="co">[</span><span class="ot">S, I, R</span><span class="co">]</span> ∈ ℝ₊³</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>S, I, R ≥ 0 (non-negative counts)</span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>S + I + R = N (conservation)</span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Bounded: 0 ≤ S, I, R ≤ N</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>Control: u (optional, interventions)</span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Reduce β (social distancing)</span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Increase recovery (treatment)</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Vaccination (move S → R)</span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>Noise: w = <span class="co">[</span><span class="ot">w_S, w_I, w_R</span><span class="co">]</span> ∈ ℝ³</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Demographic stochasticity</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Should be correlated (conservation)</span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>This implementation: Simplified independent</span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name    <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                        <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------|--------|----------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> beta    <span class="pp">|</span> float  <span class="pp">|</span> Transmission rate <span class="co">[</span><span class="ot">1/day</span><span class="co">]</span> - Typical: 0.2-2.0 - Disease and behavior dependent                      <span class="pp">|</span> <span class="in">`0.5`</span>     <span class="pp">|</span></span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> gamma   <span class="pp">|</span> float  <span class="pp">|</span> Recovery rate <span class="co">[</span><span class="ot">1/day</span><span class="co">]</span> - 1/γ = infectious period - Typical: 0.1-1.0                                 <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> N       <span class="pp">|</span> float  <span class="pp">|</span> Total population - Larger N: More deterministic - Smaller N: More stochastic                       <span class="pp">|</span> <span class="in">`1000.0`</span>  <span class="pp">|</span></span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_S <span class="pp">|</span> float  <span class="pp">|</span> Susceptible noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span> - From √(rate/N) for demographic noise - Typical: √(β·S·I/N²) <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_I <span class="pp">|</span> float  <span class="pp">|</span> Infected noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span>                                                                  <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_R <span class="pp">|</span> float  <span class="pp">|</span> Recovered noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span>                                                                 <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System Type: NONLINEAR</span>
+<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Type: ADDITIVE (simplified)</span>
+<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SDE Type: Itô</span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Dimension: nw = 3</span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: No (epidemic is transient)</span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Positive: Should be (may need projection)</span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Conserved: S + I + R = N (approximately)</span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a>**1. Epidemiology:**</span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>COVID-19, influenza, measles modeling</span>
+<span id="cb12-206"><a href="#cb12-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Outbreak prediction with uncertainty</span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Intervention timing and effectiveness</span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a>**2. Parameter Estimation:**</span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Estimate β, γ from outbreak data</span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bayesian inference with uncertainty</span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Real-time estimation (particle filter)</span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a>**3. Public Health Policy:**</span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Vaccination strategies</span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Social distancing timing</span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Resource allocation (ICU beds)</span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a>**4. Extinction Analysis:**</span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Probability small outbreak dies out</span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Early intervention effectiveness</span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Import risk assessment</span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a>**5. Rare Events:**</span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Superspreading events</span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Large outbreaks in small populations</span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Timing of peak (ICU planning)</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Integration {.doc-section .doc-section-numerical-integration}</span></span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a>**Recommended:**</span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Euler-Maruyama: dt = 0.01-0.1 days</span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Project to non-negative: max(X, 0)</span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Check conservation: S+I+R ≈ N</span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a>**Event Detection:**</span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Extinction: I &lt; 0.5 (declare extinct)</span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Peak: Max I(t)</span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Duration: Time I &gt; threshold</span>
+<span id="cb12-240"><a href="#cb12-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-241"><a href="#cb12-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Monte Carlo Guidelines {.doc-section .doc-section-monte-carlo-guidelines}</span></span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a>**Ensemble Analysis:**</span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>N_runs = 100-1,000</span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Compute: Extinction probability, mean final size</span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Histogram: Final R (bimodal if near threshold)</span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Deterministic {.doc-section .doc-section-comparison-with-deterministic}</span></span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a>**Deterministic:**</span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Smooth epidemic curve</span>
+<span id="cb12-252"><a href="#cb12-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Single final size</span>
+<span id="cb12-253"><a href="#cb12-253" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ sharp threshold</span>
+<span id="cb12-254"><a href="#cb12-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-255"><a href="#cb12-255" aria-hidden="true" tabindex="-1"></a>**Stochastic:**</span>
+<span id="cb12-256"><a href="#cb12-256" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Variable epidemic curves</span>
+<span id="cb12-257"><a href="#cb12-257" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Distribution of final sizes</span>
+<span id="cb12-258"><a href="#cb12-258" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ probabilistic threshold</span>
+<span id="cb12-259"><a href="#cb12-259" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Extinction possible</span>
+<span id="cb12-260"><a href="#cb12-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-261"><a href="#cb12-261" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb12-262"><a href="#cb12-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-263"><a href="#cb12-263" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Additive noise (not √ diffusion)</span>
+<span id="cb12-264"><a href="#cb12-264" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Independent noise (should be correlated)</span>
+<span id="cb12-265"><a href="#cb12-265" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Homogeneous mixing (no network structure)</span>
+<span id="cb12-266"><a href="#cb12-266" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constant β, γ (no seasonality)</span>
+<span id="cb12-267"><a href="#cb12-267" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Closed population (no births/deaths)</span>
+<span id="cb12-268"><a href="#cb12-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-269"><a href="#cb12-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb12-270"><a href="#cb12-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-271"><a href="#cb12-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SEIR: Add Exposed class</span>
+<span id="cb12-272"><a href="#cb12-272" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Age structure: Multiple age groups</span>
+<span id="cb12-273"><a href="#cb12-273" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Spatial: Geographic spread</span>
+<span id="cb12-274"><a href="#cb12-274" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Network: Contact structure</span>
+<span id="cb12-275"><a href="#cb12-275" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Time-varying: Seasonal β(t)</span>
+<span id="cb12-276"><a href="#cb12-276" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Vaccination: Control via S → R</span>
+<span id="cb12-277"><a href="#cb12-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-278"><a href="#cb12-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also {.doc-section .doc-section-see-also}</span></span>
+<span id="cb12-279"><a href="#cb12-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-280"><a href="#cb12-280" aria-hidden="true" tabindex="-1"></a>CoxIngersollRoss : Similar √ diffusion structure</span>
+<span id="cb12-281"><a href="#cb12-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-282"><a href="#cb12-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-284"><a href="#cb12-284" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb12-285"><a href="#cb12-285" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb12-286"><a href="#cb12-286" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">check_conservation</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation)</span> <span class="pp">|</span> Check conservation constraint S + I + R = N. <span class="pp">|</span></span>
+<span id="cb12-287"><a href="#cb12-287" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system)</span> <span class="pp">|</span> Define stochastic SIR epidemic dynamics. <span class="pp">|</span></span>
+<span id="cb12-288"><a href="#cb12-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">estimate_extinction_probability</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability)</span> <span class="pp">|</span> Estimate probability of stochastic extinction (approximation). <span class="pp">|</span></span>
+<span id="cb12-289"><a href="#cb12-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_basic_reproduction_number</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number)</span> <span class="pp">|</span> Get basic reproduction number R₀ = β/γ. <span class="pp">|</span></span>
+<span id="cb12-290"><a href="#cb12-290" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_herd_immunity_threshold</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold)</span> <span class="pp">|</span> Get herd immunity threshold H = 1 - 1/R₀. <span class="pp">|</span></span>
+<span id="cb12-291"><a href="#cb12-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-292"><a href="#cb12-292" aria-hidden="true" tabindex="-1"></a><span class="fu">### check_conservation { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.check_conservation }</span></span>
+<span id="cb12-293"><a href="#cb12-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-294"><a href="#cb12-294" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-295"><a href="#cb12-295" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.check_conservation(x)</span>
+<span id="cb12-296"><a href="#cb12-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-297"><a href="#cb12-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-298"><a href="#cb12-298" aria-hidden="true" tabindex="-1"></a>Check conservation constraint S + I + R = N.</span>
+<span id="cb12-299"><a href="#cb12-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-300"><a href="#cb12-300" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-301"><a href="#cb12-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-302"><a href="#cb12-302" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description     <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb12-303"><a href="#cb12-303" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|-----------------|------------|</span></span>
+<span id="cb12-304"><a href="#cb12-304" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x      <span class="pp">|</span> np.ndarray <span class="pp">|</span> State <span class="co">[</span><span class="ot">S, I, R</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-305"><a href="#cb12-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-306"><a href="#cb12-306" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-307"><a href="#cb12-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-308"><a href="#cb12-308" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                  <span class="pp">|</span></span>
+<span id="cb12-309"><a href="#cb12-309" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------|</span></span>
+<span id="cb12-310"><a href="#cb12-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Absolute error <span class="sc">\|</span>S+I+R - N<span class="sc">\|</span> <span class="pp">|</span></span>
+<span id="cb12-311"><a href="#cb12-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-312"><a href="#cb12-312" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-313"><a href="#cb12-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-314"><a href="#cb12-314" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-315"><a href="#cb12-315" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(N<span class="op">=</span><span class="dv">1000</span>)</span>
+<span id="cb12-316"><a href="#cb12-316" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> np.array([<span class="dv">500</span>, <span class="dv">200</span>, <span class="dv">300</span>])</span>
+<span id="cb12-317"><a href="#cb12-317" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> error <span class="op">=</span> sir.check_conservation(x)</span>
+<span id="cb12-318"><a href="#cb12-318" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conservation error: </span><span class="sc">{</span>error<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-319"><a href="#cb12-319" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-320"><a href="#cb12-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-321"><a href="#cb12-321" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.define_system }</span></span>
+<span id="cb12-322"><a href="#cb12-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-323"><a href="#cb12-323" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-324"><a href="#cb12-324" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.define_system(</span>
+<span id="cb12-325"><a href="#cb12-325" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb12-326"><a href="#cb12-326" aria-hidden="true" tabindex="-1"></a>    gamma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb12-327"><a href="#cb12-327" aria-hidden="true" tabindex="-1"></a>    N<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb12-328"><a href="#cb12-328" aria-hidden="true" tabindex="-1"></a>    sigma_S<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb12-329"><a href="#cb12-329" aria-hidden="true" tabindex="-1"></a>    sigma_I<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb12-330"><a href="#cb12-330" aria-hidden="true" tabindex="-1"></a>    sigma_R<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb12-331"><a href="#cb12-331" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a>Define stochastic SIR epidemic dynamics.</span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name    <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                   <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------|--------|-------------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> beta    <span class="pp">|</span> float  <span class="pp">|</span> Transmission rate <span class="co">[</span><span class="ot">1/day</span><span class="co">]</span> - β = contact rate × transmission probability - Typical: 0.2-2.0 per day - Higher → faster spread   <span class="pp">|</span> <span class="in">`0.5`</span>     <span class="pp">|</span></span>
+<span id="cb12-341"><a href="#cb12-341" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> gamma   <span class="pp">|</span> float  <span class="pp">|</span> Recovery rate <span class="co">[</span><span class="ot">1/day</span><span class="co">]</span> - γ = 1/(infectious period) - Typical: 0.1-1.0 per day - Higher → faster recovery                       <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-342"><a href="#cb12-342" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> N       <span class="pp">|</span> float  <span class="pp">|</span> Total population (constant) - Larger N: More deterministic - Smaller N: More stochastic - Typical: 100-1,000,000              <span class="pp">|</span> <span class="in">`1000.0`</span>  <span class="pp">|</span></span>
+<span id="cb12-343"><a href="#cb12-343" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_S <span class="pp">|</span> float  <span class="pp">|</span> Susceptible noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span> - From demographic noise: ~ √(β·S·I/N²) - Typical: 0.01-1.0                              <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-344"><a href="#cb12-344" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_I <span class="pp">|</span> float  <span class="pp">|</span> Infected noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span> - From demographic noise: ~ √(β·S·I/N² + γ·I/N) - Most critical (affects outbreak dynamics) <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-345"><a href="#cb12-345" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_R <span class="pp">|</span> float  <span class="pp">|</span> Recovered noise intensity <span class="co">[</span><span class="ot">1/√day</span><span class="co">]</span> - From demographic noise: ~ √(γ·I/N)                                                       <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb12-348"><a href="#cb12-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-349"><a href="#cb12-349" aria-hidden="true" tabindex="-1"></a>**Basic Reproduction Number:**</span>
+<span id="cb12-350"><a href="#cb12-350" aria-hidden="true" tabindex="-1"></a>    R₀ = β/γ</span>
+<span id="cb12-351"><a href="#cb12-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-352"><a href="#cb12-352" aria-hidden="true" tabindex="-1"></a>Determines epidemic threshold:</span>
+<span id="cb12-353"><a href="#cb12-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ &lt; 1: Dies out (subcritical)</span>
+<span id="cb12-354"><a href="#cb12-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ = 1: Critical (boundary)</span>
+<span id="cb12-355"><a href="#cb12-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>R₀ &gt; 1: Epidemic (supercritical)</span>
+<span id="cb12-356"><a href="#cb12-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-357"><a href="#cb12-357" aria-hidden="true" tabindex="-1"></a>**Stochastic Extinction:**</span>
+<span id="cb12-358"><a href="#cb12-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-359"><a href="#cb12-359" aria-hidden="true" tabindex="-1"></a>Even if R₀ &gt; 1, can randomly die out:</span>
+<span id="cb12-360"><a href="#cb12-360" aria-hidden="true" tabindex="-1"></a>    P(extinction | I₀) ≈ (1/R₀)^{I₀}</span>
+<span id="cb12-361"><a href="#cb12-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-362"><a href="#cb12-362" aria-hidden="true" tabindex="-1"></a>**Example:** R₀ = 2, I₀ = 1 → P_ext = 50%</span>
+<span id="cb12-363"><a href="#cb12-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-364"><a href="#cb12-364" aria-hidden="true" tabindex="-1"></a>**Noise Scaling:**</span>
+<span id="cb12-365"><a href="#cb12-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-366"><a href="#cb12-366" aria-hidden="true" tabindex="-1"></a>Physical demographic noise:</span>
+<span id="cb12-367"><a href="#cb12-367" aria-hidden="true" tabindex="-1"></a>    σ_physical ~ √(rate/N)</span>
+<span id="cb12-368"><a href="#cb12-368" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-369"><a href="#cb12-369" aria-hidden="true" tabindex="-1"></a>For N = 1000, typical rates ~ 0.1-1:</span>
+<span id="cb12-370"><a href="#cb12-370" aria-hidden="true" tabindex="-1"></a>    σ ~ 0.01-0.1</span>
+<span id="cb12-371"><a href="#cb12-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-372"><a href="#cb12-372" aria-hidden="true" tabindex="-1"></a>Larger population → smaller relative noise.</span>
+<span id="cb12-373"><a href="#cb12-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-374"><a href="#cb12-374" aria-hidden="true" tabindex="-1"></a>**Infectious Period:**</span>
+<span id="cb12-375"><a href="#cb12-375" aria-hidden="true" tabindex="-1"></a>    T_inf = 1/γ</span>
+<span id="cb12-376"><a href="#cb12-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-377"><a href="#cb12-377" aria-hidden="true" tabindex="-1"></a>**Examples:**</span>
+<span id="cb12-378"><a href="#cb12-378" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Influenza: 2-3 days (γ ≈ 0.4)</span>
+<span id="cb12-379"><a href="#cb12-379" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>COVID-19: 7-14 days (γ ≈ 0.1)</span>
+<span id="cb12-380"><a href="#cb12-380" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measles: 7-10 days (γ ≈ 0.12)</span>
+<span id="cb12-381"><a href="#cb12-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-382"><a href="#cb12-382" aria-hidden="true" tabindex="-1"></a>**Herd Immunity:**</span>
+<span id="cb12-383"><a href="#cb12-383" aria-hidden="true" tabindex="-1"></a>    H = 1 - 1/R₀</span>
+<span id="cb12-384"><a href="#cb12-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-385"><a href="#cb12-385" aria-hidden="true" tabindex="-1"></a>Fraction immune needed to prevent epidemic.</span>
+<span id="cb12-386"><a href="#cb12-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-387"><a href="#cb12-387" aria-hidden="true" tabindex="-1"></a>**Validation:**</span>
+<span id="cb12-388"><a href="#cb12-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-389"><a href="#cb12-389" aria-hidden="true" tabindex="-1"></a>Check conservation: S + I + R should equal N.</span>
+<span id="cb12-390"><a href="#cb12-390" aria-hidden="true" tabindex="-1"></a>If drifts: Renormalize periodically.</span>
+<span id="cb12-391"><a href="#cb12-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-392"><a href="#cb12-392" aria-hidden="true" tabindex="-1"></a><span class="fu">### estimate_extinction_probability { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability }</span></span>
+<span id="cb12-393"><a href="#cb12-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-394"><a href="#cb12-394" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-395"><a href="#cb12-395" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.estimate_extinction_probability(</span>
+<span id="cb12-396"><a href="#cb12-396" aria-hidden="true" tabindex="-1"></a>    I0,</span>
+<span id="cb12-397"><a href="#cb12-397" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-398"><a href="#cb12-398" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-399"><a href="#cb12-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-400"><a href="#cb12-400" aria-hidden="true" tabindex="-1"></a>Estimate probability of stochastic extinction (approximation).</span>
+<span id="cb12-401"><a href="#cb12-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-402"><a href="#cb12-402" aria-hidden="true" tabindex="-1"></a>For R₀ &gt; 1: P_ext ≈ (1/R₀)^{I₀}</span>
+<span id="cb12-403"><a href="#cb12-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-404"><a href="#cb12-404" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-405"><a href="#cb12-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-406"><a href="#cb12-406" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description             <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb12-407"><a href="#cb12-407" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------|------------|</span></span>
+<span id="cb12-408"><a href="#cb12-408" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> I0     <span class="pp">|</span> float  <span class="pp">|</span> Initial number infected <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-409"><a href="#cb12-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-410"><a href="#cb12-410" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-411"><a href="#cb12-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-412"><a href="#cb12-412" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description            <span class="pp">|</span></span>
+<span id="cb12-413"><a href="#cb12-413" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------|</span></span>
+<span id="cb12-414"><a href="#cb12-414" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Extinction probability <span class="pp">|</span></span>
+<span id="cb12-415"><a href="#cb12-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-416"><a href="#cb12-416" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-417"><a href="#cb12-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-418"><a href="#cb12-418" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-419"><a href="#cb12-419" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.6</span>, gamma<span class="op">=</span><span class="fl">0.2</span>)  <span class="co"># R₀=3</span></span>
+<span id="cb12-420"><a href="#cb12-420" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> P_ext_1 <span class="op">=</span> sir.estimate_extinction_probability(I0<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb12-421"><a href="#cb12-421" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> P_ext_10 <span class="op">=</span> sir.estimate_extinction_probability(I0<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb12-422"><a href="#cb12-422" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"1 infected: P_ext = </span><span class="sc">{</span>P_ext_1<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb12-423"><a href="#cb12-423" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"10 infected: P_ext = </span><span class="sc">{</span>P_ext_10<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb12-424"><a href="#cb12-424" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-425"><a href="#cb12-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-426"><a href="#cb12-426" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_basic_reproduction_number { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number }</span></span>
+<span id="cb12-427"><a href="#cb12-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-428"><a href="#cb12-428" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-429"><a href="#cb12-429" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.get_basic_reproduction_number(</span>
+<span id="cb12-430"><a href="#cb12-430" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-431"><a href="#cb12-431" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-432"><a href="#cb12-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-433"><a href="#cb12-433" aria-hidden="true" tabindex="-1"></a>Get basic reproduction number R₀ = β/γ.</span>
+<span id="cb12-434"><a href="#cb12-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-435"><a href="#cb12-435" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-436"><a href="#cb12-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-437"><a href="#cb12-437" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description   <span class="pp">|</span></span>
+<span id="cb12-438"><a href="#cb12-438" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------|</span></span>
+<span id="cb12-439"><a href="#cb12-439" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> R₀            <span class="pp">|</span></span>
+<span id="cb12-440"><a href="#cb12-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-441"><a href="#cb12-441" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-442"><a href="#cb12-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-443"><a href="#cb12-443" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-444"><a href="#cb12-444" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.5</span>, gamma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-445"><a href="#cb12-445" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> R0 <span class="op">=</span> sir.get_basic_reproduction_number()</span>
+<span id="cb12-446"><a href="#cb12-446" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"R₀ = </span><span class="sc">{</span>R0<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb12-447"><a href="#cb12-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-448"><a href="#cb12-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-449"><a href="#cb12-449" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_herd_immunity_threshold { #cdesym.systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold }</span></span>
+<span id="cb12-450"><a href="#cb12-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-451"><a href="#cb12-451" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-452"><a href="#cb12-452" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.StochasticSIR.get_herd_immunity_threshold(</span>
+<span id="cb12-453"><a href="#cb12-453" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-454"><a href="#cb12-454" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-455"><a href="#cb12-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-456"><a href="#cb12-456" aria-hidden="true" tabindex="-1"></a>Get herd immunity threshold H = 1 - 1/R₀.</span>
+<span id="cb12-457"><a href="#cb12-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-458"><a href="#cb12-458" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-459"><a href="#cb12-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-460"><a href="#cb12-460" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                        <span class="pp">|</span></span>
+<span id="cb12-461"><a href="#cb12-461" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------|</span></span>
+<span id="cb12-462"><a href="#cb12-462" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Herd immunity threshold (fraction) <span class="pp">|</span></span>
+<span id="cb12-463"><a href="#cb12-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-464"><a href="#cb12-464" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-465"><a href="#cb12-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-466"><a href="#cb12-466" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-467"><a href="#cb12-467" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sir <span class="op">=</span> StochasticSIR(beta<span class="op">=</span><span class="fl">0.5</span>, gamma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-468"><a href="#cb12-468" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> H <span class="op">=</span> sir.get_herd_immunity_threshold()</span>
+<span id="cb12-469"><a href="#cb12-469" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Herd immunity: </span><span class="sc">{</span>H<span class="sc">:.1%}</span><span class="ss">"</span>)</span>
+<span id="cb12-470"><a href="#cb12-470" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.continuous.StochasticSIR.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

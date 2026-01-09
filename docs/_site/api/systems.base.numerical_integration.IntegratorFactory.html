@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.base.numerical_integration.integratorfactory – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory" class="nav-link active" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory">systems.base.numerical_integration.IntegratorFactory</a>
+  <ul>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.auto" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.auto" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.auto">auto</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.create" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.create" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.create">create</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational">for_educational</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia">for_julia</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#examples-4" id="toc-examples-4" class="nav-link" data-scroll-target="#examples-4">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode">for_neural_ode</a>
+  <ul class="collapse">
+  <li><a href="#parameters-4" id="toc-parameters-4" class="nav-link" data-scroll-target="#parameters-4">Parameters</a></li>
+  <li><a href="#returns-4" id="toc-returns-4" class="nav-link" data-scroll-target="#returns-4">Returns</a></li>
+  <li><a href="#examples-5" id="toc-examples-5" class="nav-link" data-scroll-target="#examples-5">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization">for_optimization</a>
+  <ul class="collapse">
+  <li><a href="#parameters-5" id="toc-parameters-5" class="nav-link" data-scroll-target="#parameters-5">Parameters</a></li>
+  <li><a href="#returns-5" id="toc-returns-5" class="nav-link" data-scroll-target="#returns-5">Returns</a></li>
+  <li><a href="#examples-6" id="toc-examples-6" class="nav-link" data-scroll-target="#examples-6">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_production" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_production" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_production">for_production</a>
+  <ul class="collapse">
+  <li><a href="#parameters-6" id="toc-parameters-6" class="nav-link" data-scroll-target="#parameters-6">Parameters</a></li>
+  <li><a href="#returns-6" id="toc-returns-6" class="nav-link" data-scroll-target="#returns-6">Returns</a></li>
+  <li><a href="#examples-7" id="toc-examples-7" class="nav-link" data-scroll-target="#examples-7">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple">for_simple</a>
+  <ul class="collapse">
+  <li><a href="#parameters-7" id="toc-parameters-7" class="nav-link" data-scroll-target="#parameters-7">Parameters</a></li>
+  <li><a href="#returns-7" id="toc-returns-7" class="nav-link" data-scroll-target="#returns-7">Returns</a></li>
+  <li><a href="#examples-8" id="toc-examples-8" class="nav-link" data-scroll-target="#examples-8">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.get_info" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.get_info" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.get_info">get_info</a>
+  <ul class="collapse">
+  <li><a href="#parameters-8" id="toc-parameters-8" class="nav-link" data-scroll-target="#parameters-8">Parameters</a></li>
+  <li><a href="#returns-8" id="toc-returns-8" class="nav-link" data-scroll-target="#returns-8">Returns</a></li>
+  <li><a href="#examples-9" id="toc-examples-9" class="nav-link" data-scroll-target="#examples-9">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods">list_methods</a></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.recommend" id="toc-cdesym.systems.base.numerical_integration.IntegratorFactory.recommend" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.IntegratorFactory.recommend">recommend</a>
+  <ul class="collapse">
+  <li><a href="#parameters-9" id="toc-parameters-9" class="nav-link" data-scroll-target="#parameters-9">Parameters</a></li>
+  <li><a href="#returns-9" id="toc-returns-9" class="nav-link" data-scroll-target="#returns-9">Returns</a></li>
+  <li><a href="#examples-10" id="toc-examples-10" class="nav-link" data-scroll-target="#examples-10">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.base.numerical_integration.IntegratorFactory.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory" class="level1">
+<h1>systems.base.numerical_integration.IntegratorFactory</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Factory for creating numerical integrators.</p>
+<p>Provides convenient methods for creating integrators based on: - Backend (numpy, torch, jax) - Method (RK45, dopri5, tsit5, Tsit5, etc.) - Use case (production, optimization, neural ODE, julia)</p>
+<p>Supports: - Scipy (numpy): LSODA, RK45, BDF, Radau, etc. - DiffEqPy (numpy): Tsit5, Vern9, Rosenbrock23, etc. (Julia solvers) - TorchDiffEq (torch): dopri5, dopri8, etc. - Diffrax (jax): tsit5, dopri5, etc. - Manual (any): euler, midpoint, rk4</p>
+<p>All integrators support autonomous systems (nu=0) by passing u=None.</p>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Create integrator by backend and method</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'LSODA'</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia solver</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'Tsit5'</span>  <span class="co"># Capital T = Julia</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Automatic selection</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Use case-specific</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(system)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(system, algorithm<span class="op">=</span><span class="st">'Vern9'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.auto">auto</a></td>
+<td>Automatically select best integrator for system.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.create">create</a></td>
+<td>Create an integrator with specified backend and method.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational">for_educational</a></td>
+<td>Create Euler fixed-step integrator.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia">for_julia</a></td>
+<td>Create Julia-based integrator using DiffEqPy.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode">for_neural_ode</a></td>
+<td>Create integrator for Neural ODE training.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization">for_optimization</a></td>
+<td>Create integrator optimized for gradient-based optimization.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_production">for_production</a></td>
+<td>Create integrator for production use.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple">for_simple</a></td>
+<td>Create simple RK4 fixed-step integrator.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.get_info">get_info</a></td>
+<td>Get information about a specific integrator configuration.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods">list_methods</a></td>
+<td>List available methods for each backend.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.IntegratorFactory.recommend">recommend</a></td>
+<td>Get recommended integrator configuration for a use case.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.auto" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.auto">auto</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.auto(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    prefer_backend<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Automatically select best integrator for system.</p>
+<p>Selection logic: 1. If JAX available and no backend preference → Diffrax (fast + accurate) 2. If PyTorch available and no backend preference → TorchDiffEq 3. Otherwise → Scipy (always available)</p>
+<section id="parameters" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 24%">
+<col style="width: 47%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>prefer_backend</td>
+<td>Optional[str]</td>
+<td>Preferred backend if available</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>**options</td>
+<td></td>
+<td>Additional options</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Best available integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system, prefer_backend<span class="op">=</span><span class="st">'jax'</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Works with autonomous systems</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.create" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.create">create</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.create(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    method<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    step_mode<span class="op">=</span>StepMode.ADAPTIVE,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create an integrator with specified backend and method.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 9%">
+<col style="width: 78%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>backend</td>
+<td>str</td>
+<td>Backend: ‘numpy’, ‘torch’, ‘jax’. Default: ‘numpy’</td>
+<td><code>'numpy'</code></td>
+</tr>
+<tr class="odd">
+<td>method</td>
+<td>Optional[str]</td>
+<td>Solver method. If None, uses backend default. - numpy: ‘LSODA’ (scipy, auto-stiffness) - numpy with capital: ‘Tsit5’ (Julia via DiffEqPy) - torch: ‘dopri5’ (general adaptive) - jax: ‘tsit5’ (general adaptive)</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>Optional[ScalarLike]</td>
+<td>Time step (required for FIXED mode)</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>step_mode</td>
+<td>StepMode</td>
+<td>FIXED or ADAPTIVE stepping</td>
+<td><code>StepMode.ADAPTIVE</code></td>
+</tr>
+<tr class="even">
+<td>**options</td>
+<td></td>
+<td>Additional integrator options (rtol, atol, etc.) Note: For JAX backend, ‘solver’ in options will be treated as ‘method’</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Configured integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If backend/method combination is invalid</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>ImportError</td>
+<td>If required package not installed</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Use defaults (scipy)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(system)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia solver</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'numpy'</span>, method<span class="op">=</span><span class="st">'Tsit5'</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Specify JAX method (both calling styles work)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'jax'</span>, method<span class="op">=</span><span class="st">'dopri5'</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># OR</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'jax'</span>, solver<span class="op">=</span><span class="st">'dopri5'</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Fixed-step</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'rk4'</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>...     step_mode<span class="op">=</span>StepMode.FIXED</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(autonomous_system)</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational">for_educational</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_educational(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create Euler fixed-step integrator.</p>
+<p>Simplest method for learning and debugging.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 26%">
+<col style="width: 50%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>ScalarLike</td>
+<td>Time step</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="odd">
+<td>backend</td>
+<td>str</td>
+<td>Backend to use</td>
+<td><code>'numpy'</code></td>
+</tr>
+<tr class="even">
+<td>**options</td>
+<td></td>
+<td>Additional options</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Euler integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_educational(system, dt<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_educational(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia">for_julia</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_julia(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    algorithm<span class="op">=</span><span class="st">'Tsit5'</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create Julia-based integrator using DiffEqPy.</p>
+<p>Provides access to Julia’s extensive solver library.</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 16%">
+<col style="width: 68%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>algorithm</td>
+<td>str</td>
+<td>Julia algorithm name. Default: ‘Tsit5’ Examples: ‘Vern9’, ‘Rosenbrock23’, ‘AutoTsit5(Rosenbrock23())’</td>
+<td><code>'Tsit5'</code></td>
+</tr>
+<tr class="odd">
+<td>**options</td>
+<td></td>
+<td>Additional options (reltol, abstol, etc.)</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Julia-powered integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-4" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-4">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># High-accuracy solver</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(system, algorithm<span class="op">=</span><span class="st">'Vern9'</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Stiff system</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>...     system, algorithm<span class="op">=</span><span class="st">'Rosenbrock23'</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode">for_neural_ode</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_neural_ode(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    use_adjoint<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create integrator for Neural ODE training.</p>
+<p>Uses PyTorch with adjoint method for memory-efficient backpropagation.</p>
+<section id="parameters-4" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 25%">
+<col style="width: 48%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>Neural ODE system (should be torch.nn.Module)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>use_adjoint</td>
+<td>bool</td>
+<td>Use adjoint method for backprop. Default: True</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td>**options</td>
+<td></td>
+<td>Additional options</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-4" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-4">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Neural ODE integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-5" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-5">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> neural_ode <span class="op">=</span> MyNeuralODE()  <span class="co"># torch.nn.Module</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_neural_ode(neural_ode)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization">for_optimization</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_optimization(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    prefer_backend<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create integrator optimized for gradient-based optimization.</p>
+<p>Prefers JAX (Diffrax) for best performance with gradients. Falls back to PyTorch if JAX unavailable.</p>
+<section id="parameters-5" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 24%">
+<col style="width: 47%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>prefer_backend</td>
+<td>Optional[str]</td>
+<td>Force specific backend (‘jax’ or ‘torch’)</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>**options</td>
+<td></td>
+<td>Additional options</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-5" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-5">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Optimization-ready integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-6" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-6">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system, prefer_backend<span class="op">=</span><span class="st">'torch'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_production" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_production">for_production</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_production(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    use_julia<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create integrator for production use.</p>
+<p>Uses scipy.LSODA (default) or Julia’s AutoTsit5 (if use_julia=True) with automatic stiffness detection. Most reliable choices.</p>
+<section id="parameters-6" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-6">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 24%">
+<col style="width: 53%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>use_julia</td>
+<td>bool</td>
+<td>If True, use Julia’s AutoTsit5. Default: False (scipy)</td>
+<td><code>False</code></td>
+</tr>
+<tr class="odd">
+<td>**options</td>
+<td></td>
+<td>Additional options (rtol, atol, etc.)</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-6" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-6">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>Production-grade integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-7" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-7">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Scipy (default)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>...     system, rtol<span class="op">=</span><span class="fl">1e-9</span>, atol<span class="op">=</span><span class="fl">1e-11</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia (if installed)</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>...     system, use_julia<span class="op">=</span><span class="va">True</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple">for_simple</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_simple(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create simple RK4 fixed-step integrator.</p>
+<p>Good for prototyping and educational purposes.</p>
+<section id="parameters-7" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-7">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 26%">
+<col style="width: 50%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system</td>
+<td>SymbolicDynamicalSystem</td>
+<td>System to integrate (controlled or autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>ScalarLike</td>
+<td>Time step</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="odd">
+<td>backend</td>
+<td>str</td>
+<td>Backend to use</td>
+<td><code>'numpy'</code></td>
+</tr>
+<tr class="even">
+<td>**options</td>
+<td></td>
+<td>Additional options</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-7" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-7">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>IntegratorBase</td>
+<td>RK4 integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-8" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-8">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_simple(system, dt<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_simple(autonomous_system)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.get_info" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.get_info">get_info</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.get_info(backend, method)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get information about a specific integrator configuration.</p>
+<p>Delegates to integrator-specific info functions where available.</p>
+<section id="parameters-8" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-8">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>backend</td>
+<td>str</td>
+<td>Backend name</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>method</td>
+<td>str</td>
+<td>Method name</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-8" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-8">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Dict[str, Any]</td>
+<td>Information about the integrator</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-9" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-9">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'jax'</span>, <span class="st">'tsit5'</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">'Excellent general purpose, JAX-optimized'</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'numpy'</span>, <span class="st">'Tsit5'</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">'Excellent general-purpose solver with good efficiency'</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'numpy'</span>, <span class="st">'Vern7'</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])  <span class="co"># Works even if not in hardcoded list!</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods">list_methods</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.list_methods(backend<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>List available methods for each backend.</p>
+<p>Delegates to method_registry for base methods, then adds Julia ODE methods.</p>
+</section>
+<section id="cdesym.systems.base.numerical_integration.IntegratorFactory.recommend" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.IntegratorFactory.recommend">recommend</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.recommend(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    use_case,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    has_gpu<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get recommended integrator configuration for a use case.</p>
+<section id="parameters-9" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-9">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 74%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>use_case</td>
+<td>str</td>
+<td>Use case: ‘production’, ‘optimization’, ‘neural_ode’, ‘simple’, ‘julia’, ‘educational’</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>has_gpu</td>
+<td>bool</td>
+<td>Whether GPU is available</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-9" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-9">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 19%">
+<col style="width: 72%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Dict[str, Any]</td>
+<td>Recommended configuration with ‘backend’, ‘method’, ‘description’</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-10" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-10">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rec <span class="op">=</span> IntegratorFactory.recommend(<span class="st">'optimization'</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(rec[<span class="st">'backend'</span>], rec[<span class="st">'method'</span>])</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">'jax'</span> <span class="st">'tsit5'</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rec <span class="op">=</span> IntegratorFactory.recommend(<span class="st">'production'</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(rec[<span class="st">'description'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.base.numerical_integration.IntegratorFactory { #cdesym.systems.base.numerical_integration.IntegratorFactory }</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>Factory for creating numerical integrators.</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>Provides convenient methods for creating integrators based on:</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Backend (numpy, torch, jax)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Method (RK45, dopri5, tsit5, Tsit5, etc.)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use case (production, optimization, neural ODE, julia)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>Supports:</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Scipy (numpy): LSODA, RK45, BDF, Radau, etc.</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>DiffEqPy (numpy): Tsit5, Vern9, Rosenbrock23, etc. (Julia solvers)</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>TorchDiffEq (torch): dopri5, dopri8, etc.</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Diffrax (jax): tsit5, dopri5, etc.</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Manual (any): euler, midpoint, rk4</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>All integrators support autonomous systems (nu=0) by passing u=None.</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Create integrator by backend and method</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'LSODA'</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia solver</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'Tsit5'</span>  <span class="co"># Capital T = Julia</span></span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Automatic selection</span></span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system)</span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Use case-specific</span></span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system)</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(system)</span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(system, algorithm<span class="op">=</span><span class="st">'Vern9'</span>)</span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">auto</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.auto)</span> <span class="pp">|</span> Automatically select best integrator for system. <span class="pp">|</span></span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">create</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.create)</span> <span class="pp">|</span> Create an integrator with specified backend and method. <span class="pp">|</span></span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_educational</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational)</span> <span class="pp">|</span> Create Euler fixed-step integrator. <span class="pp">|</span></span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_julia</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia)</span> <span class="pp">|</span> Create Julia-based integrator using DiffEqPy. <span class="pp">|</span></span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_neural_ode</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode)</span> <span class="pp">|</span> Create integrator for Neural ODE training. <span class="pp">|</span></span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_optimization</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization)</span> <span class="pp">|</span> Create integrator optimized for gradient-based optimization. <span class="pp">|</span></span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_production</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_production)</span> <span class="pp">|</span> Create integrator for production use. <span class="pp">|</span></span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">for_simple</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple)</span> <span class="pp">|</span> Create simple RK4 fixed-step integrator. <span class="pp">|</span></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_info</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.get_info)</span> <span class="pp">|</span> Get information about a specific integrator configuration. <span class="pp">|</span></span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">list_methods</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods)</span> <span class="pp">|</span> List available methods for each backend. <span class="pp">|</span></span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">recommend</span><span class="co">](#cdesym.systems.base.numerical_integration.IntegratorFactory.recommend)</span> <span class="pp">|</span> Get recommended integrator configuration for a use case. <span class="pp">|</span></span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### auto { #cdesym.systems.base.numerical_integration.IntegratorFactory.auto }</span></span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.auto(</span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>    prefer_backend<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a>Automatically select best integrator for system.</span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a>Selection logic:</span>
+<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>If JAX available and no backend preference → Diffrax (fast + accurate)</span>
+<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>If PyTorch available and no backend preference → TorchDiffEq</span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Otherwise → Scipy (always available)</span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name           <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                    <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-85"><a href="#cb24-85" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------------|-------------------------|------------------------------------------------|------------|</span></span>
+<span id="cb24-86"><a href="#cb24-86" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system         <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous) <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-87"><a href="#cb24-87" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> prefer_backend <span class="pp">|</span> Optional<span class="sc">\[</span>str<span class="sc">\]</span>         <span class="pp">|</span> Preferred backend if available                 <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb24-88"><a href="#cb24-88" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options      <span class="pp">|</span>                         <span class="pp">|</span> Additional options                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-89"><a href="#cb24-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-92"><a href="#cb24-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description               <span class="pp">|</span></span>
+<span id="cb24-93"><a href="#cb24-93" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|---------------------------|</span></span>
+<span id="cb24-94"><a href="#cb24-94" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Best available integrator <span class="pp">|</span></span>
+<span id="cb24-95"><a href="#cb24-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system)</span>
+<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(system, prefer_backend<span class="op">=</span><span class="st">'jax'</span>)</span>
+<span id="cb24-101"><a href="#cb24-101" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-102"><a href="#cb24-102" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Works with autonomous systems</span></span>
+<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.auto(autonomous_system)</span>
+<span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### create { #cdesym.systems.base.numerical_integration.IntegratorFactory.create }</span></span>
+<span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.create(</span>
+<span id="cb24-110"><a href="#cb24-110" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-111"><a href="#cb24-111" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-112"><a href="#cb24-112" aria-hidden="true" tabindex="-1"></a>    method<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-113"><a href="#cb24-113" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-114"><a href="#cb24-114" aria-hidden="true" tabindex="-1"></a>    step_mode<span class="op">=</span>StepMode.ADAPTIVE,</span>
+<span id="cb24-115"><a href="#cb24-115" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-116"><a href="#cb24-116" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-117"><a href="#cb24-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-118"><a href="#cb24-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-119"><a href="#cb24-119" aria-hidden="true" tabindex="-1"></a>Create an integrator with specified backend and method.</span>
+<span id="cb24-120"><a href="#cb24-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-121"><a href="#cb24-121" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-122"><a href="#cb24-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-123"><a href="#cb24-123" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                                                                                                                                                                                      <span class="pp">|</span> Default             <span class="pp">|</span></span>
+<span id="cb24-124"><a href="#cb24-124" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|</span></span>
+<span id="cb24-125"><a href="#cb24-125" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system    <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous)                                                                                                                                                                   <span class="pp">|</span> _required_          <span class="pp">|</span></span>
+<span id="cb24-126"><a href="#cb24-126" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> backend   <span class="pp">|</span> str                     <span class="pp">|</span> Backend: 'numpy', 'torch', 'jax'. Default: 'numpy'                                                                                                                                                               <span class="pp">|</span> <span class="in">`'numpy'`</span>           <span class="pp">|</span></span>
+<span id="cb24-127"><a href="#cb24-127" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> method    <span class="pp">|</span> Optional<span class="sc">\[</span>str<span class="sc">\]</span>         <span class="pp">|</span> Solver method. If None, uses backend default. - numpy: 'LSODA' (scipy, auto-stiffness) - numpy with capital: 'Tsit5' (Julia via DiffEqPy) - torch: 'dopri5' (general adaptive) - jax: 'tsit5' (general adaptive) <span class="pp">|</span> <span class="in">`None`</span>              <span class="pp">|</span></span>
+<span id="cb24-128"><a href="#cb24-128" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt        <span class="pp">|</span> Optional<span class="sc">\[</span>ScalarLike<span class="sc">\]</span>  <span class="pp">|</span> Time step (required for FIXED mode)                                                                                                                                                                              <span class="pp">|</span> <span class="in">`None`</span>              <span class="pp">|</span></span>
+<span id="cb24-129"><a href="#cb24-129" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> step_mode <span class="pp">|</span> StepMode                <span class="pp">|</span> FIXED or ADAPTIVE stepping                                                                                                                                                                                       <span class="pp">|</span> <span class="in">`StepMode.ADAPTIVE`</span> <span class="pp">|</span></span>
+<span id="cb24-130"><a href="#cb24-130" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options <span class="pp">|</span>                         <span class="pp">|</span> Additional integrator options (rtol, atol, etc.) Note: For JAX backend, 'solver' in options will be treated as 'method'                                                                                          <span class="pp">|</span> <span class="in">`{}`</span>                <span class="pp">|</span></span>
+<span id="cb24-131"><a href="#cb24-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-132"><a href="#cb24-132" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-133"><a href="#cb24-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-134"><a href="#cb24-134" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description           <span class="pp">|</span></span>
+<span id="cb24-135"><a href="#cb24-135" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|-----------------------|</span></span>
+<span id="cb24-136"><a href="#cb24-136" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Configured integrator <span class="pp">|</span></span>
+<span id="cb24-137"><a href="#cb24-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-138"><a href="#cb24-138" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb24-139"><a href="#cb24-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-140"><a href="#cb24-140" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type        <span class="pp">|</span> Description                              <span class="pp">|</span></span>
+<span id="cb24-141"><a href="#cb24-141" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------|------------------------------------------|</span></span>
+<span id="cb24-142"><a href="#cb24-142" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError  <span class="pp">|</span> If backend/method combination is invalid <span class="pp">|</span></span>
+<span id="cb24-143"><a href="#cb24-143" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ImportError <span class="pp">|</span> If required package not installed        <span class="pp">|</span></span>
+<span id="cb24-144"><a href="#cb24-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-145"><a href="#cb24-145" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-146"><a href="#cb24-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-147"><a href="#cb24-147" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-148"><a href="#cb24-148" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Use defaults (scipy)</span></span>
+<span id="cb24-149"><a href="#cb24-149" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(system)</span>
+<span id="cb24-150"><a href="#cb24-150" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-151"><a href="#cb24-151" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia solver</span></span>
+<span id="cb24-152"><a href="#cb24-152" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-153"><a href="#cb24-153" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'numpy'</span>, method<span class="op">=</span><span class="st">'Tsit5'</span></span>
+<span id="cb24-154"><a href="#cb24-154" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-155"><a href="#cb24-155" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-156"><a href="#cb24-156" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Specify JAX method (both calling styles work)</span></span>
+<span id="cb24-157"><a href="#cb24-157" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-158"><a href="#cb24-158" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'jax'</span>, method<span class="op">=</span><span class="st">'dopri5'</span></span>
+<span id="cb24-159"><a href="#cb24-159" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-160"><a href="#cb24-160" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># OR</span></span>
+<span id="cb24-161"><a href="#cb24-161" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-162"><a href="#cb24-162" aria-hidden="true" tabindex="-1"></a>...     system, backend<span class="op">=</span><span class="st">'jax'</span>, solver<span class="op">=</span><span class="st">'dopri5'</span></span>
+<span id="cb24-163"><a href="#cb24-163" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-164"><a href="#cb24-164" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-165"><a href="#cb24-165" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Fixed-step</span></span>
+<span id="cb24-166"><a href="#cb24-166" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(</span>
+<span id="cb24-167"><a href="#cb24-167" aria-hidden="true" tabindex="-1"></a>...     system,</span>
+<span id="cb24-168"><a href="#cb24-168" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-169"><a href="#cb24-169" aria-hidden="true" tabindex="-1"></a>...     method<span class="op">=</span><span class="st">'rk4'</span>,</span>
+<span id="cb24-170"><a href="#cb24-170" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb24-171"><a href="#cb24-171" aria-hidden="true" tabindex="-1"></a>...     step_mode<span class="op">=</span>StepMode.FIXED</span>
+<span id="cb24-172"><a href="#cb24-172" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-173"><a href="#cb24-173" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-174"><a href="#cb24-174" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-175"><a href="#cb24-175" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.create(autonomous_system)</span>
+<span id="cb24-176"><a href="#cb24-176" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb24-177"><a href="#cb24-177" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb24-178"><a href="#cb24-178" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb24-179"><a href="#cb24-179" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb24-180"><a href="#cb24-180" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-181"><a href="#cb24-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-182"><a href="#cb24-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-183"><a href="#cb24-183" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_educational { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_educational }</span></span>
+<span id="cb24-184"><a href="#cb24-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-185"><a href="#cb24-185" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-186"><a href="#cb24-186" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_educational(</span>
+<span id="cb24-187"><a href="#cb24-187" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-188"><a href="#cb24-188" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb24-189"><a href="#cb24-189" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-190"><a href="#cb24-190" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-191"><a href="#cb24-191" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-192"><a href="#cb24-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-193"><a href="#cb24-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-194"><a href="#cb24-194" aria-hidden="true" tabindex="-1"></a>Create Euler fixed-step integrator.</span>
+<span id="cb24-195"><a href="#cb24-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-196"><a href="#cb24-196" aria-hidden="true" tabindex="-1"></a>Simplest method for learning and debugging.</span>
+<span id="cb24-197"><a href="#cb24-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-198"><a href="#cb24-198" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-199"><a href="#cb24-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-200"><a href="#cb24-200" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                    <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-201"><a href="#cb24-201" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------------|------------------------------------------------|------------|</span></span>
+<span id="cb24-202"><a href="#cb24-202" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system    <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous) <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-203"><a href="#cb24-203" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt        <span class="pp">|</span> ScalarLike              <span class="pp">|</span> Time step                                      <span class="pp">|</span> <span class="in">`0.01`</span>     <span class="pp">|</span></span>
+<span id="cb24-204"><a href="#cb24-204" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> backend   <span class="pp">|</span> str                     <span class="pp">|</span> Backend to use                                 <span class="pp">|</span> <span class="in">`'numpy'`</span>  <span class="pp">|</span></span>
+<span id="cb24-205"><a href="#cb24-205" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options <span class="pp">|</span>                         <span class="pp">|</span> Additional options                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-206"><a href="#cb24-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-207"><a href="#cb24-207" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-208"><a href="#cb24-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-209"><a href="#cb24-209" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description      <span class="pp">|</span></span>
+<span id="cb24-210"><a href="#cb24-210" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|------------------|</span></span>
+<span id="cb24-211"><a href="#cb24-211" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Euler integrator <span class="pp">|</span></span>
+<span id="cb24-212"><a href="#cb24-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-213"><a href="#cb24-213" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-214"><a href="#cb24-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-215"><a href="#cb24-215" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-216"><a href="#cb24-216" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_educational(system, dt<span class="op">=</span><span class="fl">0.001</span>)</span>
+<span id="cb24-217"><a href="#cb24-217" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-218"><a href="#cb24-218" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-219"><a href="#cb24-219" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_educational(autonomous_system)</span>
+<span id="cb24-220"><a href="#cb24-220" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-221"><a href="#cb24-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-222"><a href="#cb24-222" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_julia { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_julia }</span></span>
+<span id="cb24-223"><a href="#cb24-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-224"><a href="#cb24-224" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-225"><a href="#cb24-225" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_julia(</span>
+<span id="cb24-226"><a href="#cb24-226" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-227"><a href="#cb24-227" aria-hidden="true" tabindex="-1"></a>    algorithm<span class="op">=</span><span class="st">'Tsit5'</span>,</span>
+<span id="cb24-228"><a href="#cb24-228" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-229"><a href="#cb24-229" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-230"><a href="#cb24-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-231"><a href="#cb24-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-232"><a href="#cb24-232" aria-hidden="true" tabindex="-1"></a>Create Julia-based integrator using DiffEqPy.</span>
+<span id="cb24-233"><a href="#cb24-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-234"><a href="#cb24-234" aria-hidden="true" tabindex="-1"></a>Provides access to Julia's extensive solver library.</span>
+<span id="cb24-235"><a href="#cb24-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-236"><a href="#cb24-236" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-237"><a href="#cb24-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-238"><a href="#cb24-238" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                                                                           <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-239"><a href="#cb24-239" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------------|-------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb24-240"><a href="#cb24-240" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system    <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous)                                                        <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-241"><a href="#cb24-241" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> algorithm <span class="pp">|</span> str                     <span class="pp">|</span> Julia algorithm name. Default: 'Tsit5' Examples: 'Vern9', 'Rosenbrock23', 'AutoTsit5(Rosenbrock23())' <span class="pp">|</span> <span class="in">`'Tsit5'`</span>  <span class="pp">|</span></span>
+<span id="cb24-242"><a href="#cb24-242" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options <span class="pp">|</span>                         <span class="pp">|</span> Additional options (reltol, abstol, etc.)                                                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-243"><a href="#cb24-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description              <span class="pp">|</span></span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|--------------------------|</span></span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Julia-powered integrator <span class="pp">|</span></span>
+<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-250"><a href="#cb24-250" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-251"><a href="#cb24-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-252"><a href="#cb24-252" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-253"><a href="#cb24-253" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># High-accuracy solver</span></span>
+<span id="cb24-254"><a href="#cb24-254" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(system, algorithm<span class="op">=</span><span class="st">'Vern9'</span>)</span>
+<span id="cb24-255"><a href="#cb24-255" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-256"><a href="#cb24-256" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Stiff system</span></span>
+<span id="cb24-257"><a href="#cb24-257" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(</span>
+<span id="cb24-258"><a href="#cb24-258" aria-hidden="true" tabindex="-1"></a>...     system, algorithm<span class="op">=</span><span class="st">'Rosenbrock23'</span></span>
+<span id="cb24-259"><a href="#cb24-259" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-260"><a href="#cb24-260" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-261"><a href="#cb24-261" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-262"><a href="#cb24-262" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_julia(autonomous_system)</span>
+<span id="cb24-263"><a href="#cb24-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-264"><a href="#cb24-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-265"><a href="#cb24-265" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_neural_ode { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_neural_ode }</span></span>
+<span id="cb24-266"><a href="#cb24-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-267"><a href="#cb24-267" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-268"><a href="#cb24-268" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_neural_ode(</span>
+<span id="cb24-269"><a href="#cb24-269" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-270"><a href="#cb24-270" aria-hidden="true" tabindex="-1"></a>    use_adjoint<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb24-271"><a href="#cb24-271" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-272"><a href="#cb24-272" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-273"><a href="#cb24-273" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-274"><a href="#cb24-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-275"><a href="#cb24-275" aria-hidden="true" tabindex="-1"></a>Create integrator for Neural ODE training.</span>
+<span id="cb24-276"><a href="#cb24-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-277"><a href="#cb24-277" aria-hidden="true" tabindex="-1"></a>Uses PyTorch with adjoint method for memory-efficient backpropagation.</span>
+<span id="cb24-278"><a href="#cb24-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-279"><a href="#cb24-279" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-280"><a href="#cb24-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-281"><a href="#cb24-281" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name        <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                    <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-282"><a href="#cb24-282" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|-------------------------|------------------------------------------------|------------|</span></span>
+<span id="cb24-283"><a href="#cb24-283" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system      <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> Neural ODE system (should be torch.nn.Module)  <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-284"><a href="#cb24-284" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> use_adjoint <span class="pp">|</span> bool                    <span class="pp">|</span> Use adjoint method for backprop. Default: True <span class="pp">|</span> <span class="in">`True`</span>     <span class="pp">|</span></span>
+<span id="cb24-285"><a href="#cb24-285" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options   <span class="pp">|</span>                         <span class="pp">|</span> Additional options                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-286"><a href="#cb24-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-287"><a href="#cb24-287" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-288"><a href="#cb24-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-289"><a href="#cb24-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description           <span class="pp">|</span></span>
+<span id="cb24-290"><a href="#cb24-290" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|-----------------------|</span></span>
+<span id="cb24-291"><a href="#cb24-291" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Neural ODE integrator <span class="pp">|</span></span>
+<span id="cb24-292"><a href="#cb24-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-293"><a href="#cb24-293" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-294"><a href="#cb24-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-295"><a href="#cb24-295" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-296"><a href="#cb24-296" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> neural_ode <span class="op">=</span> MyNeuralODE()  <span class="co"># torch.nn.Module</span></span>
+<span id="cb24-297"><a href="#cb24-297" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_neural_ode(neural_ode)</span>
+<span id="cb24-298"><a href="#cb24-298" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-299"><a href="#cb24-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-300"><a href="#cb24-300" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_optimization { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_optimization }</span></span>
+<span id="cb24-301"><a href="#cb24-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-302"><a href="#cb24-302" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-303"><a href="#cb24-303" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_optimization(</span>
+<span id="cb24-304"><a href="#cb24-304" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-305"><a href="#cb24-305" aria-hidden="true" tabindex="-1"></a>    prefer_backend<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-306"><a href="#cb24-306" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-307"><a href="#cb24-307" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-308"><a href="#cb24-308" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-309"><a href="#cb24-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-310"><a href="#cb24-310" aria-hidden="true" tabindex="-1"></a>Create integrator optimized for gradient-based optimization.</span>
+<span id="cb24-311"><a href="#cb24-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-312"><a href="#cb24-312" aria-hidden="true" tabindex="-1"></a>Prefers JAX (Diffrax) for best performance with gradients.</span>
+<span id="cb24-313"><a href="#cb24-313" aria-hidden="true" tabindex="-1"></a>Falls back to PyTorch if JAX unavailable.</span>
+<span id="cb24-314"><a href="#cb24-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-315"><a href="#cb24-315" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-316"><a href="#cb24-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-317"><a href="#cb24-317" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name           <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                    <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-318"><a href="#cb24-318" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------------|-------------------------|------------------------------------------------|------------|</span></span>
+<span id="cb24-319"><a href="#cb24-319" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system         <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous) <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-320"><a href="#cb24-320" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> prefer_backend <span class="pp">|</span> Optional<span class="sc">\[</span>str<span class="sc">\]</span>         <span class="pp">|</span> Force specific backend ('jax' or 'torch')      <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb24-321"><a href="#cb24-321" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options      <span class="pp">|</span>                         <span class="pp">|</span> Additional options                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-322"><a href="#cb24-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-323"><a href="#cb24-323" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-324"><a href="#cb24-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-325"><a href="#cb24-325" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description                   <span class="pp">|</span></span>
+<span id="cb24-326"><a href="#cb24-326" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|-------------------------------|</span></span>
+<span id="cb24-327"><a href="#cb24-327" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Optimization-ready integrator <span class="pp">|</span></span>
+<span id="cb24-328"><a href="#cb24-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-329"><a href="#cb24-329" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-330"><a href="#cb24-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-331"><a href="#cb24-331" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-332"><a href="#cb24-332" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system)</span>
+<span id="cb24-333"><a href="#cb24-333" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(system, prefer_backend<span class="op">=</span><span class="st">'torch'</span>)</span>
+<span id="cb24-334"><a href="#cb24-334" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-335"><a href="#cb24-335" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-336"><a href="#cb24-336" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_optimization(autonomous_system)</span>
+<span id="cb24-337"><a href="#cb24-337" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-338"><a href="#cb24-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-339"><a href="#cb24-339" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_production { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_production }</span></span>
+<span id="cb24-340"><a href="#cb24-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-341"><a href="#cb24-341" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-342"><a href="#cb24-342" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_production(</span>
+<span id="cb24-343"><a href="#cb24-343" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-344"><a href="#cb24-344" aria-hidden="true" tabindex="-1"></a>    use_julia<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb24-345"><a href="#cb24-345" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-346"><a href="#cb24-346" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-347"><a href="#cb24-347" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-348"><a href="#cb24-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-349"><a href="#cb24-349" aria-hidden="true" tabindex="-1"></a>Create integrator for production use.</span>
+<span id="cb24-350"><a href="#cb24-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-351"><a href="#cb24-351" aria-hidden="true" tabindex="-1"></a>Uses scipy.LSODA (default) or Julia's AutoTsit5 (if use_julia=True)</span>
+<span id="cb24-352"><a href="#cb24-352" aria-hidden="true" tabindex="-1"></a>with automatic stiffness detection. Most reliable choices.</span>
+<span id="cb24-353"><a href="#cb24-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-354"><a href="#cb24-354" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-355"><a href="#cb24-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-356"><a href="#cb24-356" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                            <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-357"><a href="#cb24-357" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------------|--------------------------------------------------------|------------|</span></span>
+<span id="cb24-358"><a href="#cb24-358" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system    <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous)         <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-359"><a href="#cb24-359" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> use_julia <span class="pp">|</span> bool                    <span class="pp">|</span> If True, use Julia's AutoTsit5. Default: False (scipy) <span class="pp">|</span> <span class="in">`False`</span>    <span class="pp">|</span></span>
+<span id="cb24-360"><a href="#cb24-360" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options <span class="pp">|</span>                         <span class="pp">|</span> Additional options (rtol, atol, etc.)                  <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-361"><a href="#cb24-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-362"><a href="#cb24-362" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-363"><a href="#cb24-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-364"><a href="#cb24-364" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description                 <span class="pp">|</span></span>
+<span id="cb24-365"><a href="#cb24-365" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|-----------------------------|</span></span>
+<span id="cb24-366"><a href="#cb24-366" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> Production-grade integrator <span class="pp">|</span></span>
+<span id="cb24-367"><a href="#cb24-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-368"><a href="#cb24-368" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-369"><a href="#cb24-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-370"><a href="#cb24-370" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-371"><a href="#cb24-371" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Scipy (default)</span></span>
+<span id="cb24-372"><a href="#cb24-372" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(</span>
+<span id="cb24-373"><a href="#cb24-373" aria-hidden="true" tabindex="-1"></a>...     system, rtol<span class="op">=</span><span class="fl">1e-9</span>, atol<span class="op">=</span><span class="fl">1e-11</span></span>
+<span id="cb24-374"><a href="#cb24-374" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-375"><a href="#cb24-375" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-376"><a href="#cb24-376" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Julia (if installed)</span></span>
+<span id="cb24-377"><a href="#cb24-377" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(</span>
+<span id="cb24-378"><a href="#cb24-378" aria-hidden="true" tabindex="-1"></a>...     system, use_julia<span class="op">=</span><span class="va">True</span></span>
+<span id="cb24-379"><a href="#cb24-379" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb24-380"><a href="#cb24-380" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-381"><a href="#cb24-381" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-382"><a href="#cb24-382" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_production(autonomous_system)</span>
+<span id="cb24-383"><a href="#cb24-383" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-384"><a href="#cb24-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-385"><a href="#cb24-385" aria-hidden="true" tabindex="-1"></a><span class="fu">### for_simple { #cdesym.systems.base.numerical_integration.IntegratorFactory.for_simple }</span></span>
+<span id="cb24-386"><a href="#cb24-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-387"><a href="#cb24-387" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-388"><a href="#cb24-388" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.for_simple(</span>
+<span id="cb24-389"><a href="#cb24-389" aria-hidden="true" tabindex="-1"></a>    system,</span>
+<span id="cb24-390"><a href="#cb24-390" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb24-391"><a href="#cb24-391" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb24-392"><a href="#cb24-392" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb24-393"><a href="#cb24-393" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-394"><a href="#cb24-394" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-395"><a href="#cb24-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-396"><a href="#cb24-396" aria-hidden="true" tabindex="-1"></a>Create simple RK4 fixed-step integrator.</span>
+<span id="cb24-397"><a href="#cb24-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-398"><a href="#cb24-398" aria-hidden="true" tabindex="-1"></a>Good for prototyping and educational purposes.</span>
+<span id="cb24-399"><a href="#cb24-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-400"><a href="#cb24-400" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-401"><a href="#cb24-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-402"><a href="#cb24-402" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type                    <span class="pp">|</span> Description                                    <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-403"><a href="#cb24-403" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------------|------------------------------------------------|------------|</span></span>
+<span id="cb24-404"><a href="#cb24-404" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> system    <span class="pp">|</span> SymbolicDynamicalSystem <span class="pp">|</span> System to integrate (controlled or autonomous) <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-405"><a href="#cb24-405" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt        <span class="pp">|</span> ScalarLike              <span class="pp">|</span> Time step                                      <span class="pp">|</span> <span class="in">`0.01`</span>     <span class="pp">|</span></span>
+<span id="cb24-406"><a href="#cb24-406" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> backend   <span class="pp">|</span> str                     <span class="pp">|</span> Backend to use                                 <span class="pp">|</span> <span class="in">`'numpy'`</span>  <span class="pp">|</span></span>
+<span id="cb24-407"><a href="#cb24-407" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **options <span class="pp">|</span>                         <span class="pp">|</span> Additional options                             <span class="pp">|</span> <span class="in">`{}`</span>       <span class="pp">|</span></span>
+<span id="cb24-408"><a href="#cb24-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-409"><a href="#cb24-409" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-410"><a href="#cb24-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-411"><a href="#cb24-411" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type           <span class="pp">|</span> Description    <span class="pp">|</span></span>
+<span id="cb24-412"><a href="#cb24-412" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------|----------------|</span></span>
+<span id="cb24-413"><a href="#cb24-413" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> IntegratorBase <span class="pp">|</span> RK4 integrator <span class="pp">|</span></span>
+<span id="cb24-414"><a href="#cb24-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-415"><a href="#cb24-415" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-416"><a href="#cb24-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-417"><a href="#cb24-417" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-418"><a href="#cb24-418" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_simple(system, dt<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb24-419"><a href="#cb24-419" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-420"><a href="#cb24-420" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb24-421"><a href="#cb24-421" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> IntegratorFactory.for_simple(autonomous_system)</span>
+<span id="cb24-422"><a href="#cb24-422" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-423"><a href="#cb24-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-424"><a href="#cb24-424" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_info { #cdesym.systems.base.numerical_integration.IntegratorFactory.get_info }</span></span>
+<span id="cb24-425"><a href="#cb24-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-426"><a href="#cb24-426" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-427"><a href="#cb24-427" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.get_info(backend, method)</span>
+<span id="cb24-428"><a href="#cb24-428" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-429"><a href="#cb24-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-430"><a href="#cb24-430" aria-hidden="true" tabindex="-1"></a>Get information about a specific integrator configuration.</span>
+<span id="cb24-431"><a href="#cb24-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-432"><a href="#cb24-432" aria-hidden="true" tabindex="-1"></a>Delegates to integrator-specific info functions where available.</span>
+<span id="cb24-433"><a href="#cb24-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-434"><a href="#cb24-434" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-435"><a href="#cb24-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-436"><a href="#cb24-436" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name    <span class="pp">|</span> Type   <span class="pp">|</span> Description   <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-437"><a href="#cb24-437" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------|--------|---------------|------------|</span></span>
+<span id="cb24-438"><a href="#cb24-438" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> backend <span class="pp">|</span> str    <span class="pp">|</span> Backend name  <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-439"><a href="#cb24-439" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> method  <span class="pp">|</span> str    <span class="pp">|</span> Method name   <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-440"><a href="#cb24-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-441"><a href="#cb24-441" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-442"><a href="#cb24-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-443"><a href="#cb24-443" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type             <span class="pp">|</span> Description                      <span class="pp">|</span></span>
+<span id="cb24-444"><a href="#cb24-444" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------------|----------------------------------|</span></span>
+<span id="cb24-445"><a href="#cb24-445" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> Dict<span class="sc">\[</span>str, Any<span class="sc">\]</span> <span class="pp">|</span> Information about the integrator <span class="pp">|</span></span>
+<span id="cb24-446"><a href="#cb24-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-447"><a href="#cb24-447" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-448"><a href="#cb24-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-449"><a href="#cb24-449" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-450"><a href="#cb24-450" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'jax'</span>, <span class="st">'tsit5'</span>)</span>
+<span id="cb24-451"><a href="#cb24-451" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])</span>
+<span id="cb24-452"><a href="#cb24-452" aria-hidden="true" tabindex="-1"></a><span class="co">'Excellent general purpose, JAX-optimized'</span></span>
+<span id="cb24-453"><a href="#cb24-453" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-454"><a href="#cb24-454" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'numpy'</span>, <span class="st">'Tsit5'</span>)</span>
+<span id="cb24-455"><a href="#cb24-455" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])</span>
+<span id="cb24-456"><a href="#cb24-456" aria-hidden="true" tabindex="-1"></a><span class="co">'Excellent general-purpose solver with good efficiency'</span></span>
+<span id="cb24-457"><a href="#cb24-457" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-458"><a href="#cb24-458" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> info <span class="op">=</span> IntegratorFactory.get_info(<span class="st">'numpy'</span>, <span class="st">'Vern7'</span>)</span>
+<span id="cb24-459"><a href="#cb24-459" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(info[<span class="st">'description'</span>])  <span class="co"># Works even if not in hardcoded list!</span></span>
+<span id="cb24-460"><a href="#cb24-460" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-461"><a href="#cb24-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-462"><a href="#cb24-462" aria-hidden="true" tabindex="-1"></a><span class="fu">### list_methods { #cdesym.systems.base.numerical_integration.IntegratorFactory.list_methods }</span></span>
+<span id="cb24-463"><a href="#cb24-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-464"><a href="#cb24-464" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-465"><a href="#cb24-465" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.list_methods(backend<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb24-466"><a href="#cb24-466" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-467"><a href="#cb24-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-468"><a href="#cb24-468" aria-hidden="true" tabindex="-1"></a>List available methods for each backend.</span>
+<span id="cb24-469"><a href="#cb24-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-470"><a href="#cb24-470" aria-hidden="true" tabindex="-1"></a>Delegates to method_registry for base methods, then adds Julia ODE methods.</span>
+<span id="cb24-471"><a href="#cb24-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-472"><a href="#cb24-472" aria-hidden="true" tabindex="-1"></a><span class="fu">### recommend { #cdesym.systems.base.numerical_integration.IntegratorFactory.recommend }</span></span>
+<span id="cb24-473"><a href="#cb24-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-474"><a href="#cb24-474" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-475"><a href="#cb24-475" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.IntegratorFactory.recommend(</span>
+<span id="cb24-476"><a href="#cb24-476" aria-hidden="true" tabindex="-1"></a>    use_case,</span>
+<span id="cb24-477"><a href="#cb24-477" aria-hidden="true" tabindex="-1"></a>    has_gpu<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb24-478"><a href="#cb24-478" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-479"><a href="#cb24-479" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-480"><a href="#cb24-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-481"><a href="#cb24-481" aria-hidden="true" tabindex="-1"></a>Get recommended integrator configuration for a use case.</span>
+<span id="cb24-482"><a href="#cb24-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-483"><a href="#cb24-483" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb24-484"><a href="#cb24-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-485"><a href="#cb24-485" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name     <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                            <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb24-486"><a href="#cb24-486" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|--------|----------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb24-487"><a href="#cb24-487" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> use_case <span class="pp">|</span> str    <span class="pp">|</span> Use case: 'production', 'optimization', 'neural_ode', 'simple', 'julia', 'educational' <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb24-488"><a href="#cb24-488" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> has_gpu  <span class="pp">|</span> bool   <span class="pp">|</span> Whether GPU is available                                                               <span class="pp">|</span> <span class="in">`False`</span>    <span class="pp">|</span></span>
+<span id="cb24-489"><a href="#cb24-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-490"><a href="#cb24-490" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb24-491"><a href="#cb24-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-492"><a href="#cb24-492" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type             <span class="pp">|</span> Description                                                       <span class="pp">|</span></span>
+<span id="cb24-493"><a href="#cb24-493" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------------|-------------------------------------------------------------------|</span></span>
+<span id="cb24-494"><a href="#cb24-494" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> Dict<span class="sc">\[</span>str, Any<span class="sc">\]</span> <span class="pp">|</span> Recommended configuration with 'backend', 'method', 'description' <span class="pp">|</span></span>
+<span id="cb24-495"><a href="#cb24-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-496"><a href="#cb24-496" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb24-497"><a href="#cb24-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-498"><a href="#cb24-498" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb24-499"><a href="#cb24-499" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rec <span class="op">=</span> IntegratorFactory.recommend(<span class="st">'optimization'</span>)</span>
+<span id="cb24-500"><a href="#cb24-500" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(rec[<span class="st">'backend'</span>], rec[<span class="st">'method'</span>])</span>
+<span id="cb24-501"><a href="#cb24-501" aria-hidden="true" tabindex="-1"></a><span class="co">'jax'</span> <span class="st">'tsit5'</span></span>
+<span id="cb24-502"><a href="#cb24-502" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb24-503"><a href="#cb24-503" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rec <span class="op">=</span> IntegratorFactory.recommend(<span class="st">'production'</span>)</span>
+<span id="cb24-504"><a href="#cb24-504" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(rec[<span class="st">'description'</span>])</span>
+<span id="cb24-505"><a href="#cb24-505" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.base.numerical_integration.IntegratorFactory.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

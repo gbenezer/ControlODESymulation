@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.discrete.discretewhitenoise – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise">systems.builtin.stochastic.discrete.DiscreteWhiteNoise</a>
+  <ul>
+  <li><a href="#difference-equation" id="toc-difference-equation" class="nav-link" data-scroll-target="#difference-equation">Difference Equation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-simulation" id="toc-numerical-simulation" class="nav-link" data-scroll-target="#numerical-simulation">Numerical Simulation</a></li>
+  <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis">Statistical Analysis</a></li>
+  <li><a href="#comparison-with-other-processes" id="toc-comparison-with-other-processes" class="nav-link" data-scroll-target="#comparison-with-other-processes">Comparison with Other Processes</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation">get_autocorrelation</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation">get_standard_deviation</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance">get_variance</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteWhiteNoise.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise" class="level1">
+<h1>systems.builtin.stochastic.discrete.DiscreteWhiteNoise</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pure white noise process - memoryless random sequence.</p>
+<p>The fundamental building block of all stochastic processes, representing pure randomness with no memory or structure. White noise is the innovation sequence underlying ARMA models and the limiting case of AR(1) with φ = 0.</p>
+<section id="difference-equation" class="level2 doc-section doc-section-difference-equation">
+<h2 class="doc-section doc-section-difference-equation anchored" data-anchor-id="difference-equation">Difference Equation</h2>
+<p>X[k] = σ·w[k]</p>
+<p>where w[k] ~ N(0,1) are iid standard normal random variables.</p>
+<p><strong>Alternative View:</strong> X[k+1] = 0·X[k] + σ·w[k]</p>
+<p>This shows white noise as AR(0) - no dependence on past.</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Memorylessness:</strong> Zero autocorrelation: Cov[X[k], X[j]] = 0 for k ≠ j</p>
+<p>Each observation independent of all others.</p>
+<p><strong>Unpredictability:</strong> Best prediction: E[X[k+1] | past] = 0 Prediction error: MSE = σ²</p>
+<p>Cannot be improved by using past information.</p>
+<p><strong>Stationarity:</strong> Strictly stationary - distribution invariant to time shifts.</p>
+<p><strong>Flat Spectrum:</strong> Power spectral density: S(f) = σ² (constant across frequencies)</p>
+<p>Hence “white” - equal power at all frequencies.</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>Moments:</strong> Mean: E[X[k]] = 0 for all k Variance: Var[X[k]] = σ² for all k Higher moments: Standard Gaussian if w ~ N(0,1)</p>
+<p><strong>Autocorrelation:</strong> γ(h) = σ²·δ_h where δ_h is Kronecker delta: γ(0) = σ² γ(h) = 0 for h ≠ 0</p>
+<p><strong>Power Spectrum:</strong> S(f) = σ² for all f ∈ [-f_s/2, f_s/2]</p>
+<p>where f_s = 1/Δt is sampling frequency.</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>Standard Deviation σ:</strong> - Units: [state] - Scale of random fluctuations - Examples: * Measurement noise: instrument precision * Thermal noise: √(4·k_B·T·R·Δf) * Financial: daily return volatility</p>
+<p><strong>No Parameters Besides σ:</strong> White noise is completely characterized by variance σ². No memory, no time constants, no structure.</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>State: x ∈ ℝ (unbounded) - No persistence between samples - Each value independent - Gaussian: X[k] ~ N(0, σ²)</p>
+<p>Control: None (autonomous) - Pure random process - Cannot be controlled or predicted</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 78%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Standard deviation of white noise - Must be positive - σ = 1: Standard white noise - Variance: σ²</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [time units] - Required for discrete system - Sets time scale</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>Type: Pure random (no deterministic component)</li>
+<li>Innovation: w[k] ~ N(0,1) iid</li>
+<li>Memory: None (memoryless)</li>
+<li>Stationary: Yes (strictly stationary)</li>
+<li>Ergodic: Yes</li>
+<li>Predictable: No</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Signal Processing:</strong> - Noise modeling in measurements - Filter testing and validation - System identification (input signal) - Detection theory (null hypothesis)</p>
+<p><strong>2. Communications:</strong> - AWGN channel model - Error analysis - Channel capacity calculations</p>
+<p><strong>3. Time Series:</strong> - Innovation sequence for ARMA models - Residual diagnostics (should be white) - Benchmark for forecasting performance</p>
+<p><strong>4. Control Systems:</strong> - Process noise in Kalman filter - Disturbance modeling - Robustness analysis</p>
+<p><strong>5. Finance:</strong> - Efficient market hypothesis (returns should be white) - Monte Carlo simulation - Risk modeling baseline</p>
+<p><strong>6. Testing:</strong> - Null hypothesis for independence tests - Benchmark for signal detection - Residual analysis</p>
+</section>
+<section id="numerical-simulation" class="level2 doc-section doc-section-numerical-simulation">
+<h2 class="doc-section doc-section-numerical-simulation anchored" data-anchor-id="numerical-simulation">Numerical Simulation</h2>
+<p><strong>Direct Generation:</strong> X[k] = σ·randn()</p>
+<p>Simple, exact, no approximation.</p>
+<p><strong>Quality Checks:</strong> - Mean ≈ 0 - Variance ≈ σ² - Autocorrelation ≈ 0 for h &gt; 0 - Within confidence bands: ±1.96/√N</p>
+</section>
+<section id="statistical-analysis" class="level2 doc-section doc-section-statistical-analysis">
+<h2 class="doc-section doc-section-statistical-analysis anchored" data-anchor-id="statistical-analysis">Statistical Analysis</h2>
+<p><strong>Tests for White Noise:</strong> - Ljung-Box Q-test (joint autocorrelation) - Durbin-Watson (first-order autocorrelation) - Runs test (randomness) - Portmanteau test</p>
+<p><strong>Diagnostics:</strong> - ACF plot: Only lag 0 significant - Periodogram: Approximately flat - Q-Q plot: Linear (if Gaussian)</p>
+</section>
+<section id="comparison-with-other-processes" class="level2 doc-section doc-section-comparison-with-other-processes">
+<h2 class="doc-section doc-section-comparison-with-other-processes anchored" data-anchor-id="comparison-with-other-processes">Comparison with Other Processes</h2>
+<p><strong>vs.&nbsp;Random Walk:</strong> - RW: Cumulative sum of white noise - WN: Memoryless, stationary</p>
+<p><strong>vs.&nbsp;AR(1):</strong> - AR(1): X[k] = φ·X[k-1] + w[k] - WN: AR(1) with φ = 0</p>
+<p><strong>vs.&nbsp;Brownian Motion:</strong> - BM: Continuous-time integral of white noise - WN: Discrete-time, no integration</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Idealization (infinite bandwidth)</li>
+<li>Real noise often band-limited</li>
+<li>May have weak temporal dependence</li>
+<li>Gaussian assumption may not hold</li>
+</ul>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<p>DiscreteAR1 : White noise is AR(1) with φ=0 DiscreteRandomWalk : Cumulative sum of white noise BrownianMotion : Continuous-time analog</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system">define_system</a></td>
+<td>Define white noise process.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation">get_autocorrelation</a></td>
+<td>Get theoretical autocorrelation at given lag.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation">get_standard_deviation</a></td>
+<td>Get theoretical standard deviation σ.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance">get_variance</a></td>
+<td>Get theoretical variance σ².</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define white noise process.</p>
+<p>Sets up pure random sequence: X[k] = σ·w[k]</p>
+<p>where w[k] ~ N(0,1) are iid.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 83%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Standard deviation (must be positive) - σ = 1: Standard white noise - σ² = variance - Typical: 0.1 to 10.0 depending on application</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [time units] - Required for discrete system - Sets time scale - Does not affect statistics (memoryless)</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If sigma ≤ 0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Complete Characterization:</strong> White noise is completely specified by variance σ². No other parameters needed - no memory, no time constants.</p>
+<p><strong>Independence:</strong> Each sample is independent: P(X[k] | X[k-1], …) = P(X[k])</p>
+<p>This is the strongest form of memorylessness.</p>
+<p><strong>Gaussian White Noise:</strong> If w[k] ~ N(0,1), then X[k] ~ N(0, σ²). Uncorrelated + Gaussian ⟹ Independent</p>
+<p><strong>Non-Gaussian Extensions:</strong> Can use other distributions: - Uniform: w[k] ~ U(-√3, √3) (variance 1) - Laplace: Heavier tails - Student-t: Fat tails</p>
+<p><strong>Sampling Period dt:</strong> Unlike AR(1) or OU, dt doesn’t affect white noise statistics. Samples at any interval are independent with same variance.</p>
+<p><strong>Power Spectral Density:</strong> S(f) = σ² for |f| ≤ f_Nyquist = 1/(2·dt)</p>
+<p>Flat spectrum - equal power at all frequencies.</p>
+<p><strong>Use Cases:</strong> - Testing: Null hypothesis for independence - Simulation: Generate innovations for ARMA - Benchmarking: Compare signal detection performance - Modeling: Measurement noise, residuals</p>
+<p><strong>Relationship to AR(1):</strong> White noise is AR(1) with φ = 0: X[k+1] = 0·X[k] + σ·w[k]</p>
+<p><strong>Wold Decomposition:</strong> Any stationary process can be written as: X[k] = μ + Σ ψ_j·w[k-j] where w[k] is white noise.</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation">get_autocorrelation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation(lag)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical autocorrelation at given lag.</p>
+<p>For white noise: ρ(0) = 1 ρ(h) = 0 for h ≠ 0</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lag</td>
+<td>int</td>
+<td>Lag h (non-negative)</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Autocorrelation: 1 if lag=0, else 0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> wn <span class="op">=</span> DiscreteWhiteNoise(sigma<span class="op">=</span><span class="fl">1.0</span>, dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(0) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">0</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 1.0</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(1) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">1</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 0.0</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(10) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">10</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation">get_standard_deviation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical standard deviation σ.</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Standard deviation</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> wn <span class="op">=</span> DiscreteWhiteNoise(sigma<span class="op">=</span><span class="fl">1.5</span>, dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> std <span class="op">=</span> wn.get_standard_deviation()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std: </span><span class="sc">{</span>std<span class="sc">:.3f}</span><span class="ss">"</span>)  <span class="co"># 1.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance">get_variance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical variance σ².</p>
+<p>For white noise, variance is simply σ².</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Variance</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Unlike AR(1) or OU, white noise variance doesn’t depend on any time constants - it’s just σ².</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.discrete.DiscreteWhiteNoise { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise }</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>Pure white noise process - memoryless random sequence.</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>The fundamental building block of all stochastic processes, representing</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>pure randomness with no memory or structure. White noise is the innovation</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>sequence underlying ARMA models and the limiting case of AR(1) with φ = 0.</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Difference Equation {.doc-section .doc-section-difference-equation}</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = σ·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>where w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1) are iid standard normal random variables.</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>**Alternative View:**</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = 0·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + σ·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>This shows white noise as AR(0) - no dependence on past.</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>**Memorylessness:**</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>Zero autocorrelation: Cov<span class="co">[</span><span class="ot">X[k], X[j]</span><span class="co">]</span> = 0 for k ≠ j</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>Each observation independent of all others.</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>**Unpredictability:**</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>Best prediction: E<span class="co">[</span><span class="ot">X[k+1] | past</span><span class="co">]</span> = 0</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>Prediction error: MSE = σ²</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>Cannot be improved by using past information.</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>**Stationarity:**</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>Strictly stationary - distribution invariant to time shifts.</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>**Flat Spectrum:**</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>Power spectral density: S(f) = σ² (constant across frequencies)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>Hence "white" - equal power at all frequencies.</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>**Moments:**</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>Mean: E<span class="co">[</span><span class="ot">X[k]</span><span class="co">]</span> = 0 for all k</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>Variance: Var<span class="co">[</span><span class="ot">X[k]</span><span class="co">]</span> = σ² for all k</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>Higher moments: Standard Gaussian if w ~ N(0,1)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>**Autocorrelation:**</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>γ(h) = σ²·δ_h where δ_h is Kronecker delta:</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    γ(0) = σ²</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>    γ(h) = 0 for h ≠ 0</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>**Power Spectrum:**</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>S(f) = σ² for all f ∈ <span class="co">[</span><span class="ot">-f_s/2, f_s/2</span><span class="co">]</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>where f_s = 1/Δt is sampling frequency.</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>**Standard Deviation σ:**</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Units: <span class="co">[</span><span class="ot">state</span><span class="co">]</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Scale of random fluctuations</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Examples:</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Measurement noise: instrument precision</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Thermal noise: √(4·k_B·T·R·Δf)</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Financial: daily return volatility</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>**No Parameters Besides σ:**</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>White noise is completely characterized by variance σ².</span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>No memory, no time constants, no structure.</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>State: x ∈ ℝ (unbounded)</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>No persistence between samples</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Each value independent</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Gaussian: X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, σ²)</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>Control: None (autonomous)</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Pure random process</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Cannot be controlled or predicted</span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                       <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma  <span class="pp">|</span> float  <span class="pp">|</span> Standard deviation of white noise - Must be positive - σ = 1: Standard white noise - Variance: σ² <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">time units</span><span class="co">]</span> - Required for discrete system - Sets time scale                     <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Type: Pure random (no deterministic component)</span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Innovation: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1) iid</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Memory: None (memoryless)</span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: Yes (strictly stationary)</span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ergodic: Yes</span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Predictable: No</span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a>**1. Signal Processing:**</span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise modeling in measurements</span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Filter testing and validation</span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System identification (input signal)</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Detection theory (null hypothesis)</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>**2. Communications:**</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AWGN channel model</span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Error analysis</span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Channel capacity calculations</span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>**3. Time Series:**</span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Innovation sequence for ARMA models</span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Residual diagnostics (should be white)</span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Benchmark for forecasting performance</span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a>**4. Control Systems:**</span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Process noise in Kalman filter</span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Disturbance modeling</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Robustness analysis</span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a>**5. Finance:**</span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Efficient market hypothesis (returns should be white)</span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Monte Carlo simulation</span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Risk modeling baseline</span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a>**6. Testing:**</span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Null hypothesis for independence tests</span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Benchmark for signal detection</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Residual analysis</span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Simulation {.doc-section .doc-section-numerical-simulation}</span></span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>**Direct Generation:**</span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = σ·randn()</span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>Simple, exact, no approximation.</span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>**Quality Checks:**</span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Mean ≈ 0</span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Variance ≈ σ²</span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Autocorrelation ≈ 0 for h &gt; 0</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Within confidence bands: ±1.96/√N</span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a><span class="fu">## Statistical Analysis {.doc-section .doc-section-statistical-analysis}</span></span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a>**Tests for White Noise:**</span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ljung-Box Q-test (joint autocorrelation)</span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Durbin-Watson (first-order autocorrelation)</span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runs test (randomness)</span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Portmanteau test</span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>**Diagnostics:**</span>
+<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ACF plot: Only lag 0 significant</span>
+<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Periodogram: Approximately flat</span>
+<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q-Q plot: Linear (if Gaussian)</span>
+<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Other Processes {.doc-section .doc-section-comparison-with-other-processes}</span></span>
+<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>**vs. Random Walk:**</span>
+<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>RW: Cumulative sum of white noise</span>
+<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WN: Memoryless, stationary</span>
+<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a>**vs. AR(1):**</span>
+<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AR(1): X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = φ·X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WN: AR(1) with φ = 0</span>
+<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>**vs. Brownian Motion:**</span>
+<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>BM: Continuous-time integral of white noise</span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>WN: Discrete-time, no integration</span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Idealization (infinite bandwidth)</span>
+<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Real noise often band-limited</span>
+<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>May have weak temporal dependence</span>
+<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian assumption may not hold</span>
+<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-183"><a href="#cb8-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also {.doc-section .doc-section-see-also}</span></span>
+<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a>DiscreteAR1 : White noise is AR(1) with φ=0</span>
+<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a>DiscreteRandomWalk : Cumulative sum of white noise</span>
+<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a>BrownianMotion : Continuous-time analog</span>
+<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system)</span> <span class="pp">|</span> Define white noise process. <span class="pp">|</span></span>
+<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_autocorrelation</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation)</span> <span class="pp">|</span> Get theoretical autocorrelation at given lag. <span class="pp">|</span></span>
+<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_standard_deviation</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation)</span> <span class="pp">|</span> Get theoretical standard deviation σ. <span class="pp">|</span></span>
+<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_variance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance)</span> <span class="pp">|</span> Get theoretical variance σ². <span class="pp">|</span></span>
+<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system }</span></span>
+<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.define_system(</span>
+<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a>Define white noise process.</span>
+<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a>Sets up pure random sequence:</span>
+<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = σ·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a>where w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1) are iid.</span>
+<span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                         <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma  <span class="pp">|</span> float  <span class="pp">|</span> Standard deviation (must be positive) - σ = 1: Standard white noise - σ² = variance - Typical: 0.1 to 10.0 depending on application <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">time units</span><span class="co">]</span> - Required for discrete system - Sets time scale - Does not affect statistics (memoryless)             <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb8-220"><a href="#cb8-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description   <span class="pp">|</span></span>
+<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|---------------|</span></span>
+<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError <span class="pp">|</span> If sigma ≤ 0  <span class="pp">|</span></span>
+<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a>**Complete Characterization:**</span>
+<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a>White noise is completely specified by variance σ².</span>
+<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a>No other parameters needed - no memory, no time constants.</span>
+<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a>**Independence:**</span>
+<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a>Each sample is independent:</span>
+<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a>    P(X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> | X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span>, ...) = P(X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>)</span>
+<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>This is the strongest form of memorylessness.</span>
+<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a>**Gaussian White Noise:**</span>
+<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a>If w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1), then X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, σ²).</span>
+<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a>Uncorrelated + Gaussian ⟹ Independent</span>
+<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a>**Non-Gaussian Extensions:**</span>
+<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>Can use other distributions:</span>
+<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Uniform: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ U(-√3, √3) (variance 1)</span>
+<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Laplace: Heavier tails</span>
+<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Student-t: Fat tails</span>
+<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a>**Sampling Period dt:**</span>
+<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a>Unlike AR(1) or OU, dt doesn't affect white noise statistics.</span>
+<span id="cb8-251"><a href="#cb8-251" aria-hidden="true" tabindex="-1"></a>Samples at any interval are independent with same variance.</span>
+<span id="cb8-252"><a href="#cb8-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-253"><a href="#cb8-253" aria-hidden="true" tabindex="-1"></a>**Power Spectral Density:**</span>
+<span id="cb8-254"><a href="#cb8-254" aria-hidden="true" tabindex="-1"></a>S(f) = σ² for |f| ≤ f_Nyquist = 1/(2·dt)</span>
+<span id="cb8-255"><a href="#cb8-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-256"><a href="#cb8-256" aria-hidden="true" tabindex="-1"></a>Flat spectrum - equal power at all frequencies.</span>
+<span id="cb8-257"><a href="#cb8-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-258"><a href="#cb8-258" aria-hidden="true" tabindex="-1"></a>**Use Cases:**</span>
+<span id="cb8-259"><a href="#cb8-259" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Testing: Null hypothesis for independence</span>
+<span id="cb8-260"><a href="#cb8-260" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Simulation: Generate innovations for ARMA</span>
+<span id="cb8-261"><a href="#cb8-261" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Benchmarking: Compare signal detection performance</span>
+<span id="cb8-262"><a href="#cb8-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Modeling: Measurement noise, residuals</span>
+<span id="cb8-263"><a href="#cb8-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-264"><a href="#cb8-264" aria-hidden="true" tabindex="-1"></a>**Relationship to AR(1):**</span>
+<span id="cb8-265"><a href="#cb8-265" aria-hidden="true" tabindex="-1"></a>White noise is AR(1) with φ = 0:</span>
+<span id="cb8-266"><a href="#cb8-266" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = 0·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + σ·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb8-267"><a href="#cb8-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-268"><a href="#cb8-268" aria-hidden="true" tabindex="-1"></a>**Wold Decomposition:**</span>
+<span id="cb8-269"><a href="#cb8-269" aria-hidden="true" tabindex="-1"></a>Any stationary process can be written as:</span>
+<span id="cb8-270"><a href="#cb8-270" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + Σ ψ_j·w<span class="co">[</span><span class="ot">k-j</span><span class="co">]</span></span>
+<span id="cb8-271"><a href="#cb8-271" aria-hidden="true" tabindex="-1"></a>where w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> is white noise.</span>
+<span id="cb8-272"><a href="#cb8-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-273"><a href="#cb8-273" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_autocorrelation { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation }</span></span>
+<span id="cb8-274"><a href="#cb8-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-275"><a href="#cb8-275" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-276"><a href="#cb8-276" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_autocorrelation(lag)</span>
+<span id="cb8-277"><a href="#cb8-277" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-278"><a href="#cb8-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-279"><a href="#cb8-279" aria-hidden="true" tabindex="-1"></a>Get theoretical autocorrelation at given lag.</span>
+<span id="cb8-280"><a href="#cb8-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-281"><a href="#cb8-281" aria-hidden="true" tabindex="-1"></a>For white noise:</span>
+<span id="cb8-282"><a href="#cb8-282" aria-hidden="true" tabindex="-1"></a>    ρ(0) = 1</span>
+<span id="cb8-283"><a href="#cb8-283" aria-hidden="true" tabindex="-1"></a>    ρ(h) = 0 for h ≠ 0</span>
+<span id="cb8-284"><a href="#cb8-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-285"><a href="#cb8-285" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb8-286"><a href="#cb8-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-287"><a href="#cb8-287" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description          <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|----------------------|------------|</span></span>
+<span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> lag    <span class="pp">|</span> int    <span class="pp">|</span> Lag h (non-negative) <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                         <span class="pp">|</span></span>
+<span id="cb8-294"><a href="#cb8-294" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------------------|</span></span>
+<span id="cb8-295"><a href="#cb8-295" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Autocorrelation: 1 if lag=0, else 0 <span class="pp">|</span></span>
+<span id="cb8-296"><a href="#cb8-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-297"><a href="#cb8-297" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb8-298"><a href="#cb8-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-299"><a href="#cb8-299" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-300"><a href="#cb8-300" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> wn <span class="op">=</span> DiscreteWhiteNoise(sigma<span class="op">=</span><span class="fl">1.0</span>, dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb8-301"><a href="#cb8-301" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(0) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">0</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 1.0</span></span>
+<span id="cb8-302"><a href="#cb8-302" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(1) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">1</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 0.0</span></span>
+<span id="cb8-303"><a href="#cb8-303" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(10) = </span><span class="sc">{</span>wn<span class="sc">.</span>get_autocorrelation(<span class="dv">10</span>)<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># 0.0</span></span>
+<span id="cb8-304"><a href="#cb8-304" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-305"><a href="#cb8-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-306"><a href="#cb8-306" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_standard_deviation { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation }</span></span>
+<span id="cb8-307"><a href="#cb8-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-308"><a href="#cb8-308" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-309"><a href="#cb8-309" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_standard_deviation()</span>
+<span id="cb8-310"><a href="#cb8-310" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-311"><a href="#cb8-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-312"><a href="#cb8-312" aria-hidden="true" tabindex="-1"></a>Get theoretical standard deviation σ.</span>
+<span id="cb8-313"><a href="#cb8-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-314"><a href="#cb8-314" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb8-315"><a href="#cb8-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-316"><a href="#cb8-316" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description        <span class="pp">|</span></span>
+<span id="cb8-317"><a href="#cb8-317" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------|</span></span>
+<span id="cb8-318"><a href="#cb8-318" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Standard deviation <span class="pp">|</span></span>
+<span id="cb8-319"><a href="#cb8-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> wn <span class="op">=</span> DiscreteWhiteNoise(sigma<span class="op">=</span><span class="fl">1.5</span>, dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> std <span class="op">=</span> wn.get_standard_deviation()</span>
+<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std: </span><span class="sc">{</span>std<span class="sc">:.3f}</span><span class="ss">"</span>)  <span class="co"># 1.5</span></span>
+<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance }</span></span>
+<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteWhiteNoise.get_variance()</span>
+<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a>Get theoretical variance σ².</span>
+<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a>For white noise, variance is simply σ².</span>
+<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description   <span class="pp">|</span></span>
+<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------|</span></span>
+<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Variance      <span class="pp">|</span></span>
+<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb8-345"><a href="#cb8-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-346"><a href="#cb8-346" aria-hidden="true" tabindex="-1"></a>Unlike AR(1) or OU, white noise variance doesn't depend</span>
+<span id="cb8-347"><a href="#cb8-347" aria-hidden="true" tabindex="-1"></a>on any time constants - it's just σ².</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteWhiteNoise.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

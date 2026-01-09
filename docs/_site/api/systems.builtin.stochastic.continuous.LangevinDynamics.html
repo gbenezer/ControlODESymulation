@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.continuous.langevindynamics – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics">systems.builtin.stochastic.continuous.LangevinDynamics</a>
+  <ul>
+  <li><a href="#stochastic-differential-equations" id="toc-stochastic-differential-equations" class="nav-link" data-scroll-target="#stochastic-differential-equations">Stochastic Differential Equations</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation-1" id="toc-physical-interpretation-1" class="nav-link" data-scroll-target="#physical-interpretation-1">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-integration" id="toc-numerical-integration" class="nav-link" data-scroll-target="#numerical-integration">Numerical Integration</a></li>
+  <li><a href="#validation" id="toc-validation" class="nav-link" data-scroll-target="#validation">Validation</a></li>
+  <li><a href="#comparison-with-other-models" id="toc-comparison-with-other-models" class="nav-link" data-scroll-target="#comparison-with-other-models">Comparison with Other Models</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation">check_fluctuation_dissipation</a>
+  <ul class="collapse">
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient">get_diffusion_coefficient</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time">get_relaxation_time</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std">get_thermal_velocity_std</a>
+  <ul class="collapse">
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria" id="toc-cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.continuous.LangevinDynamics.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics" class="level1">
+<h1>systems.builtin.stochastic.continuous.LangevinDynamics</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Langevin dynamics - particle in viscous fluid with thermal noise.</p>
+<p>The fundamental equation of statistical mechanics, combining Newton’s law with friction and thermal fluctuations. Provides the microscopic foundation for Brownian motion and the bridge between mechanics and thermodynamics.</p>
+<section id="stochastic-differential-equations" class="level2 doc-section doc-section-stochastic-differential-equations">
+<h2 class="doc-section doc-section-stochastic-differential-equations anchored" data-anchor-id="stochastic-differential-equations">Stochastic Differential Equations</h2>
+<p>Full Langevin equation (position + velocity):</p>
+<pre><code>dx = v·dt
+dv = -(γ/m)·v·dt + (F/m)·dt + √(2·k_B·T/m)·dW</code></pre>
+<p>where: - x: Position [m] - v: Velocity [m/s] - m: Particle mass [kg] - γ: Friction coefficient [kg/s] - F: External force (control, potential gradient) [N] - k_B: Boltzmann constant = 1.380649×10⁻²³ J/K - T: Temperature [K] - W: Standard Wiener process</p>
+<p><strong>This is OU Process for Velocity:</strong> Velocity component is Ornstein-Uhlenbeck process.</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>Newton’s Law with Fluctuations:</strong></p>
+<p>m·dv/dt = F_total = F_external - γ·v + F_random</p>
+<p>Components: 1. F_external: Applied force (gravity, fields, control) 2. -γ·v: Friction (Stokes drag, dissipation) 3. F_random: Thermal fluctuations (molecular collisions)</p>
+<p><strong>Friction:</strong> For sphere in fluid (Stokes’ law): γ = 6π·η·r</p>
+<p>where η is viscosity, r is radius.</p>
+<p><strong>Thermal Noise:</strong> Fluctuation-dissipation theorem: ⟨F_random(t)·F_random(s)⟩ = 2·γ·k_B·T·δ(t-s)</p>
+<p>White noise with intensity √(2·γ·k_B·T).</p>
+<p><strong>Temperature:</strong> Sets equilibrium energy scale: ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T (equipartition)</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Fluctuation-Dissipation:</strong> Friction γ and noise intensity related by temperature. Cannot choose independently!</p>
+<p><strong>Thermal Equilibrium:</strong> Velocity distribution: Maxwell-Boltzmann p(v) ∝ exp(-m·v²/2k_B·T)</p>
+<p><strong>Two Time Scales:</strong> - Fast: Velocity relaxation τ_v = m/γ - Slow: Position diffusion (no natural scale)</p>
+<p><strong>Markov Property:</strong> Future depends only on current (x, v), not history.</p>
+<p><strong>Ergodicity:</strong> Long trajectory → Boltzmann distribution.</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>Velocity (OU Process):</strong></p>
+<p>For F = 0 (free particle): Mean: E[v(t)] = v₀·exp(-γ·t/m) Variance: Var[v(t)] = (k_B·T/m)·(1 - exp(-2γ·t/m))</p>
+<p>Asymptotic: Var[v(∞)] = k_B·T/m (equipartition)</p>
+<p><strong>Position (Diffusion):</strong></p>
+<p>Mean: E[x(t)] = x₀ + (m/γ)·v₀·(1 - exp(-γ·t/m)) Variance: Var[x(t)] = 2·D·t - 2·D·(m/γ)·(1 - exp(-γ·t/m))</p>
+<p>Long time: Var[x] ≈ 2·D·t (Einstein diffusion)</p>
+<p><strong>Diffusion Coefficient:</strong> D = k_B·T/γ (Einstein relation)</p>
+</section>
+<section id="physical-interpretation-1" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation-1">Physical Interpretation</h2>
+<p><strong>Mass m:</strong> - Particle inertia - Heavier → slower velocity changes - Time scale: m/γ</p>
+<p><strong>Friction γ:</strong> - Energy dissipation rate - Larger → faster equilibration - From Stokes: γ = 6π·η·r</p>
+<p><strong>Temperature T:</strong> - Thermal energy reservoir - Higher T → larger fluctuations - Sets equilibrium distribution</p>
+<p><strong>Boltzmann k_B:</strong> - Fundamental constant - Connects microscopic and macroscopic - Value: 1.380649×10⁻²³ J/K</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>State: X = [x, v] ∈ ℝ² - x: Position (unbounded, diffuses) - v: Velocity (Boltzmann distributed at equilibrium)</p>
+<p>Control: u = F/m ∈ ℝ (optional) - Acceleration input - Can be potential gradient: -∇U/m</p>
+<p>Noise: w ∈ ℝ - Single Wiener process - Enters velocity equation (thermal fluctuations)</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 75%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>m</td>
+<td>float</td>
+<td>Particle mass [kg] - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Affects time scale m/γ</td>
+<td><code>1e-15</code></td>
+</tr>
+<tr class="even">
+<td>gamma</td>
+<td>float</td>
+<td>Friction coefficient [kg/s] - From Stokes: 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s</td>
+<td><code>1e-8</code></td>
+</tr>
+<tr class="odd">
+<td>T</td>
+<td>float</td>
+<td>Temperature [K] - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T</td>
+<td><code>300.0</code></td>
+</tr>
+<tr class="even">
+<td>k_B</td>
+<td>float</td>
+<td>Boltzmann constant [J/K] - Fundamental constant (fixed)</td>
+<td><code>1.380649e-23</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>System Type: LINEAR (no external force)</li>
+<li>Noise Type: ADDITIVE (constant)</li>
+<li>SDE Type: Itô</li>
+<li>Noise Dimension: nw = 1</li>
+<li>Stationary: Velocity (yes), Position (no)</li>
+<li>Ergodic: Yes (for velocity distribution)</li>
+<li>Physical: Yes (fluctuation-dissipation satisfied)</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Molecular Dynamics:</strong> - Thermostat (constant T simulations) - Protein folding simulations - Material properties</p>
+<p><strong>2. Bayesian Sampling:</strong> - Langevin MCMC - Posterior sampling - Optimization with noise</p>
+<p><strong>3. Colloidal Physics:</strong> - Optical tweezers experiments - Rheology measurements - Single-molecule biophysics</p>
+<p><strong>4. Machine Learning:</strong> - Stochastic gradient Langevin dynamics - Bayesian neural networks - Exploration in RL</p>
+<p><strong>5. Statistical Mechanics:</strong> - Equilibrium sampling - Free energy calculations - Rare event simulation</p>
+</section>
+<section id="numerical-integration" class="level2 doc-section doc-section-numerical-integration">
+<h2 class="doc-section doc-section-numerical-integration anchored" data-anchor-id="numerical-integration">Numerical Integration</h2>
+<p><strong>Time Step Selection:</strong></p>
+<p>Must resolve velocity relaxation: Δt &lt; m/γ (typically 0.1·m/γ)</p>
+<p>For colloidal particle (m/γ ~ 10⁻⁷ s): Δt ~ 10⁻⁸ s</p>
+<p><strong>Overdamped Approximation:</strong></p>
+<p>If observation time &gt;&gt; m/γ, use: dx = (F/γ)·dt + √(2·D)·dW</p>
+<p>Much larger Δt possible (no velocity constraint).</p>
+</section>
+<section id="validation" class="level2 doc-section doc-section-validation">
+<h2 class="doc-section doc-section-validation anchored" data-anchor-id="validation">Validation</h2>
+<p><strong>Physical Checks:</strong></p>
+<ol type="1">
+<li><p><strong>Equipartition:</strong> Var[v] = k_B·T/m (after equilibration)</p></li>
+<li><p><strong>Einstein Relation:</strong> D_measured = Var[x]/2t should equal k_B·T/γ</p></li>
+<li><p><strong>Maxwell-Boltzmann:</strong> Velocity histogram should be Gaussian with variance k_B·T/m</p></li>
+<li><p><strong>Autocorrelation:</strong> ⟨v(0)·v(t)⟩ = (k_B·T/m)·exp(-γ·t/m)</p></li>
+</ol>
+</section>
+<section id="comparison-with-other-models" class="level2 doc-section doc-section-comparison-with-other-models">
+<h2 class="doc-section doc-section-comparison-with-other-models anchored" data-anchor-id="comparison-with-other-models">Comparison with Other Models</h2>
+<p><strong>vs.&nbsp;Brownian Motion:</strong> - BM: Position only, no velocity - Langevin: Position + velocity (more complete)</p>
+<p><strong>vs.&nbsp;Ornstein-Uhlenbeck:</strong> - OU: Velocity equation only - Langevin: Position + velocity</p>
+<p><strong>vs.&nbsp;Stochastic Double Integrator:</strong> - DI: No friction (conservative) - Langevin: With friction (dissipative, equilibrium)</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Linear (no potential in base class)</li>
+<li>1D space (extend to 3D for realism)</li>
+<li>Constant γ, T (no hydrodynamic interactions)</li>
+<li>Additive noise (no multiplicative)</li>
+<li>Markov (memoryless, no viscoelasticity)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>Potential: Add U(x) via control F = -∇U</li>
+<li>3D: Three spatial dimensions</li>
+<li>Generalized Langevin: Memory kernel (viscoelasticity)</li>
+<li>Active particles: Self-propulsion</li>
+<li>Hydrodynamic interactions: Many-body γ_ij</li>
+</ul>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<p>OrnsteinUhlenbeck : Velocity-only version StochasticDoubleIntegrator : No friction version</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation">check_fluctuation_dissipation</a></td>
+<td>Verify fluctuation-dissipation theorem is satisfied.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system">define_system</a></td>
+<td>Define Langevin dynamics (position + velocity with thermal noise).</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient">get_diffusion_coefficient</a></td>
+<td>Get diffusion coefficient D = k_B·T/γ (Einstein relation).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time">get_relaxation_time</a></td>
+<td>Get velocity relaxation time τ_v = m/γ.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std">get_thermal_velocity_std</a></td>
+<td>Get thermal velocity standard deviation from equipartition.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria">setup_equilibria</a></td>
+<td>Set up equilibrium points.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation">check_fluctuation_dissipation</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Verify fluctuation-dissipation theorem is satisfied.</p>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>dict</td>
+<td>Expected vs implemented noise intensity</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> check <span class="op">=</span> langevin.check_fluctuation_dissipation()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"FDT satisfied: </span><span class="sc">{</span>check<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.define_system(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1e-15</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    gamma<span class="op">=</span><span class="fl">1e-08</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    T<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    k_B<span class="op">=</span><span class="fl">1.380649e-23</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define Langevin dynamics (position + velocity with thermal noise).</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 78%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>m</td>
+<td>float</td>
+<td>Particle mass [kg] - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Determines time scale m/γ</td>
+<td><code>1e-15</code></td>
+</tr>
+<tr class="even">
+<td>gamma</td>
+<td>float</td>
+<td>Friction coefficient [kg/s] - From Stokes: γ = 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s - Controls relaxation rate</td>
+<td><code>1e-8</code></td>
+</tr>
+<tr class="odd">
+<td>T</td>
+<td>float</td>
+<td>Temperature [K] - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T</td>
+<td><code>300.0</code></td>
+</tr>
+<tr class="even">
+<td>k_B</td>
+<td>float</td>
+<td>Boltzmann constant [J/K] - Physical constant (don’t change)</td>
+<td><code>1.380649e-23</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If m, gamma, T, or k_B are non-positive</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Fluctuation-Dissipation:</strong></p>
+<p>Noise intensity MUST be: σ = √(2·γ·k_B·T/m)</p>
+<p>This is not a free parameter! Determined by γ, T.</p>
+<p><strong>Time Scales:</strong></p>
+<p>Velocity relaxation: τ_v = m/γ - Fast equilibration of velocity - After ~5·τ_v: Velocity is Maxwellian</p>
+<p>Position diffusion: No characteristic time - Variance grows linearly: 2·D·t - Diffusion coefficient: D = k_B·T/γ</p>
+<p><strong>Regime Classification:</strong></p>
+<p>Underdamped: m/γ &gt;&gt; observation time - Ballistic short-time: ⟨x²⟩ ~ t² (free flight) - Diffusive long-time: ⟨x²⟩ ~ t (Brownian)</p>
+<p>Overdamped: m/γ &lt;&lt; observation time - Pure diffusion: ⟨x²⟩ ~ t always - Can use simplified equation (position only)</p>
+<p><strong>Physical Examples:</strong></p>
+<p>Colloidal particle (1 μm, water, 300 K): - m ~ 10⁻¹⁵ kg - γ ~ 10⁻⁸ kg/s - τ_v ~ 10⁻⁷ s (100 ns) - D ~ 4×10⁻¹³ m²/s</p>
+<p>Protein in water: - m ~ 10⁻²⁰ kg - γ ~ 10⁻¹¹ kg/s - τ_v ~ 10⁻⁹ s (1 ns) - D ~ 10⁻¹¹ m²/s</p>
+<p><strong>Validation:</strong></p>
+<p>Check equilibrium properties: 1. Velocity variance: k_B·T/m 2. Diffusion coefficient: k_B·T/γ 3. Velocity autocorrelation: exp(-γ·t/m)</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient">get_diffusion_coefficient</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get diffusion coefficient D = k_B·T/γ (Einstein relation).</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Diffusion coefficient [m²/s]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(gamma<span class="op">=</span><span class="fl">1e-8</span>, T<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> D <span class="op">=</span> langevin.get_diffusion_coefficient()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Diffusion: </span><span class="sc">{</span>D<span class="sc">:.3e}</span><span class="ss"> m²/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time">get_relaxation_time</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get velocity relaxation time τ_v = m/γ.</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Relaxation time [s]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(m<span class="op">=</span><span class="fl">1e-15</span>, gamma<span class="op">=</span><span class="fl">1e-8</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> tau <span class="op">=</span> langevin.get_relaxation_time()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Relaxation: </span><span class="sc">{</span>tau<span class="sc">:.3e}</span><span class="ss"> s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std">get_thermal_velocity_std</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get thermal velocity standard deviation from equipartition.</p>
+<p>σ_v = √(k_B·T/m)</p>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Thermal velocity std [m/s]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>From equipartition: ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T</p>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(m<span class="op">=</span><span class="fl">1e-15</span>, T<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sigma_v <span class="op">=</span> langevin.get_thermal_velocity_std()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Thermal velocity: </span><span class="sc">{</span>sigma_v<span class="sc">:.3e}</span><span class="ss"> m/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up equilibrium points.</p>
+<p>For free Langevin (u=0), equilibrium is origin with thermal velocity.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.continuous.LangevinDynamics { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics }</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>Langevin dynamics - particle in viscous fluid with thermal noise.</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>The fundamental equation of statistical mechanics, combining Newton's law</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>with friction and thermal fluctuations. Provides the microscopic foundation</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>for Brownian motion and the bridge between mechanics and thermodynamics.</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Differential Equations {.doc-section .doc-section-stochastic-differential-equations}</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>Full Langevin equation (position + velocity):</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="in">    dx = v·dt</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="in">    dv = -(γ/m)·v·dt + (F/m)·dt + √(2·k_B·T/m)·dW</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>x: Position <span class="co">[</span><span class="ot">m</span><span class="co">]</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>v: Velocity <span class="co">[</span><span class="ot">m/s</span><span class="co">]</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>m: Particle mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>γ: Friction coefficient <span class="co">[</span><span class="ot">kg/s</span><span class="co">]</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>F: External force (control, potential gradient) <span class="co">[</span><span class="ot">N</span><span class="co">]</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>k_B: Boltzmann constant = 1.380649×10⁻²³ J/K</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>T: Temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>W: Standard Wiener process</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>**This is OU Process for Velocity:**</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>Velocity component is Ornstein-Uhlenbeck process.</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>**Newton's Law with Fluctuations:**</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>m·dv/dt = F_total</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        = F_external - γ·v + F_random</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>Components:</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>F_external: Applied force (gravity, fields, control)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>-γ·v: Friction (Stokes drag, dissipation)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>F_random: Thermal fluctuations (molecular collisions)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>**Friction:**</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>For sphere in fluid (Stokes' law):</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    γ = 6π·η·r</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>where η is viscosity, r is radius.</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>**Thermal Noise:**</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>Fluctuation-dissipation theorem:</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    ⟨F_random(t)·F_random(s)⟩ = 2·γ·k_B·T·δ(t-s)</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>White noise with intensity √(2·γ·k_B·T).</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>**Temperature:**</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>Sets equilibrium energy scale:</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>    ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T (equipartition)</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>**Fluctuation-Dissipation:**</span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>Friction γ and noise intensity related by temperature.</span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>Cannot choose independently!</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>**Thermal Equilibrium:**</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>Velocity distribution: Maxwell-Boltzmann</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>    p(v) ∝ exp(-m·v²/2k_B·T)</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>**Two Time Scales:**</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fast: Velocity relaxation τ_v = m/γ</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Slow: Position diffusion (no natural scale)</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>**Markov Property:**</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>Future depends only on current (x, v), not history.</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>**Ergodicity:**</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>Long trajectory → Boltzmann distribution.</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>**Velocity (OU Process):**</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>For F = 0 (free particle):</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>Mean: E<span class="co">[</span><span class="ot">v(t)</span><span class="co">]</span> = v₀·exp(-γ·t/m)</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>Variance: Var<span class="co">[</span><span class="ot">v(t)</span><span class="co">]</span> = (k_B·T/m)·(1 - exp(-2γ·t/m))</span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>Asymptotic: Var<span class="co">[</span><span class="ot">v(∞)</span><span class="co">]</span> = k_B·T/m (equipartition)</span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>**Position (Diffusion):**</span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a>Mean: E<span class="co">[</span><span class="ot">x(t)</span><span class="co">]</span> = x₀ + (m/γ)·v₀·(1 - exp(-γ·t/m))</span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>Variance: Var<span class="co">[</span><span class="ot">x(t)</span><span class="co">]</span> = 2·D·t - 2·D·(m/γ)·(1 - exp(-γ·t/m))</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a>Long time: Var<span class="co">[</span><span class="ot">x</span><span class="co">]</span> ≈ 2·D·t (Einstein diffusion)</span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>**Diffusion Coefficient:**</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>    D = k_B·T/γ (Einstein relation)</span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>**Mass m:**</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Particle inertia</span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Heavier → slower velocity changes</span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Time scale: m/γ</span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>**Friction γ:**</span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Energy dissipation rate</span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Larger → faster equilibration</span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>From Stokes: γ = 6π·η·r</span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>**Temperature T:**</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thermal energy reservoir</span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher T → larger fluctuations</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sets equilibrium distribution</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>**Boltzmann k_B:**</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fundamental constant</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Connects microscopic and macroscopic</span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Value: 1.380649×10⁻²³ J/K</span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>State: X = <span class="co">[</span><span class="ot">x, v</span><span class="co">]</span> ∈ ℝ²</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>x: Position (unbounded, diffuses)</span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>v: Velocity (Boltzmann distributed at equilibrium)</span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a>Control: u = F/m ∈ ℝ (optional)</span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Acceleration input</span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Can be potential gradient: -∇U/m</span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a>Noise: w ∈ ℝ</span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Single Wiener process</span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Enters velocity equation (thermal fluctuations)</span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                      <span class="pp">|</span> Default        <span class="pp">|</span></span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------------------------------------------------------------------------------------|----------------|</span></span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m      <span class="pp">|</span> float  <span class="pp">|</span> Particle mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span> - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Affects time scale m/γ <span class="pp">|</span> <span class="in">`1e-15`</span>        <span class="pp">|</span></span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> gamma  <span class="pp">|</span> float  <span class="pp">|</span> Friction coefficient <span class="co">[</span><span class="ot">kg/s</span><span class="co">]</span> - From Stokes: 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s                <span class="pp">|</span> <span class="in">`1e-8`</span>         <span class="pp">|</span></span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T      <span class="pp">|</span> float  <span class="pp">|</span> Temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span> - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T     <span class="pp">|</span> <span class="in">`300.0`</span>        <span class="pp">|</span></span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k_B    <span class="pp">|</span> float  <span class="pp">|</span> Boltzmann constant <span class="co">[</span><span class="ot">J/K</span><span class="co">]</span> - Fundamental constant (fixed)                                          <span class="pp">|</span> <span class="in">`1.380649e-23`</span> <span class="pp">|</span></span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System Type: LINEAR (no external force)</span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Type: ADDITIVE (constant)</span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SDE Type: Itô</span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Dimension: nw = 1</span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: Velocity (yes), Position (no)</span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ergodic: Yes (for velocity distribution)</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Physical: Yes (fluctuation-dissipation satisfied)</span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>**1. Molecular Dynamics:**</span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thermostat (constant T simulations)</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Protein folding simulations</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Material properties</span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a>**2. Bayesian Sampling:**</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Langevin MCMC</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Posterior sampling</span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Optimization with noise</span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>**3. Colloidal Physics:**</span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Optical tweezers experiments</span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rheology measurements</span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Single-molecule biophysics</span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>**4. Machine Learning:**</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stochastic gradient Langevin dynamics</span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bayesian neural networks</span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Exploration in RL</span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a>**5. Statistical Mechanics:**</span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Equilibrium sampling</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Free energy calculations</span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rare event simulation</span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Integration {.doc-section .doc-section-numerical-integration}</span></span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a>**Time Step Selection:**</span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>Must resolve velocity relaxation:</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>    Δt &lt; m/γ (typically 0.1·m/γ)</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a>For colloidal particle (m/γ ~ 10⁻⁷ s):</span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a>    Δt ~ 10⁻⁸ s</span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a>**Overdamped Approximation:**</span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a>If observation time &gt;&gt; m/γ, use:</span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a>    dx = (F/γ)·dt + √(2·D)·dW</span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a>Much larger Δt possible (no velocity constraint).</span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation {.doc-section .doc-section-validation}</span></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>**Physical Checks:**</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Equipartition:**</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a>   Var<span class="co">[</span><span class="ot">v</span><span class="co">]</span> = k_B·T/m (after equilibration)</span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Einstein Relation:**</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a>   D_measured = Var<span class="co">[</span><span class="ot">x</span><span class="co">]</span>/2t should equal k_B·T/γ</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Maxwell-Boltzmann:**</span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a>   Velocity histogram should be Gaussian with variance k_B·T/m</span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Autocorrelation:**</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>   ⟨v(0)·v(t)⟩ = (k_B·T/m)·exp(-γ·t/m)</span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}</span></span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>**vs. Brownian Motion:**</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>BM: Position only, no velocity</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Langevin: Position + velocity (more complete)</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>**vs. Ornstein-Uhlenbeck:**</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>OU: Velocity equation only</span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Langevin: Position + velocity</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>**vs. Stochastic Double Integrator:**</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>DI: No friction (conservative)</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Langevin: With friction (dissipative, equilibrium)</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Linear (no potential in base class)</span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>1D space (extend to 3D for realism)</span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constant γ, T (no hydrodynamic interactions)</span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Additive noise (no multiplicative)</span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Markov (memoryless, no viscoelasticity)</span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Potential: Add U(x) via control F = -∇U</span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>3D: Three spatial dimensions</span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Generalized Langevin: Memory kernel (viscoelasticity)</span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Active particles: Self-propulsion</span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hydrodynamic interactions: Many-body γ_ij</span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also {.doc-section .doc-section-see-also}</span></span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a>OrnsteinUhlenbeck : Velocity-only version</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a>StochasticDoubleIntegrator : No friction version</span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">check_fluctuation_dissipation</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation)</span> <span class="pp">|</span> Verify fluctuation-dissipation theorem is satisfied. <span class="pp">|</span></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system)</span> <span class="pp">|</span> Define Langevin dynamics (position + velocity with thermal noise). <span class="pp">|</span></span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_diffusion_coefficient</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient)</span> <span class="pp">|</span> Get diffusion coefficient D = k_B·T/γ (Einstein relation). <span class="pp">|</span></span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_relaxation_time</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time)</span> <span class="pp">|</span> Get velocity relaxation time τ_v = m/γ. <span class="pp">|</span></span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_thermal_velocity_std</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std)</span> <span class="pp">|</span> Get thermal velocity standard deviation from equipartition. <span class="pp">|</span></span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria)</span> <span class="pp">|</span> Set up equilibrium points. <span class="pp">|</span></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a><span class="fu">### check_fluctuation_dissipation { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation }</span></span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.check_fluctuation_dissipation(</span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a>Verify fluctuation-dissipation theorem is satisfied.</span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                             <span class="pp">|</span></span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------------------------------|</span></span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> dict   <span class="pp">|</span> Expected vs implemented noise intensity <span class="pp">|</span></span>
+<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics()</span>
+<span id="cb13-281"><a href="#cb13-281" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> check <span class="op">=</span> langevin.check_fluctuation_dissipation()</span>
+<span id="cb13-282"><a href="#cb13-282" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"FDT satisfied: </span><span class="sc">{</span>check<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-283"><a href="#cb13-283" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-284"><a href="#cb13-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-285"><a href="#cb13-285" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.define_system }</span></span>
+<span id="cb13-286"><a href="#cb13-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-287"><a href="#cb13-287" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-288"><a href="#cb13-288" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.define_system(</span>
+<span id="cb13-289"><a href="#cb13-289" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1e-15</span>,</span>
+<span id="cb13-290"><a href="#cb13-290" aria-hidden="true" tabindex="-1"></a>    gamma<span class="op">=</span><span class="fl">1e-08</span>,</span>
+<span id="cb13-291"><a href="#cb13-291" aria-hidden="true" tabindex="-1"></a>    T<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb13-292"><a href="#cb13-292" aria-hidden="true" tabindex="-1"></a>    k_B<span class="op">=</span><span class="fl">1.380649e-23</span>,</span>
+<span id="cb13-293"><a href="#cb13-293" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-294"><a href="#cb13-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-295"><a href="#cb13-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-296"><a href="#cb13-296" aria-hidden="true" tabindex="-1"></a>Define Langevin dynamics (position + velocity with thermal noise).</span>
+<span id="cb13-297"><a href="#cb13-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-298"><a href="#cb13-298" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-299"><a href="#cb13-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-300"><a href="#cb13-300" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                      <span class="pp">|</span> Default        <span class="pp">|</span></span>
+<span id="cb13-301"><a href="#cb13-301" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------------------------------------------------------------------------------------|----------------|</span></span>
+<span id="cb13-302"><a href="#cb13-302" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m      <span class="pp">|</span> float  <span class="pp">|</span> Particle mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span> - Colloidal particle: ~10⁻¹⁵ kg - Protein: ~10⁻²⁰ kg - Determines time scale m/γ              <span class="pp">|</span> <span class="in">`1e-15`</span>        <span class="pp">|</span></span>
+<span id="cb13-303"><a href="#cb13-303" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> gamma  <span class="pp">|</span> float  <span class="pp">|</span> Friction coefficient <span class="co">[</span><span class="ot">kg/s</span><span class="co">]</span> - From Stokes: γ = 6π·η·r - Water, 1μm sphere: ~10⁻⁸ kg/s - Controls relaxation rate <span class="pp">|</span> <span class="in">`1e-8`</span>         <span class="pp">|</span></span>
+<span id="cb13-304"><a href="#cb13-304" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T      <span class="pp">|</span> float  <span class="pp">|</span> Temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span> - Room temperature: 300 K - Physiological: 310 K - Sets thermal energy k_B·T                     <span class="pp">|</span> <span class="in">`300.0`</span>        <span class="pp">|</span></span>
+<span id="cb13-305"><a href="#cb13-305" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k_B    <span class="pp">|</span> float  <span class="pp">|</span> Boltzmann constant <span class="co">[</span><span class="ot">J/K</span><span class="co">]</span> - Physical constant (don't change)                                                      <span class="pp">|</span> <span class="in">`1.380649e-23`</span> <span class="pp">|</span></span>
+<span id="cb13-306"><a href="#cb13-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-307"><a href="#cb13-307" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb13-308"><a href="#cb13-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-309"><a href="#cb13-309" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                             <span class="pp">|</span></span>
+<span id="cb13-310"><a href="#cb13-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|-----------------------------------------|</span></span>
+<span id="cb13-311"><a href="#cb13-311" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError <span class="pp">|</span> If m, gamma, T, or k_B are non-positive <span class="pp">|</span></span>
+<span id="cb13-312"><a href="#cb13-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-313"><a href="#cb13-313" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb13-314"><a href="#cb13-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-315"><a href="#cb13-315" aria-hidden="true" tabindex="-1"></a>**Fluctuation-Dissipation:**</span>
+<span id="cb13-316"><a href="#cb13-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-317"><a href="#cb13-317" aria-hidden="true" tabindex="-1"></a>Noise intensity MUST be:</span>
+<span id="cb13-318"><a href="#cb13-318" aria-hidden="true" tabindex="-1"></a>    σ = √(2·γ·k_B·T/m)</span>
+<span id="cb13-319"><a href="#cb13-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-320"><a href="#cb13-320" aria-hidden="true" tabindex="-1"></a>This is not a free parameter! Determined by γ, T.</span>
+<span id="cb13-321"><a href="#cb13-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-322"><a href="#cb13-322" aria-hidden="true" tabindex="-1"></a>**Time Scales:**</span>
+<span id="cb13-323"><a href="#cb13-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-324"><a href="#cb13-324" aria-hidden="true" tabindex="-1"></a>Velocity relaxation: τ_v = m/γ</span>
+<span id="cb13-325"><a href="#cb13-325" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fast equilibration of velocity</span>
+<span id="cb13-326"><a href="#cb13-326" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>After ~5·τ_v: Velocity is Maxwellian</span>
+<span id="cb13-327"><a href="#cb13-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-328"><a href="#cb13-328" aria-hidden="true" tabindex="-1"></a>Position diffusion: No characteristic time</span>
+<span id="cb13-329"><a href="#cb13-329" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Variance grows linearly: 2·D·t</span>
+<span id="cb13-330"><a href="#cb13-330" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Diffusion coefficient: D = k_B·T/γ</span>
+<span id="cb13-331"><a href="#cb13-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-332"><a href="#cb13-332" aria-hidden="true" tabindex="-1"></a>**Regime Classification:**</span>
+<span id="cb13-333"><a href="#cb13-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-334"><a href="#cb13-334" aria-hidden="true" tabindex="-1"></a>Underdamped: m/γ &gt;&gt; observation time</span>
+<span id="cb13-335"><a href="#cb13-335" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ballistic short-time: ⟨x²⟩ ~ t² (free flight)</span>
+<span id="cb13-336"><a href="#cb13-336" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Diffusive long-time: ⟨x²⟩ ~ t (Brownian)</span>
+<span id="cb13-337"><a href="#cb13-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-338"><a href="#cb13-338" aria-hidden="true" tabindex="-1"></a>Overdamped: m/γ &lt;&lt; observation time</span>
+<span id="cb13-339"><a href="#cb13-339" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Pure diffusion: ⟨x²⟩ ~ t always</span>
+<span id="cb13-340"><a href="#cb13-340" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Can use simplified equation (position only)</span>
+<span id="cb13-341"><a href="#cb13-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-342"><a href="#cb13-342" aria-hidden="true" tabindex="-1"></a>**Physical Examples:**</span>
+<span id="cb13-343"><a href="#cb13-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-344"><a href="#cb13-344" aria-hidden="true" tabindex="-1"></a>Colloidal particle (1 μm, water, 300 K):</span>
+<span id="cb13-345"><a href="#cb13-345" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>m ~ 10⁻¹⁵ kg</span>
+<span id="cb13-346"><a href="#cb13-346" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>γ ~ 10⁻⁸ kg/s</span>
+<span id="cb13-347"><a href="#cb13-347" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>τ_v ~ 10⁻⁷ s (100 ns)</span>
+<span id="cb13-348"><a href="#cb13-348" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>D ~ 4×10⁻¹³ m²/s</span>
+<span id="cb13-349"><a href="#cb13-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-350"><a href="#cb13-350" aria-hidden="true" tabindex="-1"></a>Protein in water:</span>
+<span id="cb13-351"><a href="#cb13-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>m ~ 10⁻²⁰ kg</span>
+<span id="cb13-352"><a href="#cb13-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>γ ~ 10⁻¹¹ kg/s</span>
+<span id="cb13-353"><a href="#cb13-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>τ_v ~ 10⁻⁹ s (1 ns)</span>
+<span id="cb13-354"><a href="#cb13-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>D ~ 10⁻¹¹ m²/s</span>
+<span id="cb13-355"><a href="#cb13-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-356"><a href="#cb13-356" aria-hidden="true" tabindex="-1"></a>**Validation:**</span>
+<span id="cb13-357"><a href="#cb13-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-358"><a href="#cb13-358" aria-hidden="true" tabindex="-1"></a>Check equilibrium properties:</span>
+<span id="cb13-359"><a href="#cb13-359" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Velocity variance: k_B·T/m</span>
+<span id="cb13-360"><a href="#cb13-360" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Diffusion coefficient: k_B·T/γ</span>
+<span id="cb13-361"><a href="#cb13-361" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Velocity autocorrelation: exp(-γ·t/m)</span>
+<span id="cb13-362"><a href="#cb13-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-363"><a href="#cb13-363" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_diffusion_coefficient { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient }</span></span>
+<span id="cb13-364"><a href="#cb13-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-365"><a href="#cb13-365" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-366"><a href="#cb13-366" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_diffusion_coefficient(</span>
+<span id="cb13-367"><a href="#cb13-367" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-368"><a href="#cb13-368" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-369"><a href="#cb13-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-370"><a href="#cb13-370" aria-hidden="true" tabindex="-1"></a>Get diffusion coefficient D = k_B·T/γ (Einstein relation).</span>
+<span id="cb13-371"><a href="#cb13-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-372"><a href="#cb13-372" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-373"><a href="#cb13-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-374"><a href="#cb13-374" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                  <span class="pp">|</span></span>
+<span id="cb13-375"><a href="#cb13-375" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------|</span></span>
+<span id="cb13-376"><a href="#cb13-376" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Diffusion coefficient <span class="co">[</span><span class="ot">m²/s</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb13-377"><a href="#cb13-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-378"><a href="#cb13-378" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-379"><a href="#cb13-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-380"><a href="#cb13-380" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-381"><a href="#cb13-381" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(gamma<span class="op">=</span><span class="fl">1e-8</span>, T<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb13-382"><a href="#cb13-382" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> D <span class="op">=</span> langevin.get_diffusion_coefficient()</span>
+<span id="cb13-383"><a href="#cb13-383" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Diffusion: </span><span class="sc">{</span>D<span class="sc">:.3e}</span><span class="ss"> m²/s"</span>)</span>
+<span id="cb13-384"><a href="#cb13-384" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-385"><a href="#cb13-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-386"><a href="#cb13-386" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_relaxation_time { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time }</span></span>
+<span id="cb13-387"><a href="#cb13-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-388"><a href="#cb13-388" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-389"><a href="#cb13-389" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_relaxation_time()</span>
+<span id="cb13-390"><a href="#cb13-390" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-391"><a href="#cb13-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-392"><a href="#cb13-392" aria-hidden="true" tabindex="-1"></a>Get velocity relaxation time τ_v = m/γ.</span>
+<span id="cb13-393"><a href="#cb13-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-394"><a href="#cb13-394" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-395"><a href="#cb13-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-396"><a href="#cb13-396" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description         <span class="pp">|</span></span>
+<span id="cb13-397"><a href="#cb13-397" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------|</span></span>
+<span id="cb13-398"><a href="#cb13-398" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Relaxation time <span class="co">[</span><span class="ot">s</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb13-399"><a href="#cb13-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-400"><a href="#cb13-400" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-401"><a href="#cb13-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-402"><a href="#cb13-402" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-403"><a href="#cb13-403" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(m<span class="op">=</span><span class="fl">1e-15</span>, gamma<span class="op">=</span><span class="fl">1e-8</span>)</span>
+<span id="cb13-404"><a href="#cb13-404" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> tau <span class="op">=</span> langevin.get_relaxation_time()</span>
+<span id="cb13-405"><a href="#cb13-405" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Relaxation: </span><span class="sc">{</span>tau<span class="sc">:.3e}</span><span class="ss"> s"</span>)</span>
+<span id="cb13-406"><a href="#cb13-406" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-407"><a href="#cb13-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-408"><a href="#cb13-408" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_thermal_velocity_std { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std }</span></span>
+<span id="cb13-409"><a href="#cb13-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-410"><a href="#cb13-410" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-411"><a href="#cb13-411" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.get_thermal_velocity_std(</span>
+<span id="cb13-412"><a href="#cb13-412" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-413"><a href="#cb13-413" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-414"><a href="#cb13-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-415"><a href="#cb13-415" aria-hidden="true" tabindex="-1"></a>Get thermal velocity standard deviation from equipartition.</span>
+<span id="cb13-416"><a href="#cb13-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-417"><a href="#cb13-417" aria-hidden="true" tabindex="-1"></a>σ_v = √(k_B·T/m)</span>
+<span id="cb13-418"><a href="#cb13-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-419"><a href="#cb13-419" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-420"><a href="#cb13-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-421"><a href="#cb13-421" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                <span class="pp">|</span></span>
+<span id="cb13-422"><a href="#cb13-422" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|----------------------------|</span></span>
+<span id="cb13-423"><a href="#cb13-423" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Thermal velocity std <span class="co">[</span><span class="ot">m/s</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb13-424"><a href="#cb13-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-425"><a href="#cb13-425" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb13-426"><a href="#cb13-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-427"><a href="#cb13-427" aria-hidden="true" tabindex="-1"></a>From equipartition: ⟨(1/2)·m·v²⟩ = (1/2)·k_B·T</span>
+<span id="cb13-428"><a href="#cb13-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-429"><a href="#cb13-429" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-430"><a href="#cb13-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-431"><a href="#cb13-431" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-432"><a href="#cb13-432" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> langevin <span class="op">=</span> LangevinDynamics(m<span class="op">=</span><span class="fl">1e-15</span>, T<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb13-433"><a href="#cb13-433" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sigma_v <span class="op">=</span> langevin.get_thermal_velocity_std()</span>
+<span id="cb13-434"><a href="#cb13-434" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Thermal velocity: </span><span class="sc">{</span>sigma_v<span class="sc">:.3e}</span><span class="ss"> m/s"</span>)</span>
+<span id="cb13-435"><a href="#cb13-435" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-436"><a href="#cb13-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-437"><a href="#cb13-437" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria }</span></span>
+<span id="cb13-438"><a href="#cb13-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-439"><a href="#cb13-439" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-440"><a href="#cb13-440" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.continuous.LangevinDynamics.setup_equilibria()</span>
+<span id="cb13-441"><a href="#cb13-441" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-442"><a href="#cb13-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-443"><a href="#cb13-443" aria-hidden="true" tabindex="-1"></a>Set up equilibrium points.</span>
+<span id="cb13-444"><a href="#cb13-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-445"><a href="#cb13-445" aria-hidden="true" tabindex="-1"></a>For free Langevin (u=0), equilibrium is origin with thermal velocity.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.continuous.LangevinDynamics.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

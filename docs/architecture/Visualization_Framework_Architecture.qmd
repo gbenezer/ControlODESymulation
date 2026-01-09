@@ -715,23 +715,30 @@ Analyze closed-loop performance:
 #| label: demo-step-response
 #| fig-cap: "Step response showing rise time, overshoot, and settling time"
 
-# Create closed-loop system
+# Create closed-loop system with reference tracking
 from scipy import signal
 
 # Output: measure angle only
 C = np.array([[1, 0]])
 D = np.zeros((1, 1))
 
-# Closed-loop dynamics
-print(f"A matrix:\n{A}")
-print(f"B matrix:\n{B}")
-print(f"LQR Gain:\n{lqr_result['gain']}")
+# Closed-loop dynamics with state feedback u = -Kx
 A_cl = A - B @ lqr_result['gain']
-sys_cl = signal.StateSpace(A_cl, B, C, D)
 
-# Step response
+# For proper reference tracking, we need feedforward compensation.
+# With u = -Kx + K_r*r, the steady-state output tracks the reference r.
+# K_r is chosen so that y_ss = r, which requires: K_r = -1/(C @ inv(A_cl) @ B)
+dc_gain = C @ np.linalg.inv(A_cl) @ B
+K_r = -1.0 / dc_gain[0, 0]
+
+# Create tracking system: ẋ = A_cl*x + B*K_r*r, y = Cx
+# When r is a unit step, the input to the system is B*K_r
+B_ref = B * K_r
+sys_tracking = signal.StateSpace(A_cl, B_ref, C, D)
+
+# Step response (now properly tracks the reference)
 t_step = np.linspace(0, 5, 500)
-t_out, y_out = signal.step(sys_cl, T=t_step)
+t_out, y_out = signal.step(sys_tracking, T=t_step)
 
 # Plot with metrics
 fig = system.control_plotter.plot_step_response(
@@ -742,6 +749,20 @@ fig = system.control_plotter.plot_step_response(
 )
 fig
 ```
+
+::: {.callout-note}
+## Reference Tracking with State Feedback
+
+LQR designs a state feedback controller `u = -Kx` that regulates the state to zero. To track a non-zero reference, we add **feedforward compensation**:
+
+$$u = -Kx + K_r \cdot r$$
+
+where $K_r$ is chosen to achieve zero steady-state error. For the closed-loop system $\dot{x} = A_{cl}x + BK_r r$ with output $y = Cx$, the DC gain must equal 1:
+
+$$K_r = -\frac{1}{C A_{cl}^{-1} B}$$
+
+This ensures the output tracks step references with the stability and transient performance designed by LQR.
+:::
 
 ## Publication-Ready Output {#sec-publication-ready}
 

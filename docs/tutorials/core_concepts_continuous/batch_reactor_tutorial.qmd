@@ -140,3 +140,16 @@ class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
             self.set_default_equilibrium("complete")
 ```
 
+TODO: go stepwise over the definition of define system
+
+TODO: go over what is optional and what isn't optional about deterministic systems
+
+TODO: clarify what output variables actually are, what they semantically mean, and what _h_sym is relative to _f_sym
+
+TODO: go over the added stochastic system mechanics and clarify that for pure diffusion systems the drift term _f_sym needs to be a zero vector
+
+TODO: go over Ito versus Stratonovich and types of noise
+
+TODO: go over the optional setup_equilibria method and why its there
+
+TODO: go over basic trajectory and phase plotting

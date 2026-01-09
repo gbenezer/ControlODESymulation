@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.deterministic.discrete.discretebatchreactor – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor">systems.builtin.deterministic.discrete.DiscreteBatchReactor</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics" id="toc-dynamics" class="nav-link" data-scroll-target="#dynamics">Dynamics:</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  <li><a href="#equilibria" id="toc-equilibria" class="nav-link" data-scroll-target="#equilibria">Equilibria:</a></li>
+  <li><a href="#control-objectives" id="toc-control-objectives" class="nav-link" data-scroll-target="#control-objectives">Control Objectives:</a></li>
+  <li><a href="#state-constraints" id="toc-state-constraints" class="nav-link" data-scroll-target="#state-constraints">State Constraints:</a></li>
+  <li><a href="#numerical-considerations" id="toc-numerical-considerations" class="nav-link" data-scroll-target="#numerical-considerations">Numerical Considerations:</a></li>
+  <li><a href="#example-usage" id="toc-example-usage" class="nav-link" data-scroll-target="#example-usage">Example Usage:</a></li>
+  <li><a href="#physical-insights" id="toc-physical-insights" class="nav-link" data-scroll-target="#physical-insights">Physical Insights:</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also:</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating">calculate_steady_heating</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion">compute_conversion</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity">compute_selectivity</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield">compute_yield</a>
+  <ul class="collapse">
+  <li><a href="#parameters-4" id="toc-parameters-4" class="nav-link" data-scroll-target="#parameters-4">Parameters</a></li>
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-5" id="toc-parameters-5" class="nav-link" data-scroll-target="#parameters-5">Parameters</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteBatchReactor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor" class="level1">
+<h1>systems.builtin.deterministic.discrete.DiscreteBatchReactor</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Discrete-time chemical batch reactor with temperature control.</p>
+<section id="physical-system" class="level2 doc-section doc-section-physical-system">
+<h2 class="doc-section doc-section-physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<p>A well-mixed batch reactor where chemical species A converts to B, which then converts to product C. The reactor operates in discrete time steps (sampling intervals) typical of: - Digital control systems with periodic measurements - Batch processing with staged operations - Industrial reactors with discrete valve/heater actuation</p>
+<p>The reaction sequence is: A → B → C</p>
+<p>Both reactions are first-order and temperature-dependent following Arrhenius kinetics. Temperature affects reaction rates exponentially, creating strong nonlinear coupling between composition and thermal dynamics.</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<p>State: x[k] = [Cₐ[k], Cᵦ[k], T[k]] Concentration states: - Cₐ: Concentration of reactant A [mol/L] * Initial concentration typically Cₐ[0] = 1.0 mol/L * Decreases monotonically (consumed by first reaction) * Must remain non-negative: Cₐ ≥ 0</p>
+<pre><code>- Cᵦ: Concentration of intermediate B [mol/L]
+  * Produced from A, consumed to form C
+  * Non-monotonic: rises then falls
+  * Maximum occurs when r₁ = r₂ (production = consumption)
+  * Must remain non-negative: Cᵦ ≥ 0
+
+Temperature state:
+- T: Reactor temperature [K]
+  * Typical range: 300-400 K (27-127°C)
+  * Affects reaction rates exponentially via Arrhenius
+  * Subject to heat loss to ambient (cooling)
+  * Controlled by external heating Q</code></pre>
+<p>Control: u[k] = [Q[k]] - Q: Heating/cooling rate [K/s] * Q &gt; 0: Heating applied * Q &lt; 0: Active cooling * Q = 0: Natural heat loss only * Typical range: -50 to +50 K/s</p>
+<p>Output: y[k] = [Cₐ[k], Cᵦ[k], T[k]] - Full state measurement (all concentrations and temperature) - In practice, concentration may be measured via: * Spectroscopy (UV-Vis, IR) * Chromatography (GC, HPLC) * Online analyzers - Temperature measured via thermocouple or RTD</p>
+</section>
+<section id="dynamics" class="level2 doc-section doc-section-dynamics">
+<h2 class="doc-section doc-section-dynamics anchored" data-anchor-id="dynamics">Dynamics:</h2>
+<p>The discrete-time dynamics use Euler discretization:</p>
+<pre><code>Cₐ[k+1] = Cₐ[k] - dt·r₁[k]
+Cᵦ[k+1] = Cᵦ[k] + dt·(r₁[k] - r₂[k])
+T[k+1] = T[k] + dt·(Q[k] - α·(T[k] - Tₐₘᵦ))</code></pre>
+<p><strong>Reaction Rates (Arrhenius kinetics)</strong>: r₁[k] = k₁·Cₐ[k]·exp(-E₁/T[k]) [mol/(L·s)] r₂[k] = k₂·Cᵦ[k]·exp(-E₂/T[k]) [mol/(L·s)]</p>
+<p>where: - k₁, k₂: Pre-exponential factors (frequency factors) - E₁, E₂: Activation energies [K] (using Eₐ/R as temperature) - exp(-E/T): Arrhenius temperature dependence</p>
+<p><strong>Physical Interpretation</strong>:</p>
+<p>Reaction 1 (A → B): - Rate r₁ proportional to Cₐ (first-order kinetics) - Exponentially increases with temperature - Higher E₁ → more temperature sensitive - Depletes reactant A, produces intermediate B</p>
+<p>Reaction 2 (B → C): - Rate r₂ proportional to Cᵦ (first-order kinetics) - Exponentially increases with temperature - Higher E₂ → more temperature sensitive - Consumes intermediate B, produces final product C</p>
+<p>Temperature dynamics: - Q[k]: External heating/cooling control - -α·(T - Tₐₘᵦ): Heat loss to ambient (Newton’s cooling) - α: Heat transfer coefficient [1/s] - Tₐₘᵦ: Ambient temperature [K]</p>
+<p><strong>Nonlinear Coupling</strong>: The system exhibits strong nonlinear coupling: 1. Temperature affects reaction rates exponentially 2. Reactions may be exothermic/endothermic (not modeled here) 3. Competing reactions create non-monotonic Cᵦ profile</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<p>k1 : float, default=0.5 Pre-exponential factor for reaction 1 (A→B) [1/s] Higher k₁ → faster depletion of A Typical range: 0.1 - 10.0</p>
+<p>k2 : float, default=0.3 Pre-exponential factor for reaction 2 (B→C) [1/s] Higher k₂ → faster conversion of B to C Typical range: 0.1 - 10.0</p>
+<p>E1 : float, default=1000.0 Activation energy for reaction 1 [K] (actually Eₐ/R) Higher E₁ → more sensitive to temperature Physical Eₐ typically 8,000 - 30,000 K</p>
+<p>E2 : float, default=1500.0 Activation energy for reaction 2 [K] (actually Eₐ/R) E₂ &gt; E₁ means reaction 2 is more temperature-sensitive Creates selectivity control via temperature</p>
+<p>alpha : float, default=0.1 Heat transfer coefficient [1/s] Characterizes cooling rate to ambient Higher α → faster heat loss, harder to maintain temperature</p>
+<p>T_amb : float, default=300.0 Ambient temperature [K] (27°C) System equilibrium temperature with Q = 0</p>
+<p>dt : float, default=1.0 Sampling/discretization time step [s] Critical parameter affecting stability: - Too large → numerical instability - Too small → slow simulation, control system bandwidth Typical: 0.1 - 10.0 seconds</p>
+</section>
+<section id="equilibria" class="level2 doc-section doc-section-equilibria">
+<h2 class="doc-section doc-section-equilibria anchored" data-anchor-id="equilibria">Equilibria:</h2>
+<p><strong>Steady-state (complete conversion)</strong>: x_eq = [0, 0, Tₐₘᵦ] (all reactants consumed, cooled to ambient) u_eq = 0 (no heating needed)</p>
+<p>This equilibrium is reached after sufficient batch time when: - All A has converted to B: Cₐ → 0 - All B has converted to C: Cᵦ → 0 - Temperature equilibrates with ambient: T → Tₐₘᵦ</p>
+<p>This is a <strong>stable equilibrium</strong> (globally attracting).</p>
+<p><strong>Optimal operating point</strong> (maximum B yield): If goal is to maximize Cᵦ at a specific time, equilibrium concept doesn’t apply. Instead, use optimal control to find temperature trajectory Q[k] that maximizes Cᵦ at final time.</p>
+<p><strong>Temperature setpoint equilibrium</strong> (partial reaction): For constant T* &gt; Tₐₘᵦ maintained by control: - Requires Q_eq = α·(T* - Tₐₘᵦ) to balance heat loss - Concentrations evolve according to reaction kinetics at T* - Not a true equilibrium (Cₐ, Cᵦ still changing)</p>
+</section>
+<section id="control-objectives" class="level2 doc-section doc-section-control-objectives">
+<h2 class="doc-section doc-section-control-objectives anchored" data-anchor-id="control-objectives">Control Objectives:</h2>
+<p>Common control goals for batch reactors:</p>
+<ol type="1">
+<li><strong>Temperature tracking</strong>: Maintain T[k] ≈ T_ref[k]
+<ul>
+<li>Maximize reaction rate</li>
+<li>Ensure safety (prevent runaway)</li>
+<li>LQR/MPC controllers typical</li>
+</ul></li>
+<li><strong>Yield optimization</strong>: Maximize Cᵦ at final time
+<ul>
+<li>Requires optimal temperature trajectory</li>
+<li>May involve heating → cooling profile</li>
+<li>Dynamic programming or direct optimization</li>
+</ul></li>
+<li><strong>Batch time minimization</strong>: Reach Cₐ &lt; ε in minimum time
+<ul>
+<li>Subject to temperature constraints (T_min ≤ T ≤ T_max)</li>
+<li>Bang-bang control often optimal</li>
+</ul></li>
+<li><strong>Selectivity control</strong>: Maximize ratio Cᵦ/Cᶜ
+<ul>
+<li>Exploit different activation energies (E₁ vs E₂)</li>
+<li>Intermediate temperature maximizes B</li>
+</ul></li>
+</ol>
+</section>
+<section id="state-constraints" class="level2 doc-section doc-section-state-constraints">
+<h2 class="doc-section doc-section-state-constraints anchored" data-anchor-id="state-constraints">State Constraints:</h2>
+<p>Physical constraints that must be enforced:</p>
+<ol type="1">
+<li><strong>Non-negativity</strong>: Cₐ[k] ≥ 0, Cᵦ[k] ≥ 0
+<ul>
+<li>Concentrations cannot be negative</li>
+<li>Euler discretization may violate if dt too large</li>
+</ul></li>
+<li><strong>Conservation</strong>: Cₐ[k] + Cᵦ[k] + Cᶜ[k] = Cₐ[0]
+<ul>
+<li>Total moles conserved (if C tracked)</li>
+<li>Useful for validation</li>
+</ul></li>
+<li><strong>Temperature limits</strong>: T_min ≤ T[k] ≤ T_max
+<ul>
+<li>Safety: prevent runaway or solidification</li>
+<li>Typical: 280 K ≤ T ≤ 450 K</li>
+</ul></li>
+<li><strong>Actuation limits</strong>: Q_min ≤ Q[k] ≤ Q_max
+<ul>
+<li>Physical heating/cooling capacity</li>
+<li>Typical: -50 ≤ Q ≤ 50 K/s</li>
+</ul></li>
+</ol>
+</section>
+<section id="numerical-considerations" class="level2 doc-section doc-section-numerical-considerations">
+<h2 class="doc-section doc-section-numerical-considerations anchored" data-anchor-id="numerical-considerations">Numerical Considerations:</h2>
+<p><strong>Stability</strong>: The explicit Euler discretization is stable if: dt &lt; 1/λ_max</p>
+<p>where λ_max is the maximum eigenvalue of the Jacobian.</p>
+<p>For this system, linearizing around typical operating points: λ_max ≈ max(k₁·exp(-E₁/T), k₂·exp(-E₂/T), α)</p>
+<p>At high temperature, reaction rates can be very fast, requiring small dt for stability. Rule of thumb: dt &lt; 0.1 / max(k₁·exp(-E₁/T), k₂·exp(-E₂/T))</p>
+<p><strong>Accuracy</strong>: Higher-order methods (RK4, etc.) can be used: system_continuous = ContinuousBatchReactor(…) system_discrete = system_continuous.discretize(dt=1.0, method=‘rk4’)</p>
+<p><strong>Stiffness</strong>: If E₁ ≫ E₂ or vice versa, system may be stiff, requiring implicit methods or very small dt.</p>
+</section>
+<section id="example-usage" class="level2 doc-section doc-section-example-usage">
+<h2 class="doc-section doc-section-example-usage anchored" data-anchor-id="example-usage">Example Usage:</h2>
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<blockquote class="blockquote">
+<h1 id="create-reactor-with-default-parameters">Create reactor with default parameters</h1>
+<p>reactor = DiscreteBatchReactor(dt=0.5)</p>
+<h1 id="initial-condition-fresh-batch">Initial condition: fresh batch</h1>
+<p>x0 = np.array([1.0, 0.0, 350.0]) # [Cₐ, Cᵦ, T]</p>
+<h1 id="simulate-with-constant-heating">Simulate with constant heating</h1>
+<p>result = reactor.simulate( … x0=x0, … u_sequence=np.array([10.0]), # Constant Q = 10 K/s … n_steps=100 … )</p>
+<h1 id="plot-concentration-profiles">Plot concentration profiles</h1>
+<p>import matplotlib.pyplot as plt plt.plot(result[‘time_steps’], result[‘states’][:, 0], label=‘Cₐ’) plt.plot(result[‘time_steps’], result[‘states’][:, 1], label=‘Cᵦ’) plt.xlabel(‘Time step’) plt.ylabel(‘Concentration [mol/L]’) plt.legend()</p>
+<h1 id="design-lqr-temperature-controller">Design LQR temperature controller</h1>
+<p>T_ref = 360.0 # Reference temperature x_ref = np.array([0.5, 0.3, T_ref]) u_ref = reactor._calculate_steady_heating(T_ref)</p>
+<p>Ad, Bd = reactor.linearize(x_ref, u_ref) Q_lqr = np.diag([0, 0, 100]) # Only care about temperature R_lqr = np.array([[1.0]]) lqr_result = reactor.control.design_lqr(Ad, Bd, Q_lqr, R_lqr, … system_type=‘discrete’) K = lqr_result[‘gain’]</p>
+<h1 id="simulate-with-lqr-control">Simulate with LQR control</h1>
+<p>def lqr_controller(x, k): … return -K @ (x - x_ref) + u_ref</p>
+<p>result_lqr = reactor.rollout(x0, lqr_controller, n_steps=100)</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</section>
+<section id="physical-insights" class="level2 doc-section doc-section-physical-insights">
+<h2 class="doc-section doc-section-physical-insights anchored" data-anchor-id="physical-insights">Physical Insights:</h2>
+<p><strong>Reaction Selectivity</strong>: Since E₂ &gt; E₁ (default), reaction 2 is more temperature-sensitive. This means: - Low T: Slow r₂, Cᵦ accumulates (favors intermediate) - High T: Fast r₂, Cᵦ depletes quickly (favors product)</p>
+<p><strong>Temperature Control Strategy</strong>: To maximize Cᵦ yield: 1. Heat initially to accelerate reaction 1 (produce B) 2. Cool before reaction 2 becomes too fast (preserve B) 3. Optimal trajectory: heating → plateau → cooling</p>
+<p><strong>Batch Time vs.&nbsp;Yield Tradeoff</strong>: - High temperature: Fast reactions, short batch time, but may overshoot optimal Cᵦ (too much conversion to C) - Low temperature: Slow reactions, long batch time, but can maintain high Cᵦ for longer - Economic optimum balances these factors</p>
+<p><strong>Safety Considerations</strong>: - Exothermic reactions (not modeled) can cause thermal runaway - High temperature reduces selectivity, may form byproducts - Emergency cooling (Q &lt; 0) must be available - Temperature constraints critical for safe operation</p>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also:</h2>
+<p>ContinuousBatchReactor : Continuous-time version of this system DiscreteCSTR : Continuous stirred-tank reactor (continuous flow) LogisticMap : Simpler discrete nonlinear dynamics DiscretePendulum : Another discrete nonlinear control problem</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating">calculate_steady_heating</a></td>
+<td>Calculate steady-state heating required to maintain temperature setpoint.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion">compute_conversion</a></td>
+<td>Compute fractional conversion of reactant A.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity">compute_selectivity</a></td>
+<td>Compute selectivity to intermediate B.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield">compute_yield</a></td>
+<td>Compute yield of intermediate B.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system">define_system</a></td>
+<td>Define symbolic discrete-time batch reactor dynamics.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria">setup_equilibria</a></td>
+<td>Set up equilibrium points for the batch reactor.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating">calculate_steady_heating</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    T_setpoint,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate steady-state heating required to maintain temperature setpoint.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>T_setpoint</td>
+<td>float</td>
+<td>Desired reactor temperature [K]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Required heating rate Q [K/s]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p>At steady state (constant T), heat input must balance heat loss: Q = α·(T - T_amb)</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion">compute_conversion</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute fractional conversion of reactant A.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C_A</td>
+<td>float</td>
+<td>Current concentration of A [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>C_A0</td>
+<td>float</td>
+<td>Initial concentration of A [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 78%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Conversion fraction X_A (0 = no conversion, 1 = complete)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X <span class="op">=</span> reactor.compute_conversion(C_A<span class="op">=</span><span class="fl">0.3</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conversion: </span><span class="sc">{</span>X<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Conversion: <span class="fl">70.0</span><span class="op">%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity">compute_selectivity</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    C_B,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute selectivity to intermediate B.</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C_B</td>
+<td>float</td>
+<td>Current concentration of B [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>C_A</td>
+<td>float</td>
+<td>Current concentration of A [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>C_A0</td>
+<td>float</td>
+<td>Initial concentration of A [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 9%">
+<col style="width: 81%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Selectivity S_B = C_B / (C_A0 - C_A) (moles B per mole A converted)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Selectivity measures how much intermediate B is produced per mole of A consumed. Values: - S_B = 1.0: Perfect selectivity (all A → B, no B → C yet) - S_B &lt; 1.0: Some B has already converted to C - S_B → 0: Most B has converted to C (over-reacted)</p>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> S <span class="op">=</span> reactor.compute_selectivity(C_B<span class="op">=</span><span class="fl">0.5</span>, C_A<span class="op">=</span><span class="fl">0.3</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Selectivity: </span><span class="sc">{</span>S<span class="sc">:.2f}</span><span class="ss"> mol B / mol A converted"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield">compute_yield</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    C_B,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute yield of intermediate B.</p>
+<section id="parameters-4" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C_B</td>
+<td>float</td>
+<td>Current concentration of B [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>C_A0</td>
+<td>float</td>
+<td>Initial concentration of A [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 76%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Yield Y_B = C_B / C_A0 (moles B per initial mole A)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-2" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-2">Notes</h4>
+<p>Yield is the most important metric for batch optimization. Combines both conversion and selectivity: Y_B = X_A · S_B</p>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Y <span class="op">=</span> reactor.compute_yield(C_B<span class="op">=</span><span class="fl">0.4</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Yield: </span><span class="sc">{</span>Y<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>Yield: <span class="fl">40.0</span><span class="op">%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    k1_val<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    k2_val<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    E1_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    E2_val<span class="op">=</span><span class="fl">1500.0</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    alpha_val<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    T_amb_val<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    C_A0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    T0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define symbolic discrete-time batch reactor dynamics.</p>
+<section id="parameters-5" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-5">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 19%">
+<col style="width: 58%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>k1_val</td>
+<td>float</td>
+<td>Pre-exponential factor for A→B reaction [1/s]</td>
+<td><code>0.5</code></td>
+</tr>
+<tr class="even">
+<td>k2_val</td>
+<td>float</td>
+<td>Pre-exponential factor for B→C reaction [1/s]</td>
+<td><code>0.3</code></td>
+</tr>
+<tr class="odd">
+<td>E1_val</td>
+<td>float</td>
+<td>Activation energy for reaction 1 [K]</td>
+<td><code>1000.0</code></td>
+</tr>
+<tr class="even">
+<td>E2_val</td>
+<td>float</td>
+<td>Activation energy for reaction 2 [K]</td>
+<td><code>1500.0</code></td>
+</tr>
+<tr class="odd">
+<td>alpha_val</td>
+<td>float</td>
+<td>Heat transfer coefficient [1/s]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>T_amb_val</td>
+<td>float</td>
+<td>Ambient temperature [K]</td>
+<td><code>300.0</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Discretization time step [s]</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>C_A0</td>
+<td>Optional[float]</td>
+<td>Initial concentration of A for equilibrium setup [mol/L]</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>T0</td>
+<td>Optional[float]</td>
+<td>Initial temperature for equilibrium setup [K]</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up equilibrium points for the batch reactor.</p>
+<p>Adds two equilibria: 1. ‘complete’: Complete conversion (Cₐ=0, Cᵦ=0, T=Tₐₘᵦ) 2. ‘initial’: Optional initial state if C_A0 and T0 specified</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.discrete.DiscreteBatchReactor { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor }</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>Discrete-time chemical batch reactor with temperature control.</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical System: {.doc-section .doc-section-physical-system}</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>A well-mixed batch reactor where chemical species A converts to B,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>which then converts to product C. The reactor operates in discrete</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>time steps (sampling intervals) typical of:</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Digital control systems with periodic measurements</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Batch processing with staged operations</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Industrial reactors with discrete valve/heater actuation</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>The reaction sequence is:</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    A → B → C</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>Both reactions are first-order and temperature-dependent following</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>Arrhenius kinetics. Temperature affects reaction rates exponentially,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>creating strong nonlinear coupling between composition and thermal</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>dynamics.</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space: {.doc-section .doc-section-state-space}</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>State: x<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">Cₐ[k], Cᵦ[k], T[k]</span><span class="co">]</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    Concentration states:</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Cₐ: Concentration of reactant A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Initial concentration typically Cₐ<span class="co">[</span><span class="ot">0</span><span class="co">]</span> = 1.0 mol/L</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Decreases monotonically (consumed by first reaction)</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Must remain non-negative: Cₐ ≥ 0</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Cᵦ: Concentration of intermediate B <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Produced from A, consumed to form C</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Non-monotonic: rises then falls</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Maximum occurs when r₁ = r₂ (production = consumption)</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Must remain non-negative: Cᵦ ≥ 0</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    Temperature state:</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>T: Reactor temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Typical range: 300-400 K (27-127°C)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Affects reaction rates exponentially via Arrhenius</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Subject to heat loss to ambient (cooling)</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Controlled by external heating Q</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>Control: u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">Q[k]</span><span class="co">]</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Q: Heating/cooling rate <span class="co">[</span><span class="ot">K/s</span><span class="co">]</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Q &gt; 0: Heating applied</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Q &lt; 0: Active cooling</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Q = 0: Natural heat loss only</span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Typical range: -50 to +50 K/s</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>Output: y<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">Cₐ[k], Cᵦ[k], T[k]</span><span class="co">]</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Full state measurement (all concentrations and temperature)</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>In practice, concentration may be measured via:</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Spectroscopy (UV-Vis, IR)</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Chromatography (GC, HPLC)</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="ss">      * </span>Online analyzers</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Temperature measured via thermocouple or RTD</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dynamics: {.doc-section .doc-section-dynamics}</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>The discrete-time dynamics use Euler discretization:</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="in">    Cₐ[k+1] = Cₐ[k] - dt·r₁[k]</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="in">    Cᵦ[k+1] = Cᵦ[k] + dt·(r₁[k] - r₂[k])</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="in">    T[k+1] = T[k] + dt·(Q[k] - α·(T[k] - Tₐₘᵦ))</span></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>**Reaction Rates (Arrhenius kinetics)**:</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>    r₁<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = k₁·Cₐ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·exp(-E₁/T<span class="co">[</span><span class="ot">k</span><span class="co">]</span>)    <span class="co">[</span><span class="ot">mol/(L·s)</span><span class="co">]</span></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>    r₂<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = k₂·Cᵦ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·exp(-E₂/T<span class="co">[</span><span class="ot">k</span><span class="co">]</span>)    <span class="co">[</span><span class="ot">mol/(L·s)</span><span class="co">]</span></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>k₁, k₂: Pre-exponential factors (frequency factors)</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>E₁, E₂: Activation energies <span class="co">[</span><span class="ot">K</span><span class="co">]</span> (using Eₐ/R as temperature)</span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>exp(-E/T): Arrhenius temperature dependence</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>**Physical Interpretation**:</span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>Reaction 1 (A → B):</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rate r₁ proportional to Cₐ (first-order kinetics)</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Exponentially increases with temperature</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher E₁ → more temperature sensitive</span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Depletes reactant A, produces intermediate B</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>Reaction 2 (B → C):</span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rate r₂ proportional to Cᵦ (first-order kinetics)</span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Exponentially increases with temperature</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher E₂ → more temperature sensitive</span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Consumes intermediate B, produces final product C</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>Temperature dynamics:</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: External heating/cooling control</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>-α·(T - Tₐₘᵦ): Heat loss to ambient (Newton's cooling)</span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α: Heat transfer coefficient <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Tₐₘᵦ: Ambient temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span></span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>**Nonlinear Coupling**:</span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>The system exhibits strong nonlinear coupling:</span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Temperature affects reaction rates exponentially</span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Reactions may be exothermic/endothermic (not modeled here)</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Competing reactions create non-monotonic Cᵦ profile</span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters: {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>k1 : float, default=0.5</span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>    Pre-exponential factor for reaction 1 (A→B) <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>    Higher k₁ → faster depletion of A</span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a>    Typical range: 0.1 - 10.0</span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>k2 : float, default=0.3</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>    Pre-exponential factor for reaction 2 (B→C) <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>    Higher k₂ → faster conversion of B to C</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>    Typical range: 0.1 - 10.0</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>E1 : float, default=1000.0</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>    Activation energy for reaction 1 <span class="co">[</span><span class="ot">K</span><span class="co">]</span> (actually Eₐ/R)</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>    Higher E₁ → more sensitive to temperature</span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>    Physical Eₐ typically 8,000 - 30,000 K</span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>E2 : float, default=1500.0</span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>    Activation energy for reaction 2 <span class="co">[</span><span class="ot">K</span><span class="co">]</span> (actually Eₐ/R)</span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>    E₂ &gt; E₁ means reaction 2 is more temperature-sensitive</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a>    Creates selectivity control via temperature</span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a>alpha : float, default=0.1</span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a>    Heat transfer coefficient <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span></span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a>    Characterizes cooling rate to ambient</span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a>    Higher α → faster heat loss, harder to maintain temperature</span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a>T_amb : float, default=300.0</span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a>    Ambient temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span> (27°C)</span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a>    System equilibrium temperature with Q = 0</span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a>dt : float, default=1.0</span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>    Sampling/discretization time step <span class="co">[</span><span class="ot">s</span><span class="co">]</span></span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>    Critical parameter affecting stability:</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Too large → numerical instability</span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Too small → slow simulation, control system bandwidth</span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a>    Typical: 0.1 - 10.0 seconds</span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a><span class="fu">## Equilibria: {.doc-section .doc-section-equilibria}</span></span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a>**Steady-state (complete conversion)**:</span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>    x_eq = <span class="co">[</span><span class="ot">0, 0, Tₐₘᵦ</span><span class="co">]</span>  (all reactants consumed, cooled to ambient)</span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a>    u_eq = 0  (no heating needed)</span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a>This equilibrium is reached after sufficient batch time when:</span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>All A has converted to B: Cₐ → 0</span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>All B has converted to C: Cᵦ → 0</span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Temperature equilibrates with ambient: T → Tₐₘᵦ</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a>This is a **stable equilibrium** (globally attracting).</span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>**Optimal operating point** (maximum B yield):</span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>    If goal is to maximize Cᵦ at a specific time, equilibrium</span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>    concept doesn't apply. Instead, use optimal control to find</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>    temperature trajectory Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span> that maximizes Cᵦ at final time.</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>**Temperature setpoint equilibrium** (partial reaction):</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a>    For constant T* &gt; Tₐₘᵦ maintained by control:</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Requires Q_eq = α·(T* - Tₐₘᵦ) to balance heat loss</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Concentrations evolve according to reaction kinetics at T*</span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Not a true equilibrium (Cₐ, Cᵦ still changing)</span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Control Objectives: {.doc-section .doc-section-control-objectives}</span></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>Common control goals for batch reactors:</span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Temperature tracking**: Maintain T<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≈ T_ref<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Maximize reaction rate</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Ensure safety (prevent runaway)</span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>LQR/MPC controllers typical</span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Yield optimization**: Maximize Cᵦ at final time</span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Requires optimal temperature trajectory</span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>May involve heating → cooling profile</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Dynamic programming or direct optimization</span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Batch time minimization**: Reach Cₐ &lt; ε in minimum time</span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Subject to temperature constraints (T_min ≤ T ≤ T_max)</span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Bang-bang control often optimal</span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Selectivity control**: Maximize ratio Cᵦ/Cᶜ</span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Exploit different activation energies (E₁ vs E₂)</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Intermediate temperature maximizes B</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Constraints: {.doc-section .doc-section-state-constraints}</span></span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a>Physical constraints that must be enforced:</span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Non-negativity**: Cₐ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≥ 0, Cᵦ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≥ 0</span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Concentrations cannot be negative</span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Euler discretization may violate if dt too large</span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Conservation**: Cₐ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + Cᵦ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + Cᶜ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = Cₐ<span class="co">[</span><span class="ot">0</span><span class="co">]</span></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Total moles conserved (if C tracked)</span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Useful for validation</span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Temperature limits**: T_min ≤ T<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≤ T_max</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Safety: prevent runaway or solidification</span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Typical: 280 K ≤ T ≤ 450 K</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Actuation limits**: Q_min ≤ Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≤ Q_max</span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Physical heating/cooling capacity</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Typical: -50 ≤ Q ≤ 50 K/s</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Considerations: {.doc-section .doc-section-numerical-considerations}</span></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a>**Stability**: The explicit Euler discretization is stable if:</span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>    dt &lt; 1/λ_max</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>where λ_max is the maximum eigenvalue of the Jacobian.</span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>For this system, linearizing around typical operating points:</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>    λ_max ≈ max(k₁·exp(-E₁/T), k₂·exp(-E₂/T), α)</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>At high temperature, reaction rates can be very fast, requiring</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a>small dt for stability. Rule of thumb:</span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>    dt &lt; 0.1 / max(k₁·exp(-E₁/T), k₂·exp(-E₂/T))</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>**Accuracy**: Higher-order methods (RK4, etc.) can be used:</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>    system_continuous = ContinuousBatchReactor(...)</span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>    system_discrete = system_continuous.discretize(dt=1.0, method='rk4')</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>**Stiffness**: If E₁ ≫ E₂ or vice versa, system may be stiff,</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>requiring implicit methods or very small dt.</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## Example Usage: {.doc-section .doc-section-example-usage}</span></span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Create reactor with default parameters</span></span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; reactor = DiscreteBatchReactor(dt=0.5)</span></span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Initial condition: fresh batch</span></span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; x0 = np.array(</span><span class="co">[</span><span class="ot">1.0, 0.0, 350.0</span><span class="co">]</span><span class="at">)  # </span><span class="co">[</span><span class="ot">Cₐ, Cᵦ, T</span><span class="co">]</span></span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Simulate with constant heating</span></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; result = reactor.simulate(</span></span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="at">...     x0=x0,</span></span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="at">...     u_sequence=np.array(</span><span class="co">[</span><span class="ot">10.0</span><span class="co">]</span><span class="at">),  # Constant Q = 10 K/s</span></span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="at">...     n_steps=100</span></span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="at">... )</span></span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Plot concentration profiles</span></span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; import matplotlib.pyplot as plt</span></span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; plt.plot(result</span><span class="co">[</span><span class="ot">'time_steps'</span><span class="co">]</span><span class="at">, result</span><span class="co">[</span><span class="ot">'states'</span><span class="co">][:, 0]</span><span class="at">, label='Cₐ')</span></span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; plt.plot(result</span><span class="co">[</span><span class="ot">'time_steps'</span><span class="co">]</span><span class="at">, result</span><span class="co">[</span><span class="ot">'states'</span><span class="co">][:, 1]</span><span class="at">, label='Cᵦ')</span></span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; plt.xlabel('Time step')</span></span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; plt.ylabel('Concentration </span><span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span><span class="at">')</span></span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; plt.legend()</span></span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Design LQR temperature controller</span></span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; T_ref = 360.0  # Reference temperature</span></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; x_ref = np.array(</span><span class="co">[</span><span class="ot">0.5, 0.3, T_ref</span><span class="co">]</span><span class="at">)</span></span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; u_ref = reactor._calculate_steady_heating(T_ref)</span></span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; Ad, Bd = reactor.linearize(x_ref, u_ref)</span></span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; Q_lqr = np.diag(</span><span class="co">[</span><span class="ot">0, 0, 100</span><span class="co">]</span><span class="at">)  # Only care about temperature</span></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; R_lqr = np.array([</span><span class="co">[</span><span class="ot">1.0</span><span class="co">]</span><span class="at">])</span></span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; lqr_result = reactor.control.design_lqr(Ad, Bd, Q_lqr, R_lqr,</span></span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a><span class="at">...                                          system_type='discrete')</span></span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; K = lqr_result</span><span class="co">[</span><span class="ot">'gain'</span><span class="co">]</span></span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; # Simulate with LQR control</span></span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; def lqr_controller(x, k):</span></span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a><span class="at">...     return -K @ (x - x_ref) + u_ref</span></span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt; result_lqr = reactor.rollout(x0, lqr_controller, n_steps=100)</span></span>
+<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Insights: {.doc-section .doc-section-physical-insights}</span></span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a>**Reaction Selectivity**:</span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a>Since E₂ &gt; E₁ (default), reaction 2 is more temperature-sensitive.</span>
+<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a>This means:</span>
+<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Low T: Slow r₂, Cᵦ accumulates (favors intermediate)</span>
+<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>High T: Fast r₂, Cᵦ depletes quickly (favors product)</span>
+<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a>**Temperature Control Strategy**:</span>
+<span id="cb13-281"><a href="#cb13-281" aria-hidden="true" tabindex="-1"></a>To maximize Cᵦ yield:</span>
+<span id="cb13-282"><a href="#cb13-282" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Heat initially to accelerate reaction 1 (produce B)</span>
+<span id="cb13-283"><a href="#cb13-283" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Cool before reaction 2 becomes too fast (preserve B)</span>
+<span id="cb13-284"><a href="#cb13-284" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Optimal trajectory: heating → plateau → cooling</span>
+<span id="cb13-285"><a href="#cb13-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-286"><a href="#cb13-286" aria-hidden="true" tabindex="-1"></a>**Batch Time vs. Yield Tradeoff**:</span>
+<span id="cb13-287"><a href="#cb13-287" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>High temperature: Fast reactions, short batch time, but may</span>
+<span id="cb13-288"><a href="#cb13-288" aria-hidden="true" tabindex="-1"></a>  overshoot optimal Cᵦ (too much conversion to C)</span>
+<span id="cb13-289"><a href="#cb13-289" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Low temperature: Slow reactions, long batch time, but can</span>
+<span id="cb13-290"><a href="#cb13-290" aria-hidden="true" tabindex="-1"></a>  maintain high Cᵦ for longer</span>
+<span id="cb13-291"><a href="#cb13-291" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Economic optimum balances these factors</span>
+<span id="cb13-292"><a href="#cb13-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-293"><a href="#cb13-293" aria-hidden="true" tabindex="-1"></a>**Safety Considerations**:</span>
+<span id="cb13-294"><a href="#cb13-294" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Exothermic reactions (not modeled) can cause thermal runaway</span>
+<span id="cb13-295"><a href="#cb13-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>High temperature reduces selectivity, may form byproducts</span>
+<span id="cb13-296"><a href="#cb13-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Emergency cooling (Q &lt; 0) must be available</span>
+<span id="cb13-297"><a href="#cb13-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Temperature constraints critical for safe operation</span>
+<span id="cb13-298"><a href="#cb13-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-299"><a href="#cb13-299" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also: {.doc-section .doc-section-see-also}</span></span>
+<span id="cb13-300"><a href="#cb13-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-301"><a href="#cb13-301" aria-hidden="true" tabindex="-1"></a>ContinuousBatchReactor : Continuous-time version of this system</span>
+<span id="cb13-302"><a href="#cb13-302" aria-hidden="true" tabindex="-1"></a>DiscreteCSTR : Continuous stirred-tank reactor (continuous flow)</span>
+<span id="cb13-303"><a href="#cb13-303" aria-hidden="true" tabindex="-1"></a>LogisticMap : Simpler discrete nonlinear dynamics</span>
+<span id="cb13-304"><a href="#cb13-304" aria-hidden="true" tabindex="-1"></a>DiscretePendulum : Another discrete nonlinear control problem</span>
+<span id="cb13-305"><a href="#cb13-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-306"><a href="#cb13-306" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb13-307"><a href="#cb13-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-308"><a href="#cb13-308" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb13-309"><a href="#cb13-309" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb13-310"><a href="#cb13-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">calculate_steady_heating</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating)</span> <span class="pp">|</span> Calculate steady-state heating required to maintain temperature setpoint. <span class="pp">|</span></span>
+<span id="cb13-311"><a href="#cb13-311" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_conversion</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion)</span> <span class="pp">|</span> Compute fractional conversion of reactant A. <span class="pp">|</span></span>
+<span id="cb13-312"><a href="#cb13-312" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_selectivity</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity)</span> <span class="pp">|</span> Compute selectivity to intermediate B. <span class="pp">|</span></span>
+<span id="cb13-313"><a href="#cb13-313" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_yield</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield)</span> <span class="pp">|</span> Compute yield of intermediate B. <span class="pp">|</span></span>
+<span id="cb13-314"><a href="#cb13-314" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system)</span> <span class="pp">|</span> Define symbolic discrete-time batch reactor dynamics. <span class="pp">|</span></span>
+<span id="cb13-315"><a href="#cb13-315" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria)</span> <span class="pp">|</span> Set up equilibrium points for the batch reactor. <span class="pp">|</span></span>
+<span id="cb13-316"><a href="#cb13-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-317"><a href="#cb13-317" aria-hidden="true" tabindex="-1"></a><span class="fu">### calculate_steady_heating { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating }</span></span>
+<span id="cb13-318"><a href="#cb13-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-319"><a href="#cb13-319" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-320"><a href="#cb13-320" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.calculate_steady_heating(</span>
+<span id="cb13-321"><a href="#cb13-321" aria-hidden="true" tabindex="-1"></a>    T_setpoint,</span>
+<span id="cb13-322"><a href="#cb13-322" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-323"><a href="#cb13-323" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-324"><a href="#cb13-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-325"><a href="#cb13-325" aria-hidden="true" tabindex="-1"></a>Calculate steady-state heating required to maintain temperature setpoint.</span>
+<span id="cb13-326"><a href="#cb13-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-327"><a href="#cb13-327" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-328"><a href="#cb13-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-329"><a href="#cb13-329" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name       <span class="pp">|</span> Type   <span class="pp">|</span> Description                     <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb13-330"><a href="#cb13-330" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------|--------|---------------------------------|------------|</span></span>
+<span id="cb13-331"><a href="#cb13-331" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_setpoint <span class="pp">|</span> float  <span class="pp">|</span> Desired reactor temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-332"><a href="#cb13-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-333"><a href="#cb13-333" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-334"><a href="#cb13-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-335"><a href="#cb13-335" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                   <span class="pp">|</span></span>
+<span id="cb13-336"><a href="#cb13-336" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------------|</span></span>
+<span id="cb13-337"><a href="#cb13-337" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Required heating rate Q <span class="co">[</span><span class="ot">K/s</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb13-338"><a href="#cb13-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-339"><a href="#cb13-339" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb13-340"><a href="#cb13-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-341"><a href="#cb13-341" aria-hidden="true" tabindex="-1"></a>At steady state (constant T), heat input must balance heat loss:</span>
+<span id="cb13-342"><a href="#cb13-342" aria-hidden="true" tabindex="-1"></a>    Q = α·(T - T_amb)</span>
+<span id="cb13-343"><a href="#cb13-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-344"><a href="#cb13-344" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_conversion { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion }</span></span>
+<span id="cb13-345"><a href="#cb13-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-346"><a href="#cb13-346" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-347"><a href="#cb13-347" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_conversion(</span>
+<span id="cb13-348"><a href="#cb13-348" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb13-349"><a href="#cb13-349" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb13-350"><a href="#cb13-350" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-351"><a href="#cb13-351" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-352"><a href="#cb13-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-353"><a href="#cb13-353" aria-hidden="true" tabindex="-1"></a>Compute fractional conversion of reactant A.</span>
+<span id="cb13-354"><a href="#cb13-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-355"><a href="#cb13-355" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-356"><a href="#cb13-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-357"><a href="#cb13-357" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb13-358"><a href="#cb13-358" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------|------------|</span></span>
+<span id="cb13-359"><a href="#cb13-359" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A    <span class="pp">|</span> float  <span class="pp">|</span> Current concentration of A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-360"><a href="#cb13-360" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0   <span class="pp">|</span> float  <span class="pp">|</span> Initial concentration of A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-361"><a href="#cb13-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-362"><a href="#cb13-362" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-363"><a href="#cb13-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-364"><a href="#cb13-364" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                               <span class="pp">|</span></span>
+<span id="cb13-365"><a href="#cb13-365" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------------------------------------------------|</span></span>
+<span id="cb13-366"><a href="#cb13-366" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Conversion fraction X_A (0 = no conversion, 1 = complete) <span class="pp">|</span></span>
+<span id="cb13-367"><a href="#cb13-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-368"><a href="#cb13-368" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-369"><a href="#cb13-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-370"><a href="#cb13-370" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-371"><a href="#cb13-371" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb13-372"><a href="#cb13-372" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X <span class="op">=</span> reactor.compute_conversion(C_A<span class="op">=</span><span class="fl">0.3</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb13-373"><a href="#cb13-373" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conversion: </span><span class="sc">{</span>X<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb13-374"><a href="#cb13-374" aria-hidden="true" tabindex="-1"></a>Conversion: <span class="fl">70.0</span><span class="op">%</span></span>
+<span id="cb13-375"><a href="#cb13-375" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-376"><a href="#cb13-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-377"><a href="#cb13-377" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_selectivity { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity }</span></span>
+<span id="cb13-378"><a href="#cb13-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-379"><a href="#cb13-379" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-380"><a href="#cb13-380" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_selectivity(</span>
+<span id="cb13-381"><a href="#cb13-381" aria-hidden="true" tabindex="-1"></a>    C_B,</span>
+<span id="cb13-382"><a href="#cb13-382" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb13-383"><a href="#cb13-383" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb13-384"><a href="#cb13-384" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-385"><a href="#cb13-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-386"><a href="#cb13-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-387"><a href="#cb13-387" aria-hidden="true" tabindex="-1"></a>Compute selectivity to intermediate B.</span>
+<span id="cb13-388"><a href="#cb13-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-389"><a href="#cb13-389" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-390"><a href="#cb13-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-391"><a href="#cb13-391" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb13-392"><a href="#cb13-392" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------|------------|</span></span>
+<span id="cb13-393"><a href="#cb13-393" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_B    <span class="pp">|</span> float  <span class="pp">|</span> Current concentration of B <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-394"><a href="#cb13-394" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A    <span class="pp">|</span> float  <span class="pp">|</span> Current concentration of A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-395"><a href="#cb13-395" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0   <span class="pp">|</span> float  <span class="pp">|</span> Initial concentration of A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-396"><a href="#cb13-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-397"><a href="#cb13-397" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-398"><a href="#cb13-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-399"><a href="#cb13-399" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                         <span class="pp">|</span></span>
+<span id="cb13-400"><a href="#cb13-400" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------------------------------------------------------|</span></span>
+<span id="cb13-401"><a href="#cb13-401" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Selectivity S_B = C_B / (C_A0 - C_A) (moles B per mole A converted) <span class="pp">|</span></span>
+<span id="cb13-402"><a href="#cb13-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-403"><a href="#cb13-403" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb13-404"><a href="#cb13-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-405"><a href="#cb13-405" aria-hidden="true" tabindex="-1"></a>Selectivity measures how much intermediate B is produced per</span>
+<span id="cb13-406"><a href="#cb13-406" aria-hidden="true" tabindex="-1"></a>mole of A consumed. Values:</span>
+<span id="cb13-407"><a href="#cb13-407" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>S_B = 1.0: Perfect selectivity (all A → B, no B → C yet)</span>
+<span id="cb13-408"><a href="#cb13-408" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>S_B &lt; 1.0: Some B has already converted to C</span>
+<span id="cb13-409"><a href="#cb13-409" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>S_B → 0: Most B has converted to C (over-reacted)</span>
+<span id="cb13-410"><a href="#cb13-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-411"><a href="#cb13-411" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-412"><a href="#cb13-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-413"><a href="#cb13-413" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-414"><a href="#cb13-414" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb13-415"><a href="#cb13-415" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> S <span class="op">=</span> reactor.compute_selectivity(C_B<span class="op">=</span><span class="fl">0.5</span>, C_A<span class="op">=</span><span class="fl">0.3</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb13-416"><a href="#cb13-416" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Selectivity: </span><span class="sc">{</span>S<span class="sc">:.2f}</span><span class="ss"> mol B / mol A converted"</span>)</span>
+<span id="cb13-417"><a href="#cb13-417" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-418"><a href="#cb13-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-419"><a href="#cb13-419" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_yield { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield }</span></span>
+<span id="cb13-420"><a href="#cb13-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-421"><a href="#cb13-421" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-422"><a href="#cb13-422" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.compute_yield(</span>
+<span id="cb13-423"><a href="#cb13-423" aria-hidden="true" tabindex="-1"></a>    C_B,</span>
+<span id="cb13-424"><a href="#cb13-424" aria-hidden="true" tabindex="-1"></a>    C_A0,</span>
+<span id="cb13-425"><a href="#cb13-425" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-426"><a href="#cb13-426" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-427"><a href="#cb13-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-428"><a href="#cb13-428" aria-hidden="true" tabindex="-1"></a>Compute yield of intermediate B.</span>
+<span id="cb13-429"><a href="#cb13-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-430"><a href="#cb13-430" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-431"><a href="#cb13-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-432"><a href="#cb13-432" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb13-433"><a href="#cb13-433" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------|------------|</span></span>
+<span id="cb13-434"><a href="#cb13-434" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_B    <span class="pp">|</span> float  <span class="pp">|</span> Current concentration of B <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-435"><a href="#cb13-435" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0   <span class="pp">|</span> float  <span class="pp">|</span> Initial concentration of A <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb13-436"><a href="#cb13-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-437"><a href="#cb13-437" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb13-438"><a href="#cb13-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-439"><a href="#cb13-439" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                         <span class="pp">|</span></span>
+<span id="cb13-440"><a href="#cb13-440" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------------------------------------------|</span></span>
+<span id="cb13-441"><a href="#cb13-441" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Yield Y_B = C_B / C_A0 (moles B per initial mole A) <span class="pp">|</span></span>
+<span id="cb13-442"><a href="#cb13-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-443"><a href="#cb13-443" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb13-444"><a href="#cb13-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-445"><a href="#cb13-445" aria-hidden="true" tabindex="-1"></a>Yield is the most important metric for batch optimization.</span>
+<span id="cb13-446"><a href="#cb13-446" aria-hidden="true" tabindex="-1"></a>Combines both conversion and selectivity:</span>
+<span id="cb13-447"><a href="#cb13-447" aria-hidden="true" tabindex="-1"></a>    Y_B = X_A · S_B</span>
+<span id="cb13-448"><a href="#cb13-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-449"><a href="#cb13-449" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb13-450"><a href="#cb13-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-451"><a href="#cb13-451" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-452"><a href="#cb13-452" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteBatchReactor()</span>
+<span id="cb13-453"><a href="#cb13-453" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Y <span class="op">=</span> reactor.compute_yield(C_B<span class="op">=</span><span class="fl">0.4</span>, C_A0<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb13-454"><a href="#cb13-454" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Yield: </span><span class="sc">{</span>Y<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb13-455"><a href="#cb13-455" aria-hidden="true" tabindex="-1"></a>Yield: <span class="fl">40.0</span><span class="op">%</span></span>
+<span id="cb13-456"><a href="#cb13-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-457"><a href="#cb13-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-458"><a href="#cb13-458" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system }</span></span>
+<span id="cb13-459"><a href="#cb13-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-460"><a href="#cb13-460" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-461"><a href="#cb13-461" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.define_system(</span>
+<span id="cb13-462"><a href="#cb13-462" aria-hidden="true" tabindex="-1"></a>    k1_val<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb13-463"><a href="#cb13-463" aria-hidden="true" tabindex="-1"></a>    k2_val<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb13-464"><a href="#cb13-464" aria-hidden="true" tabindex="-1"></a>    E1_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb13-465"><a href="#cb13-465" aria-hidden="true" tabindex="-1"></a>    E2_val<span class="op">=</span><span class="fl">1500.0</span>,</span>
+<span id="cb13-466"><a href="#cb13-466" aria-hidden="true" tabindex="-1"></a>    alpha_val<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb13-467"><a href="#cb13-467" aria-hidden="true" tabindex="-1"></a>    T_amb_val<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb13-468"><a href="#cb13-468" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb13-469"><a href="#cb13-469" aria-hidden="true" tabindex="-1"></a>    C_A0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb13-470"><a href="#cb13-470" aria-hidden="true" tabindex="-1"></a>    T0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb13-471"><a href="#cb13-471" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-472"><a href="#cb13-472" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-473"><a href="#cb13-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-474"><a href="#cb13-474" aria-hidden="true" tabindex="-1"></a>Define symbolic discrete-time batch reactor dynamics.</span>
+<span id="cb13-475"><a href="#cb13-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-476"><a href="#cb13-476" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb13-477"><a href="#cb13-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-478"><a href="#cb13-478" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type              <span class="pp">|</span> Description                                              <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb13-479"><a href="#cb13-479" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------------------|----------------------------------------------------------|-----------|</span></span>
+<span id="cb13-480"><a href="#cb13-480" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k1_val    <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for A→B reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>            <span class="pp">|</span> <span class="in">`0.5`</span>     <span class="pp">|</span></span>
+<span id="cb13-481"><a href="#cb13-481" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k2_val    <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for B→C reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>            <span class="pp">|</span> <span class="in">`0.3`</span>     <span class="pp">|</span></span>
+<span id="cb13-482"><a href="#cb13-482" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E1_val    <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 1 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                     <span class="pp">|</span> <span class="in">`1000.0`</span>  <span class="pp">|</span></span>
+<span id="cb13-483"><a href="#cb13-483" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E2_val    <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 2 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                     <span class="pp">|</span> <span class="in">`1500.0`</span>  <span class="pp">|</span></span>
+<span id="cb13-484"><a href="#cb13-484" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> alpha_val <span class="pp">|</span> float             <span class="pp">|</span> Heat transfer coefficient <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                          <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb13-485"><a href="#cb13-485" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_amb_val <span class="pp">|</span> float             <span class="pp">|</span> Ambient temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                  <span class="pp">|</span> <span class="in">`300.0`</span>   <span class="pp">|</span></span>
+<span id="cb13-486"><a href="#cb13-486" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt        <span class="pp">|</span> float             <span class="pp">|</span> Discretization time step <span class="co">[</span><span class="ot">s</span><span class="co">]</span>                             <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb13-487"><a href="#cb13-487" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0      <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial concentration of A for equilibrium setup <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> <span class="in">`None`</span>    <span class="pp">|</span></span>
+<span id="cb13-488"><a href="#cb13-488" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T0        <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial temperature for equilibrium setup <span class="co">[</span><span class="ot">K</span><span class="co">]</span>            <span class="pp">|</span> <span class="in">`None`</span>    <span class="pp">|</span></span>
+<span id="cb13-489"><a href="#cb13-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-490"><a href="#cb13-490" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria }</span></span>
+<span id="cb13-491"><a href="#cb13-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-492"><a href="#cb13-492" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb13-493"><a href="#cb13-493" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteBatchReactor.setup_equilibria()</span>
+<span id="cb13-494"><a href="#cb13-494" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-495"><a href="#cb13-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-496"><a href="#cb13-496" aria-hidden="true" tabindex="-1"></a>Set up equilibrium points for the batch reactor.</span>
+<span id="cb13-497"><a href="#cb13-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-498"><a href="#cb13-498" aria-hidden="true" tabindex="-1"></a>Adds two equilibria:</span>
+<span id="cb13-499"><a href="#cb13-499" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>'complete': Complete conversion (Cₐ=0, Cᵦ=0, T=Tₐₘᵦ)</span>
+<span id="cb13-500"><a href="#cb13-500" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>'initial': Optional initial state if C_A0 and T0 specified</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteBatchReactor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

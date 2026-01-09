@@ -130,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../tutorials/installation.html"> 
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
 <span class="menu-text">Installation Guide</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -178,10 +178,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Tutorials</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
-        <li>
-    <a class="dropdown-item" href="../tutorials/basic_usage.html">
- <span class="dropdown-text">Basic Usage</span></a>
-  </li>  
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -224,7 +221,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#sec-getting-started" id="toc-sec-getting-started" class="nav-link active" data-scroll-target="#sec-getting-started">Getting Started</a></li>
-  <li><a href="#sec-core-concepts" id="toc-sec-core-concepts" class="nav-link" data-scroll-target="#sec-core-concepts">Core Concepts</a></li>
+  <li><a href="#sec-core-concepts-chemical" id="toc-sec-core-concepts-chemical" class="nav-link" data-scroll-target="#sec-core-concepts-chemical">Core Concepts of Continuous Systems: A Tutorial Series Using Chemical Reactors</a></li>
   <li><a href="#sec-advanced-topics" id="toc-sec-advanced-topics" class="nav-link" data-scroll-target="#sec-advanced-topics">Advanced Topics</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/tutorials/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -254,14 +251,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="sec-getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="sec-getting-started">Getting Started</h2>
 <ul>
-<li><a href="../tutorials/installation.html">Installation</a></li>
-<li><a href="../tutorials/basic_usage.html">Basic Usage</a></li>
+<li><a href="../tutorials/getting_started/installation.html">Installation</a></li>
+<li><a href="../tutorials/getting_started/basic_usage.html">Basic Usage</a></li>
 </ul>
 </section>
-<section id="sec-core-concepts" class="level2">
-<h2 class="anchored" data-anchor-id="sec-core-concepts">Core Concepts</h2>
+<section id="sec-core-concepts-chemical" class="level2">
+<h2 class="anchored" data-anchor-id="sec-core-concepts-chemical">Core Concepts of Continuous Systems: A Tutorial Series Using Chemical Reactors</h2>
 <ul>
-<li>TODO: Plan and make these</li>
+<li><a href="../tutorials/core_concepts_continuous/batch_reactor_tutorial.html">Anatomy of a Symbolic System: Stochastic Batch Reactors</a></li>
+<li><a href="../tutorials/core_concepts_continuous/deterministic_stochastic_reactor_tutorial.html">Comparing Systems: Deterministic and Stochastic Reactors</a></li>
+<li><a href="../tutorials/core_concepts_continuous/discretized_reactor_tutorial.html">System Discretization</a></li>
+<li><a href="../tutorials/core_concepts_continuous/batch_reactor_control.html">Controlling a Batch Reactor</a></li>
 </ul>
 </section>
 <section id="sec-advanced-topics" class="level2">
@@ -733,16 +733,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Getting Started {#sec-getting-started}</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Installation</span><span class="co">](installation.qmd)</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Basic Usage</span><span class="co">](basic_usage.qmd)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Installation</span><span class="co">](getting_started/installation.qmd)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Basic Usage</span><span class="co">](getting_started/basic_usage.qmd)</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Core Concepts {#sec-core-concepts}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Core Concepts of Continuous Systems: A Tutorial Series Using Chemical Reactors {#sec-core-concepts-chemical}</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>TODO: Plan and make these</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced Topics {#sec-advanced-topics}</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>TODO: Plan and make these</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Anatomy of a Symbolic System: Stochastic Batch Reactors</span><span class="co">](core_concepts_continuous/batch_reactor_tutorial.qmd)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Comparing Systems: Deterministic and Stochastic Reactors</span><span class="co">](core_concepts_continuous/deterministic_stochastic_reactor_tutorial.qmd)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">System Discretization</span><span class="co">](core_concepts_continuous/discretized_reactor_tutorial.qmd)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">Controlling a Batch Reactor</span><span class="co">](core_concepts_continuous/batch_reactor_control.qmd)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced Topics {#sec-advanced-topics}</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>TODO: Plan and make these</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

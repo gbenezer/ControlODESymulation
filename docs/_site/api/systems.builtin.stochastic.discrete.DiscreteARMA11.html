@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.discrete.discretearma11 – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11">systems.builtin.stochastic.discrete.DiscreteARMA11</a>
+  <ul>
+  <li><a href="#difference-equation" id="toc-difference-equation" class="nav-link" data-scroll-target="#difference-equation">Difference Equation</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation-1" id="toc-physical-interpretation-1" class="nav-link" data-scroll-target="#physical-interpretation-1">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-simulation" id="toc-numerical-simulation" class="nav-link" data-scroll-target="#numerical-simulation">Numerical Simulation</a></li>
+  <li><a href="#forecasting" id="toc-forecasting" class="nav-link" data-scroll-target="#forecasting">Forecasting</a></li>
+  <li><a href="#comparison-with-other-models" id="toc-comparison-with-other-models" class="nav-link" data-scroll-target="#comparison-with-other-models">Comparison with Other Models</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf">get_acf</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1">get_acf_lag1</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance">get_stationary_variance</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#raises-1" id="toc-raises-1" class="nav-link" data-scroll-target="#raises-1">Raises</a></li>
+  <li><a href="#examples-4" id="toc-examples-4" class="nav-link" data-scroll-target="#examples-4">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteARMA11.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11" class="level1">
+<h1>systems.builtin.stochastic.discrete.DiscreteARMA11</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ARMA(1,1) process - combines autoregressive and moving average.</p>
+<p>The simplest non-trivial ARMA model, combining one AR lag with one MA lag to create a flexible yet parsimonious time series model. This is the workhorse of Box-Jenkins methodology and the foundation of modern forecasting in econometrics.</p>
+<section id="difference-equation" class="level2 doc-section doc-section-difference-equation">
+<h2 class="doc-section doc-section-difference-equation anchored" data-anchor-id="difference-equation">Difference Equation</h2>
+<p>Standard ARMA(1,1) form: X[k] = φ·X[k-1] + w[k] + θ·w[k-1]</p>
+<p>With control: X[k] = φ·X[k-1] + u[k] + w[k] + θ·w[k-1]</p>
+<p>where: - X[k]: Observed series (state) - φ: AR coefficient (persistence, -∞ &lt; φ &lt; ∞) - θ: MA coefficient (smoothing, -∞ &lt; θ &lt; ∞) - w[k]: White noise innovation ~ N(0, σ²) - u[k]: Control/external input</p>
+<p><strong>State-Space Form (for simulation):</strong> Z[k] = [X[k], w[k-1]]ᵀ (augmented state)</p>
+<pre><code>Z[k+1] = [φ  θ]·Z[k] + [1]·w[k+1]
+         [0  0]        [1]</code></pre>
+<p>Output: X[k] = [1, 0]·Z[k]</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>AR Component (φ):</strong> - Past observation influences current - φ &gt; 0: Positive persistence (typical) - φ &lt; 0: Alternation (rare) - Recursive: Memory of all past (exponentially weighted)</p>
+<p><strong>MA Component (θ):</strong> - Past innovation influences current - θ &gt; 0: Smoothing (positive autocorrelation at lag 1) - θ &lt; 0: Overshoot (negative autocorrelation) - Finite: Only immediate past innovation matters</p>
+<p><strong>Combined Effect:</strong> - AR provides long memory (slow decay) - MA adjusts short-term behavior (lag 1) - Together: More flexible than either alone</p>
+<p><strong>Why ARMA(1,1) is Popular:</strong></p>
+<p>Can approximate: - AR(∞): Via MA(∞) representation - MA(∞): Via AR(∞) representation - Complex ACF: With just 3 parameters</p>
+<p>More parsimonious than high-order AR or MA.</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Stationarity:</strong> Requires |φ| &lt; 1 (from AR part).</p>
+<p><strong>Invertibility:</strong> Requires |θ| &lt; 1 (from MA part).</p>
+<p><strong>Parsimony:</strong> 3 parameters (φ, θ, σ) provide flexibility of high-order models.</p>
+<p><strong>Autocorrelation:</strong> - ρ(1): Affected by both φ and θ - ρ(h ≥ 2): Geometric decay at rate φ</p>
+<p><strong>Spectral Density:</strong> Rational function (ratio of polynomials).</p>
+<p><strong>Markov (in Augmented State):</strong> State-space form is Markov in (X, w_prev).</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>Stationarity Condition:</strong> |φ| &lt; 1</p>
+<p><strong>Invertibility Condition:</strong> |θ| &lt; 1</p>
+<p><strong>Variance:</strong> Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)</p>
+<p><strong>Autocorrelation:</strong> ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²) ρ(h) = φ·ρ(h-1) for h ≥ 2</p>
+<p><strong>Impulse Response:</strong> ψ₀ = 1 ψ₁ = φ + θ ψⱼ = φ^(j-1)·(φ + θ) for j ≥ 2</p>
+<p><strong>MA(∞) Representation:</strong> X[k] = Σψⱼ·w[k-j]</p>
+<p>Coefficients decay geometrically: ψⱼ ~ φ^j</p>
+<p><strong>AR(∞) Representation:</strong> w[k] = Σπⱼ·X[k-j]</p>
+<p>Coefficients decay geometrically: πⱼ ~ θ^j (if |θ| &lt; 1)</p>
+</section>
+<section id="physical-interpretation-1" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation-1">Physical Interpretation</h2>
+<p><strong>AR Coefficient φ:</strong> - Dimensionless - Fraction of past persisting - Typical: 0.3-0.9 (positive persistence)</p>
+<p><strong>MA Coefficient θ:</strong> - Dimensionless - Weight on past shock - Typical: -0.5 to +0.5 - θ &gt; 0: Smoothing (positive lag-1 correlation) - θ &lt; 0: Overshoot (negative lag-1 correlation)</p>
+<p><strong>Innovation Variance σ²:</strong> - Units: [state]² - Unpredictable component each period</p>
+<p><strong>Special Cases:</strong></p>
+<p>φ = 0.8, θ = 0: Pure AR(1) φ = 0, θ = -0.5: Pure MA(1) φ = 0.8, θ = -0.6: Typical ARMA(1,1)</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>Augmented state: Z = [X, w_prev] ∈ ℝ² - X: Observed series - w_prev: Past innovation (latent)</p>
+<p>Observable state: X ∈ ℝ - What we actually measure</p>
+<p>Control: u ∈ ℝ (optional) - External input</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 76%">
+<col style="width: 9%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>phi</td>
+<td>float</td>
+<td>AR coefficient - Typical: 0.3-0.9 - Must satisfy |φ| &lt; 1 for stationarity</td>
+<td><code>0.7</code></td>
+</tr>
+<tr class="even">
+<td>theta</td>
+<td>float</td>
+<td>MA coefficient - Typical: -0.5 to +0.5 - Should satisfy |θ| &lt; 1 for invertibility</td>
+<td><code>0.3</code></td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Innovation standard deviation - Must be positive - Sets scale of unpredictable component</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period - Required for discrete system</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>System Type: LINEAR (ARMA)</li>
+<li>Noise Type: ADDITIVE (white noise)</li>
+<li>Markov: In augmented state (X, w_prev)</li>
+<li>Stationary: If |φ| &lt; 1</li>
+<li>Invertible: If |θ| &lt; 1</li>
+<li>Gaussian: If w ~ N(0,σ²)</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Economic Forecasting:</strong> - GDP growth - Inflation - Unemployment - Sales data</p>
+<p><strong>2. Financial Time Series:</strong> - Asset returns - Interest rate spreads - Volume data</p>
+<p><strong>3. Signal Processing:</strong> - Digital filter design - Prediction algorithms - Spectral estimation</p>
+<p><strong>4. Engineering:</strong> - Vibration analysis - Quality control - Process monitoring</p>
+<p><strong>5. Environmental:</strong> - Temperature series - Rainfall - Pollution levels</p>
+</section>
+<section id="numerical-simulation" class="level2 doc-section doc-section-numerical-simulation">
+<h2 class="doc-section doc-section-numerical-simulation anchored" data-anchor-id="numerical-simulation">Numerical Simulation</h2>
+<p><strong>State-Space Implementation:</strong></p>
+<p>Augment state with past innovation: Z[k+1] = F·Z[k] + G·w[k+1]</p>
+<p>where: Z = [X, w_prev]ᵀ F = [φ θ] [0 0] G = [1] [1]</p>
+<p>Extract: X[k] = Z[k][0]</p>
+</section>
+<section id="forecasting" class="level2 doc-section doc-section-forecasting">
+<h2 class="doc-section doc-section-forecasting anchored" data-anchor-id="forecasting">Forecasting</h2>
+<p><strong>One-Step-Ahead:</strong> X̂[k+1|k] = φ·X[k] + θ·ε[k]</p>
+<p>where ε[k] = X[k] - X̂[k|k-1] is innovation.</p>
+<p><strong>h-Step-Ahead:</strong> X̂[k+h|k] = φ^h·X[k] + θ·Σφ^(h-1-j)·ε[k-j]</p>
+<p>Forecast variance increases with horizon.</p>
+</section>
+<section id="comparison-with-other-models" class="level2 doc-section doc-section-comparison-with-other-models">
+<h2 class="doc-section doc-section-comparison-with-other-models anchored" data-anchor-id="comparison-with-other-models">Comparison with Other Models</h2>
+<p><strong>vs.&nbsp;AR(1):</strong> - AR(1): Only φ parameter - ARMA(1,1): Adds θ (more flexible) - Same asymptotic ACF (h → ∞) - Different ρ(1)</p>
+<p><strong>vs.&nbsp;MA(1):</strong> - MA(1): Only θ parameter - ARMA(1,1): Adds φ (long memory)</p>
+<p><strong>vs.&nbsp;AR(2):</strong> - AR(2): Two AR lags (4 parameters with σ, μ) - ARMA(1,1): One AR, one MA (3 parameters) - Often ARMA(1,1) more parsimonious</p>
+<p><strong>vs.&nbsp;ARMA(p,q):</strong> - ARMA(1,1): Simplest non-trivial - Higher order: More flexible but more parameters - Start with ARMA(1,1), increase if needed</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Linear only</li>
+<li>Constant parameters</li>
+<li>Gaussian innovations (typically)</li>
+<li>Stationary (no trends)</li>
+<li>Low order (1,1 may not suffice)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>ARMA(p,q): Higher order</li>
+<li>ARIMA: Integrated (for non-stationary)</li>
+<li>SARIMA: Seasonal patterns</li>
+<li>GARCH: Time-varying variance</li>
+<li>Regime-switching ARMA</li>
+</ul>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>Standard ARMA(1,1):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Typical configuration</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.7</span>,    <span class="co"># Moderate persistence</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.3</span>,  <span class="co"># Positive MA (smoothing)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check stationarity and invertibility</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"|φ| &lt; 1: </span><span class="sc">{</span><span class="bu">abs</span>(<span class="fl">0.7</span>) <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># Stationary</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"|θ| &lt; 1: </span><span class="sc">{</span><span class="bu">abs</span>(<span class="fl">0.3</span>) <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># Invertible</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Different configurations:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># High persistence, low MA</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> high_ar <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.9</span>, theta<span class="op">=</span><span class="fl">0.1</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Moderate AR, negative MA (overshoot)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> negative_ma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.5</span>, theta<span class="op">=-</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Balanced AR and MA</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> balanced <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.6</span>, theta<span class="op">=</span><span class="fl">0.4</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Simulation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Generate ARMA series</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> z0 <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="fl">0.0</span>])  <span class="co"># [X[0], w[-1]]</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> u_seq <span class="op">=</span> np.zeros((<span class="dv">100</span>, <span class="dv">1</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> arma.simulate(z0, u_seq, n_steps<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Extract observed series (first component of augmented state)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X_series <span class="op">=</span> result[<span class="st">'states'</span>][:, <span class="dv">0</span>]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Compute sample ACF</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> acf</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> acf_values <span class="op">=</span> acf(X_series, nlags<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<p>DiscreteAR1 : Pure autoregressive (θ=0) DiscreteMA1 : Pure moving average (φ=0, future) DiscreteARMA : General ARMA(p,q) (future)</p>
+</section>
+<section id="references" class="level2 doc-section doc-section-references">
+<h2 class="doc-section doc-section-references anchored" data-anchor-id="references">References</h2>
+<p>.. [1] Box, G.E.P. &amp; Jenkins, G.M. (1970). “Time Series Analysis: Forecasting and Control” .. [2] Hamilton, J.D. (1994). “Time Series Analysis” .. [3] Brockwell, P.J. &amp; Davis, R.A. (2016). “Introduction to Time Series and Forecasting” .. [4] Shumway, R.H. &amp; Stoffer, D.S. (2017). “Time Series Analysis and Its Applications”</p>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system">define_system</a></td>
+<td>Define ARMA(1,1) process dynamics in state-space form.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf">get_acf</a></td>
+<td>Get theoretical autocorrelation function.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1">get_acf_lag1</a></td>
+<td>Get theoretical autocorrelation at lag 1.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance">get_stationary_variance</a></td>
+<td>Get theoretical stationary variance of X.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.define_system(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    phi<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    theta<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define ARMA(1,1) process dynamics in state-space form.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 85%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>phi</td>
+<td>float</td>
+<td>AR coefficient (persistence) - Typical: 0.3-0.9 - Should satisfy |φ| &lt; 1 for stationarity - Similar to AR(1)</td>
+<td><code>0.7</code></td>
+</tr>
+<tr class="even">
+<td>theta</td>
+<td>float</td>
+<td>MA coefficient (smoothing) - Typical: -0.5 to +0.5 - Should satisfy |θ| &lt; 1 for invertibility - θ &gt; 0: Smoothing (common) - θ &lt; 0: Overshoot (less common)</td>
+<td><code>0.3</code></td>
+</tr>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Innovation standard deviation - Must be positive - Sets scale of unpredictable shocks</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period - Required for discrete system</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 15%">
+<col style="width: 74%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If sigma ≤ 0</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>UserWarning</td>
+<td>If |φ| ≥ 1 (non-stationary) If |θ| ≥ 1 (non-invertible)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Stationarity:</strong> Requires |φ| &lt; 1 (from AR component). - φ = 1: Unit root (ARIMA needed) - |φ| &gt; 1: Explosive (unstable)</p>
+<p><strong>Invertibility:</strong> Requires |θ| &lt; 1 (from MA component). - |θ| ≥ 1: Non-unique representation - Multiple ARMA models give same ACF - Estimation problems</p>
+<p><strong>Parameter Space:</strong> Valid region: |φ| &lt; 1 AND |θ| &lt; 1</p>
+<p><strong>State-Space Formulation:</strong></p>
+<p>To simulate ARMA, augment state with past innovation: Z = [X, w_prev]ᵀ</p>
+<p>Dynamics: Z[k+1] = F·Z[k] + G·w[k+1]</p>
+<p>where: F = [φ θ] [0 0]</p>
+<pre><code>G = [1]
+    [1]</code></pre>
+<p><strong>Why Augmented State?</strong> Cannot write X[k+1] = f(X[k]) alone because depends on w[k]. Need to track w[k] as auxiliary state.</p>
+<p><strong>Variance (Stationary):</strong> Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)</p>
+<p><strong>Autocorrelation:</strong> ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²) ρ(h) = φ·ρ(h-1) for h ≥ 2</p>
+<p><strong>Special Cases:</strong></p>
+<p>θ = 0: Reduces to AR(1) X[k] = φ·X[k-1] + w[k]</p>
+<p>φ = 0: Reduces to MA(1) X[k] = θ·w[k-1] + w[k]</p>
+<p>φ = -θ: Simplifies significantly X[k] = φ·(X[k-1] - w[k-1]) + w[k] (Differencing form)</p>
+<p><strong>Typical Configurations:</strong></p>
+<p>Economic data: - φ = 0.6-0.9 (high persistence) - θ = 0.1-0.5 (moderate smoothing)</p>
+<p>Financial returns: - φ = 0.0-0.3 (low persistence) - θ = -0.3-0.0 (slight overshoot or none)</p>
+<p>Physical measurements: - φ = 0.5-0.8 (moderate persistence) - θ = 0.2-0.5 (smoothing from measurement)</p>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Standard economic series</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> economic <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.7</span>,    <span class="co"># High persistence</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.3</span>,  <span class="co"># Smoothing</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Financial returns (low persistence)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> returns <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.1</span>,     <span class="co"># Weak persistence</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=-</span><span class="fl">0.2</span>,  <span class="co"># Slight overshoot</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Physical sensor (measurement smoothing)</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sensor <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.6</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.4</span>,   <span class="co"># Strong smoothing</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.05</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf">get_acf</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf(max_lag<span class="op">=</span><span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical autocorrelation function.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>max_lag</td>
+<td>int</td>
+<td>Maximum lag</td>
+<td><code>20</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>np.ndarray</td>
+<td>ACF values [ρ(0), ρ(1), …, ρ(max_lag)]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>ρ(0) = 1 ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²) ρ(h) = φ·ρ(h-1) for h ≥ 2</p>
+<p>Geometric decay after lag 1.</p>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> acf <span class="op">=</span> arma.get_acf(max_lag<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ACF: </span><span class="sc">{</span>acf<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1">get_acf_lag1</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical autocorrelation at lag 1.</p>
+<p>ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Lag-1 autocorrelation</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-2" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-2">Notes</h4>
+<p>This is where ARMA differs from AR(1). For AR(1): ρ(1) = φ For ARMA(1,1): ρ(1) ≠ φ (MA effect)</p>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rho1 <span class="op">=</span> arma.get_acf_lag1()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(1) = </span><span class="sc">{</span>rho1<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Compare with φ = 0.7"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance">get_stationary_variance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get theoretical stationary variance of X.</p>
+<p>Var[X] = σ²·(1 + 2θφ + θ²)/(1 - φ²)</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Stationary variance</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises-1" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-1">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If |φ| ≥ 1 (non-stationary)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-4" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-4">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> var <span class="op">=</span> arma.get_stationary_variance()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Stationary variance: </span><span class="sc">{</span>var<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.discrete.DiscreteARMA11 { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11 }</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>ARMA(1,1) process - combines autoregressive and moving average.</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>The simplest non-trivial ARMA model, combining one AR lag with one MA lag</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>to create a flexible yet parsimonious time series model. This is the</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>workhorse of Box-Jenkins methodology and the foundation of modern</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>forecasting in econometrics.</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## Difference Equation {.doc-section .doc-section-difference-equation}</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>Standard ARMA(1,1) form:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = φ·X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + θ·w<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>With control:</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = φ·X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + θ·w<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Observed series (state)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>φ: AR coefficient (persistence, -∞ &lt; φ &lt; ∞)</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>θ: MA coefficient (smoothing, -∞ &lt; θ &lt; ∞)</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>w<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: White noise innovation ~ N(0, σ²)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Control/external input</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>**State-Space Form (for simulation):**</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    Z<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">X[k], w[k-1]</span><span class="co">]</span>ᵀ (augmented state)</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="in">    Z[k+1] = [φ  θ]·Z[k] + [1]·w[k+1]</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="in">             [0  0]        [1]</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>Output: X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">1, 0</span><span class="co">]</span>·Z<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>**AR Component (φ):**</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Past observation influences current</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ &gt; 0: Positive persistence (typical)</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ &lt; 0: Alternation (rare)</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Recursive: Memory of all past (exponentially weighted)</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>**MA Component (θ):**</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Past innovation influences current</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ &gt; 0: Smoothing (positive autocorrelation at lag 1)</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ &lt; 0: Overshoot (negative autocorrelation)</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Finite: Only immediate past innovation matters</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>**Combined Effect:**</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AR provides long memory (slow decay)</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>MA adjusts short-term behavior (lag 1)</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Together: More flexible than either alone</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>**Why ARMA(1,1) is Popular:**</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>Can approximate:</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AR(∞): Via MA(∞) representation</span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>MA(∞): Via AR(∞) representation</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Complex ACF: With just 3 parameters</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>More parsimonious than high-order AR or MA.</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>**Stationarity:**</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>Requires |φ| &lt; 1 (from AR part).</span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>**Invertibility:**</span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>Requires |θ| &lt; 1 (from MA part).</span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>**Parsimony:**</span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>3 parameters (φ, θ, σ) provide flexibility of high-order models.</span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>**Autocorrelation:**</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ρ(1): Affected by both φ and θ</span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ρ(h ≥ 2): Geometric decay at rate φ</span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a>**Spectral Density:**</span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>Rational function (ratio of polynomials).</span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>**Markov (in Augmented State):**</span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>State-space form is Markov in (X, w_prev).</span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>**Stationarity Condition:**</span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>    <span class="pp">|</span>φ<span class="pp">|</span> &lt; 1</span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>**Invertibility Condition:**</span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>    <span class="pp">|</span>θ<span class="pp">|</span> &lt; 1</span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>**Variance:**</span>
+<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a>    Var<span class="co">[</span><span class="ot">X</span><span class="co">]</span> = σ²·(1 + 2θφ + θ²)/(1 - φ²)</span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>**Autocorrelation:**</span>
+<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>    ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)</span>
+<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a>    ρ(h) = φ·ρ(h-1) for h ≥ 2</span>
+<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>**Impulse Response:**</span>
+<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a>    ψ₀ = 1</span>
+<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>    ψ₁ = φ + θ</span>
+<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>    ψⱼ = φ^(j-1)·(φ + θ) for j ≥ 2</span>
+<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>**MA(∞) Representation:**</span>
+<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = Σψⱼ·w<span class="co">[</span><span class="ot">k-j</span><span class="co">]</span></span>
+<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>Coefficients decay geometrically: ψⱼ ~ φ^j</span>
+<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>**AR(∞) Representation:**</span>
+<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>    w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = Σπⱼ·X<span class="co">[</span><span class="ot">k-j</span><span class="co">]</span></span>
+<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a>Coefficients decay geometrically: πⱼ ~ θ^j (if |θ| &lt; 1)</span>
+<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>**AR Coefficient φ:**</span>
+<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dimensionless</span>
+<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fraction of past persisting</span>
+<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.3-0.9 (positive persistence)</span>
+<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>**MA Coefficient θ:**</span>
+<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dimensionless</span>
+<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Weight on past shock</span>
+<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: -0.5 to +0.5</span>
+<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ &gt; 0: Smoothing (positive lag-1 correlation)</span>
+<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ &lt; 0: Overshoot (negative lag-1 correlation)</span>
+<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>**Innovation Variance σ²:**</span>
+<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Units: <span class="co">[</span><span class="ot">state</span><span class="co">]</span>²</span>
+<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unpredictable component each period</span>
+<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>**Special Cases:**</span>
+<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>φ = 0.8, θ = 0:    Pure AR(1)</span>
+<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a>φ = 0, θ = -0.5:   Pure MA(1)</span>
+<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a>φ = 0.8, θ = -0.6: Typical ARMA(1,1)</span>
+<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a>Augmented state: Z = <span class="co">[</span><span class="ot">X, w_prev</span><span class="co">]</span> ∈ ℝ²</span>
+<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>X: Observed series</span>
+<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>w_prev: Past innovation (latent)</span>
+<span id="cb15-145"><a href="#cb15-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-146"><a href="#cb15-146" aria-hidden="true" tabindex="-1"></a>Observable state: X ∈ ℝ</span>
+<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>What we actually measure</span>
+<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a>Control: u ∈ ℝ (optional)</span>
+<span id="cb15-150"><a href="#cb15-150" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>External input</span>
+<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                              <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> phi    <span class="pp">|</span> float  <span class="pp">|</span> AR coefficient - Typical: 0.3-0.9 - Must satisfy <span class="sc">\|</span>φ<span class="sc">\|</span> &lt; 1 for stationarity              <span class="pp">|</span> <span class="in">`0.7`</span>     <span class="pp">|</span></span>
+<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> theta  <span class="pp">|</span> float  <span class="pp">|</span> MA coefficient - Typical: -0.5 to +0.5 - Should satisfy <span class="sc">\|</span>θ<span class="sc">\|</span> &lt; 1 for invertibility      <span class="pp">|</span> <span class="in">`0.3`</span>     <span class="pp">|</span></span>
+<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma  <span class="pp">|</span> float  <span class="pp">|</span> Innovation standard deviation - Must be positive - Sets scale of unpredictable component <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period - Required for discrete system                                           <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System Type: LINEAR (ARMA)</span>
+<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Type: ADDITIVE (white noise)</span>
+<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Markov: In augmented state (X, w_prev)</span>
+<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: If |φ| &lt; 1</span>
+<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Invertible: If |θ| &lt; 1</span>
+<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian: If w ~ N(0,σ²)</span>
+<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb15-171"><a href="#cb15-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a>**1. Economic Forecasting:**</span>
+<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GDP growth</span>
+<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Inflation</span>
+<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unemployment</span>
+<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sales data</span>
+<span id="cb15-177"><a href="#cb15-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-178"><a href="#cb15-178" aria-hidden="true" tabindex="-1"></a>**2. Financial Time Series:**</span>
+<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Asset returns</span>
+<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Interest rate spreads</span>
+<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Volume data</span>
+<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a>**3. Signal Processing:**</span>
+<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Digital filter design</span>
+<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Prediction algorithms</span>
+<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Spectral estimation</span>
+<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a>**4. Engineering:**</span>
+<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Vibration analysis</span>
+<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Quality control</span>
+<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Process monitoring</span>
+<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a>**5. Environmental:**</span>
+<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Temperature series</span>
+<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rainfall</span>
+<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Pollution levels</span>
+<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-198"><a href="#cb15-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Simulation {.doc-section .doc-section-numerical-simulation}</span></span>
+<span id="cb15-199"><a href="#cb15-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-200"><a href="#cb15-200" aria-hidden="true" tabindex="-1"></a>**State-Space Implementation:**</span>
+<span id="cb15-201"><a href="#cb15-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-202"><a href="#cb15-202" aria-hidden="true" tabindex="-1"></a>Augment state with past innovation:</span>
+<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a>    Z<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = F·Z<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + G·w<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span></span>
+<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a>    Z = <span class="co">[</span><span class="ot">X, w_prev</span><span class="co">]</span>ᵀ</span>
+<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a>    F = <span class="co">[</span><span class="ot">φ  θ</span><span class="co">]</span></span>
+<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">0  0</span><span class="co">]</span></span>
+<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a>    G = <span class="co">[</span><span class="ot">1</span><span class="co">]</span></span>
+<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">1</span><span class="co">]</span></span>
+<span id="cb15-211"><a href="#cb15-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-212"><a href="#cb15-212" aria-hidden="true" tabindex="-1"></a>Extract: X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = Z<span class="co">[</span><span class="ot">k</span><span class="co">][0]</span></span>
+<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Forecasting {.doc-section .doc-section-forecasting}</span></span>
+<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>**One-Step-Ahead:**</span>
+<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a>    X̂<span class="co">[</span><span class="ot">k+1|k</span><span class="co">]</span> = φ·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + θ·ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a>where ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> - X̂<span class="co">[</span><span class="ot">k|k-1</span><span class="co">]</span> is innovation.</span>
+<span id="cb15-220"><a href="#cb15-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-221"><a href="#cb15-221" aria-hidden="true" tabindex="-1"></a>**h-Step-Ahead:**</span>
+<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a>    X̂<span class="co">[</span><span class="ot">k+h|k</span><span class="co">]</span> = φ^h·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + θ·Σφ^(h-1-j)·ε<span class="co">[</span><span class="ot">k-j</span><span class="co">]</span></span>
+<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a>Forecast variance increases with horizon.</span>
+<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Other Models {.doc-section .doc-section-comparison-with-other-models}</span></span>
+<span id="cb15-227"><a href="#cb15-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-228"><a href="#cb15-228" aria-hidden="true" tabindex="-1"></a>**vs. AR(1):**</span>
+<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AR(1): Only φ parameter</span>
+<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARMA(1,1): Adds θ (more flexible)</span>
+<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Same asymptotic ACF (h → ∞)</span>
+<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Different ρ(1)</span>
+<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a>**vs. MA(1):**</span>
+<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>MA(1): Only θ parameter</span>
+<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARMA(1,1): Adds φ (long memory)</span>
+<span id="cb15-237"><a href="#cb15-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-238"><a href="#cb15-238" aria-hidden="true" tabindex="-1"></a>**vs. AR(2):**</span>
+<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>AR(2): Two AR lags (4 parameters with σ, μ)</span>
+<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARMA(1,1): One AR, one MA (3 parameters)</span>
+<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Often ARMA(1,1) more parsimonious</span>
+<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a>**vs. ARMA(p,q):**</span>
+<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARMA(1,1): Simplest non-trivial</span>
+<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher order: More flexible but more parameters</span>
+<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Start with ARMA(1,1), increase if needed</span>
+<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Linear only</span>
+<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constant parameters</span>
+<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian innovations (typically)</span>
+<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary (no trends)</span>
+<span id="cb15-254"><a href="#cb15-254" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Low order (1,1 may not suffice)</span>
+<span id="cb15-255"><a href="#cb15-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-256"><a href="#cb15-256" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARMA(p,q): Higher order</span>
+<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARIMA: Integrated (for non-stationary)</span>
+<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SARIMA: Seasonal patterns</span>
+<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GARCH: Time-varying variance</span>
+<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Regime-switching ARMA</span>
+<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a><span class="fu">## Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a>Standard ARMA(1,1):</span>
+<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-268"><a href="#cb15-268" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-269"><a href="#cb15-269" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Typical configuration</span></span>
+<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.7</span>,    <span class="co"># Moderate persistence</span></span>
+<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.3</span>,  <span class="co"># Positive MA (smoothing)</span></span>
+<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check stationarity and invertibility</span></span>
+<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"|φ| &lt; 1: </span><span class="sc">{</span><span class="bu">abs</span>(<span class="fl">0.7</span>) <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># Stationary</span></span>
+<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"|θ| &lt; 1: </span><span class="sc">{</span><span class="bu">abs</span>(<span class="fl">0.3</span>) <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)  <span class="co"># Invertible</span></span>
+<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a>Different configurations:</span>
+<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># High persistence, low MA</span></span>
+<span id="cb15-286"><a href="#cb15-286" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> high_ar <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.9</span>, theta<span class="op">=</span><span class="fl">0.1</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-287"><a href="#cb15-287" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-288"><a href="#cb15-288" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Moderate AR, negative MA (overshoot)</span></span>
+<span id="cb15-289"><a href="#cb15-289" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> negative_ma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.5</span>, theta<span class="op">=-</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-290"><a href="#cb15-290" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Balanced AR and MA</span></span>
+<span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> balanced <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.6</span>, theta<span class="op">=</span><span class="fl">0.4</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-295"><a href="#cb15-295" aria-hidden="true" tabindex="-1"></a>Simulation:</span>
+<span id="cb15-296"><a href="#cb15-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-297"><a href="#cb15-297" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Generate ARMA series</span></span>
+<span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> z0 <span class="op">=</span> np.array([<span class="fl">0.0</span>, <span class="fl">0.0</span>])  <span class="co"># [X[0], w[-1]]</span></span>
+<span id="cb15-300"><a href="#cb15-300" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> u_seq <span class="op">=</span> np.zeros((<span class="dv">100</span>, <span class="dv">1</span>))</span>
+<span id="cb15-301"><a href="#cb15-301" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-302"><a href="#cb15-302" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> arma.simulate(z0, u_seq, n_steps<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb15-303"><a href="#cb15-303" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-304"><a href="#cb15-304" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Extract observed series (first component of augmented state)</span></span>
+<span id="cb15-305"><a href="#cb15-305" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X_series <span class="op">=</span> result[<span class="st">'states'</span>][:, <span class="dv">0</span>]</span>
+<span id="cb15-306"><a href="#cb15-306" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-307"><a href="#cb15-307" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Compute sample ACF</span></span>
+<span id="cb15-308"><a href="#cb15-308" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> statsmodels.tsa.stattools <span class="im">import</span> acf</span>
+<span id="cb15-309"><a href="#cb15-309" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> acf_values <span class="op">=</span> acf(X_series, nlags<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb15-310"><a href="#cb15-310" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-311"><a href="#cb15-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-312"><a href="#cb15-312" aria-hidden="true" tabindex="-1"></a><span class="fu">## See Also {.doc-section .doc-section-see-also}</span></span>
+<span id="cb15-313"><a href="#cb15-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-314"><a href="#cb15-314" aria-hidden="true" tabindex="-1"></a>DiscreteAR1 : Pure autoregressive (θ=0)</span>
+<span id="cb15-315"><a href="#cb15-315" aria-hidden="true" tabindex="-1"></a>DiscreteMA1 : Pure moving average (φ=0, future)</span>
+<span id="cb15-316"><a href="#cb15-316" aria-hidden="true" tabindex="-1"></a>DiscreteARMA : General ARMA(p,q) (future)</span>
+<span id="cb15-317"><a href="#cb15-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-318"><a href="#cb15-318" aria-hidden="true" tabindex="-1"></a><span class="fu">## References {.doc-section .doc-section-references}</span></span>
+<span id="cb15-319"><a href="#cb15-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-320"><a href="#cb15-320" aria-hidden="true" tabindex="-1"></a>.. <span class="co">[</span><span class="ot">1</span><span class="co">]</span> Box, G.E.P. &amp; Jenkins, G.M. (1970). "Time Series Analysis:</span>
+<span id="cb15-321"><a href="#cb15-321" aria-hidden="true" tabindex="-1"></a>       Forecasting and Control"</span>
+<span id="cb15-322"><a href="#cb15-322" aria-hidden="true" tabindex="-1"></a>.. <span class="co">[</span><span class="ot">2</span><span class="co">]</span> Hamilton, J.D. (1994). "Time Series Analysis"</span>
+<span id="cb15-323"><a href="#cb15-323" aria-hidden="true" tabindex="-1"></a>.. <span class="co">[</span><span class="ot">3</span><span class="co">]</span> Brockwell, P.J. &amp; Davis, R.A. (2016). "Introduction to Time</span>
+<span id="cb15-324"><a href="#cb15-324" aria-hidden="true" tabindex="-1"></a>       Series and Forecasting"</span>
+<span id="cb15-325"><a href="#cb15-325" aria-hidden="true" tabindex="-1"></a>.. <span class="co">[</span><span class="ot">4</span><span class="co">]</span> Shumway, R.H. &amp; Stoffer, D.S. (2017). "Time Series Analysis</span>
+<span id="cb15-326"><a href="#cb15-326" aria-hidden="true" tabindex="-1"></a>       and Its Applications"</span>
+<span id="cb15-327"><a href="#cb15-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-328"><a href="#cb15-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb15-329"><a href="#cb15-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-330"><a href="#cb15-330" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb15-331"><a href="#cb15-331" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb15-332"><a href="#cb15-332" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system)</span> <span class="pp">|</span> Define ARMA(1,1) process dynamics in state-space form. <span class="pp">|</span></span>
+<span id="cb15-333"><a href="#cb15-333" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_acf</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf)</span> <span class="pp">|</span> Get theoretical autocorrelation function. <span class="pp">|</span></span>
+<span id="cb15-334"><a href="#cb15-334" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_acf_lag1</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1)</span> <span class="pp">|</span> Get theoretical autocorrelation at lag 1. <span class="pp">|</span></span>
+<span id="cb15-335"><a href="#cb15-335" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_stationary_variance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance)</span> <span class="pp">|</span> Get theoretical stationary variance of X. <span class="pp">|</span></span>
+<span id="cb15-336"><a href="#cb15-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-337"><a href="#cb15-337" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.define_system }</span></span>
+<span id="cb15-338"><a href="#cb15-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-339"><a href="#cb15-339" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-340"><a href="#cb15-340" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.define_system(</span>
+<span id="cb15-341"><a href="#cb15-341" aria-hidden="true" tabindex="-1"></a>    phi<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb15-342"><a href="#cb15-342" aria-hidden="true" tabindex="-1"></a>    theta<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb15-343"><a href="#cb15-343" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a>Define ARMA(1,1) process dynamics in state-space form.</span>
+<span id="cb15-349"><a href="#cb15-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-350"><a href="#cb15-350" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                                                  <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> phi    <span class="pp">|</span> float  <span class="pp">|</span> AR coefficient (persistence) - Typical: 0.3-0.9 - Should satisfy <span class="sc">\|</span>φ<span class="sc">\|</span> &lt; 1 for stationarity - Similar to AR(1)                                               <span class="pp">|</span> <span class="in">`0.7`</span>     <span class="pp">|</span></span>
+<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> theta  <span class="pp">|</span> float  <span class="pp">|</span> MA coefficient (smoothing) - Typical: -0.5 to +0.5 - Should satisfy <span class="sc">\|</span>θ<span class="sc">\|</span> &lt; 1 for invertibility - θ &gt; 0: Smoothing (common) - θ &lt; 0: Overshoot (less common) <span class="pp">|</span> <span class="in">`0.3`</span>     <span class="pp">|</span></span>
+<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma  <span class="pp">|</span> float  <span class="pp">|</span> Innovation standard deviation - Must be positive - Sets scale of unpredictable shocks                                                                        <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period - Required for discrete system                                                                                                               <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type        <span class="pp">|</span> Description                                                 <span class="pp">|</span></span>
+<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-------------|-------------------------------------------------------------|</span></span>
+<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError  <span class="pp">|</span> If sigma ≤ 0                                                <span class="pp">|</span></span>
+<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> UserWarning <span class="pp">|</span> If <span class="sc">\|</span>φ<span class="sc">\|</span> ≥ 1 (non-stationary) If <span class="sc">\|</span>θ<span class="sc">\|</span> ≥ 1 (non-invertible) <span class="pp">|</span></span>
+<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a>**Stationarity:**</span>
+<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a>Requires |φ| &lt; 1 (from AR component).</span>
+<span id="cb15-370"><a href="#cb15-370" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ = 1: Unit root (ARIMA needed)</span>
+<span id="cb15-371"><a href="#cb15-371" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="pp">|</span>φ<span class="pp">|</span> &gt; 1: Explosive (unstable)</span>
+<span id="cb15-372"><a href="#cb15-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-373"><a href="#cb15-373" aria-hidden="true" tabindex="-1"></a>**Invertibility:**</span>
+<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a>Requires |θ| &lt; 1 (from MA component).</span>
+<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="pp">|</span>θ<span class="pp">|</span> ≥ 1: Non-unique representation</span>
+<span id="cb15-376"><a href="#cb15-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Multiple ARMA models give same ACF</span>
+<span id="cb15-377"><a href="#cb15-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Estimation problems</span>
+<span id="cb15-378"><a href="#cb15-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-379"><a href="#cb15-379" aria-hidden="true" tabindex="-1"></a>**Parameter Space:**</span>
+<span id="cb15-380"><a href="#cb15-380" aria-hidden="true" tabindex="-1"></a>Valid region: |φ| &lt; 1 AND |θ| &lt; 1</span>
+<span id="cb15-381"><a href="#cb15-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-382"><a href="#cb15-382" aria-hidden="true" tabindex="-1"></a>**State-Space Formulation:**</span>
+<span id="cb15-383"><a href="#cb15-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-384"><a href="#cb15-384" aria-hidden="true" tabindex="-1"></a>To simulate ARMA, augment state with past innovation:</span>
+<span id="cb15-385"><a href="#cb15-385" aria-hidden="true" tabindex="-1"></a>    Z = <span class="co">[</span><span class="ot">X, w_prev</span><span class="co">]</span>ᵀ</span>
+<span id="cb15-386"><a href="#cb15-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-387"><a href="#cb15-387" aria-hidden="true" tabindex="-1"></a>Dynamics:</span>
+<span id="cb15-388"><a href="#cb15-388" aria-hidden="true" tabindex="-1"></a>    Z<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = F·Z<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + G·w<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span></span>
+<span id="cb15-389"><a href="#cb15-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-390"><a href="#cb15-390" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb15-391"><a href="#cb15-391" aria-hidden="true" tabindex="-1"></a>    F = <span class="co">[</span><span class="ot">φ  θ</span><span class="co">]</span></span>
+<span id="cb15-392"><a href="#cb15-392" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">0  0</span><span class="co">]</span></span>
+<span id="cb15-393"><a href="#cb15-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-394"><a href="#cb15-394" aria-hidden="true" tabindex="-1"></a><span class="in">    G = [1]</span></span>
+<span id="cb15-395"><a href="#cb15-395" aria-hidden="true" tabindex="-1"></a><span class="in">        [1]</span></span>
+<span id="cb15-396"><a href="#cb15-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-397"><a href="#cb15-397" aria-hidden="true" tabindex="-1"></a>**Why Augmented State?**</span>
+<span id="cb15-398"><a href="#cb15-398" aria-hidden="true" tabindex="-1"></a>Cannot write X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = f(X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>) alone because depends on w<span class="co">[</span><span class="ot">k</span><span class="co">]</span>.</span>
+<span id="cb15-399"><a href="#cb15-399" aria-hidden="true" tabindex="-1"></a>Need to track w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> as auxiliary state.</span>
+<span id="cb15-400"><a href="#cb15-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-401"><a href="#cb15-401" aria-hidden="true" tabindex="-1"></a>**Variance (Stationary):**</span>
+<span id="cb15-402"><a href="#cb15-402" aria-hidden="true" tabindex="-1"></a>    Var<span class="co">[</span><span class="ot">X</span><span class="co">]</span> = σ²·(1 + 2θφ + θ²)/(1 - φ²)</span>
+<span id="cb15-403"><a href="#cb15-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-404"><a href="#cb15-404" aria-hidden="true" tabindex="-1"></a>**Autocorrelation:**</span>
+<span id="cb15-405"><a href="#cb15-405" aria-hidden="true" tabindex="-1"></a>    ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)</span>
+<span id="cb15-406"><a href="#cb15-406" aria-hidden="true" tabindex="-1"></a>    ρ(h) = φ·ρ(h-1) for h ≥ 2</span>
+<span id="cb15-407"><a href="#cb15-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-408"><a href="#cb15-408" aria-hidden="true" tabindex="-1"></a>**Special Cases:**</span>
+<span id="cb15-409"><a href="#cb15-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a>θ = 0: Reduces to AR(1)</span>
+<span id="cb15-411"><a href="#cb15-411" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = φ·X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb15-412"><a href="#cb15-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-413"><a href="#cb15-413" aria-hidden="true" tabindex="-1"></a>φ = 0: Reduces to MA(1)</span>
+<span id="cb15-414"><a href="#cb15-414" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = θ·w<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb15-415"><a href="#cb15-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a>φ = -θ: Simplifies significantly</span>
+<span id="cb15-417"><a href="#cb15-417" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = φ·(X<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> - w<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span>) + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb15-418"><a href="#cb15-418" aria-hidden="true" tabindex="-1"></a>    (Differencing form)</span>
+<span id="cb15-419"><a href="#cb15-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-420"><a href="#cb15-420" aria-hidden="true" tabindex="-1"></a>**Typical Configurations:**</span>
+<span id="cb15-421"><a href="#cb15-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-422"><a href="#cb15-422" aria-hidden="true" tabindex="-1"></a>Economic data:</span>
+<span id="cb15-423"><a href="#cb15-423" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ = 0.6-0.9 (high persistence)</span>
+<span id="cb15-424"><a href="#cb15-424" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ = 0.1-0.5 (moderate smoothing)</span>
+<span id="cb15-425"><a href="#cb15-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-426"><a href="#cb15-426" aria-hidden="true" tabindex="-1"></a>Financial returns:</span>
+<span id="cb15-427"><a href="#cb15-427" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ = 0.0-0.3 (low persistence)</span>
+<span id="cb15-428"><a href="#cb15-428" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ = -0.3-0.0 (slight overshoot or none)</span>
+<span id="cb15-429"><a href="#cb15-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-430"><a href="#cb15-430" aria-hidden="true" tabindex="-1"></a>Physical measurements:</span>
+<span id="cb15-431"><a href="#cb15-431" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>φ = 0.5-0.8 (moderate persistence)</span>
+<span id="cb15-432"><a href="#cb15-432" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>θ = 0.2-0.5 (smoothing from measurement)</span>
+<span id="cb15-433"><a href="#cb15-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-434"><a href="#cb15-434" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb15-435"><a href="#cb15-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-436"><a href="#cb15-436" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-437"><a href="#cb15-437" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Standard economic series</span></span>
+<span id="cb15-438"><a href="#cb15-438" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> economic <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb15-439"><a href="#cb15-439" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.7</span>,    <span class="co"># High persistence</span></span>
+<span id="cb15-440"><a href="#cb15-440" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.3</span>,  <span class="co"># Smoothing</span></span>
+<span id="cb15-441"><a href="#cb15-441" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span></span>
+<span id="cb15-442"><a href="#cb15-442" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb15-443"><a href="#cb15-443" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-444"><a href="#cb15-444" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Financial returns (low persistence)</span></span>
+<span id="cb15-445"><a href="#cb15-445" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> returns <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb15-446"><a href="#cb15-446" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.1</span>,     <span class="co"># Weak persistence</span></span>
+<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=-</span><span class="fl">0.2</span>,  <span class="co"># Slight overshoot</span></span>
+<span id="cb15-448"><a href="#cb15-448" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb15-449"><a href="#cb15-449" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb15-450"><a href="#cb15-450" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-451"><a href="#cb15-451" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Physical sensor (measurement smoothing)</span></span>
+<span id="cb15-452"><a href="#cb15-452" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sensor <span class="op">=</span> DiscreteARMA11(</span>
+<span id="cb15-453"><a href="#cb15-453" aria-hidden="true" tabindex="-1"></a>...     phi<span class="op">=</span><span class="fl">0.6</span>,</span>
+<span id="cb15-454"><a href="#cb15-454" aria-hidden="true" tabindex="-1"></a>...     theta<span class="op">=</span><span class="fl">0.4</span>,   <span class="co"># Strong smoothing</span></span>
+<span id="cb15-455"><a href="#cb15-455" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.05</span></span>
+<span id="cb15-456"><a href="#cb15-456" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb15-457"><a href="#cb15-457" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-458"><a href="#cb15-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-459"><a href="#cb15-459" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_acf { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf }</span></span>
+<span id="cb15-460"><a href="#cb15-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-461"><a href="#cb15-461" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-462"><a href="#cb15-462" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf(max_lag<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb15-463"><a href="#cb15-463" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-464"><a href="#cb15-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-465"><a href="#cb15-465" aria-hidden="true" tabindex="-1"></a>Get theoretical autocorrelation function.</span>
+<span id="cb15-466"><a href="#cb15-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-467"><a href="#cb15-467" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb15-468"><a href="#cb15-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-469"><a href="#cb15-469" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name    <span class="pp">|</span> Type   <span class="pp">|</span> Description   <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb15-470"><a href="#cb15-470" aria-hidden="true" tabindex="-1"></a><span class="pp">|---------|--------|---------------|-----------|</span></span>
+<span id="cb15-471"><a href="#cb15-471" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> max_lag <span class="pp">|</span> int    <span class="pp">|</span> Maximum lag   <span class="pp">|</span> <span class="in">`20`</span>      <span class="pp">|</span></span>
+<span id="cb15-472"><a href="#cb15-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-473"><a href="#cb15-473" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb15-474"><a href="#cb15-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-475"><a href="#cb15-475" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                              <span class="pp">|</span></span>
+<span id="cb15-476"><a href="#cb15-476" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|------------------------------------------|</span></span>
+<span id="cb15-477"><a href="#cb15-477" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> np.ndarray <span class="pp">|</span> ACF values <span class="co">[</span><span class="ot">ρ(0), ρ(1), ..., ρ(max_lag)</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb15-478"><a href="#cb15-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-479"><a href="#cb15-479" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb15-480"><a href="#cb15-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-481"><a href="#cb15-481" aria-hidden="true" tabindex="-1"></a>ρ(0) = 1</span>
+<span id="cb15-482"><a href="#cb15-482" aria-hidden="true" tabindex="-1"></a>ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)</span>
+<span id="cb15-483"><a href="#cb15-483" aria-hidden="true" tabindex="-1"></a>ρ(h) = φ·ρ(h-1) for h ≥ 2</span>
+<span id="cb15-484"><a href="#cb15-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-485"><a href="#cb15-485" aria-hidden="true" tabindex="-1"></a>Geometric decay after lag 1.</span>
+<span id="cb15-486"><a href="#cb15-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-487"><a href="#cb15-487" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb15-488"><a href="#cb15-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-489"><a href="#cb15-489" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-490"><a href="#cb15-490" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-491"><a href="#cb15-491" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> acf <span class="op">=</span> arma.get_acf(max_lag<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb15-492"><a href="#cb15-492" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ACF: </span><span class="sc">{</span>acf<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-493"><a href="#cb15-493" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-494"><a href="#cb15-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-495"><a href="#cb15-495" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_acf_lag1 { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1 }</span></span>
+<span id="cb15-496"><a href="#cb15-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-497"><a href="#cb15-497" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-498"><a href="#cb15-498" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_acf_lag1()</span>
+<span id="cb15-499"><a href="#cb15-499" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-500"><a href="#cb15-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-501"><a href="#cb15-501" aria-hidden="true" tabindex="-1"></a>Get theoretical autocorrelation at lag 1.</span>
+<span id="cb15-502"><a href="#cb15-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-503"><a href="#cb15-503" aria-hidden="true" tabindex="-1"></a>ρ(1) = (φ + θ)·(1 + θφ)/(1 + 2θφ + θ²)</span>
+<span id="cb15-504"><a href="#cb15-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-505"><a href="#cb15-505" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb15-506"><a href="#cb15-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-507"><a href="#cb15-507" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description           <span class="pp">|</span></span>
+<span id="cb15-508"><a href="#cb15-508" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------------|</span></span>
+<span id="cb15-509"><a href="#cb15-509" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Lag-1 autocorrelation <span class="pp">|</span></span>
+<span id="cb15-510"><a href="#cb15-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-511"><a href="#cb15-511" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb15-512"><a href="#cb15-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-513"><a href="#cb15-513" aria-hidden="true" tabindex="-1"></a>This is where ARMA differs from AR(1).</span>
+<span id="cb15-514"><a href="#cb15-514" aria-hidden="true" tabindex="-1"></a>For AR(1): ρ(1) = φ</span>
+<span id="cb15-515"><a href="#cb15-515" aria-hidden="true" tabindex="-1"></a>For ARMA(1,1): ρ(1) ≠ φ (MA effect)</span>
+<span id="cb15-516"><a href="#cb15-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-517"><a href="#cb15-517" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb15-518"><a href="#cb15-518" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-519"><a href="#cb15-519" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-520"><a href="#cb15-520" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-521"><a href="#cb15-521" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> rho1 <span class="op">=</span> arma.get_acf_lag1()</span>
+<span id="cb15-522"><a href="#cb15-522" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"ρ(1) = </span><span class="sc">{</span>rho1<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb15-523"><a href="#cb15-523" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Compare with φ = 0.7"</span>)</span>
+<span id="cb15-524"><a href="#cb15-524" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-525"><a href="#cb15-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-526"><a href="#cb15-526" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_stationary_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance }</span></span>
+<span id="cb15-527"><a href="#cb15-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-528"><a href="#cb15-528" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-529"><a href="#cb15-529" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteARMA11.get_stationary_variance()</span>
+<span id="cb15-530"><a href="#cb15-530" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-531"><a href="#cb15-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-532"><a href="#cb15-532" aria-hidden="true" tabindex="-1"></a>Get theoretical stationary variance of X.</span>
+<span id="cb15-533"><a href="#cb15-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-534"><a href="#cb15-534" aria-hidden="true" tabindex="-1"></a>Var<span class="co">[</span><span class="ot">X</span><span class="co">]</span> = σ²·(1 + 2θφ + θ²)/(1 - φ²)</span>
+<span id="cb15-535"><a href="#cb15-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-536"><a href="#cb15-536" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb15-537"><a href="#cb15-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-538"><a href="#cb15-538" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description         <span class="pp">|</span></span>
+<span id="cb15-539"><a href="#cb15-539" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------|</span></span>
+<span id="cb15-540"><a href="#cb15-540" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Stationary variance <span class="pp">|</span></span>
+<span id="cb15-541"><a href="#cb15-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-542"><a href="#cb15-542" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb15-543"><a href="#cb15-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-544"><a href="#cb15-544" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                   <span class="pp">|</span></span>
+<span id="cb15-545"><a href="#cb15-545" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|-------------------------------|</span></span>
+<span id="cb15-546"><a href="#cb15-546" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError <span class="pp">|</span> If <span class="sc">\|</span>φ<span class="sc">\|</span> ≥ 1 (non-stationary) <span class="pp">|</span></span>
+<span id="cb15-547"><a href="#cb15-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-548"><a href="#cb15-548" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb15-549"><a href="#cb15-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-550"><a href="#cb15-550" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb15-551"><a href="#cb15-551" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> arma <span class="op">=</span> DiscreteARMA11(phi<span class="op">=</span><span class="fl">0.7</span>, theta<span class="op">=</span><span class="fl">0.3</span>, sigma<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb15-552"><a href="#cb15-552" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> var <span class="op">=</span> arma.get_stationary_variance()</span>
+<span id="cb15-553"><a href="#cb15-553" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Stationary variance: </span><span class="sc">{</span>var<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb15-554"><a href="#cb15-554" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteARMA11.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

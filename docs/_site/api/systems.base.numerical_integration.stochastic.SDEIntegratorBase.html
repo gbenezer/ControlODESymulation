@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.base.numerical_integration.stochastic.sdeintegratorbase – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase" class="nav-link active" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase">systems.base.numerical_integration.stochastic.SDEIntegratorBase</a>
+  <ul>
+  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  <li><a href="#result-types" id="toc-result-types" class="nav-link" data-scroll-target="#result-types">Result Types</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info">get_noise_info</a>
+  <ul class="collapse">
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats">get_sde_stats</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate">integrate</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo">integrate_monte_carlo</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats">reset_stats</a></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed">set_seed</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step" id="toc-cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step" class="nav-link" data-scroll-target="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step">step</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  <li><a href="#returns-4" id="toc-returns-4" class="nav-link" data-scroll-target="#returns-4">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-4" id="toc-examples-4" class="nav-link" data-scroll-target="#examples-4">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.base.numerical_integration.stochastic.SDEIntegratorBase.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase" class="level1">
+<h1>systems.base.numerical_integration.stochastic.SDEIntegratorBase</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    sde_system,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    step_mode<span class="op">=</span>StepMode.FIXED,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    sde_type<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    convergence_type<span class="op">=</span>ConvergenceType.STRONG,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Abstract base class for SDE integrators.</p>
+<p>Extends IntegratorBase to handle stochastic differential equations with drift and diffusion terms. Provides unified interface for both Ito and Stratonovich SDEs across multiple backends.</p>
+<p>All SDE integrators must implement: - step(): Single integration step with noise - integrate(): Multi-step integration with trajectories - name: Integrator name</p>
+<p>Additional SDE-specific capabilities: - Multiple trajectory simulation (Monte Carlo) - Noise structure exploitation (additive, diagonal, etc.) - Weak and strong convergence schemes - Stratonovich correction terms</p>
+<section id="attributes" class="level2 doc-section doc-section-attributes">
+<h2 class="doc-section doc-section-attributes anchored" data-anchor-id="attributes">Attributes</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 31%">
+<col style="width: 48%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sde_system</td>
+<td>StochasticDynamicalSystem</td>
+<td>SDE system to integrate</td>
+</tr>
+<tr class="even">
+<td>sde_type</td>
+<td>SDEType</td>
+<td>SDE interpretation (Ito or Stratonovich)</td>
+</tr>
+<tr class="odd">
+<td>convergence_type</td>
+<td>ConvergenceType</td>
+<td>Convergence criterion (strong or weak)</td>
+</tr>
+<tr class="even">
+<td>seed</td>
+<td>Optional[int]</td>
+<td>Random seed for reproducibility</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="result-types" class="level2 doc-section doc-section-result-types">
+<h2 class="doc-section doc-section-result-types anchored" data-anchor-id="result-types">Result Types</h2>
+<p>Returns SDEIntegrationResult TypedDict with: - t: Time points (T,) - x: State trajectory (T, nx) or (n_paths, T, nx) - diffusion_evals: Number of diffusion evaluations - noise_samples: Brownian increments used - n_paths: Number of trajectories - convergence_type: ‘strong’ or ‘weak’ - sde_type: ‘ito’ or ‘stratonovich’</p>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Create SDE integrator</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> EulerMaruyamaIntegrator(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>...     sde_system,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>...     seed<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Single trajectory</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"State shape: </span><span class="sc">{</span>result[<span class="st">'x'</span>]<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Multiple trajectories (Monte Carlo)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(result)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean trajectory: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Standard deviation: </span><span class="sc">{</span>stats[<span class="st">'std'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info">get_noise_info</a></td>
+<td>Get information about noise structure and optimizations.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats">get_sde_stats</a></td>
+<td>Get SDE-specific integration statistics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate">integrate</a></td>
+<td>Integrate SDE over time interval.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo">integrate_monte_carlo</a></td>
+<td>Integrate multiple SDE trajectories for Monte Carlo analysis.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats">reset_stats</a></td>
+<td>Reset all statistics including SDE-specific counters.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed">set_seed</a></td>
+<td>Set random seed for reproducibility.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step">step</a></td>
+<td>Take one SDE integration step with noise.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info">get_noise_info</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get information about noise structure and optimizations.</p>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Dict[str, Any]</td>
+<td>Noise structure information</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats">get_sde_stats</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get SDE-specific integration statistics.</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 23%">
+<col style="width: 65%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Dict[str, Any]</td>
+<td>Statistics including drift/diffusion evaluations</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate">integrate</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    x0,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    u_func,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    t_span,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    t_eval<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    dense_output<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Integrate SDE over time interval.</p>
+<p><strong>API Level</strong>: This is a <strong>low-level stochastic integration method</strong> that directly interfaces with numerical SDE solvers. For typical use cases, prefer the high-level <code>simulate()</code> method if available in your stochastic system class.</p>
+<p><strong>Control Function Convention</strong>: This method uses the <strong>scipy/ODE solver convention</strong> where control functions have signature <strong>(t, x) → u</strong>, with time as the FIRST argument. This differs from high-level simulation APIs which use <strong>(x, t) → u</strong> with state as the primary argument. The difference is intentional:</p>
+<ul>
+<li><strong>Low-level</strong> <code>integrate()</code>: Uses (t, x) for direct solver compatibility</li>
+<li><strong>High-level</strong> <code>simulate()</code>: Uses (x, t) for intuitive control-theoretic API</li>
+</ul>
+<p><strong>Stochastic Integration</strong>: Unlike deterministic ODE integration, SDE integration involves random Brownian motion increments. Each call with the same initial condition will produce different trajectories unless the random seed is fixed. For statistical analysis, use <code>integrate_monte_carlo()</code> to simulate multiple paths.</p>
+<section id="parameters" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 2%">
+<col style="width: 10%">
+<col style="width: 84%">
+<col style="width: 2%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>x0</td>
+<td>ArrayLike</td>
+<td>Initial state (nx,)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>u_func</td>
+<td>Callable[[float, ArrayLike], Optional[ArrayLike]]</td>
+<td>Control policy with <strong>low-level convention</strong>: (t, x) → u - t: float - current time (<strong>FIRST</strong> argument, scipy convention) - x: ArrayLike - current state (<strong>SECOND</strong> argument) - Returns: Optional[ArrayLike] - control input u, or None for autonomous Can be: - Autonomous: lambda t, x: None - Constant control: lambda t, x: u_const - State feedback: lambda t, x: -K @ x - Time-varying: lambda t, x: u(t) - Stochastic policy: lambda t, x: policy(x) + noise</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>t_span</td>
+<td>Tuple[float, float]</td>
+<td>Integration interval (t_start, t_end)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>t_eval</td>
+<td>Optional[ArrayLike]</td>
+<td>Specific times at which to store solution If None, uses solver’s internal time points (typically uniform grid) For SDEs, irregular grids may affect statistical properties</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>dense_output</td>
+<td>bool</td>
+<td>If True, return dense interpolated solution (if supported by solver) Note: Most SDE solvers do not support dense output</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 1%">
+<col style="width: 3%">
+<col style="width: 95%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>SDEIntegrationResult</td>
+<td>TypedDict containing: - t: Time points (T,) - x: State trajectory (T, nx) - <strong>time-major ordering</strong> - success: Whether integration succeeded - message: Status message - nfev: Number of drift function evaluations - diffusion_evals: Number of diffusion function evaluations - noise_samples: Number of Brownian motion samples generated - nsteps: Number of integration steps taken - integration_time: Computation time (seconds) - solver: Integrator name - convergence_type: ‘strong’ or ‘weak’ convergence - sde_type: ‘ito’ or ‘stratonovich’ interpretation - n_paths: Number of trajectories (1 for single path)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 15%">
+<col style="width: 76%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>RuntimeError</td>
+<td>If integration fails (numerical instability, step size issues, etc.)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Stochastic Nature</strong>: Each call generates a new random trajectory. For reproducible results, set the integrator’s random seed via <code>set_seed()</code> before calling integrate().</p>
+<p><strong>Convergence Types</strong>: - <strong>Strong convergence</strong>: Pathwise accuracy - each trajectory is accurate - <strong>Weak convergence</strong>: Moment accuracy - statistics (mean, variance) are accurate</p>
+<p><strong>SDE Interpretations</strong>: - <strong>Itô</strong>: Most common, natural for stochastic calculus - <strong>Stratonovich</strong>: Physics-based, matches ordinary calculus rules</p>
+<p><strong>Time-Major Ordering</strong>: Unlike some high-level APIs that use (nx, T) for backward compatibility, integrate() returns (T, nx) time-major ordering for consistency with numerical solver conventions and efficient time-series operations.</p>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<p><strong>Low-level integrate() usage</strong> (uses (t, x) convention):</p>
+<p>Autonomous stochastic system:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,  <span class="co"># Autonomous</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Final state: </span><span class="sc">{</span>result[<span class="st">'x'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Convergence: </span><span class="sc">{</span>result[<span class="st">'convergence_type'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Controlled stochastic system with constant control:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.array([<span class="fl">0.5</span>]),  <span class="co"># Note: (t, x) order</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Diffusion evaluations: </span><span class="sc">{</span>result[<span class="st">'diffusion_evals'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>State feedback for stochastic stabilization:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> K <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">2.0</span>]])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="op">-</span>K <span class="op">@</span> x,  <span class="co"># (t, x) order for integrate()</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Time-varying stochastic control:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.array([<span class="fl">0.5</span> <span class="op">*</span> np.sin(t)]),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Reproducible stochastic simulation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result1 <span class="op">=</span> integrator.integrate(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result2 <span class="op">=</span> integrator.integrate(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> np.allclose(result1[<span class="st">'x'</span>], result2[<span class="st">'x'</span>])  <span class="co"># True - same random trajectory</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Evaluate at specific times:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t_eval <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">101</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>...     t_eval<span class="op">=</span>t_eval</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">assert</span> <span class="bu">len</span>(result[<span class="st">'t'</span>]) <span class="op">==</span> <span class="dv">101</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Monte Carlo simulation</strong> (multiple trajectories):</p>
+<p>For statistical analysis, use <code>integrate_monte_carlo()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Simulate 1000 paths</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mc_result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Result has shape (n_paths, T, nx)</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(mc_result[<span class="st">'x'</span>].shape)  <span class="co"># (1000, 101, 2)</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Compute statistics</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> controldesymulation.systems.base.numerical_integration.stochastic.sde_integrator_base <span class="im">import</span> get_trajectory_statistics</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(mc_result)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean at t=10: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std at t=10: </span><span class="sc">{</span>stats[<span class="st">'std'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>High-level simulate() usage</strong> (if available, uses (x, t) convention):</p>
+<p>If your stochastic system provides a high-level <code>simulate()</code> method, prefer it for the more intuitive (x, t) convention:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Controller with (x, t) order - state is primary</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> controller(x, t):  <span class="co"># Note: (x, t) order</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>...     K <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">2.0</span>]])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> <span class="op">-</span>K <span class="op">@</span> x</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> sde_system.simulate(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>...     controller<span class="op">=</span>controller,  <span class="co"># Uses (x, t) signature</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Converting between conventions</strong>:</p>
+<p>If you have a controller designed for simulate() and need to use integrate():</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Controller for simulate() - uses (x, t)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> my_controller(x, t):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> <span class="op">-</span>K <span class="op">@</span> x</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Wrap for integrate() - convert to (t, x)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>x0,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: my_controller(x, t),  <span class="co"># Swap argument order</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>... )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Comparing SDE with ODE integration</strong>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Deterministic (ODE) - same result every time</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ode_result <span class="op">=</span> ode_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Stochastic (SDE) - different result each time</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sde_result1 <span class="op">=</span> sde_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sde_result2 <span class="op">=</span> sde_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Trajectories will differ due to randomness</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="see-also" class="level4 doc-section doc-section-see-also">
+<h4 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h4>
+<p>integrate_monte_carlo : Simulate multiple paths for statistical analysis get_trajectory_statistics : Compute statistics from Monte Carlo results set_seed : Set random seed for reproducibility step : Single SDE integration step with noise simulate : High-level simulation with (x, t) convention (if available)</p>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo">integrate_monte_carlo</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    x0,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    u_func,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    t_span,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    n_paths,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    t_eval<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    store_paths<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    parallel<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Integrate multiple SDE trajectories for Monte Carlo analysis.</p>
+<p>Simulates n_paths independent realizations of the SDE to estimate statistical properties (mean, variance, probability distributions).</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 16%">
+<col style="width: 65%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>x0</td>
+<td>ArrayLike</td>
+<td>Initial state (nx,)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>u_func</td>
+<td>Callable</td>
+<td>Control policy (or None for autonomous)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>t_span</td>
+<td>Tuple[float, float]</td>
+<td>Time interval</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>n_paths</td>
+<td>int</td>
+<td>Number of trajectories to simulate</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>t_eval</td>
+<td>Optional[ArrayLike]</td>
+<td>Evaluation times</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>store_paths</td>
+<td>bool</td>
+<td>If True, store all trajectories (memory intensive) If False, only compute statistics online</td>
+<td><code>True</code></td>
+</tr>
+<tr class="odd">
+<td>parallel</td>
+<td>bool</td>
+<td>If True, use parallel execution (if backend supports)</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 16%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>SDEIntegrationResult</td>
+<td>Result with shape (n_paths, T, nx) if store_paths=True Result with statistics only if store_paths=False</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Monte Carlo with 1000 paths</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Get statistics</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(result)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean at t=10: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std at t=10: </span><span class="sc">{</span>stats[<span class="st">'std'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Confidence intervals</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> lower <span class="op">=</span> stats[<span class="st">'mean'</span>] <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> stats[<span class="st">'std'</span>]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> upper <span class="op">=</span> stats[<span class="st">'mean'</span>] <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> stats[<span class="st">'std'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats">reset_stats</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Reset all statistics including SDE-specific counters.</p>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed">set_seed</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed(seed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set random seed for reproducibility.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>seed</td>
+<td>int</td>
+<td>Random seed</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result1 <span class="op">=</span> integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result2 <span class="op">=</span> integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># result1 and result2 are identical</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step">step</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.step(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    u<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    dW<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Take one SDE integration step with noise.</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 23%">
+<col style="width: 55%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>x</td>
+<td>ArrayLike</td>
+<td>Current state (nx,)</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>u</td>
+<td>Optional[ArrayLike]</td>
+<td>Control input (nu,) or None for autonomous</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>Optional[float]</td>
+<td>Step size (uses self.dt if None)</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>dW</td>
+<td>Optional[ArrayLike]</td>
+<td>Brownian increment (nw,) - if None, generates random</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-4" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-4">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ArrayLike</td>
+<td>Next state x(t + dt)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Subclasses implement specific SDE methods: - Euler-Maruyama (order 0.5 strong, order 1 weak) - Milstein (order 1 strong) - Runge-Kutta SDE methods - etc.</p>
+</section>
+<section id="examples-4" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-4">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x_next <span class="op">=</span> integrator.step(x, u, dt<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># With custom noise</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> dW <span class="op">=</span> np.random.randn(nw) <span class="op">*</span> np.sqrt(<span class="fl">0.01</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x_next <span class="op">=</span> integrator.step(x, u, dt<span class="op">=</span><span class="fl">0.01</span>, dW<span class="op">=</span>dW)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.base.numerical_integration.stochastic.SDEIntegratorBase { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase }</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase(</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    sde_system,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    step_mode<span class="op">=</span>StepMode.FIXED,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    sde_type<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    convergence_type<span class="op">=</span>ConvergenceType.STRONG,</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>options,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>Abstract base class for SDE integrators.</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>Extends IntegratorBase to handle stochastic differential equations with</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>drift and diffusion terms. Provides unified interface for both Ito and</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>Stratonovich SDEs across multiple backends.</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>All SDE integrators must implement:</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>step(): Single integration step with noise</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>integrate(): Multi-step integration with trajectories</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>name: Integrator name</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>Additional SDE-specific capabilities:</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Multiple trajectory simulation (Monte Carlo)</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise structure exploitation (additive, diagonal, etc.)</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Weak and strong convergence schemes</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stratonovich correction terms</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## Attributes {.doc-section .doc-section-attributes}</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name             <span class="pp">|</span> Type                      <span class="pp">|</span> Description                              <span class="pp">|</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------|---------------------------|------------------------------------------|</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sde_system       <span class="pp">|</span> StochasticDynamicalSystem <span class="pp">|</span> SDE system to integrate                  <span class="pp">|</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sde_type         <span class="pp">|</span> SDEType                   <span class="pp">|</span> SDE interpretation (Ito or Stratonovich) <span class="pp">|</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> convergence_type <span class="pp">|</span> ConvergenceType           <span class="pp">|</span> Convergence criterion (strong or weak)   <span class="pp">|</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> seed             <span class="pp">|</span> Optional<span class="sc">\[</span>int<span class="sc">\]</span>           <span class="pp">|</span> Random seed for reproducibility          <span class="pp">|</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## Result Types {.doc-section .doc-section-result-types}</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>Returns SDEIntegrationResult TypedDict with:</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>t: Time points (T,)</span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>x: State trajectory (T, nx) or (n_paths, T, nx)</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>diffusion_evals: Number of diffusion evaluations</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>noise_samples: Brownian increments used</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>n_paths: Number of trajectories</span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>convergence_type: 'strong' or 'weak'</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>sde_type: 'ito' or 'stratonovich'</span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Create SDE integrator</span></span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator <span class="op">=</span> EulerMaruyamaIntegrator(</span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>...     sde_system,</span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>...     backend<span class="op">=</span><span class="st">'numpy'</span>,</span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>...     seed<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Single trajectory</span></span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"State shape: </span><span class="sc">{</span>result[<span class="st">'x'</span>]<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Multiple trajectories (Monte Carlo)</span></span>
+<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb23-77"><a href="#cb23-77" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(result)</span>
+<span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean trajectory: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Standard deviation: </span><span class="sc">{</span>stats[<span class="st">'std'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Autonomous system</span></span>
+<span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-86"><a href="#cb23-86" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb23-87"><a href="#cb23-87" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-88"><a href="#cb23-88" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-89"><a href="#cb23-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-90"><a href="#cb23-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-91"><a href="#cb23-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb23-92"><a href="#cb23-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-93"><a href="#cb23-93" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb23-94"><a href="#cb23-94" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb23-95"><a href="#cb23-95" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_noise_info</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info)</span> <span class="pp">|</span> Get information about noise structure and optimizations. <span class="pp">|</span></span>
+<span id="cb23-96"><a href="#cb23-96" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_sde_stats</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats)</span> <span class="pp">|</span> Get SDE-specific integration statistics. <span class="pp">|</span></span>
+<span id="cb23-97"><a href="#cb23-97" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">integrate</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate)</span> <span class="pp">|</span> Integrate SDE over time interval. <span class="pp">|</span></span>
+<span id="cb23-98"><a href="#cb23-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">integrate_monte_carlo</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo)</span> <span class="pp">|</span> Integrate multiple SDE trajectories for Monte Carlo analysis. <span class="pp">|</span></span>
+<span id="cb23-99"><a href="#cb23-99" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">reset_stats</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats)</span> <span class="pp">|</span> Reset all statistics including SDE-specific counters. <span class="pp">|</span></span>
+<span id="cb23-100"><a href="#cb23-100" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">set_seed</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed)</span> <span class="pp">|</span> Set random seed for reproducibility. <span class="pp">|</span></span>
+<span id="cb23-101"><a href="#cb23-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">step</span><span class="co">](#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step)</span> <span class="pp">|</span> Take one SDE integration step with noise. <span class="pp">|</span></span>
+<span id="cb23-102"><a href="#cb23-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-103"><a href="#cb23-103" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_noise_info { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info }</span></span>
+<span id="cb23-104"><a href="#cb23-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-105"><a href="#cb23-105" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-106"><a href="#cb23-106" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_noise_info()</span>
+<span id="cb23-107"><a href="#cb23-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-108"><a href="#cb23-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-109"><a href="#cb23-109" aria-hidden="true" tabindex="-1"></a>Get information about noise structure and optimizations.</span>
+<span id="cb23-110"><a href="#cb23-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-111"><a href="#cb23-111" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb23-112"><a href="#cb23-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-113"><a href="#cb23-113" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type             <span class="pp">|</span> Description                 <span class="pp">|</span></span>
+<span id="cb23-114"><a href="#cb23-114" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------------|-----------------------------|</span></span>
+<span id="cb23-115"><a href="#cb23-115" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> Dict<span class="sc">\[</span>str, Any<span class="sc">\]</span> <span class="pp">|</span> Noise structure information <span class="pp">|</span></span>
+<span id="cb23-116"><a href="#cb23-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-117"><a href="#cb23-117" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_sde_stats { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats }</span></span>
+<span id="cb23-118"><a href="#cb23-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-119"><a href="#cb23-119" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-120"><a href="#cb23-120" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.get_sde_stats()</span>
+<span id="cb23-121"><a href="#cb23-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-122"><a href="#cb23-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-123"><a href="#cb23-123" aria-hidden="true" tabindex="-1"></a>Get SDE-specific integration statistics.</span>
+<span id="cb23-124"><a href="#cb23-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-125"><a href="#cb23-125" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb23-126"><a href="#cb23-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-127"><a href="#cb23-127" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type             <span class="pp">|</span> Description                                      <span class="pp">|</span></span>
+<span id="cb23-128"><a href="#cb23-128" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------------|--------------------------------------------------|</span></span>
+<span id="cb23-129"><a href="#cb23-129" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> Dict<span class="sc">\[</span>str, Any<span class="sc">\]</span> <span class="pp">|</span> Statistics including drift/diffusion evaluations <span class="pp">|</span></span>
+<span id="cb23-130"><a href="#cb23-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-131"><a href="#cb23-131" aria-hidden="true" tabindex="-1"></a><span class="fu">### integrate { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate }</span></span>
+<span id="cb23-132"><a href="#cb23-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-133"><a href="#cb23-133" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-134"><a href="#cb23-134" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate(</span>
+<span id="cb23-135"><a href="#cb23-135" aria-hidden="true" tabindex="-1"></a>    x0,</span>
+<span id="cb23-136"><a href="#cb23-136" aria-hidden="true" tabindex="-1"></a>    u_func,</span>
+<span id="cb23-137"><a href="#cb23-137" aria-hidden="true" tabindex="-1"></a>    t_span,</span>
+<span id="cb23-138"><a href="#cb23-138" aria-hidden="true" tabindex="-1"></a>    t_eval<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-139"><a href="#cb23-139" aria-hidden="true" tabindex="-1"></a>    dense_output<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb23-140"><a href="#cb23-140" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-141"><a href="#cb23-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-142"><a href="#cb23-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-143"><a href="#cb23-143" aria-hidden="true" tabindex="-1"></a>Integrate SDE over time interval.</span>
+<span id="cb23-144"><a href="#cb23-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-145"><a href="#cb23-145" aria-hidden="true" tabindex="-1"></a>**API Level**: This is a **low-level stochastic integration method** that directly</span>
+<span id="cb23-146"><a href="#cb23-146" aria-hidden="true" tabindex="-1"></a>interfaces with numerical SDE solvers. For typical use cases, prefer the high-level</span>
+<span id="cb23-147"><a href="#cb23-147" aria-hidden="true" tabindex="-1"></a><span class="in">`simulate()`</span> method if available in your stochastic system class.</span>
+<span id="cb23-148"><a href="#cb23-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-149"><a href="#cb23-149" aria-hidden="true" tabindex="-1"></a>**Control Function Convention**: This method uses the **scipy/ODE solver convention**</span>
+<span id="cb23-150"><a href="#cb23-150" aria-hidden="true" tabindex="-1"></a>where control functions have signature **(t, x) → u**, with time as the FIRST argument.</span>
+<span id="cb23-151"><a href="#cb23-151" aria-hidden="true" tabindex="-1"></a>This differs from high-level simulation APIs which use **(x, t) → u** with state as</span>
+<span id="cb23-152"><a href="#cb23-152" aria-hidden="true" tabindex="-1"></a>the primary argument. The difference is intentional:</span>
+<span id="cb23-153"><a href="#cb23-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-154"><a href="#cb23-154" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Low-level** <span class="in">`integrate()`</span>: Uses (t, x) for direct solver compatibility</span>
+<span id="cb23-155"><a href="#cb23-155" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**High-level** <span class="in">`simulate()`</span>: Uses (x, t) for intuitive control-theoretic API</span>
+<span id="cb23-156"><a href="#cb23-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-157"><a href="#cb23-157" aria-hidden="true" tabindex="-1"></a>**Stochastic Integration**: Unlike deterministic ODE integration, SDE integration</span>
+<span id="cb23-158"><a href="#cb23-158" aria-hidden="true" tabindex="-1"></a>involves random Brownian motion increments. Each call with the same initial condition</span>
+<span id="cb23-159"><a href="#cb23-159" aria-hidden="true" tabindex="-1"></a>will produce different trajectories unless the random seed is fixed. For statistical</span>
+<span id="cb23-160"><a href="#cb23-160" aria-hidden="true" tabindex="-1"></a>analysis, use <span class="in">`integrate_monte_carlo()`</span> to simulate multiple paths.</span>
+<span id="cb23-161"><a href="#cb23-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-162"><a href="#cb23-162" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb23-163"><a href="#cb23-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-164"><a href="#cb23-164" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name         <span class="pp">|</span> Type                                                    <span class="pp">|</span> Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb23-165"><a href="#cb23-165" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------|---------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb23-166"><a href="#cb23-166" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x0           <span class="pp">|</span> ArrayLike                                               <span class="pp">|</span> Initial state (nx,)                                                                                                                                                                                                                                                                                                                                                                                                                                                   <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-167"><a href="#cb23-167" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> u_func       <span class="pp">|</span> Callable<span class="sc">\[\[</span>float, ArrayLike<span class="sc">\]</span>, Optional<span class="sc">\[</span>ArrayLike<span class="sc">\]\]</span> <span class="pp">|</span> Control policy with **low-level convention**: (t, x) → u - t: float - current time (**FIRST** argument, scipy convention) - x: ArrayLike - current state (**SECOND** argument) - Returns: Optional<span class="co">[</span><span class="ot">ArrayLike</span><span class="co">]</span> - control input u, or None for autonomous  Can be: - Autonomous: lambda t, x: None - Constant control: lambda t, x: u_const - State feedback: lambda t, x: -K @ x - Time-varying: lambda t, x: u(t) - Stochastic policy: lambda t, x: policy(x) + noise <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-168"><a href="#cb23-168" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> t_span       <span class="pp">|</span> Tuple<span class="sc">\[</span>float, float<span class="sc">\]</span>                                   <span class="pp">|</span> Integration interval (t_start, t_end)                                                                                                                                                                                                                                                                                                                                                                                                                                 <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-169"><a href="#cb23-169" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> t_eval       <span class="pp">|</span> Optional<span class="sc">\[</span>ArrayLike<span class="sc">\]</span>                                   <span class="pp">|</span> Specific times at which to store solution If None, uses solver's internal time points (typically uniform grid) For SDEs, irregular grids may affect statistical properties                                                                                                                                                                                                                                                                                            <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb23-170"><a href="#cb23-170" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dense_output <span class="pp">|</span> bool                                                    <span class="pp">|</span> If True, return dense interpolated solution (if supported by solver) Note: Most SDE solvers do not support dense output                                                                                                                                                                                                                                                                                                                                               <span class="pp">|</span> <span class="in">`False`</span>    <span class="pp">|</span></span>
+<span id="cb23-171"><a href="#cb23-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-172"><a href="#cb23-172" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb23-173"><a href="#cb23-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-174"><a href="#cb23-174" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                 <span class="pp">|</span> Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   <span class="pp">|</span></span>
+<span id="cb23-175"><a href="#cb23-175" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|</span></span>
+<span id="cb23-176"><a href="#cb23-176" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> SDEIntegrationResult <span class="pp">|</span> TypedDict containing: - t: Time points (T,) - x: State trajectory (T, nx) - **time-major ordering** - success: Whether integration succeeded - message: Status message - nfev: Number of drift function evaluations - diffusion_evals: Number of diffusion function evaluations - noise_samples: Number of Brownian motion samples generated - nsteps: Number of integration steps taken - integration_time: Computation time (seconds) - solver: Integrator name - convergence_type: 'strong' or 'weak' convergence - sde_type: 'ito' or 'stratonovich' interpretation - n_paths: Number of trajectories (1 for single path) <span class="pp">|</span></span>
+<span id="cb23-177"><a href="#cb23-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-178"><a href="#cb23-178" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb23-179"><a href="#cb23-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-180"><a href="#cb23-180" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type         <span class="pp">|</span> Description                                                          <span class="pp">|</span></span>
+<span id="cb23-181"><a href="#cb23-181" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------------|----------------------------------------------------------------------|</span></span>
+<span id="cb23-182"><a href="#cb23-182" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> RuntimeError <span class="pp">|</span> If integration fails (numerical instability, step size issues, etc.) <span class="pp">|</span></span>
+<span id="cb23-183"><a href="#cb23-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-184"><a href="#cb23-184" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb23-185"><a href="#cb23-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-186"><a href="#cb23-186" aria-hidden="true" tabindex="-1"></a>**Stochastic Nature**: Each call generates a new random trajectory. For reproducible</span>
+<span id="cb23-187"><a href="#cb23-187" aria-hidden="true" tabindex="-1"></a>results, set the integrator's random seed via <span class="in">`set_seed()`</span> before calling integrate().</span>
+<span id="cb23-188"><a href="#cb23-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-189"><a href="#cb23-189" aria-hidden="true" tabindex="-1"></a>**Convergence Types**:</span>
+<span id="cb23-190"><a href="#cb23-190" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Strong convergence**: Pathwise accuracy - each trajectory is accurate</span>
+<span id="cb23-191"><a href="#cb23-191" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weak convergence**: Moment accuracy - statistics (mean, variance) are accurate</span>
+<span id="cb23-192"><a href="#cb23-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-193"><a href="#cb23-193" aria-hidden="true" tabindex="-1"></a>**SDE Interpretations**:</span>
+<span id="cb23-194"><a href="#cb23-194" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Itô**: Most common, natural for stochastic calculus</span>
+<span id="cb23-195"><a href="#cb23-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Stratonovich**: Physics-based, matches ordinary calculus rules</span>
+<span id="cb23-196"><a href="#cb23-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-197"><a href="#cb23-197" aria-hidden="true" tabindex="-1"></a>**Time-Major Ordering**: Unlike some high-level APIs that use (nx, T) for backward</span>
+<span id="cb23-198"><a href="#cb23-198" aria-hidden="true" tabindex="-1"></a>compatibility, integrate() returns (T, nx) time-major ordering for consistency with</span>
+<span id="cb23-199"><a href="#cb23-199" aria-hidden="true" tabindex="-1"></a>numerical solver conventions and efficient time-series operations.</span>
+<span id="cb23-200"><a href="#cb23-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-201"><a href="#cb23-201" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb23-202"><a href="#cb23-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-203"><a href="#cb23-203" aria-hidden="true" tabindex="-1"></a>**Low-level integrate() usage** (uses (t, x) convention):</span>
+<span id="cb23-204"><a href="#cb23-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-205"><a href="#cb23-205" aria-hidden="true" tabindex="-1"></a>Autonomous stochastic system:</span>
+<span id="cb23-206"><a href="#cb23-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-207"><a href="#cb23-207" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-208"><a href="#cb23-208" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-209"><a href="#cb23-209" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-210"><a href="#cb23-210" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,  <span class="co"># Autonomous</span></span>
+<span id="cb23-211"><a href="#cb23-211" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-212"><a href="#cb23-212" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-213"><a href="#cb23-213" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Final state: </span><span class="sc">{</span>result[<span class="st">'x'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-214"><a href="#cb23-214" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Convergence: </span><span class="sc">{</span>result[<span class="st">'convergence_type'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-215"><a href="#cb23-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-216"><a href="#cb23-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-217"><a href="#cb23-217" aria-hidden="true" tabindex="-1"></a>Controlled stochastic system with constant control:</span>
+<span id="cb23-218"><a href="#cb23-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-219"><a href="#cb23-219" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-220"><a href="#cb23-220" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-221"><a href="#cb23-221" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-222"><a href="#cb23-222" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.array([<span class="fl">0.5</span>]),  <span class="co"># Note: (t, x) order</span></span>
+<span id="cb23-223"><a href="#cb23-223" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-224"><a href="#cb23-224" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-225"><a href="#cb23-225" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Diffusion evaluations: </span><span class="sc">{</span>result[<span class="st">'diffusion_evals'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-226"><a href="#cb23-226" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-227"><a href="#cb23-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-228"><a href="#cb23-228" aria-hidden="true" tabindex="-1"></a>State feedback for stochastic stabilization:</span>
+<span id="cb23-229"><a href="#cb23-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-230"><a href="#cb23-230" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-231"><a href="#cb23-231" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> K <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">2.0</span>]])</span>
+<span id="cb23-232"><a href="#cb23-232" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-233"><a href="#cb23-233" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-234"><a href="#cb23-234" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="op">-</span>K <span class="op">@</span> x,  <span class="co"># (t, x) order for integrate()</span></span>
+<span id="cb23-235"><a href="#cb23-235" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-236"><a href="#cb23-236" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-237"><a href="#cb23-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-238"><a href="#cb23-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-239"><a href="#cb23-239" aria-hidden="true" tabindex="-1"></a>Time-varying stochastic control:</span>
+<span id="cb23-240"><a href="#cb23-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-241"><a href="#cb23-241" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-242"><a href="#cb23-242" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-243"><a href="#cb23-243" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-244"><a href="#cb23-244" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.array([<span class="fl">0.5</span> <span class="op">*</span> np.sin(t)]),</span>
+<span id="cb23-245"><a href="#cb23-245" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-246"><a href="#cb23-246" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-247"><a href="#cb23-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-248"><a href="#cb23-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-249"><a href="#cb23-249" aria-hidden="true" tabindex="-1"></a>Reproducible stochastic simulation:</span>
+<span id="cb23-250"><a href="#cb23-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-251"><a href="#cb23-251" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-252"><a href="#cb23-252" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb23-253"><a href="#cb23-253" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result1 <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-254"><a href="#cb23-254" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-255"><a href="#cb23-255" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb23-256"><a href="#cb23-256" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-257"><a href="#cb23-257" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-258"><a href="#cb23-258" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb23-259"><a href="#cb23-259" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result2 <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-260"><a href="#cb23-260" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-261"><a href="#cb23-261" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb23-262"><a href="#cb23-262" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb23-263"><a href="#cb23-263" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-264"><a href="#cb23-264" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> np.allclose(result1[<span class="st">'x'</span>], result2[<span class="st">'x'</span>])  <span class="co"># True - same random trajectory</span></span>
+<span id="cb23-265"><a href="#cb23-265" aria-hidden="true" tabindex="-1"></a><span class="va">True</span></span>
+<span id="cb23-266"><a href="#cb23-266" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-267"><a href="#cb23-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-268"><a href="#cb23-268" aria-hidden="true" tabindex="-1"></a>Evaluate at specific times:</span>
+<span id="cb23-269"><a href="#cb23-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-270"><a href="#cb23-270" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-271"><a href="#cb23-271" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> t_eval <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">101</span>)</span>
+<span id="cb23-272"><a href="#cb23-272" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-273"><a href="#cb23-273" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-274"><a href="#cb23-274" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb23-275"><a href="#cb23-275" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb23-276"><a href="#cb23-276" aria-hidden="true" tabindex="-1"></a>...     t_eval<span class="op">=</span>t_eval</span>
+<span id="cb23-277"><a href="#cb23-277" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-278"><a href="#cb23-278" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">assert</span> <span class="bu">len</span>(result[<span class="st">'t'</span>]) <span class="op">==</span> <span class="dv">101</span></span>
+<span id="cb23-279"><a href="#cb23-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-280"><a href="#cb23-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-281"><a href="#cb23-281" aria-hidden="true" tabindex="-1"></a>**Monte Carlo simulation** (multiple trajectories):</span>
+<span id="cb23-282"><a href="#cb23-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-283"><a href="#cb23-283" aria-hidden="true" tabindex="-1"></a>For statistical analysis, use <span class="in">`integrate_monte_carlo()`</span>:</span>
+<span id="cb23-284"><a href="#cb23-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-285"><a href="#cb23-285" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-286"><a href="#cb23-286" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Simulate 1000 paths</span></span>
+<span id="cb23-287"><a href="#cb23-287" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> mc_result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb23-288"><a href="#cb23-288" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-289"><a href="#cb23-289" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: <span class="va">None</span>,</span>
+<span id="cb23-290"><a href="#cb23-290" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb23-291"><a href="#cb23-291" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb23-292"><a href="#cb23-292" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-293"><a href="#cb23-293" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Result has shape (n_paths, T, nx)</span></span>
+<span id="cb23-294"><a href="#cb23-294" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(mc_result[<span class="st">'x'</span>].shape)  <span class="co"># (1000, 101, 2)</span></span>
+<span id="cb23-295"><a href="#cb23-295" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-296"><a href="#cb23-296" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Compute statistics</span></span>
+<span id="cb23-297"><a href="#cb23-297" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="im">from</span> controldesymulation.systems.base.numerical_integration.stochastic.sde_integrator_base <span class="im">import</span> get_trajectory_statistics</span>
+<span id="cb23-298"><a href="#cb23-298" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(mc_result)</span>
+<span id="cb23-299"><a href="#cb23-299" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean at t=10: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-300"><a href="#cb23-300" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std at t=10: </span><span class="sc">{</span>stats[<span class="st">'std'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-301"><a href="#cb23-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-302"><a href="#cb23-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-303"><a href="#cb23-303" aria-hidden="true" tabindex="-1"></a>**High-level simulate() usage** (if available, uses (x, t) convention):</span>
+<span id="cb23-304"><a href="#cb23-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-305"><a href="#cb23-305" aria-hidden="true" tabindex="-1"></a>If your stochastic system provides a high-level <span class="in">`simulate()`</span> method, prefer it</span>
+<span id="cb23-306"><a href="#cb23-306" aria-hidden="true" tabindex="-1"></a>for the more intuitive (x, t) convention:</span>
+<span id="cb23-307"><a href="#cb23-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-308"><a href="#cb23-308" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-309"><a href="#cb23-309" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Controller with (x, t) order - state is primary</span></span>
+<span id="cb23-310"><a href="#cb23-310" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> controller(x, t):  <span class="co"># Note: (x, t) order</span></span>
+<span id="cb23-311"><a href="#cb23-311" aria-hidden="true" tabindex="-1"></a>...     K <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">2.0</span>]])</span>
+<span id="cb23-312"><a href="#cb23-312" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> <span class="op">-</span>K <span class="op">@</span> x</span>
+<span id="cb23-313"><a href="#cb23-313" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-314"><a href="#cb23-314" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> sde_system.simulate(</span>
+<span id="cb23-315"><a href="#cb23-315" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-316"><a href="#cb23-316" aria-hidden="true" tabindex="-1"></a>...     controller<span class="op">=</span>controller,  <span class="co"># Uses (x, t) signature</span></span>
+<span id="cb23-317"><a href="#cb23-317" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb23-318"><a href="#cb23-318" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb23-319"><a href="#cb23-319" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-320"><a href="#cb23-320" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-321"><a href="#cb23-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-322"><a href="#cb23-322" aria-hidden="true" tabindex="-1"></a>**Converting between conventions**:</span>
+<span id="cb23-323"><a href="#cb23-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-324"><a href="#cb23-324" aria-hidden="true" tabindex="-1"></a>If you have a controller designed for simulate() and need to use integrate():</span>
+<span id="cb23-325"><a href="#cb23-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-326"><a href="#cb23-326" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-327"><a href="#cb23-327" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Controller for simulate() - uses (x, t)</span></span>
+<span id="cb23-328"><a href="#cb23-328" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> my_controller(x, t):</span>
+<span id="cb23-329"><a href="#cb23-329" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">return</span> <span class="op">-</span>K <span class="op">@</span> x</span>
+<span id="cb23-330"><a href="#cb23-330" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-331"><a href="#cb23-331" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Wrap for integrate() - convert to (t, x)</span></span>
+<span id="cb23-332"><a href="#cb23-332" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate(</span>
+<span id="cb23-333"><a href="#cb23-333" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>x0,</span>
+<span id="cb23-334"><a href="#cb23-334" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: my_controller(x, t),  <span class="co"># Swap argument order</span></span>
+<span id="cb23-335"><a href="#cb23-335" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb23-336"><a href="#cb23-336" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-337"><a href="#cb23-337" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-338"><a href="#cb23-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-339"><a href="#cb23-339" aria-hidden="true" tabindex="-1"></a>**Comparing SDE with ODE integration**:</span>
+<span id="cb23-340"><a href="#cb23-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-341"><a href="#cb23-341" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-342"><a href="#cb23-342" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Deterministic (ODE) - same result every time</span></span>
+<span id="cb23-343"><a href="#cb23-343" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ode_result <span class="op">=</span> ode_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb23-344"><a href="#cb23-344" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-345"><a href="#cb23-345" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Stochastic (SDE) - different result each time</span></span>
+<span id="cb23-346"><a href="#cb23-346" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sde_result1 <span class="op">=</span> sde_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb23-347"><a href="#cb23-347" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sde_result2 <span class="op">=</span> sde_integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb23-348"><a href="#cb23-348" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Trajectories will differ due to randomness</span></span>
+<span id="cb23-349"><a href="#cb23-349" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-350"><a href="#cb23-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-351"><a href="#cb23-351" aria-hidden="true" tabindex="-1"></a><span class="fu">#### See Also {.doc-section .doc-section-see-also}</span></span>
+<span id="cb23-352"><a href="#cb23-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-353"><a href="#cb23-353" aria-hidden="true" tabindex="-1"></a>integrate_monte_carlo : Simulate multiple paths for statistical analysis</span>
+<span id="cb23-354"><a href="#cb23-354" aria-hidden="true" tabindex="-1"></a>get_trajectory_statistics : Compute statistics from Monte Carlo results</span>
+<span id="cb23-355"><a href="#cb23-355" aria-hidden="true" tabindex="-1"></a>set_seed : Set random seed for reproducibility</span>
+<span id="cb23-356"><a href="#cb23-356" aria-hidden="true" tabindex="-1"></a>step : Single SDE integration step with noise</span>
+<span id="cb23-357"><a href="#cb23-357" aria-hidden="true" tabindex="-1"></a>simulate : High-level simulation with (x, t) convention (if available)</span>
+<span id="cb23-358"><a href="#cb23-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-359"><a href="#cb23-359" aria-hidden="true" tabindex="-1"></a><span class="fu">### integrate_monte_carlo { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo }</span></span>
+<span id="cb23-360"><a href="#cb23-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-361"><a href="#cb23-361" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-362"><a href="#cb23-362" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.integrate_monte_carlo(</span>
+<span id="cb23-363"><a href="#cb23-363" aria-hidden="true" tabindex="-1"></a>    x0,</span>
+<span id="cb23-364"><a href="#cb23-364" aria-hidden="true" tabindex="-1"></a>    u_func,</span>
+<span id="cb23-365"><a href="#cb23-365" aria-hidden="true" tabindex="-1"></a>    t_span,</span>
+<span id="cb23-366"><a href="#cb23-366" aria-hidden="true" tabindex="-1"></a>    n_paths,</span>
+<span id="cb23-367"><a href="#cb23-367" aria-hidden="true" tabindex="-1"></a>    t_eval<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-368"><a href="#cb23-368" aria-hidden="true" tabindex="-1"></a>    store_paths<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb23-369"><a href="#cb23-369" aria-hidden="true" tabindex="-1"></a>    parallel<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb23-370"><a href="#cb23-370" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-371"><a href="#cb23-371" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-372"><a href="#cb23-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-373"><a href="#cb23-373" aria-hidden="true" tabindex="-1"></a>Integrate multiple SDE trajectories for Monte Carlo analysis.</span>
+<span id="cb23-374"><a href="#cb23-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-375"><a href="#cb23-375" aria-hidden="true" tabindex="-1"></a>Simulates n_paths independent realizations of the SDE to estimate</span>
+<span id="cb23-376"><a href="#cb23-376" aria-hidden="true" tabindex="-1"></a>statistical properties (mean, variance, probability distributions).</span>
+<span id="cb23-377"><a href="#cb23-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-378"><a href="#cb23-378" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb23-379"><a href="#cb23-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-380"><a href="#cb23-380" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name        <span class="pp">|</span> Type                  <span class="pp">|</span> Description                                                                                 <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb23-381"><a href="#cb23-381" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|-----------------------|---------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb23-382"><a href="#cb23-382" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x0          <span class="pp">|</span> ArrayLike             <span class="pp">|</span> Initial state (nx,)                                                                         <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-383"><a href="#cb23-383" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> u_func      <span class="pp">|</span> Callable              <span class="pp">|</span> Control policy (or None for autonomous)                                                     <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-384"><a href="#cb23-384" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> t_span      <span class="pp">|</span> Tuple<span class="sc">\[</span>float, float<span class="sc">\]</span> <span class="pp">|</span> Time interval                                                                               <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-385"><a href="#cb23-385" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> n_paths     <span class="pp">|</span> int                   <span class="pp">|</span> Number of trajectories to simulate                                                          <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-386"><a href="#cb23-386" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> t_eval      <span class="pp">|</span> Optional<span class="sc">\[</span>ArrayLike<span class="sc">\]</span> <span class="pp">|</span> Evaluation times                                                                            <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb23-387"><a href="#cb23-387" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> store_paths <span class="pp">|</span> bool                  <span class="pp">|</span> If True, store all trajectories (memory intensive) If False, only compute statistics online <span class="pp">|</span> <span class="in">`True`</span>     <span class="pp">|</span></span>
+<span id="cb23-388"><a href="#cb23-388" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> parallel    <span class="pp">|</span> bool                  <span class="pp">|</span> If True, use parallel execution (if backend supports)                                       <span class="pp">|</span> <span class="in">`False`</span>    <span class="pp">|</span></span>
+<span id="cb23-389"><a href="#cb23-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-390"><a href="#cb23-390" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb23-391"><a href="#cb23-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-392"><a href="#cb23-392" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                 <span class="pp">|</span> Description                                                                                             <span class="pp">|</span></span>
+<span id="cb23-393"><a href="#cb23-393" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|----------------------|---------------------------------------------------------------------------------------------------------|</span></span>
+<span id="cb23-394"><a href="#cb23-394" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> SDEIntegrationResult <span class="pp">|</span> Result with shape (n_paths, T, nx) if store_paths=True Result with statistics only if store_paths=False <span class="pp">|</span></span>
+<span id="cb23-395"><a href="#cb23-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-396"><a href="#cb23-396" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb23-397"><a href="#cb23-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-398"><a href="#cb23-398" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-399"><a href="#cb23-399" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Monte Carlo with 1000 paths</span></span>
+<span id="cb23-400"><a href="#cb23-400" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result <span class="op">=</span> integrator.integrate_monte_carlo(</span>
+<span id="cb23-401"><a href="#cb23-401" aria-hidden="true" tabindex="-1"></a>...     x0<span class="op">=</span>np.array([<span class="fl">1.0</span>, <span class="fl">0.0</span>]),</span>
+<span id="cb23-402"><a href="#cb23-402" aria-hidden="true" tabindex="-1"></a>...     u_func<span class="op">=</span><span class="kw">lambda</span> t, x: np.zeros(<span class="dv">1</span>),</span>
+<span id="cb23-403"><a href="#cb23-403" aria-hidden="true" tabindex="-1"></a>...     t_span<span class="op">=</span>(<span class="fl">0.0</span>, <span class="fl">10.0</span>),</span>
+<span id="cb23-404"><a href="#cb23-404" aria-hidden="true" tabindex="-1"></a>...     n_paths<span class="op">=</span><span class="dv">1000</span></span>
+<span id="cb23-405"><a href="#cb23-405" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb23-406"><a href="#cb23-406" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-407"><a href="#cb23-407" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Get statistics</span></span>
+<span id="cb23-408"><a href="#cb23-408" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stats <span class="op">=</span> get_trajectory_statistics(result)</span>
+<span id="cb23-409"><a href="#cb23-409" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Mean at t=10: </span><span class="sc">{</span>stats[<span class="st">'mean'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-410"><a href="#cb23-410" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Std at t=10: </span><span class="sc">{</span>stats[<span class="st">'std'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb23-411"><a href="#cb23-411" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb23-412"><a href="#cb23-412" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Confidence intervals</span></span>
+<span id="cb23-413"><a href="#cb23-413" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> lower <span class="op">=</span> stats[<span class="st">'mean'</span>] <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> stats[<span class="st">'std'</span>]</span>
+<span id="cb23-414"><a href="#cb23-414" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> upper <span class="op">=</span> stats[<span class="st">'mean'</span>] <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> stats[<span class="st">'std'</span>]</span>
+<span id="cb23-415"><a href="#cb23-415" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-416"><a href="#cb23-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-417"><a href="#cb23-417" aria-hidden="true" tabindex="-1"></a><span class="fu">### reset_stats { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats }</span></span>
+<span id="cb23-418"><a href="#cb23-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-419"><a href="#cb23-419" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-420"><a href="#cb23-420" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.reset_stats()</span>
+<span id="cb23-421"><a href="#cb23-421" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-422"><a href="#cb23-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-423"><a href="#cb23-423" aria-hidden="true" tabindex="-1"></a>Reset all statistics including SDE-specific counters.</span>
+<span id="cb23-424"><a href="#cb23-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-425"><a href="#cb23-425" aria-hidden="true" tabindex="-1"></a><span class="fu">### set_seed { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed }</span></span>
+<span id="cb23-426"><a href="#cb23-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-427"><a href="#cb23-427" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-428"><a href="#cb23-428" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.set_seed(seed)</span>
+<span id="cb23-429"><a href="#cb23-429" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-430"><a href="#cb23-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-431"><a href="#cb23-431" aria-hidden="true" tabindex="-1"></a>Set random seed for reproducibility.</span>
+<span id="cb23-432"><a href="#cb23-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-433"><a href="#cb23-433" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb23-434"><a href="#cb23-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-435"><a href="#cb23-435" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description   <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb23-436"><a href="#cb23-436" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------|------------|</span></span>
+<span id="cb23-437"><a href="#cb23-437" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> seed   <span class="pp">|</span> int    <span class="pp">|</span> Random seed   <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-438"><a href="#cb23-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-439"><a href="#cb23-439" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb23-440"><a href="#cb23-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-441"><a href="#cb23-441" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-442"><a href="#cb23-442" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb23-443"><a href="#cb23-443" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result1 <span class="op">=</span> integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb23-444"><a href="#cb23-444" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> integrator.set_seed(<span class="dv">42</span>)</span>
+<span id="cb23-445"><a href="#cb23-445" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> result2 <span class="op">=</span> integrator.integrate(x0, u_func, t_span)</span>
+<span id="cb23-446"><a href="#cb23-446" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># result1 and result2 are identical</span></span>
+<span id="cb23-447"><a href="#cb23-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-448"><a href="#cb23-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-449"><a href="#cb23-449" aria-hidden="true" tabindex="-1"></a><span class="fu">### step { #cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase.step }</span></span>
+<span id="cb23-450"><a href="#cb23-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-451"><a href="#cb23-451" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-452"><a href="#cb23-452" aria-hidden="true" tabindex="-1"></a>systems.base.numerical_integration.stochastic.SDEIntegratorBase.step(</span>
+<span id="cb23-453"><a href="#cb23-453" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb23-454"><a href="#cb23-454" aria-hidden="true" tabindex="-1"></a>    u<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-455"><a href="#cb23-455" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-456"><a href="#cb23-456" aria-hidden="true" tabindex="-1"></a>    dW<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb23-457"><a href="#cb23-457" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-458"><a href="#cb23-458" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb23-459"><a href="#cb23-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-460"><a href="#cb23-460" aria-hidden="true" tabindex="-1"></a>Take one SDE integration step with noise.</span>
+<span id="cb23-461"><a href="#cb23-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-462"><a href="#cb23-462" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb23-463"><a href="#cb23-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-464"><a href="#cb23-464" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                  <span class="pp">|</span> Description                                          <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb23-465"><a href="#cb23-465" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-----------------------|------------------------------------------------------|------------|</span></span>
+<span id="cb23-466"><a href="#cb23-466" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x      <span class="pp">|</span> ArrayLike             <span class="pp">|</span> Current state (nx,)                                  <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb23-467"><a href="#cb23-467" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> u      <span class="pp">|</span> Optional<span class="sc">\[</span>ArrayLike<span class="sc">\]</span> <span class="pp">|</span> Control input (nu,) or None for autonomous           <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb23-468"><a href="#cb23-468" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span>     <span class="pp">|</span> Step size (uses self.dt if None)                     <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb23-469"><a href="#cb23-469" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dW     <span class="pp">|</span> Optional<span class="sc">\[</span>ArrayLike<span class="sc">\]</span> <span class="pp">|</span> Brownian increment (nw,) - if None, generates random <span class="pp">|</span> <span class="in">`None`</span>     <span class="pp">|</span></span>
+<span id="cb23-470"><a href="#cb23-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-471"><a href="#cb23-471" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb23-472"><a href="#cb23-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-473"><a href="#cb23-473" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type      <span class="pp">|</span> Description          <span class="pp">|</span></span>
+<span id="cb23-474"><a href="#cb23-474" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|-----------|----------------------|</span></span>
+<span id="cb23-475"><a href="#cb23-475" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ArrayLike <span class="pp">|</span> Next state x(t + dt) <span class="pp">|</span></span>
+<span id="cb23-476"><a href="#cb23-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-477"><a href="#cb23-477" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb23-478"><a href="#cb23-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-479"><a href="#cb23-479" aria-hidden="true" tabindex="-1"></a>Subclasses implement specific SDE methods:</span>
+<span id="cb23-480"><a href="#cb23-480" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Euler-Maruyama (order 0.5 strong, order 1 weak)</span>
+<span id="cb23-481"><a href="#cb23-481" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Milstein (order 1 strong)</span>
+<span id="cb23-482"><a href="#cb23-482" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runge-Kutta SDE methods</span>
+<span id="cb23-483"><a href="#cb23-483" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>etc.</span>
+<span id="cb23-484"><a href="#cb23-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-485"><a href="#cb23-485" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb23-486"><a href="#cb23-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-487"><a href="#cb23-487" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb23-488"><a href="#cb23-488" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x_next <span class="op">=</span> integrator.step(x, u, dt<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb23-489"><a href="#cb23-489" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># With custom noise</span></span>
+<span id="cb23-490"><a href="#cb23-490" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> dW <span class="op">=</span> np.random.randn(nw) <span class="op">*</span> np.sqrt(<span class="fl">0.01</span>)</span>
+<span id="cb23-491"><a href="#cb23-491" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x_next <span class="op">=</span> integrator.step(x, u, dt<span class="op">=</span><span class="fl">0.01</span>, dW<span class="op">=</span>dW)</span>
+<span id="cb23-492"><a href="#cb23-492" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.base.numerical_integration.stochastic.SDEIntegratorBase.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

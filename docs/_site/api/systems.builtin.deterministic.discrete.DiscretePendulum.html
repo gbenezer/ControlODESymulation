@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.deterministic.discrete.discretependulum – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum">systems.builtin.deterministic.discrete.DiscretePendulum</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics-physical-regimes" id="toc-dynamics-physical-regimes" class="nav-link" data-scroll-target="#dynamics-physical-regimes">Dynamics (Physical Regimes):</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  <li><a href="#equilibria" id="toc-equilibria" class="nav-link" data-scroll-target="#equilibria">Equilibria:</a></li>
+  <li><a href="#controllability" id="toc-controllability" class="nav-link" data-scroll-target="#controllability">Controllability:</a></li>
+  <li><a href="#observability" id="toc-observability" class="nav-link" data-scroll-target="#observability">Observability:</a></li>
+  <li><a href="#energy-and-integrals-of-motion" id="toc-energy-and-integrals-of-motion" class="nav-link" data-scroll-target="#energy-and-integrals-of-motion">Energy and Integrals of Motion:</a></li>
+  <li><a href="#control-objectives" id="toc-control-objectives" class="nav-link" data-scroll-target="#control-objectives">Control Objectives:</a></li>
+  <li><a href="#state-constraints" id="toc-state-constraints" class="nav-link" data-scroll-target="#state-constraints">State Constraints:</a></li>
+  <li><a href="#numerical-considerations" id="toc-numerical-considerations" class="nav-link" data-scroll-target="#numerical-considerations">Numerical Considerations:</a></li>
+  <li><a href="#example-usage" id="toc-example-usage" class="nav-link" data-scroll-target="#example-usage">Example Usage:</a></li>
+  <li><a href="#physical-insights" id="toc-physical-insights" class="nav-link" data-scroll-target="#physical-insights">Physical Insights:</a></li>
+  <li><a href="#common-pitfalls" id="toc-common-pitfalls" class="nav-link" data-scroll-target="#common-pitfalls">Common Pitfalls:</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions:</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also:</a></li>
+  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy">compute_kinetic_energy</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy">compute_potential_energy</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix">compute_separatrix</a>
+  <ul class="collapse">
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy">compute_separatrix_energy</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy">compute_total_energy</a></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer">design_upward_stabilizer</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscretePendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum" class="level1">
+<h1>systems.builtin.deterministic.discrete.DiscretePendulum</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>Discrete-time simple pendulum with friction and optional control.</code></pre>
+<section id="physical-system" class="level2 doc-section doc-section-----physical-system">
+<h2 class="doc-section doc-section-----physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<pre><code>A point mass m suspended by a massless, rigid rod of length L, swinging
+in a vertical plane under the influence of gravity. The pendulum can be:
+- Free (no control): Natural oscillatory motion
+- Forced (with control): External torque applied at pivot
+
+**Mechanical Configuration:**</code></pre>
+<pre><code>              ● Pivot (fixed)
+              |
+              | L (rod length)
+              |
+              ● m (point mass)
+              ↓
+              g (gravity)</code></pre>
+<pre><code>Angle θ measured from downward vertical:
+- θ = 0: Hanging down (stable equilibrium)
+- θ = π: Standing up (unstable equilibrium)
+- θ = π/2: Horizontal position (maximum potential energy during swing)
+
+**Equation of Motion (from Newton's Second Law):**
+The continuous-time dynamics are:
+
+    m·L²·θ̈ = -m·g·L·sin(θ) - b·θ̇ + τ
+
+Dividing by m·L²:
+
+    θ̈ = -(g/L)·sin(θ) - (b/m·L²)·θ̇ + τ/(m·L²)
+
+Define:
+    ω₀² = g/L: Natural frequency squared [rad²/s²]
+    β = b/(m·L²): Damping coefficient [1/s]
+    u = τ/(m·L²): Normalized torque [rad/s²]
+
+Then:
+    θ̈ = -ω₀²·sin(θ) - β·θ̇ + u
+
+**Discrete-Time Dynamics:**
+Multiple discretization methods available (see parameters).</code></pre>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-----state-space">
+<h2 class="doc-section doc-section-----state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<pre><code>State: x[k] = [θ[k], ω[k]]
+    Angular position:
+    - θ: Angle from vertical [rad]
+      * θ = 0: Downward equilibrium (lowest energy)
+      * θ = π: Upward equilibrium (highest energy)
+      * θ = ±π/2: Horizontal (maximum torque)
+      * Periodic: sin(θ) and cos(θ) are 2π-periodic
+      * Can be wrapped to [-π, π] or left unwrapped
+
+    Angular velocity:
+    - ω: Rate of change of angle [rad/s]
+      * ω &gt; 0: Counterclockwise rotation
+      * ω &lt; 0: Clockwise rotation
+      * ω = 0: Instantaneous rest
+      * In phase space: forms closed curves (periodic) or rotations
+
+Control: u[k] = [τ[k]]
+    Applied torque (optional):
+    - τ: External torque at pivot [N·m]
+      * Normalized: u = τ/(m·L²) [rad/s²]
+      * τ &gt; 0: Pushes pendulum counterclockwise
+      * τ &lt; 0: Pushes pendulum clockwise
+      * For swing-up or stabilization control
+
+Output: y[k] = [θ[k]] or [θ[k], ω[k]]
+    - Position-only measurement (typical)
+    - Full state if velocity sensor available
+    - In practice: encoder for θ, gyroscope for ω</code></pre>
+</section>
+<section id="dynamics-physical-regimes" class="level2 doc-section doc-section-----dynamics-physical-regimes">
+<h2 class="doc-section doc-section-----dynamics-physical-regimes anchored" data-anchor-id="dynamics-physical-regimes">Dynamics (Physical Regimes):</h2>
+<pre><code>**Small Angle Approximation (|θ| &lt;&lt; 1):**
+For small displacements, sin(θ) ≈ θ:
+    θ̈ ≈ -ω₀²·θ - β·θ̇
+
+This is a LINEAR harmonic oscillator! (See DiscreteOscillator)
+- Valid for θ &lt; 0.2 rad (~10°)
+- Error: O(θ³)
+
+**Nonlinear Regime (arbitrary θ):**
+Must use full sin(θ) term:
+- Period depends on amplitude (not constant like linear!)
+- Large swings take longer
+- Complete rotation possible if sufficient energy
+
+**Phase Space Structure:**
+The (θ, ω) phase portrait has rich structure:
+
+1. **Fixed points:**
+   - (0, 0): Stable focus/center (depends on damping)
+   - (±π, 0): Saddle points (unstable)
+
+2. **Periodic orbits (β = 0):**
+   - Closed curves around (0, 0)
+   - Period increases with amplitude
+
+3. **Separatrix (β = 0):**
+   - Special trajectory through saddle points
+   - Separates oscillations from rotations
+   - Homoclinic orbit (starts and ends at saddle)
+
+4. **Rotations (high energy):**
+   - Open curves (pendulum goes over the top)
+   - ω doesn't change sign
+   - Continuous rotation in one direction</code></pre>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-----parameters">
+<h2 class="doc-section doc-section-----parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<pre><code>m : float, default=1.0
+    Mass of the pendulum bob [kg]
+    - Affects inertia (m·L²)
+    - Typical: 0.1-10 kg
+
+L : float, default=1.0
+    Length of the pendulum rod [m]
+    - Determines natural frequency: ω₀ = √(g/L)
+    - Longer pendulum → slower oscillations
+    - Typical: 0.1-2.0 m
+
+g : float, default=9.81
+    Gravitational acceleration [m/s²]
+    - Earth: 9.81
+    - Moon: 1.62
+    - Mars: 3.71
+
+b : float, default=0.1
+    Damping coefficient [N·m·s/rad]
+    - Air resistance + friction at pivot
+    - Larger b → faster decay
+    - b = 0: Undamped (conservative, energy-preserving)
+    - Typical: 0.01-1.0
+
+dt : float, default=0.01
+    Sampling period [s]
+    - Digital control update rate
+    - Must satisfy Nyquist criterion
+    - Smaller dt → better accuracy
+    - Typical: 0.001-0.1 s
+
+method : str, default='zoh'
+    Discretization method:
+    - 'zoh': Zero-order hold (exact for constant τ)
+    - 'euler': Forward Euler (simple, O(dt))
+    - 'rk4': Runge-Kutta 4th order (accurate, O(dt⁴))
+    - 'exact': Exact discretization for linear approximation
+
+use_control : bool, default=True
+    If True, includes control input τ
+    If False, free pendulum (autonomous)</code></pre>
+</section>
+<section id="equilibria" class="level2 doc-section doc-section-----equilibria">
+<h2 class="doc-section doc-section-----equilibria anchored" data-anchor-id="equilibria">Equilibria:</h2>
+<pre><code>**Downward Equilibrium (θ = 0, ω = 0):**
+Stability: STABLE (center if undamped, stable focus if damped)
+- Minimum potential energy
+- Small perturbations oscillate (if β &gt; 0: with decay)
+- Linearization: θ̈ = -ω₀²·θ - β·θ̇ (harmonic oscillator)
+
+**Upward Equilibrium (θ = ±π, ω = 0):**
+Stability: UNSTABLE (saddle point)
+- Maximum potential energy
+- Small perturbations grow exponentially
+- Linearization: θ̈ = +ω₀²·(θ - π) - β·θ̇ (inverted)
+- Famous "inverted pendulum" control problem
+
+**Separatrix Energy (undamped):**
+The energy separating oscillations from rotations:
+    E_sep = 2·m·g·L
+
+If E &lt; E_sep: Oscillation (back and forth)
+If E &gt; E_sep: Rotation (goes over the top)
+If E = E_sep: Asymptotic approach to upward position</code></pre>
+</section>
+<section id="controllability" class="level2 doc-section doc-section-----controllability">
+<h2 class="doc-section doc-section-----controllability anchored" data-anchor-id="controllability">Controllability:</h2>
+<pre><code>**With Control (u ≠ 0):**
+Completely controllable - can reach any state from any other state.
+
+**Without Control (Free Pendulum):**
+NOT controllable - energy determines accessible states.
+Can only reach states with same or lower energy (due to damping).</code></pre>
+</section>
+<section id="observability" class="level2 doc-section doc-section-----observability">
+<h2 class="doc-section doc-section-----observability anchored" data-anchor-id="observability">Observability:</h2>
+<pre><code>**Position-only measurement (y = θ):**
+Observable almost everywhere.
+- Can reconstruct ω from θ measurements over time
+- Singularity at equilibria (θ = constant → ω ambiguous)
+
+**Full state measurement:**
+Trivially observable.</code></pre>
+</section>
+<section id="energy-and-integrals-of-motion" class="level2 doc-section doc-section-----energy-and-integrals-of-motion">
+<h2 class="doc-section doc-section-----energy-and-integrals-of-motion anchored" data-anchor-id="energy-and-integrals-of-motion">Energy and Integrals of Motion:</h2>
+<pre><code>**Total Mechanical Energy:**
+    E = (1/2)·m·L²·ω² + m·g·L·(1 - cos(θ))
+
+Kinetic: K = (1/2)·m·L²·ω²
+Potential: V = m·g·L·(1 - cos(θ))
+
+**For Undamped, Unforced Pendulum (β = 0, u = 0):**
+Energy is conserved: dE/dt = 0
+Phase space trajectories are level sets of E(θ, ω).
+
+**For Damped Pendulum (β &gt; 0, u = 0):**
+Energy decreases: dE/dt = -b·ω² ≤ 0
+All trajectories asymptotically approach (0, 0).
+
+**For Forced Pendulum (u ≠ 0):**
+Energy can increase or decrease:
+    dE/dt = (m·L²·u - b)·ω²</code></pre>
+</section>
+<section id="control-objectives" class="level2 doc-section doc-section-----control-objectives">
+<h2 class="doc-section doc-section-----control-objectives anchored" data-anchor-id="control-objectives">Control Objectives:</h2>
+<pre><code>**1. Stabilization at Downward Position:**
+   Goal: θ → 0, ω → 0
+   Method: PD control works well (linear regime)
+   Challenge: Minimal (natural equilibrium)
+
+**2. Swing-Up Control:**
+   Goal: Move from θ = 0 to θ = π
+   Methods:
+   - Energy-based: Pump energy until E ≈ E_target
+   - Bang-bang: Apply maximum torque
+   - Trajectory optimization
+   Challenge: Large control effort, multiple rotations
+
+**3. Inverted Stabilization:**
+   Goal: Stabilize at θ = π, ω = 0
+   Method: LQR around linearization
+   Challenge: Unstable equilibrium, requires continuous control
+
+**4. Trajectory Tracking:**
+   Goal: Follow θ_ref(t), ω_ref(t)
+   Method: Feedforward + feedback
+   Application: Robotic manipulation
+
+**5. Limit Cycle Creation:**
+   Goal: Create stable periodic oscillation
+   Method: Nonlinear feedback
+   Application: Rhythmic motion generation</code></pre>
+</section>
+<section id="state-constraints" class="level2 doc-section doc-section-----state-constraints">
+<h2 class="doc-section doc-section-----state-constraints anchored" data-anchor-id="state-constraints">State Constraints:</h2>
+<pre><code>**1. Angle Limits (if physical stops exist):**
+   θ_min ≤ θ ≤ θ_max
+   Otherwise: θ ∈ ℝ (unbounded rotations possible)
+
+**2. Velocity Limits:**
+   |ω| ≤ ω_max
+   Physical: Limited by energy or mechanism
+
+**3. Torque Limits:**
+   |τ| ≤ τ_max
+   Most critical practical constraint
+   Determines controllability</code></pre>
+</section>
+<section id="numerical-considerations" class="level2 doc-section doc-section-----numerical-considerations">
+<h2 class="doc-section doc-section-----numerical-considerations anchored" data-anchor-id="numerical-considerations">Numerical Considerations:</h2>
+<pre><code>**Discretization Accuracy:**
+- ZOH: Good for control applications
+- Euler: Simple but may be inaccurate/unstable for large dt
+- RK4: High accuracy, recommended for simulation
+
+**Angle Wrapping:**
+For visualization and analysis:
+- Wrap θ to [-π, π]: θ_wrapped = atan2(sin(θ), cos(θ))
+- Or leave unwrapped to count rotations
+
+**Energy Verification:**
+For undamped case, check energy conservation:
+    |E[k+1] - E[k]| should be small (numerical precision)</code></pre>
+</section>
+<section id="example-usage" class="level2 doc-section doc-section-----example-usage">
+<h2 class="doc-section doc-section-----example-usage anchored" data-anchor-id="example-usage">Example Usage:</h2>
+<pre><code>&gt;&gt;&gt; # Create pendulum with realistic parameters
+&gt;&gt;&gt; system = DiscretePendulum(
+...     m=0.5,      # 500g mass
+...     L=1.0,      # 1m length
+...     g=9.81,
+...     b=0.05,     # Light damping
+...     dt=0.01,
+...     method='rk4'
+... )
+&gt;&gt;&gt;
+&gt;&gt;&gt; print(f"Natural frequency: {system.natural_frequency:.3f} rad/s")
+&gt;&gt;&gt; print(f"Period: {system.period:.3f} s")
+&gt;&gt;&gt; print(f"Damping ratio: {system.damping_ratio:.4f}")
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Free oscillation from initial displacement
+&gt;&gt;&gt; x0 = np.array([np.pi/4, 0.0])  # 45° release from rest
+&gt;&gt;&gt; result_free = system.simulate(
+...     x0=x0,
+...     u_sequence=None,
+...     n_steps=1000
+... )
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Plot phase portrait
+&gt;&gt;&gt; import plotly.graph_objects as go
+&gt;&gt;&gt; fig = go.Figure()
+&gt;&gt;&gt; fig.add_trace(go.Scatter(
+...     x=result_free['states'][:, 0],
+...     y=result_free['states'][:, 1],
+...     mode='lines',
+...     name='Trajectory'
+... ))
+&gt;&gt;&gt; fig.update_layout(
+...     title='Pendulum Phase Portrait',
+...     xaxis_title='θ [rad]',
+...     yaxis_title='ω [rad/s]'
+... )
+&gt;&gt;&gt; fig.show()
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Energy analysis
+&gt;&gt;&gt; energies = np.array([
+...     system.compute_total_energy(x[0], x[1])
+...     for x in result_free['states']
+... ])
+&gt;&gt;&gt;
+&gt;&gt;&gt; fig_energy = go.Figure()
+&gt;&gt;&gt; fig_energy.add_trace(go.Scatter(
+...     x=result_free['time_steps'] * system.dt,
+...     y=energies,
+...     name='Total Energy'
+... ))
+&gt;&gt;&gt; fig_energy.update_layout(
+...     title='Energy vs Time (should decrease with damping)',
+...     xaxis_title='Time [s]',
+...     yaxis_title='Energy [J]'
+... )
+&gt;&gt;&gt; fig_energy.show()
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Swing-up control (energy-based)
+&gt;&gt;&gt; def swing_up_energy_control(x, k):
+...     theta, omega = x
+...
+...     # Current energy
+...     E = system.compute_total_energy(theta, omega)
+...
+...     # Target energy (upward position)
+...     E_target = system.m * system.g * system.L * 2
+...
+...     # Energy error
+...     E_error = E - E_target
+...
+...     # If close to upward, switch to stabilization
+...     if abs(theta - np.pi) &lt; 0.3 and abs(omega) &lt; 1.0:
+...         # LQR around upward
+...         K_up = system.design_upward_stabilizer()
+...         return -K_up @ np.array([theta - np.pi, omega])
+...     else:
+...         # Energy pumping: add energy when moving in right direction
+...         k_swing = 5.0
+...         return k_swing * E_error * np.sign(omega * np.cos(theta))
+&gt;&gt;&gt;
+&gt;&gt;&gt; result_swing = system.rollout(
+...     x0=np.array([0.0, 0.0]),
+...     policy=swing_up_energy_control,
+...     n_steps=2000
+... )
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Visualize swing-up in phase space
+&gt;&gt;&gt; fig_swing = system.plot_phase_portrait_with_separatrix()
+&gt;&gt;&gt; fig_swing.add_trace(go.Scatter(
+...     x=result_swing['states'][:, 0],
+...     y=result_swing['states'][:, 1],
+...     mode='lines',
+...     line=dict(color='red', width=2),
+...     name='Swing-up trajectory'
+... ))
+&gt;&gt;&gt; fig_swing.show()
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Compare small vs large angle dynamics
+&gt;&gt;&gt; # Small angle (linear regime)
+&gt;&gt;&gt; x0_small = np.array([0.1, 0.0])  # ~6°
+&gt;&gt;&gt; result_small = system.simulate(x0_small, None, n_steps=500)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Large angle (nonlinear regime)
+&gt;&gt;&gt; x0_large = np.array([2.0, 0.0])  # ~115°
+&gt;&gt;&gt; result_large = system.simulate(x0_large, None, n_steps=500)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Compare periods
+&gt;&gt;&gt; def find_period(states, dt):
+...     # Find zero crossings
+...     theta = states[:, 0]
+...     crossings = np.where(np.diff(np.sign(theta)))[0]
+...     if len(crossings) &gt;= 2:
+...         period = 2 * (crossings[1] - crossings[0]) * dt
+...         return period
+...     return None
+&gt;&gt;&gt;
+&gt;&gt;&gt; period_small = find_period(result_small['states'], system.dt)
+&gt;&gt;&gt; period_large = find_period(result_large['states'], system.dt)
+&gt;&gt;&gt;
+&gt;&gt;&gt; print(f"Small angle period: {period_small:.3f} s")
+&gt;&gt;&gt; print(f"Large angle period: {period_large:.3f} s")
+&gt;&gt;&gt; print(f"Linear theory: {system.period:.3f} s")
+&gt;&gt;&gt; print("Note: Large angle period &gt; small angle period (nonlinearity)")</code></pre>
+</section>
+<section id="physical-insights" class="level2 doc-section doc-section-----physical-insights">
+<h2 class="doc-section doc-section-----physical-insights anchored" data-anchor-id="physical-insights">Physical Insights:</h2>
+<pre><code>**Isochronism (Small Angles Only):**
+For small oscillations, period is independent of amplitude:
+    T = 2π√(L/g) = 2π/ω₀
+
+This is why pendulum clocks work! (But only for small swings)
+
+**Anharmonicity (Large Angles):**
+For large amplitudes, period increases with amplitude:
+    T(θ₀) ≈ T₀·(1 + θ₀²/16 + ...) for initial angle θ₀
+
+This breaks isochronism → pendulum clocks must limit amplitude.
+
+**Separatrix Dynamics:**
+Trajectories on the separatrix (E = E_sep) take infinite time to reach
+the unstable equilibrium. This is a homoclinic orbit.
+
+**Conservation vs Dissipation:**
+- No damping: Phase space filled with nested closed curves
+- With damping: Spiral inward to stable equilibrium
+- Energy landscape funnels trajectories toward rest
+
+**Chaotic Forcing:**
+Add periodic forcing: θ̈ = -ω₀²·sin(θ) + A·cos(Ω·t)
+Can produce chaos (sensitive dependence on initial conditions)!
+This is the "driven damped pendulum" - route to chaos.</code></pre>
+</section>
+<section id="common-pitfalls" class="level2 doc-section doc-section-----common-pitfalls">
+<h2 class="doc-section doc-section-----common-pitfalls anchored" data-anchor-id="common-pitfalls">Common Pitfalls:</h2>
+<pre><code>1. **Using linear approximation for large angles:**
+   sin(θ) ≈ θ only valid for |θ| &lt; 0.2 rad
+   Large errors for θ &gt; π/4
+
+2. **Forgetting angle periodicity:**
+   θ = 0 and θ = 2π are the same state
+   Important for phase portraits
+
+3. **Ignoring separatrix:**
+   Qualitative dynamics change across separatrix
+   Control strategies differ for oscillations vs rotations
+
+4. **Wrong linearization for upward:**
+   Linearizing at θ = π gives θ̈ = +ω₀²·(θ - π)
+   Note: POSITIVE coefficient (unstable)
+
+5. **Energy not conserved numerically:**
+   Discretization introduces energy errors
+   Use symplectic integrators for better conservation
+
+6. **Insufficient damping modeling:**
+   Real pendulums have complex friction
+   Viscous approximation b·ω may be inadequate</code></pre>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-----extensions">
+<h2 class="doc-section doc-section-----extensions anchored" data-anchor-id="extensions">Extensions:</h2>
+<pre><code>1. **Driven pendulum:**
+   Add periodic forcing: u[k] = A·cos(Ω·k·dt)
+   Can produce chaos and strange attractors
+
+2. **Double pendulum:**
+   Two coupled pendula
+   Exhibits deterministic chaos
+
+3. **Spherical pendulum:**
+   3D motion (θ, φ)
+   Rich dynamics, Coriolis effects
+
+4. **Elastic pendulum:**
+   Pendulum with spring (varying L)
+   Coupled radial-angular motion
+
+5. **Pendulum on cart:**
+   Inverted pendulum (classic underactuated system)
+   Noncollocated control problem
+
+6. **Parametric excitation:**
+   Varying L sinusoidally
+   Parametric resonance effects</code></pre>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-----see-also">
+<h2 class="doc-section doc-section-----see-also anchored" data-anchor-id="see-also">See Also:</h2>
+<pre><code>DiscreteRobotArm : Similar dynamics (different notation)
+DiscreteOscillator : Linear limit (small angles)
+DoublePendulum : Chaotic extension</code></pre>
+</section>
+<section id="attributes" class="level2">
+<h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.damping_ratio">damping_ratio</a></td>
+<td>Damping ratio ζ = β/(2ω₀) [-].</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.natural_frequency">natural_frequency</a></td>
+<td>Natural frequency ω₀ = √(g/L) [rad/s].</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.period">period</a></td>
+<td>Period of small oscillations T = 2π/ω₀ [s].</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy">compute_kinetic_energy</a></td>
+<td>Kinetic energy K = (1/2)·I·ω² [J].</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy">compute_potential_energy</a></td>
+<td>Potential energy V = m·g·L·(1 - cos(θ)) [J].</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix">compute_separatrix</a></td>
+<td>Compute separatrix trajectory (for undamped case).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy">compute_separatrix_energy</a></td>
+<td>Energy of separatrix (boundary between oscillation/rotation) [J].</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy">compute_total_energy</a></td>
+<td>Total mechanical energy E = K + V [J].</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system">define_system</a></td>
+<td>Define discrete-time pendulum dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer">design_upward_stabilizer</a></td>
+<td>Design LQR controller for upward stabilization.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria">setup_equilibria</a></td>
+<td>Set up downward and upward equilibria.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy">compute_kinetic_energy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    omega,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Kinetic energy K = (1/2)·I·ω² [J].</p>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy">compute_potential_energy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Potential energy V = m·g·L·(1 - cos(θ)) [J].</p>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix">compute_separatrix</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    n_points<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute separatrix trajectory (for undamped case).</p>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>tuple</td>
+<td>(theta, omega) points on separatrix</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy">compute_separatrix_energy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Energy of separatrix (boundary between oscillation/rotation) [J].</p>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy">compute_total_energy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    omega,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Total mechanical energy E = K + V [J].</p>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.define_system(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    L<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    g<span class="op">=</span><span class="fl">9.81</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    b<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    method<span class="op">=</span><span class="st">'zoh'</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    use_control<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define discrete-time pendulum dynamics.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 10%">
+<col style="width: 59%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>m</td>
+<td>float</td>
+<td>Mass [kg]</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>L</td>
+<td>float</td>
+<td>Length [m]</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="odd">
+<td>g</td>
+<td>float</td>
+<td>Gravity [m/s²]</td>
+<td><code>9.81</code></td>
+</tr>
+<tr class="even">
+<td>b</td>
+<td>float</td>
+<td>Damping coefficient [N·m·s/rad]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s]</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="even">
+<td>method</td>
+<td>str</td>
+<td>Discretization method (‘zoh’, ‘euler’, ‘rk4’)</td>
+<td><code>'zoh'</code></td>
+</tr>
+<tr class="odd">
+<td>use_control</td>
+<td>bool</td>
+<td>If True, include control input</td>
+<td><code>True</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer">design_upward_stabilizer</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Design LQR controller for upward stabilization.</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>np.ndarray</td>
+<td>LQR gain K</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up downward and upward equilibria.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.discrete.DiscretePendulum { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum }</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="in">    Discrete-time simple pendulum with friction and optional control.</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Physical System: {.doc-section .doc-section-----physical-system}</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="in">    A point mass m suspended by a massless, rigid rod of length L, swinging</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="in">    in a vertical plane under the influence of gravity. The pendulum can be:</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="in">    - Free (no control): Natural oscillatory motion</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="in">    - Forced (with control): External torque applied at pivot</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="in">    **Mechanical Configuration:**</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a><span class="in">              ● Pivot (fixed)</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a><span class="in">              |</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a><span class="in">              | L (rod length)</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a><span class="in">              |</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="in">              ● m (point mass)</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="in">              ↓</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a><span class="in">              g (gravity)</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a><span class="in">    Angle θ measured from downward vertical:</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a><span class="in">    - θ = 0: Hanging down (stable equilibrium)</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="in">    - θ = π: Standing up (unstable equilibrium)</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a><span class="in">    - θ = π/2: Horizontal position (maximum potential energy during swing)</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a><span class="in">    **Equation of Motion (from Newton's Second Law):**</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a><span class="in">    The continuous-time dynamics are:</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="in">        m·L²·θ̈ = -m·g·L·sin(θ) - b·θ̇ + τ</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a><span class="in">    Dividing by m·L²:</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a><span class="in">        θ̈ = -(g/L)·sin(θ) - (b/m·L²)·θ̇ + τ/(m·L²)</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a><span class="in">    Define:</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a><span class="in">        ω₀² = g/L: Natural frequency squared [rad²/s²]</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a><span class="in">        β = b/(m·L²): Damping coefficient [1/s]</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a><span class="in">        u = τ/(m·L²): Normalized torque [rad/s²]</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a><span class="in">    Then:</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a><span class="in">        θ̈ = -ω₀²·sin(θ) - β·θ̇ + u</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a><span class="in">    **Discrete-Time Dynamics:**</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a><span class="in">    Multiple discretization methods available (see parameters).</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a><span class="fu">##     State Space: {.doc-section .doc-section-----state-space}</span></span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a><span class="in">    State: x[k] = [θ[k], ω[k]]</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a><span class="in">        Angular position:</span></span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a><span class="in">        - θ: Angle from vertical [rad]</span></span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a><span class="in">          * θ = 0: Downward equilibrium (lowest energy)</span></span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a><span class="in">          * θ = π: Upward equilibrium (highest energy)</span></span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a><span class="in">          * θ = ±π/2: Horizontal (maximum torque)</span></span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a><span class="in">          * Periodic: sin(θ) and cos(θ) are 2π-periodic</span></span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a><span class="in">          * Can be wrapped to [-π, π] or left unwrapped</span></span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a><span class="in">        Angular velocity:</span></span>
+<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a><span class="in">        - ω: Rate of change of angle [rad/s]</span></span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a><span class="in">          * ω &gt; 0: Counterclockwise rotation</span></span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a><span class="in">          * ω &lt; 0: Clockwise rotation</span></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a><span class="in">          * ω = 0: Instantaneous rest</span></span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a><span class="in">          * In phase space: forms closed curves (periodic) or rotations</span></span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a><span class="in">    Control: u[k] = [τ[k]]</span></span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a><span class="in">        Applied torque (optional):</span></span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a><span class="in">        - τ: External torque at pivot [N·m]</span></span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a><span class="in">          * Normalized: u = τ/(m·L²) [rad/s²]</span></span>
+<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a><span class="in">          * τ &gt; 0: Pushes pendulum counterclockwise</span></span>
+<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a><span class="in">          * τ &lt; 0: Pushes pendulum clockwise</span></span>
+<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a><span class="in">          * For swing-up or stabilization control</span></span>
+<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a><span class="in">    Output: y[k] = [θ[k]] or [θ[k], ω[k]]</span></span>
+<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a><span class="in">        - Position-only measurement (typical)</span></span>
+<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a><span class="in">        - Full state if velocity sensor available</span></span>
+<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a><span class="in">        - In practice: encoder for θ, gyroscope for ω</span></span>
+<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Dynamics (Physical Regimes): {.doc-section .doc-section-----dynamics-physical-regimes}</span></span>
+<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a><span class="in">    **Small Angle Approximation (|θ| &lt;&lt; 1):**</span></span>
+<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a><span class="in">    For small displacements, sin(θ) ≈ θ:</span></span>
+<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a><span class="in">        θ̈ ≈ -ω₀²·θ - β·θ̇</span></span>
+<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a><span class="in">    This is a LINEAR harmonic oscillator! (See DiscreteOscillator)</span></span>
+<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a><span class="in">    - Valid for θ &lt; 0.2 rad (~10°)</span></span>
+<span id="cb29-91"><a href="#cb29-91" aria-hidden="true" tabindex="-1"></a><span class="in">    - Error: O(θ³)</span></span>
+<span id="cb29-92"><a href="#cb29-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-93"><a href="#cb29-93" aria-hidden="true" tabindex="-1"></a><span class="in">    **Nonlinear Regime (arbitrary θ):**</span></span>
+<span id="cb29-94"><a href="#cb29-94" aria-hidden="true" tabindex="-1"></a><span class="in">    Must use full sin(θ) term:</span></span>
+<span id="cb29-95"><a href="#cb29-95" aria-hidden="true" tabindex="-1"></a><span class="in">    - Period depends on amplitude (not constant like linear!)</span></span>
+<span id="cb29-96"><a href="#cb29-96" aria-hidden="true" tabindex="-1"></a><span class="in">    - Large swings take longer</span></span>
+<span id="cb29-97"><a href="#cb29-97" aria-hidden="true" tabindex="-1"></a><span class="in">    - Complete rotation possible if sufficient energy</span></span>
+<span id="cb29-98"><a href="#cb29-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-99"><a href="#cb29-99" aria-hidden="true" tabindex="-1"></a><span class="in">    **Phase Space Structure:**</span></span>
+<span id="cb29-100"><a href="#cb29-100" aria-hidden="true" tabindex="-1"></a><span class="in">    The (θ, ω) phase portrait has rich structure:</span></span>
+<span id="cb29-101"><a href="#cb29-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-102"><a href="#cb29-102" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Fixed points:**</span></span>
+<span id="cb29-103"><a href="#cb29-103" aria-hidden="true" tabindex="-1"></a><span class="in">       - (0, 0): Stable focus/center (depends on damping)</span></span>
+<span id="cb29-104"><a href="#cb29-104" aria-hidden="true" tabindex="-1"></a><span class="in">       - (±π, 0): Saddle points (unstable)</span></span>
+<span id="cb29-105"><a href="#cb29-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-106"><a href="#cb29-106" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **Periodic orbits (β = 0):**</span></span>
+<span id="cb29-107"><a href="#cb29-107" aria-hidden="true" tabindex="-1"></a><span class="in">       - Closed curves around (0, 0)</span></span>
+<span id="cb29-108"><a href="#cb29-108" aria-hidden="true" tabindex="-1"></a><span class="in">       - Period increases with amplitude</span></span>
+<span id="cb29-109"><a href="#cb29-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-110"><a href="#cb29-110" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Separatrix (β = 0):**</span></span>
+<span id="cb29-111"><a href="#cb29-111" aria-hidden="true" tabindex="-1"></a><span class="in">       - Special trajectory through saddle points</span></span>
+<span id="cb29-112"><a href="#cb29-112" aria-hidden="true" tabindex="-1"></a><span class="in">       - Separates oscillations from rotations</span></span>
+<span id="cb29-113"><a href="#cb29-113" aria-hidden="true" tabindex="-1"></a><span class="in">       - Homoclinic orbit (starts and ends at saddle)</span></span>
+<span id="cb29-114"><a href="#cb29-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-115"><a href="#cb29-115" aria-hidden="true" tabindex="-1"></a><span class="in">    4. **Rotations (high energy):**</span></span>
+<span id="cb29-116"><a href="#cb29-116" aria-hidden="true" tabindex="-1"></a><span class="in">       - Open curves (pendulum goes over the top)</span></span>
+<span id="cb29-117"><a href="#cb29-117" aria-hidden="true" tabindex="-1"></a><span class="in">       - ω doesn't change sign</span></span>
+<span id="cb29-118"><a href="#cb29-118" aria-hidden="true" tabindex="-1"></a><span class="in">       - Continuous rotation in one direction</span></span>
+<span id="cb29-119"><a href="#cb29-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-120"><a href="#cb29-120" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Parameters: {.doc-section .doc-section-----parameters}</span></span>
+<span id="cb29-121"><a href="#cb29-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-122"><a href="#cb29-122" aria-hidden="true" tabindex="-1"></a><span class="in">    m : float, default=1.0</span></span>
+<span id="cb29-123"><a href="#cb29-123" aria-hidden="true" tabindex="-1"></a><span class="in">        Mass of the pendulum bob [kg]</span></span>
+<span id="cb29-124"><a href="#cb29-124" aria-hidden="true" tabindex="-1"></a><span class="in">        - Affects inertia (m·L²)</span></span>
+<span id="cb29-125"><a href="#cb29-125" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical: 0.1-10 kg</span></span>
+<span id="cb29-126"><a href="#cb29-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-127"><a href="#cb29-127" aria-hidden="true" tabindex="-1"></a><span class="in">    L : float, default=1.0</span></span>
+<span id="cb29-128"><a href="#cb29-128" aria-hidden="true" tabindex="-1"></a><span class="in">        Length of the pendulum rod [m]</span></span>
+<span id="cb29-129"><a href="#cb29-129" aria-hidden="true" tabindex="-1"></a><span class="in">        - Determines natural frequency: ω₀ = √(g/L)</span></span>
+<span id="cb29-130"><a href="#cb29-130" aria-hidden="true" tabindex="-1"></a><span class="in">        - Longer pendulum → slower oscillations</span></span>
+<span id="cb29-131"><a href="#cb29-131" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical: 0.1-2.0 m</span></span>
+<span id="cb29-132"><a href="#cb29-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-133"><a href="#cb29-133" aria-hidden="true" tabindex="-1"></a><span class="in">    g : float, default=9.81</span></span>
+<span id="cb29-134"><a href="#cb29-134" aria-hidden="true" tabindex="-1"></a><span class="in">        Gravitational acceleration [m/s²]</span></span>
+<span id="cb29-135"><a href="#cb29-135" aria-hidden="true" tabindex="-1"></a><span class="in">        - Earth: 9.81</span></span>
+<span id="cb29-136"><a href="#cb29-136" aria-hidden="true" tabindex="-1"></a><span class="in">        - Moon: 1.62</span></span>
+<span id="cb29-137"><a href="#cb29-137" aria-hidden="true" tabindex="-1"></a><span class="in">        - Mars: 3.71</span></span>
+<span id="cb29-138"><a href="#cb29-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-139"><a href="#cb29-139" aria-hidden="true" tabindex="-1"></a><span class="in">    b : float, default=0.1</span></span>
+<span id="cb29-140"><a href="#cb29-140" aria-hidden="true" tabindex="-1"></a><span class="in">        Damping coefficient [N·m·s/rad]</span></span>
+<span id="cb29-141"><a href="#cb29-141" aria-hidden="true" tabindex="-1"></a><span class="in">        - Air resistance + friction at pivot</span></span>
+<span id="cb29-142"><a href="#cb29-142" aria-hidden="true" tabindex="-1"></a><span class="in">        - Larger b → faster decay</span></span>
+<span id="cb29-143"><a href="#cb29-143" aria-hidden="true" tabindex="-1"></a><span class="in">        - b = 0: Undamped (conservative, energy-preserving)</span></span>
+<span id="cb29-144"><a href="#cb29-144" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical: 0.01-1.0</span></span>
+<span id="cb29-145"><a href="#cb29-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-146"><a href="#cb29-146" aria-hidden="true" tabindex="-1"></a><span class="in">    dt : float, default=0.01</span></span>
+<span id="cb29-147"><a href="#cb29-147" aria-hidden="true" tabindex="-1"></a><span class="in">        Sampling period [s]</span></span>
+<span id="cb29-148"><a href="#cb29-148" aria-hidden="true" tabindex="-1"></a><span class="in">        - Digital control update rate</span></span>
+<span id="cb29-149"><a href="#cb29-149" aria-hidden="true" tabindex="-1"></a><span class="in">        - Must satisfy Nyquist criterion</span></span>
+<span id="cb29-150"><a href="#cb29-150" aria-hidden="true" tabindex="-1"></a><span class="in">        - Smaller dt → better accuracy</span></span>
+<span id="cb29-151"><a href="#cb29-151" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical: 0.001-0.1 s</span></span>
+<span id="cb29-152"><a href="#cb29-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-153"><a href="#cb29-153" aria-hidden="true" tabindex="-1"></a><span class="in">    method : str, default='zoh'</span></span>
+<span id="cb29-154"><a href="#cb29-154" aria-hidden="true" tabindex="-1"></a><span class="in">        Discretization method:</span></span>
+<span id="cb29-155"><a href="#cb29-155" aria-hidden="true" tabindex="-1"></a><span class="in">        - 'zoh': Zero-order hold (exact for constant τ)</span></span>
+<span id="cb29-156"><a href="#cb29-156" aria-hidden="true" tabindex="-1"></a><span class="in">        - 'euler': Forward Euler (simple, O(dt))</span></span>
+<span id="cb29-157"><a href="#cb29-157" aria-hidden="true" tabindex="-1"></a><span class="in">        - 'rk4': Runge-Kutta 4th order (accurate, O(dt⁴))</span></span>
+<span id="cb29-158"><a href="#cb29-158" aria-hidden="true" tabindex="-1"></a><span class="in">        - 'exact': Exact discretization for linear approximation</span></span>
+<span id="cb29-159"><a href="#cb29-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-160"><a href="#cb29-160" aria-hidden="true" tabindex="-1"></a><span class="in">    use_control : bool, default=True</span></span>
+<span id="cb29-161"><a href="#cb29-161" aria-hidden="true" tabindex="-1"></a><span class="in">        If True, includes control input τ</span></span>
+<span id="cb29-162"><a href="#cb29-162" aria-hidden="true" tabindex="-1"></a><span class="in">        If False, free pendulum (autonomous)</span></span>
+<span id="cb29-163"><a href="#cb29-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-164"><a href="#cb29-164" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Equilibria: {.doc-section .doc-section-----equilibria}</span></span>
+<span id="cb29-165"><a href="#cb29-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-166"><a href="#cb29-166" aria-hidden="true" tabindex="-1"></a><span class="in">    **Downward Equilibrium (θ = 0, ω = 0):**</span></span>
+<span id="cb29-167"><a href="#cb29-167" aria-hidden="true" tabindex="-1"></a><span class="in">    Stability: STABLE (center if undamped, stable focus if damped)</span></span>
+<span id="cb29-168"><a href="#cb29-168" aria-hidden="true" tabindex="-1"></a><span class="in">    - Minimum potential energy</span></span>
+<span id="cb29-169"><a href="#cb29-169" aria-hidden="true" tabindex="-1"></a><span class="in">    - Small perturbations oscillate (if β &gt; 0: with decay)</span></span>
+<span id="cb29-170"><a href="#cb29-170" aria-hidden="true" tabindex="-1"></a><span class="in">    - Linearization: θ̈ = -ω₀²·θ - β·θ̇ (harmonic oscillator)</span></span>
+<span id="cb29-171"><a href="#cb29-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-172"><a href="#cb29-172" aria-hidden="true" tabindex="-1"></a><span class="in">    **Upward Equilibrium (θ = ±π, ω = 0):**</span></span>
+<span id="cb29-173"><a href="#cb29-173" aria-hidden="true" tabindex="-1"></a><span class="in">    Stability: UNSTABLE (saddle point)</span></span>
+<span id="cb29-174"><a href="#cb29-174" aria-hidden="true" tabindex="-1"></a><span class="in">    - Maximum potential energy</span></span>
+<span id="cb29-175"><a href="#cb29-175" aria-hidden="true" tabindex="-1"></a><span class="in">    - Small perturbations grow exponentially</span></span>
+<span id="cb29-176"><a href="#cb29-176" aria-hidden="true" tabindex="-1"></a><span class="in">    - Linearization: θ̈ = +ω₀²·(θ - π) - β·θ̇ (inverted)</span></span>
+<span id="cb29-177"><a href="#cb29-177" aria-hidden="true" tabindex="-1"></a><span class="in">    - Famous "inverted pendulum" control problem</span></span>
+<span id="cb29-178"><a href="#cb29-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-179"><a href="#cb29-179" aria-hidden="true" tabindex="-1"></a><span class="in">    **Separatrix Energy (undamped):**</span></span>
+<span id="cb29-180"><a href="#cb29-180" aria-hidden="true" tabindex="-1"></a><span class="in">    The energy separating oscillations from rotations:</span></span>
+<span id="cb29-181"><a href="#cb29-181" aria-hidden="true" tabindex="-1"></a><span class="in">        E_sep = 2·m·g·L</span></span>
+<span id="cb29-182"><a href="#cb29-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-183"><a href="#cb29-183" aria-hidden="true" tabindex="-1"></a><span class="in">    If E &lt; E_sep: Oscillation (back and forth)</span></span>
+<span id="cb29-184"><a href="#cb29-184" aria-hidden="true" tabindex="-1"></a><span class="in">    If E &gt; E_sep: Rotation (goes over the top)</span></span>
+<span id="cb29-185"><a href="#cb29-185" aria-hidden="true" tabindex="-1"></a><span class="in">    If E = E_sep: Asymptotic approach to upward position</span></span>
+<span id="cb29-186"><a href="#cb29-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-187"><a href="#cb29-187" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Controllability: {.doc-section .doc-section-----controllability}</span></span>
+<span id="cb29-188"><a href="#cb29-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-189"><a href="#cb29-189" aria-hidden="true" tabindex="-1"></a><span class="in">    **With Control (u ≠ 0):**</span></span>
+<span id="cb29-190"><a href="#cb29-190" aria-hidden="true" tabindex="-1"></a><span class="in">    Completely controllable - can reach any state from any other state.</span></span>
+<span id="cb29-191"><a href="#cb29-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-192"><a href="#cb29-192" aria-hidden="true" tabindex="-1"></a><span class="in">    **Without Control (Free Pendulum):**</span></span>
+<span id="cb29-193"><a href="#cb29-193" aria-hidden="true" tabindex="-1"></a><span class="in">    NOT controllable - energy determines accessible states.</span></span>
+<span id="cb29-194"><a href="#cb29-194" aria-hidden="true" tabindex="-1"></a><span class="in">    Can only reach states with same or lower energy (due to damping).</span></span>
+<span id="cb29-195"><a href="#cb29-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-196"><a href="#cb29-196" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Observability: {.doc-section .doc-section-----observability}</span></span>
+<span id="cb29-197"><a href="#cb29-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-198"><a href="#cb29-198" aria-hidden="true" tabindex="-1"></a><span class="in">    **Position-only measurement (y = θ):**</span></span>
+<span id="cb29-199"><a href="#cb29-199" aria-hidden="true" tabindex="-1"></a><span class="in">    Observable almost everywhere.</span></span>
+<span id="cb29-200"><a href="#cb29-200" aria-hidden="true" tabindex="-1"></a><span class="in">    - Can reconstruct ω from θ measurements over time</span></span>
+<span id="cb29-201"><a href="#cb29-201" aria-hidden="true" tabindex="-1"></a><span class="in">    - Singularity at equilibria (θ = constant → ω ambiguous)</span></span>
+<span id="cb29-202"><a href="#cb29-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-203"><a href="#cb29-203" aria-hidden="true" tabindex="-1"></a><span class="in">    **Full state measurement:**</span></span>
+<span id="cb29-204"><a href="#cb29-204" aria-hidden="true" tabindex="-1"></a><span class="in">    Trivially observable.</span></span>
+<span id="cb29-205"><a href="#cb29-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-206"><a href="#cb29-206" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Energy and Integrals of Motion: {.doc-section .doc-section-----energy-and-integrals-of-motion}</span></span>
+<span id="cb29-207"><a href="#cb29-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-208"><a href="#cb29-208" aria-hidden="true" tabindex="-1"></a><span class="in">    **Total Mechanical Energy:**</span></span>
+<span id="cb29-209"><a href="#cb29-209" aria-hidden="true" tabindex="-1"></a><span class="in">        E = (1/2)·m·L²·ω² + m·g·L·(1 - cos(θ))</span></span>
+<span id="cb29-210"><a href="#cb29-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-211"><a href="#cb29-211" aria-hidden="true" tabindex="-1"></a><span class="in">    Kinetic: K = (1/2)·m·L²·ω²</span></span>
+<span id="cb29-212"><a href="#cb29-212" aria-hidden="true" tabindex="-1"></a><span class="in">    Potential: V = m·g·L·(1 - cos(θ))</span></span>
+<span id="cb29-213"><a href="#cb29-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-214"><a href="#cb29-214" aria-hidden="true" tabindex="-1"></a><span class="in">    **For Undamped, Unforced Pendulum (β = 0, u = 0):**</span></span>
+<span id="cb29-215"><a href="#cb29-215" aria-hidden="true" tabindex="-1"></a><span class="in">    Energy is conserved: dE/dt = 0</span></span>
+<span id="cb29-216"><a href="#cb29-216" aria-hidden="true" tabindex="-1"></a><span class="in">    Phase space trajectories are level sets of E(θ, ω).</span></span>
+<span id="cb29-217"><a href="#cb29-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-218"><a href="#cb29-218" aria-hidden="true" tabindex="-1"></a><span class="in">    **For Damped Pendulum (β &gt; 0, u = 0):**</span></span>
+<span id="cb29-219"><a href="#cb29-219" aria-hidden="true" tabindex="-1"></a><span class="in">    Energy decreases: dE/dt = -b·ω² ≤ 0</span></span>
+<span id="cb29-220"><a href="#cb29-220" aria-hidden="true" tabindex="-1"></a><span class="in">    All trajectories asymptotically approach (0, 0).</span></span>
+<span id="cb29-221"><a href="#cb29-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-222"><a href="#cb29-222" aria-hidden="true" tabindex="-1"></a><span class="in">    **For Forced Pendulum (u ≠ 0):**</span></span>
+<span id="cb29-223"><a href="#cb29-223" aria-hidden="true" tabindex="-1"></a><span class="in">    Energy can increase or decrease:</span></span>
+<span id="cb29-224"><a href="#cb29-224" aria-hidden="true" tabindex="-1"></a><span class="in">        dE/dt = (m·L²·u - b)·ω²</span></span>
+<span id="cb29-225"><a href="#cb29-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-226"><a href="#cb29-226" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Control Objectives: {.doc-section .doc-section-----control-objectives}</span></span>
+<span id="cb29-227"><a href="#cb29-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-228"><a href="#cb29-228" aria-hidden="true" tabindex="-1"></a><span class="in">    **1. Stabilization at Downward Position:**</span></span>
+<span id="cb29-229"><a href="#cb29-229" aria-hidden="true" tabindex="-1"></a><span class="in">       Goal: θ → 0, ω → 0</span></span>
+<span id="cb29-230"><a href="#cb29-230" aria-hidden="true" tabindex="-1"></a><span class="in">       Method: PD control works well (linear regime)</span></span>
+<span id="cb29-231"><a href="#cb29-231" aria-hidden="true" tabindex="-1"></a><span class="in">       Challenge: Minimal (natural equilibrium)</span></span>
+<span id="cb29-232"><a href="#cb29-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-233"><a href="#cb29-233" aria-hidden="true" tabindex="-1"></a><span class="in">    **2. Swing-Up Control:**</span></span>
+<span id="cb29-234"><a href="#cb29-234" aria-hidden="true" tabindex="-1"></a><span class="in">       Goal: Move from θ = 0 to θ = π</span></span>
+<span id="cb29-235"><a href="#cb29-235" aria-hidden="true" tabindex="-1"></a><span class="in">       Methods:</span></span>
+<span id="cb29-236"><a href="#cb29-236" aria-hidden="true" tabindex="-1"></a><span class="in">       - Energy-based: Pump energy until E ≈ E_target</span></span>
+<span id="cb29-237"><a href="#cb29-237" aria-hidden="true" tabindex="-1"></a><span class="in">       - Bang-bang: Apply maximum torque</span></span>
+<span id="cb29-238"><a href="#cb29-238" aria-hidden="true" tabindex="-1"></a><span class="in">       - Trajectory optimization</span></span>
+<span id="cb29-239"><a href="#cb29-239" aria-hidden="true" tabindex="-1"></a><span class="in">       Challenge: Large control effort, multiple rotations</span></span>
+<span id="cb29-240"><a href="#cb29-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-241"><a href="#cb29-241" aria-hidden="true" tabindex="-1"></a><span class="in">    **3. Inverted Stabilization:**</span></span>
+<span id="cb29-242"><a href="#cb29-242" aria-hidden="true" tabindex="-1"></a><span class="in">       Goal: Stabilize at θ = π, ω = 0</span></span>
+<span id="cb29-243"><a href="#cb29-243" aria-hidden="true" tabindex="-1"></a><span class="in">       Method: LQR around linearization</span></span>
+<span id="cb29-244"><a href="#cb29-244" aria-hidden="true" tabindex="-1"></a><span class="in">       Challenge: Unstable equilibrium, requires continuous control</span></span>
+<span id="cb29-245"><a href="#cb29-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-246"><a href="#cb29-246" aria-hidden="true" tabindex="-1"></a><span class="in">    **4. Trajectory Tracking:**</span></span>
+<span id="cb29-247"><a href="#cb29-247" aria-hidden="true" tabindex="-1"></a><span class="in">       Goal: Follow θ_ref(t), ω_ref(t)</span></span>
+<span id="cb29-248"><a href="#cb29-248" aria-hidden="true" tabindex="-1"></a><span class="in">       Method: Feedforward + feedback</span></span>
+<span id="cb29-249"><a href="#cb29-249" aria-hidden="true" tabindex="-1"></a><span class="in">       Application: Robotic manipulation</span></span>
+<span id="cb29-250"><a href="#cb29-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-251"><a href="#cb29-251" aria-hidden="true" tabindex="-1"></a><span class="in">    **5. Limit Cycle Creation:**</span></span>
+<span id="cb29-252"><a href="#cb29-252" aria-hidden="true" tabindex="-1"></a><span class="in">       Goal: Create stable periodic oscillation</span></span>
+<span id="cb29-253"><a href="#cb29-253" aria-hidden="true" tabindex="-1"></a><span class="in">       Method: Nonlinear feedback</span></span>
+<span id="cb29-254"><a href="#cb29-254" aria-hidden="true" tabindex="-1"></a><span class="in">       Application: Rhythmic motion generation</span></span>
+<span id="cb29-255"><a href="#cb29-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-256"><a href="#cb29-256" aria-hidden="true" tabindex="-1"></a><span class="fu">##     State Constraints: {.doc-section .doc-section-----state-constraints}</span></span>
+<span id="cb29-257"><a href="#cb29-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-258"><a href="#cb29-258" aria-hidden="true" tabindex="-1"></a><span class="in">    **1. Angle Limits (if physical stops exist):**</span></span>
+<span id="cb29-259"><a href="#cb29-259" aria-hidden="true" tabindex="-1"></a><span class="in">       θ_min ≤ θ ≤ θ_max</span></span>
+<span id="cb29-260"><a href="#cb29-260" aria-hidden="true" tabindex="-1"></a><span class="in">       Otherwise: θ ∈ ℝ (unbounded rotations possible)</span></span>
+<span id="cb29-261"><a href="#cb29-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-262"><a href="#cb29-262" aria-hidden="true" tabindex="-1"></a><span class="in">    **2. Velocity Limits:**</span></span>
+<span id="cb29-263"><a href="#cb29-263" aria-hidden="true" tabindex="-1"></a><span class="in">       |ω| ≤ ω_max</span></span>
+<span id="cb29-264"><a href="#cb29-264" aria-hidden="true" tabindex="-1"></a><span class="in">       Physical: Limited by energy or mechanism</span></span>
+<span id="cb29-265"><a href="#cb29-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-266"><a href="#cb29-266" aria-hidden="true" tabindex="-1"></a><span class="in">    **3. Torque Limits:**</span></span>
+<span id="cb29-267"><a href="#cb29-267" aria-hidden="true" tabindex="-1"></a><span class="in">       |τ| ≤ τ_max</span></span>
+<span id="cb29-268"><a href="#cb29-268" aria-hidden="true" tabindex="-1"></a><span class="in">       Most critical practical constraint</span></span>
+<span id="cb29-269"><a href="#cb29-269" aria-hidden="true" tabindex="-1"></a><span class="in">       Determines controllability</span></span>
+<span id="cb29-270"><a href="#cb29-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-271"><a href="#cb29-271" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Numerical Considerations: {.doc-section .doc-section-----numerical-considerations}</span></span>
+<span id="cb29-272"><a href="#cb29-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-273"><a href="#cb29-273" aria-hidden="true" tabindex="-1"></a><span class="in">    **Discretization Accuracy:**</span></span>
+<span id="cb29-274"><a href="#cb29-274" aria-hidden="true" tabindex="-1"></a><span class="in">    - ZOH: Good for control applications</span></span>
+<span id="cb29-275"><a href="#cb29-275" aria-hidden="true" tabindex="-1"></a><span class="in">    - Euler: Simple but may be inaccurate/unstable for large dt</span></span>
+<span id="cb29-276"><a href="#cb29-276" aria-hidden="true" tabindex="-1"></a><span class="in">    - RK4: High accuracy, recommended for simulation</span></span>
+<span id="cb29-277"><a href="#cb29-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-278"><a href="#cb29-278" aria-hidden="true" tabindex="-1"></a><span class="in">    **Angle Wrapping:**</span></span>
+<span id="cb29-279"><a href="#cb29-279" aria-hidden="true" tabindex="-1"></a><span class="in">    For visualization and analysis:</span></span>
+<span id="cb29-280"><a href="#cb29-280" aria-hidden="true" tabindex="-1"></a><span class="in">    - Wrap θ to [-π, π]: θ_wrapped = atan2(sin(θ), cos(θ))</span></span>
+<span id="cb29-281"><a href="#cb29-281" aria-hidden="true" tabindex="-1"></a><span class="in">    - Or leave unwrapped to count rotations</span></span>
+<span id="cb29-282"><a href="#cb29-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-283"><a href="#cb29-283" aria-hidden="true" tabindex="-1"></a><span class="in">    **Energy Verification:**</span></span>
+<span id="cb29-284"><a href="#cb29-284" aria-hidden="true" tabindex="-1"></a><span class="in">    For undamped case, check energy conservation:</span></span>
+<span id="cb29-285"><a href="#cb29-285" aria-hidden="true" tabindex="-1"></a><span class="in">        |E[k+1] - E[k]| should be small (numerical precision)</span></span>
+<span id="cb29-286"><a href="#cb29-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-287"><a href="#cb29-287" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Example Usage: {.doc-section .doc-section-----example-usage}</span></span>
+<span id="cb29-288"><a href="#cb29-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-289"><a href="#cb29-289" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Create pendulum with realistic parameters</span></span>
+<span id="cb29-290"><a href="#cb29-290" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; system = DiscretePendulum(</span></span>
+<span id="cb29-291"><a href="#cb29-291" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     m=0.5,      # 500g mass</span></span>
+<span id="cb29-292"><a href="#cb29-292" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     L=1.0,      # 1m length</span></span>
+<span id="cb29-293"><a href="#cb29-293" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     g=9.81,</span></span>
+<span id="cb29-294"><a href="#cb29-294" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     b=0.05,     # Light damping</span></span>
+<span id="cb29-295"><a href="#cb29-295" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     dt=0.01,</span></span>
+<span id="cb29-296"><a href="#cb29-296" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     method='rk4'</span></span>
+<span id="cb29-297"><a href="#cb29-297" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb29-298"><a href="#cb29-298" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-299"><a href="#cb29-299" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Natural frequency: {system.natural_frequency:.3f} rad/s")</span></span>
+<span id="cb29-300"><a href="#cb29-300" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Period: {system.period:.3f} s")</span></span>
+<span id="cb29-301"><a href="#cb29-301" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Damping ratio: {system.damping_ratio:.4f}")</span></span>
+<span id="cb29-302"><a href="#cb29-302" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-303"><a href="#cb29-303" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Free oscillation from initial displacement</span></span>
+<span id="cb29-304"><a href="#cb29-304" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x0 = np.array([np.pi/4, 0.0])  # 45° release from rest</span></span>
+<span id="cb29-305"><a href="#cb29-305" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_free = system.simulate(</span></span>
+<span id="cb29-306"><a href="#cb29-306" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x0=x0,</span></span>
+<span id="cb29-307"><a href="#cb29-307" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     u_sequence=None,</span></span>
+<span id="cb29-308"><a href="#cb29-308" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     n_steps=1000</span></span>
+<span id="cb29-309"><a href="#cb29-309" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb29-310"><a href="#cb29-310" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-311"><a href="#cb29-311" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Plot phase portrait</span></span>
+<span id="cb29-312"><a href="#cb29-312" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; import plotly.graph_objects as go</span></span>
+<span id="cb29-313"><a href="#cb29-313" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig = go.Figure()</span></span>
+<span id="cb29-314"><a href="#cb29-314" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig.add_trace(go.Scatter(</span></span>
+<span id="cb29-315"><a href="#cb29-315" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x=result_free['states'][:, 0],</span></span>
+<span id="cb29-316"><a href="#cb29-316" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     y=result_free['states'][:, 1],</span></span>
+<span id="cb29-317"><a href="#cb29-317" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     mode='lines',</span></span>
+<span id="cb29-318"><a href="#cb29-318" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     name='Trajectory'</span></span>
+<span id="cb29-319"><a href="#cb29-319" aria-hidden="true" tabindex="-1"></a><span class="in">    ... ))</span></span>
+<span id="cb29-320"><a href="#cb29-320" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig.update_layout(</span></span>
+<span id="cb29-321"><a href="#cb29-321" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     title='Pendulum Phase Portrait',</span></span>
+<span id="cb29-322"><a href="#cb29-322" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     xaxis_title='θ [rad]',</span></span>
+<span id="cb29-323"><a href="#cb29-323" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     yaxis_title='ω [rad/s]'</span></span>
+<span id="cb29-324"><a href="#cb29-324" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb29-325"><a href="#cb29-325" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig.show()</span></span>
+<span id="cb29-326"><a href="#cb29-326" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-327"><a href="#cb29-327" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Energy analysis</span></span>
+<span id="cb29-328"><a href="#cb29-328" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; energies = np.array([</span></span>
+<span id="cb29-329"><a href="#cb29-329" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     system.compute_total_energy(x[0], x[1])</span></span>
+<span id="cb29-330"><a href="#cb29-330" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     for x in result_free['states']</span></span>
+<span id="cb29-331"><a href="#cb29-331" aria-hidden="true" tabindex="-1"></a><span class="in">    ... ])</span></span>
+<span id="cb29-332"><a href="#cb29-332" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-333"><a href="#cb29-333" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_energy = go.Figure()</span></span>
+<span id="cb29-334"><a href="#cb29-334" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_energy.add_trace(go.Scatter(</span></span>
+<span id="cb29-335"><a href="#cb29-335" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x=result_free['time_steps'] * system.dt,</span></span>
+<span id="cb29-336"><a href="#cb29-336" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     y=energies,</span></span>
+<span id="cb29-337"><a href="#cb29-337" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     name='Total Energy'</span></span>
+<span id="cb29-338"><a href="#cb29-338" aria-hidden="true" tabindex="-1"></a><span class="in">    ... ))</span></span>
+<span id="cb29-339"><a href="#cb29-339" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_energy.update_layout(</span></span>
+<span id="cb29-340"><a href="#cb29-340" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     title='Energy vs Time (should decrease with damping)',</span></span>
+<span id="cb29-341"><a href="#cb29-341" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     xaxis_title='Time [s]',</span></span>
+<span id="cb29-342"><a href="#cb29-342" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     yaxis_title='Energy [J]'</span></span>
+<span id="cb29-343"><a href="#cb29-343" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb29-344"><a href="#cb29-344" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_energy.show()</span></span>
+<span id="cb29-345"><a href="#cb29-345" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-346"><a href="#cb29-346" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Swing-up control (energy-based)</span></span>
+<span id="cb29-347"><a href="#cb29-347" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; def swing_up_energy_control(x, k):</span></span>
+<span id="cb29-348"><a href="#cb29-348" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     theta, omega = x</span></span>
+<span id="cb29-349"><a href="#cb29-349" aria-hidden="true" tabindex="-1"></a><span class="in">    ...</span></span>
+<span id="cb29-350"><a href="#cb29-350" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # Current energy</span></span>
+<span id="cb29-351"><a href="#cb29-351" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     E = system.compute_total_energy(theta, omega)</span></span>
+<span id="cb29-352"><a href="#cb29-352" aria-hidden="true" tabindex="-1"></a><span class="in">    ...</span></span>
+<span id="cb29-353"><a href="#cb29-353" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # Target energy (upward position)</span></span>
+<span id="cb29-354"><a href="#cb29-354" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     E_target = system.m * system.g * system.L * 2</span></span>
+<span id="cb29-355"><a href="#cb29-355" aria-hidden="true" tabindex="-1"></a><span class="in">    ...</span></span>
+<span id="cb29-356"><a href="#cb29-356" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # Energy error</span></span>
+<span id="cb29-357"><a href="#cb29-357" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     E_error = E - E_target</span></span>
+<span id="cb29-358"><a href="#cb29-358" aria-hidden="true" tabindex="-1"></a><span class="in">    ...</span></span>
+<span id="cb29-359"><a href="#cb29-359" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # If close to upward, switch to stabilization</span></span>
+<span id="cb29-360"><a href="#cb29-360" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     if abs(theta - np.pi) &lt; 0.3 and abs(omega) &lt; 1.0:</span></span>
+<span id="cb29-361"><a href="#cb29-361" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         # LQR around upward</span></span>
+<span id="cb29-362"><a href="#cb29-362" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         K_up = system.design_upward_stabilizer()</span></span>
+<span id="cb29-363"><a href="#cb29-363" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         return -K_up @ np.array([theta - np.pi, omega])</span></span>
+<span id="cb29-364"><a href="#cb29-364" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     else:</span></span>
+<span id="cb29-365"><a href="#cb29-365" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         # Energy pumping: add energy when moving in right direction</span></span>
+<span id="cb29-366"><a href="#cb29-366" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         k_swing = 5.0</span></span>
+<span id="cb29-367"><a href="#cb29-367" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         return k_swing * E_error * np.sign(omega * np.cos(theta))</span></span>
+<span id="cb29-368"><a href="#cb29-368" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-369"><a href="#cb29-369" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_swing = system.rollout(</span></span>
+<span id="cb29-370"><a href="#cb29-370" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x0=np.array([0.0, 0.0]),</span></span>
+<span id="cb29-371"><a href="#cb29-371" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     policy=swing_up_energy_control,</span></span>
+<span id="cb29-372"><a href="#cb29-372" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     n_steps=2000</span></span>
+<span id="cb29-373"><a href="#cb29-373" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb29-374"><a href="#cb29-374" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-375"><a href="#cb29-375" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Visualize swing-up in phase space</span></span>
+<span id="cb29-376"><a href="#cb29-376" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_swing = system.plot_phase_portrait_with_separatrix()</span></span>
+<span id="cb29-377"><a href="#cb29-377" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_swing.add_trace(go.Scatter(</span></span>
+<span id="cb29-378"><a href="#cb29-378" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x=result_swing['states'][:, 0],</span></span>
+<span id="cb29-379"><a href="#cb29-379" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     y=result_swing['states'][:, 1],</span></span>
+<span id="cb29-380"><a href="#cb29-380" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     mode='lines',</span></span>
+<span id="cb29-381"><a href="#cb29-381" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     line=dict(color='red', width=2),</span></span>
+<span id="cb29-382"><a href="#cb29-382" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     name='Swing-up trajectory'</span></span>
+<span id="cb29-383"><a href="#cb29-383" aria-hidden="true" tabindex="-1"></a><span class="in">    ... ))</span></span>
+<span id="cb29-384"><a href="#cb29-384" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig_swing.show()</span></span>
+<span id="cb29-385"><a href="#cb29-385" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-386"><a href="#cb29-386" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Compare small vs large angle dynamics</span></span>
+<span id="cb29-387"><a href="#cb29-387" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Small angle (linear regime)</span></span>
+<span id="cb29-388"><a href="#cb29-388" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x0_small = np.array([0.1, 0.0])  # ~6°</span></span>
+<span id="cb29-389"><a href="#cb29-389" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_small = system.simulate(x0_small, None, n_steps=500)</span></span>
+<span id="cb29-390"><a href="#cb29-390" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-391"><a href="#cb29-391" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Large angle (nonlinear regime)</span></span>
+<span id="cb29-392"><a href="#cb29-392" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x0_large = np.array([2.0, 0.0])  # ~115°</span></span>
+<span id="cb29-393"><a href="#cb29-393" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_large = system.simulate(x0_large, None, n_steps=500)</span></span>
+<span id="cb29-394"><a href="#cb29-394" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-395"><a href="#cb29-395" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Compare periods</span></span>
+<span id="cb29-396"><a href="#cb29-396" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; def find_period(states, dt):</span></span>
+<span id="cb29-397"><a href="#cb29-397" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # Find zero crossings</span></span>
+<span id="cb29-398"><a href="#cb29-398" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     theta = states[:, 0]</span></span>
+<span id="cb29-399"><a href="#cb29-399" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     crossings = np.where(np.diff(np.sign(theta)))[0]</span></span>
+<span id="cb29-400"><a href="#cb29-400" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     if len(crossings) &gt;= 2:</span></span>
+<span id="cb29-401"><a href="#cb29-401" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         period = 2 * (crossings[1] - crossings[0]) * dt</span></span>
+<span id="cb29-402"><a href="#cb29-402" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         return period</span></span>
+<span id="cb29-403"><a href="#cb29-403" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     return None</span></span>
+<span id="cb29-404"><a href="#cb29-404" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-405"><a href="#cb29-405" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; period_small = find_period(result_small['states'], system.dt)</span></span>
+<span id="cb29-406"><a href="#cb29-406" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; period_large = find_period(result_large['states'], system.dt)</span></span>
+<span id="cb29-407"><a href="#cb29-407" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb29-408"><a href="#cb29-408" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Small angle period: {period_small:.3f} s")</span></span>
+<span id="cb29-409"><a href="#cb29-409" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Large angle period: {period_large:.3f} s")</span></span>
+<span id="cb29-410"><a href="#cb29-410" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Linear theory: {system.period:.3f} s")</span></span>
+<span id="cb29-411"><a href="#cb29-411" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print("Note: Large angle period &gt; small angle period (nonlinearity)")</span></span>
+<span id="cb29-412"><a href="#cb29-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-413"><a href="#cb29-413" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Physical Insights: {.doc-section .doc-section-----physical-insights}</span></span>
+<span id="cb29-414"><a href="#cb29-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-415"><a href="#cb29-415" aria-hidden="true" tabindex="-1"></a><span class="in">    **Isochronism (Small Angles Only):**</span></span>
+<span id="cb29-416"><a href="#cb29-416" aria-hidden="true" tabindex="-1"></a><span class="in">    For small oscillations, period is independent of amplitude:</span></span>
+<span id="cb29-417"><a href="#cb29-417" aria-hidden="true" tabindex="-1"></a><span class="in">        T = 2π√(L/g) = 2π/ω₀</span></span>
+<span id="cb29-418"><a href="#cb29-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-419"><a href="#cb29-419" aria-hidden="true" tabindex="-1"></a><span class="in">    This is why pendulum clocks work! (But only for small swings)</span></span>
+<span id="cb29-420"><a href="#cb29-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-421"><a href="#cb29-421" aria-hidden="true" tabindex="-1"></a><span class="in">    **Anharmonicity (Large Angles):**</span></span>
+<span id="cb29-422"><a href="#cb29-422" aria-hidden="true" tabindex="-1"></a><span class="in">    For large amplitudes, period increases with amplitude:</span></span>
+<span id="cb29-423"><a href="#cb29-423" aria-hidden="true" tabindex="-1"></a><span class="in">        T(θ₀) ≈ T₀·(1 + θ₀²/16 + ...) for initial angle θ₀</span></span>
+<span id="cb29-424"><a href="#cb29-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-425"><a href="#cb29-425" aria-hidden="true" tabindex="-1"></a><span class="in">    This breaks isochronism → pendulum clocks must limit amplitude.</span></span>
+<span id="cb29-426"><a href="#cb29-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-427"><a href="#cb29-427" aria-hidden="true" tabindex="-1"></a><span class="in">    **Separatrix Dynamics:**</span></span>
+<span id="cb29-428"><a href="#cb29-428" aria-hidden="true" tabindex="-1"></a><span class="in">    Trajectories on the separatrix (E = E_sep) take infinite time to reach</span></span>
+<span id="cb29-429"><a href="#cb29-429" aria-hidden="true" tabindex="-1"></a><span class="in">    the unstable equilibrium. This is a homoclinic orbit.</span></span>
+<span id="cb29-430"><a href="#cb29-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-431"><a href="#cb29-431" aria-hidden="true" tabindex="-1"></a><span class="in">    **Conservation vs Dissipation:**</span></span>
+<span id="cb29-432"><a href="#cb29-432" aria-hidden="true" tabindex="-1"></a><span class="in">    - No damping: Phase space filled with nested closed curves</span></span>
+<span id="cb29-433"><a href="#cb29-433" aria-hidden="true" tabindex="-1"></a><span class="in">    - With damping: Spiral inward to stable equilibrium</span></span>
+<span id="cb29-434"><a href="#cb29-434" aria-hidden="true" tabindex="-1"></a><span class="in">    - Energy landscape funnels trajectories toward rest</span></span>
+<span id="cb29-435"><a href="#cb29-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-436"><a href="#cb29-436" aria-hidden="true" tabindex="-1"></a><span class="in">    **Chaotic Forcing:**</span></span>
+<span id="cb29-437"><a href="#cb29-437" aria-hidden="true" tabindex="-1"></a><span class="in">    Add periodic forcing: θ̈ = -ω₀²·sin(θ) + A·cos(Ω·t)</span></span>
+<span id="cb29-438"><a href="#cb29-438" aria-hidden="true" tabindex="-1"></a><span class="in">    Can produce chaos (sensitive dependence on initial conditions)!</span></span>
+<span id="cb29-439"><a href="#cb29-439" aria-hidden="true" tabindex="-1"></a><span class="in">    This is the "driven damped pendulum" - route to chaos.</span></span>
+<span id="cb29-440"><a href="#cb29-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-441"><a href="#cb29-441" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Common Pitfalls: {.doc-section .doc-section-----common-pitfalls}</span></span>
+<span id="cb29-442"><a href="#cb29-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-443"><a href="#cb29-443" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Using linear approximation for large angles:**</span></span>
+<span id="cb29-444"><a href="#cb29-444" aria-hidden="true" tabindex="-1"></a><span class="in">       sin(θ) ≈ θ only valid for |θ| &lt; 0.2 rad</span></span>
+<span id="cb29-445"><a href="#cb29-445" aria-hidden="true" tabindex="-1"></a><span class="in">       Large errors for θ &gt; π/4</span></span>
+<span id="cb29-446"><a href="#cb29-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-447"><a href="#cb29-447" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **Forgetting angle periodicity:**</span></span>
+<span id="cb29-448"><a href="#cb29-448" aria-hidden="true" tabindex="-1"></a><span class="in">       θ = 0 and θ = 2π are the same state</span></span>
+<span id="cb29-449"><a href="#cb29-449" aria-hidden="true" tabindex="-1"></a><span class="in">       Important for phase portraits</span></span>
+<span id="cb29-450"><a href="#cb29-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-451"><a href="#cb29-451" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Ignoring separatrix:**</span></span>
+<span id="cb29-452"><a href="#cb29-452" aria-hidden="true" tabindex="-1"></a><span class="in">       Qualitative dynamics change across separatrix</span></span>
+<span id="cb29-453"><a href="#cb29-453" aria-hidden="true" tabindex="-1"></a><span class="in">       Control strategies differ for oscillations vs rotations</span></span>
+<span id="cb29-454"><a href="#cb29-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-455"><a href="#cb29-455" aria-hidden="true" tabindex="-1"></a><span class="in">    4. **Wrong linearization for upward:**</span></span>
+<span id="cb29-456"><a href="#cb29-456" aria-hidden="true" tabindex="-1"></a><span class="in">       Linearizing at θ = π gives θ̈ = +ω₀²·(θ - π)</span></span>
+<span id="cb29-457"><a href="#cb29-457" aria-hidden="true" tabindex="-1"></a><span class="in">       Note: POSITIVE coefficient (unstable)</span></span>
+<span id="cb29-458"><a href="#cb29-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-459"><a href="#cb29-459" aria-hidden="true" tabindex="-1"></a><span class="in">    5. **Energy not conserved numerically:**</span></span>
+<span id="cb29-460"><a href="#cb29-460" aria-hidden="true" tabindex="-1"></a><span class="in">       Discretization introduces energy errors</span></span>
+<span id="cb29-461"><a href="#cb29-461" aria-hidden="true" tabindex="-1"></a><span class="in">       Use symplectic integrators for better conservation</span></span>
+<span id="cb29-462"><a href="#cb29-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-463"><a href="#cb29-463" aria-hidden="true" tabindex="-1"></a><span class="in">    6. **Insufficient damping modeling:**</span></span>
+<span id="cb29-464"><a href="#cb29-464" aria-hidden="true" tabindex="-1"></a><span class="in">       Real pendulums have complex friction</span></span>
+<span id="cb29-465"><a href="#cb29-465" aria-hidden="true" tabindex="-1"></a><span class="in">       Viscous approximation b·ω may be inadequate</span></span>
+<span id="cb29-466"><a href="#cb29-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-467"><a href="#cb29-467" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Extensions: {.doc-section .doc-section-----extensions}</span></span>
+<span id="cb29-468"><a href="#cb29-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-469"><a href="#cb29-469" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Driven pendulum:**</span></span>
+<span id="cb29-470"><a href="#cb29-470" aria-hidden="true" tabindex="-1"></a><span class="in">       Add periodic forcing: u[k] = A·cos(Ω·k·dt)</span></span>
+<span id="cb29-471"><a href="#cb29-471" aria-hidden="true" tabindex="-1"></a><span class="in">       Can produce chaos and strange attractors</span></span>
+<span id="cb29-472"><a href="#cb29-472" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-473"><a href="#cb29-473" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **Double pendulum:**</span></span>
+<span id="cb29-474"><a href="#cb29-474" aria-hidden="true" tabindex="-1"></a><span class="in">       Two coupled pendula</span></span>
+<span id="cb29-475"><a href="#cb29-475" aria-hidden="true" tabindex="-1"></a><span class="in">       Exhibits deterministic chaos</span></span>
+<span id="cb29-476"><a href="#cb29-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-477"><a href="#cb29-477" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Spherical pendulum:**</span></span>
+<span id="cb29-478"><a href="#cb29-478" aria-hidden="true" tabindex="-1"></a><span class="in">       3D motion (θ, φ)</span></span>
+<span id="cb29-479"><a href="#cb29-479" aria-hidden="true" tabindex="-1"></a><span class="in">       Rich dynamics, Coriolis effects</span></span>
+<span id="cb29-480"><a href="#cb29-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-481"><a href="#cb29-481" aria-hidden="true" tabindex="-1"></a><span class="in">    4. **Elastic pendulum:**</span></span>
+<span id="cb29-482"><a href="#cb29-482" aria-hidden="true" tabindex="-1"></a><span class="in">       Pendulum with spring (varying L)</span></span>
+<span id="cb29-483"><a href="#cb29-483" aria-hidden="true" tabindex="-1"></a><span class="in">       Coupled radial-angular motion</span></span>
+<span id="cb29-484"><a href="#cb29-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-485"><a href="#cb29-485" aria-hidden="true" tabindex="-1"></a><span class="in">    5. **Pendulum on cart:**</span></span>
+<span id="cb29-486"><a href="#cb29-486" aria-hidden="true" tabindex="-1"></a><span class="in">       Inverted pendulum (classic underactuated system)</span></span>
+<span id="cb29-487"><a href="#cb29-487" aria-hidden="true" tabindex="-1"></a><span class="in">       Noncollocated control problem</span></span>
+<span id="cb29-488"><a href="#cb29-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-489"><a href="#cb29-489" aria-hidden="true" tabindex="-1"></a><span class="in">    6. **Parametric excitation:**</span></span>
+<span id="cb29-490"><a href="#cb29-490" aria-hidden="true" tabindex="-1"></a><span class="in">       Varying L sinusoidally</span></span>
+<span id="cb29-491"><a href="#cb29-491" aria-hidden="true" tabindex="-1"></a><span class="in">       Parametric resonance effects</span></span>
+<span id="cb29-492"><a href="#cb29-492" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-493"><a href="#cb29-493" aria-hidden="true" tabindex="-1"></a><span class="fu">##     See Also: {.doc-section .doc-section-----see-also}</span></span>
+<span id="cb29-494"><a href="#cb29-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-495"><a href="#cb29-495" aria-hidden="true" tabindex="-1"></a><span class="in">    DiscreteRobotArm : Similar dynamics (different notation)</span></span>
+<span id="cb29-496"><a href="#cb29-496" aria-hidden="true" tabindex="-1"></a><span class="in">    DiscreteOscillator : Linear limit (small angles)</span></span>
+<span id="cb29-497"><a href="#cb29-497" aria-hidden="true" tabindex="-1"></a><span class="in">    DoublePendulum : Chaotic extension</span></span>
+<span id="cb29-498"><a href="#cb29-498" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-499"><a href="#cb29-499" aria-hidden="true" tabindex="-1"></a><span class="fu">## Attributes</span></span>
+<span id="cb29-500"><a href="#cb29-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-501"><a href="#cb29-501" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb29-502"><a href="#cb29-502" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb29-503"><a href="#cb29-503" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">damping_ratio</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.damping_ratio)</span> <span class="pp">|</span> Damping ratio ζ = β/(2ω₀) <span class="co">[</span><span class="ot">-</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-504"><a href="#cb29-504" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">natural_frequency</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.natural_frequency)</span> <span class="pp">|</span> Natural frequency ω₀ = √(g/L) <span class="co">[</span><span class="ot">rad/s</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-505"><a href="#cb29-505" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">period</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.period)</span> <span class="pp">|</span> Period of small oscillations T = 2π/ω₀ <span class="co">[</span><span class="ot">s</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-506"><a href="#cb29-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-507"><a href="#cb29-507" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb29-508"><a href="#cb29-508" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-509"><a href="#cb29-509" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb29-510"><a href="#cb29-510" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb29-511"><a href="#cb29-511" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_kinetic_energy</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy)</span> <span class="pp">|</span> Kinetic energy K = (1/2)·I·ω² <span class="co">[</span><span class="ot">J</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-512"><a href="#cb29-512" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_potential_energy</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy)</span> <span class="pp">|</span> Potential energy V = m·g·L·(1 - cos(θ)) <span class="co">[</span><span class="ot">J</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-513"><a href="#cb29-513" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_separatrix</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix)</span> <span class="pp">|</span> Compute separatrix trajectory (for undamped case). <span class="pp">|</span></span>
+<span id="cb29-514"><a href="#cb29-514" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_separatrix_energy</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy)</span> <span class="pp">|</span> Energy of separatrix (boundary between oscillation/rotation) <span class="co">[</span><span class="ot">J</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-515"><a href="#cb29-515" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_total_energy</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy)</span> <span class="pp">|</span> Total mechanical energy E = K + V <span class="co">[</span><span class="ot">J</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb29-516"><a href="#cb29-516" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system)</span> <span class="pp">|</span> Define discrete-time pendulum dynamics. <span class="pp">|</span></span>
+<span id="cb29-517"><a href="#cb29-517" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">design_upward_stabilizer</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer)</span> <span class="pp">|</span> Design LQR controller for upward stabilization. <span class="pp">|</span></span>
+<span id="cb29-518"><a href="#cb29-518" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria)</span> <span class="pp">|</span> Set up downward and upward equilibria. <span class="pp">|</span></span>
+<span id="cb29-519"><a href="#cb29-519" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-520"><a href="#cb29-520" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_kinetic_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy }</span></span>
+<span id="cb29-521"><a href="#cb29-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-522"><a href="#cb29-522" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-523"><a href="#cb29-523" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_kinetic_energy(</span>
+<span id="cb29-524"><a href="#cb29-524" aria-hidden="true" tabindex="-1"></a>    omega,</span>
+<span id="cb29-525"><a href="#cb29-525" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-526"><a href="#cb29-526" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-527"><a href="#cb29-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-528"><a href="#cb29-528" aria-hidden="true" tabindex="-1"></a>Kinetic energy K = (1/2)·I·ω² <span class="co">[</span><span class="ot">J</span><span class="co">]</span>.</span>
+<span id="cb29-529"><a href="#cb29-529" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-530"><a href="#cb29-530" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_potential_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy }</span></span>
+<span id="cb29-531"><a href="#cb29-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-532"><a href="#cb29-532" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-533"><a href="#cb29-533" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_potential_energy(</span>
+<span id="cb29-534"><a href="#cb29-534" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb29-535"><a href="#cb29-535" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-536"><a href="#cb29-536" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-537"><a href="#cb29-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-538"><a href="#cb29-538" aria-hidden="true" tabindex="-1"></a>Potential energy V = m·g·L·(1 - cos(θ)) <span class="co">[</span><span class="ot">J</span><span class="co">]</span>.</span>
+<span id="cb29-539"><a href="#cb29-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-540"><a href="#cb29-540" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_separatrix { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix }</span></span>
+<span id="cb29-541"><a href="#cb29-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-542"><a href="#cb29-542" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-543"><a href="#cb29-543" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix(</span>
+<span id="cb29-544"><a href="#cb29-544" aria-hidden="true" tabindex="-1"></a>    n_points<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb29-545"><a href="#cb29-545" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-546"><a href="#cb29-546" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-547"><a href="#cb29-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-548"><a href="#cb29-548" aria-hidden="true" tabindex="-1"></a>Compute separatrix trajectory (for undamped case).</span>
+<span id="cb29-549"><a href="#cb29-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-550"><a href="#cb29-550" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb29-551"><a href="#cb29-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-552"><a href="#cb29-552" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                         <span class="pp">|</span></span>
+<span id="cb29-553"><a href="#cb29-553" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------------------|</span></span>
+<span id="cb29-554"><a href="#cb29-554" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> tuple  <span class="pp">|</span> (theta, omega) points on separatrix <span class="pp">|</span></span>
+<span id="cb29-555"><a href="#cb29-555" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-556"><a href="#cb29-556" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_separatrix_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy }</span></span>
+<span id="cb29-557"><a href="#cb29-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-558"><a href="#cb29-558" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-559"><a href="#cb29-559" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_separatrix_energy(</span>
+<span id="cb29-560"><a href="#cb29-560" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-561"><a href="#cb29-561" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-562"><a href="#cb29-562" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-563"><a href="#cb29-563" aria-hidden="true" tabindex="-1"></a>Energy of separatrix (boundary between oscillation/rotation) <span class="co">[</span><span class="ot">J</span><span class="co">]</span>.</span>
+<span id="cb29-564"><a href="#cb29-564" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-565"><a href="#cb29-565" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_total_energy { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy }</span></span>
+<span id="cb29-566"><a href="#cb29-566" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-567"><a href="#cb29-567" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-568"><a href="#cb29-568" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.compute_total_energy(</span>
+<span id="cb29-569"><a href="#cb29-569" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb29-570"><a href="#cb29-570" aria-hidden="true" tabindex="-1"></a>    omega,</span>
+<span id="cb29-571"><a href="#cb29-571" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-572"><a href="#cb29-572" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-573"><a href="#cb29-573" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-574"><a href="#cb29-574" aria-hidden="true" tabindex="-1"></a>Total mechanical energy E = K + V <span class="co">[</span><span class="ot">J</span><span class="co">]</span>.</span>
+<span id="cb29-575"><a href="#cb29-575" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-576"><a href="#cb29-576" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.define_system }</span></span>
+<span id="cb29-577"><a href="#cb29-577" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-578"><a href="#cb29-578" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-579"><a href="#cb29-579" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.define_system(</span>
+<span id="cb29-580"><a href="#cb29-580" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb29-581"><a href="#cb29-581" aria-hidden="true" tabindex="-1"></a>    L<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb29-582"><a href="#cb29-582" aria-hidden="true" tabindex="-1"></a>    g<span class="op">=</span><span class="fl">9.81</span>,</span>
+<span id="cb29-583"><a href="#cb29-583" aria-hidden="true" tabindex="-1"></a>    b<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb29-584"><a href="#cb29-584" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb29-585"><a href="#cb29-585" aria-hidden="true" tabindex="-1"></a>    method<span class="op">=</span><span class="st">'zoh'</span>,</span>
+<span id="cb29-586"><a href="#cb29-586" aria-hidden="true" tabindex="-1"></a>    use_control<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb29-587"><a href="#cb29-587" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-588"><a href="#cb29-588" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-589"><a href="#cb29-589" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-590"><a href="#cb29-590" aria-hidden="true" tabindex="-1"></a>Define discrete-time pendulum dynamics.</span>
+<span id="cb29-591"><a href="#cb29-591" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-592"><a href="#cb29-592" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb29-593"><a href="#cb29-593" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-594"><a href="#cb29-594" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name        <span class="pp">|</span> Type   <span class="pp">|</span> Description                                   <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb29-595"><a href="#cb29-595" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------|--------|-----------------------------------------------|-----------|</span></span>
+<span id="cb29-596"><a href="#cb29-596" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m           <span class="pp">|</span> float  <span class="pp">|</span> Mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span>                                     <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb29-597"><a href="#cb29-597" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> L           <span class="pp">|</span> float  <span class="pp">|</span> Length <span class="co">[</span><span class="ot">m</span><span class="co">]</span>                                    <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb29-598"><a href="#cb29-598" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> g           <span class="pp">|</span> float  <span class="pp">|</span> Gravity <span class="co">[</span><span class="ot">m/s²</span><span class="co">]</span>                                <span class="pp">|</span> <span class="in">`9.81`</span>    <span class="pp">|</span></span>
+<span id="cb29-599"><a href="#cb29-599" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> b           <span class="pp">|</span> float  <span class="pp">|</span> Damping coefficient <span class="co">[</span><span class="ot">N·m·s/rad</span><span class="co">]</span>               <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb29-600"><a href="#cb29-600" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt          <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span>                           <span class="pp">|</span> <span class="in">`0.01`</span>    <span class="pp">|</span></span>
+<span id="cb29-601"><a href="#cb29-601" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> method      <span class="pp">|</span> str    <span class="pp">|</span> Discretization method ('zoh', 'euler', 'rk4') <span class="pp">|</span> <span class="in">`'zoh'`</span>   <span class="pp">|</span></span>
+<span id="cb29-602"><a href="#cb29-602" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> use_control <span class="pp">|</span> bool   <span class="pp">|</span> If True, include control input                <span class="pp">|</span> <span class="in">`True`</span>    <span class="pp">|</span></span>
+<span id="cb29-603"><a href="#cb29-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-604"><a href="#cb29-604" aria-hidden="true" tabindex="-1"></a><span class="fu">### design_upward_stabilizer { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer }</span></span>
+<span id="cb29-605"><a href="#cb29-605" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-606"><a href="#cb29-606" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-607"><a href="#cb29-607" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.design_upward_stabilizer(</span>
+<span id="cb29-608"><a href="#cb29-608" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-609"><a href="#cb29-609" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-610"><a href="#cb29-610" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-611"><a href="#cb29-611" aria-hidden="true" tabindex="-1"></a>Design LQR controller for upward stabilization.</span>
+<span id="cb29-612"><a href="#cb29-612" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-613"><a href="#cb29-613" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb29-614"><a href="#cb29-614" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-615"><a href="#cb29-615" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description   <span class="pp">|</span></span>
+<span id="cb29-616"><a href="#cb29-616" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|---------------|</span></span>
+<span id="cb29-617"><a href="#cb29-617" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> np.ndarray <span class="pp">|</span> LQR gain K    <span class="pp">|</span></span>
+<span id="cb29-618"><a href="#cb29-618" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-619"><a href="#cb29-619" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria }</span></span>
+<span id="cb29-620"><a href="#cb29-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-621"><a href="#cb29-621" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb29-622"><a href="#cb29-622" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscretePendulum.setup_equilibria()</span>
+<span id="cb29-623"><a href="#cb29-623" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb29-624"><a href="#cb29-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-625"><a href="#cb29-625" aria-hidden="true" tabindex="-1"></a>Set up downward and upward equilibria.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscretePendulum.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

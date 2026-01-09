@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.discrete.discretestochasticdoubleintegrator – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator">systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator</a>
+  <ul>
+  <li><a href="#discrete-time-stochastic-dynamics" id="toc-discrete-time-stochastic-dynamics" class="nav-link" data-scroll-target="#discrete-time-stochastic-dynamics">Discrete-Time Stochastic Dynamics</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation-1" id="toc-physical-interpretation-1" class="nav-link" data-scroll-target="#physical-interpretation-1">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-simulation" id="toc-numerical-simulation" class="nav-link" data-scroll-target="#numerical-simulation">Numerical Simulation</a></li>
+  <li><a href="#discrete-kalman-filter-example" id="toc-discrete-kalman-filter-example" class="nav-link" data-scroll-target="#discrete-kalman-filter-example">Discrete Kalman Filter Example</a></li>
+  <li><a href="#comparison-with-continuous" id="toc-comparison-with-continuous" class="nav-link" data-scroll-target="#comparison-with-continuous">Comparison with Continuous</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix">get_control_matrix</a>
+  <ul class="collapse">
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues">get_discrete_eigenvalues</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance">get_process_noise_covariance</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix">get_state_transition_matrix</a>
+  <ul class="collapse">
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#examples-4" id="toc-examples-4" class="nav-link" data-scroll-target="#examples-4">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator" class="level1">
+<h1>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Discrete-time stochastic double integrator - canonical digital LQG benchmark.</p>
+<p>The fundamental discrete-time linear system for testing digital control algorithms, discrete Kalman filtering, and sampled-data design. This represents what actually gets implemented in real digital controllers.</p>
+<section id="discrete-time-stochastic-dynamics" class="level2 doc-section doc-section-discrete-time-stochastic-dynamics">
+<h2 class="doc-section doc-section-discrete-time-stochastic-dynamics anchored" data-anchor-id="discrete-time-stochastic-dynamics">Discrete-Time Stochastic Dynamics</h2>
+<p>Exact discretization with zero-order hold:</p>
+<pre><code>x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt²
+v[k+1] = v[k] + u[k]·Δt</code></pre>
+<p>With process noise: x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt² + w_x[k] v[k+1] = v[k] + u[k]·Δt + w_v[k]</p>
+<p><strong>Matrix Form:</strong> X[k+1] = Φ·X[k] + Γ·u[k] + w[k]</p>
+<p>where: X = [x, v]ᵀ</p>
+<pre><code>Φ = [1  Δt]  (exact discrete-time dynamics)
+    [0   1]
+
+Γ = [Δt²/2]  (exact zero-order hold)
+    [Δt   ]
+
+w ~ N(0, Q)  (correlated process noise)</code></pre>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>Discrete-Time Dynamics:</strong></p>
+<p>Position update: x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt²</p>
+<p>Terms: 1. x[k]: Current position (persistence) 2. v[k]·Δt: Displacement from velocity (integration) 3. (1/2)·u[k]·Δt²: Displacement from acceleration (double integration)</p>
+<p>This is exact kinematics for constant acceleration over [k·Δt, (k+1)·Δt].</p>
+<p>Velocity update: v[k+1] = v[k] + u[k]·Δt</p>
+<p>Exact integration of constant acceleration.</p>
+<p><strong>Process Noise:</strong></p>
+<p>Represents disturbances accumulated over sampling interval: - w_x[k]: Position error (from integrated velocity noise) - w_v[k]: Velocity error (from force disturbances)</p>
+<p><strong>Covariance Structure:</strong></p>
+<p>From continuous noise σ [m/(s²·√s)]: Q = σ²·[Δt³/3 Δt²/2] [Δt²/2 Δt ]</p>
+<p>Non-diagonal! Position and velocity errors correlated.</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Exact Discretization:</strong> No discretization error in deterministic part (kinematic equations exact).</p>
+<p><strong>Linear Dynamics:</strong> Enables analytical Riccati solutions, optimal Kalman filter.</p>
+<p><strong>Controllability:</strong> Completely controllable: rank[Γ, Φ·Γ] = 2</p>
+<p><strong>Observability:</strong> Depends on measurement: - C = [1, 0]: Position only (observable) - C = [0, 1]: Velocity only (NOT observable) - C = I: Both (trivially observable)</p>
+<p><strong>Marginal Stability:</strong> Eigenvalues: z = {1, 1} (on unit circle) - Not asymptotically stable (need feedback) - Not unstable (doesn’t diverge)</p>
+<p><strong>Non-Stationary (Open-Loop):</strong> Variance grows with k (no equilibrium without control).</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>State Transition Matrix:</strong> Φ = [1 Δt] [0 1]</p>
+<p>Eigenvalues: λ = 1 (double) Eigenvector: [1, 0]ᵀ (position mode)</p>
+<p><strong>Controllability Matrix:</strong> C_ctrl = [Γ, Φ·Γ] = [Δt²/2 Δt³/2] [Δt Δt² ]</p>
+<p>rank = 2 (fully controllable)</p>
+<p><strong>Observability Matrix (C = [1,0]):</strong> O = [C ] = [1 0 ] [C·Φ ] [1 Δt]</p>
+<p>rank = 2 (observable from position)</p>
+<p><strong>Process Noise Covariance:</strong></p>
+<p>Exact from continuous: Q = σ²·[Δt³/3 Δt²/2] [Δt²/2 Δt ]</p>
+<p>Properties: - Positive definite (if σ &gt; 0) - Symmetric (by construction) - Scales with Δt (smaller Δt → smaller Q)</p>
+<p><strong>Discrete Riccati Equation:</strong></p>
+<p>For LQR, DARE: P = Q_cost + Φᵀ·P·Φ - Φᵀ·P·Γ·(R + Γᵀ·P·Γ)⁻¹·Γᵀ·P·Φ</p>
+<p>For Kalman, dual DARE: Σ = Q_noise + Φ·Σ·Φᵀ - Φ·Σ·Cᵀ·(R_meas + C·Σ·Cᵀ)⁻¹·C·Σ·Φᵀ</p>
+</section>
+<section id="physical-interpretation-1" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation-1">Physical Interpretation</h2>
+<p><strong>Sampling Period Δt:</strong> - Sets digital control rate - Affects noise accumulation (Q ∝ Δt) - Determines controllability region - Trade-off: Fast sampling vs computation</p>
+<p><strong>Process Noise Intensity σ:</strong> - From continuous: σ [m/(s²·√s)] - Creates discrete Q via integration - Physical: Force disturbances, model uncertainty</p>
+<p><strong>Why Position Variance Larger:</strong></p>
+<p>Q₁₁/Q₂₂ = Δt²/3</p>
+<p>For Δt = 0.1 s: Q₁₁/Q₂₂ = 0.01/3 ≈ 0.0033</p>
+<p>Velocity noise integrates twice to position → amplification.</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>State: X[k] = [x[k], v[k]] ∈ ℝ² - x: Position [m] (unbounded) - v: Velocity [m/s] (unbounded)</p>
+<p>Control: u[k] ∈ ℝ - Acceleration command [m/s²] - Zero-order hold between samples</p>
+<p>Noise: w[k] = [w_x[k], w_v[k]] ~ N(0, Q) - Correlated Gaussian white noise - Accumulated over sampling interval</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 82%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Continuous noise intensity [m/(s²·√s)] - Determines discrete Q via integration - Typical: 0.01-1.0</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s] - Critical design parameter - Typical: 0.001-1.0 depending on application - Affects both dynamics and noise</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>m</td>
+<td>float</td>
+<td>Mass [kg] (optional, typically normalized to 1)</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>System Type: LINEAR</li>
+<li>Noise Type: ADDITIVE (constant)</li>
+<li>Discrete: Yes (native discrete-time)</li>
+<li>Noise Dimension: nw = 2 (position and velocity)</li>
+<li>Stationary: No (open-loop)</li>
+<li>Gaussian: Yes (linear preserves Gaussianity)</li>
+<li>Exact Discretization: Yes (no error)</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Digital LQG Control:</strong> - Discrete DARE for optimal gain - Discrete Kalman filter for estimation - Real-time implementation</p>
+<p><strong>2. Embedded Control:</strong> - Microcontroller implementation - Fixed-point arithmetic - Real-time constraints</p>
+<p><strong>3. Discrete Kalman Filter:</strong> - Standard benchmark for testing - Numerical stability analysis - Joseph form, square-root filters</p>
+<p><strong>4. Model Predictive Control:</strong> - Discrete-time optimization - Constraint handling - Receding horizon</p>
+<p><strong>5. Reinforcement Learning:</strong> - Model-based RL (forward dynamics) - Discrete state-action updates - LQR as baseline</p>
+<p><strong>6. Motion Control:</strong> - CNC machines - Robotics - Hard disk drives - Satellite control</p>
+</section>
+<section id="numerical-simulation" class="level2 doc-section doc-section-numerical-simulation">
+<h2 class="doc-section doc-section-numerical-simulation anchored" data-anchor-id="numerical-simulation">Numerical Simulation</h2>
+<p><strong>Direct Evaluation:</strong> No integration needed - direct update: X[k+1] = Φ·X[k] + Γ·u[k] + w[k]</p>
+<p>where w[k] ~ N(0, Q) sampled directly.</p>
+<p><strong>Efficiency:</strong> - Matrix multiplication (fast) - No time-stepping error - No stability issues - Vectorizable for batch</p>
+</section>
+<section id="discrete-kalman-filter-example" class="level2 doc-section doc-section-discrete-kalman-filter-example">
+<h2 class="doc-section doc-section-discrete-kalman-filter-example anchored" data-anchor-id="discrete-kalman-filter-example">Discrete Kalman Filter Example</h2>
+<p>Standard implementation:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>X_hat <span class="op">=</span> np.zeros(<span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> np.eye(<span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prediction</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    X_pred <span class="op">=</span> Phi <span class="op">@</span> X_hat <span class="op">+</span> Gamma <span class="op">*</span> u[k]</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    P_pred <span class="op">=</span> Phi <span class="op">@</span> P <span class="op">@</span> Phi.T <span class="op">+</span> Q</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Update (if measurement available)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> y[k] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        C <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>]])  <span class="co"># Position measurement</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        S <span class="op">=</span> C <span class="op">@</span> P_pred <span class="op">@</span> C.T <span class="op">+</span> R_meas</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        K <span class="op">=</span> P_pred <span class="op">@</span> C.T <span class="op">/</span> S</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        X_hat <span class="op">=</span> X_pred <span class="op">+</span> K <span class="op">*</span> (y[k] <span class="op">-</span> C <span class="op">@</span> X_pred)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        P <span class="op">=</span> (np.eye(<span class="dv">2</span>) <span class="op">-</span> K <span class="op">@</span> C) <span class="op">@</span> P_pred</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        X_hat <span class="op">=</span> X_pred</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        P <span class="op">=</span> P_pred</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="comparison-with-continuous" class="level2 doc-section doc-section-comparison-with-continuous">
+<h2 class="doc-section doc-section-comparison-with-continuous anchored" data-anchor-id="comparison-with-continuous">Comparison with Continuous</h2>
+<p><strong>Continuous:</strong> - Continuous-time Riccati (differential) - Kalman-Bucy filter (continuous) - Theoretical foundation</p>
+<p><strong>Discrete:</strong> - Discrete-time Riccati (algebraic) - Discrete Kalman filter (recursive) - Practical implementation</p>
+<p><strong>Conversion:</strong> - Φ = exp(A·Δt) exactly - Q from integration exactly - No approximation needed</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Linear only (no nonlinearity)</li>
+<li>Constant parameters (no time-variation)</li>
+<li>Gaussian noise (no heavy tails)</li>
+<li>No constraints (in base formulation)</li>
+<li>No delays (zero computation time assumed)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>Add damping: Φ₂₂ = (1 - b·Δt)</li>
+<li>Nonlinear: u·v coupling</li>
+<li>Constraints: |x| ≤ x_max</li>
+<li>Delays: Measurement delay d steps</li>
+<li>Multi-rate: Different sampling for sensors/actuators</li>
+</ul>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system">define_system</a></td>
+<td>Define discrete stochastic double integrator dynamics.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix">get_control_matrix</a></td>
+<td>Get exact control input matrix Γ (zero-order hold).</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues">get_discrete_eigenvalues</a></td>
+<td>Get eigenvalues of discrete-time system (open-loop).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance">get_process_noise_covariance</a></td>
+<td>Get exact process noise covariance Q.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix">get_state_transition_matrix</a></td>
+<td>Get exact state transition matrix Φ.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria">setup_equilibria</a></td>
+<td>Set up equilibrium points.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    noise_on_position<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define discrete stochastic double integrator dynamics.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 4%">
+<col style="width: 77%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigma</td>
+<td>float</td>
+<td>Continuous noise intensity [m/(s²·√s)] - Determines discrete Q matrix - Typical: 0.01-1.0</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s] - Critical parameter (affects dynamics and noise) - Typical: 0.001-1.0 - Choose based on bandwidth requirements</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>m</td>
+<td>float</td>
+<td>Mass [kg] (typically normalized to 1)</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>noise_on_position</td>
+<td>bool</td>
+<td>If True, add independent position noise (less physical) If False, only velocity noise (physical)</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Exact Discretization:</strong></p>
+<p>State transition (exact): Φ = [1 Δt] (from exp(A·Δt)) [0 1]</p>
+<p>Control input (exact for zero-order hold): Γ = [Δt²/2] [Δt ]</p>
+<p><strong>Process Noise Covariance:</strong></p>
+<p>From continuous noise σ integrated over Δt: Q = σ²·[Δt³/3 Δt²/2] [Δt²/2 Δt ]</p>
+<p>This is <strong>exact</strong> integration of Wiener process.</p>
+<p><strong>Structure:</strong> - Q₁₁ ∝ Δt³: Position noise (from double integration) - Q₂₂ ∝ Δt: Velocity noise (from single integration) - Q₁₂ ∝ Δt²: Correlation (from integration)</p>
+<p><strong>Scaling:</strong> Smaller Δt: - Φ closer to identity (less change per step) - Γ smaller (less control authority per step) - Q smaller (less noise per step) - Need more steps for same motion</p>
+<p><strong>Physical Validity:</strong></p>
+<p>Standard: Noise on velocity only (force disturbances) - Physically motivated (Newton’s law) - Q from integration exact</p>
+<p>Optional: Add position noise (model uncertainty) - Less physical but accounts for unmodeled effects - Increases Q₁₁ independently</p>
+<p><strong>Sampling Rate Selection:</strong></p>
+<p>For desired closed-loop bandwidth ω_cl: Δt &lt; 1/(10·ω_cl)</p>
+<p>Example: ω_cl = 10 rad/s → Δt &lt; 0.01 s (100 Hz minimum)</p>
+<p><strong>Eigenvalues:</strong></p>
+<p>Open-loop: z = {1, 1} (unit circle) Closed-loop (with LQR): Inside unit circle (stable)</p>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Fast servo (100 Hz)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> fast <span class="op">=</span> DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Medium rate (20 Hz)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> medium <span class="op">=</span> DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.05</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check noise covariance scaling</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q_fast <span class="op">=</span> fast.get_process_noise_covariance()</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q_medium <span class="op">=</span> medium.get_process_noise_covariance()</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Ratio Q₂₂: </span><span class="sc">{</span>Q_medium[<span class="dv">1</span>,<span class="dv">1</span>] <span class="op">/</span> Q_fast[<span class="dv">1</span>,<span class="dv">1</span>]<span class="sc">:.1f}</span><span class="ss">"</span>)  <span class="co"># = dt_ratio</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix">get_control_matrix</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>    Get exact control input matrix Γ (zero-order hold).</code></pre>
+<section id="returns" class="level4 doc-section doc-section---------returns">
+<h4 class="doc-section doc-section---------returns anchored" data-anchor-id="returns">Returns</h4>
+<pre><code>    np.ndarray
+        Γ = [Δt²/2]
+            [Δt   ]</code></pre>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section---------examples">
+<h4 class="doc-section doc-section---------examples anchored" data-anchor-id="examples-1">Examples</h4>
+<pre><code>    &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(dt=0.1)
+    &gt;&gt;&gt; Gamma = system.get_control_matrix()
+    &gt;&gt;&gt; print(f"Γ:</code></pre>
+<p>{Gamma}“)</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues">get_discrete_eigenvalues</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get eigenvalues of discrete-time system (open-loop).</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>np.ndarray</td>
+<td>Eigenvalues (both equal to 1)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Marginally stable: On unit circle boundary.</p>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> system <span class="op">=</span> DiscreteStochasticDoubleIntegrator(dt<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> eigs <span class="op">=</span> system.get_discrete_eigenvalues()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Eigenvalues: </span><span class="sc">{</span>eigs<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># [1, 1]</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"On unit circle: </span><span class="sc">{</span>np<span class="sc">.</span>allclose(np.<span class="bu">abs</span>(eigs), <span class="dv">1</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance">get_process_noise_covariance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>    Get exact process noise covariance Q.
+
+    From continuous noise σ integrated over Δt:
+        Q = σ²·[Δt³/3   Δt²/2]
+                [Δt²/2   Δt   ]</code></pre>
+<section id="returns-2" class="level4 doc-section doc-section---------returns">
+<h4 class="doc-section doc-section---------returns anchored" data-anchor-id="returns-2">Returns</h4>
+<pre><code>    np.ndarray
+        Process noise covariance Q (2×2)</code></pre>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section---------examples">
+<h4 class="doc-section doc-section---------examples anchored" data-anchor-id="examples-3">Examples</h4>
+<pre><code>    &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(sigma=0.1, dt=0.1)
+    &gt;&gt;&gt; Q = system.get_process_noise_covariance()
+    &gt;&gt;&gt; print(f"Q:</code></pre>
+<p>{Q}“) &gt;&gt;&gt; print(f”Q₁₁/Q₂₂ = {Q[0,0]/Q[1,1]:.4f} (should be Δt²/3)“)</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix">get_state_transition_matrix</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>    Get exact state transition matrix Φ.</code></pre>
+<section id="returns-3" class="level4 doc-section doc-section---------returns">
+<h4 class="doc-section doc-section---------returns anchored" data-anchor-id="returns-3">Returns</h4>
+<pre><code>    np.ndarray
+        Φ = [1  Δt]
+            [0   1]</code></pre>
+</section>
+<section id="examples-4" class="level4 doc-section doc-section---------examples">
+<h4 class="doc-section doc-section---------examples anchored" data-anchor-id="examples-4">Examples</h4>
+<pre><code>    &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(dt=0.1)
+    &gt;&gt;&gt; Phi = system.get_state_transition_matrix()
+    &gt;&gt;&gt; print(f"Φ:</code></pre>
+<p>{Phi}“)</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up equilibrium points.</p>
+<p>Origin is only equilibrium (marginally stable without control).</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator }</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>Discrete-time stochastic double integrator - canonical digital LQG benchmark.</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>The fundamental discrete-time linear system for testing digital control</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>algorithms, discrete Kalman filtering, and sampled-data design. This</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>represents what actually gets implemented in real digital controllers.</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>Exact discretization with zero-order hold:</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="in">    x[k+1] = x[k] + v[k]·Δt + (1/2)·u[k]·Δt²</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="in">    v[k+1] = v[k] + u[k]·Δt</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>With process noise:</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    x<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = x<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + v<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt + (1/2)·u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt² + w_x<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    v<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = v<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt + w_v<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>**Matrix Form:**</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = Φ·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + Γ·u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    X = <span class="co">[</span><span class="ot">x, v</span><span class="co">]</span>ᵀ</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="in">    Φ = [1  Δt]  (exact discrete-time dynamics)</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="in">        [0   1]</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="in">    Γ = [Δt²/2]  (exact zero-order hold)</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="in">        [Δt   ]</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="in">    w ~ N(0, Q)  (correlated process noise)</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>**Discrete-Time Dynamics:**</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>Position update:</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>    x<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = x<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + v<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt + (1/2)·u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt²</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>Terms:</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>x<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Current position (persistence)</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>v<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt: Displacement from velocity (integration)</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>(1/2)·u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt²: Displacement from acceleration (double integration)</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>This is exact kinematics for constant acceleration over <span class="co">[</span><span class="ot">k·Δt, (k+1)·Δt</span><span class="co">]</span>.</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>Velocity update:</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>    v<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = v<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·Δt</span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>Exact integration of constant acceleration.</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>**Process Noise:**</span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>Represents disturbances accumulated over sampling interval:</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>w_x<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Position error (from integrated velocity noise)</span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>w_v<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Velocity error (from force disturbances)</span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>**Covariance Structure:**</span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>From continuous noise σ <span class="co">[</span><span class="ot">m/(s²·√s)</span><span class="co">]</span>:</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>    Q = σ²·<span class="co">[</span><span class="ot">Δt³/3   Δt²/2</span><span class="co">]</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>            <span class="co">[</span><span class="ot">Δt²/2   Δt   </span><span class="co">]</span></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a>Non-diagonal! Position and velocity errors correlated.</span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a>**Exact Discretization:**</span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a>No discretization error in deterministic part (kinematic equations exact).</span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a>**Linear Dynamics:**</span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>Enables analytical Riccati solutions, optimal Kalman filter.</span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>**Controllability:**</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>Completely controllable: rank<span class="co">[</span><span class="ot">Γ, Φ·Γ</span><span class="co">]</span> = 2</span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>**Observability:**</span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a>Depends on measurement:</span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>C = <span class="co">[</span><span class="ot">1, 0</span><span class="co">]</span>: Position only (observable)</span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>C = <span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>: Velocity only (NOT observable)</span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>C = I: Both (trivially observable)</span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a>**Marginal Stability:**</span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a>Eigenvalues: z = {1, 1} (on unit circle)</span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Not asymptotically stable (need feedback)</span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Not unstable (doesn't diverge)</span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a>**Non-Stationary (Open-Loop):**</span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>Variance grows with k (no equilibrium without control).</span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a>**State Transition Matrix:**</span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>    Φ = <span class="co">[</span><span class="ot">1  Δt</span><span class="co">]</span></span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">0   1</span><span class="co">]</span></span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>Eigenvalues: λ = 1 (double)</span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>Eigenvector: <span class="co">[</span><span class="ot">1, 0</span><span class="co">]</span>ᵀ (position mode)</span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>**Controllability Matrix:**</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>    C_ctrl = <span class="co">[</span><span class="ot">Γ, Φ·Γ</span><span class="co">]</span> = <span class="co">[</span><span class="ot">Δt²/2   Δt³/2</span><span class="co">]</span></span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a>                          <span class="co">[</span><span class="ot">Δt     Δt²  </span><span class="co">]</span></span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a>rank = 2 (fully controllable)</span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a>**Observability Matrix (C = [1,0]):**</span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a>    O = <span class="co">[</span><span class="ot">C    </span><span class="co">]</span> = <span class="co">[</span><span class="ot">1   0 </span><span class="co">]</span></span>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">C·Φ  </span><span class="co">]</span>   <span class="co">[</span><span class="ot">1   Δt</span><span class="co">]</span></span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a>rank = 2 (observable from position)</span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>**Process Noise Covariance:**</span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a>Exact from continuous:</span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a>    Q = σ²·<span class="co">[</span><span class="ot">Δt³/3   Δt²/2</span><span class="co">]</span></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a>            <span class="co">[</span><span class="ot">Δt²/2   Δt   </span><span class="co">]</span></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a>Properties:</span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Positive definite (if σ &gt; 0)</span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Symmetric (by construction)</span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Scales with Δt (smaller Δt → smaller Q)</span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a>**Discrete Riccati Equation:**</span>
+<span id="cb22-132"><a href="#cb22-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a>For LQR, DARE:</span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a>    P = Q_cost + Φᵀ·P·Φ - Φᵀ·P·Γ·(R + Γᵀ·P·Γ)⁻¹·Γᵀ·P·Φ</span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a>For Kalman, dual DARE:</span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a>    Σ = Q_noise + Φ·Σ·Φᵀ - Φ·Σ·Cᵀ·(R_meas + C·Σ·Cᵀ)⁻¹·C·Σ·Φᵀ</span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a>**Sampling Period Δt:**</span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sets digital control rate</span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Affects noise accumulation (Q ∝ Δt)</span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Determines controllability region</span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Trade-off: Fast sampling vs computation</span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a>**Process Noise Intensity σ:**</span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>From continuous: σ <span class="co">[</span><span class="ot">m/(s²·√s)</span><span class="co">]</span></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Creates discrete Q via integration</span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Physical: Force disturbances, model uncertainty</span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a>**Why Position Variance Larger:**</span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a>Q₁₁/Q₂₂ = Δt²/3</span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a>For Δt = 0.1 s: Q₁₁/Q₂₂ = 0.01/3 ≈ 0.0033</span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a>Velocity noise integrates twice to position → amplification.</span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a>State: X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">x[k], v[k]</span><span class="co">]</span> ∈ ℝ²</span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>x: Position <span class="co">[</span><span class="ot">m</span><span class="co">]</span> (unbounded)</span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>v: Velocity <span class="co">[</span><span class="ot">m/s</span><span class="co">]</span> (unbounded)</span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a>Control: u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ∈ ℝ</span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Acceleration command <span class="co">[</span><span class="ot">m/s²</span><span class="co">]</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Zero-order hold between samples</span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a>Noise: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">w_x[k], w_v[k]</span><span class="co">]</span> ~ N(0, Q)</span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Correlated Gaussian white noise</span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Accumulated over sampling interval</span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                     <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma  <span class="pp">|</span> float  <span class="pp">|</span> Continuous noise intensity <span class="co">[</span><span class="ot">m/(s²·√s)</span><span class="co">]</span> - Determines discrete Q via integration - Typical: 0.01-1.0                              <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span> - Critical design parameter - Typical: 0.001-1.0 depending on application - Affects both dynamics and noise <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m      <span class="pp">|</span> float  <span class="pp">|</span> Mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span> (optional, typically normalized to 1)                                                                                 <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System Type: LINEAR</span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Type: ADDITIVE (constant)</span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete: Yes (native discrete-time)</span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise Dimension: nw = 2 (position and velocity)</span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: No (open-loop)</span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian: Yes (linear preserves Gaussianity)</span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Exact Discretization: Yes (no error)</span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a>**1. Digital LQG Control:**</span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete DARE for optimal gain</span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete Kalman filter for estimation</span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Real-time implementation</span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a>**2. Embedded Control:**</span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Microcontroller implementation</span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fixed-point arithmetic</span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Real-time constraints</span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a>**3. Discrete Kalman Filter:**</span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Standard benchmark for testing</span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Numerical stability analysis</span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Joseph form, square-root filters</span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a>**4. Model Predictive Control:**</span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete-time optimization</span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constraint handling</span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Receding horizon</span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a>**5. Reinforcement Learning:**</span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Model-based RL (forward dynamics)</span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete state-action updates</span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>LQR as baseline</span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a>**6. Motion Control:**</span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>CNC machines</span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Robotics</span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hard disk drives</span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Satellite control</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Simulation {.doc-section .doc-section-numerical-simulation}</span></span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a>**Direct Evaluation:**</span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a>No integration needed - direct update:</span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a>    X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = Φ·X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + Γ·u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a>where w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, Q) sampled directly.</span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a>**Efficiency:**</span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Matrix multiplication (fast)</span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No time-stepping error</span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No stability issues</span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Vectorizable for batch</span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discrete Kalman Filter Example {.doc-section .doc-section-discrete-kalman-filter-example}</span></span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a>Standard implementation:</span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize</span></span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a>X_hat <span class="op">=</span> np.zeros(<span class="dv">2</span>)</span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> np.eye(<span class="dv">2</span>)</span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(N):</span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prediction</span></span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a>    X_pred <span class="op">=</span> Phi <span class="op">@</span> X_hat <span class="op">+</span> Gamma <span class="op">*</span> u[k]</span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a>    P_pred <span class="op">=</span> Phi <span class="op">@</span> P <span class="op">@</span> Phi.T <span class="op">+</span> Q</span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Update (if measurement available)</span></span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> y[k] <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a>        C <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">0</span>]])  <span class="co"># Position measurement</span></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a>        S <span class="op">=</span> C <span class="op">@</span> P_pred <span class="op">@</span> C.T <span class="op">+</span> R_meas</span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a>        K <span class="op">=</span> P_pred <span class="op">@</span> C.T <span class="op">/</span> S</span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a>        X_hat <span class="op">=</span> X_pred <span class="op">+</span> K <span class="op">*</span> (y[k] <span class="op">-</span> C <span class="op">@</span> X_pred)</span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a>        P <span class="op">=</span> (np.eye(<span class="dv">2</span>) <span class="op">-</span> K <span class="op">@</span> C) <span class="op">@</span> P_pred</span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a>        X_hat <span class="op">=</span> X_pred</span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a>        P <span class="op">=</span> P_pred</span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Continuous {.doc-section .doc-section-comparison-with-continuous}</span></span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a>**Continuous:**</span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Continuous-time Riccati (differential)</span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Kalman-Bucy filter (continuous)</span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Theoretical foundation</span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a>**Discrete:**</span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete-time Riccati (algebraic)</span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Discrete Kalman filter (recursive)</span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Practical implementation</span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a>**Conversion:**</span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Φ = exp(A·Δt) exactly</span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q from integration exactly</span>
+<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No approximation needed</span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Linear only (no nonlinearity)</span>
+<span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constant parameters (no time-variation)</span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian noise (no heavy tails)</span>
+<span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No constraints (in base formulation)</span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No delays (zero computation time assumed)</span>
+<span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb22-292"><a href="#cb22-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Add damping: Φ₂₂ = (1 - b·Δt)</span>
+<span id="cb22-294"><a href="#cb22-294" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Nonlinear: u·v coupling</span>
+<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constraints: |x| ≤ x_max</span>
+<span id="cb22-296"><a href="#cb22-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Delays: Measurement delay d steps</span>
+<span id="cb22-297"><a href="#cb22-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Multi-rate: Different sampling for sensors/actuators</span>
+<span id="cb22-298"><a href="#cb22-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-299"><a href="#cb22-299" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb22-300"><a href="#cb22-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-301"><a href="#cb22-301" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb22-302"><a href="#cb22-302" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb22-303"><a href="#cb22-303" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system)</span> <span class="pp">|</span> Define discrete stochastic double integrator dynamics. <span class="pp">|</span></span>
+<span id="cb22-304"><a href="#cb22-304" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_control_matrix</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix)</span> <span class="pp">|</span>         Get exact control input matrix Γ (zero-order hold). <span class="pp">|</span></span>
+<span id="cb22-305"><a href="#cb22-305" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_discrete_eigenvalues</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues)</span> <span class="pp">|</span> Get eigenvalues of discrete-time system (open-loop). <span class="pp">|</span></span>
+<span id="cb22-306"><a href="#cb22-306" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_process_noise_covariance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance)</span> <span class="pp">|</span>         Get exact process noise covariance Q. <span class="pp">|</span></span>
+<span id="cb22-307"><a href="#cb22-307" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_state_transition_matrix</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix)</span> <span class="pp">|</span>         Get exact state transition matrix Φ. <span class="pp">|</span></span>
+<span id="cb22-308"><a href="#cb22-308" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria)</span> <span class="pp">|</span> Set up equilibrium points. <span class="pp">|</span></span>
+<span id="cb22-309"><a href="#cb22-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-310"><a href="#cb22-310" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system }</span></span>
+<span id="cb22-311"><a href="#cb22-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-312"><a href="#cb22-312" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-313"><a href="#cb22-313" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.define_system(</span>
+<span id="cb22-314"><a href="#cb22-314" aria-hidden="true" tabindex="-1"></a>    sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-315"><a href="#cb22-315" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-316"><a href="#cb22-316" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb22-317"><a href="#cb22-317" aria-hidden="true" tabindex="-1"></a>    noise_on_position<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-318"><a href="#cb22-318" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-319"><a href="#cb22-319" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-320"><a href="#cb22-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-321"><a href="#cb22-321" aria-hidden="true" tabindex="-1"></a>Define discrete stochastic double integrator dynamics.</span>
+<span id="cb22-322"><a href="#cb22-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-323"><a href="#cb22-323" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb22-324"><a href="#cb22-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-325"><a href="#cb22-325" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name              <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                         <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb22-326"><a href="#cb22-326" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------------|--------|-------------------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb22-327"><a href="#cb22-327" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma             <span class="pp">|</span> float  <span class="pp">|</span> Continuous noise intensity <span class="co">[</span><span class="ot">m/(s²·√s)</span><span class="co">]</span> - Determines discrete Q matrix - Typical: 0.01-1.0                                           <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb22-328"><a href="#cb22-328" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt                <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span> - Critical parameter (affects dynamics and noise) - Typical: 0.001-1.0 - Choose based on bandwidth requirements <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb22-329"><a href="#cb22-329" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m                 <span class="pp">|</span> float  <span class="pp">|</span> Mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span> (typically normalized to 1)                                                                                               <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb22-330"><a href="#cb22-330" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> noise_on_position <span class="pp">|</span> bool   <span class="pp">|</span> If True, add independent position noise (less physical) If False, only velocity noise (physical)                                    <span class="pp">|</span> <span class="in">`False`</span>   <span class="pp">|</span></span>
+<span id="cb22-331"><a href="#cb22-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-332"><a href="#cb22-332" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb22-333"><a href="#cb22-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-334"><a href="#cb22-334" aria-hidden="true" tabindex="-1"></a>**Exact Discretization:**</span>
+<span id="cb22-335"><a href="#cb22-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-336"><a href="#cb22-336" aria-hidden="true" tabindex="-1"></a>State transition (exact):</span>
+<span id="cb22-337"><a href="#cb22-337" aria-hidden="true" tabindex="-1"></a>    Φ = <span class="co">[</span><span class="ot">1  Δt</span><span class="co">]</span>  (from exp(A·Δt))</span>
+<span id="cb22-338"><a href="#cb22-338" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">0   1</span><span class="co">]</span></span>
+<span id="cb22-339"><a href="#cb22-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-340"><a href="#cb22-340" aria-hidden="true" tabindex="-1"></a>Control input (exact for zero-order hold):</span>
+<span id="cb22-341"><a href="#cb22-341" aria-hidden="true" tabindex="-1"></a>    Γ = <span class="co">[</span><span class="ot">Δt²/2</span><span class="co">]</span></span>
+<span id="cb22-342"><a href="#cb22-342" aria-hidden="true" tabindex="-1"></a>        <span class="co">[</span><span class="ot">Δt   </span><span class="co">]</span></span>
+<span id="cb22-343"><a href="#cb22-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-344"><a href="#cb22-344" aria-hidden="true" tabindex="-1"></a>**Process Noise Covariance:**</span>
+<span id="cb22-345"><a href="#cb22-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-346"><a href="#cb22-346" aria-hidden="true" tabindex="-1"></a>From continuous noise σ integrated over Δt:</span>
+<span id="cb22-347"><a href="#cb22-347" aria-hidden="true" tabindex="-1"></a>    Q = σ²·<span class="co">[</span><span class="ot">Δt³/3   Δt²/2</span><span class="co">]</span></span>
+<span id="cb22-348"><a href="#cb22-348" aria-hidden="true" tabindex="-1"></a>            <span class="co">[</span><span class="ot">Δt²/2   Δt   </span><span class="co">]</span></span>
+<span id="cb22-349"><a href="#cb22-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-350"><a href="#cb22-350" aria-hidden="true" tabindex="-1"></a>This is **exact** integration of Wiener process.</span>
+<span id="cb22-351"><a href="#cb22-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-352"><a href="#cb22-352" aria-hidden="true" tabindex="-1"></a>**Structure:**</span>
+<span id="cb22-353"><a href="#cb22-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q₁₁ ∝ Δt³: Position noise (from double integration)</span>
+<span id="cb22-354"><a href="#cb22-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q₂₂ ∝ Δt: Velocity noise (from single integration)</span>
+<span id="cb22-355"><a href="#cb22-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q₁₂ ∝ Δt²: Correlation (from integration)</span>
+<span id="cb22-356"><a href="#cb22-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-357"><a href="#cb22-357" aria-hidden="true" tabindex="-1"></a>**Scaling:**</span>
+<span id="cb22-358"><a href="#cb22-358" aria-hidden="true" tabindex="-1"></a>Smaller Δt:</span>
+<span id="cb22-359"><a href="#cb22-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Φ closer to identity (less change per step)</span>
+<span id="cb22-360"><a href="#cb22-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Γ smaller (less control authority per step)</span>
+<span id="cb22-361"><a href="#cb22-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q smaller (less noise per step)</span>
+<span id="cb22-362"><a href="#cb22-362" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Need more steps for same motion</span>
+<span id="cb22-363"><a href="#cb22-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-364"><a href="#cb22-364" aria-hidden="true" tabindex="-1"></a>**Physical Validity:**</span>
+<span id="cb22-365"><a href="#cb22-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-366"><a href="#cb22-366" aria-hidden="true" tabindex="-1"></a>Standard: Noise on velocity only (force disturbances)</span>
+<span id="cb22-367"><a href="#cb22-367" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Physically motivated (Newton's law)</span>
+<span id="cb22-368"><a href="#cb22-368" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Q from integration exact</span>
+<span id="cb22-369"><a href="#cb22-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-370"><a href="#cb22-370" aria-hidden="true" tabindex="-1"></a>Optional: Add position noise (model uncertainty)</span>
+<span id="cb22-371"><a href="#cb22-371" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Less physical but accounts for unmodeled effects</span>
+<span id="cb22-372"><a href="#cb22-372" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Increases Q₁₁ independently</span>
+<span id="cb22-373"><a href="#cb22-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-374"><a href="#cb22-374" aria-hidden="true" tabindex="-1"></a>**Sampling Rate Selection:**</span>
+<span id="cb22-375"><a href="#cb22-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-376"><a href="#cb22-376" aria-hidden="true" tabindex="-1"></a>For desired closed-loop bandwidth ω_cl:</span>
+<span id="cb22-377"><a href="#cb22-377" aria-hidden="true" tabindex="-1"></a>    Δt &lt; 1/(10·ω_cl)</span>
+<span id="cb22-378"><a href="#cb22-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-379"><a href="#cb22-379" aria-hidden="true" tabindex="-1"></a>Example: ω_cl = 10 rad/s → Δt &lt; 0.01 s (100 Hz minimum)</span>
+<span id="cb22-380"><a href="#cb22-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-381"><a href="#cb22-381" aria-hidden="true" tabindex="-1"></a>**Eigenvalues:**</span>
+<span id="cb22-382"><a href="#cb22-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-383"><a href="#cb22-383" aria-hidden="true" tabindex="-1"></a>Open-loop: z = {1, 1} (unit circle)</span>
+<span id="cb22-384"><a href="#cb22-384" aria-hidden="true" tabindex="-1"></a>Closed-loop (with LQR): Inside unit circle (stable)</span>
+<span id="cb22-385"><a href="#cb22-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-386"><a href="#cb22-386" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb22-387"><a href="#cb22-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-388"><a href="#cb22-388" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-389"><a href="#cb22-389" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Fast servo (100 Hz)</span></span>
+<span id="cb22-390"><a href="#cb22-390" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> fast <span class="op">=</span> DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb22-391"><a href="#cb22-391" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-392"><a href="#cb22-392" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb22-393"><a href="#cb22-393" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb22-394"><a href="#cb22-394" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb22-395"><a href="#cb22-395" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Medium rate (20 Hz)</span></span>
+<span id="cb22-396"><a href="#cb22-396" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> medium <span class="op">=</span> DiscreteStochasticDoubleIntegrator(</span>
+<span id="cb22-397"><a href="#cb22-397" aria-hidden="true" tabindex="-1"></a>...     sigma<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-398"><a href="#cb22-398" aria-hidden="true" tabindex="-1"></a>...     dt<span class="op">=</span><span class="fl">0.05</span></span>
+<span id="cb22-399"><a href="#cb22-399" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb22-400"><a href="#cb22-400" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb22-401"><a href="#cb22-401" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check noise covariance scaling</span></span>
+<span id="cb22-402"><a href="#cb22-402" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q_fast <span class="op">=</span> fast.get_process_noise_covariance()</span>
+<span id="cb22-403"><a href="#cb22-403" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q_medium <span class="op">=</span> medium.get_process_noise_covariance()</span>
+<span id="cb22-404"><a href="#cb22-404" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Ratio Q₂₂: </span><span class="sc">{</span>Q_medium[<span class="dv">1</span>,<span class="dv">1</span>] <span class="op">/</span> Q_fast[<span class="dv">1</span>,<span class="dv">1</span>]<span class="sc">:.1f}</span><span class="ss">"</span>)  <span class="co"># = dt_ratio</span></span>
+<span id="cb22-405"><a href="#cb22-405" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-406"><a href="#cb22-406" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-407"><a href="#cb22-407" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_control_matrix { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix }</span></span>
+<span id="cb22-408"><a href="#cb22-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-409"><a href="#cb22-409" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-410"><a href="#cb22-410" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_control_matrix(</span>
+<span id="cb22-411"><a href="#cb22-411" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-412"><a href="#cb22-412" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-413"><a href="#cb22-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-414"><a href="#cb22-414" aria-hidden="true" tabindex="-1"></a><span class="in">        Get exact control input matrix Γ (zero-order hold).</span></span>
+<span id="cb22-415"><a href="#cb22-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-416"><a href="#cb22-416" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Returns {.doc-section .doc-section---------returns}</span></span>
+<span id="cb22-417"><a href="#cb22-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-418"><a href="#cb22-418" aria-hidden="true" tabindex="-1"></a><span class="in">        np.ndarray</span></span>
+<span id="cb22-419"><a href="#cb22-419" aria-hidden="true" tabindex="-1"></a><span class="in">            Γ = [Δt²/2]</span></span>
+<span id="cb22-420"><a href="#cb22-420" aria-hidden="true" tabindex="-1"></a><span class="in">                [Δt   ]</span></span>
+<span id="cb22-421"><a href="#cb22-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-422"><a href="#cb22-422" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Examples {.doc-section .doc-section---------examples}</span></span>
+<span id="cb22-423"><a href="#cb22-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-424"><a href="#cb22-424" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(dt=0.1)</span></span>
+<span id="cb22-425"><a href="#cb22-425" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; Gamma = system.get_control_matrix()</span></span>
+<span id="cb22-426"><a href="#cb22-426" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"Γ:</span></span>
+<span id="cb22-427"><a href="#cb22-427" aria-hidden="true" tabindex="-1"></a>{Gamma}")</span>
+<span id="cb22-428"><a href="#cb22-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-429"><a href="#cb22-429" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_discrete_eigenvalues { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues }</span></span>
+<span id="cb22-430"><a href="#cb22-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-431"><a href="#cb22-431" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-432"><a href="#cb22-432" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_discrete_eigenvalues(</span>
+<span id="cb22-433"><a href="#cb22-433" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-434"><a href="#cb22-434" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-435"><a href="#cb22-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-436"><a href="#cb22-436" aria-hidden="true" tabindex="-1"></a>Get eigenvalues of discrete-time system (open-loop).</span>
+<span id="cb22-437"><a href="#cb22-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-438"><a href="#cb22-438" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb22-439"><a href="#cb22-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-440"><a href="#cb22-440" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                   <span class="pp">|</span></span>
+<span id="cb22-441"><a href="#cb22-441" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|-------------------------------|</span></span>
+<span id="cb22-442"><a href="#cb22-442" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> np.ndarray <span class="pp">|</span> Eigenvalues (both equal to 1) <span class="pp">|</span></span>
+<span id="cb22-443"><a href="#cb22-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-444"><a href="#cb22-444" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb22-445"><a href="#cb22-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-446"><a href="#cb22-446" aria-hidden="true" tabindex="-1"></a>Marginally stable: On unit circle boundary.</span>
+<span id="cb22-447"><a href="#cb22-447" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-448"><a href="#cb22-448" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb22-449"><a href="#cb22-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-450"><a href="#cb22-450" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-451"><a href="#cb22-451" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> system <span class="op">=</span> DiscreteStochasticDoubleIntegrator(dt<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb22-452"><a href="#cb22-452" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> eigs <span class="op">=</span> system.get_discrete_eigenvalues()</span>
+<span id="cb22-453"><a href="#cb22-453" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Eigenvalues: </span><span class="sc">{</span>eigs<span class="sc">}</span><span class="ss">"</span>)  <span class="co"># [1, 1]</span></span>
+<span id="cb22-454"><a href="#cb22-454" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"On unit circle: </span><span class="sc">{</span>np<span class="sc">.</span>allclose(np.<span class="bu">abs</span>(eigs), <span class="dv">1</span>)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb22-455"><a href="#cb22-455" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-456"><a href="#cb22-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-457"><a href="#cb22-457" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_process_noise_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance }</span></span>
+<span id="cb22-458"><a href="#cb22-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-459"><a href="#cb22-459" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-460"><a href="#cb22-460" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_process_noise_covariance(</span>
+<span id="cb22-461"><a href="#cb22-461" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-462"><a href="#cb22-462" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-463"><a href="#cb22-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-464"><a href="#cb22-464" aria-hidden="true" tabindex="-1"></a><span class="in">        Get exact process noise covariance Q.</span></span>
+<span id="cb22-465"><a href="#cb22-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-466"><a href="#cb22-466" aria-hidden="true" tabindex="-1"></a><span class="in">        From continuous noise σ integrated over Δt:</span></span>
+<span id="cb22-467"><a href="#cb22-467" aria-hidden="true" tabindex="-1"></a><span class="in">            Q = σ²·[Δt³/3   Δt²/2]</span></span>
+<span id="cb22-468"><a href="#cb22-468" aria-hidden="true" tabindex="-1"></a><span class="in">                    [Δt²/2   Δt   ]</span></span>
+<span id="cb22-469"><a href="#cb22-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-470"><a href="#cb22-470" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Returns {.doc-section .doc-section---------returns}</span></span>
+<span id="cb22-471"><a href="#cb22-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-472"><a href="#cb22-472" aria-hidden="true" tabindex="-1"></a><span class="in">        np.ndarray</span></span>
+<span id="cb22-473"><a href="#cb22-473" aria-hidden="true" tabindex="-1"></a><span class="in">            Process noise covariance Q (2×2)</span></span>
+<span id="cb22-474"><a href="#cb22-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-475"><a href="#cb22-475" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Examples {.doc-section .doc-section---------examples}</span></span>
+<span id="cb22-476"><a href="#cb22-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-477"><a href="#cb22-477" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(sigma=0.1, dt=0.1)</span></span>
+<span id="cb22-478"><a href="#cb22-478" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; Q = system.get_process_noise_covariance()</span></span>
+<span id="cb22-479"><a href="#cb22-479" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"Q:</span></span>
+<span id="cb22-480"><a href="#cb22-480" aria-hidden="true" tabindex="-1"></a>{Q}")</span>
+<span id="cb22-481"><a href="#cb22-481" aria-hidden="true" tabindex="-1"></a>        <span class="at">&gt;&gt;&gt; print(f"Q₁₁/Q₂₂ = {Q</span><span class="co">[</span><span class="ot">0,0</span><span class="co">]</span><span class="at">/Q</span><span class="co">[</span><span class="ot">1,1</span><span class="co">]</span><span class="at">:.4f} (should be Δt²/3)")</span></span>
+<span id="cb22-482"><a href="#cb22-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-483"><a href="#cb22-483" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_state_transition_matrix { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix }</span></span>
+<span id="cb22-484"><a href="#cb22-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-485"><a href="#cb22-485" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-486"><a href="#cb22-486" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.get_state_transition_matrix(</span>
+<span id="cb22-487"><a href="#cb22-487" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-488"><a href="#cb22-488" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-489"><a href="#cb22-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-490"><a href="#cb22-490" aria-hidden="true" tabindex="-1"></a><span class="in">        Get exact state transition matrix Φ.</span></span>
+<span id="cb22-491"><a href="#cb22-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-492"><a href="#cb22-492" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Returns {.doc-section .doc-section---------returns}</span></span>
+<span id="cb22-493"><a href="#cb22-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-494"><a href="#cb22-494" aria-hidden="true" tabindex="-1"></a><span class="in">        np.ndarray</span></span>
+<span id="cb22-495"><a href="#cb22-495" aria-hidden="true" tabindex="-1"></a><span class="in">            Φ = [1  Δt]</span></span>
+<span id="cb22-496"><a href="#cb22-496" aria-hidden="true" tabindex="-1"></a><span class="in">                [0   1]</span></span>
+<span id="cb22-497"><a href="#cb22-497" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-498"><a href="#cb22-498" aria-hidden="true" tabindex="-1"></a><span class="fu">####         Examples {.doc-section .doc-section---------examples}</span></span>
+<span id="cb22-499"><a href="#cb22-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-500"><a href="#cb22-500" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; system = DiscreteStochasticDoubleIntegrator(dt=0.1)</span></span>
+<span id="cb22-501"><a href="#cb22-501" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; Phi = system.get_state_transition_matrix()</span></span>
+<span id="cb22-502"><a href="#cb22-502" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"Φ:</span></span>
+<span id="cb22-503"><a href="#cb22-503" aria-hidden="true" tabindex="-1"></a>{Phi}")</span>
+<span id="cb22-504"><a href="#cb22-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-505"><a href="#cb22-505" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria }</span></span>
+<span id="cb22-506"><a href="#cb22-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-507"><a href="#cb22-507" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-508"><a href="#cb22-508" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.setup_equilibria(</span>
+<span id="cb22-509"><a href="#cb22-509" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-510"><a href="#cb22-510" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-511"><a href="#cb22-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-512"><a href="#cb22-512" aria-hidden="true" tabindex="-1"></a>Set up equilibrium points.</span>
+<span id="cb22-513"><a href="#cb22-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-514"><a href="#cb22-514" aria-hidden="true" tabindex="-1"></a>Origin is only equilibrium (marginally stable without control).</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

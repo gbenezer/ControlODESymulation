@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.discrete.discretegarch11 – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11">systems.builtin.stochastic.discrete.DiscreteGARCH11</a>
+  <ul>
+  <li><a href="#model-equations" id="toc-model-equations" class="nav-link" data-scroll-target="#model-equations">Model Equations</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  <li><a href="#mathematical-properties" id="toc-mathematical-properties" class="nav-link" data-scroll-target="#mathematical-properties">Mathematical Properties</a></li>
+  <li><a href="#physical-interpretation-1" id="toc-physical-interpretation-1" class="nav-link" data-scroll-target="#physical-interpretation-1">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#stochastic-properties" id="toc-stochastic-properties" class="nav-link" data-scroll-target="#stochastic-properties">Stochastic Properties</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-simulation" id="toc-numerical-simulation" class="nav-link" data-scroll-target="#numerical-simulation">Numerical Simulation</a></li>
+  <li><a href="#comparison-with-constant-variance" id="toc-comparison-with-constant-variance" class="nav-link" data-scroll-target="#comparison-with-constant-variance">Comparison with Constant Variance</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance">forecast_variance</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life">get_half_life</a>
+  <ul class="collapse">
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence">get_persistence</a></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance">get_unconditional_variance</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#raises-1" id="toc-raises-1" class="nav-link" data-scroll-target="#raises-1">Raises</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteGARCH11.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11" class="level1">
+<h1>systems.builtin.stochastic.discrete.DiscreteGARCH11</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>GARCH(1,1) - time-varying volatility model (Nobel Prize 2003).</p>
+<p>The industry standard for modeling financial volatility, capturing volatility clustering, persistence, and mean reversion with just three parameters. This represents one of the most important models in financial econometrics.</p>
+<section id="model-equations" class="level2 doc-section doc-section-model-equations">
+<h2 class="doc-section doc-section-model-equations anchored" data-anchor-id="model-equations">Model Equations</h2>
+<p>Return process: r[k] = μ + ε[k] ε[k] = σ[k]·w[k]</p>
+<p>Variance process (GARCH): σ²[k] = ω + α·ε²[k-1] + β·σ²[k-1]</p>
+<p>where: - r[k]: Return (observable) - μ: Mean return (typically ≈ 0 for daily) - ε[k]: Innovation (zero-mean shock) - σ²[k]: Conditional variance (time-varying, latent) - w[k] ~ N(0,1): Standardized innovation (iid) - ω &gt; 0: Constant term - α ≥ 0: ARCH coefficient (shock effect) - β ≥ 0: GARCH coefficient (persistence)</p>
+<p><strong>State-Space Form:</strong></p>
+<p>Augmented state: Z = [r, σ²] (return and variance)</p>
+<p>Dynamics (nonlinear!): r[k] = μ + σ[k]·w[k] σ²[k+1] = ω + α·(r[k] - μ)² + β·σ²[k]</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>What GARCH Models:</strong></p>
+<p>Financial markets exhibit <strong>volatility clustering</strong>: - Large price movements followed by large movements - Calm periods followed by calm periods - “Volatility begets volatility”</p>
+<p><strong>Why This Happens:</strong></p>
+<ol type="1">
+<li><strong>Information Flow:</strong>
+<ul>
+<li>News arrives in clusters</li>
+<li>Uncertainty propagates</li>
+</ul></li>
+<li><strong>Market Microstructure:</strong>
+<ul>
+<li>Feedback: Vol → wider spreads → more vol</li>
+<li>Herding behavior</li>
+</ul></li>
+<li><strong>Risk Preferences:</strong>
+<ul>
+<li>Risk-off → sell → higher vol → more risk-off</li>
+<li>Feedback loops</li>
+</ul></li>
+</ol>
+<p><strong>GARCH Equation Interpretation:</strong></p>
+<p>σ²[k] = ω + α·ε²[k-1] + β·σ²[k-1]</p>
+<p>Components: 1. <strong>ω:</strong> Baseline variance (floor) 2. <strong>α·ε²[k-1]:</strong> Recent shock (ARCH effect) - Large |ε[k-1]| → high σ²[k] - “News impact curve” 3. <strong>β·σ²[k-1]:</strong> Past variance (persistence) - High σ²[k-1] → high σ²[k] - Volatility clustering</p>
+</section>
+<section id="key-features" class="level2 doc-section doc-section-key-features">
+<h2 class="doc-section doc-section-key-features anchored" data-anchor-id="key-features">Key Features</h2>
+<p><strong>Time-Varying Variance:</strong> Unlike constant-variance models, σ²[k] changes every period.</p>
+<p><strong>Volatility Clustering:</strong> High volatility tends to persist (α + β near 1).</p>
+<p><strong>Mean Reversion:</strong> Variance reverts to ω/(1-α-β) over time.</p>
+<p><strong>Conditional vs Unconditional:</strong> - Conditional: Var[r[k]|past] = σ²[k] (time-varying) - Unconditional: Var[r[k]] = ω/(1-α-β) (constant)</p>
+<p><strong>Heavy Tails:</strong> Even with Gaussian w[k], unconditional distribution has excess kurtosis.</p>
+<p><strong>Predictable Volatility:</strong> Can forecast σ²[k+h] from past (even if returns unpredictable).</p>
+</section>
+<section id="mathematical-properties" class="level2 doc-section doc-section-mathematical-properties">
+<h2 class="doc-section doc-section-mathematical-properties anchored" data-anchor-id="mathematical-properties">Mathematical Properties</h2>
+<p><strong>Stationarity Condition:</strong> α + β &lt; 1</p>
+<p>If α + β = 1: IGARCH (integrated, non-stationary variance) If α + β &gt; 1: Explosive (unstable)</p>
+<p><strong>Unconditional Moments:</strong></p>
+<p>Mean: E[r] = μ</p>
+<p>Variance: Var[r] = ω/(1 - α - β)</p>
+<p>Kurtosis: Excess kurtosis &gt; 0 (heavy tails) Kurt = 3·(1 - (α+β)²)/(1 - (α+β)² - 2α²)</p>
+<p><strong>Autocorrelation:</strong> - Returns r[k]: ρ(h) ≈ 0 (unpredictable) - Squared returns ε²[k]: ρ(h) = (α+β)^h (geometric decay)</p>
+<p><strong>Persistence:</strong> Measured by α + β (sum of ARCH and GARCH): - α + β ≈ 0.99: Very persistent (typical stocks) - α + β ≈ 0.95: Persistent - α + β ≈ 0.80: Moderate persistence</p>
+<p><strong>Volatility Forecast:</strong> h-step ahead: σ²[k+h|k] = σ̄² + (α+β)^h·(σ²[k] - σ̄²)</p>
+<p>where σ̄² = ω/(1-α-β) is long-run variance.</p>
+<p>Exponential decay to long-run average.</p>
+</section>
+<section id="physical-interpretation-1" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation-1">Physical Interpretation</h2>
+<p><strong>Parameter ω (Baseline):</strong> - Units: [return]² - Long-run variance: σ̄² = ω/(1-α-β) - Typical: Relates to annual volatility</p>
+<p><strong>Parameter α (ARCH Effect):</strong> - Dimensionless - Weight on recent shock - Typical: 0.05-0.15 - Higher α: More reactive to news</p>
+<p><strong>Parameter β (GARCH Effect):</strong> - Dimensionless - Weight on past variance - Typical: 0.80-0.92 - Higher β: More persistent</p>
+<p><strong>Sum α + β (Total Persistence):</strong> - Typical: 0.95-0.99 (very high!) - Near 1: “Volatility never dies” - Financial data: Usually &gt;0.90</p>
+<p><strong>Typical Values (Daily Stock Returns):</strong> - ω ≈ 0.000001-0.00001 (depends on scaling) - α ≈ 0.05-0.10 - β ≈ 0.85-0.92 - α + β ≈ 0.95-0.98</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>Augmented state: Z = [r, σ²] ∈ ℝ² - r: Observable return - σ²: Latent conditional variance</p>
+<p>Observable: r ∈ ℝ - What we actually measure (price changes)</p>
+<p>Latent: σ² ∈ ℝ₊ - Unobserved (must be estimated/filtered)</p>
+<p>Control: u (typically none for GARCH) - Could add for interventions</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 78%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>omega</td>
+<td>float</td>
+<td>Constant term (must be positive) - Sets baseline variance - Typical: 1e-6 to 1e-4 (daily returns)</td>
+<td><code>0.00001</code></td>
+</tr>
+<tr class="even">
+<td>alpha</td>
+<td>float</td>
+<td>ARCH coefficient (must be non-negative) - News impact (shock sensitivity) - Typical: 0.05-0.15</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>beta</td>
+<td>float</td>
+<td>GARCH coefficient (must be non-negative) - Persistence (volatility memory) - Typical: 0.80-0.92</td>
+<td><code>0.85</code></td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td>float</td>
+<td>Mean return - Often ≈ 0 for daily returns - Can estimate or fix</td>
+<td><code>0.0</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period (1 = daily typical)</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="stochastic-properties" class="level2 doc-section doc-section-stochastic-properties">
+<h2 class="doc-section doc-section-stochastic-properties anchored" data-anchor-id="stochastic-properties">Stochastic Properties</h2>
+<ul>
+<li>System Type: NONLINEAR (σ² equation)</li>
+<li>Conditional: Variance time-varying</li>
+<li>Stationary: If α + β &lt; 1</li>
+<li>Heavy Tails: Yes (excess kurtosis)</li>
+<li>Volatility Clustering: Yes (by design)</li>
+<li>Leverage Effect: No (symmetric)</li>
+</ul>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Risk Management:</strong> - VaR calculation - Expected shortfall (CVaR) - Stress testing</p>
+<p><strong>2. Option Pricing:</strong> - Volatility forecasting - Monte Carlo with GARCH - Implied vs realized vol</p>
+<p><strong>3. Portfolio:</strong> - Time-varying covariance (MGARCH) - Dynamic hedging - Risk parity</p>
+<p><strong>4. Trading:</strong> - Volatility strategies - Position sizing (risk targeting) - Options trading signals</p>
+<p><strong>5. Regulation:</strong> - Basel capital requirements - Internal VaR models - Stress testing</p>
+</section>
+<section id="numerical-simulation" class="level2 doc-section doc-section-numerical-simulation">
+<h2 class="doc-section doc-section-numerical-simulation anchored" data-anchor-id="numerical-simulation">Numerical Simulation</h2>
+<p><strong>Recursion:</strong></p>
+<p>Initialize: σ²[0] = ω/(1-α-β)</p>
+<p>For k = 0, 1, 2, …: 1. Draw w[k] ~ N(0,1) 2. Compute r[k] = μ + σ[k]·w[k] 3. Update σ²[k+1] = ω + α·(r[k]-μ)² + β·σ²[k]</p>
+<p><strong>State-Space:</strong> State Z = [r, σ²] - r observable - σ² latent (filtered in practice)</p>
+</section>
+<section id="comparison-with-constant-variance" class="level2 doc-section doc-section-comparison-with-constant-variance">
+<h2 class="doc-section doc-section-comparison-with-constant-variance anchored" data-anchor-id="comparison-with-constant-variance">Comparison with Constant Variance</h2>
+<p><strong>Constant Variance:</strong> r[k] = μ + σ·w[k]</p>
+<p>Problems: - Misses volatility clustering - Underestimates tail risk - Poor VaR forecasts</p>
+<p><strong>GARCH:</strong> r[k] = μ + σ[k]·w[k] σ²[k] = f(past)</p>
+<p>Advantages: - Captures clustering - Better tail risk - Accurate VaR</p>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Symmetric (leverage effect ignored)</li>
+<li>Gaussian (can extend to Student-t)</li>
+<li>Low frequency (daily typically, not intraday)</li>
+<li>Univariate (for MGARCH extension)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>EGARCH: Asymmetry</li>
+<li>GJR-GARCH: Threshold effects</li>
+<li>FIGARCH: Long memory</li>
+<li>DCC-GARCH: Dynamic conditional correlation</li>
+<li>GARCH-M: Risk premium in mean</li>
+</ul>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system">define_system</a></td>
+<td>Define GARCH(1,1) dynamics.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance">forecast_variance</a></td>
+<td>Forecast variance h steps ahead.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life">get_half_life</a></td>
+<td>Get volatility shock half-life (periods to decay by 50%).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence">get_persistence</a></td>
+<td>Get volatility persistence α + β.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance">get_unconditional_variance</a></td>
+<td>Get long-run (unconditional) variance σ̄² = ω/(1-α-β).</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    omega<span class="op">=</span><span class="fl">1e-05</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.85</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    mu<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define GARCH(1,1) dynamics.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 82%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>omega</td>
+<td>float</td>
+<td>Constant term in variance equation (must be positive) - Sets baseline variance - Typical daily: 1e-6 to 1e-4</td>
+<td><code>0.00001</code></td>
+</tr>
+<tr class="even">
+<td>alpha</td>
+<td>float</td>
+<td>ARCH coefficient (must be non-negative) - Weight on past squared shock - Typical: 0.05-0.15 - Higher: More reactive to news</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>beta</td>
+<td>float</td>
+<td>GARCH coefficient (must be non-negative) - Weight on past variance - Typical: 0.80-0.92 - Higher: More persistent</td>
+<td><code>0.85</code></td>
+</tr>
+<tr class="even">
+<td>mu</td>
+<td>float</td>
+<td>Mean return - Typically ≈ 0 for daily - Can be non-zero for longer horizons</td>
+<td><code>0.0</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period (1 = daily typical)</td>
+<td><code>1.0</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If ω ≤ 0, α &lt; 0, β &lt; 0, or α + β ≥ 1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Parameter Constraints:</strong></p>
+<ol type="1">
+<li><strong>Positivity:</strong>
+<ul>
+<li>ω &gt; 0: Ensures σ²[k] &gt; 0</li>
+<li>α ≥ 0, β ≥ 0: Non-negativity</li>
+</ul></li>
+<li><strong>Stationarity:</strong>
+<ul>
+<li>α + β &lt; 1: Variance mean-reverting</li>
+<li>α + β = 1: IGARCH (non-stationary)</li>
+<li>α + β &gt; 1: Explosive (invalid)</li>
+</ul></li>
+</ol>
+<p><strong>Long-Run Variance:</strong> σ̄² = ω/(1 - α - β)</p>
+<p>Must be finite (requires α + β &lt; 1).</p>
+<p><strong>Persistence:</strong> α + β</p>
+<p>Typical values: - Stocks: 0.95-0.99 (very persistent!) - Bonds: 0.90-0.95 - FX: 0.93-0.97</p>
+<p><strong>Half-Life:</strong> Time for variance shock to decay by 50%: h_{1/2} ≈ ln(0.5)/ln(α+β)</p>
+<p>Example: α + β = 0.95 → h ≈ 13.5 days</p>
+<p><strong>Typical Configurations:</strong></p>
+<p><strong>S&amp;P 500 (daily):</strong> - ω ≈ 0.000001 - α ≈ 0.10 - β ≈ 0.88 - α + β = 0.98 (very persistent)</p>
+<p><strong>Emerging Market (more volatile):</strong> - ω ≈ 0.00005 - α ≈ 0.15 - β ≈ 0.80 - α + β = 0.95</p>
+<p><strong>Low Volatility Stock:</strong> - ω ≈ 0.0000005 - α ≈ 0.05 - β ≈ 0.92 - α + β = 0.97</p>
+<p><strong>Initialization:</strong></p>
+<p>For σ²[0], common choices: 1. Unconditional: ω/(1-α-β) 2. Sample variance from data 3. Estimated as parameter</p>
+<p><strong>State-Space Structure:</strong></p>
+<p>This is NONLINEAR state-space: - r[k] depends on σ[k] (multiplicatively) - σ²[k+1] depends on ε²[k] (quadratically)</p>
+<p>Not amenable to standard Kalman filter. Need extended/unscented/particle filter.</p>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Standard stock GARCH</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stock <span class="op">=</span> DiscreteGARCH11(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>...     omega<span class="op">=</span><span class="fl">0.000002</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>...     alpha<span class="op">=</span><span class="fl">0.08</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>...     beta<span class="op">=</span><span class="fl">0.90</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>...     mu<span class="op">=</span><span class="fl">0.0005</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check constraints</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> persistence <span class="op">=</span> <span class="fl">0.08</span> <span class="op">+</span> <span class="fl">0.90</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Stationary: </span><span class="sc">{</span>persistence <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Long-run volatility</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sigma_lr <span class="op">=</span> np.sqrt(<span class="fl">0.000002</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> persistence))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Long-run daily vol: </span><span class="sc">{</span>sigma_lr<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> annual_vol <span class="op">=</span> sigma_lr <span class="op">*</span> np.sqrt(<span class="dv">252</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Annualized: </span><span class="sc">{</span>annual_vol<span class="sc">:.2%}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance">forecast_variance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    current_variance,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    horizon<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Forecast variance h steps ahead.</p>
+<p>σ²[k+h|k] = σ̄² + (α+β)^h·(σ²[k] - σ̄²)</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 10%">
+<col style="width: 48%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>current_variance</td>
+<td>float</td>
+<td>Current conditional variance σ²[k]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>horizon</td>
+<td>int</td>
+<td>Forecast horizon</td>
+<td><code>10</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>np.ndarray</td>
+<td>Variance forecasts for h=1,…,horizon</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(omega<span class="op">=</span><span class="fl">0.00001</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> forecasts <span class="op">=</span> garch.forecast_variance(current_variance<span class="op">=</span><span class="fl">0.0001</span>, horizon<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"1-day: </span><span class="sc">{</span>np<span class="sc">.</span>sqrt(forecasts[<span class="dv">0</span>])<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"20-day: </span><span class="sc">{</span>np<span class="sc">.</span>sqrt(forecasts[<span class="op">-</span><span class="dv">1</span>])<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life">get_half_life</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get volatility shock half-life (periods to decay by 50%).</p>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Half-life [periods]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> hl <span class="op">=</span> garch.get_half_life()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Volatility half-life: </span><span class="sc">{</span>hl<span class="sc">:.1f}</span><span class="ss"> days"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence">get_persistence</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get volatility persistence α + β.</p>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance">get_unconditional_variance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get long-run (unconditional) variance σ̄² = ω/(1-α-β).</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Unconditional variance</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises-1" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises-1">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>ValueError</td>
+<td>If α + β ≥ 1 (non-stationary)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(omega<span class="op">=</span><span class="fl">0.00001</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> var_uncond <span class="op">=</span> garch.get_unconditional_variance()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> vol_uncond <span class="op">=</span> np.sqrt(var_uncond)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Long-run daily vol: </span><span class="sc">{</span>vol_uncond<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.discrete.DiscreteGARCH11 { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11 }</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>GARCH(1,1) - time-varying volatility model (Nobel Prize 2003).</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>The industry standard for modeling financial volatility, capturing</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>volatility clustering, persistence, and mean reversion with just</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>three parameters. This represents one of the most important models</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>in financial econometrics.</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## Model Equations {.doc-section .doc-section-model-equations}</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>Return process:</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = σ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>Variance process (GARCH):</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = ω + α·ε²<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + β·σ²<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>r<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Return (observable)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>μ: Mean return (typically ≈ 0 for daily)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Innovation (zero-mean shock)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Conditional variance (time-varying, latent)</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1): Standardized innovation (iid)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>ω &gt; 0: Constant term</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>α ≥ 0: ARCH coefficient (shock effect)</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>β ≥ 0: GARCH coefficient (persistence)</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>**State-Space Form:**</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>Augmented state: Z = <span class="co">[</span><span class="ot">r, σ²</span><span class="co">]</span> (return and variance)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>Dynamics (nonlinear!):</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + σ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>    σ²<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = ω + α·(r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> - μ)² + β·σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>**What GARCH Models:**</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>Financial markets exhibit **volatility clustering**:</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Large price movements followed by large movements</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Calm periods followed by calm periods</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>"Volatility begets volatility"</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>**Why This Happens:**</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Information Flow:**</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>News arrives in clusters</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Uncertainty propagates</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Market Microstructure:**</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Feedback: Vol → wider spreads → more vol</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Herding behavior</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Risk Preferences:**</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Risk-off → sell → higher vol → more risk-off</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Feedback loops</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>**GARCH Equation Interpretation:**</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = ω + α·ε²<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> + β·σ²<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>Components:</span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**ω:** Baseline variance (floor)</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**α·ε²[k-1]:** Recent shock (ARCH effect)</span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Large |ε<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span>| → high σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>"News impact curve"</span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**β·σ²[k-1]:** Past variance (persistence)</span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>High σ²<span class="co">[</span><span class="ot">k-1</span><span class="co">]</span> → high σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>Volatility clustering</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Features {.doc-section .doc-section-key-features}</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>**Time-Varying Variance:**</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>Unlike constant-variance models, σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> changes every period.</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>**Volatility Clustering:**</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>High volatility tends to persist (α + β near 1).</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a>**Mean Reversion:**</span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>Variance reverts to ω/(1-α-β) over time.</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>**Conditional vs Unconditional:**</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Conditional: Var<span class="co">[</span><span class="ot">r[k]|past</span><span class="co">]</span> = σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> (time-varying)</span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unconditional: Var<span class="co">[</span><span class="ot">r[k]</span><span class="co">]</span> = ω/(1-α-β) (constant)</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a>**Heavy Tails:**</span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a>Even with Gaussian w<span class="co">[</span><span class="ot">k</span><span class="co">]</span>, unconditional distribution has excess kurtosis.</span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a>**Predictable Volatility:**</span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a>Can forecast σ²<span class="co">[</span><span class="ot">k+h</span><span class="co">]</span> from past (even if returns unpredictable).</span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mathematical Properties {.doc-section .doc-section-mathematical-properties}</span></span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>**Stationarity Condition:**</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a>    α + β &lt; 1</span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>If α + β = 1: IGARCH (integrated, non-stationary variance)</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a>If α + β &gt; 1: Explosive (unstable)</span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>**Unconditional Moments:**</span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a>Mean: E<span class="co">[</span><span class="ot">r</span><span class="co">]</span> = μ</span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a>Variance: Var<span class="co">[</span><span class="ot">r</span><span class="co">]</span> = ω/(1 - α - β)</span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a>Kurtosis: Excess kurtosis &gt; 0 (heavy tails)</span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a>    Kurt = 3·(1 - (α+β)²)/(1 - (α+β)² - 2α²)</span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a>**Autocorrelation:**</span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Returns r<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: ρ(h) ≈ 0 (unpredictable)</span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Squared returns ε²<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: ρ(h) = (α+β)^h (geometric decay)</span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a>**Persistence:**</span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a>Measured by α + β (sum of ARCH and GARCH):</span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β ≈ 0.99: Very persistent (typical stocks)</span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β ≈ 0.95: Persistent</span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β ≈ 0.80: Moderate persistence</span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a>**Volatility Forecast:**</span>
+<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a>h-step ahead:</span>
+<span id="cb11-127"><a href="#cb11-127" aria-hidden="true" tabindex="-1"></a>    σ²<span class="co">[</span><span class="ot">k+h|k</span><span class="co">]</span> = σ̄² + (α+β)^h·(σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> - σ̄²)</span>
+<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a>where σ̄² = ω/(1-α-β) is long-run variance.</span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a>Exponential decay to long-run average.</span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a>**Parameter ω (Baseline):**</span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Units: <span class="co">[</span><span class="ot">return</span><span class="co">]</span>²</span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Long-run variance: σ̄² = ω/(1-α-β)</span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: Relates to annual volatility</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a>**Parameter α (ARCH Effect):**</span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dimensionless</span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Weight on recent shock</span>
+<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.05-0.15</span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher α: More reactive to news</span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a>**Parameter β (GARCH Effect):**</span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dimensionless</span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Weight on past variance</span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.80-0.92</span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher β: More persistent</span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a>**Sum α + β (Total Persistence):**</span>
+<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Typical: 0.95-0.99 (very high!)</span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Near 1: "Volatility never dies"</span>
+<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Financial data: Usually &gt;0.90</span>
+<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a>**Typical Values (Daily Stock Returns):**</span>
+<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ω ≈ 0.000001-0.00001 (depends on scaling)</span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α ≈ 0.05-0.10</span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β ≈ 0.85-0.92</span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β ≈ 0.95-0.98</span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a>Augmented state: Z = <span class="co">[</span><span class="ot">r, σ²</span><span class="co">]</span> ∈ ℝ²</span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>r: Observable return</span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>σ²: Latent conditional variance</span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a>Observable: r ∈ ℝ</span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>What we actually measure (price changes)</span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a>Latent: σ² ∈ ℝ₊</span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Unobserved (must be estimated/filtered)</span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a>Control: u (typically none for GARCH)</span>
+<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Could add for interventions</span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                       <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> omega  <span class="pp">|</span> float  <span class="pp">|</span> Constant term (must be positive) - Sets baseline variance - Typical: 1e-6 to 1e-4 (daily returns) <span class="pp">|</span> <span class="in">`0.00001`</span> <span class="pp">|</span></span>
+<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> alpha  <span class="pp">|</span> float  <span class="pp">|</span> ARCH coefficient (must be non-negative) - News impact (shock sensitivity) - Typical: 0.05-0.15    <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> beta   <span class="pp">|</span> float  <span class="pp">|</span> GARCH coefficient (must be non-negative) - Persistence (volatility memory) - Typical: 0.80-0.92   <span class="pp">|</span> <span class="in">`0.85`</span>    <span class="pp">|</span></span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> mu     <span class="pp">|</span> float  <span class="pp">|</span> Mean return - Often ≈ 0 for daily returns - Can estimate or fix                                   <span class="pp">|</span> <span class="in">`0.0`</span>     <span class="pp">|</span></span>
+<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period (1 = daily typical)                                                               <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a><span class="fu">## Stochastic Properties {.doc-section .doc-section-stochastic-properties}</span></span>
+<span id="cb11-189"><a href="#cb11-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-190"><a href="#cb11-190" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>System Type: NONLINEAR (σ² equation)</span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Conditional: Variance time-varying</span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stationary: If α + β &lt; 1</span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Heavy Tails: Yes (excess kurtosis)</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Volatility Clustering: Yes (by design)</span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Leverage Effect: No (symmetric)</span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a>**1. Risk Management:**</span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>VaR calculation</span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Expected shortfall (CVaR)</span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stress testing</span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a>**2. Option Pricing:**</span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Volatility forecasting</span>
+<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Monte Carlo with GARCH</span>
+<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Implied vs realized vol</span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a>**3. Portfolio:**</span>
+<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Time-varying covariance (MGARCH)</span>
+<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Dynamic hedging</span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Risk parity</span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>**4. Trading:**</span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Volatility strategies</span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Position sizing (risk targeting)</span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Options trading signals</span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a>**5. Regulation:**</span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Basel capital requirements</span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Internal VaR models</span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stress testing</span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Simulation {.doc-section .doc-section-numerical-simulation}</span></span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a>**Recursion:**</span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a>Initialize: σ²<span class="co">[</span><span class="ot">0</span><span class="co">]</span> = ω/(1-α-β)</span>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-230"><a href="#cb11-230" aria-hidden="true" tabindex="-1"></a>For k = 0, 1, 2, ...:</span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a><span class="ss">    1. </span>Draw w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0,1)</span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a><span class="ss">    2. </span>Compute r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + σ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a><span class="ss">    3. </span>Update σ²<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = ω + α·(r<span class="co">[</span><span class="ot">k</span><span class="co">]</span>-μ)² + β·σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a>**State-Space:**</span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a>State Z = <span class="co">[</span><span class="ot">r, σ²</span><span class="co">]</span></span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>r observable</span>
+<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>σ² latent (filtered in practice)</span>
+<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Constant Variance {.doc-section .doc-section-comparison-with-constant-variance}</span></span>
+<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a>**Constant Variance:**</span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a>    r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + σ·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a>Problems:</span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Misses volatility clustering</span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Underestimates tail risk</span>
+<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Poor VaR forecasts</span>
+<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a>**GARCH:**</span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a>    r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = μ + σ<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a>    σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = f(past)</span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a>Advantages:</span>
+<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Captures clustering</span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Better tail risk</span>
+<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Accurate VaR</span>
+<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Symmetric (leverage effect ignored)</span>
+<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Gaussian (can extend to Student-t)</span>
+<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Low frequency (daily typically, not intraday)</span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Univariate (for MGARCH extension)</span>
+<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>EGARCH: Asymmetry</span>
+<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GJR-GARCH: Threshold effects</span>
+<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>FIGARCH: Long memory</span>
+<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>DCC-GARCH: Dynamic conditional correlation</span>
+<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GARCH-M: Risk premium in mean</span>
+<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb11-277"><a href="#cb11-277" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb11-278"><a href="#cb11-278" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system)</span> <span class="pp">|</span> Define GARCH(1,1) dynamics. <span class="pp">|</span></span>
+<span id="cb11-279"><a href="#cb11-279" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">forecast_variance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance)</span> <span class="pp">|</span> Forecast variance h steps ahead. <span class="pp">|</span></span>
+<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_half_life</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life)</span> <span class="pp">|</span> Get volatility shock half-life (periods to decay by 50%). <span class="pp">|</span></span>
+<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_persistence</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence)</span> <span class="pp">|</span> Get volatility persistence α + β. <span class="pp">|</span></span>
+<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_unconditional_variance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance)</span> <span class="pp">|</span> Get long-run (unconditional) variance σ̄² = ω/(1-α-β). <span class="pp">|</span></span>
+<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system }</span></span>
+<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.define_system(</span>
+<span id="cb11-288"><a href="#cb11-288" aria-hidden="true" tabindex="-1"></a>    omega<span class="op">=</span><span class="fl">1e-05</span>,</span>
+<span id="cb11-289"><a href="#cb11-289" aria-hidden="true" tabindex="-1"></a>    alpha<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a>    beta<span class="op">=</span><span class="fl">0.85</span>,</span>
+<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a>    mu<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a>Define GARCH(1,1) dynamics.</span>
+<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                                                                                 <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> omega  <span class="pp">|</span> float  <span class="pp">|</span> Constant term in variance equation (must be positive) - Sets baseline variance - Typical daily: 1e-6 to 1e-4                <span class="pp">|</span> <span class="in">`0.00001`</span> <span class="pp">|</span></span>
+<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> alpha  <span class="pp">|</span> float  <span class="pp">|</span> ARCH coefficient (must be non-negative) - Weight on past squared shock - Typical: 0.05-0.15 - Higher: More reactive to news <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> beta   <span class="pp">|</span> float  <span class="pp">|</span> GARCH coefficient (must be non-negative) - Weight on past variance - Typical: 0.80-0.92 - Higher: More persistent           <span class="pp">|</span> <span class="in">`0.85`</span>    <span class="pp">|</span></span>
+<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> mu     <span class="pp">|</span> float  <span class="pp">|</span> Mean return - Typically ≈ 0 for daily - Can be non-zero for longer horizons                                                 <span class="pp">|</span> <span class="in">`0.0`</span>     <span class="pp">|</span></span>
+<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period (1 = daily typical)                                                                                         <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                          <span class="pp">|</span></span>
+<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|--------------------------------------|</span></span>
+<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError <span class="pp">|</span> If ω ≤ 0, α &lt; 0, β &lt; 0, or α + β ≥ 1 <span class="pp">|</span></span>
+<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a>**Parameter Constraints:**</span>
+<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Positivity:**</span>
+<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>ω &gt; 0: Ensures σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> &gt; 0</span>
+<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>α ≥ 0, β ≥ 0: Non-negativity</span>
+<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Stationarity:**</span>
+<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>α + β &lt; 1: Variance mean-reverting</span>
+<span id="cb11-324"><a href="#cb11-324" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>α + β = 1: IGARCH (non-stationary)</span>
+<span id="cb11-325"><a href="#cb11-325" aria-hidden="true" tabindex="-1"></a><span class="ss">   - </span>α + β &gt; 1: Explosive (invalid)</span>
+<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a>**Long-Run Variance:**</span>
+<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a>    σ̄² = ω/(1 - α - β)</span>
+<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a>Must be finite (requires α + β &lt; 1).</span>
+<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-332"><a href="#cb11-332" aria-hidden="true" tabindex="-1"></a>**Persistence:**</span>
+<span id="cb11-333"><a href="#cb11-333" aria-hidden="true" tabindex="-1"></a>    α + β</span>
+<span id="cb11-334"><a href="#cb11-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-335"><a href="#cb11-335" aria-hidden="true" tabindex="-1"></a>Typical values:</span>
+<span id="cb11-336"><a href="#cb11-336" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Stocks: 0.95-0.99 (very persistent!)</span>
+<span id="cb11-337"><a href="#cb11-337" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Bonds: 0.90-0.95</span>
+<span id="cb11-338"><a href="#cb11-338" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>FX: 0.93-0.97</span>
+<span id="cb11-339"><a href="#cb11-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-340"><a href="#cb11-340" aria-hidden="true" tabindex="-1"></a>**Half-Life:**</span>
+<span id="cb11-341"><a href="#cb11-341" aria-hidden="true" tabindex="-1"></a>Time for variance shock to decay by 50%:</span>
+<span id="cb11-342"><a href="#cb11-342" aria-hidden="true" tabindex="-1"></a>    h_{1/2} ≈ ln(0.5)/ln(α+β)</span>
+<span id="cb11-343"><a href="#cb11-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-344"><a href="#cb11-344" aria-hidden="true" tabindex="-1"></a>Example: α + β = 0.95 → h ≈ 13.5 days</span>
+<span id="cb11-345"><a href="#cb11-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-346"><a href="#cb11-346" aria-hidden="true" tabindex="-1"></a>**Typical Configurations:**</span>
+<span id="cb11-347"><a href="#cb11-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-348"><a href="#cb11-348" aria-hidden="true" tabindex="-1"></a>**S&amp;P 500 (daily):**</span>
+<span id="cb11-349"><a href="#cb11-349" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ω ≈ 0.000001</span>
+<span id="cb11-350"><a href="#cb11-350" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α ≈ 0.10</span>
+<span id="cb11-351"><a href="#cb11-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β ≈ 0.88</span>
+<span id="cb11-352"><a href="#cb11-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β = 0.98 (very persistent)</span>
+<span id="cb11-353"><a href="#cb11-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-354"><a href="#cb11-354" aria-hidden="true" tabindex="-1"></a>**Emerging Market (more volatile):**</span>
+<span id="cb11-355"><a href="#cb11-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ω ≈ 0.00005</span>
+<span id="cb11-356"><a href="#cb11-356" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α ≈ 0.15</span>
+<span id="cb11-357"><a href="#cb11-357" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β ≈ 0.80</span>
+<span id="cb11-358"><a href="#cb11-358" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β = 0.95</span>
+<span id="cb11-359"><a href="#cb11-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-360"><a href="#cb11-360" aria-hidden="true" tabindex="-1"></a>**Low Volatility Stock:**</span>
+<span id="cb11-361"><a href="#cb11-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ω ≈ 0.0000005</span>
+<span id="cb11-362"><a href="#cb11-362" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α ≈ 0.05</span>
+<span id="cb11-363"><a href="#cb11-363" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>β ≈ 0.92</span>
+<span id="cb11-364"><a href="#cb11-364" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>α + β = 0.97</span>
+<span id="cb11-365"><a href="#cb11-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-366"><a href="#cb11-366" aria-hidden="true" tabindex="-1"></a>**Initialization:**</span>
+<span id="cb11-367"><a href="#cb11-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-368"><a href="#cb11-368" aria-hidden="true" tabindex="-1"></a>For σ²<span class="co">[</span><span class="ot">0</span><span class="co">]</span>, common choices:</span>
+<span id="cb11-369"><a href="#cb11-369" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Unconditional: ω/(1-α-β)</span>
+<span id="cb11-370"><a href="#cb11-370" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Sample variance from data</span>
+<span id="cb11-371"><a href="#cb11-371" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Estimated as parameter</span>
+<span id="cb11-372"><a href="#cb11-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-373"><a href="#cb11-373" aria-hidden="true" tabindex="-1"></a>**State-Space Structure:**</span>
+<span id="cb11-374"><a href="#cb11-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-375"><a href="#cb11-375" aria-hidden="true" tabindex="-1"></a>This is NONLINEAR state-space:</span>
+<span id="cb11-376"><a href="#cb11-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>r<span class="co">[</span><span class="ot">k</span><span class="co">]</span> depends on σ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> (multiplicatively)</span>
+<span id="cb11-377"><a href="#cb11-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>σ²<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> depends on ε²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> (quadratically)</span>
+<span id="cb11-378"><a href="#cb11-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-379"><a href="#cb11-379" aria-hidden="true" tabindex="-1"></a>Not amenable to standard Kalman filter.</span>
+<span id="cb11-380"><a href="#cb11-380" aria-hidden="true" tabindex="-1"></a>Need extended/unscented/particle filter.</span>
+<span id="cb11-381"><a href="#cb11-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-382"><a href="#cb11-382" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb11-383"><a href="#cb11-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-384"><a href="#cb11-384" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-385"><a href="#cb11-385" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Standard stock GARCH</span></span>
+<span id="cb11-386"><a href="#cb11-386" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> stock <span class="op">=</span> DiscreteGARCH11(</span>
+<span id="cb11-387"><a href="#cb11-387" aria-hidden="true" tabindex="-1"></a>...     omega<span class="op">=</span><span class="fl">0.000002</span>,</span>
+<span id="cb11-388"><a href="#cb11-388" aria-hidden="true" tabindex="-1"></a>...     alpha<span class="op">=</span><span class="fl">0.08</span>,</span>
+<span id="cb11-389"><a href="#cb11-389" aria-hidden="true" tabindex="-1"></a>...     beta<span class="op">=</span><span class="fl">0.90</span>,</span>
+<span id="cb11-390"><a href="#cb11-390" aria-hidden="true" tabindex="-1"></a>...     mu<span class="op">=</span><span class="fl">0.0005</span></span>
+<span id="cb11-391"><a href="#cb11-391" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb11-392"><a href="#cb11-392" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb11-393"><a href="#cb11-393" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Check constraints</span></span>
+<span id="cb11-394"><a href="#cb11-394" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> persistence <span class="op">=</span> <span class="fl">0.08</span> <span class="op">+</span> <span class="fl">0.90</span></span>
+<span id="cb11-395"><a href="#cb11-395" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Stationary: </span><span class="sc">{</span>persistence <span class="op">&lt;</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-396"><a href="#cb11-396" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span>
+<span id="cb11-397"><a href="#cb11-397" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="co"># Long-run volatility</span></span>
+<span id="cb11-398"><a href="#cb11-398" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> sigma_lr <span class="op">=</span> np.sqrt(<span class="fl">0.000002</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">-</span> persistence))</span>
+<span id="cb11-399"><a href="#cb11-399" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Long-run daily vol: </span><span class="sc">{</span>sigma_lr<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-400"><a href="#cb11-400" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> annual_vol <span class="op">=</span> sigma_lr <span class="op">*</span> np.sqrt(<span class="dv">252</span>)</span>
+<span id="cb11-401"><a href="#cb11-401" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Annualized: </span><span class="sc">{</span>annual_vol<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb11-402"><a href="#cb11-402" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-403"><a href="#cb11-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-404"><a href="#cb11-404" aria-hidden="true" tabindex="-1"></a><span class="fu">### forecast_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance }</span></span>
+<span id="cb11-405"><a href="#cb11-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-406"><a href="#cb11-406" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-407"><a href="#cb11-407" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.forecast_variance(</span>
+<span id="cb11-408"><a href="#cb11-408" aria-hidden="true" tabindex="-1"></a>    current_variance,</span>
+<span id="cb11-409"><a href="#cb11-409" aria-hidden="true" tabindex="-1"></a>    horizon<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb11-410"><a href="#cb11-410" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-411"><a href="#cb11-411" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-412"><a href="#cb11-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-413"><a href="#cb11-413" aria-hidden="true" tabindex="-1"></a>Forecast variance h steps ahead.</span>
+<span id="cb11-414"><a href="#cb11-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-415"><a href="#cb11-415" aria-hidden="true" tabindex="-1"></a>σ²<span class="co">[</span><span class="ot">k+h|k</span><span class="co">]</span> = σ̄² + (α+β)^h·(σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> - σ̄²)</span>
+<span id="cb11-416"><a href="#cb11-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-417"><a href="#cb11-417" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb11-418"><a href="#cb11-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-419"><a href="#cb11-419" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name             <span class="pp">|</span> Type   <span class="pp">|</span> Description                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb11-420"><a href="#cb11-420" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------|--------|------------------------------------|------------|</span></span>
+<span id="cb11-421"><a href="#cb11-421" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> current_variance <span class="pp">|</span> float  <span class="pp">|</span> Current conditional variance σ²<span class="co">[</span><span class="ot">k</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb11-422"><a href="#cb11-422" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> horizon          <span class="pp">|</span> int    <span class="pp">|</span> Forecast horizon                   <span class="pp">|</span> <span class="in">`10`</span>       <span class="pp">|</span></span>
+<span id="cb11-423"><a href="#cb11-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-424"><a href="#cb11-424" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb11-425"><a href="#cb11-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-426"><a href="#cb11-426" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                            <span class="pp">|</span></span>
+<span id="cb11-427"><a href="#cb11-427" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|----------------------------------------|</span></span>
+<span id="cb11-428"><a href="#cb11-428" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> np.ndarray <span class="pp">|</span> Variance forecasts for h=1,...,horizon <span class="pp">|</span></span>
+<span id="cb11-429"><a href="#cb11-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-430"><a href="#cb11-430" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb11-431"><a href="#cb11-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-432"><a href="#cb11-432" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-433"><a href="#cb11-433" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(omega<span class="op">=</span><span class="fl">0.00001</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb11-434"><a href="#cb11-434" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> forecasts <span class="op">=</span> garch.forecast_variance(current_variance<span class="op">=</span><span class="fl">0.0001</span>, horizon<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb11-435"><a href="#cb11-435" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"1-day: </span><span class="sc">{</span>np<span class="sc">.</span>sqrt(forecasts[<span class="dv">0</span>])<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-436"><a href="#cb11-436" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"20-day: </span><span class="sc">{</span>np<span class="sc">.</span>sqrt(forecasts[<span class="op">-</span><span class="dv">1</span>])<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-437"><a href="#cb11-437" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-438"><a href="#cb11-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-439"><a href="#cb11-439" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_half_life { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life }</span></span>
+<span id="cb11-440"><a href="#cb11-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-441"><a href="#cb11-441" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-442"><a href="#cb11-442" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_half_life()</span>
+<span id="cb11-443"><a href="#cb11-443" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-444"><a href="#cb11-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-445"><a href="#cb11-445" aria-hidden="true" tabindex="-1"></a>Get volatility shock half-life (periods to decay by 50%).</span>
+<span id="cb11-446"><a href="#cb11-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-447"><a href="#cb11-447" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb11-448"><a href="#cb11-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-449"><a href="#cb11-449" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description         <span class="pp">|</span></span>
+<span id="cb11-450"><a href="#cb11-450" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------|</span></span>
+<span id="cb11-451"><a href="#cb11-451" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Half-life <span class="co">[</span><span class="ot">periods</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb11-452"><a href="#cb11-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-453"><a href="#cb11-453" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb11-454"><a href="#cb11-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-455"><a href="#cb11-455" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-456"><a href="#cb11-456" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb11-457"><a href="#cb11-457" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> hl <span class="op">=</span> garch.get_half_life()</span>
+<span id="cb11-458"><a href="#cb11-458" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Volatility half-life: </span><span class="sc">{</span>hl<span class="sc">:.1f}</span><span class="ss"> days"</span>)</span>
+<span id="cb11-459"><a href="#cb11-459" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-460"><a href="#cb11-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-461"><a href="#cb11-461" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_persistence { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence }</span></span>
+<span id="cb11-462"><a href="#cb11-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-463"><a href="#cb11-463" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-464"><a href="#cb11-464" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_persistence()</span>
+<span id="cb11-465"><a href="#cb11-465" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-466"><a href="#cb11-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-467"><a href="#cb11-467" aria-hidden="true" tabindex="-1"></a>Get volatility persistence α + β.</span>
+<span id="cb11-468"><a href="#cb11-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-469"><a href="#cb11-469" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_unconditional_variance { #cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance }</span></span>
+<span id="cb11-470"><a href="#cb11-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-471"><a href="#cb11-471" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-472"><a href="#cb11-472" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteGARCH11.get_unconditional_variance()</span>
+<span id="cb11-473"><a href="#cb11-473" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-474"><a href="#cb11-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-475"><a href="#cb11-475" aria-hidden="true" tabindex="-1"></a>Get long-run (unconditional) variance σ̄² = ω/(1-α-β).</span>
+<span id="cb11-476"><a href="#cb11-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-477"><a href="#cb11-477" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb11-478"><a href="#cb11-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-479"><a href="#cb11-479" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description            <span class="pp">|</span></span>
+<span id="cb11-480"><a href="#cb11-480" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------|</span></span>
+<span id="cb11-481"><a href="#cb11-481" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Unconditional variance <span class="pp">|</span></span>
+<span id="cb11-482"><a href="#cb11-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-483"><a href="#cb11-483" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Raises {.doc-section .doc-section-raises}</span></span>
+<span id="cb11-484"><a href="#cb11-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-485"><a href="#cb11-485" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                   <span class="pp">|</span></span>
+<span id="cb11-486"><a href="#cb11-486" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|-------------------------------|</span></span>
+<span id="cb11-487"><a href="#cb11-487" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> ValueError <span class="pp">|</span> If α + β ≥ 1 (non-stationary) <span class="pp">|</span></span>
+<span id="cb11-488"><a href="#cb11-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-489"><a href="#cb11-489" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb11-490"><a href="#cb11-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-491"><a href="#cb11-491" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb11-492"><a href="#cb11-492" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> garch <span class="op">=</span> DiscreteGARCH11(omega<span class="op">=</span><span class="fl">0.00001</span>, alpha<span class="op">=</span><span class="fl">0.1</span>, beta<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb11-493"><a href="#cb11-493" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> var_uncond <span class="op">=</span> garch.get_unconditional_variance()</span>
+<span id="cb11-494"><a href="#cb11-494" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> vol_uncond <span class="op">=</span> np.sqrt(var_uncond)</span>
+<span id="cb11-495"><a href="#cb11-495" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Long-run daily vol: </span><span class="sc">{</span>vol_uncond<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb11-496"><a href="#cb11-496" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteGARCH11.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.deterministic.discrete.discretecstr – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR">systems.builtin.deterministic.discrete.DiscreteCSTR</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics" id="toc-dynamics" class="nav-link" data-scroll-target="#dynamics">Dynamics:</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  <li><a href="#equilibria" id="toc-equilibria" class="nav-link" data-scroll-target="#equilibria">Equilibria:</a></li>
+  <li><a href="#control-objectives" id="toc-control-objectives" class="nav-link" data-scroll-target="#control-objectives">Control Objectives:</a></li>
+  <li><a href="#state-constraints" id="toc-state-constraints" class="nav-link" data-scroll-target="#state-constraints">State Constraints:</a></li>
+  <li><a href="#numerical-considerations" id="toc-numerical-considerations" class="nav-link" data-scroll-target="#numerical-considerations">Numerical Considerations:</a></li>
+  <li><a href="#example-usage" id="toc-example-usage" class="nav-link" data-scroll-target="#example-usage">Example Usage:</a></li>
+  <li><a href="#physical-insights" id="toc-physical-insights" class="nav-link" data-scroll-target="#physical-insights">Physical Insights:</a></li>
+  <li><a href="#comparison-with-continuous-version" id="toc-comparison-with-continuous-version" class="nav-link" data-scroll-target="#comparison-with-continuous-version">Comparison with Continuous Version:</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also:</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion">compute_conversion</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number">compute_damkohler_number</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time">compute_residence_time</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states">find_steady_states</a>
+  <ul class="collapse">
+  <li><a href="#parameters-4" id="toc-parameters-4" class="nav-link" data-scroll-target="#parameters-4">Parameters</a></li>
+  <li><a href="#returns-3" id="toc-returns-3" class="nav-link" data-scroll-target="#returns-3">Returns</a></li>
+  <li><a href="#examples-3" id="toc-examples-3" class="nav-link" data-scroll-target="#examples-3">Examples</a></li>
+  <li><a href="#notes-3" id="toc-notes-3" class="nav-link" data-scroll-target="#notes-3">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria">setup_equilibria</a>
+  <ul class="collapse">
+  <li><a href="#notes-4" id="toc-notes-4" class="nav-link" data-scroll-target="#notes-4">Notes</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteCSTR.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR" class="level1">
+<h1>systems.builtin.deterministic.discrete.DiscreteCSTR</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket.</code></pre>
+<section id="physical-system" class="level2 doc-section doc-section-----physical-system">
+<h2 class="doc-section doc-section-----physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<pre><code>A continuous flow reactor where reactant A converts to product B in
+an exothermic reaction, modeled in discrete time with periodic sampling
+and control actuation.
+
+Unlike batch reactors, CSTRs operate at steady state with continuous
+feed and product removal. The discrete-time formulation is appropriate
+for digital control systems with:
+- Periodic concentration measurements (e.g., via online analyzers)
+- Discrete temperature sensor readings
+- Digital control actuation of cooling jacket
+
+Key features:
+- Continuous flow: Feed enters, product exits at same rate
+- Perfect mixing: Uniform concentration and temperature
+- Exothermic reaction: Heat generation from reaction
+- Jacket cooling: Heat removal to maintain temperature
+- Discrete measurements and control updates
+
+The reactor can exhibit:
+- Multiple steady states (low/high conversion)
+- Oscillatory behavior (limit cycles)
+- Thermal runaway (if cooling insufficient)
+- Complex bifurcations as parameters vary</code></pre>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-----state-space">
+<h2 class="doc-section doc-section-----state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<pre><code>State: x[k] = [Cₐ[k], T[k]]
+    Concentration state:
+    - Cₐ: Concentration of reactant A in reactor [mol/L]
+      * Lower than feed concentration due to reaction
+      * Cₐ,feed &gt; Cₐ &gt; 0
+      * Steady-state value depends on temperature and residence time
+      * High Cₐ → low conversion (inefficient)
+      * Low Cₐ → high conversion (efficient but expensive cooling)
+
+    Temperature state:
+    - T: Reactor temperature [K]
+      * Higher than feed due to exothermic reaction
+      * T &gt; T_feed (for exothermic reactions)
+      * Critical state: affects reaction rate exponentially
+      * Small T change → large rate change (Arrhenius)
+      * Must be controlled to prevent runaway
+
+Control: u[k] = [T_jacket[k]]
+    - T_jacket: Cooling jacket temperature [K]
+      * Manipulated variable for temperature control
+      * Typically T_jacket &lt; T (removing heat)
+      * Can be T_jacket &gt; T for startup heating
+      * Typical range: 280-340 K
+      * Physical limits: chiller/heater capacity
+
+Output: y[k] = [Cₐ[k], T[k]]
+    - Full state measurement
+    - In practice:
+      * Cₐ measured via online analyzer (GC, HPLC, spectroscopy)
+      * T measured via thermocouple or RTD
+      * Both have sampling delays and noise</code></pre>
+</section>
+<section id="dynamics" class="level2 doc-section doc-section-----dynamics">
+<h2 class="doc-section doc-section-----dynamics anchored" data-anchor-id="dynamics">Dynamics:</h2>
+<pre><code>The discrete-time dynamics use Euler discretization:
+
+    Cₐ[k+1] = Cₐ[k] + dt·[(F/V)·(Cₐ,feed - Cₐ[k]) - r[k]]
+    T[k+1] = T[k] + dt·[(F/V)·(T_feed - T[k]) + (-ΔH/ρCₚ)·r[k] + UA/(VρCₚ)·(T_jacket[k] - T[k])]
+
+**Reaction Rate (Arrhenius kinetics)**:
+    r[k] = k₀·Cₐ[k]·exp(-E/T[k])  [mol/(L·s)]
+
+where:
+- k₀: Pre-exponential factor [1/s]
+- E: Activation energy [K] (using Eₐ/R as temperature)
+- exp(-E/T): Arrhenius temperature dependence
+
+**Physical Interpretation**:
+
+Material Balance:
+- (F/V)·(Cₐ,feed - Cₐ): Convective in/out (dilution)
+- F/V = 1/τ: Inverse residence time [1/s]
+- τ = V/F: Average time molecule spends in reactor [s]
+- -r: Consumption by reaction
+- At steady state: inflow - outflow - reaction = 0
+
+Energy Balance:
+- (F/V)·(T_feed - T): Convective heat in/out
+- (-ΔH/ρCₚ)·r: Heat generation from reaction
+  * ΔH &lt; 0 (exothermic) → heat generation
+  * |ΔH| large → strong thermal coupling
+- UA/(VρCₚ)·(T_jacket - T): Heat removal via jacket
+  * UA: Overall heat transfer coefficient × area
+  * Larger UA → better temperature control
+  * T_jacket &lt; T → cooling (typical)
+
+**Nonlinear Coupling**:
+1. Temperature affects reaction rate exponentially (Arrhenius)
+2. Reaction generates heat (thermal feedback)
+3. High T → fast reaction → more heat → higher T (runaway risk)
+4. Cooling must balance heat generation for stability</code></pre>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-----parameters">
+<h2 class="doc-section doc-section-----parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<pre><code>F : float, default=100.0
+    Volumetric flow rate [L/s]
+    Higher F → shorter residence time → lower conversion
+    Lower F → longer residence time → higher conversion
+
+V : float, default=100.0
+    Reactor volume [L]
+    Determines residence time τ = V/F
+    Larger V → more conversion for given F
+
+C_A_feed : float, default=1.0
+    Feed concentration [mol/L]
+    Typical: 0.5-2.0 mol/L
+    Higher feed → more product but more heat generation
+
+T_feed : float, default=350.0
+    Feed temperature [K]
+    Typical: 300-360 K
+    Pre-heating can improve conversion but reduces stability margin
+
+k0 : float, default=7.2e10
+    Pre-exponential factor [1/s]
+    Collision frequency in Arrhenius equation
+    Typical: 10⁶-10¹² for liquid phase reactions
+    Determines reaction speed at given temperature
+
+E : float, default=8750.0
+    Activation energy [K] (actually Eₐ/R)
+    Energy barrier for reaction to occur
+    Typical: 5000-15000 K for Eₐ/R
+    Higher E → more temperature-sensitive
+    Physical Eₐ typically 40-120 kJ/mol
+
+delta_H : float, default=-5e4
+    Heat of reaction [J/mol]
+    Negative = exothermic (releases heat)
+    Positive = endothermic (absorbs heat)
+    Typical for exothermic: -20,000 to -200,000 J/mol
+    Larger |ΔH| → stronger thermal coupling, harder control
+
+rho : float, default=1000.0
+    Density [kg/L]
+    Typical for aqueous solutions: 900-1100 kg/L
+    Affects thermal inertia (heat capacity)
+
+Cp : float, default=0.239
+    Specific heat capacity [J/(kg·K)]
+    Typical for aqueous: 0.2-0.5 J/(kg·K)
+    Higher Cₚ → slower temperature changes (more stable)
+
+UA : float, default=5e4
+    Overall heat transfer coefficient × area [J/(s·K)]
+    Combines jacket film coefficient, wall conduction, reactor-side film
+    Typical: 10³-10⁵ J/(s·K)
+    Higher UA → better temperature control, faster cooling
+    Limited by physical design (jacket size, flow rate)
+
+dt : float, default=0.1
+    Sampling/discretization time step [s]
+    Critical parameter for stability!
+    - Too large → numerical instability, oscillations
+    - Too small → slow simulation, high computational cost
+    - Rule of thumb: dt &lt; 0.1/max(λ) where λ are eigenvalues
+    - Typical for CSTR: 0.01-1.0 seconds
+    - Must be smaller than fastest system time scale</code></pre>
+</section>
+<section id="equilibria" class="level2 doc-section doc-section-----equilibria">
+<h2 class="doc-section doc-section-----equilibria anchored" data-anchor-id="equilibria">Equilibria:</h2>
+<pre><code>**Multiple Steady States** (hallmark of CSTRs!):
+
+CSTR can have 1, 2, or 3 steady states depending on parameters.
+For given feed conditions and jacket temperature:
+
+1. **Low conversion state** (stable):
+   - Low T ≈ T_feed + small rise
+   - Low reaction rate (slow kinetics)
+   - High Cₐ ≈ Cₐ,feed (minimal conversion)
+   - Heat generation &lt; Heat removal
+   - Easy to control but inefficient
+   - Attractive for cold startup
+
+2. **High conversion state** (stable):
+   - High T &gt;&gt; T_feed
+   - High reaction rate (fast kinetics)
+   - Low Cₐ &lt;&lt; Cₐ,feed (high conversion)
+   - Heat generation balanced by cooling
+   - Desirable operating point (efficient)
+   - Risk: close to instability/runaway
+
+3. **Intermediate state** (unstable):
+   - Saddle point in phase space
+   - Not physically realizable (unstable)
+   - Forms separatrix between basins of attraction
+   - System will move toward stable states
+
+**Stability depends on**:
+- Residence time τ = V/F (longer → more conversion, less stable)
+- Activation energy E (higher → more sensitive)
+- Heat of reaction ΔH (larger |ΔH| → more coupling)
+- Cooling capacity UA (higher → more stable)
+- Feed temperature T_feed (higher → less stable margin)
+
+**Bifurcation Behavior**:
+As cooling capacity (T_jacket) decreases:
+1. Unique stable high-conversion state
+2. Saddle-node bifurcation → 3 steady states appear
+3. Two stable states (low and high conversion)
+4. Another saddle-node → only low-conversion state
+5. Further decrease → thermal runaway (no steady state)</code></pre>
+</section>
+<section id="control-objectives" class="level2 doc-section doc-section-----control-objectives">
+<h2 class="doc-section doc-section-----control-objectives anchored" data-anchor-id="control-objectives">Control Objectives:</h2>
+<pre><code>Common control goals for CSTR:
+
+1. **Setpoint tracking**: Maintain T[k] ≈ T_setpoint
+   - Most common objective
+   - Balances conversion and stability
+   - PID/LQR/MPC controllers typical
+   - Challenge: nonlinearity and multiple steady states
+
+2. **Startup control**: Transition low → high conversion state
+   - Must cross unstable intermediate state
+   - Requires large transient cooling capacity
+   - Bang-bang or optimal trajectory control
+   - Risk of overshoot → runaway
+
+3. **Disturbance rejection**: Handle feed variations
+   - Feed concentration changes: Cₐ,feed(t)
+   - Feed temperature disturbances: T_feed(t)
+   - Flow rate fluctuations: F(t)
+   - Jacket temperature limits
+
+4. **Optimal operation**: Maximize profit
+   - Balance conversion (revenue) vs cooling cost
+   - Economic objective: J = price·F·(Cₐ,feed - Cₐ) - cooling_cost
+   - Constraint: T_max safety limit
+   - May operate near instability for profit
+
+5. **Runaway prevention**: Safety constraint
+   - Monitor temperature rate: dT/dt &lt; threshold
+   - Emergency cooling if T &gt; T_max
+   - May require batch shutdown</code></pre>
+</section>
+<section id="state-constraints" class="level2 doc-section doc-section-----state-constraints">
+<h2 class="doc-section doc-section-----state-constraints anchored" data-anchor-id="state-constraints">State Constraints:</h2>
+<pre><code>Physical constraints that must be enforced:
+
+1. **Non-negativity**: Cₐ[k] ≥ 0
+   - Concentration cannot be negative
+   - Physical meaning: species present or absent
+   - Euler discretization may violate if dt too large
+
+2. **Concentration bounds**: 0 ≤ Cₐ[k] ≤ Cₐ,feed
+   - Cannot exceed feed concentration (dilution + reaction)
+   - Upper bound: Cₐ ≤ Cₐ,feed (no reaction case)
+   - Useful for validation
+
+3. **Temperature limits**: T_min ≤ T[k] ≤ T_max
+   - Safety: prevent runaway (T_max ≈ 450-500 K)
+   - Operability: prevent freezing/solidification (T_min ≈ 280 K)
+   - Jacket temperature limits: T_jacket,min ≤ T_jacket ≤ T_jacket,max
+   - Typical limits: 280 K ≤ T ≤ 450 K
+
+4. **Jacket temperature constraints**: T_jacket,min ≤ T_jacket[k] ≤ T_jacket,max
+   - Physical cooling/heating capacity
+   - Chiller: T_jacket,min ≈ 280 K
+   - Heater: T_jacket,max ≈ 400 K
+   - Rate limit: |T_jacket[k+1] - T_jacket[k]| ≤ ΔT_jacket,max</code></pre>
+</section>
+<section id="numerical-considerations" class="level2 doc-section doc-section-----numerical-considerations">
+<h2 class="doc-section doc-section-----numerical-considerations anchored" data-anchor-id="numerical-considerations">Numerical Considerations:</h2>
+<pre><code>**Stability**: The explicit Euler discretization is stable if:
+    dt &lt; 2/λ_max
+
+where λ_max is the maximum eigenvalue of the Jacobian.
+
+For CSTR, typical eigenvalues:
+    λ₁ ≈ -(1/τ + k₀·exp(-E/T))  (concentration dynamics)
+    λ₂ ≈ -(1/τ + UA/(VρCₚ))  (temperature dynamics)
+
+At high temperature, λ_max can be large (fast dynamics), requiring
+small dt for stability.
+
+**Rule of thumb**:
+    dt &lt; 0.1 · min(τ, VρCₚ/UA, 1/(k₀·exp(-E/T)))
+
+**Stiffness**: CSTR is moderately stiff due to:
+- Fast reaction at high temperature
+- Different time scales (concentration vs temperature)
+- Exponential temperature dependence
+
+For better accuracy, use higher-order discretization:</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>        cstr_continuous <span class="op">=</span> ContinuousCSTR(...)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>        cstr_discrete <span class="op">=</span> cstr_continuous.discretize(dt<span class="op">=</span><span class="fl">0.1</span>, method<span class="op">=</span><span class="st">'rk4'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>**Multiple Steady States**: Discrete system inherits multiple equilibria
+from continuous system. Simulation starting point determines which
+equilibrium is reached (basin of attraction).</code></pre>
+</section>
+<section id="example-usage" class="level2 doc-section doc-section-----example-usage">
+<h2 class="doc-section doc-section-----example-usage anchored" data-anchor-id="example-usage">Example Usage:</h2>
+<pre><code>&gt;&gt;&gt; # Create CSTR with default parameters
+&gt;&gt;&gt; cstr = DiscreteCSTR(dt=0.1)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # High conversion steady state (typical operating point)
+&gt;&gt;&gt; x_high = np.array([0.1, 390.0])  # [Low Cₐ, High T]
+&gt;&gt;&gt; u_high = np.array([350.0])  # [Cool jacket temperature]
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Verify it's an equilibrium
+&gt;&gt;&gt; x_next = cstr.step(x_high, u_high)
+&gt;&gt;&gt; print(f"Change: {np.linalg.norm(x_next - x_high):.2e}")  # Should be small
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Simulate with constant cooling
+&gt;&gt;&gt; result = cstr.simulate(
+...     x0=x_high,
+...     u_sequence=np.array([350.0]),  # Constant jacket temp
+...     n_steps=100
+... )
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Plot concentration and temperature
+&gt;&gt;&gt; import matplotlib.pyplot as plt
+&gt;&gt;&gt; fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+&gt;&gt;&gt; axes[0].plot(result['time_steps'] * cstr.dt, result['states'][:, 0])
+&gt;&gt;&gt; axes[0].set_ylabel('Cₐ [mol/L]')
+&gt;&gt;&gt; axes[1].plot(result['time_steps'] * cstr.dt, result['states'][:, 1])
+&gt;&gt;&gt; axes[1].set_ylabel('T [K]')
+&gt;&gt;&gt; axes[1].set_xlabel('Time [s]')
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Design LQR controller for temperature regulation
+&gt;&gt;&gt; T_setpoint = 390.0
+&gt;&gt;&gt; C_A_setpoint = 0.1
+&gt;&gt;&gt; x_ref = np.array([C_A_setpoint, T_setpoint])
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Calculate required jacket temperature for steady state
+&gt;&gt;&gt; # This requires solving energy balance, simplified here
+&gt;&gt;&gt; u_ref = np.array([350.0])
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Linearize at operating point
+&gt;&gt;&gt; Ad, Bd = cstr.linearize(x_ref, u_ref)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Check discrete stability
+&gt;&gt;&gt; eigenvalues = np.linalg.eigvals(Ad)
+&gt;&gt;&gt; print(f"Eigenvalues: {eigenvalues}")
+&gt;&gt;&gt; print(f"Stable: {np.all(np.abs(eigenvalues) &lt; 1)}")
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Design LQR (care more about temperature than concentration)
+&gt;&gt;&gt; Q_lqr = np.diag([1.0, 100.0])  # Penalize temperature error heavily
+&gt;&gt;&gt; R_lqr = np.array([[1.0]])
+&gt;&gt;&gt; lqr_result = cstr.control.design_lqr(Ad, Bd, Q_lqr, R_lqr,
+...                                       system_type='discrete')
+&gt;&gt;&gt; K = lqr_result['gain']
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Simulate with LQR control
+&gt;&gt;&gt; def lqr_controller(x, k):
+...     return -K @ (x - x_ref) + u_ref
+&gt;&gt;&gt;
+&gt;&gt;&gt; result_lqr = cstr.rollout(x_high, lqr_controller, n_steps=200)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Startup simulation: low conversion → high conversion
+&gt;&gt;&gt; x_low = np.array([0.9, 355.0])  # Low conversion state
+&gt;&gt;&gt;
+&gt;&gt;&gt; def startup_controller(x, k):
+...     # Aggressive cooling to reach high-conversion state
+...     if k &lt; 50:
+...         return np.array([340.0])  # Strong cooling
+...     else:
+...         return lqr_controller(x, k)  # Switch to regulator
+&gt;&gt;&gt;
+&gt;&gt;&gt; result_startup = cstr.rollout(x_low, startup_controller, n_steps=200)
+&gt;&gt;&gt;
+&gt;&gt;&gt; # Check if startup was successful
+&gt;&gt;&gt; final_state = result_startup['states'][-1, :]
+&gt;&gt;&gt; distance_to_target = np.linalg.norm(final_state - x_ref)
+&gt;&gt;&gt; print(f"Final state: Cₐ={final_state[0]:.3f}, T={final_state[1]:.1f}")
+&gt;&gt;&gt; print(f"Distance to target: {distance_to_target:.3f}")</code></pre>
+</section>
+<section id="physical-insights" class="level2 doc-section doc-section-----physical-insights">
+<h2 class="doc-section doc-section-----physical-insights anchored" data-anchor-id="physical-insights">Physical Insights:</h2>
+<pre><code>**Thermal Runaway Risk**:
+If cooling is insufficient, positive feedback occurs:
+1. Temperature increases
+2. Reaction rate increases exponentially (Arrhenius)
+3. More heat generated (exothermic)
+4. Temperature increases further → runaway!
+
+Prevention:
+- Adequate cooling capacity (large UA)
+- Temperature limits and alarms
+- Emergency cooling/shutdown procedures
+- Conservative setpoint selection
+
+**Multiple Steady States**:
+Creates control challenges:
+- Which steady state to operate at?
+- How to transition between states?
+- Risk of unintended switching due to disturbances
+- Hysteresis in startup/shutdown procedures
+
+**Residence Time Effects**:
+- Short τ (high F/V): Low conversion, stable, safe
+- Long τ (low F/V): High conversion, less stable, runaway risk
+- Economic optimum: maximize profit subject to stability
+
+**Jacket Temperature Selection**:
+- Lower T_jacket: More cooling, enables higher conversion
+- But: smaller stability margin, closer to bifurcation
+- Higher T_jacket: More stable, but lower conversion
+- Must balance economics and safety
+
+**Startup Strategy**:
+Transitioning from low to high conversion:
+1. Begin at low-conversion state (safe, stable)
+2. Gradually decrease T_jacket (increase cooling)
+3. System may jump to high-conversion state (bifurcation)
+4. Or use aggressive transient cooling
+5. Once at high conversion, switch to regulatory control
+
+**Oscillatory Behavior**:
+Near instability boundaries, system may exhibit:
+- Sustained oscillations (Hopf bifurcation)
+- Limit cycles in Cₐ-T phase plane
+- Period-doubling route to chaos (rare but possible)
+- Quasiperiodic dynamics</code></pre>
+</section>
+<section id="comparison-with-continuous-version" class="level2 doc-section doc-section-----comparison-with-continuous-version">
+<h2 class="doc-section doc-section-----comparison-with-continuous-version anchored" data-anchor-id="comparison-with-continuous-version">Comparison with Continuous Version:</h2>
+<pre><code>This discrete-time CSTR approximates the continuous-time system:
+- Continuous system: dx/dt = f(x, u) (ground truth)
+- Discrete system: x[k+1] = x[k] + dt·f(x[k], u[k]) (Euler approximation)
+
+Advantages of discrete formulation:
+- Natural for digital control (computers, PLCs)
+- Fixed time step (predictable computation)
+- Easy to implement in simulation
+- Matches physical sampling of sensors
+
+Disadvantages:
+- Approximation error (depends on dt)
+- Stability limited by time step
+- May not capture fast transients accurately
+
+For better accuracy, create from continuous version:</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>    cstr_continuous <span class="op">=</span> ContinuousCSTR(F<span class="op">=</span><span class="dv">100</span>, V<span class="op">=</span><span class="dv">100</span>, ...)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    cstr_discrete <span class="op">=</span> cstr_continuous.discretize(dt<span class="op">=</span><span class="fl">0.1</span>, method<span class="op">=</span><span class="st">'rk4'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-----see-also">
+<h2 class="doc-section doc-section-----see-also anchored" data-anchor-id="see-also">See Also:</h2>
+<pre><code>ContinuousCSTR : Continuous-time version (more accurate)
+DiscreteBatchReactor : Batch operation instead of continuous
+ContinuousBatchReactor : Continuous batch reactor</code></pre>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion">compute_conversion</a></td>
+<td>Compute fractional conversion of reactant A.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number">compute_damkohler_number</a></td>
+<td>Compute Damköhler number Da = k·τ (reaction rate × residence time).</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time">compute_residence_time</a></td>
+<td>Compute residence time τ = V/F.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system">define_system</a></td>
+<td>Define discrete-time CSTR dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states">find_steady_states</a></td>
+<td>Find all steady states for a given jacket temperature.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria">setup_equilibria</a></td>
+<td>Set up steady-state equilibrium if provided.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion">compute_conversion</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    C_A_feed,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute fractional conversion of reactant A.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 11%">
+<col style="width: 56%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C_A</td>
+<td>float</td>
+<td>Current reactor concentration [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>C_A_feed</td>
+<td>float</td>
+<td>Feed concentration [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Conversion fraction X_A = (C_A_feed - C_A) / C_A_feed</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X <span class="op">=</span> cstr.compute_conversion(C_A<span class="op">=</span><span class="fl">0.1</span>, C_A_feed<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conversion: </span><span class="sc">{</span>X<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>Conversion: <span class="fl">90.0</span><span class="op">%</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p>High conversion (X &gt; 0.9) typically corresponds to high-temperature steady state with fast kinetics and strong exothermic heat generation.</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number">compute_damkohler_number</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number(T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute Damköhler number Da = k·τ (reaction rate × residence time).</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>T</td>
+<td>float</td>
+<td>Temperature [K]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Damköhler number [dimensionless]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Damköhler number measures reaction rate relative to flow rate: - Da &lt;&lt; 1: Reaction slow, flow dominates, low conversion - Da &gt;&gt; 1: Reaction fast, kinetics dominate, high conversion - Da ≈ 1: Balanced, optimal efficiency</p>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Da_low <span class="op">=</span> cstr.compute_damkohler_number(T<span class="op">=</span><span class="fl">350.0</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Da_high <span class="op">=</span> cstr.compute_damkohler_number(T<span class="op">=</span><span class="fl">400.0</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Da(350K) = </span><span class="sc">{</span>Da_low<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Da(400K) = </span><span class="sc">{</span>Da_high<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time">compute_residence_time</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute residence time τ = V/F.</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Residence time [s]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR(F<span class="op">=</span><span class="fl">100.0</span>, V<span class="op">=</span><span class="fl">100.0</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> tau <span class="op">=</span> cstr.compute_residence_time()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Residence time: </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss"> s"</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>Residence time: <span class="fl">1.0</span> s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="notes-2" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-2">Notes</h4>
+<p>Residence time is the average time a molecule spends in the reactor. - Longer τ (smaller F): More conversion, less stable - Shorter τ (larger F): Less conversion, more stable</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.define_system(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    F_val<span class="op">=</span><span class="fl">100.0</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    V_val<span class="op">=</span><span class="fl">100.0</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    C_A_feed_val<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    T_feed_val<span class="op">=</span><span class="fl">350.0</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    k0_val<span class="op">=</span><span class="fl">72000000000.0</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    E_val<span class="op">=</span><span class="fl">8750.0</span>,</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    delta_H_val<span class="op">=-</span><span class="fl">50000.0</span>,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    rho_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    Cp_val<span class="op">=</span><span class="fl">0.239</span>,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    UA_val<span class="op">=</span><span class="fl">50000.0</span>,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    x_ss<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    u_ss<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define discrete-time CSTR dynamics.</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 22%">
+<col style="width: 48%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>F_val</td>
+<td>float</td>
+<td>Volumetric flow rate [L/s]</td>
+<td><code>100.0</code></td>
+</tr>
+<tr class="even">
+<td>V_val</td>
+<td>float</td>
+<td>Reactor volume [L]</td>
+<td><code>100.0</code></td>
+</tr>
+<tr class="odd">
+<td>C_A_feed_val</td>
+<td>float</td>
+<td>Feed concentration [mol/L]</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>T_feed_val</td>
+<td>float</td>
+<td>Feed temperature [K]</td>
+<td><code>350.0</code></td>
+</tr>
+<tr class="odd">
+<td>k0_val</td>
+<td>float</td>
+<td>Pre-exponential factor [1/s]</td>
+<td><code>72000000000.0</code></td>
+</tr>
+<tr class="even">
+<td>E_val</td>
+<td>float</td>
+<td>Activation energy [K]</td>
+<td><code>8750.0</code></td>
+</tr>
+<tr class="odd">
+<td>delta_H_val</td>
+<td>float</td>
+<td>Heat of reaction [J/mol] (negative = exothermic)</td>
+<td><code>-50000.0</code></td>
+</tr>
+<tr class="even">
+<td>rho_val</td>
+<td>float</td>
+<td>Density [kg/L]</td>
+<td><code>1000.0</code></td>
+</tr>
+<tr class="odd">
+<td>Cp_val</td>
+<td>float</td>
+<td>Specific heat capacity [J/(kg·K)]</td>
+<td><code>0.239</code></td>
+</tr>
+<tr class="even">
+<td>UA_val</td>
+<td>float</td>
+<td>Overall heat transfer coefficient × area [J/(s·K)]</td>
+<td><code>50000.0</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Sampling time step [s]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>x_ss</td>
+<td>Optional[np.ndarray]</td>
+<td>Steady-state [Cₐ, T] for equilibrium setup</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>u_ss</td>
+<td>Optional[np.ndarray]</td>
+<td>Steady-state [T_jacket] for equilibrium setup</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states">find_steady_states</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    T_jacket,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    T_range<span class="op">=</span>(<span class="fl">300.0</span>, <span class="fl">500.0</span>),</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    n_points<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Find all steady states for a given jacket temperature.</p>
+<p>Uses graphical method: plots dC_A/dt and dT/dt as functions of T, finds where both are zero simultaneously.</p>
+<section id="parameters-4" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-4">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 9%">
+<col style="width: 57%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>T_jacket</td>
+<td>float</td>
+<td>Jacket temperature [K]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>T_range</td>
+<td>tuple</td>
+<td>Temperature range to search (T_min, T_max) [K]</td>
+<td><code>(300.0, 500.0)</code></td>
+</tr>
+<tr class="odd">
+<td>n_points</td>
+<td>int</td>
+<td>Number of points for graphical search</td>
+<td><code>100</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-3" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-3">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>list</td>
+<td>List of (C_A, T) steady states</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples-3" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-3">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> steady_states <span class="op">=</span> cstr.find_steady_states(T_jacket<span class="op">=</span><span class="fl">350.0</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Found </span><span class="sc">{</span><span class="bu">len</span>(steady_states)<span class="sc">}</span><span class="ss"> steady states"</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> i, (C_A, T) <span class="kw">in</span> <span class="bu">enumerate</span>(steady_states):</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(<span class="ss">f"  State </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">: C_A=</span><span class="sc">{</span>C_A<span class="sc">:.3f}</span><span class="ss">, T=</span><span class="sc">{</span>T<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="notes-3" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-3">Notes</h4>
+<p>This is a simple implementation. For production code, use: - scipy.optimize.fsolve for more robust root finding - Continuation methods for bifurcation analysis - homotopy methods for finding all solutions</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up steady-state equilibrium if provided.</p>
+<section id="notes-4" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-4">Notes</h4>
+<p>CSTR can have multiple steady states! Only add user-provided equilibrium. Finding all equilibria requires solving nonlinear algebraic equations (see find_steady_states() method).</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.discrete.DiscreteCSTR { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR }</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="in">    Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket.</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Physical System: {.doc-section .doc-section-----physical-system}</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="in">    A continuous flow reactor where reactant A converts to product B in</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="in">    an exothermic reaction, modeled in discrete time with periodic sampling</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="in">    and control actuation.</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="in">    Unlike batch reactors, CSTRs operate at steady state with continuous</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="in">    feed and product removal. The discrete-time formulation is appropriate</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="in">    for digital control systems with:</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="in">    - Periodic concentration measurements (e.g., via online analyzers)</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="in">    - Discrete temperature sensor readings</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="in">    - Digital control actuation of cooling jacket</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="in">    Key features:</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="in">    - Continuous flow: Feed enters, product exits at same rate</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="in">    - Perfect mixing: Uniform concentration and temperature</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="in">    - Exothermic reaction: Heat generation from reaction</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="in">    - Jacket cooling: Heat removal to maintain temperature</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a><span class="in">    - Discrete measurements and control updates</span></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a><span class="in">    The reactor can exhibit:</span></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a><span class="in">    - Multiple steady states (low/high conversion)</span></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a><span class="in">    - Oscillatory behavior (limit cycles)</span></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a><span class="in">    - Thermal runaway (if cooling insufficient)</span></span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a><span class="in">    - Complex bifurcations as parameters vary</span></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a><span class="fu">##     State Space: {.doc-section .doc-section-----state-space}</span></span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a><span class="in">    State: x[k] = [Cₐ[k], T[k]]</span></span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a><span class="in">        Concentration state:</span></span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a><span class="in">        - Cₐ: Concentration of reactant A in reactor [mol/L]</span></span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a><span class="in">          * Lower than feed concentration due to reaction</span></span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a><span class="in">          * Cₐ,feed &gt; Cₐ &gt; 0</span></span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a><span class="in">          * Steady-state value depends on temperature and residence time</span></span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a><span class="in">          * High Cₐ → low conversion (inefficient)</span></span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a><span class="in">          * Low Cₐ → high conversion (efficient but expensive cooling)</span></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a><span class="in">        Temperature state:</span></span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a><span class="in">        - T: Reactor temperature [K]</span></span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a><span class="in">          * Higher than feed due to exothermic reaction</span></span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a><span class="in">          * T &gt; T_feed (for exothermic reactions)</span></span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a><span class="in">          * Critical state: affects reaction rate exponentially</span></span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a><span class="in">          * Small T change → large rate change (Arrhenius)</span></span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a><span class="in">          * Must be controlled to prevent runaway</span></span>
+<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a><span class="in">    Control: u[k] = [T_jacket[k]]</span></span>
+<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a><span class="in">        - T_jacket: Cooling jacket temperature [K]</span></span>
+<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a><span class="in">          * Manipulated variable for temperature control</span></span>
+<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a><span class="in">          * Typically T_jacket &lt; T (removing heat)</span></span>
+<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a><span class="in">          * Can be T_jacket &gt; T for startup heating</span></span>
+<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a><span class="in">          * Typical range: 280-340 K</span></span>
+<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a><span class="in">          * Physical limits: chiller/heater capacity</span></span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a><span class="in">    Output: y[k] = [Cₐ[k], T[k]]</span></span>
+<span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a><span class="in">        - Full state measurement</span></span>
+<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a><span class="in">        - In practice:</span></span>
+<span id="cb28-65"><a href="#cb28-65" aria-hidden="true" tabindex="-1"></a><span class="in">          * Cₐ measured via online analyzer (GC, HPLC, spectroscopy)</span></span>
+<span id="cb28-66"><a href="#cb28-66" aria-hidden="true" tabindex="-1"></a><span class="in">          * T measured via thermocouple or RTD</span></span>
+<span id="cb28-67"><a href="#cb28-67" aria-hidden="true" tabindex="-1"></a><span class="in">          * Both have sampling delays and noise</span></span>
+<span id="cb28-68"><a href="#cb28-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-69"><a href="#cb28-69" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Dynamics: {.doc-section .doc-section-----dynamics}</span></span>
+<span id="cb28-70"><a href="#cb28-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-71"><a href="#cb28-71" aria-hidden="true" tabindex="-1"></a><span class="in">    The discrete-time dynamics use Euler discretization:</span></span>
+<span id="cb28-72"><a href="#cb28-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-73"><a href="#cb28-73" aria-hidden="true" tabindex="-1"></a><span class="in">        Cₐ[k+1] = Cₐ[k] + dt·[(F/V)·(Cₐ,feed - Cₐ[k]) - r[k]]</span></span>
+<span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a><span class="in">        T[k+1] = T[k] + dt·[(F/V)·(T_feed - T[k]) + (-ΔH/ρCₚ)·r[k] + UA/(VρCₚ)·(T_jacket[k] - T[k])]</span></span>
+<span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-76"><a href="#cb28-76" aria-hidden="true" tabindex="-1"></a><span class="in">    **Reaction Rate (Arrhenius kinetics)**:</span></span>
+<span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a><span class="in">        r[k] = k₀·Cₐ[k]·exp(-E/T[k])  [mol/(L·s)]</span></span>
+<span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-79"><a href="#cb28-79" aria-hidden="true" tabindex="-1"></a><span class="in">    where:</span></span>
+<span id="cb28-80"><a href="#cb28-80" aria-hidden="true" tabindex="-1"></a><span class="in">    - k₀: Pre-exponential factor [1/s]</span></span>
+<span id="cb28-81"><a href="#cb28-81" aria-hidden="true" tabindex="-1"></a><span class="in">    - E: Activation energy [K] (using Eₐ/R as temperature)</span></span>
+<span id="cb28-82"><a href="#cb28-82" aria-hidden="true" tabindex="-1"></a><span class="in">    - exp(-E/T): Arrhenius temperature dependence</span></span>
+<span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a><span class="in">    **Physical Interpretation**:</span></span>
+<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a><span class="in">    Material Balance:</span></span>
+<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a><span class="in">    - (F/V)·(Cₐ,feed - Cₐ): Convective in/out (dilution)</span></span>
+<span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a><span class="in">    - F/V = 1/τ: Inverse residence time [1/s]</span></span>
+<span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a><span class="in">    - τ = V/F: Average time molecule spends in reactor [s]</span></span>
+<span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a><span class="in">    - -r: Consumption by reaction</span></span>
+<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a><span class="in">    - At steady state: inflow - outflow - reaction = 0</span></span>
+<span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a><span class="in">    Energy Balance:</span></span>
+<span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a><span class="in">    - (F/V)·(T_feed - T): Convective heat in/out</span></span>
+<span id="cb28-95"><a href="#cb28-95" aria-hidden="true" tabindex="-1"></a><span class="in">    - (-ΔH/ρCₚ)·r: Heat generation from reaction</span></span>
+<span id="cb28-96"><a href="#cb28-96" aria-hidden="true" tabindex="-1"></a><span class="in">      * ΔH &lt; 0 (exothermic) → heat generation</span></span>
+<span id="cb28-97"><a href="#cb28-97" aria-hidden="true" tabindex="-1"></a><span class="in">      * |ΔH| large → strong thermal coupling</span></span>
+<span id="cb28-98"><a href="#cb28-98" aria-hidden="true" tabindex="-1"></a><span class="in">    - UA/(VρCₚ)·(T_jacket - T): Heat removal via jacket</span></span>
+<span id="cb28-99"><a href="#cb28-99" aria-hidden="true" tabindex="-1"></a><span class="in">      * UA: Overall heat transfer coefficient × area</span></span>
+<span id="cb28-100"><a href="#cb28-100" aria-hidden="true" tabindex="-1"></a><span class="in">      * Larger UA → better temperature control</span></span>
+<span id="cb28-101"><a href="#cb28-101" aria-hidden="true" tabindex="-1"></a><span class="in">      * T_jacket &lt; T → cooling (typical)</span></span>
+<span id="cb28-102"><a href="#cb28-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a><span class="in">    **Nonlinear Coupling**:</span></span>
+<span id="cb28-104"><a href="#cb28-104" aria-hidden="true" tabindex="-1"></a><span class="in">    1. Temperature affects reaction rate exponentially (Arrhenius)</span></span>
+<span id="cb28-105"><a href="#cb28-105" aria-hidden="true" tabindex="-1"></a><span class="in">    2. Reaction generates heat (thermal feedback)</span></span>
+<span id="cb28-106"><a href="#cb28-106" aria-hidden="true" tabindex="-1"></a><span class="in">    3. High T → fast reaction → more heat → higher T (runaway risk)</span></span>
+<span id="cb28-107"><a href="#cb28-107" aria-hidden="true" tabindex="-1"></a><span class="in">    4. Cooling must balance heat generation for stability</span></span>
+<span id="cb28-108"><a href="#cb28-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-109"><a href="#cb28-109" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Parameters: {.doc-section .doc-section-----parameters}</span></span>
+<span id="cb28-110"><a href="#cb28-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-111"><a href="#cb28-111" aria-hidden="true" tabindex="-1"></a><span class="in">    F : float, default=100.0</span></span>
+<span id="cb28-112"><a href="#cb28-112" aria-hidden="true" tabindex="-1"></a><span class="in">        Volumetric flow rate [L/s]</span></span>
+<span id="cb28-113"><a href="#cb28-113" aria-hidden="true" tabindex="-1"></a><span class="in">        Higher F → shorter residence time → lower conversion</span></span>
+<span id="cb28-114"><a href="#cb28-114" aria-hidden="true" tabindex="-1"></a><span class="in">        Lower F → longer residence time → higher conversion</span></span>
+<span id="cb28-115"><a href="#cb28-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-116"><a href="#cb28-116" aria-hidden="true" tabindex="-1"></a><span class="in">    V : float, default=100.0</span></span>
+<span id="cb28-117"><a href="#cb28-117" aria-hidden="true" tabindex="-1"></a><span class="in">        Reactor volume [L]</span></span>
+<span id="cb28-118"><a href="#cb28-118" aria-hidden="true" tabindex="-1"></a><span class="in">        Determines residence time τ = V/F</span></span>
+<span id="cb28-119"><a href="#cb28-119" aria-hidden="true" tabindex="-1"></a><span class="in">        Larger V → more conversion for given F</span></span>
+<span id="cb28-120"><a href="#cb28-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-121"><a href="#cb28-121" aria-hidden="true" tabindex="-1"></a><span class="in">    C_A_feed : float, default=1.0</span></span>
+<span id="cb28-122"><a href="#cb28-122" aria-hidden="true" tabindex="-1"></a><span class="in">        Feed concentration [mol/L]</span></span>
+<span id="cb28-123"><a href="#cb28-123" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical: 0.5-2.0 mol/L</span></span>
+<span id="cb28-124"><a href="#cb28-124" aria-hidden="true" tabindex="-1"></a><span class="in">        Higher feed → more product but more heat generation</span></span>
+<span id="cb28-125"><a href="#cb28-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-126"><a href="#cb28-126" aria-hidden="true" tabindex="-1"></a><span class="in">    T_feed : float, default=350.0</span></span>
+<span id="cb28-127"><a href="#cb28-127" aria-hidden="true" tabindex="-1"></a><span class="in">        Feed temperature [K]</span></span>
+<span id="cb28-128"><a href="#cb28-128" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical: 300-360 K</span></span>
+<span id="cb28-129"><a href="#cb28-129" aria-hidden="true" tabindex="-1"></a><span class="in">        Pre-heating can improve conversion but reduces stability margin</span></span>
+<span id="cb28-130"><a href="#cb28-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-131"><a href="#cb28-131" aria-hidden="true" tabindex="-1"></a><span class="in">    k0 : float, default=7.2e10</span></span>
+<span id="cb28-132"><a href="#cb28-132" aria-hidden="true" tabindex="-1"></a><span class="in">        Pre-exponential factor [1/s]</span></span>
+<span id="cb28-133"><a href="#cb28-133" aria-hidden="true" tabindex="-1"></a><span class="in">        Collision frequency in Arrhenius equation</span></span>
+<span id="cb28-134"><a href="#cb28-134" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical: 10⁶-10¹² for liquid phase reactions</span></span>
+<span id="cb28-135"><a href="#cb28-135" aria-hidden="true" tabindex="-1"></a><span class="in">        Determines reaction speed at given temperature</span></span>
+<span id="cb28-136"><a href="#cb28-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-137"><a href="#cb28-137" aria-hidden="true" tabindex="-1"></a><span class="in">    E : float, default=8750.0</span></span>
+<span id="cb28-138"><a href="#cb28-138" aria-hidden="true" tabindex="-1"></a><span class="in">        Activation energy [K] (actually Eₐ/R)</span></span>
+<span id="cb28-139"><a href="#cb28-139" aria-hidden="true" tabindex="-1"></a><span class="in">        Energy barrier for reaction to occur</span></span>
+<span id="cb28-140"><a href="#cb28-140" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical: 5000-15000 K for Eₐ/R</span></span>
+<span id="cb28-141"><a href="#cb28-141" aria-hidden="true" tabindex="-1"></a><span class="in">        Higher E → more temperature-sensitive</span></span>
+<span id="cb28-142"><a href="#cb28-142" aria-hidden="true" tabindex="-1"></a><span class="in">        Physical Eₐ typically 40-120 kJ/mol</span></span>
+<span id="cb28-143"><a href="#cb28-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-144"><a href="#cb28-144" aria-hidden="true" tabindex="-1"></a><span class="in">    delta_H : float, default=-5e4</span></span>
+<span id="cb28-145"><a href="#cb28-145" aria-hidden="true" tabindex="-1"></a><span class="in">        Heat of reaction [J/mol]</span></span>
+<span id="cb28-146"><a href="#cb28-146" aria-hidden="true" tabindex="-1"></a><span class="in">        Negative = exothermic (releases heat)</span></span>
+<span id="cb28-147"><a href="#cb28-147" aria-hidden="true" tabindex="-1"></a><span class="in">        Positive = endothermic (absorbs heat)</span></span>
+<span id="cb28-148"><a href="#cb28-148" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical for exothermic: -20,000 to -200,000 J/mol</span></span>
+<span id="cb28-149"><a href="#cb28-149" aria-hidden="true" tabindex="-1"></a><span class="in">        Larger |ΔH| → stronger thermal coupling, harder control</span></span>
+<span id="cb28-150"><a href="#cb28-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-151"><a href="#cb28-151" aria-hidden="true" tabindex="-1"></a><span class="in">    rho : float, default=1000.0</span></span>
+<span id="cb28-152"><a href="#cb28-152" aria-hidden="true" tabindex="-1"></a><span class="in">        Density [kg/L]</span></span>
+<span id="cb28-153"><a href="#cb28-153" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical for aqueous solutions: 900-1100 kg/L</span></span>
+<span id="cb28-154"><a href="#cb28-154" aria-hidden="true" tabindex="-1"></a><span class="in">        Affects thermal inertia (heat capacity)</span></span>
+<span id="cb28-155"><a href="#cb28-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-156"><a href="#cb28-156" aria-hidden="true" tabindex="-1"></a><span class="in">    Cp : float, default=0.239</span></span>
+<span id="cb28-157"><a href="#cb28-157" aria-hidden="true" tabindex="-1"></a><span class="in">        Specific heat capacity [J/(kg·K)]</span></span>
+<span id="cb28-158"><a href="#cb28-158" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical for aqueous: 0.2-0.5 J/(kg·K)</span></span>
+<span id="cb28-159"><a href="#cb28-159" aria-hidden="true" tabindex="-1"></a><span class="in">        Higher Cₚ → slower temperature changes (more stable)</span></span>
+<span id="cb28-160"><a href="#cb28-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-161"><a href="#cb28-161" aria-hidden="true" tabindex="-1"></a><span class="in">    UA : float, default=5e4</span></span>
+<span id="cb28-162"><a href="#cb28-162" aria-hidden="true" tabindex="-1"></a><span class="in">        Overall heat transfer coefficient × area [J/(s·K)]</span></span>
+<span id="cb28-163"><a href="#cb28-163" aria-hidden="true" tabindex="-1"></a><span class="in">        Combines jacket film coefficient, wall conduction, reactor-side film</span></span>
+<span id="cb28-164"><a href="#cb28-164" aria-hidden="true" tabindex="-1"></a><span class="in">        Typical: 10³-10⁵ J/(s·K)</span></span>
+<span id="cb28-165"><a href="#cb28-165" aria-hidden="true" tabindex="-1"></a><span class="in">        Higher UA → better temperature control, faster cooling</span></span>
+<span id="cb28-166"><a href="#cb28-166" aria-hidden="true" tabindex="-1"></a><span class="in">        Limited by physical design (jacket size, flow rate)</span></span>
+<span id="cb28-167"><a href="#cb28-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-168"><a href="#cb28-168" aria-hidden="true" tabindex="-1"></a><span class="in">    dt : float, default=0.1</span></span>
+<span id="cb28-169"><a href="#cb28-169" aria-hidden="true" tabindex="-1"></a><span class="in">        Sampling/discretization time step [s]</span></span>
+<span id="cb28-170"><a href="#cb28-170" aria-hidden="true" tabindex="-1"></a><span class="in">        Critical parameter for stability!</span></span>
+<span id="cb28-171"><a href="#cb28-171" aria-hidden="true" tabindex="-1"></a><span class="in">        - Too large → numerical instability, oscillations</span></span>
+<span id="cb28-172"><a href="#cb28-172" aria-hidden="true" tabindex="-1"></a><span class="in">        - Too small → slow simulation, high computational cost</span></span>
+<span id="cb28-173"><a href="#cb28-173" aria-hidden="true" tabindex="-1"></a><span class="in">        - Rule of thumb: dt &lt; 0.1/max(λ) where λ are eigenvalues</span></span>
+<span id="cb28-174"><a href="#cb28-174" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical for CSTR: 0.01-1.0 seconds</span></span>
+<span id="cb28-175"><a href="#cb28-175" aria-hidden="true" tabindex="-1"></a><span class="in">        - Must be smaller than fastest system time scale</span></span>
+<span id="cb28-176"><a href="#cb28-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-177"><a href="#cb28-177" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Equilibria: {.doc-section .doc-section-----equilibria}</span></span>
+<span id="cb28-178"><a href="#cb28-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-179"><a href="#cb28-179" aria-hidden="true" tabindex="-1"></a><span class="in">    **Multiple Steady States** (hallmark of CSTRs!):</span></span>
+<span id="cb28-180"><a href="#cb28-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-181"><a href="#cb28-181" aria-hidden="true" tabindex="-1"></a><span class="in">    CSTR can have 1, 2, or 3 steady states depending on parameters.</span></span>
+<span id="cb28-182"><a href="#cb28-182" aria-hidden="true" tabindex="-1"></a><span class="in">    For given feed conditions and jacket temperature:</span></span>
+<span id="cb28-183"><a href="#cb28-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-184"><a href="#cb28-184" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Low conversion state** (stable):</span></span>
+<span id="cb28-185"><a href="#cb28-185" aria-hidden="true" tabindex="-1"></a><span class="in">       - Low T ≈ T_feed + small rise</span></span>
+<span id="cb28-186"><a href="#cb28-186" aria-hidden="true" tabindex="-1"></a><span class="in">       - Low reaction rate (slow kinetics)</span></span>
+<span id="cb28-187"><a href="#cb28-187" aria-hidden="true" tabindex="-1"></a><span class="in">       - High Cₐ ≈ Cₐ,feed (minimal conversion)</span></span>
+<span id="cb28-188"><a href="#cb28-188" aria-hidden="true" tabindex="-1"></a><span class="in">       - Heat generation &lt; Heat removal</span></span>
+<span id="cb28-189"><a href="#cb28-189" aria-hidden="true" tabindex="-1"></a><span class="in">       - Easy to control but inefficient</span></span>
+<span id="cb28-190"><a href="#cb28-190" aria-hidden="true" tabindex="-1"></a><span class="in">       - Attractive for cold startup</span></span>
+<span id="cb28-191"><a href="#cb28-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-192"><a href="#cb28-192" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **High conversion state** (stable):</span></span>
+<span id="cb28-193"><a href="#cb28-193" aria-hidden="true" tabindex="-1"></a><span class="in">       - High T &gt;&gt; T_feed</span></span>
+<span id="cb28-194"><a href="#cb28-194" aria-hidden="true" tabindex="-1"></a><span class="in">       - High reaction rate (fast kinetics)</span></span>
+<span id="cb28-195"><a href="#cb28-195" aria-hidden="true" tabindex="-1"></a><span class="in">       - Low Cₐ &lt;&lt; Cₐ,feed (high conversion)</span></span>
+<span id="cb28-196"><a href="#cb28-196" aria-hidden="true" tabindex="-1"></a><span class="in">       - Heat generation balanced by cooling</span></span>
+<span id="cb28-197"><a href="#cb28-197" aria-hidden="true" tabindex="-1"></a><span class="in">       - Desirable operating point (efficient)</span></span>
+<span id="cb28-198"><a href="#cb28-198" aria-hidden="true" tabindex="-1"></a><span class="in">       - Risk: close to instability/runaway</span></span>
+<span id="cb28-199"><a href="#cb28-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-200"><a href="#cb28-200" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Intermediate state** (unstable):</span></span>
+<span id="cb28-201"><a href="#cb28-201" aria-hidden="true" tabindex="-1"></a><span class="in">       - Saddle point in phase space</span></span>
+<span id="cb28-202"><a href="#cb28-202" aria-hidden="true" tabindex="-1"></a><span class="in">       - Not physically realizable (unstable)</span></span>
+<span id="cb28-203"><a href="#cb28-203" aria-hidden="true" tabindex="-1"></a><span class="in">       - Forms separatrix between basins of attraction</span></span>
+<span id="cb28-204"><a href="#cb28-204" aria-hidden="true" tabindex="-1"></a><span class="in">       - System will move toward stable states</span></span>
+<span id="cb28-205"><a href="#cb28-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-206"><a href="#cb28-206" aria-hidden="true" tabindex="-1"></a><span class="in">    **Stability depends on**:</span></span>
+<span id="cb28-207"><a href="#cb28-207" aria-hidden="true" tabindex="-1"></a><span class="in">    - Residence time τ = V/F (longer → more conversion, less stable)</span></span>
+<span id="cb28-208"><a href="#cb28-208" aria-hidden="true" tabindex="-1"></a><span class="in">    - Activation energy E (higher → more sensitive)</span></span>
+<span id="cb28-209"><a href="#cb28-209" aria-hidden="true" tabindex="-1"></a><span class="in">    - Heat of reaction ΔH (larger |ΔH| → more coupling)</span></span>
+<span id="cb28-210"><a href="#cb28-210" aria-hidden="true" tabindex="-1"></a><span class="in">    - Cooling capacity UA (higher → more stable)</span></span>
+<span id="cb28-211"><a href="#cb28-211" aria-hidden="true" tabindex="-1"></a><span class="in">    - Feed temperature T_feed (higher → less stable margin)</span></span>
+<span id="cb28-212"><a href="#cb28-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-213"><a href="#cb28-213" aria-hidden="true" tabindex="-1"></a><span class="in">    **Bifurcation Behavior**:</span></span>
+<span id="cb28-214"><a href="#cb28-214" aria-hidden="true" tabindex="-1"></a><span class="in">    As cooling capacity (T_jacket) decreases:</span></span>
+<span id="cb28-215"><a href="#cb28-215" aria-hidden="true" tabindex="-1"></a><span class="in">    1. Unique stable high-conversion state</span></span>
+<span id="cb28-216"><a href="#cb28-216" aria-hidden="true" tabindex="-1"></a><span class="in">    2. Saddle-node bifurcation → 3 steady states appear</span></span>
+<span id="cb28-217"><a href="#cb28-217" aria-hidden="true" tabindex="-1"></a><span class="in">    3. Two stable states (low and high conversion)</span></span>
+<span id="cb28-218"><a href="#cb28-218" aria-hidden="true" tabindex="-1"></a><span class="in">    4. Another saddle-node → only low-conversion state</span></span>
+<span id="cb28-219"><a href="#cb28-219" aria-hidden="true" tabindex="-1"></a><span class="in">    5. Further decrease → thermal runaway (no steady state)</span></span>
+<span id="cb28-220"><a href="#cb28-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-221"><a href="#cb28-221" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Control Objectives: {.doc-section .doc-section-----control-objectives}</span></span>
+<span id="cb28-222"><a href="#cb28-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-223"><a href="#cb28-223" aria-hidden="true" tabindex="-1"></a><span class="in">    Common control goals for CSTR:</span></span>
+<span id="cb28-224"><a href="#cb28-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-225"><a href="#cb28-225" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Setpoint tracking**: Maintain T[k] ≈ T_setpoint</span></span>
+<span id="cb28-226"><a href="#cb28-226" aria-hidden="true" tabindex="-1"></a><span class="in">       - Most common objective</span></span>
+<span id="cb28-227"><a href="#cb28-227" aria-hidden="true" tabindex="-1"></a><span class="in">       - Balances conversion and stability</span></span>
+<span id="cb28-228"><a href="#cb28-228" aria-hidden="true" tabindex="-1"></a><span class="in">       - PID/LQR/MPC controllers typical</span></span>
+<span id="cb28-229"><a href="#cb28-229" aria-hidden="true" tabindex="-1"></a><span class="in">       - Challenge: nonlinearity and multiple steady states</span></span>
+<span id="cb28-230"><a href="#cb28-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-231"><a href="#cb28-231" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **Startup control**: Transition low → high conversion state</span></span>
+<span id="cb28-232"><a href="#cb28-232" aria-hidden="true" tabindex="-1"></a><span class="in">       - Must cross unstable intermediate state</span></span>
+<span id="cb28-233"><a href="#cb28-233" aria-hidden="true" tabindex="-1"></a><span class="in">       - Requires large transient cooling capacity</span></span>
+<span id="cb28-234"><a href="#cb28-234" aria-hidden="true" tabindex="-1"></a><span class="in">       - Bang-bang or optimal trajectory control</span></span>
+<span id="cb28-235"><a href="#cb28-235" aria-hidden="true" tabindex="-1"></a><span class="in">       - Risk of overshoot → runaway</span></span>
+<span id="cb28-236"><a href="#cb28-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-237"><a href="#cb28-237" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Disturbance rejection**: Handle feed variations</span></span>
+<span id="cb28-238"><a href="#cb28-238" aria-hidden="true" tabindex="-1"></a><span class="in">       - Feed concentration changes: Cₐ,feed(t)</span></span>
+<span id="cb28-239"><a href="#cb28-239" aria-hidden="true" tabindex="-1"></a><span class="in">       - Feed temperature disturbances: T_feed(t)</span></span>
+<span id="cb28-240"><a href="#cb28-240" aria-hidden="true" tabindex="-1"></a><span class="in">       - Flow rate fluctuations: F(t)</span></span>
+<span id="cb28-241"><a href="#cb28-241" aria-hidden="true" tabindex="-1"></a><span class="in">       - Jacket temperature limits</span></span>
+<span id="cb28-242"><a href="#cb28-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-243"><a href="#cb28-243" aria-hidden="true" tabindex="-1"></a><span class="in">    4. **Optimal operation**: Maximize profit</span></span>
+<span id="cb28-244"><a href="#cb28-244" aria-hidden="true" tabindex="-1"></a><span class="in">       - Balance conversion (revenue) vs cooling cost</span></span>
+<span id="cb28-245"><a href="#cb28-245" aria-hidden="true" tabindex="-1"></a><span class="in">       - Economic objective: J = price·F·(Cₐ,feed - Cₐ) - cooling_cost</span></span>
+<span id="cb28-246"><a href="#cb28-246" aria-hidden="true" tabindex="-1"></a><span class="in">       - Constraint: T_max safety limit</span></span>
+<span id="cb28-247"><a href="#cb28-247" aria-hidden="true" tabindex="-1"></a><span class="in">       - May operate near instability for profit</span></span>
+<span id="cb28-248"><a href="#cb28-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-249"><a href="#cb28-249" aria-hidden="true" tabindex="-1"></a><span class="in">    5. **Runaway prevention**: Safety constraint</span></span>
+<span id="cb28-250"><a href="#cb28-250" aria-hidden="true" tabindex="-1"></a><span class="in">       - Monitor temperature rate: dT/dt &lt; threshold</span></span>
+<span id="cb28-251"><a href="#cb28-251" aria-hidden="true" tabindex="-1"></a><span class="in">       - Emergency cooling if T &gt; T_max</span></span>
+<span id="cb28-252"><a href="#cb28-252" aria-hidden="true" tabindex="-1"></a><span class="in">       - May require batch shutdown</span></span>
+<span id="cb28-253"><a href="#cb28-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-254"><a href="#cb28-254" aria-hidden="true" tabindex="-1"></a><span class="fu">##     State Constraints: {.doc-section .doc-section-----state-constraints}</span></span>
+<span id="cb28-255"><a href="#cb28-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-256"><a href="#cb28-256" aria-hidden="true" tabindex="-1"></a><span class="in">    Physical constraints that must be enforced:</span></span>
+<span id="cb28-257"><a href="#cb28-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-258"><a href="#cb28-258" aria-hidden="true" tabindex="-1"></a><span class="in">    1. **Non-negativity**: Cₐ[k] ≥ 0</span></span>
+<span id="cb28-259"><a href="#cb28-259" aria-hidden="true" tabindex="-1"></a><span class="in">       - Concentration cannot be negative</span></span>
+<span id="cb28-260"><a href="#cb28-260" aria-hidden="true" tabindex="-1"></a><span class="in">       - Physical meaning: species present or absent</span></span>
+<span id="cb28-261"><a href="#cb28-261" aria-hidden="true" tabindex="-1"></a><span class="in">       - Euler discretization may violate if dt too large</span></span>
+<span id="cb28-262"><a href="#cb28-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-263"><a href="#cb28-263" aria-hidden="true" tabindex="-1"></a><span class="in">    2. **Concentration bounds**: 0 ≤ Cₐ[k] ≤ Cₐ,feed</span></span>
+<span id="cb28-264"><a href="#cb28-264" aria-hidden="true" tabindex="-1"></a><span class="in">       - Cannot exceed feed concentration (dilution + reaction)</span></span>
+<span id="cb28-265"><a href="#cb28-265" aria-hidden="true" tabindex="-1"></a><span class="in">       - Upper bound: Cₐ ≤ Cₐ,feed (no reaction case)</span></span>
+<span id="cb28-266"><a href="#cb28-266" aria-hidden="true" tabindex="-1"></a><span class="in">       - Useful for validation</span></span>
+<span id="cb28-267"><a href="#cb28-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-268"><a href="#cb28-268" aria-hidden="true" tabindex="-1"></a><span class="in">    3. **Temperature limits**: T_min ≤ T[k] ≤ T_max</span></span>
+<span id="cb28-269"><a href="#cb28-269" aria-hidden="true" tabindex="-1"></a><span class="in">       - Safety: prevent runaway (T_max ≈ 450-500 K)</span></span>
+<span id="cb28-270"><a href="#cb28-270" aria-hidden="true" tabindex="-1"></a><span class="in">       - Operability: prevent freezing/solidification (T_min ≈ 280 K)</span></span>
+<span id="cb28-271"><a href="#cb28-271" aria-hidden="true" tabindex="-1"></a><span class="in">       - Jacket temperature limits: T_jacket,min ≤ T_jacket ≤ T_jacket,max</span></span>
+<span id="cb28-272"><a href="#cb28-272" aria-hidden="true" tabindex="-1"></a><span class="in">       - Typical limits: 280 K ≤ T ≤ 450 K</span></span>
+<span id="cb28-273"><a href="#cb28-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-274"><a href="#cb28-274" aria-hidden="true" tabindex="-1"></a><span class="in">    4. **Jacket temperature constraints**: T_jacket,min ≤ T_jacket[k] ≤ T_jacket,max</span></span>
+<span id="cb28-275"><a href="#cb28-275" aria-hidden="true" tabindex="-1"></a><span class="in">       - Physical cooling/heating capacity</span></span>
+<span id="cb28-276"><a href="#cb28-276" aria-hidden="true" tabindex="-1"></a><span class="in">       - Chiller: T_jacket,min ≈ 280 K</span></span>
+<span id="cb28-277"><a href="#cb28-277" aria-hidden="true" tabindex="-1"></a><span class="in">       - Heater: T_jacket,max ≈ 400 K</span></span>
+<span id="cb28-278"><a href="#cb28-278" aria-hidden="true" tabindex="-1"></a><span class="in">       - Rate limit: |T_jacket[k+1] - T_jacket[k]| ≤ ΔT_jacket,max</span></span>
+<span id="cb28-279"><a href="#cb28-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-280"><a href="#cb28-280" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Numerical Considerations: {.doc-section .doc-section-----numerical-considerations}</span></span>
+<span id="cb28-281"><a href="#cb28-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-282"><a href="#cb28-282" aria-hidden="true" tabindex="-1"></a><span class="in">    **Stability**: The explicit Euler discretization is stable if:</span></span>
+<span id="cb28-283"><a href="#cb28-283" aria-hidden="true" tabindex="-1"></a><span class="in">        dt &lt; 2/λ_max</span></span>
+<span id="cb28-284"><a href="#cb28-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-285"><a href="#cb28-285" aria-hidden="true" tabindex="-1"></a><span class="in">    where λ_max is the maximum eigenvalue of the Jacobian.</span></span>
+<span id="cb28-286"><a href="#cb28-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-287"><a href="#cb28-287" aria-hidden="true" tabindex="-1"></a><span class="in">    For CSTR, typical eigenvalues:</span></span>
+<span id="cb28-288"><a href="#cb28-288" aria-hidden="true" tabindex="-1"></a><span class="in">        λ₁ ≈ -(1/τ + k₀·exp(-E/T))  (concentration dynamics)</span></span>
+<span id="cb28-289"><a href="#cb28-289" aria-hidden="true" tabindex="-1"></a><span class="in">        λ₂ ≈ -(1/τ + UA/(VρCₚ))  (temperature dynamics)</span></span>
+<span id="cb28-290"><a href="#cb28-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-291"><a href="#cb28-291" aria-hidden="true" tabindex="-1"></a><span class="in">    At high temperature, λ_max can be large (fast dynamics), requiring</span></span>
+<span id="cb28-292"><a href="#cb28-292" aria-hidden="true" tabindex="-1"></a><span class="in">    small dt for stability.</span></span>
+<span id="cb28-293"><a href="#cb28-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-294"><a href="#cb28-294" aria-hidden="true" tabindex="-1"></a><span class="in">    **Rule of thumb**:</span></span>
+<span id="cb28-295"><a href="#cb28-295" aria-hidden="true" tabindex="-1"></a><span class="in">        dt &lt; 0.1 · min(τ, VρCₚ/UA, 1/(k₀·exp(-E/T)))</span></span>
+<span id="cb28-296"><a href="#cb28-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-297"><a href="#cb28-297" aria-hidden="true" tabindex="-1"></a><span class="in">    **Stiffness**: CSTR is moderately stiff due to:</span></span>
+<span id="cb28-298"><a href="#cb28-298" aria-hidden="true" tabindex="-1"></a><span class="in">    - Fast reaction at high temperature</span></span>
+<span id="cb28-299"><a href="#cb28-299" aria-hidden="true" tabindex="-1"></a><span class="in">    - Different time scales (concentration vs temperature)</span></span>
+<span id="cb28-300"><a href="#cb28-300" aria-hidden="true" tabindex="-1"></a><span class="in">    - Exponential temperature dependence</span></span>
+<span id="cb28-301"><a href="#cb28-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-302"><a href="#cb28-302" aria-hidden="true" tabindex="-1"></a><span class="in">    For better accuracy, use higher-order discretization:</span></span>
+<span id="cb28-303"><a href="#cb28-303" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-304"><a href="#cb28-304" aria-hidden="true" tabindex="-1"></a>        cstr_continuous <span class="op">=</span> ContinuousCSTR(...)</span>
+<span id="cb28-305"><a href="#cb28-305" aria-hidden="true" tabindex="-1"></a>        cstr_discrete <span class="op">=</span> cstr_continuous.discretize(dt<span class="op">=</span><span class="fl">0.1</span>, method<span class="op">=</span><span class="st">'rk4'</span>)</span>
+<span id="cb28-306"><a href="#cb28-306" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-307"><a href="#cb28-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-308"><a href="#cb28-308" aria-hidden="true" tabindex="-1"></a><span class="in">    **Multiple Steady States**: Discrete system inherits multiple equilibria</span></span>
+<span id="cb28-309"><a href="#cb28-309" aria-hidden="true" tabindex="-1"></a><span class="in">    from continuous system. Simulation starting point determines which</span></span>
+<span id="cb28-310"><a href="#cb28-310" aria-hidden="true" tabindex="-1"></a><span class="in">    equilibrium is reached (basin of attraction).</span></span>
+<span id="cb28-311"><a href="#cb28-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-312"><a href="#cb28-312" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Example Usage: {.doc-section .doc-section-----example-usage}</span></span>
+<span id="cb28-313"><a href="#cb28-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-314"><a href="#cb28-314" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Create CSTR with default parameters</span></span>
+<span id="cb28-315"><a href="#cb28-315" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; cstr = DiscreteCSTR(dt=0.1)</span></span>
+<span id="cb28-316"><a href="#cb28-316" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-317"><a href="#cb28-317" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # High conversion steady state (typical operating point)</span></span>
+<span id="cb28-318"><a href="#cb28-318" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x_high = np.array([0.1, 390.0])  # [Low Cₐ, High T]</span></span>
+<span id="cb28-319"><a href="#cb28-319" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; u_high = np.array([350.0])  # [Cool jacket temperature]</span></span>
+<span id="cb28-320"><a href="#cb28-320" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-321"><a href="#cb28-321" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Verify it's an equilibrium</span></span>
+<span id="cb28-322"><a href="#cb28-322" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x_next = cstr.step(x_high, u_high)</span></span>
+<span id="cb28-323"><a href="#cb28-323" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Change: {np.linalg.norm(x_next - x_high):.2e}")  # Should be small</span></span>
+<span id="cb28-324"><a href="#cb28-324" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-325"><a href="#cb28-325" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Simulate with constant cooling</span></span>
+<span id="cb28-326"><a href="#cb28-326" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result = cstr.simulate(</span></span>
+<span id="cb28-327"><a href="#cb28-327" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     x0=x_high,</span></span>
+<span id="cb28-328"><a href="#cb28-328" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     u_sequence=np.array([350.0]),  # Constant jacket temp</span></span>
+<span id="cb28-329"><a href="#cb28-329" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     n_steps=100</span></span>
+<span id="cb28-330"><a href="#cb28-330" aria-hidden="true" tabindex="-1"></a><span class="in">    ... )</span></span>
+<span id="cb28-331"><a href="#cb28-331" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-332"><a href="#cb28-332" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Plot concentration and temperature</span></span>
+<span id="cb28-333"><a href="#cb28-333" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; import matplotlib.pyplot as plt</span></span>
+<span id="cb28-334"><a href="#cb28-334" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; fig, axes = plt.subplots(2, 1, figsize=(10, 6))</span></span>
+<span id="cb28-335"><a href="#cb28-335" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; axes[0].plot(result['time_steps'] * cstr.dt, result['states'][:, 0])</span></span>
+<span id="cb28-336"><a href="#cb28-336" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; axes[0].set_ylabel('Cₐ [mol/L]')</span></span>
+<span id="cb28-337"><a href="#cb28-337" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; axes[1].plot(result['time_steps'] * cstr.dt, result['states'][:, 1])</span></span>
+<span id="cb28-338"><a href="#cb28-338" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; axes[1].set_ylabel('T [K]')</span></span>
+<span id="cb28-339"><a href="#cb28-339" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; axes[1].set_xlabel('Time [s]')</span></span>
+<span id="cb28-340"><a href="#cb28-340" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-341"><a href="#cb28-341" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Design LQR controller for temperature regulation</span></span>
+<span id="cb28-342"><a href="#cb28-342" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; T_setpoint = 390.0</span></span>
+<span id="cb28-343"><a href="#cb28-343" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; C_A_setpoint = 0.1</span></span>
+<span id="cb28-344"><a href="#cb28-344" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x_ref = np.array([C_A_setpoint, T_setpoint])</span></span>
+<span id="cb28-345"><a href="#cb28-345" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-346"><a href="#cb28-346" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Calculate required jacket temperature for steady state</span></span>
+<span id="cb28-347"><a href="#cb28-347" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # This requires solving energy balance, simplified here</span></span>
+<span id="cb28-348"><a href="#cb28-348" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; u_ref = np.array([350.0])</span></span>
+<span id="cb28-349"><a href="#cb28-349" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-350"><a href="#cb28-350" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Linearize at operating point</span></span>
+<span id="cb28-351"><a href="#cb28-351" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; Ad, Bd = cstr.linearize(x_ref, u_ref)</span></span>
+<span id="cb28-352"><a href="#cb28-352" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-353"><a href="#cb28-353" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Check discrete stability</span></span>
+<span id="cb28-354"><a href="#cb28-354" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; eigenvalues = np.linalg.eigvals(Ad)</span></span>
+<span id="cb28-355"><a href="#cb28-355" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Eigenvalues: {eigenvalues}")</span></span>
+<span id="cb28-356"><a href="#cb28-356" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Stable: {np.all(np.abs(eigenvalues) &lt; 1)}")</span></span>
+<span id="cb28-357"><a href="#cb28-357" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-358"><a href="#cb28-358" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Design LQR (care more about temperature than concentration)</span></span>
+<span id="cb28-359"><a href="#cb28-359" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; Q_lqr = np.diag([1.0, 100.0])  # Penalize temperature error heavily</span></span>
+<span id="cb28-360"><a href="#cb28-360" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; R_lqr = np.array([[1.0]])</span></span>
+<span id="cb28-361"><a href="#cb28-361" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; lqr_result = cstr.control.design_lqr(Ad, Bd, Q_lqr, R_lqr,</span></span>
+<span id="cb28-362"><a href="#cb28-362" aria-hidden="true" tabindex="-1"></a><span class="in">    ...                                       system_type='discrete')</span></span>
+<span id="cb28-363"><a href="#cb28-363" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; K = lqr_result['gain']</span></span>
+<span id="cb28-364"><a href="#cb28-364" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-365"><a href="#cb28-365" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Simulate with LQR control</span></span>
+<span id="cb28-366"><a href="#cb28-366" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; def lqr_controller(x, k):</span></span>
+<span id="cb28-367"><a href="#cb28-367" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     return -K @ (x - x_ref) + u_ref</span></span>
+<span id="cb28-368"><a href="#cb28-368" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-369"><a href="#cb28-369" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_lqr = cstr.rollout(x_high, lqr_controller, n_steps=200)</span></span>
+<span id="cb28-370"><a href="#cb28-370" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-371"><a href="#cb28-371" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Startup simulation: low conversion → high conversion</span></span>
+<span id="cb28-372"><a href="#cb28-372" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; x_low = np.array([0.9, 355.0])  # Low conversion state</span></span>
+<span id="cb28-373"><a href="#cb28-373" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-374"><a href="#cb28-374" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; def startup_controller(x, k):</span></span>
+<span id="cb28-375"><a href="#cb28-375" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     # Aggressive cooling to reach high-conversion state</span></span>
+<span id="cb28-376"><a href="#cb28-376" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     if k &lt; 50:</span></span>
+<span id="cb28-377"><a href="#cb28-377" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         return np.array([340.0])  # Strong cooling</span></span>
+<span id="cb28-378"><a href="#cb28-378" aria-hidden="true" tabindex="-1"></a><span class="in">    ...     else:</span></span>
+<span id="cb28-379"><a href="#cb28-379" aria-hidden="true" tabindex="-1"></a><span class="in">    ...         return lqr_controller(x, k)  # Switch to regulator</span></span>
+<span id="cb28-380"><a href="#cb28-380" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-381"><a href="#cb28-381" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; result_startup = cstr.rollout(x_low, startup_controller, n_steps=200)</span></span>
+<span id="cb28-382"><a href="#cb28-382" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt;</span></span>
+<span id="cb28-383"><a href="#cb28-383" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; # Check if startup was successful</span></span>
+<span id="cb28-384"><a href="#cb28-384" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; final_state = result_startup['states'][-1, :]</span></span>
+<span id="cb28-385"><a href="#cb28-385" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; distance_to_target = np.linalg.norm(final_state - x_ref)</span></span>
+<span id="cb28-386"><a href="#cb28-386" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Final state: Cₐ={final_state[0]:.3f}, T={final_state[1]:.1f}")</span></span>
+<span id="cb28-387"><a href="#cb28-387" aria-hidden="true" tabindex="-1"></a><span class="in">    &gt;&gt;&gt; print(f"Distance to target: {distance_to_target:.3f}")</span></span>
+<span id="cb28-388"><a href="#cb28-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-389"><a href="#cb28-389" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Physical Insights: {.doc-section .doc-section-----physical-insights}</span></span>
+<span id="cb28-390"><a href="#cb28-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-391"><a href="#cb28-391" aria-hidden="true" tabindex="-1"></a><span class="in">    **Thermal Runaway Risk**:</span></span>
+<span id="cb28-392"><a href="#cb28-392" aria-hidden="true" tabindex="-1"></a><span class="in">    If cooling is insufficient, positive feedback occurs:</span></span>
+<span id="cb28-393"><a href="#cb28-393" aria-hidden="true" tabindex="-1"></a><span class="in">    1. Temperature increases</span></span>
+<span id="cb28-394"><a href="#cb28-394" aria-hidden="true" tabindex="-1"></a><span class="in">    2. Reaction rate increases exponentially (Arrhenius)</span></span>
+<span id="cb28-395"><a href="#cb28-395" aria-hidden="true" tabindex="-1"></a><span class="in">    3. More heat generated (exothermic)</span></span>
+<span id="cb28-396"><a href="#cb28-396" aria-hidden="true" tabindex="-1"></a><span class="in">    4. Temperature increases further → runaway!</span></span>
+<span id="cb28-397"><a href="#cb28-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-398"><a href="#cb28-398" aria-hidden="true" tabindex="-1"></a><span class="in">    Prevention:</span></span>
+<span id="cb28-399"><a href="#cb28-399" aria-hidden="true" tabindex="-1"></a><span class="in">    - Adequate cooling capacity (large UA)</span></span>
+<span id="cb28-400"><a href="#cb28-400" aria-hidden="true" tabindex="-1"></a><span class="in">    - Temperature limits and alarms</span></span>
+<span id="cb28-401"><a href="#cb28-401" aria-hidden="true" tabindex="-1"></a><span class="in">    - Emergency cooling/shutdown procedures</span></span>
+<span id="cb28-402"><a href="#cb28-402" aria-hidden="true" tabindex="-1"></a><span class="in">    - Conservative setpoint selection</span></span>
+<span id="cb28-403"><a href="#cb28-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-404"><a href="#cb28-404" aria-hidden="true" tabindex="-1"></a><span class="in">    **Multiple Steady States**:</span></span>
+<span id="cb28-405"><a href="#cb28-405" aria-hidden="true" tabindex="-1"></a><span class="in">    Creates control challenges:</span></span>
+<span id="cb28-406"><a href="#cb28-406" aria-hidden="true" tabindex="-1"></a><span class="in">    - Which steady state to operate at?</span></span>
+<span id="cb28-407"><a href="#cb28-407" aria-hidden="true" tabindex="-1"></a><span class="in">    - How to transition between states?</span></span>
+<span id="cb28-408"><a href="#cb28-408" aria-hidden="true" tabindex="-1"></a><span class="in">    - Risk of unintended switching due to disturbances</span></span>
+<span id="cb28-409"><a href="#cb28-409" aria-hidden="true" tabindex="-1"></a><span class="in">    - Hysteresis in startup/shutdown procedures</span></span>
+<span id="cb28-410"><a href="#cb28-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-411"><a href="#cb28-411" aria-hidden="true" tabindex="-1"></a><span class="in">    **Residence Time Effects**:</span></span>
+<span id="cb28-412"><a href="#cb28-412" aria-hidden="true" tabindex="-1"></a><span class="in">    - Short τ (high F/V): Low conversion, stable, safe</span></span>
+<span id="cb28-413"><a href="#cb28-413" aria-hidden="true" tabindex="-1"></a><span class="in">    - Long τ (low F/V): High conversion, less stable, runaway risk</span></span>
+<span id="cb28-414"><a href="#cb28-414" aria-hidden="true" tabindex="-1"></a><span class="in">    - Economic optimum: maximize profit subject to stability</span></span>
+<span id="cb28-415"><a href="#cb28-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-416"><a href="#cb28-416" aria-hidden="true" tabindex="-1"></a><span class="in">    **Jacket Temperature Selection**:</span></span>
+<span id="cb28-417"><a href="#cb28-417" aria-hidden="true" tabindex="-1"></a><span class="in">    - Lower T_jacket: More cooling, enables higher conversion</span></span>
+<span id="cb28-418"><a href="#cb28-418" aria-hidden="true" tabindex="-1"></a><span class="in">    - But: smaller stability margin, closer to bifurcation</span></span>
+<span id="cb28-419"><a href="#cb28-419" aria-hidden="true" tabindex="-1"></a><span class="in">    - Higher T_jacket: More stable, but lower conversion</span></span>
+<span id="cb28-420"><a href="#cb28-420" aria-hidden="true" tabindex="-1"></a><span class="in">    - Must balance economics and safety</span></span>
+<span id="cb28-421"><a href="#cb28-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-422"><a href="#cb28-422" aria-hidden="true" tabindex="-1"></a><span class="in">    **Startup Strategy**:</span></span>
+<span id="cb28-423"><a href="#cb28-423" aria-hidden="true" tabindex="-1"></a><span class="in">    Transitioning from low to high conversion:</span></span>
+<span id="cb28-424"><a href="#cb28-424" aria-hidden="true" tabindex="-1"></a><span class="in">    1. Begin at low-conversion state (safe, stable)</span></span>
+<span id="cb28-425"><a href="#cb28-425" aria-hidden="true" tabindex="-1"></a><span class="in">    2. Gradually decrease T_jacket (increase cooling)</span></span>
+<span id="cb28-426"><a href="#cb28-426" aria-hidden="true" tabindex="-1"></a><span class="in">    3. System may jump to high-conversion state (bifurcation)</span></span>
+<span id="cb28-427"><a href="#cb28-427" aria-hidden="true" tabindex="-1"></a><span class="in">    4. Or use aggressive transient cooling</span></span>
+<span id="cb28-428"><a href="#cb28-428" aria-hidden="true" tabindex="-1"></a><span class="in">    5. Once at high conversion, switch to regulatory control</span></span>
+<span id="cb28-429"><a href="#cb28-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-430"><a href="#cb28-430" aria-hidden="true" tabindex="-1"></a><span class="in">    **Oscillatory Behavior**:</span></span>
+<span id="cb28-431"><a href="#cb28-431" aria-hidden="true" tabindex="-1"></a><span class="in">    Near instability boundaries, system may exhibit:</span></span>
+<span id="cb28-432"><a href="#cb28-432" aria-hidden="true" tabindex="-1"></a><span class="in">    - Sustained oscillations (Hopf bifurcation)</span></span>
+<span id="cb28-433"><a href="#cb28-433" aria-hidden="true" tabindex="-1"></a><span class="in">    - Limit cycles in Cₐ-T phase plane</span></span>
+<span id="cb28-434"><a href="#cb28-434" aria-hidden="true" tabindex="-1"></a><span class="in">    - Period-doubling route to chaos (rare but possible)</span></span>
+<span id="cb28-435"><a href="#cb28-435" aria-hidden="true" tabindex="-1"></a><span class="in">    - Quasiperiodic dynamics</span></span>
+<span id="cb28-436"><a href="#cb28-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-437"><a href="#cb28-437" aria-hidden="true" tabindex="-1"></a><span class="fu">##     Comparison with Continuous Version: {.doc-section .doc-section-----comparison-with-continuous-version}</span></span>
+<span id="cb28-438"><a href="#cb28-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-439"><a href="#cb28-439" aria-hidden="true" tabindex="-1"></a><span class="in">    This discrete-time CSTR approximates the continuous-time system:</span></span>
+<span id="cb28-440"><a href="#cb28-440" aria-hidden="true" tabindex="-1"></a><span class="in">    - Continuous system: dx/dt = f(x, u) (ground truth)</span></span>
+<span id="cb28-441"><a href="#cb28-441" aria-hidden="true" tabindex="-1"></a><span class="in">    - Discrete system: x[k+1] = x[k] + dt·f(x[k], u[k]) (Euler approximation)</span></span>
+<span id="cb28-442"><a href="#cb28-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-443"><a href="#cb28-443" aria-hidden="true" tabindex="-1"></a><span class="in">    Advantages of discrete formulation:</span></span>
+<span id="cb28-444"><a href="#cb28-444" aria-hidden="true" tabindex="-1"></a><span class="in">    - Natural for digital control (computers, PLCs)</span></span>
+<span id="cb28-445"><a href="#cb28-445" aria-hidden="true" tabindex="-1"></a><span class="in">    - Fixed time step (predictable computation)</span></span>
+<span id="cb28-446"><a href="#cb28-446" aria-hidden="true" tabindex="-1"></a><span class="in">    - Easy to implement in simulation</span></span>
+<span id="cb28-447"><a href="#cb28-447" aria-hidden="true" tabindex="-1"></a><span class="in">    - Matches physical sampling of sensors</span></span>
+<span id="cb28-448"><a href="#cb28-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-449"><a href="#cb28-449" aria-hidden="true" tabindex="-1"></a><span class="in">    Disadvantages:</span></span>
+<span id="cb28-450"><a href="#cb28-450" aria-hidden="true" tabindex="-1"></a><span class="in">    - Approximation error (depends on dt)</span></span>
+<span id="cb28-451"><a href="#cb28-451" aria-hidden="true" tabindex="-1"></a><span class="in">    - Stability limited by time step</span></span>
+<span id="cb28-452"><a href="#cb28-452" aria-hidden="true" tabindex="-1"></a><span class="in">    - May not capture fast transients accurately</span></span>
+<span id="cb28-453"><a href="#cb28-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-454"><a href="#cb28-454" aria-hidden="true" tabindex="-1"></a><span class="in">    For better accuracy, create from continuous version:</span></span>
+<span id="cb28-455"><a href="#cb28-455" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-456"><a href="#cb28-456" aria-hidden="true" tabindex="-1"></a>    cstr_continuous <span class="op">=</span> ContinuousCSTR(F<span class="op">=</span><span class="dv">100</span>, V<span class="op">=</span><span class="dv">100</span>, ...)</span>
+<span id="cb28-457"><a href="#cb28-457" aria-hidden="true" tabindex="-1"></a>    cstr_discrete <span class="op">=</span> cstr_continuous.discretize(dt<span class="op">=</span><span class="fl">0.1</span>, method<span class="op">=</span><span class="st">'rk4'</span>)</span>
+<span id="cb28-458"><a href="#cb28-458" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-459"><a href="#cb28-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-460"><a href="#cb28-460" aria-hidden="true" tabindex="-1"></a><span class="fu">##     See Also: {.doc-section .doc-section-----see-also}</span></span>
+<span id="cb28-461"><a href="#cb28-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-462"><a href="#cb28-462" aria-hidden="true" tabindex="-1"></a><span class="in">    ContinuousCSTR : Continuous-time version (more accurate)</span></span>
+<span id="cb28-463"><a href="#cb28-463" aria-hidden="true" tabindex="-1"></a><span class="in">    DiscreteBatchReactor : Batch operation instead of continuous</span></span>
+<span id="cb28-464"><a href="#cb28-464" aria-hidden="true" tabindex="-1"></a><span class="in">    ContinuousBatchReactor : Continuous batch reactor</span></span>
+<span id="cb28-465"><a href="#cb28-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-466"><a href="#cb28-466" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb28-467"><a href="#cb28-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-468"><a href="#cb28-468" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb28-469"><a href="#cb28-469" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb28-470"><a href="#cb28-470" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_conversion</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion)</span> <span class="pp">|</span> Compute fractional conversion of reactant A. <span class="pp">|</span></span>
+<span id="cb28-471"><a href="#cb28-471" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_damkohler_number</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number)</span> <span class="pp">|</span> Compute Damköhler number Da = k·τ (reaction rate × residence time). <span class="pp">|</span></span>
+<span id="cb28-472"><a href="#cb28-472" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_residence_time</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time)</span> <span class="pp">|</span> Compute residence time τ = V/F. <span class="pp">|</span></span>
+<span id="cb28-473"><a href="#cb28-473" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system)</span> <span class="pp">|</span> Define discrete-time CSTR dynamics. <span class="pp">|</span></span>
+<span id="cb28-474"><a href="#cb28-474" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">find_steady_states</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states)</span> <span class="pp">|</span> Find all steady states for a given jacket temperature. <span class="pp">|</span></span>
+<span id="cb28-475"><a href="#cb28-475" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria)</span> <span class="pp">|</span> Set up steady-state equilibrium if provided. <span class="pp">|</span></span>
+<span id="cb28-476"><a href="#cb28-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-477"><a href="#cb28-477" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_conversion { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion }</span></span>
+<span id="cb28-478"><a href="#cb28-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-479"><a href="#cb28-479" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-480"><a href="#cb28-480" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_conversion(</span>
+<span id="cb28-481"><a href="#cb28-481" aria-hidden="true" tabindex="-1"></a>    C_A,</span>
+<span id="cb28-482"><a href="#cb28-482" aria-hidden="true" tabindex="-1"></a>    C_A_feed,</span>
+<span id="cb28-483"><a href="#cb28-483" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-484"><a href="#cb28-484" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-485"><a href="#cb28-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-486"><a href="#cb28-486" aria-hidden="true" tabindex="-1"></a>Compute fractional conversion of reactant A.</span>
+<span id="cb28-487"><a href="#cb28-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-488"><a href="#cb28-488" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb28-489"><a href="#cb28-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-490"><a href="#cb28-490" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name     <span class="pp">|</span> Type   <span class="pp">|</span> Description                           <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb28-491"><a href="#cb28-491" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|--------|---------------------------------------|------------|</span></span>
+<span id="cb28-492"><a href="#cb28-492" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A      <span class="pp">|</span> float  <span class="pp">|</span> Current reactor concentration <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb28-493"><a href="#cb28-493" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A_feed <span class="pp">|</span> float  <span class="pp">|</span> Feed concentration <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span>            <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb28-494"><a href="#cb28-494" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-495"><a href="#cb28-495" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb28-496"><a href="#cb28-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-497"><a href="#cb28-497" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                           <span class="pp">|</span></span>
+<span id="cb28-498"><a href="#cb28-498" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-------------------------------------------------------|</span></span>
+<span id="cb28-499"><a href="#cb28-499" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Conversion fraction X_A = (C_A_feed - C_A) / C_A_feed <span class="pp">|</span></span>
+<span id="cb28-500"><a href="#cb28-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-501"><a href="#cb28-501" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb28-502"><a href="#cb28-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-503"><a href="#cb28-503" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-504"><a href="#cb28-504" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb28-505"><a href="#cb28-505" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> X <span class="op">=</span> cstr.compute_conversion(C_A<span class="op">=</span><span class="fl">0.1</span>, C_A_feed<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb28-506"><a href="#cb28-506" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Conversion: </span><span class="sc">{</span>X<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%"</span>)</span>
+<span id="cb28-507"><a href="#cb28-507" aria-hidden="true" tabindex="-1"></a>Conversion: <span class="fl">90.0</span><span class="op">%</span></span>
+<span id="cb28-508"><a href="#cb28-508" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-509"><a href="#cb28-509" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-510"><a href="#cb28-510" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb28-511"><a href="#cb28-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-512"><a href="#cb28-512" aria-hidden="true" tabindex="-1"></a>High conversion (X &gt; 0.9) typically corresponds to high-temperature</span>
+<span id="cb28-513"><a href="#cb28-513" aria-hidden="true" tabindex="-1"></a>steady state with fast kinetics and strong exothermic heat generation.</span>
+<span id="cb28-514"><a href="#cb28-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-515"><a href="#cb28-515" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_damkohler_number { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number }</span></span>
+<span id="cb28-516"><a href="#cb28-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-517"><a href="#cb28-517" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-518"><a href="#cb28-518" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_damkohler_number(T)</span>
+<span id="cb28-519"><a href="#cb28-519" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-520"><a href="#cb28-520" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-521"><a href="#cb28-521" aria-hidden="true" tabindex="-1"></a>Compute Damköhler number Da = k·τ (reaction rate × residence time).</span>
+<span id="cb28-522"><a href="#cb28-522" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-523"><a href="#cb28-523" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb28-524"><a href="#cb28-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-525"><a href="#cb28-525" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description     <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb28-526"><a href="#cb28-526" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|-----------------|------------|</span></span>
+<span id="cb28-527"><a href="#cb28-527" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T      <span class="pp">|</span> float  <span class="pp">|</span> Temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb28-528"><a href="#cb28-528" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-529"><a href="#cb28-529" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb28-530"><a href="#cb28-530" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-531"><a href="#cb28-531" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                      <span class="pp">|</span></span>
+<span id="cb28-532"><a href="#cb28-532" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|----------------------------------|</span></span>
+<span id="cb28-533"><a href="#cb28-533" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Damköhler number <span class="co">[</span><span class="ot">dimensionless</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb28-534"><a href="#cb28-534" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-535"><a href="#cb28-535" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb28-536"><a href="#cb28-536" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-537"><a href="#cb28-537" aria-hidden="true" tabindex="-1"></a>Damköhler number measures reaction rate relative to flow rate:</span>
+<span id="cb28-538"><a href="#cb28-538" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Da &lt;&lt; 1: Reaction slow, flow dominates, low conversion</span>
+<span id="cb28-539"><a href="#cb28-539" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Da &gt;&gt; 1: Reaction fast, kinetics dominate, high conversion</span>
+<span id="cb28-540"><a href="#cb28-540" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Da ≈ 1: Balanced, optimal efficiency</span>
+<span id="cb28-541"><a href="#cb28-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-542"><a href="#cb28-542" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb28-543"><a href="#cb28-543" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-544"><a href="#cb28-544" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-545"><a href="#cb28-545" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb28-546"><a href="#cb28-546" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Da_low <span class="op">=</span> cstr.compute_damkohler_number(T<span class="op">=</span><span class="fl">350.0</span>)</span>
+<span id="cb28-547"><a href="#cb28-547" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Da_high <span class="op">=</span> cstr.compute_damkohler_number(T<span class="op">=</span><span class="fl">400.0</span>)</span>
+<span id="cb28-548"><a href="#cb28-548" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Da(350K) = </span><span class="sc">{</span>Da_low<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb28-549"><a href="#cb28-549" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Da(400K) = </span><span class="sc">{</span>Da_high<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb28-550"><a href="#cb28-550" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-551"><a href="#cb28-551" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-552"><a href="#cb28-552" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_residence_time { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time }</span></span>
+<span id="cb28-553"><a href="#cb28-553" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-554"><a href="#cb28-554" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-555"><a href="#cb28-555" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.compute_residence_time()</span>
+<span id="cb28-556"><a href="#cb28-556" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-557"><a href="#cb28-557" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-558"><a href="#cb28-558" aria-hidden="true" tabindex="-1"></a>Compute residence time τ = V/F.</span>
+<span id="cb28-559"><a href="#cb28-559" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-560"><a href="#cb28-560" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb28-561"><a href="#cb28-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-562"><a href="#cb28-562" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description        <span class="pp">|</span></span>
+<span id="cb28-563"><a href="#cb28-563" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------|</span></span>
+<span id="cb28-564"><a href="#cb28-564" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Residence time <span class="co">[</span><span class="ot">s</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb28-565"><a href="#cb28-565" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-566"><a href="#cb28-566" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb28-567"><a href="#cb28-567" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-568"><a href="#cb28-568" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-569"><a href="#cb28-569" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR(F<span class="op">=</span><span class="fl">100.0</span>, V<span class="op">=</span><span class="fl">100.0</span>)</span>
+<span id="cb28-570"><a href="#cb28-570" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> tau <span class="op">=</span> cstr.compute_residence_time()</span>
+<span id="cb28-571"><a href="#cb28-571" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Residence time: </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss"> s"</span>)</span>
+<span id="cb28-572"><a href="#cb28-572" aria-hidden="true" tabindex="-1"></a>Residence time: <span class="fl">1.0</span> s</span>
+<span id="cb28-573"><a href="#cb28-573" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-574"><a href="#cb28-574" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-575"><a href="#cb28-575" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb28-576"><a href="#cb28-576" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-577"><a href="#cb28-577" aria-hidden="true" tabindex="-1"></a>Residence time is the average time a molecule spends in the reactor.</span>
+<span id="cb28-578"><a href="#cb28-578" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Longer τ (smaller F): More conversion, less stable</span>
+<span id="cb28-579"><a href="#cb28-579" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Shorter τ (larger F): Less conversion, more stable</span>
+<span id="cb28-580"><a href="#cb28-580" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-581"><a href="#cb28-581" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.define_system }</span></span>
+<span id="cb28-582"><a href="#cb28-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-583"><a href="#cb28-583" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-584"><a href="#cb28-584" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.define_system(</span>
+<span id="cb28-585"><a href="#cb28-585" aria-hidden="true" tabindex="-1"></a>    F_val<span class="op">=</span><span class="fl">100.0</span>,</span>
+<span id="cb28-586"><a href="#cb28-586" aria-hidden="true" tabindex="-1"></a>    V_val<span class="op">=</span><span class="fl">100.0</span>,</span>
+<span id="cb28-587"><a href="#cb28-587" aria-hidden="true" tabindex="-1"></a>    C_A_feed_val<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb28-588"><a href="#cb28-588" aria-hidden="true" tabindex="-1"></a>    T_feed_val<span class="op">=</span><span class="fl">350.0</span>,</span>
+<span id="cb28-589"><a href="#cb28-589" aria-hidden="true" tabindex="-1"></a>    k0_val<span class="op">=</span><span class="fl">72000000000.0</span>,</span>
+<span id="cb28-590"><a href="#cb28-590" aria-hidden="true" tabindex="-1"></a>    E_val<span class="op">=</span><span class="fl">8750.0</span>,</span>
+<span id="cb28-591"><a href="#cb28-591" aria-hidden="true" tabindex="-1"></a>    delta_H_val<span class="op">=-</span><span class="fl">50000.0</span>,</span>
+<span id="cb28-592"><a href="#cb28-592" aria-hidden="true" tabindex="-1"></a>    rho_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb28-593"><a href="#cb28-593" aria-hidden="true" tabindex="-1"></a>    Cp_val<span class="op">=</span><span class="fl">0.239</span>,</span>
+<span id="cb28-594"><a href="#cb28-594" aria-hidden="true" tabindex="-1"></a>    UA_val<span class="op">=</span><span class="fl">50000.0</span>,</span>
+<span id="cb28-595"><a href="#cb28-595" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb28-596"><a href="#cb28-596" aria-hidden="true" tabindex="-1"></a>    x_ss<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb28-597"><a href="#cb28-597" aria-hidden="true" tabindex="-1"></a>    u_ss<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb28-598"><a href="#cb28-598" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-599"><a href="#cb28-599" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-600"><a href="#cb28-600" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-601"><a href="#cb28-601" aria-hidden="true" tabindex="-1"></a>Define discrete-time CSTR dynamics.</span>
+<span id="cb28-602"><a href="#cb28-602" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-603"><a href="#cb28-603" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb28-604"><a href="#cb28-604" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-605"><a href="#cb28-605" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name         <span class="pp">|</span> Type                   <span class="pp">|</span> Description                                        <span class="pp">|</span> Default         <span class="pp">|</span></span>
+<span id="cb28-606"><a href="#cb28-606" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------|------------------------|----------------------------------------------------|-----------------|</span></span>
+<span id="cb28-607"><a href="#cb28-607" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> F_val        <span class="pp">|</span> float                  <span class="pp">|</span> Volumetric flow rate <span class="co">[</span><span class="ot">L/s</span><span class="co">]</span>                         <span class="pp">|</span> <span class="in">`100.0`</span>         <span class="pp">|</span></span>
+<span id="cb28-608"><a href="#cb28-608" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V_val        <span class="pp">|</span> float                  <span class="pp">|</span> Reactor volume <span class="co">[</span><span class="ot">L</span><span class="co">]</span>                                 <span class="pp">|</span> <span class="in">`100.0`</span>         <span class="pp">|</span></span>
+<span id="cb28-609"><a href="#cb28-609" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A_feed_val <span class="pp">|</span> float                  <span class="pp">|</span> Feed concentration <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span>                         <span class="pp">|</span> <span class="in">`1.0`</span>           <span class="pp">|</span></span>
+<span id="cb28-610"><a href="#cb28-610" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_feed_val   <span class="pp">|</span> float                  <span class="pp">|</span> Feed temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                               <span class="pp">|</span> <span class="in">`350.0`</span>         <span class="pp">|</span></span>
+<span id="cb28-611"><a href="#cb28-611" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k0_val       <span class="pp">|</span> float                  <span class="pp">|</span> Pre-exponential factor <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                       <span class="pp">|</span> <span class="in">`72000000000.0`</span> <span class="pp">|</span></span>
+<span id="cb28-612"><a href="#cb28-612" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E_val        <span class="pp">|</span> float                  <span class="pp">|</span> Activation energy <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                              <span class="pp">|</span> <span class="in">`8750.0`</span>        <span class="pp">|</span></span>
+<span id="cb28-613"><a href="#cb28-613" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> delta_H_val  <span class="pp">|</span> float                  <span class="pp">|</span> Heat of reaction <span class="co">[</span><span class="ot">J/mol</span><span class="co">]</span> (negative = exothermic)   <span class="pp">|</span> <span class="in">`-50000.0`</span>      <span class="pp">|</span></span>
+<span id="cb28-614"><a href="#cb28-614" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> rho_val      <span class="pp">|</span> float                  <span class="pp">|</span> Density <span class="co">[</span><span class="ot">kg/L</span><span class="co">]</span>                                     <span class="pp">|</span> <span class="in">`1000.0`</span>        <span class="pp">|</span></span>
+<span id="cb28-615"><a href="#cb28-615" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Cp_val       <span class="pp">|</span> float                  <span class="pp">|</span> Specific heat capacity <span class="co">[</span><span class="ot">J/(kg·K)</span><span class="co">]</span>                  <span class="pp">|</span> <span class="in">`0.239`</span>         <span class="pp">|</span></span>
+<span id="cb28-616"><a href="#cb28-616" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> UA_val       <span class="pp">|</span> float                  <span class="pp">|</span> Overall heat transfer coefficient × area <span class="co">[</span><span class="ot">J/(s·K)</span><span class="co">]</span> <span class="pp">|</span> <span class="in">`50000.0`</span>       <span class="pp">|</span></span>
+<span id="cb28-617"><a href="#cb28-617" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt           <span class="pp">|</span> float                  <span class="pp">|</span> Sampling time step <span class="co">[</span><span class="ot">s</span><span class="co">]</span>                             <span class="pp">|</span> <span class="in">`0.1`</span>           <span class="pp">|</span></span>
+<span id="cb28-618"><a href="#cb28-618" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x_ss         <span class="pp">|</span> Optional<span class="sc">\[</span>np.ndarray<span class="sc">\]</span> <span class="pp">|</span> Steady-state <span class="co">[</span><span class="ot">Cₐ, T</span><span class="co">]</span> for equilibrium setup         <span class="pp">|</span> <span class="in">`None`</span>          <span class="pp">|</span></span>
+<span id="cb28-619"><a href="#cb28-619" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> u_ss         <span class="pp">|</span> Optional<span class="sc">\[</span>np.ndarray<span class="sc">\]</span> <span class="pp">|</span> Steady-state <span class="co">[</span><span class="ot">T_jacket</span><span class="co">]</span> for equilibrium setup      <span class="pp">|</span> <span class="in">`None`</span>          <span class="pp">|</span></span>
+<span id="cb28-620"><a href="#cb28-620" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-621"><a href="#cb28-621" aria-hidden="true" tabindex="-1"></a><span class="fu">### find_steady_states { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states }</span></span>
+<span id="cb28-622"><a href="#cb28-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-623"><a href="#cb28-623" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-624"><a href="#cb28-624" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.find_steady_states(</span>
+<span id="cb28-625"><a href="#cb28-625" aria-hidden="true" tabindex="-1"></a>    T_jacket,</span>
+<span id="cb28-626"><a href="#cb28-626" aria-hidden="true" tabindex="-1"></a>    T_range<span class="op">=</span>(<span class="fl">300.0</span>, <span class="fl">500.0</span>),</span>
+<span id="cb28-627"><a href="#cb28-627" aria-hidden="true" tabindex="-1"></a>    n_points<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb28-628"><a href="#cb28-628" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-629"><a href="#cb28-629" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-630"><a href="#cb28-630" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-631"><a href="#cb28-631" aria-hidden="true" tabindex="-1"></a>Find all steady states for a given jacket temperature.</span>
+<span id="cb28-632"><a href="#cb28-632" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-633"><a href="#cb28-633" aria-hidden="true" tabindex="-1"></a>Uses graphical method: plots dC_A/dt and dT/dt as functions of T,</span>
+<span id="cb28-634"><a href="#cb28-634" aria-hidden="true" tabindex="-1"></a>finds where both are zero simultaneously.</span>
+<span id="cb28-635"><a href="#cb28-635" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-636"><a href="#cb28-636" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb28-637"><a href="#cb28-637" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-638"><a href="#cb28-638" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name     <span class="pp">|</span> Type   <span class="pp">|</span> Description                                    <span class="pp">|</span> Default          <span class="pp">|</span></span>
+<span id="cb28-639"><a href="#cb28-639" aria-hidden="true" tabindex="-1"></a><span class="pp">|----------|--------|------------------------------------------------|------------------|</span></span>
+<span id="cb28-640"><a href="#cb28-640" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_jacket <span class="pp">|</span> float  <span class="pp">|</span> Jacket temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                         <span class="pp">|</span> _required_       <span class="pp">|</span></span>
+<span id="cb28-641"><a href="#cb28-641" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_range  <span class="pp">|</span> tuple  <span class="pp">|</span> Temperature range to search (T_min, T_max) <span class="co">[</span><span class="ot">K</span><span class="co">]</span> <span class="pp">|</span> <span class="in">`(300.0, 500.0)`</span> <span class="pp">|</span></span>
+<span id="cb28-642"><a href="#cb28-642" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> n_points <span class="pp">|</span> int    <span class="pp">|</span> Number of points for graphical search          <span class="pp">|</span> <span class="in">`100`</span>            <span class="pp">|</span></span>
+<span id="cb28-643"><a href="#cb28-643" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-644"><a href="#cb28-644" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb28-645"><a href="#cb28-645" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-646"><a href="#cb28-646" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                    <span class="pp">|</span></span>
+<span id="cb28-647"><a href="#cb28-647" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------------------|</span></span>
+<span id="cb28-648"><a href="#cb28-648" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> list   <span class="pp">|</span> List of (C_A, T) steady states <span class="pp">|</span></span>
+<span id="cb28-649"><a href="#cb28-649" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-650"><a href="#cb28-650" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb28-651"><a href="#cb28-651" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-652"><a href="#cb28-652" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-653"><a href="#cb28-653" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> cstr <span class="op">=</span> DiscreteCSTR()</span>
+<span id="cb28-654"><a href="#cb28-654" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> steady_states <span class="op">=</span> cstr.find_steady_states(T_jacket<span class="op">=</span><span class="fl">350.0</span>)</span>
+<span id="cb28-655"><a href="#cb28-655" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Found </span><span class="sc">{</span><span class="bu">len</span>(steady_states)<span class="sc">}</span><span class="ss"> steady states"</span>)</span>
+<span id="cb28-656"><a href="#cb28-656" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="cf">for</span> i, (C_A, T) <span class="kw">in</span> <span class="bu">enumerate</span>(steady_states):</span>
+<span id="cb28-657"><a href="#cb28-657" aria-hidden="true" tabindex="-1"></a>...     <span class="bu">print</span>(<span class="ss">f"  State </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">: C_A=</span><span class="sc">{</span>C_A<span class="sc">:.3f}</span><span class="ss">, T=</span><span class="sc">{</span>T<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb28-658"><a href="#cb28-658" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-659"><a href="#cb28-659" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-660"><a href="#cb28-660" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb28-661"><a href="#cb28-661" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-662"><a href="#cb28-662" aria-hidden="true" tabindex="-1"></a>This is a simple implementation. For production code, use:</span>
+<span id="cb28-663"><a href="#cb28-663" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>scipy.optimize.fsolve for more robust root finding</span>
+<span id="cb28-664"><a href="#cb28-664" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Continuation methods for bifurcation analysis</span>
+<span id="cb28-665"><a href="#cb28-665" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>homotopy methods for finding all solutions</span>
+<span id="cb28-666"><a href="#cb28-666" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-667"><a href="#cb28-667" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria }</span></span>
+<span id="cb28-668"><a href="#cb28-668" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-669"><a href="#cb28-669" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb28-670"><a href="#cb28-670" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCSTR.setup_equilibria()</span>
+<span id="cb28-671"><a href="#cb28-671" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb28-672"><a href="#cb28-672" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-673"><a href="#cb28-673" aria-hidden="true" tabindex="-1"></a>Set up steady-state equilibrium if provided.</span>
+<span id="cb28-674"><a href="#cb28-674" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-675"><a href="#cb28-675" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb28-676"><a href="#cb28-676" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-677"><a href="#cb28-677" aria-hidden="true" tabindex="-1"></a>CSTR can have multiple steady states! Only add user-provided</span>
+<span id="cb28-678"><a href="#cb28-678" aria-hidden="true" tabindex="-1"></a>equilibrium. Finding all equilibria requires solving nonlinear</span>
+<span id="cb28-679"><a href="#cb28-679" aria-hidden="true" tabindex="-1"></a>algebraic equations (see find_steady_states() method).</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteCSTR.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -130,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../tutorials/installation.html"> 
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
 <span class="menu-text">Installation Guide</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -178,10 +178,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Tutorials</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
-        <li>
-    <a class="dropdown-item" href="../tutorials/basic_usage.html">
- <span class="dropdown-text">Basic Usage</span></a>
-  </li>  
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -218,8 +215,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#api-reference" id="toc-api-reference" class="nav-link active" data-scroll-target="#api-reference">API Reference</a>
+  <ul>
+  <li><a href="#systems-core-classes" id="toc-systems-core-classes" class="nav-link" data-scroll-target="#systems-core-classes">Systems: Core Classes</a></li>
+  <li><a href="#systems-numerical-integration" id="toc-systems-numerical-integration" class="nav-link" data-scroll-target="#systems-numerical-integration">Systems: Numerical Integration</a></li>
+  <li><a href="#systems-utilities" id="toc-systems-utilities" class="nav-link" data-scroll-target="#systems-utilities">Systems: Utilities</a></li>
+  <li><a href="#control-design-analysis" id="toc-control-design-analysis" class="nav-link" data-scroll-target="#control-design-analysis">Control Design &amp; Analysis</a></li>
+  <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization">Visualization</a></li>
+  <li><a href="#builtin-deterministic-continuous" id="toc-builtin-deterministic-continuous" class="nav-link" data-scroll-target="#builtin-deterministic-continuous">Builtin: Deterministic Continuous</a></li>
+  <li><a href="#builtin-deterministic-discrete" id="toc-builtin-deterministic-discrete" class="nav-link" data-scroll-target="#builtin-deterministic-discrete">Builtin: Deterministic Discrete</a></li>
+  <li><a href="#builtin-stochastic-continuous" id="toc-builtin-stochastic-continuous" class="nav-link" data-scroll-target="#builtin-stochastic-continuous">Builtin: Stochastic Continuous</a></li>
+  <li><a href="#builtin-stochastic-discrete" id="toc-builtin-stochastic-discrete" class="nav-link" data-scroll-target="#builtin-stochastic-discrete">Builtin: Stochastic Discrete</a></li>
+  <li><a href="#types-core" id="toc-types-core" class="nav-link" data-scroll-target="#types-core">Types: Core</a></li>
+  <li><a href="#types-backend-configuration" id="toc-types-backend-configuration" class="nav-link" data-scroll-target="#types-backend-configuration">Types: Backend &amp; Configuration</a></li>
+  <li><a href="#types-trajectories-simulation" id="toc-types-trajectories-simulation" class="nav-link" data-scroll-target="#types-trajectories-simulation">Types: Trajectories &amp; Simulation</a></li>
+  <li><a href="#types-control-results" id="toc-types-control-results" class="nav-link" data-scroll-target="#types-control-results">Types: Control Results</a></li>
+  <li><a href="#types-estimation" id="toc-types-estimation" class="nav-link" data-scroll-target="#types-estimation">Types: Estimation</a></li>
+  <li><a href="#types-linearization" id="toc-types-linearization" class="nav-link" data-scroll-target="#types-linearization">Types: Linearization</a></li>
+  <li><a href="#types-symbolic" id="toc-types-symbolic" class="nav-link" data-scroll-target="#types-symbolic">Types: Symbolic</a></li>
+  <li><a href="#types-advanced" id="toc-types-advanced" class="nav-link" data-scroll-target="#types-advanced">Types: Advanced</a></li>
+  <li><a href="#types-protocols" id="toc-types-protocols" class="nav-link" data-scroll-target="#types-protocols">Types: Protocols</a></li>
+  <li><a href="#state-observers" id="toc-state-observers" class="nav-link" data-scroll-target="#state-observers">State Observers</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
@@ -227,10 +251,1053 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+<section id="api-reference" class="level1 doc doc-index">
+<h1 class="doc doc-index">API Reference</h1>
+<section id="systems-core-classes" class="level2">
+<h2 class="anchored" data-anchor-id="systems-core-classes">Systems: Core Classes</h2>
+<p>Abstract base classes and core system implementations</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.base.core.SymbolicSystemBase.html#cdesym.systems.base.core.SymbolicSystemBase">systems.base.core.SymbolicSystemBase</a></td>
+<td>Abstract base class for symbolic systems (time-domain agnostic).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.core.ContinuousSystemBase.html#cdesym.systems.base.core.ContinuousSystemBase">systems.base.core.ContinuousSystemBase</a></td>
+<td>Abstract base class for all continuous-time dynamical systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.core.DiscreteSystemBase.html#cdesym.systems.base.core.DiscreteSystemBase">systems.base.core.DiscreteSystemBase</a></td>
+<td>Abstract base class for all discrete-time dynamical systems.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.core.ContinuousSymbolicSystem.html#cdesym.systems.base.core.ContinuousSymbolicSystem">systems.base.core.ContinuousSymbolicSystem</a></td>
+<td>Concrete symbolic continuous-time dynamical system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.core.DiscreteSymbolicSystem.html#cdesym.systems.base.core.DiscreteSymbolicSystem">systems.base.core.DiscreteSymbolicSystem</a></td>
+<td>Concrete symbolic discrete-time dynamical system.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.core.ContinuousStochasticSystem.html#cdesym.systems.base.core.ContinuousStochasticSystem">systems.base.core.ContinuousStochasticSystem</a></td>
+<td>Concrete symbolic continuous-time stochastic dynamical system (SDE).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.core.DiscreteStochasticSystem.html#cdesym.systems.base.core.DiscreteStochasticSystem">systems.base.core.DiscreteStochasticSystem</a></td>
+<td>Concrete symbolic discrete-time stochastic dynamical system.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.core.DiscretizedSystem.html#cdesym.systems.base.core.DiscretizedSystem">systems.base.core.DiscretizedSystem</a></td>
+<td>Pure wrapper providing discrete interface to continuous systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.core.discretize.html#cdesym.systems.base.core.discretize">systems.base.core.discretize</a></td>
+<td>Convenience wrapper for creating a discretized system.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="systems-numerical-integration" class="level2">
+<h2 class="anchored" data-anchor-id="systems-numerical-integration">Systems: Numerical Integration</h2>
+<p>ODE and SDE integrators for multiple backends</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.is_sde_method.html#cdesym.systems.base.numerical_integration.is_sde_method">systems.base.numerical_integration.is_sde_method</a></td>
+<td>Check if integration method is for stochastic differential equations.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.is_fixed_step.html#cdesym.systems.base.numerical_integration.is_fixed_step">systems.base.numerical_integration.is_fixed_step</a></td>
+<td>Check if integration method uses fixed time stepping.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.normalize_method_name.html#cdesym.systems.base.numerical_integration.normalize_method_name">systems.base.numerical_integration.normalize_method_name</a></td>
+<td>Normalize method names across backends to canonical form.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.get_available_methods.html#cdesym.systems.base.numerical_integration.get_available_methods">systems.base.numerical_integration.get_available_methods</a></td>
+<td>Get available integration methods for a backend.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.validate_method.html#cdesym.systems.base.numerical_integration.validate_method">systems.base.numerical_integration.validate_method</a></td>
+<td>Validate method for backend and system type.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.get_method_info.html#cdesym.systems.base.numerical_integration.get_method_info">systems.base.numerical_integration.get_method_info</a></td>
+<td>Get comprehensive information about a method.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.list_all_methods.html#cdesym.systems.base.numerical_integration.list_all_methods">systems.base.numerical_integration.list_all_methods</a></td>
+<td>List all integration methods across all categories.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.get_implementing_library.html#cdesym.systems.base.numerical_integration.get_implementing_library">systems.base.numerical_integration.get_implementing_library</a></td>
+<td>Get which library/package implements this method.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.IntegratorFactory.html#cdesym.systems.base.numerical_integration.IntegratorFactory">systems.base.numerical_integration.IntegratorFactory</a></td>
+<td>Factory for creating numerical integrators.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.IntegratorBase.html#cdesym.systems.base.numerical_integration.IntegratorBase">systems.base.numerical_integration.IntegratorBase</a></td>
+<td>Abstract base class for numerical integrators.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.ScipyIntegrator.html#cdesym.systems.base.numerical_integration.ScipyIntegrator">systems.base.numerical_integration.ScipyIntegrator</a></td>
+<td>Adaptive integrator using scipy.integrate.solve_ivp.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.DiffraxIntegrator.html#cdesym.systems.base.numerical_integration.DiffraxIntegrator">systems.base.numerical_integration.DiffraxIntegrator</a></td>
+<td>JAX-based ODE integrator using the Diffrax library.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.TorchDiffEqIntegrator.html#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator">systems.base.numerical_integration.TorchDiffEqIntegrator</a></td>
+<td>PyTorch-based ODE integrator using the torchdiffeq library.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.stochastic.SDEIntegratorFactory.html#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory">systems.base.numerical_integration.stochastic.SDEIntegratorFactory</a></td>
+<td>Factory for creating SDE numerical integrators.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.stochastic.SDEIntegratorBase.html#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase">systems.base.numerical_integration.stochastic.SDEIntegratorBase</a></td>
+<td>Abstract base class for SDE integrators.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.html#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator">systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator</a></td>
+<td>Julia-based SDE integrator using DifferentialEquations.jl via diffeqpy.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.stochastic.TorchSDEIntegrator.html#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator">systems.base.numerical_integration.stochastic.TorchSDEIntegrator</a></td>
+<td>PyTorch-based SDE integrator using the torchsde library.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator.html#cdesym.systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator">systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator</a></td>
+<td>JAX-based SDE integrator using the Diffrax library.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.numerical_integration.stochastic.CustomBrownianPath.html#cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath">systems.base.numerical_integration.stochastic.CustomBrownianPath</a></td>
+<td>Custom Brownian motion that uses provided dW increments.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.numerical_integration.stochastic.create_custom_or_random_brownian.html#cdesym.systems.base.numerical_integration.stochastic.create_custom_or_random_brownian">systems.base.numerical_integration.stochastic.create_custom_or_random_brownian</a></td>
+<td>Create either custom or random Brownian motion for Diffrax.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="systems-utilities" class="level2">
+<h2 class="anchored" data-anchor-id="systems-utilities">Systems: Utilities</h2>
+<p>Backend management, linearization, and code generation</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.BackendManager.html#cdesym.systems.base.utils.BackendManager">systems.base.utils.BackendManager</a></td>
+<td>Manages backend detection, conversion, and device placement.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.CodeGenerator.html#cdesym.systems.base.utils.CodeGenerator">systems.base.utils.CodeGenerator</a></td>
+<td>Orchestrates code generation and caching for a dynamical system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.DynamicsEvaluator.html#cdesym.systems.base.utils.DynamicsEvaluator">systems.base.utils.DynamicsEvaluator</a></td>
+<td>Evaluates forward dynamics across backends.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.EquilibriumHandler.html#cdesym.systems.base.utils.EquilibriumHandler">systems.base.utils.EquilibriumHandler</a></td>
+<td>Manages multiple equilibrium points for a dynamical system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.LinearizationEngine.html#cdesym.systems.base.utils.LinearizationEngine">systems.base.utils.LinearizationEngine</a></td>
+<td>Computes linearized dynamics across backends.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.ObservationEngine.html#cdesym.systems.base.utils.ObservationEngine">systems.base.utils.ObservationEngine</a></td>
+<td>Evaluates observation/output functions across backends.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.SymbolicValidator.html#cdesym.systems.base.utils.SymbolicValidator">systems.base.utils.SymbolicValidator</a></td>
+<td>Validates symbolic dynamical system definitions.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.stochastic.NoiseCharacteristics.html#cdesym.systems.base.utils.stochastic.NoiseCharacteristics">systems.base.utils.stochastic.NoiseCharacteristics</a></td>
+<td>Container for noise structure analysis results.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.stochastic.NoiseCharacterizer.html#cdesym.systems.base.utils.stochastic.NoiseCharacterizer">systems.base.utils.stochastic.NoiseCharacterizer</a></td>
+<td>Analyzes symbolic diffusion expressions to determine noise structure.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.stochastic.analyze_noise_structure.html#cdesym.systems.base.utils.stochastic.analyze_noise_structure">systems.base.utils.stochastic.analyze_noise_structure</a></td>
+<td>Convenience function for analyzing noise structure.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.base.utils.stochastic.DiffusionHandler.html#cdesym.systems.base.utils.stochastic.DiffusionHandler">systems.base.utils.stochastic.DiffusionHandler</a></td>
+<td>Handles code generation and caching for diffusion terms.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.base.utils.stochastic.SDEValidator.html#cdesym.systems.base.utils.stochastic.SDEValidator">systems.base.utils.stochastic.SDEValidator</a></td>
+<td>Validates stochastic dynamical system definitions.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="control-design-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="control-design-analysis">Control Design &amp; Analysis</h2>
+<p>Control synthesis, system analysis, and classical control functions</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/control.ControlSynthesis.html#cdesym.control.ControlSynthesis">control.ControlSynthesis</a></td>
+<td>Control synthesis wrapper for system composition.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/control.SystemAnalysis.html#cdesym.control.SystemAnalysis">control.SystemAnalysis</a></td>
+<td>System analysis wrapper for composition.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/control.design_lqr.html#cdesym.control.design_lqr">control.design_lqr</a></td>
+<td>Design Linear Quadratic Regulator (LQR) controller.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/control.design_lqg.html#cdesym.control.design_lqg">control.design_lqg</a></td>
+<td>Design Linear Quadratic Gaussian (LQG) controller.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/control.design_kalman_filter.html#cdesym.control.design_kalman_filter">control.design_kalman_filter</a></td>
+<td>Design Kalman filter for optimal state estimation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/control.analyze_stability.html#cdesym.control.analyze_stability">control.analyze_stability</a></td>
+<td>Analyze system stability via eigenvalue analysis.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/control.analyze_controllability.html#cdesym.control.analyze_controllability">control.analyze_controllability</a></td>
+<td>Test controllability of linear system (A, B).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/control.analyze_observability.html#cdesym.control.analyze_observability">control.analyze_observability</a></td>
+<td>Test observability of linear system (A, C).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="visualization" class="level2">
+<h2 class="anchored" data-anchor-id="visualization">Visualization</h2>
+<p>Plotting and visualization tools for dynamical systems</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/visualization.TrajectoryPlotter.html#cdesym.visualization.TrajectoryPlotter">visualization.TrajectoryPlotter</a></td>
+<td>Time-domain trajectory visualization.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/visualization.PhasePortraitPlotter.html#cdesym.visualization.PhasePortraitPlotter">visualization.PhasePortraitPlotter</a></td>
+<td>Phase space visualization for dynamical systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/visualization.ControlPlotter.html#cdesym.visualization.ControlPlotter">visualization.ControlPlotter</a></td>
+<td>Control system analysis visualization.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/visualization.ColorSchemes.html#cdesym.visualization.ColorSchemes">visualization.ColorSchemes</a></td>
+<td>Predefined color palettes for plotting.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/visualization.PlotThemes.html#cdesym.visualization.PlotThemes">visualization.PlotThemes</a></td>
+<td>Complete plotting theme configurations.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="builtin-deterministic-continuous" class="level2">
+<h2 class="anchored" data-anchor-id="builtin-deterministic-continuous">Builtin: Deterministic Continuous</h2>
+<p>Continuous-time deterministic dynamical systems</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.LinearSystem.html#cdesym.systems.builtin.deterministic.continuous.LinearSystem">systems.builtin.deterministic.continuous.LinearSystem</a></td>
+<td>First-order linear system: dx/dt = -a<em>x + b</em>u</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.AutonomousLinearSystem.html#cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem">systems.builtin.deterministic.continuous.AutonomousLinearSystem</a></td>
+<td>Autonomous first-order linear system: dx/dt = -a*x</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.LinearSystem2D.html#cdesym.systems.builtin.deterministic.continuous.LinearSystem2D">systems.builtin.deterministic.continuous.LinearSystem2D</a></td>
+<td>Two-dimensional linear system.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.SymbolicPendulum.html#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum">systems.builtin.deterministic.continuous.SymbolicPendulum</a></td>
+<td>Simple inverted pendulum system - first-order state-space formulation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder.html#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder">systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder</a></td>
+<td>Inverted pendulum - second-order formulation (returns ONLY acceleration).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.CartPole.html#cdesym.systems.builtin.deterministic.continuous.CartPole">systems.builtin.deterministic.continuous.CartPole</a></td>
+<td>Cart-pole system (inverted pendulum on cart) - classic underactuated system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.Lorenz.html#cdesym.systems.builtin.deterministic.continuous.Lorenz">systems.builtin.deterministic.continuous.Lorenz</a></td>
+<td>Lorenz system - famous chaotic dynamical system from atmospheric convection.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.ControlledLorenz.html#cdesym.systems.builtin.deterministic.continuous.ControlledLorenz">systems.builtin.deterministic.continuous.ControlledLorenz</a></td>
+<td>Lorenz system - famous chaotic dynamical system from atmospheric convection with a forcing term</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.VanDerPolOscillator.html#cdesym.systems.builtin.deterministic.continuous.VanDerPolOscillator">systems.builtin.deterministic.continuous.VanDerPolOscillator</a></td>
+<td>Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator.html#cdesym.systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator">systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator</a></td>
+<td>Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle and forcing term</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.DuffingOscillator.html#cdesym.systems.builtin.deterministic.continuous.DuffingOscillator">systems.builtin.deterministic.continuous.DuffingOscillator</a></td>
+<td>Duffing oscillator - nonlinear oscillator with cubic stiffness term.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.CoupledOscillatorSystem.html#cdesym.systems.builtin.deterministic.continuous.CoupledOscillatorSystem">systems.builtin.deterministic.continuous.CoupledOscillatorSystem</a></td>
+<td>Coupled mass-spring-damper system with rotational coupling - first-order formulation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.NonlinearChainSystem.html#cdesym.systems.builtin.deterministic.continuous.NonlinearChainSystem">systems.builtin.deterministic.continuous.NonlinearChainSystem</a></td>
+<td>Chain of five coupled nonlinear oscillators - first-order formulation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.DubinsVehicle.html#cdesym.systems.builtin.deterministic.continuous.DubinsVehicle">systems.builtin.deterministic.continuous.DubinsVehicle</a></td>
+<td>Dubins vehicle - kinematic car model with unicycle dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.PathTracking.html#cdesym.systems.builtin.deterministic.continuous.PathTracking">systems.builtin.deterministic.continuous.PathTracking</a></td>
+<td>Path tracking error dynamics for a vehicle following a circular reference path.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.SymbolicQuadrotor2D.html#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2D">systems.builtin.deterministic.continuous.SymbolicQuadrotor2D</a></td>
+<td>Planar quadrotor (quadcopter) - second-order formulation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar.html#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar">systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar</a></td>
+<td>Symbolic representation of a planar (2D) quadrotor with lidar-based partial observations.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.PVTOL.html#cdesym.systems.builtin.deterministic.continuous.PVTOL">systems.builtin.deterministic.continuous.PVTOL</a></td>
+<td>Planar Vertical Take-Off and Landing (PVTOL) aircraft - second-order formulation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.Manipulator2Link.html#cdesym.systems.builtin.deterministic.continuous.Manipulator2Link">systems.builtin.deterministic.continuous.Manipulator2Link</a></td>
+<td>Two-link planar robotic manipulator - second-order formulation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem.html#cdesym.systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem">systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem</a></td>
+<td>Fifth-order mechanical system - extremely high-order dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.continuous.ContinuousBatchReactor.html#cdesym.systems.builtin.deterministic.continuous.ContinuousBatchReactor">systems.builtin.deterministic.continuous.ContinuousBatchReactor</a></td>
+<td>Continuous-time chemical batch reactor with temperature control.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.continuous.ContinuousCSTR.html#cdesym.systems.builtin.deterministic.continuous.ContinuousCSTR">systems.builtin.deterministic.continuous.ContinuousCSTR</a></td>
+<td>Continuous-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="builtin-deterministic-discrete" class="level2">
+<h2 class="anchored" data-anchor-id="builtin-deterministic-discrete">Builtin: Deterministic Discrete</h2>
+<p>Discrete-time deterministic dynamical systems</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteOscillator.html#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator">systems.builtin.deterministic.discrete.DiscreteOscillator</a></td>
+<td>Discrete-time damped harmonic oscillator with external forcing.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscretePendulum.html#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum">systems.builtin.deterministic.discrete.DiscretePendulum</a></td>
+<td>Discrete-time simple pendulum with friction and optional control.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator.html#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator">systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator</a></td>
+<td>Discrete-time double integrator (position-controlled point mass).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.html#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce">systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce</a></td>
+<td>Discrete double integrator with explicit force input and mass.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteRobotArm.html#cdesym.systems.builtin.deterministic.discrete.DiscreteRobotArm">systems.builtin.deterministic.discrete.DiscreteRobotArm</a></td>
+<td>Discrete-time single-link robot arm with gravity and friction.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteCartPole.html#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole">systems.builtin.deterministic.discrete.DiscreteCartPole</a></td>
+<td>Discrete-time cart-pole (inverted pendulum on cart) system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.DifferentialDriveRobot.html#cdesym.systems.builtin.deterministic.discrete.DifferentialDriveRobot">systems.builtin.deterministic.discrete.DifferentialDriveRobot</a></td>
+<td>Discrete-time differential drive mobile robot with nonholonomic constraints.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteBatchReactor.html#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor">systems.builtin.deterministic.discrete.DiscreteBatchReactor</a></td>
+<td>Discrete-time chemical batch reactor with temperature control.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteCSTR.html#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR">systems.builtin.deterministic.discrete.DiscreteCSTR</a></td>
+<td>Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.DiscreteSolowModel.html#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel">systems.builtin.deterministic.discrete.DiscreteSolowModel</a></td>
+<td>Discrete-time Solow-Swan neoclassical growth model.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.LogisticMap.html#cdesym.systems.builtin.deterministic.discrete.LogisticMap">systems.builtin.deterministic.discrete.LogisticMap</a></td>
+<td>The logistic map: x[k+1] = r·x[k]·(1 - x[k])</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.deterministic.discrete.HenonMap.html#cdesym.systems.builtin.deterministic.discrete.HenonMap">systems.builtin.deterministic.discrete.HenonMap</a></td>
+<td>The Hénon Map: Paradigm of 2D dissipative chaos and strange attractors.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.deterministic.discrete.StandardMap.html#cdesym.systems.builtin.deterministic.discrete.StandardMap">systems.builtin.deterministic.discrete.StandardMap</a></td>
+<td>The Standard Map (Chirikov-Taylor Map): Paradigm of Hamiltonian chaos.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="builtin-stochastic-continuous" class="level2">
+<h2 class="anchored" data-anchor-id="builtin-stochastic-continuous">Builtin: Stochastic Continuous</h2>
+<p>Continuous-time stochastic dynamical systems (SDEs)</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.BrownianMotion.html#cdesym.systems.builtin.stochastic.continuous.BrownianMotion">systems.builtin.stochastic.continuous.BrownianMotion</a></td>
+<td>Standard Brownian motion (Wiener process) - pure diffusion process.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.BrownianMotion2D.html#cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D">systems.builtin.stochastic.continuous.BrownianMotion2D</a></td>
+<td>Two-dimensional Brownian motion with independent components.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.BrownianMotionWithDrift.html#cdesym.systems.builtin.stochastic.continuous.BrownianMotionWithDrift">systems.builtin.stochastic.continuous.BrownianMotionWithDrift</a></td>
+<td>Alias for GeometricBrownianMotion.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.GeometricBrownianMotion.html#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion">systems.builtin.stochastic.continuous.GeometricBrownianMotion</a></td>
+<td>Geometric Brownian motion with multiplicative (state-dependent) noise.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.html#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck">systems.builtin.stochastic.continuous.OrnsteinUhlenbeck</a></td>
+<td>Ornstein-Uhlenbeck process with mean reversion and additive noise.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.html#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck">systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck</a></td>
+<td>Multivariate Ornstein-Uhlenbeck process with coupling and correlated noise.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.CoxIngersollRoss.html#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss">systems.builtin.stochastic.continuous.CoxIngersollRoss</a></td>
+<td>Cox-Ingersoll-Ross process with mean reversion and square-root diffusion.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.LangevinDynamics.html#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics">systems.builtin.stochastic.continuous.LangevinDynamics</a></td>
+<td>Langevin dynamics - particle in viscous fluid with thermal noise.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.html#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator">systems.builtin.stochastic.continuous.StochasticDoubleIntegrator</a></td>
+<td>Stochastic double integrator - canonical LQG benchmark system.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.html#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum">systems.builtin.stochastic.continuous.ContinuousStochasticPendulum</a></td>
+<td>Stochastic pendulum with random forcing - canonical nonlinear stochastic system.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.StochasticCartPole.html#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole">systems.builtin.stochastic.continuous.StochasticCartPole</a></td>
+<td>Stochastic inverted pendulum on cart with random disturbances.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.StochasticLorenz.html#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz">systems.builtin.stochastic.continuous.StochasticLorenz</a></td>
+<td>Stochastic Lorenz system - deterministic chaos with random perturbations.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.StochasticSIR.html#cdesym.systems.builtin.stochastic.continuous.StochasticSIR">systems.builtin.stochastic.continuous.StochasticSIR</a></td>
+<td>Stochastic SIR epidemic model with demographic noise.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.html#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor">systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor</a></td>
+<td>Continuous-time stochastic batch reactor with process noise.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.html#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR">systems.builtin.stochastic.continuous.ContinuousStochasticCSTR</a></td>
+<td>Continuous-time stochastic CSTR with multiple equilibria and Brownian noise.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="builtin-stochastic-discrete" class="level2">
+<h2 class="anchored" data-anchor-id="builtin-stochastic-discrete">Builtin: Stochastic Discrete</h2>
+<p>Discrete-time stochastic dynamical systems</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteAR1.html#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1">systems.builtin.stochastic.discrete.DiscreteAR1</a></td>
+<td>First-order autoregressive process with additive noise.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteWhiteNoise.html#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise">systems.builtin.stochastic.discrete.DiscreteWhiteNoise</a></td>
+<td>Pure white noise process - memoryless random sequence.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteRandomWalk.html#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk">systems.builtin.stochastic.discrete.DiscreteRandomWalk</a></td>
+<td>Random walk - non-stationary process with unit root.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteARMA11.html#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11">systems.builtin.stochastic.discrete.DiscreteARMA11</a></td>
+<td>ARMA(1,1) process - combines autoregressive and moving average.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteVAR1.html#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1">systems.builtin.stochastic.discrete.DiscreteVAR1</a></td>
+<td>Vector Autoregressive process of order 1 - multivariate time series model.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteGARCH11.html#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11">systems.builtin.stochastic.discrete.DiscreteGARCH11</a></td>
+<td>GARCH(1,1) - time-varying volatility model (Nobel Prize 2003).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator">systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator</a></td>
+<td>Discrete-time stochastic double integrator - canonical digital LQG benchmark.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum">systems.builtin.stochastic.discrete.DiscreteStochasticPendulum</a></td>
+<td>Discrete-time stochastic pendulum for digital control and RL.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticQueue.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue">systems.builtin.stochastic.discrete.DiscreteStochasticQueue</a></td>
+<td>Discrete-time stochastic queue with random arrivals and service.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor">systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor</a></td>
+<td>Discrete-time stochastic batch reactor for digital control and estimation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR">systems.builtin.stochastic.discrete.DiscreteStochasticCSTR</a></td>
+<td>Discrete-time stochastic CSTR with multiple steady states and process noise.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.html#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap">systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap</a></td>
+<td>Discrete-time stochastic logistic map - chaos meets noise.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-core" class="level2">
+<h2 class="anchored" data-anchor-id="types-core">Types: Core</h2>
+<p>Fundamental vectors, matrices, dimensions, and function types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.core.ScalarLike.html#cdesym.types.core.ScalarLike">types.core.ScalarLike</a></td>
+<td>Scalar value in any backend.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.ArrayLike.html#cdesym.types.core.ArrayLike">types.core.ArrayLike</a></td>
+<td>Array-like type supporting multiple backends.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.StateVector.html#cdesym.types.core.StateVector">types.core.StateVector</a></td>
+<td>State vector x ∈ ℝⁿˣ.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.ControlVector.html#cdesym.types.core.ControlVector">types.core.ControlVector</a></td>
+<td>Control input vector u ∈ ℝⁿᵘ.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.OutputVector.html#cdesym.types.core.OutputVector">types.core.OutputVector</a></td>
+<td>Output/observation/measurement vector y ∈ ℝⁿʸ.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.NoiseVector.html#cdesym.types.core.NoiseVector">types.core.NoiseVector</a></td>
+<td>Noise/disturbance vector w ∈ ℝⁿʷ (stochastic systems only).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.ParameterVector.html#cdesym.types.core.ParameterVector">types.core.ParameterVector</a></td>
+<td>Parameter vector θ ∈ ℝⁿᵖ.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.StateMatrix.html#cdesym.types.core.StateMatrix">types.core.StateMatrix</a></td>
+<td>State matrix (nx, nx).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.InputMatrix.html#cdesym.types.core.InputMatrix">types.core.InputMatrix</a></td>
+<td>Input matrix B (nx, nu).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.OutputMatrix.html#cdesym.types.core.OutputMatrix">types.core.OutputMatrix</a></td>
+<td>Output/observation matrix (ny, nx).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.DiffusionMatrix.html#cdesym.types.core.DiffusionMatrix">types.core.DiffusionMatrix</a></td>
+<td>Diffusion/noise gain matrix (nx, nw) - stochastic systems only.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.FeedthroughMatrix.html#cdesym.types.core.FeedthroughMatrix">types.core.FeedthroughMatrix</a></td>
+<td>Feedthrough/direct transmission matrix (ny, nu).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.GainMatrix.html#cdesym.types.core.GainMatrix">types.core.GainMatrix</a></td>
+<td>Gain matrix for control or estimation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.CovarianceMatrix.html#cdesym.types.core.CovarianceMatrix">types.core.CovarianceMatrix</a></td>
+<td>Covariance matrix (symmetric, positive semidefinite).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.SystemDimensions.html#cdesym.types.core.SystemDimensions">types.core.SystemDimensions</a></td>
+<td>System dimensions as dictionary.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.DynamicsFunction.html#cdesym.types.core.DynamicsFunction">types.core.DynamicsFunction</a></td>
+<td>Dynamics function f(x, u).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.OutputFunction.html#cdesym.types.core.OutputFunction">types.core.OutputFunction</a></td>
+<td>Output/observation function h(x).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.DiffusionFunction.html#cdesym.types.core.DiffusionFunction">types.core.DiffusionFunction</a></td>
+<td>Diffusion function g(x, u) for stochastic systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.ControlPolicy.html#cdesym.types.core.ControlPolicy">types.core.ControlPolicy</a></td>
+<td>Control policy/controller π(x).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.TimeVaryingControl.html#cdesym.types.core.TimeVaryingControl">types.core.TimeVaryingControl</a></td>
+<td>Time-varying control function u(t).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.core.FeedbackController.html#cdesym.types.core.FeedbackController">types.core.FeedbackController</a></td>
+<td>Feedback controller with time awareness π(x, t).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.core.ControlInput.html#cdesym.types.core.ControlInput">types.core.ControlInput</a></td>
+<td>Unified type for control inputs to integration methods.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-backend-configuration" class="level2">
+<h2 class="anchored" data-anchor-id="types-backend-configuration">Types: Backend &amp; Configuration</h2>
+<p>Backend support and configuration types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.backends.Backend.html#cdesym.types.backends.Backend">types.backends.Backend</a></td>
+<td>Backend identifier for numerical computation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.Device.html#cdesym.types.backends.Device">types.backends.Device</a></td>
+<td>Device identifier for hardware acceleration.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.BackendConfig.html#cdesym.types.backends.BackendConfig">types.backends.BackendConfig</a></td>
+<td>Backend configuration dictionary.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.IntegrationMethod.html#cdesym.types.backends.IntegrationMethod">types.backends.IntegrationMethod</a></td>
+<td>Integration method for continuous-time systems (ODEs).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.SDEIntegrationMethod.html#cdesym.types.backends.SDEIntegrationMethod">types.backends.SDEIntegrationMethod</a></td>
+<td>SDE integration method for stochastic differential equations.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.DiscretizationMethod.html#cdesym.types.backends.DiscretizationMethod">types.backends.DiscretizationMethod</a></td>
+<td>Discretization method for continuous → discrete transformation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.OptimizationMethod.html#cdesym.types.backends.OptimizationMethod">types.backends.OptimizationMethod</a></td>
+<td>Optimization method for control/estimation problems.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.NoiseType.html#cdesym.types.backends.NoiseType">types.backends.NoiseType</a></td>
+<td>Noise structure classification for stochastic systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.SDEType.html#cdesym.types.backends.SDEType">types.backends.SDEType</a></td>
+<td>SDE interpretation type.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.ConvergenceType.html#cdesym.types.backends.ConvergenceType">types.backends.ConvergenceType</a></td>
+<td>SDE convergence type for numerical integration.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.IntegratorConfig.html#cdesym.types.backends.IntegratorConfig">types.backends.IntegratorConfig</a></td>
+<td>Configuration for continuous-time integrators.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.SDEIntegratorConfig.html#cdesym.types.backends.SDEIntegratorConfig">types.backends.SDEIntegratorConfig</a></td>
+<td>Configuration for SDE integrators.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.DiscretizerConfig.html#cdesym.types.backends.DiscretizerConfig">types.backends.DiscretizerConfig</a></td>
+<td>Configuration for system discretization.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.SystemConfig.html#cdesym.types.backends.SystemConfig">types.backends.SystemConfig</a></td>
+<td>Complete system configuration dictionary.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.validate_backend.html#cdesym.types.backends.validate_backend">types.backends.validate_backend</a></td>
+<td>Validate and normalize backend string.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.backends.validate_device.html#cdesym.types.backends.validate_device">types.backends.validate_device</a></td>
+<td>Validate device for given backend.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.backends.get_backend_default_method.html#cdesym.types.backends.get_backend_default_method">types.backends.get_backend_default_method</a></td>
+<td>Get default integration method for backend.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-trajectories-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="types-trajectories-simulation">Types: Trajectories &amp; Simulation</h2>
+<p>Time series, trajectories, and simulation results</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.trajectories.TimePoints.html#cdesym.types.trajectories.TimePoints">types.trajectories.TimePoints</a></td>
+<td>Array of time points for simulation or evaluation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.trajectories.TimeSpan.html#cdesym.types.trajectories.TimeSpan">types.trajectories.TimeSpan</a></td>
+<td>Time interval for continuous integration: (t_start, t_end).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.trajectories.StateTrajectory.html#cdesym.types.trajectories.StateTrajectory">types.trajectories.StateTrajectory</a></td>
+<td>State trajectory over time.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.trajectories.ControlSequence.html#cdesym.types.trajectories.ControlSequence">types.trajectories.ControlSequence</a></td>
+<td>Control input sequence over time.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.trajectories.OutputSequence.html#cdesym.types.trajectories.OutputSequence">types.trajectories.OutputSequence</a></td>
+<td>Output/measurement sequence over time.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.trajectories.NoiseSequence.html#cdesym.types.trajectories.NoiseSequence">types.trajectories.NoiseSequence</a></td>
+<td>Noise/disturbance sequence for stochastic simulation.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.trajectories.SimulationResult.html#cdesym.types.trajectories.SimulationResult">types.trajectories.SimulationResult</a></td>
+<td>Result from continuous-time system simulation.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.trajectories.IntegrationResult.html#cdesym.types.trajectories.IntegrationResult">types.trajectories.IntegrationResult</a></td>
+<td>Result from continuous-time integration (ODE/SDE solver).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.trajectories.TrajectoryStatistics.html#cdesym.types.trajectories.TrajectoryStatistics">types.trajectories.TrajectoryStatistics</a></td>
+<td>Statistical summary of trajectory.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.trajectories.TrajectorySegment.html#cdesym.types.trajectories.TrajectorySegment">types.trajectories.TrajectorySegment</a></td>
+<td>Segment of trajectory between two time points.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-control-results" class="level2">
+<h2 class="anchored" data-anchor-id="types-control-results">Types: Control Results</h2>
+<p>Control design and analysis result types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.control_classical.LQRResult.html#cdesym.types.control_classical.LQRResult">types.control_classical.LQRResult</a></td>
+<td>Linear Quadratic Regulator (LQR) design result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_classical.LQGResult.html#cdesym.types.control_classical.LQGResult">types.control_classical.LQGResult</a></td>
+<td>Linear Quadratic Gaussian (LQG) controller design result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_classical.KalmanFilterResult.html#cdesym.types.control_classical.KalmanFilterResult">types.control_classical.KalmanFilterResult</a></td>
+<td>Kalman Filter (optimal state estimator) design result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_classical.StabilityInfo.html#cdesym.types.control_classical.StabilityInfo">types.control_classical.StabilityInfo</a></td>
+<td>Stability analysis result dictionary.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_classical.ControllabilityInfo.html#cdesym.types.control_classical.ControllabilityInfo">types.control_classical.ControllabilityInfo</a></td>
+<td>Controllability analysis result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_classical.ObservabilityInfo.html#cdesym.types.control_classical.ObservabilityInfo">types.control_classical.ObservabilityInfo</a></td>
+<td>Observability analysis result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_classical.PolePlacementResult.html#cdesym.types.control_classical.PolePlacementResult">types.control_classical.PolePlacementResult</a></td>
+<td>Pole placement (eigenvalue assignment) result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_classical.LuenbergerObserverResult.html#cdesym.types.control_classical.LuenbergerObserverResult">types.control_classical.LuenbergerObserverResult</a></td>
+<td>Luenberger observer (deterministic state estimator) design result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_advanced.MPCResult.html#cdesym.types.control_advanced.MPCResult">types.control_advanced.MPCResult</a></td>
+<td>Model Predictive Control (MPC) solution result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_advanced.MHEResult.html#cdesym.types.control_advanced.MHEResult">types.control_advanced.MHEResult</a></td>
+<td>Moving Horizon Estimation (MHE) result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_advanced.H2ControlResult.html#cdesym.types.control_advanced.H2ControlResult">types.control_advanced.H2ControlResult</a></td>
+<td>H₂ optimal control result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_advanced.HInfControlResult.html#cdesym.types.control_advanced.HInfControlResult">types.control_advanced.HInfControlResult</a></td>
+<td>H∞ robust control result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_advanced.LMIResult.html#cdesym.types.control_advanced.LMIResult">types.control_advanced.LMIResult</a></td>
+<td>Linear Matrix Inequality (LMI) solver result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.control_advanced.AdaptiveControlResult.html#cdesym.types.control_advanced.AdaptiveControlResult">types.control_advanced.AdaptiveControlResult</a></td>
+<td>Adaptive control result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.control_advanced.SlidingModeResult.html#cdesym.types.control_advanced.SlidingModeResult">types.control_advanced.SlidingModeResult</a></td>
+<td>Sliding Mode Control (SMC) result.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-estimation" class="level2">
+<h2 class="anchored" data-anchor-id="types-estimation">Types: Estimation</h2>
+<p>State estimation result types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.estimation.EKFResult.html#cdesym.types.estimation.EKFResult">types.estimation.EKFResult</a></td>
+<td>Extended Kalman Filter (EKF) state and result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.estimation.UKFResult.html#cdesym.types.estimation.UKFResult">types.estimation.UKFResult</a></td>
+<td>Unscented Kalman Filter (UKF) result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.estimation.ParticleFilterResult.html#cdesym.types.estimation.ParticleFilterResult">types.estimation.ParticleFilterResult</a></td>
+<td>Particle Filter (Sequential Monte Carlo) result.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-linearization" class="level2">
+<h2 class="anchored" data-anchor-id="types-linearization">Types: Linearization</h2>
+<p>Linearization and Jacobian types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.linearization.LinearizationResult.html#cdesym.types.linearization.LinearizationResult">types.linearization.LinearizationResult</a></td>
+<td>Flexible linearization result type.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.DeterministicLinearization.html#cdesym.types.linearization.DeterministicLinearization">types.linearization.DeterministicLinearization</a></td>
+<td>Linearization result for deterministic systems: (A, B).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.StochasticLinearization.html#cdesym.types.linearization.StochasticLinearization">types.linearization.StochasticLinearization</a></td>
+<td>Linearization result for stochastic systems: (A, B, G).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.ContinuousLinearization.html#cdesym.types.linearization.ContinuousLinearization">types.linearization.ContinuousLinearization</a></td>
+<td>Alias for continuous-time deterministic linearization.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.DiscreteLinearization.html#cdesym.types.linearization.DiscreteLinearization">types.linearization.DiscreteLinearization</a></td>
+<td>Alias for discrete-time deterministic linearization.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.ContinuousStochasticLinearization.html#cdesym.types.linearization.ContinuousStochasticLinearization">types.linearization.ContinuousStochasticLinearization</a></td>
+<td>Alias for continuous-time stochastic linearization.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.DiscreteStochasticLinearization.html#cdesym.types.linearization.DiscreteStochasticLinearization">types.linearization.DiscreteStochasticLinearization</a></td>
+<td>Alias for discrete-time stochastic linearization.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.FullLinearization.html#cdesym.types.linearization.FullLinearization">types.linearization.FullLinearization</a></td>
+<td>Complete linearization including output: (A, B, C, D).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.FullStochasticLinearization.html#cdesym.types.linearization.FullStochasticLinearization">types.linearization.FullStochasticLinearization</a></td>
+<td>Complete stochastic linearization: (A, B, G, C, D).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.ObservationLinearization.html#cdesym.types.linearization.ObservationLinearization">types.linearization.ObservationLinearization</a></td>
+<td>Observation/output linearization: (C, D).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.StateJacobian.html#cdesym.types.linearization.StateJacobian">types.linearization.StateJacobian</a></td>
+<td>State Jacobian ∂f/∂x.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.ControlJacobian.html#cdesym.types.linearization.ControlJacobian">types.linearization.ControlJacobian</a></td>
+<td>Control Jacobian ∂f/∂u.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.OutputJacobian.html#cdesym.types.linearization.OutputJacobian">types.linearization.OutputJacobian</a></td>
+<td>Output Jacobian ∂h/∂x.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.linearization.DiffusionJacobian.html#cdesym.types.linearization.DiffusionJacobian">types.linearization.DiffusionJacobian</a></td>
+<td>Diffusion Jacobian ∂g/∂x (stochastic systems).</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.linearization.LinearizationCacheKey.html#cdesym.types.linearization.LinearizationCacheKey">types.linearization.LinearizationCacheKey</a></td>
+<td>Cache key for linearization results.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-symbolic" class="level2">
+<h2 class="anchored" data-anchor-id="types-symbolic">Types: Symbolic</h2>
+<p>Symbolic computation types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.symbolic.SymbolicExpression.html#cdesym.types.symbolic.SymbolicExpression">types.symbolic.SymbolicExpression</a></td>
+<td>Single symbolic expression.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.symbolic.SymbolicMatrix.html#cdesym.types.symbolic.SymbolicMatrix">types.symbolic.SymbolicMatrix</a></td>
+<td>Matrix of symbolic expressions.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.symbolic.SymbolicStateEquations.html#cdesym.types.symbolic.SymbolicStateEquations">types.symbolic.SymbolicStateEquations</a></td>
+<td>Symbolic state equations: f(x, u, params).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.symbolic.SymbolicJacobian.html#cdesym.types.symbolic.SymbolicJacobian">types.symbolic.SymbolicJacobian</a></td>
+<td>Jacobian matrix: ∂f/∂x.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-advanced" class="level2">
+<h2 class="anchored" data-anchor-id="types-advanced">Types: Advanced</h2>
+<p>Reachability, robustness, optimization, and learning types</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.reachability.ReachabilityResult.html#cdesym.types.reachability.ReachabilityResult">types.reachability.ReachabilityResult</a></td>
+<td>Reachability analysis result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.reachability.ROAResult.html#cdesym.types.reachability.ROAResult">types.reachability.ROAResult</a></td>
+<td>Region of Attraction (ROA) analysis result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.reachability.CBFResult.html#cdesym.types.reachability.CBFResult">types.reachability.CBFResult</a></td>
+<td>Control Barrier Function (CBF) result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.reachability.CLFResult.html#cdesym.types.reachability.CLFResult">types.reachability.CLFResult</a></td>
+<td>Control Lyapunov Function (CLF) result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.robustness.RobustStabilityResult.html#cdesym.types.robustness.RobustStabilityResult">types.robustness.RobustStabilityResult</a></td>
+<td>Robust stability analysis result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.robustness.TubeMPCResult.html#cdesym.types.robustness.TubeMPCResult">types.robustness.TubeMPCResult</a></td>
+<td>Tube-based MPC result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.optimization.OptimizationResult.html#cdesym.types.optimization.OptimizationResult">types.optimization.OptimizationResult</a></td>
+<td>General nonlinear optimization result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.optimization.TrajectoryOptimizationResult.html#cdesym.types.optimization.TrajectoryOptimizationResult">types.optimization.TrajectoryOptimizationResult</a></td>
+<td>Trajectory optimization result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.learning.TrainingResult.html#cdesym.types.learning.TrainingResult">types.learning.TrainingResult</a></td>
+<td>Neural network training result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.learning.RLTrainingResult.html#cdesym.types.learning.RLTrainingResult">types.learning.RLTrainingResult</a></td>
+<td>Reinforcement learning training result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.contraction.ContractionAnalysisResult.html#cdesym.types.contraction.ContractionAnalysisResult">types.contraction.ContractionAnalysisResult</a></td>
+<td>Contraction analysis result.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.contraction.CCMResult.html#cdesym.types.contraction.CCMResult">types.contraction.CCMResult</a></td>
+<td>Control Contraction Metrics (CCM) result.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.conformal.ConformalPredictionResult.html#cdesym.types.conformal.ConformalPredictionResult">types.conformal.ConformalPredictionResult</a></td>
+<td>Conformal prediction result for test points.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="types-protocols" class="level2">
+<h2 class="anchored" data-anchor-id="types-protocols">Types: Protocols</h2>
+<p>Structural subtyping protocols for system interfaces</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/types.protocols.ContinuousSystemProtocol.html#cdesym.types.protocols.ContinuousSystemProtocol">types.protocols.ContinuousSystemProtocol</a></td>
+<td>Minimal interface for continuous-time dynamical systems.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.protocols.DiscreteSystemProtocol.html#cdesym.types.protocols.DiscreteSystemProtocol">types.protocols.DiscreteSystemProtocol</a></td>
+<td>Minimal interface for discrete-time dynamical systems.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.protocols.StochasticSystemProtocol.html#cdesym.types.protocols.StochasticSystemProtocol">types.protocols.StochasticSystemProtocol</a></td>
+<td>System with stochastic dynamics (continuous or discrete).</td>
+</tr>
+<tr class="even">
+<td><a href="../api/types.protocols.LinearizableContinuousProtocol.html#cdesym.types.protocols.LinearizableContinuousProtocol">types.protocols.LinearizableContinuousProtocol</a></td>
+<td>Continuous system with linearization capability.</td>
+</tr>
+<tr class="odd">
+<td><a href="../api/types.protocols.LinearizableDiscreteProtocol.html#cdesym.types.protocols.LinearizableDiscreteProtocol">types.protocols.LinearizableDiscreteProtocol</a></td>
+<td>Discrete system with linearization capability.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="state-observers" class="level2">
+<h2 class="anchored" data-anchor-id="state-observers">State Observers</h2>
+<p>State estimation and observer design</p>
+<table class="caption-top table">
+<tbody>
+<tr class="odd">
+<td><a href="../api/observers.LinearObserver.html#cdesym.observers.LinearObserver">observers.LinearObserver</a></td>
+<td>Linear state observer with constant gain.</td>
+</tr>
+<tr class="even">
+<td><a href="../api/observers.ExtendedKalmanFilter.html#cdesym.observers.ExtendedKalmanFilter">observers.ExtendedKalmanFilter</a></td>
+<td>Extended Kalman Filter (EKF) for nonlinear state estimation.</td>
+</tr>
+</tbody>
+</table>
 
 
 <!-- -->
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -684,11 +1751,366 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># API Reference {.doc .doc-index}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Systems: Core Classes</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Abstract base classes and core system implementations</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.SymbolicSystemBase</span><span class="co">](systems.base.core.SymbolicSystemBase.qmd#cdesym.systems.base.core.SymbolicSystemBase)</span> <span class="pp">|</span> Abstract base class for symbolic systems (time-domain agnostic). <span class="pp">|</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.ContinuousSystemBase</span><span class="co">](systems.base.core.ContinuousSystemBase.qmd#cdesym.systems.base.core.ContinuousSystemBase)</span> <span class="pp">|</span> Abstract base class for all continuous-time dynamical systems. <span class="pp">|</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.DiscreteSystemBase</span><span class="co">](systems.base.core.DiscreteSystemBase.qmd#cdesym.systems.base.core.DiscreteSystemBase)</span> <span class="pp">|</span> Abstract base class for all discrete-time dynamical systems. <span class="pp">|</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.ContinuousSymbolicSystem</span><span class="co">](systems.base.core.ContinuousSymbolicSystem.qmd#cdesym.systems.base.core.ContinuousSymbolicSystem)</span> <span class="pp">|</span> Concrete symbolic continuous-time dynamical system. <span class="pp">|</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.DiscreteSymbolicSystem</span><span class="co">](systems.base.core.DiscreteSymbolicSystem.qmd#cdesym.systems.base.core.DiscreteSymbolicSystem)</span> <span class="pp">|</span> Concrete symbolic discrete-time dynamical system. <span class="pp">|</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.ContinuousStochasticSystem</span><span class="co">](systems.base.core.ContinuousStochasticSystem.qmd#cdesym.systems.base.core.ContinuousStochasticSystem)</span> <span class="pp">|</span> Concrete symbolic continuous-time stochastic dynamical system (SDE). <span class="pp">|</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.DiscreteStochasticSystem</span><span class="co">](systems.base.core.DiscreteStochasticSystem.qmd#cdesym.systems.base.core.DiscreteStochasticSystem)</span> <span class="pp">|</span> Concrete symbolic discrete-time stochastic dynamical system. <span class="pp">|</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.DiscretizedSystem</span><span class="co">](systems.base.core.DiscretizedSystem.qmd#cdesym.systems.base.core.DiscretizedSystem)</span> <span class="pp">|</span> Pure wrapper providing discrete interface to continuous systems. <span class="pp">|</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.core.discretize</span><span class="co">](systems.base.core.discretize.qmd#cdesym.systems.base.core.discretize)</span> <span class="pp">|</span> Convenience wrapper for creating a discretized system. <span class="pp">|</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">## Systems: Numerical Integration</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>ODE and SDE integrators for multiple backends</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.is_sde_method</span><span class="co">](systems.base.numerical_integration.is_sde_method.qmd#cdesym.systems.base.numerical_integration.is_sde_method)</span> <span class="pp">|</span> Check if integration method is for stochastic differential equations. <span class="pp">|</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.is_fixed_step</span><span class="co">](systems.base.numerical_integration.is_fixed_step.qmd#cdesym.systems.base.numerical_integration.is_fixed_step)</span> <span class="pp">|</span> Check if integration method uses fixed time stepping. <span class="pp">|</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.normalize_method_name</span><span class="co">](systems.base.numerical_integration.normalize_method_name.qmd#cdesym.systems.base.numerical_integration.normalize_method_name)</span> <span class="pp">|</span> Normalize method names across backends to canonical form. <span class="pp">|</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.get_available_methods</span><span class="co">](systems.base.numerical_integration.get_available_methods.qmd#cdesym.systems.base.numerical_integration.get_available_methods)</span> <span class="pp">|</span>     Get available integration methods for a backend. <span class="pp">|</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.validate_method</span><span class="co">](systems.base.numerical_integration.validate_method.qmd#cdesym.systems.base.numerical_integration.validate_method)</span> <span class="pp">|</span> Validate method for backend and system type. <span class="pp">|</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.get_method_info</span><span class="co">](systems.base.numerical_integration.get_method_info.qmd#cdesym.systems.base.numerical_integration.get_method_info)</span> <span class="pp">|</span> Get comprehensive information about a method. <span class="pp">|</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.list_all_methods</span><span class="co">](systems.base.numerical_integration.list_all_methods.qmd#cdesym.systems.base.numerical_integration.list_all_methods)</span> <span class="pp">|</span> List all integration methods across all categories. <span class="pp">|</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.get_implementing_library</span><span class="co">](systems.base.numerical_integration.get_implementing_library.qmd#cdesym.systems.base.numerical_integration.get_implementing_library)</span> <span class="pp">|</span> Get which library/package implements this method. <span class="pp">|</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.IntegratorFactory</span><span class="co">](systems.base.numerical_integration.IntegratorFactory.qmd#cdesym.systems.base.numerical_integration.IntegratorFactory)</span> <span class="pp">|</span> Factory for creating numerical integrators. <span class="pp">|</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.IntegratorBase</span><span class="co">](systems.base.numerical_integration.IntegratorBase.qmd#cdesym.systems.base.numerical_integration.IntegratorBase)</span> <span class="pp">|</span> Abstract base class for numerical integrators. <span class="pp">|</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.ScipyIntegrator</span><span class="co">](systems.base.numerical_integration.ScipyIntegrator.qmd#cdesym.systems.base.numerical_integration.ScipyIntegrator)</span> <span class="pp">|</span> Adaptive integrator using scipy.integrate.solve_ivp. <span class="pp">|</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.DiffraxIntegrator</span><span class="co">](systems.base.numerical_integration.DiffraxIntegrator.qmd#cdesym.systems.base.numerical_integration.DiffraxIntegrator)</span> <span class="pp">|</span> JAX-based ODE integrator using the Diffrax library. <span class="pp">|</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.TorchDiffEqIntegrator</span><span class="co">](systems.base.numerical_integration.TorchDiffEqIntegrator.qmd#cdesym.systems.base.numerical_integration.TorchDiffEqIntegrator)</span> <span class="pp">|</span> PyTorch-based ODE integrator using the torchdiffeq library. <span class="pp">|</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.SDEIntegratorFactory</span><span class="co">](systems.base.numerical_integration.stochastic.SDEIntegratorFactory.qmd#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorFactory)</span> <span class="pp">|</span> Factory for creating SDE numerical integrators. <span class="pp">|</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.SDEIntegratorBase</span><span class="co">](systems.base.numerical_integration.stochastic.SDEIntegratorBase.qmd#cdesym.systems.base.numerical_integration.stochastic.SDEIntegratorBase)</span> <span class="pp">|</span> Abstract base class for SDE integrators. <span class="pp">|</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator</span><span class="co">](systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.DiffEqPySDEIntegrator)</span> <span class="pp">|</span> Julia-based SDE integrator using DifferentialEquations.jl via diffeqpy. <span class="pp">|</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.TorchSDEIntegrator</span><span class="co">](systems.base.numerical_integration.stochastic.TorchSDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.TorchSDEIntegrator)</span> <span class="pp">|</span> PyTorch-based SDE integrator using the torchsde library. <span class="pp">|</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator</span><span class="co">](systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator.qmd#cdesym.systems.base.numerical_integration.stochastic.DiffraxSDEIntegrator)</span> <span class="pp">|</span> JAX-based SDE integrator using the Diffrax library. <span class="pp">|</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.CustomBrownianPath</span><span class="co">](systems.base.numerical_integration.stochastic.CustomBrownianPath.qmd#cdesym.systems.base.numerical_integration.stochastic.CustomBrownianPath)</span> <span class="pp">|</span> Custom Brownian motion that uses provided dW increments. <span class="pp">|</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.numerical_integration.stochastic.create_custom_or_random_brownian</span><span class="co">](systems.base.numerical_integration.stochastic.create_custom_or_random_brownian.qmd#cdesym.systems.base.numerical_integration.stochastic.create_custom_or_random_brownian)</span> <span class="pp">|</span> Create either custom or random Brownian motion for Diffrax. <span class="pp">|</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## Systems: Utilities</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>Backend management, linearization, and code generation</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.BackendManager</span><span class="co">](systems.base.utils.BackendManager.qmd#cdesym.systems.base.utils.BackendManager)</span> <span class="pp">|</span> Manages backend detection, conversion, and device placement. <span class="pp">|</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.CodeGenerator</span><span class="co">](systems.base.utils.CodeGenerator.qmd#cdesym.systems.base.utils.CodeGenerator)</span> <span class="pp">|</span> Orchestrates code generation and caching for a dynamical system. <span class="pp">|</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.DynamicsEvaluator</span><span class="co">](systems.base.utils.DynamicsEvaluator.qmd#cdesym.systems.base.utils.DynamicsEvaluator)</span> <span class="pp">|</span> Evaluates forward dynamics across backends. <span class="pp">|</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.EquilibriumHandler</span><span class="co">](systems.base.utils.EquilibriumHandler.qmd#cdesym.systems.base.utils.EquilibriumHandler)</span> <span class="pp">|</span> Manages multiple equilibrium points for a dynamical system. <span class="pp">|</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.LinearizationEngine</span><span class="co">](systems.base.utils.LinearizationEngine.qmd#cdesym.systems.base.utils.LinearizationEngine)</span> <span class="pp">|</span> Computes linearized dynamics across backends. <span class="pp">|</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.ObservationEngine</span><span class="co">](systems.base.utils.ObservationEngine.qmd#cdesym.systems.base.utils.ObservationEngine)</span> <span class="pp">|</span> Evaluates observation/output functions across backends. <span class="pp">|</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.SymbolicValidator</span><span class="co">](systems.base.utils.SymbolicValidator.qmd#cdesym.systems.base.utils.SymbolicValidator)</span> <span class="pp">|</span> Validates symbolic dynamical system definitions. <span class="pp">|</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.stochastic.NoiseCharacteristics</span><span class="co">](systems.base.utils.stochastic.NoiseCharacteristics.qmd#cdesym.systems.base.utils.stochastic.NoiseCharacteristics)</span> <span class="pp">|</span> Container for noise structure analysis results. <span class="pp">|</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.stochastic.NoiseCharacterizer</span><span class="co">](systems.base.utils.stochastic.NoiseCharacterizer.qmd#cdesym.systems.base.utils.stochastic.NoiseCharacterizer)</span> <span class="pp">|</span> Analyzes symbolic diffusion expressions to determine noise structure. <span class="pp">|</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.stochastic.analyze_noise_structure</span><span class="co">](systems.base.utils.stochastic.analyze_noise_structure.qmd#cdesym.systems.base.utils.stochastic.analyze_noise_structure)</span> <span class="pp">|</span> Convenience function for analyzing noise structure. <span class="pp">|</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.stochastic.DiffusionHandler</span><span class="co">](systems.base.utils.stochastic.DiffusionHandler.qmd#cdesym.systems.base.utils.stochastic.DiffusionHandler)</span> <span class="pp">|</span> Handles code generation and caching for diffusion terms. <span class="pp">|</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.base.utils.stochastic.SDEValidator</span><span class="co">](systems.base.utils.stochastic.SDEValidator.qmd#cdesym.systems.base.utils.stochastic.SDEValidator)</span> <span class="pp">|</span> Validates stochastic dynamical system definitions. <span class="pp">|</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="fu">## Control Design &amp; Analysis</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>Control synthesis, system analysis, and classical control functions</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.ControlSynthesis</span><span class="co">](control.ControlSynthesis.qmd#cdesym.control.ControlSynthesis)</span> <span class="pp">|</span> Control synthesis wrapper for system composition. <span class="pp">|</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.SystemAnalysis</span><span class="co">](control.SystemAnalysis.qmd#cdesym.control.SystemAnalysis)</span> <span class="pp">|</span> System analysis wrapper for composition. <span class="pp">|</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.design_lqr</span><span class="co">](control.design_lqr.qmd#cdesym.control.design_lqr)</span> <span class="pp">|</span> Design Linear Quadratic Regulator (LQR) controller. <span class="pp">|</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.design_lqg</span><span class="co">](control.design_lqg.qmd#cdesym.control.design_lqg)</span> <span class="pp">|</span> Design Linear Quadratic Gaussian (LQG) controller. <span class="pp">|</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.design_kalman_filter</span><span class="co">](control.design_kalman_filter.qmd#cdesym.control.design_kalman_filter)</span> <span class="pp">|</span> Design Kalman filter for optimal state estimation. <span class="pp">|</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.analyze_stability</span><span class="co">](control.analyze_stability.qmd#cdesym.control.analyze_stability)</span> <span class="pp">|</span> Analyze system stability via eigenvalue analysis. <span class="pp">|</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.analyze_controllability</span><span class="co">](control.analyze_controllability.qmd#cdesym.control.analyze_controllability)</span> <span class="pp">|</span> Test controllability of linear system (A, B). <span class="pp">|</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">control.analyze_observability</span><span class="co">](control.analyze_observability.qmd#cdesym.control.analyze_observability)</span> <span class="pp">|</span> Test observability of linear system (A, C). <span class="pp">|</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualization</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>Plotting and visualization tools for dynamical systems</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">visualization.TrajectoryPlotter</span><span class="co">](visualization.TrajectoryPlotter.qmd#cdesym.visualization.TrajectoryPlotter)</span> <span class="pp">|</span> Time-domain trajectory visualization. <span class="pp">|</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">visualization.PhasePortraitPlotter</span><span class="co">](visualization.PhasePortraitPlotter.qmd#cdesym.visualization.PhasePortraitPlotter)</span> <span class="pp">|</span> Phase space visualization for dynamical systems. <span class="pp">|</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">visualization.ControlPlotter</span><span class="co">](visualization.ControlPlotter.qmd#cdesym.visualization.ControlPlotter)</span> <span class="pp">|</span> Control system analysis visualization. <span class="pp">|</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">visualization.ColorSchemes</span><span class="co">](visualization.ColorSchemes.qmd#cdesym.visualization.ColorSchemes)</span> <span class="pp">|</span> Predefined color palettes for plotting. <span class="pp">|</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">visualization.PlotThemes</span><span class="co">](visualization.PlotThemes.qmd#cdesym.visualization.PlotThemes)</span> <span class="pp">|</span> Complete plotting theme configurations. <span class="pp">|</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="fu">## Builtin: Deterministic Continuous</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>Continuous-time deterministic dynamical systems</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.LinearSystem</span><span class="co">](systems.builtin.deterministic.continuous.LinearSystem.qmd#cdesym.systems.builtin.deterministic.continuous.LinearSystem)</span> <span class="pp">|</span> First-order linear system: dx/dt = -a*x + b*u <span class="pp">|</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.AutonomousLinearSystem</span><span class="co">](systems.builtin.deterministic.continuous.AutonomousLinearSystem.qmd#cdesym.systems.builtin.deterministic.continuous.AutonomousLinearSystem)</span> <span class="pp">|</span> Autonomous first-order linear system: dx/dt = -a*x <span class="pp">|</span></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.LinearSystem2D</span><span class="co">](systems.builtin.deterministic.continuous.LinearSystem2D.qmd#cdesym.systems.builtin.deterministic.continuous.LinearSystem2D)</span> <span class="pp">|</span> Two-dimensional linear system. <span class="pp">|</span></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.SymbolicPendulum</span><span class="co">](systems.builtin.deterministic.continuous.SymbolicPendulum.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum)</span> <span class="pp">|</span> Simple inverted pendulum system - first-order state-space formulation. <span class="pp">|</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder</span><span class="co">](systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicPendulum2ndOrder)</span> <span class="pp">|</span> Inverted pendulum - second-order formulation (returns ONLY acceleration). <span class="pp">|</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.CartPole</span><span class="co">](systems.builtin.deterministic.continuous.CartPole.qmd#cdesym.systems.builtin.deterministic.continuous.CartPole)</span> <span class="pp">|</span> Cart-pole system (inverted pendulum on cart) - classic underactuated system. <span class="pp">|</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.Lorenz</span><span class="co">](systems.builtin.deterministic.continuous.Lorenz.qmd#cdesym.systems.builtin.deterministic.continuous.Lorenz)</span> <span class="pp">|</span> Lorenz system - famous chaotic dynamical system from atmospheric convection. <span class="pp">|</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.ControlledLorenz</span><span class="co">](systems.builtin.deterministic.continuous.ControlledLorenz.qmd#cdesym.systems.builtin.deterministic.continuous.ControlledLorenz)</span> <span class="pp">|</span> Lorenz system - famous chaotic dynamical system from atmospheric convection with a forcing term <span class="pp">|</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.VanDerPolOscillator</span><span class="co">](systems.builtin.deterministic.continuous.VanDerPolOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.VanDerPolOscillator)</span> <span class="pp">|</span> Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle. <span class="pp">|</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator</span><span class="co">](systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.ControlledVanDerPolOscillator)</span> <span class="pp">|</span> Van der Pol oscillator - self-excited nonlinear oscillator with limit cycle and forcing term <span class="pp">|</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.DuffingOscillator</span><span class="co">](systems.builtin.deterministic.continuous.DuffingOscillator.qmd#cdesym.systems.builtin.deterministic.continuous.DuffingOscillator)</span> <span class="pp">|</span> Duffing oscillator - nonlinear oscillator with cubic stiffness term. <span class="pp">|</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.CoupledOscillatorSystem</span><span class="co">](systems.builtin.deterministic.continuous.CoupledOscillatorSystem.qmd#cdesym.systems.builtin.deterministic.continuous.CoupledOscillatorSystem)</span> <span class="pp">|</span> Coupled mass-spring-damper system with rotational coupling - first-order formulation. <span class="pp">|</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.NonlinearChainSystem</span><span class="co">](systems.builtin.deterministic.continuous.NonlinearChainSystem.qmd#cdesym.systems.builtin.deterministic.continuous.NonlinearChainSystem)</span> <span class="pp">|</span> Chain of five coupled nonlinear oscillators - first-order formulation. <span class="pp">|</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.DubinsVehicle</span><span class="co">](systems.builtin.deterministic.continuous.DubinsVehicle.qmd#cdesym.systems.builtin.deterministic.continuous.DubinsVehicle)</span> <span class="pp">|</span> Dubins vehicle - kinematic car model with unicycle dynamics. <span class="pp">|</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.PathTracking</span><span class="co">](systems.builtin.deterministic.continuous.PathTracking.qmd#cdesym.systems.builtin.deterministic.continuous.PathTracking)</span> <span class="pp">|</span> Path tracking error dynamics for a vehicle following a circular reference path. <span class="pp">|</span></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.SymbolicQuadrotor2D</span><span class="co">](systems.builtin.deterministic.continuous.SymbolicQuadrotor2D.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2D)</span> <span class="pp">|</span> Planar quadrotor (quadcopter) - second-order formulation. <span class="pp">|</span></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar</span><span class="co">](systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar.qmd#cdesym.systems.builtin.deterministic.continuous.SymbolicQuadrotor2DLidar)</span> <span class="pp">|</span> Symbolic representation of a planar (2D) quadrotor with lidar-based partial observations. <span class="pp">|</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.PVTOL</span><span class="co">](systems.builtin.deterministic.continuous.PVTOL.qmd#cdesym.systems.builtin.deterministic.continuous.PVTOL)</span> <span class="pp">|</span> Planar Vertical Take-Off and Landing (PVTOL) aircraft - second-order formulation. <span class="pp">|</span></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.Manipulator2Link</span><span class="co">](systems.builtin.deterministic.continuous.Manipulator2Link.qmd#cdesym.systems.builtin.deterministic.continuous.Manipulator2Link)</span> <span class="pp">|</span> Two-link planar robotic manipulator - second-order formulation. <span class="pp">|</span></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem</span><span class="co">](systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem.qmd#cdesym.systems.builtin.deterministic.continuous.FifthOrderMechanicalSystem)</span> <span class="pp">|</span> Fifth-order mechanical system - extremely high-order dynamics. <span class="pp">|</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.ContinuousBatchReactor</span><span class="co">](systems.builtin.deterministic.continuous.ContinuousBatchReactor.qmd#cdesym.systems.builtin.deterministic.continuous.ContinuousBatchReactor)</span> <span class="pp">|</span>     Continuous-time chemical batch reactor with temperature control. <span class="pp">|</span></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.continuous.ContinuousCSTR</span><span class="co">](systems.builtin.deterministic.continuous.ContinuousCSTR.qmd#cdesym.systems.builtin.deterministic.continuous.ContinuousCSTR)</span> <span class="pp">|</span> Continuous-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket. <span class="pp">|</span></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## Builtin: Deterministic Discrete</span></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>Discrete-time deterministic dynamical systems</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteOscillator</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteOscillator.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteOscillator)</span> <span class="pp">|</span> Discrete-time damped harmonic oscillator with external forcing. <span class="pp">|</span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscretePendulum</span><span class="co">](systems.builtin.deterministic.discrete.DiscretePendulum.qmd#cdesym.systems.builtin.deterministic.discrete.DiscretePendulum)</span> <span class="pp">|</span>     Discrete-time simple pendulum with friction and optional control. <span class="pp">|</span></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegrator)</span> <span class="pp">|</span> Discrete-time double integrator (position-controlled point mass). <span class="pp">|</span></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteDoubleIntegratorWithForce)</span> <span class="pp">|</span> Discrete double integrator with explicit force input and mass. <span class="pp">|</span></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteRobotArm</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteRobotArm.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteRobotArm)</span> <span class="pp">|</span>     Discrete-time single-link robot arm with gravity and friction. <span class="pp">|</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteCartPole</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteCartPole.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole)</span> <span class="pp">|</span>         Discrete-time cart-pole (inverted pendulum on cart) system. <span class="pp">|</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DifferentialDriveRobot</span><span class="co">](systems.builtin.deterministic.discrete.DifferentialDriveRobot.qmd#cdesym.systems.builtin.deterministic.discrete.DifferentialDriveRobot)</span> <span class="pp">|</span> Discrete-time differential drive mobile robot with nonholonomic constraints. <span class="pp">|</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteBatchReactor</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteBatchReactor.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteBatchReactor)</span> <span class="pp">|</span> Discrete-time chemical batch reactor with temperature control. <span class="pp">|</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteCSTR</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteCSTR.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteCSTR)</span> <span class="pp">|</span>     Discrete-time Continuous Stirred-Tank Reactor (CSTR) with cooling jacket. <span class="pp">|</span></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.DiscreteSolowModel</span><span class="co">](systems.builtin.deterministic.discrete.DiscreteSolowModel.qmd#cdesym.systems.builtin.deterministic.discrete.DiscreteSolowModel)</span> <span class="pp">|</span>     Discrete-time Solow-Swan neoclassical growth model. <span class="pp">|</span></span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.LogisticMap</span><span class="co">](systems.builtin.deterministic.discrete.LogisticMap.qmd#cdesym.systems.builtin.deterministic.discrete.LogisticMap)</span> <span class="pp">|</span> The logistic map: x<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = r·x<span class="co">[</span><span class="ot">k</span><span class="co">]</span>·(1 - x<span class="co">[</span><span class="ot">k</span><span class="co">]</span>) <span class="pp">|</span></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.HenonMap</span><span class="co">](systems.builtin.deterministic.discrete.HenonMap.qmd#cdesym.systems.builtin.deterministic.discrete.HenonMap)</span> <span class="pp">|</span> The Hénon Map: Paradigm of 2D dissipative chaos and strange attractors. <span class="pp">|</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.deterministic.discrete.StandardMap</span><span class="co">](systems.builtin.deterministic.discrete.StandardMap.qmd#cdesym.systems.builtin.deterministic.discrete.StandardMap)</span> <span class="pp">|</span> The Standard Map (Chirikov-Taylor Map): Paradigm of Hamiltonian chaos. <span class="pp">|</span></span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Builtin: Stochastic Continuous</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>Continuous-time stochastic dynamical systems (SDEs)</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.BrownianMotion</span><span class="co">](systems.builtin.stochastic.continuous.BrownianMotion.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotion)</span> <span class="pp">|</span> Standard Brownian motion (Wiener process) - pure diffusion process. <span class="pp">|</span></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.BrownianMotion2D</span><span class="co">](systems.builtin.stochastic.continuous.BrownianMotion2D.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotion2D)</span> <span class="pp">|</span> Two-dimensional Brownian motion with independent components. <span class="pp">|</span></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.BrownianMotionWithDrift</span><span class="co">](systems.builtin.stochastic.continuous.BrownianMotionWithDrift.qmd#cdesym.systems.builtin.stochastic.continuous.BrownianMotionWithDrift)</span> <span class="pp">|</span> Alias for GeometricBrownianMotion. <span class="pp">|</span></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.GeometricBrownianMotion</span><span class="co">](systems.builtin.stochastic.continuous.GeometricBrownianMotion.qmd#cdesym.systems.builtin.stochastic.continuous.GeometricBrownianMotion)</span> <span class="pp">|</span> Geometric Brownian motion with multiplicative (state-dependent) noise. <span class="pp">|</span></span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.OrnsteinUhlenbeck</span><span class="co">](systems.builtin.stochastic.continuous.OrnsteinUhlenbeck.qmd#cdesym.systems.builtin.stochastic.continuous.OrnsteinUhlenbeck)</span> <span class="pp">|</span> Ornstein-Uhlenbeck process with mean reversion and additive noise. <span class="pp">|</span></span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck</span><span class="co">](systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck.qmd#cdesym.systems.builtin.stochastic.continuous.MultivariateOrnsteinUhlenbeck)</span> <span class="pp">|</span> Multivariate Ornstein-Uhlenbeck process with coupling and correlated noise. <span class="pp">|</span></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.CoxIngersollRoss</span><span class="co">](systems.builtin.stochastic.continuous.CoxIngersollRoss.qmd#cdesym.systems.builtin.stochastic.continuous.CoxIngersollRoss)</span> <span class="pp">|</span> Cox-Ingersoll-Ross process with mean reversion and square-root diffusion. <span class="pp">|</span></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.LangevinDynamics</span><span class="co">](systems.builtin.stochastic.continuous.LangevinDynamics.qmd#cdesym.systems.builtin.stochastic.continuous.LangevinDynamics)</span> <span class="pp">|</span> Langevin dynamics - particle in viscous fluid with thermal noise. <span class="pp">|</span></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.StochasticDoubleIntegrator</span><span class="co">](systems.builtin.stochastic.continuous.StochasticDoubleIntegrator.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticDoubleIntegrator)</span> <span class="pp">|</span> Stochastic double integrator - canonical LQG benchmark system. <span class="pp">|</span></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.ContinuousStochasticPendulum</span><span class="co">](systems.builtin.stochastic.continuous.ContinuousStochasticPendulum.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticPendulum)</span> <span class="pp">|</span> Stochastic pendulum with random forcing - canonical nonlinear stochastic system. <span class="pp">|</span></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.StochasticCartPole</span><span class="co">](systems.builtin.stochastic.continuous.StochasticCartPole.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticCartPole)</span> <span class="pp">|</span> Stochastic inverted pendulum on cart with random disturbances. <span class="pp">|</span></span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.StochasticLorenz</span><span class="co">](systems.builtin.stochastic.continuous.StochasticLorenz.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticLorenz)</span> <span class="pp">|</span> Stochastic Lorenz system - deterministic chaos with random perturbations. <span class="pp">|</span></span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.StochasticSIR</span><span class="co">](systems.builtin.stochastic.continuous.StochasticSIR.qmd#cdesym.systems.builtin.stochastic.continuous.StochasticSIR)</span> <span class="pp">|</span> Stochastic SIR epidemic model with demographic noise. <span class="pp">|</span></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor</span><span class="co">](systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticBatchReactor)</span> <span class="pp">|</span> Continuous-time stochastic batch reactor with process noise. <span class="pp">|</span></span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.continuous.ContinuousStochasticCSTR</span><span class="co">](systems.builtin.stochastic.continuous.ContinuousStochasticCSTR.qmd#cdesym.systems.builtin.stochastic.continuous.ContinuousStochasticCSTR)</span> <span class="pp">|</span> Continuous-time stochastic CSTR with multiple equilibria and Brownian noise. <span class="pp">|</span></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## Builtin: Stochastic Discrete</span></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>Discrete-time stochastic dynamical systems</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteAR1</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteAR1.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteAR1)</span> <span class="pp">|</span> First-order autoregressive process with additive noise. <span class="pp">|</span></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteWhiteNoise</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteWhiteNoise.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteWhiteNoise)</span> <span class="pp">|</span> Pure white noise process - memoryless random sequence. <span class="pp">|</span></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteRandomWalk</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteRandomWalk.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteRandomWalk)</span> <span class="pp">|</span> Random walk - non-stationary process with unit root. <span class="pp">|</span></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteARMA11</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteARMA11.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteARMA11)</span> <span class="pp">|</span> ARMA(1,1) process - combines autoregressive and moving average. <span class="pp">|</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteVAR1</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteVAR1.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteVAR1)</span> <span class="pp">|</span> Vector Autoregressive process of order 1 - multivariate time series model. <span class="pp">|</span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteGARCH11</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteGARCH11.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteGARCH11)</span> <span class="pp">|</span> GARCH(1,1) - time-varying volatility model (Nobel Prize 2003). <span class="pp">|</span></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticDoubleIntegrator)</span> <span class="pp">|</span> Discrete-time stochastic double integrator - canonical digital LQG benchmark. <span class="pp">|</span></span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticPendulum</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticPendulum.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticPendulum)</span> <span class="pp">|</span> Discrete-time stochastic pendulum for digital control and RL. <span class="pp">|</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticQueue</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticQueue.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticQueue)</span> <span class="pp">|</span> Discrete-time stochastic queue with random arrivals and service. <span class="pp">|</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor)</span> <span class="pp">|</span> Discrete-time stochastic batch reactor for digital control and estimation. <span class="pp">|</span></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticCSTR</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticCSTR.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticCSTR)</span> <span class="pp">|</span> Discrete-time stochastic CSTR with multiple steady states and process noise. <span class="pp">|</span></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap</span><span class="co">](systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap.qmd#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticLogisticMap)</span> <span class="pp">|</span> Discrete-time stochastic logistic map - chaos meets noise. <span class="pp">|</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Core</span></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>Fundamental vectors, matrices, dimensions, and function types</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ScalarLike</span><span class="co">](types.core.ScalarLike.qmd#cdesym.types.core.ScalarLike)</span> <span class="pp">|</span> Scalar value in any backend. <span class="pp">|</span></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ArrayLike</span><span class="co">](types.core.ArrayLike.qmd#cdesym.types.core.ArrayLike)</span> <span class="pp">|</span> Array-like type supporting multiple backends. <span class="pp">|</span></span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.StateVector</span><span class="co">](types.core.StateVector.qmd#cdesym.types.core.StateVector)</span> <span class="pp">|</span> State vector x ∈ ℝⁿˣ. <span class="pp">|</span></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ControlVector</span><span class="co">](types.core.ControlVector.qmd#cdesym.types.core.ControlVector)</span> <span class="pp">|</span> Control input vector u ∈ ℝⁿᵘ. <span class="pp">|</span></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.OutputVector</span><span class="co">](types.core.OutputVector.qmd#cdesym.types.core.OutputVector)</span> <span class="pp">|</span> Output/observation/measurement vector y ∈ ℝⁿʸ. <span class="pp">|</span></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.NoiseVector</span><span class="co">](types.core.NoiseVector.qmd#cdesym.types.core.NoiseVector)</span> <span class="pp">|</span> Noise/disturbance vector w ∈ ℝⁿʷ (stochastic systems only). <span class="pp">|</span></span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ParameterVector</span><span class="co">](types.core.ParameterVector.qmd#cdesym.types.core.ParameterVector)</span> <span class="pp">|</span> Parameter vector θ ∈ ℝⁿᵖ. <span class="pp">|</span></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.StateMatrix</span><span class="co">](types.core.StateMatrix.qmd#cdesym.types.core.StateMatrix)</span> <span class="pp">|</span> State matrix (nx, nx). <span class="pp">|</span></span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.InputMatrix</span><span class="co">](types.core.InputMatrix.qmd#cdesym.types.core.InputMatrix)</span> <span class="pp">|</span> Input matrix B (nx, nu). <span class="pp">|</span></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.OutputMatrix</span><span class="co">](types.core.OutputMatrix.qmd#cdesym.types.core.OutputMatrix)</span> <span class="pp">|</span> Output/observation matrix (ny, nx). <span class="pp">|</span></span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.DiffusionMatrix</span><span class="co">](types.core.DiffusionMatrix.qmd#cdesym.types.core.DiffusionMatrix)</span> <span class="pp">|</span> Diffusion/noise gain matrix (nx, nw) - stochastic systems only. <span class="pp">|</span></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.FeedthroughMatrix</span><span class="co">](types.core.FeedthroughMatrix.qmd#cdesym.types.core.FeedthroughMatrix)</span> <span class="pp">|</span> Feedthrough/direct transmission matrix (ny, nu). <span class="pp">|</span></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.GainMatrix</span><span class="co">](types.core.GainMatrix.qmd#cdesym.types.core.GainMatrix)</span> <span class="pp">|</span> Gain matrix for control or estimation. <span class="pp">|</span></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.CovarianceMatrix</span><span class="co">](types.core.CovarianceMatrix.qmd#cdesym.types.core.CovarianceMatrix)</span> <span class="pp">|</span> Covariance matrix (symmetric, positive semidefinite). <span class="pp">|</span></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.SystemDimensions</span><span class="co">](types.core.SystemDimensions.qmd#cdesym.types.core.SystemDimensions)</span> <span class="pp">|</span> System dimensions as dictionary. <span class="pp">|</span></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.DynamicsFunction</span><span class="co">](types.core.DynamicsFunction.qmd#cdesym.types.core.DynamicsFunction)</span> <span class="pp">|</span> Dynamics function f(x, u). <span class="pp">|</span></span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.OutputFunction</span><span class="co">](types.core.OutputFunction.qmd#cdesym.types.core.OutputFunction)</span> <span class="pp">|</span> Output/observation function h(x). <span class="pp">|</span></span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.DiffusionFunction</span><span class="co">](types.core.DiffusionFunction.qmd#cdesym.types.core.DiffusionFunction)</span> <span class="pp">|</span> Diffusion function g(x, u) for stochastic systems. <span class="pp">|</span></span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ControlPolicy</span><span class="co">](types.core.ControlPolicy.qmd#cdesym.types.core.ControlPolicy)</span> <span class="pp">|</span> Control policy/controller π(x). <span class="pp">|</span></span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.TimeVaryingControl</span><span class="co">](types.core.TimeVaryingControl.qmd#cdesym.types.core.TimeVaryingControl)</span> <span class="pp">|</span> Time-varying control function u(t). <span class="pp">|</span></span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.FeedbackController</span><span class="co">](types.core.FeedbackController.qmd#cdesym.types.core.FeedbackController)</span> <span class="pp">|</span> Feedback controller with time awareness π(x, t). <span class="pp">|</span></span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.core.ControlInput</span><span class="co">](types.core.ControlInput.qmd#cdesym.types.core.ControlInput)</span> <span class="pp">|</span> Unified type for control inputs to integration methods. <span class="pp">|</span></span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Backend &amp; Configuration</span></span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>Backend support and configuration types</span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.Backend</span><span class="co">](types.backends.Backend.qmd#cdesym.types.backends.Backend)</span> <span class="pp">|</span> Backend identifier for numerical computation. <span class="pp">|</span></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.Device</span><span class="co">](types.backends.Device.qmd#cdesym.types.backends.Device)</span> <span class="pp">|</span> Device identifier for hardware acceleration. <span class="pp">|</span></span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.BackendConfig</span><span class="co">](types.backends.BackendConfig.qmd#cdesym.types.backends.BackendConfig)</span> <span class="pp">|</span> Backend configuration dictionary. <span class="pp">|</span></span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.IntegrationMethod</span><span class="co">](types.backends.IntegrationMethod.qmd#cdesym.types.backends.IntegrationMethod)</span> <span class="pp">|</span> Integration method for continuous-time systems (ODEs). <span class="pp">|</span></span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.SDEIntegrationMethod</span><span class="co">](types.backends.SDEIntegrationMethod.qmd#cdesym.types.backends.SDEIntegrationMethod)</span> <span class="pp">|</span> SDE integration method for stochastic differential equations. <span class="pp">|</span></span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.DiscretizationMethod</span><span class="co">](types.backends.DiscretizationMethod.qmd#cdesym.types.backends.DiscretizationMethod)</span> <span class="pp">|</span> Discretization method for continuous → discrete transformation. <span class="pp">|</span></span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.OptimizationMethod</span><span class="co">](types.backends.OptimizationMethod.qmd#cdesym.types.backends.OptimizationMethod)</span> <span class="pp">|</span> Optimization method for control/estimation problems. <span class="pp">|</span></span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.NoiseType</span><span class="co">](types.backends.NoiseType.qmd#cdesym.types.backends.NoiseType)</span> <span class="pp">|</span> Noise structure classification for stochastic systems. <span class="pp">|</span></span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.SDEType</span><span class="co">](types.backends.SDEType.qmd#cdesym.types.backends.SDEType)</span> <span class="pp">|</span> SDE interpretation type. <span class="pp">|</span></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.ConvergenceType</span><span class="co">](types.backends.ConvergenceType.qmd#cdesym.types.backends.ConvergenceType)</span> <span class="pp">|</span> SDE convergence type for numerical integration. <span class="pp">|</span></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.IntegratorConfig</span><span class="co">](types.backends.IntegratorConfig.qmd#cdesym.types.backends.IntegratorConfig)</span> <span class="pp">|</span> Configuration for continuous-time integrators. <span class="pp">|</span></span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.SDEIntegratorConfig</span><span class="co">](types.backends.SDEIntegratorConfig.qmd#cdesym.types.backends.SDEIntegratorConfig)</span> <span class="pp">|</span> Configuration for SDE integrators. <span class="pp">|</span></span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.DiscretizerConfig</span><span class="co">](types.backends.DiscretizerConfig.qmd#cdesym.types.backends.DiscretizerConfig)</span> <span class="pp">|</span> Configuration for system discretization. <span class="pp">|</span></span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.SystemConfig</span><span class="co">](types.backends.SystemConfig.qmd#cdesym.types.backends.SystemConfig)</span> <span class="pp">|</span> Complete system configuration dictionary. <span class="pp">|</span></span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.validate_backend</span><span class="co">](types.backends.validate_backend.qmd#cdesym.types.backends.validate_backend)</span> <span class="pp">|</span> Validate and normalize backend string. <span class="pp">|</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.validate_device</span><span class="co">](types.backends.validate_device.qmd#cdesym.types.backends.validate_device)</span> <span class="pp">|</span> Validate device for given backend. <span class="pp">|</span></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.backends.get_backend_default_method</span><span class="co">](types.backends.get_backend_default_method.qmd#cdesym.types.backends.get_backend_default_method)</span> <span class="pp">|</span> Get default integration method for backend. <span class="pp">|</span></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Trajectories &amp; Simulation</span></span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a>Time series, trajectories, and simulation results</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.TimePoints</span><span class="co">](types.trajectories.TimePoints.qmd#cdesym.types.trajectories.TimePoints)</span> <span class="pp">|</span> Array of time points for simulation or evaluation. <span class="pp">|</span></span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.TimeSpan</span><span class="co">](types.trajectories.TimeSpan.qmd#cdesym.types.trajectories.TimeSpan)</span> <span class="pp">|</span> Time interval for continuous integration: (t_start, t_end). <span class="pp">|</span></span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.StateTrajectory</span><span class="co">](types.trajectories.StateTrajectory.qmd#cdesym.types.trajectories.StateTrajectory)</span> <span class="pp">|</span> State trajectory over time. <span class="pp">|</span></span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.ControlSequence</span><span class="co">](types.trajectories.ControlSequence.qmd#cdesym.types.trajectories.ControlSequence)</span> <span class="pp">|</span> Control input sequence over time. <span class="pp">|</span></span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.OutputSequence</span><span class="co">](types.trajectories.OutputSequence.qmd#cdesym.types.trajectories.OutputSequence)</span> <span class="pp">|</span> Output/measurement sequence over time. <span class="pp">|</span></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.NoiseSequence</span><span class="co">](types.trajectories.NoiseSequence.qmd#cdesym.types.trajectories.NoiseSequence)</span> <span class="pp">|</span> Noise/disturbance sequence for stochastic simulation. <span class="pp">|</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.SimulationResult</span><span class="co">](types.trajectories.SimulationResult.qmd#cdesym.types.trajectories.SimulationResult)</span> <span class="pp">|</span> Result from continuous-time system simulation. <span class="pp">|</span></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.IntegrationResult</span><span class="co">](types.trajectories.IntegrationResult.qmd#cdesym.types.trajectories.IntegrationResult)</span> <span class="pp">|</span> Result from continuous-time integration (ODE/SDE solver). <span class="pp">|</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.TrajectoryStatistics</span><span class="co">](types.trajectories.TrajectoryStatistics.qmd#cdesym.types.trajectories.TrajectoryStatistics)</span> <span class="pp">|</span> Statistical summary of trajectory. <span class="pp">|</span></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.trajectories.TrajectorySegment</span><span class="co">](types.trajectories.TrajectorySegment.qmd#cdesym.types.trajectories.TrajectorySegment)</span> <span class="pp">|</span> Segment of trajectory between two time points. <span class="pp">|</span></span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Control Results</span></span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>Control design and analysis result types</span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.LQRResult</span><span class="co">](types.control_classical.LQRResult.qmd#cdesym.types.control_classical.LQRResult)</span> <span class="pp">|</span> Linear Quadratic Regulator (LQR) design result. <span class="pp">|</span></span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.LQGResult</span><span class="co">](types.control_classical.LQGResult.qmd#cdesym.types.control_classical.LQGResult)</span> <span class="pp">|</span> Linear Quadratic Gaussian (LQG) controller design result. <span class="pp">|</span></span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.KalmanFilterResult</span><span class="co">](types.control_classical.KalmanFilterResult.qmd#cdesym.types.control_classical.KalmanFilterResult)</span> <span class="pp">|</span> Kalman Filter (optimal state estimator) design result. <span class="pp">|</span></span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.StabilityInfo</span><span class="co">](types.control_classical.StabilityInfo.qmd#cdesym.types.control_classical.StabilityInfo)</span> <span class="pp">|</span> Stability analysis result dictionary. <span class="pp">|</span></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.ControllabilityInfo</span><span class="co">](types.control_classical.ControllabilityInfo.qmd#cdesym.types.control_classical.ControllabilityInfo)</span> <span class="pp">|</span> Controllability analysis result. <span class="pp">|</span></span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.ObservabilityInfo</span><span class="co">](types.control_classical.ObservabilityInfo.qmd#cdesym.types.control_classical.ObservabilityInfo)</span> <span class="pp">|</span> Observability analysis result. <span class="pp">|</span></span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.PolePlacementResult</span><span class="co">](types.control_classical.PolePlacementResult.qmd#cdesym.types.control_classical.PolePlacementResult)</span> <span class="pp">|</span> Pole placement (eigenvalue assignment) result. <span class="pp">|</span></span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_classical.LuenbergerObserverResult</span><span class="co">](types.control_classical.LuenbergerObserverResult.qmd#cdesym.types.control_classical.LuenbergerObserverResult)</span> <span class="pp">|</span> Luenberger observer (deterministic state estimator) design result. <span class="pp">|</span></span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.MPCResult</span><span class="co">](types.control_advanced.MPCResult.qmd#cdesym.types.control_advanced.MPCResult)</span> <span class="pp">|</span> Model Predictive Control (MPC) solution result. <span class="pp">|</span></span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.MHEResult</span><span class="co">](types.control_advanced.MHEResult.qmd#cdesym.types.control_advanced.MHEResult)</span> <span class="pp">|</span> Moving Horizon Estimation (MHE) result. <span class="pp">|</span></span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.H2ControlResult</span><span class="co">](types.control_advanced.H2ControlResult.qmd#cdesym.types.control_advanced.H2ControlResult)</span> <span class="pp">|</span> H₂ optimal control result. <span class="pp">|</span></span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.HInfControlResult</span><span class="co">](types.control_advanced.HInfControlResult.qmd#cdesym.types.control_advanced.HInfControlResult)</span> <span class="pp">|</span> H∞ robust control result. <span class="pp">|</span></span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.LMIResult</span><span class="co">](types.control_advanced.LMIResult.qmd#cdesym.types.control_advanced.LMIResult)</span> <span class="pp">|</span> Linear Matrix Inequality (LMI) solver result. <span class="pp">|</span></span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.AdaptiveControlResult</span><span class="co">](types.control_advanced.AdaptiveControlResult.qmd#cdesym.types.control_advanced.AdaptiveControlResult)</span> <span class="pp">|</span> Adaptive control result. <span class="pp">|</span></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.control_advanced.SlidingModeResult</span><span class="co">](types.control_advanced.SlidingModeResult.qmd#cdesym.types.control_advanced.SlidingModeResult)</span> <span class="pp">|</span> Sliding Mode Control (SMC) result. <span class="pp">|</span></span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Estimation</span></span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>State estimation result types</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.estimation.EKFResult</span><span class="co">](types.estimation.EKFResult.qmd#cdesym.types.estimation.EKFResult)</span> <span class="pp">|</span> Extended Kalman Filter (EKF) state and result. <span class="pp">|</span></span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.estimation.UKFResult</span><span class="co">](types.estimation.UKFResult.qmd#cdesym.types.estimation.UKFResult)</span> <span class="pp">|</span> Unscented Kalman Filter (UKF) result. <span class="pp">|</span></span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.estimation.ParticleFilterResult</span><span class="co">](types.estimation.ParticleFilterResult.qmd#cdesym.types.estimation.ParticleFilterResult)</span> <span class="pp">|</span> Particle Filter (Sequential Monte Carlo) result. <span class="pp">|</span></span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Linearization</span></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a>Linearization and Jacobian types</span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.LinearizationResult</span><span class="co">](types.linearization.LinearizationResult.qmd#cdesym.types.linearization.LinearizationResult)</span> <span class="pp">|</span> Flexible linearization result type. <span class="pp">|</span></span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.DeterministicLinearization</span><span class="co">](types.linearization.DeterministicLinearization.qmd#cdesym.types.linearization.DeterministicLinearization)</span> <span class="pp">|</span> Linearization result for deterministic systems: (A, B). <span class="pp">|</span></span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.StochasticLinearization</span><span class="co">](types.linearization.StochasticLinearization.qmd#cdesym.types.linearization.StochasticLinearization)</span> <span class="pp">|</span> Linearization result for stochastic systems: (A, B, G). <span class="pp">|</span></span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.ContinuousLinearization</span><span class="co">](types.linearization.ContinuousLinearization.qmd#cdesym.types.linearization.ContinuousLinearization)</span> <span class="pp">|</span> Alias for continuous-time deterministic linearization. <span class="pp">|</span></span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.DiscreteLinearization</span><span class="co">](types.linearization.DiscreteLinearization.qmd#cdesym.types.linearization.DiscreteLinearization)</span> <span class="pp">|</span> Alias for discrete-time deterministic linearization. <span class="pp">|</span></span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.ContinuousStochasticLinearization</span><span class="co">](types.linearization.ContinuousStochasticLinearization.qmd#cdesym.types.linearization.ContinuousStochasticLinearization)</span> <span class="pp">|</span> Alias for continuous-time stochastic linearization. <span class="pp">|</span></span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.DiscreteStochasticLinearization</span><span class="co">](types.linearization.DiscreteStochasticLinearization.qmd#cdesym.types.linearization.DiscreteStochasticLinearization)</span> <span class="pp">|</span> Alias for discrete-time stochastic linearization. <span class="pp">|</span></span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.FullLinearization</span><span class="co">](types.linearization.FullLinearization.qmd#cdesym.types.linearization.FullLinearization)</span> <span class="pp">|</span> Complete linearization including output: (A, B, C, D). <span class="pp">|</span></span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.FullStochasticLinearization</span><span class="co">](types.linearization.FullStochasticLinearization.qmd#cdesym.types.linearization.FullStochasticLinearization)</span> <span class="pp">|</span> Complete stochastic linearization: (A, B, G, C, D). <span class="pp">|</span></span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.ObservationLinearization</span><span class="co">](types.linearization.ObservationLinearization.qmd#cdesym.types.linearization.ObservationLinearization)</span> <span class="pp">|</span> Observation/output linearization: (C, D). <span class="pp">|</span></span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.StateJacobian</span><span class="co">](types.linearization.StateJacobian.qmd#cdesym.types.linearization.StateJacobian)</span> <span class="pp">|</span> State Jacobian ∂f/∂x. <span class="pp">|</span></span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.ControlJacobian</span><span class="co">](types.linearization.ControlJacobian.qmd#cdesym.types.linearization.ControlJacobian)</span> <span class="pp">|</span> Control Jacobian ∂f/∂u. <span class="pp">|</span></span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.OutputJacobian</span><span class="co">](types.linearization.OutputJacobian.qmd#cdesym.types.linearization.OutputJacobian)</span> <span class="pp">|</span> Output Jacobian ∂h/∂x. <span class="pp">|</span></span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.DiffusionJacobian</span><span class="co">](types.linearization.DiffusionJacobian.qmd#cdesym.types.linearization.DiffusionJacobian)</span> <span class="pp">|</span> Diffusion Jacobian ∂g/∂x (stochastic systems). <span class="pp">|</span></span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.linearization.LinearizationCacheKey</span><span class="co">](types.linearization.LinearizationCacheKey.qmd#cdesym.types.linearization.LinearizationCacheKey)</span> <span class="pp">|</span> Cache key for linearization results. <span class="pp">|</span></span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Symbolic</span></span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a>Symbolic computation types</span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.symbolic.SymbolicExpression</span><span class="co">](types.symbolic.SymbolicExpression.qmd#cdesym.types.symbolic.SymbolicExpression)</span> <span class="pp">|</span> Single symbolic expression. <span class="pp">|</span></span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.symbolic.SymbolicMatrix</span><span class="co">](types.symbolic.SymbolicMatrix.qmd#cdesym.types.symbolic.SymbolicMatrix)</span> <span class="pp">|</span> Matrix of symbolic expressions. <span class="pp">|</span></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.symbolic.SymbolicStateEquations</span><span class="co">](types.symbolic.SymbolicStateEquations.qmd#cdesym.types.symbolic.SymbolicStateEquations)</span> <span class="pp">|</span> Symbolic state equations: f(x, u, params). <span class="pp">|</span></span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.symbolic.SymbolicJacobian</span><span class="co">](types.symbolic.SymbolicJacobian.qmd#cdesym.types.symbolic.SymbolicJacobian)</span> <span class="pp">|</span> Jacobian matrix: ∂f/∂x. <span class="pp">|</span></span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Advanced</span></span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a>Reachability, robustness, optimization, and learning types</span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.reachability.ReachabilityResult</span><span class="co">](types.reachability.ReachabilityResult.qmd#cdesym.types.reachability.ReachabilityResult)</span> <span class="pp">|</span> Reachability analysis result. <span class="pp">|</span></span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.reachability.ROAResult</span><span class="co">](types.reachability.ROAResult.qmd#cdesym.types.reachability.ROAResult)</span> <span class="pp">|</span> Region of Attraction (ROA) analysis result. <span class="pp">|</span></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.reachability.CBFResult</span><span class="co">](types.reachability.CBFResult.qmd#cdesym.types.reachability.CBFResult)</span> <span class="pp">|</span> Control Barrier Function (CBF) result. <span class="pp">|</span></span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.reachability.CLFResult</span><span class="co">](types.reachability.CLFResult.qmd#cdesym.types.reachability.CLFResult)</span> <span class="pp">|</span> Control Lyapunov Function (CLF) result. <span class="pp">|</span></span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.robustness.RobustStabilityResult</span><span class="co">](types.robustness.RobustStabilityResult.qmd#cdesym.types.robustness.RobustStabilityResult)</span> <span class="pp">|</span> Robust stability analysis result. <span class="pp">|</span></span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.robustness.TubeMPCResult</span><span class="co">](types.robustness.TubeMPCResult.qmd#cdesym.types.robustness.TubeMPCResult)</span> <span class="pp">|</span> Tube-based MPC result. <span class="pp">|</span></span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.optimization.OptimizationResult</span><span class="co">](types.optimization.OptimizationResult.qmd#cdesym.types.optimization.OptimizationResult)</span> <span class="pp">|</span> General nonlinear optimization result. <span class="pp">|</span></span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.optimization.TrajectoryOptimizationResult</span><span class="co">](types.optimization.TrajectoryOptimizationResult.qmd#cdesym.types.optimization.TrajectoryOptimizationResult)</span> <span class="pp">|</span> Trajectory optimization result. <span class="pp">|</span></span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.learning.TrainingResult</span><span class="co">](types.learning.TrainingResult.qmd#cdesym.types.learning.TrainingResult)</span> <span class="pp">|</span> Neural network training result. <span class="pp">|</span></span>
+<span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.learning.RLTrainingResult</span><span class="co">](types.learning.RLTrainingResult.qmd#cdesym.types.learning.RLTrainingResult)</span> <span class="pp">|</span> Reinforcement learning training result. <span class="pp">|</span></span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.contraction.ContractionAnalysisResult</span><span class="co">](types.contraction.ContractionAnalysisResult.qmd#cdesym.types.contraction.ContractionAnalysisResult)</span> <span class="pp">|</span> Contraction analysis result. <span class="pp">|</span></span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.contraction.CCMResult</span><span class="co">](types.contraction.CCMResult.qmd#cdesym.types.contraction.CCMResult)</span> <span class="pp">|</span> Control Contraction Metrics (CCM) result. <span class="pp">|</span></span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.conformal.ConformalPredictionResult</span><span class="co">](types.conformal.ConformalPredictionResult.qmd#cdesym.types.conformal.ConformalPredictionResult)</span> <span class="pp">|</span> Conformal prediction result for test points. <span class="pp">|</span></span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Types: Protocols</span></span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a>Structural subtyping protocols for system interfaces</span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.protocols.ContinuousSystemProtocol</span><span class="co">](types.protocols.ContinuousSystemProtocol.qmd#cdesym.types.protocols.ContinuousSystemProtocol)</span> <span class="pp">|</span> Minimal interface for continuous-time dynamical systems. <span class="pp">|</span></span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.protocols.DiscreteSystemProtocol</span><span class="co">](types.protocols.DiscreteSystemProtocol.qmd#cdesym.types.protocols.DiscreteSystemProtocol)</span> <span class="pp">|</span> Minimal interface for discrete-time dynamical systems. <span class="pp">|</span></span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.protocols.StochasticSystemProtocol</span><span class="co">](types.protocols.StochasticSystemProtocol.qmd#cdesym.types.protocols.StochasticSystemProtocol)</span> <span class="pp">|</span> System with stochastic dynamics (continuous or discrete). <span class="pp">|</span></span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.protocols.LinearizableContinuousProtocol</span><span class="co">](types.protocols.LinearizableContinuousProtocol.qmd#cdesym.types.protocols.LinearizableContinuousProtocol)</span> <span class="pp">|</span> Continuous system with linearization capability. <span class="pp">|</span></span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">types.protocols.LinearizableDiscreteProtocol</span><span class="co">](types.protocols.LinearizableDiscreteProtocol.qmd#cdesym.types.protocols.LinearizableDiscreteProtocol)</span> <span class="pp">|</span> Discrete system with linearization capability. <span class="pp">|</span></span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Observers</span></span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a>State estimation and observer design</span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="pp">|</span> <span class="pp">|</span></span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">observers.LinearObserver</span><span class="co">](observers.LinearObserver.qmd#cdesym.observers.LinearObserver)</span> <span class="pp">|</span> Linear state observer with constant gain. <span class="pp">|</span></span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">observers.ExtendedKalmanFilter</span><span class="co">](observers.ExtendedKalmanFilter.qmd#cdesym.observers.ExtendedKalmanFilter)</span> <span class="pp">|</span> Extended Kalman Filter (EKF) for nonlinear state estimation. <span class="pp">|</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

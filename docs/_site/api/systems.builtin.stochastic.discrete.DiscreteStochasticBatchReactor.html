@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.stochastic.discrete.discretestochasticbatchreactor – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor">systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor</a>
+  <ul>
+  <li><a href="#discrete-time-stochastic-dynamics" id="toc-discrete-time-stochastic-dynamics" class="nav-link" data-scroll-target="#discrete-time-stochastic-dynamics">Discrete-Time Stochastic Dynamics</a></li>
+  <li><a href="#physical-interpretation" id="toc-physical-interpretation" class="nav-link" data-scroll-target="#physical-interpretation">Physical Interpretation</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space</a></li>
+  <li><a href="#key-properties" id="toc-key-properties" class="nav-link" data-scroll-target="#key-properties">Key Properties</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications</a></li>
+  <li><a href="#numerical-simulation" id="toc-numerical-simulation" class="nav-link" data-scroll-target="#numerical-simulation">Numerical Simulation</a></li>
+  <li><a href="#comparison-with-continuous-stochastic" id="toc-comparison-with-continuous-stochastic" class="nav-link" data-scroll-target="#comparison-with-continuous-stochastic">Comparison with Continuous Stochastic</a></li>
+  <li><a href="#discrete-kalman-filter-usage" id="toc-discrete-kalman-filter-usage" class="nav-link" data-scroll-target="#discrete-kalman-filter-usage">Discrete Kalman Filter Usage</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise">convert_from_continuous_noise</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error">estimate_discretization_error</a>
+  <ul class="collapse">
+  <li><a href="#parameters-3" id="toc-parameters-3" class="nav-link" data-scroll-target="#parameters-3">Parameters</a></li>
+  <li><a href="#returns-1" id="toc-returns-1" class="nav-link" data-scroll-target="#returns-1">Returns</a></li>
+  <li><a href="#notes-1" id="toc-notes-1" class="nav-link" data-scroll-target="#notes-1">Notes</a></li>
+  <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance">get_process_noise_covariance</a>
+  <ul class="collapse">
+  <li><a href="#returns-2" id="toc-returns-2" class="nav-link" data-scroll-target="#returns-2">Returns</a></li>
+  <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria" id="toc-cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor" class="level1">
+<h1>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Discrete-time stochastic batch reactor for digital control and estimation.</p>
+<p>Implements a sampled-data model of the chemical batch reactor with process noise, suitable for discrete-time control algorithms, Kalman filtering, and reinforcement learning applications.</p>
+<section id="discrete-time-stochastic-dynamics" class="level2 doc-section doc-section-discrete-time-stochastic-dynamics">
+<h2 class="doc-section doc-section-discrete-time-stochastic-dynamics anchored" data-anchor-id="discrete-time-stochastic-dynamics">Discrete-Time Stochastic Dynamics</h2>
+<p>Difference equation (Euler discretization):</p>
+<pre><code>C_A[k+1] = C_A[k] - r₁(X[k])·Δt + w_A[k]
+C_B[k+1] = C_B[k] + (r₁(X[k]) - r₂(X[k]))·Δt + w_B[k]
+T[k+1] = T[k] + (Q[k] - α·(T[k] - T_amb))·Δt + w_T[k]</code></pre>
+<p>where: - X[k] = [C_A[k], C_B[k], T[k]]: State at time step k - r₁, r₂: Reaction rates (Arrhenius kinetics) - w[k] = [w_A[k], w_B[k], w_T[k]]: Process noise - w[k] ~ N(0, diag(σ_A², σ_B², σ_T²)) - Δt: Sampling period</p>
+</section>
+<section id="physical-interpretation" class="level2 doc-section doc-section-physical-interpretation">
+<h2 class="doc-section doc-section-physical-interpretation anchored" data-anchor-id="physical-interpretation">Physical Interpretation</h2>
+<p><strong>Discrete-Time Operation:</strong></p>
+<p>Industrial batch reactors operate with digital control: - Sensors sampled every Δt seconds (PLC scan rate) - Control computed and applied at discrete intervals - Zero-order hold: Q[k] constant during [k·Δt, (k+1)·Δt] - Measurements: y[k] available at t = k·Δt</p>
+<p><strong>Process Noise Sources:</strong></p>
+<p>w[k] represents accumulated disturbances over sampling interval: 1. <strong>Concentration noise:</strong> Feed variations, mixing imperfections 2. <strong>Temperature noise:</strong> Heat transfer fluctuations, ambient changes 3. <strong>Model uncertainty:</strong> Discretization errors, parameter drift</p>
+<p><strong>Noise Scaling from Continuous:</strong></p>
+<p>If continuous noise intensity is σ_c [state/√time]: σ_discrete = σ_c·√Δt [state]</p>
+<p>Example: σ_T = 1 K/√s continuous, Δt = 1 s → σ_T_discrete = 1·√1 = 1 K per time step</p>
+</section>
+<section id="state-space" class="level2 doc-section doc-section-state-space">
+<h2 class="doc-section doc-section-state-space anchored" data-anchor-id="state-space">State Space</h2>
+<p>State: X[k] = [C_A[k], C_B[k], T[k]] Discrete-time samples of concentrations and temperature: - C_A[k]: Concentration of A at time k·Δt [mol/L] - C_B[k]: Concentration of B at time k·Δt [mol/L] - T[k]: Temperature at time k·Δt [K]</p>
+<p>Control: u[k] = Q[k] - Q[k]: Heating rate during interval [k·Δt, (k+1)·Δt] [K/s] - Zero-order hold: Constant between samples</p>
+<p>Noise: w[k] = [w_A[k], w_B[k], w_T[k]] - Gaussian white noise: w[k] ~ N(0, Σ_w) - Independent over time: w[k] ⊥ w[j] for k ≠ j - Diagonal covariance: Σ_w = diag(σ_A², σ_B², σ_T²)</p>
+</section>
+<section id="key-properties" class="level2 doc-section doc-section-key-properties">
+<h2 class="doc-section doc-section-key-properties anchored" data-anchor-id="key-properties">Key Properties</h2>
+<p><strong>Markov Property:</strong> X[k+1] depends only on X[k], enabling: - Dynamic programming - Kalman filtering - Reinforcement learning</p>
+<p><strong>Time-Invariant:</strong> Dynamics f same at all time steps (constant parameters).</p>
+<p><strong>Gaussian Noise:</strong> Enables analytical Kalman filter (optimal for Gaussian).</p>
+<p><strong>Additive Noise:</strong> Simplifies estimation (linearity in noise).</p>
+<p><strong>Discrete-Time Native:</strong> Exact for digital control (no continuous-time approximation).</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 8%">
+<col style="width: 74%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>k1</td>
+<td>float</td>
+<td>Pre-exponential factor for A→B reaction [1/s]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>k2</td>
+<td>float</td>
+<td>Pre-exponential factor for B→C reaction [1/s]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>E1</td>
+<td>float</td>
+<td>Activation energy for reaction 1 [K]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>E2</td>
+<td>float</td>
+<td>Activation energy for reaction 2 [K]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>alpha</td>
+<td>float</td>
+<td>Heat transfer coefficient [1/s]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>T_amb</td>
+<td>float</td>
+<td>Ambient temperature [K]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>C_A0</td>
+<td>Optional[float]</td>
+<td>Initial concentration of A for equilibrium setup [mol/L]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>T0</td>
+<td>Optional[float]</td>
+<td>Initial temperature for equilibrium setup [K]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>sigma_A</td>
+<td>float</td>
+<td>Process noise std dev for C_A [mol/L per step] - Typical: 0.001-0.1 mol/L - Conversion from continuous: σ_c·√Δt</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="even">
+<td>sigma_B</td>
+<td>float</td>
+<td>Process noise std dev for C_B [mol/L per step]</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="odd">
+<td>sigma_T</td>
+<td>float</td>
+<td>Process noise std dev for T [K per step] - Typical: 0.1-5.0 K - Conversion from continuous: σ_c·√Δt</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s] - Typical: 0.1-10 s for batch reactors - Smaller dt → more accurate, more computation - Must satisfy Nyquist: dt &lt; 1/(2·f_max)</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="odd">
+<td>discretization_method</td>
+<td>str</td>
+<td>Discretization method for continuous dynamics - ‘euler’: Forward Euler (first-order) - ‘rk4’: Runge-Kutta 4 (fourth-order) - ‘exact’: Exact for linear parts</td>
+<td><code>'euler'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="applications" class="level2 doc-section doc-section-applications">
+<h2 class="doc-section doc-section-applications anchored" data-anchor-id="applications">Applications</h2>
+<p><strong>1. Discrete-Time MPC:</strong> Model Predictive Control with constraints: - Optimization horizon: N steps - Constraints: X_min ≤ X[k] ≤ X_max - Receding horizon: Solve at each k</p>
+<p><strong>2. Discrete Kalman Filter:</strong> Optimal state estimation: - Process model: This discrete stochastic system - Measurement model: y[k] = h(X[k]) + v[k] - Extended or Unscented KF for nonlinearity</p>
+<p><strong>3. LQG Control:</strong> Linear-Quadratic-Gaussian: - Kalman filter for state estimation - LQR for optimal control - Certainty equivalence principle</p>
+<p><strong>4. Reinforcement Learning:</strong> Discrete-time RL algorithms: - Q-learning: Discrete state/action - Policy gradient: Episodic updates - Model-based RL: Use this as forward model</p>
+<p><strong>5. Batch-to-Batch Optimization:</strong> Iterative learning control: - Update policy based on previous batches - Stochastic gradient descent - Safe learning with constraints</p>
+</section>
+<section id="numerical-simulation" class="level2 doc-section doc-section-numerical-simulation">
+<h2 class="doc-section doc-section-numerical-simulation anchored" data-anchor-id="numerical-simulation">Numerical Simulation</h2>
+<p><strong>Direct Simulation:</strong> No integration needed - direct evaluation: for k in range(N): X[k+1] = f(X[k], u[k]) + w[k]</p>
+<p>where w[k] ~ N(0, Σ_w).</p>
+<p><strong>Monte Carlo Ensemble:</strong> Run multiple simulations to characterize stochasticity: - Mean trajectory - Variance growth - Confidence intervals</p>
+<p><strong>Deterministic Part:</strong> Set σ_A = σ_B = σ_T = 0 to recover deterministic discrete system.</p>
+</section>
+<section id="comparison-with-continuous-stochastic" class="level2 doc-section doc-section-comparison-with-continuous-stochastic">
+<h2 class="doc-section doc-section-comparison-with-continuous-stochastic anchored" data-anchor-id="comparison-with-continuous-stochastic">Comparison with Continuous Stochastic</h2>
+<p><strong>Continuous Stochastic:</strong> - SDE: dX = f·dt + g·dW - Requires SDE integration - Theoretical foundation - Noise intensity in [state]/√[time]</p>
+<p><strong>Discrete Stochastic:</strong> - Difference equation: X[k+1] = f + w[k] - Direct evaluation (no integration) - Implementation ready - Noise variance in [state]²</p>
+<p><strong>Conversion:</strong> σ_discrete = σ_continuous·√Δt</p>
+</section>
+<section id="discrete-kalman-filter-usage" class="level2 doc-section doc-section-discrete-kalman-filter-usage">
+<h2 class="doc-section doc-section-discrete-kalman-filter-usage anchored" data-anchor-id="discrete-kalman-filter-usage">Discrete Kalman Filter Usage</h2>
+<p>This system provides process model for EKF:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Process model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>X_pred <span class="op">=</span> reactor.step(X_est, u[k])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>F <span class="op">=</span> reactor.linearize(X_est, u[k])[<span class="dv">0</span>]  <span class="co"># Jacobian</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>P_pred <span class="op">=</span> F <span class="op">@</span> P <span class="op">@</span> F.T <span class="op">+</span> Q</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Measurement update (if measurement available)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> h(X_pred)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> jacobian(h, X_pred)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> P_pred <span class="op">@</span> H.T <span class="op">@</span> inv(H <span class="op">@</span> P_pred <span class="op">@</span> H.T <span class="op">+</span> R)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>X_est <span class="op">=</span> X_pred <span class="op">+</span> K <span class="op">@</span> (y[k] <span class="op">-</span> y_pred)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> (I <span class="op">-</span> K <span class="op">@</span> H) <span class="op">@</span> P_pred</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="limitations" class="level2 doc-section doc-section-limitations">
+<h2 class="doc-section doc-section-limitations anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li>Euler discretization: O(Δt) error</li>
+<li>Additive noise only (not multiplicative)</li>
+<li>Constant noise variance (not state-dependent)</li>
+<li>Independent noise (no correlation)</li>
+<li>White noise (no temporal correlation)</li>
+</ul>
+</section>
+<section id="extensions" class="level2 doc-section doc-section-extensions">
+<h2 class="doc-section doc-section-extensions anchored" data-anchor-id="extensions">Extensions</h2>
+<ul>
+<li>Higher-order discretization (RK4)</li>
+<li>Multiplicative noise: w[k] depends on X[k]</li>
+<li>Colored noise: w[k] correlated over time</li>
+<li>Measurement delays: y[k] = h(X[k-d]) + v[k]</li>
+<li>Time-varying parameters: θ[k+1] = θ[k] + ε[k]</li>
+</ul>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise">convert_from_continuous_noise</a></td>
+<td>Convert continuous noise intensities to discrete.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system">define_system</a></td>
+<td>Define discrete-time stochastic batch reactor dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error">estimate_discretization_error</a></td>
+<td>Estimate discretization error (Euler vs exact).</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance">get_process_noise_covariance</a></td>
+<td>Get process noise covariance matrix Σ_w.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria">setup_equilibria</a></td>
+<td>Set up equilibrium points (for deterministic part).</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise">convert_from_continuous_noise</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    sigma_A_continuous,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    sigma_B_continuous,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    sigma_T_continuous,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Convert continuous noise intensities to discrete.</p>
+<p>For continuous noise σ_c [state/√s], discrete noise is: σ_d = σ_c·√dt</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 8%">
+<col style="width: 55%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sigma_A_continuous</td>
+<td>float</td>
+<td>Continuous noise intensity for C_A [mol/(L·√s)]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>sigma_B_continuous</td>
+<td>float</td>
+<td>Continuous noise intensity for C_B [mol/(L·√s)]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>sigma_T_continuous</td>
+<td>float</td>
+<td>Continuous noise intensity for T [K/√s]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>dict</td>
+<td>Discrete noise parameters</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> discrete_noise <span class="op">=</span> reactor.convert_from_continuous_noise(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>...     sigma_A_continuous<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>...     sigma_B_continuous<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>...     sigma_T_continuous<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Discrete σ_A: </span><span class="sc">{</span>discrete_noise[<span class="st">'sigma_A'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Discrete σ_T: </span><span class="sc">{</span>discrete_noise[<span class="st">'sigma_T'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    k1_val<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    k2_val<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    E1_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    E2_val<span class="op">=</span><span class="fl">1500.0</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    alpha_val<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    T_amb_val<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    sigma_A<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    sigma_B<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    sigma_T<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    discretization_method<span class="op">=</span><span class="st">'euler'</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    C_A0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    T0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define discrete-time stochastic batch reactor dynamics.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 69%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>k1_val</td>
+<td>float</td>
+<td>Pre-exponential factor for A→B reaction [1/s]</td>
+<td><code>0.5</code></td>
+</tr>
+<tr class="even">
+<td>k2_val</td>
+<td>float</td>
+<td>Pre-exponential factor for B→C reaction [1/s]</td>
+<td><code>0.3</code></td>
+</tr>
+<tr class="odd">
+<td>E1_val</td>
+<td>float</td>
+<td>Activation energy for reaction 1 [K]</td>
+<td><code>1000.0</code></td>
+</tr>
+<tr class="even">
+<td>E2_val</td>
+<td>float</td>
+<td>Activation energy for reaction 2 [K]</td>
+<td><code>1500.0</code></td>
+</tr>
+<tr class="odd">
+<td>alpha_val</td>
+<td>float</td>
+<td>Heat transfer coefficient [1/s]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>T_amb_val</td>
+<td>float</td>
+<td>Ambient temperature [K]</td>
+<td><code>300.0</code></td>
+</tr>
+<tr class="odd">
+<td>sigma_A</td>
+<td>float</td>
+<td>Process noise std dev for C_A [mol/L per step] - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.001-0.1 mol/L</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="even">
+<td>sigma_B</td>
+<td>float</td>
+<td>Process noise std dev for C_B [mol/L per step]</td>
+<td><code>0.01</code></td>
+</tr>
+<tr class="odd">
+<td>sigma_T</td>
+<td>float</td>
+<td>Process noise std dev for T [K per step] - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.1-5.0 K</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s] - Typical: 0.1-10 s for batch reactors - Rule: dt &lt; τ_system/10 - Affects both dynamics and noise</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="odd">
+<td>discretization_method</td>
+<td>str</td>
+<td>Discretization method: - ‘euler’: Forward Euler (simple, first-order) - ‘rk4’: Runge-Kutta 4 (accurate, fourth-order)</td>
+<td><code>'euler'</code></td>
+</tr>
+<tr class="even">
+<td>C_A0</td>
+<td>Optional[float]</td>
+<td>Initial conditions for equilibrium setup</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>T0</td>
+<td>Optional[float]</td>
+<td>Initial conditions for equilibrium setup</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p><strong>Discretization (Euler):</strong></p>
+<p>Continuous: dx/dt = f(x, u) Discrete: x[k+1] = x[k] + f(x[k], u[k])·dt</p>
+<p>For reactions: C_A[k+1] = C_A[k] - r₁·dt C_B[k+1] = C_B[k] + (r₁ - r₂)·dt T[k+1] = T[k] + (Q - α·(T - T_amb))·dt</p>
+<p><strong>Process Noise:</strong></p>
+<p>Additive Gaussian white noise: w[k] ~ N(0, Σ_w) Σ_w = diag(σ_A², σ_B², σ_T²)</p>
+<p><strong>Noise Scaling:</strong></p>
+<p>From continuous σ_c [state/√s]: σ_discrete = σ_c·√dt</p>
+<p>Example: σ_T_c = 1 K/√s, dt = 1 s → σ_T_d = 1·√1 = 1 K per step</p>
+<p>Example: σ_T_c = 1 K/√s, dt = 0.1 s → σ_T_d = 1·√0.1 ≈ 0.316 K per step</p>
+<p><strong>Sampling Period Selection:</strong></p>
+<p>Guidelines: 1. Nyquist: dt &lt; 1/(2·f_max) 2. Control: dt &lt; τ_cl/10 (closed-loop time constant) 3. Reactor: dt &lt; τ_reaction/5</p>
+<p>For typical batch reactor: - Fast control: dt = 0.1-0.5 s - Moderate: dt = 1.0-5.0 s - Slow: dt = 5.0-10.0 s</p>
+<p><strong>Discretization Method:</strong></p>
+<p>Euler (default): - Simple, explicit - O(dt) accuracy - May need small dt for accuracy - Most common in industrial control</p>
+<p>RK4 (optional): - More accurate: O(dt⁴) - Can use larger dt - More computation per step - Better for simulation studies</p>
+<p><strong>Validation:</strong></p>
+<p>Check discretization accuracy: 1. Compare with continuous simulation 2. Verify mass conservation (approximately) 3. Check final concentrations converge as dt → 0</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error">estimate_discretization_error</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    u,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Estimate discretization error (Euler vs exact).</p>
+<p>Returns approximate relative error in state update.</p>
+<section id="parameters-3" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-3">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>x</td>
+<td>np.ndarray</td>
+<td>Current state</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>u</td>
+<td>np.ndarray</td>
+<td>Control input</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Estimated relative error (dimensionless)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Euler discretization has O(dt) error. Error estimate: ||f(x)||·dt²/||x||</p>
+<p>Large error → Consider smaller dt or higher-order method.</p>
+</section>
+<section id="examples-1" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-1">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">360.0</span>])</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> u <span class="op">=</span> np.array([<span class="fl">10.0</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> error <span class="op">=</span> reactor.estimate_discretization_error(x, u)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Estimated error: </span><span class="sc">{</span>error<span class="sc">:.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance">get_process_noise_covariance</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Get process noise covariance matrix Σ_w.</p>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>np.ndarray</td>
+<td>3x3 diagonal covariance matrix</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-2" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-2">Notes</h4>
+<p>Σ_w = diag(σ_A², σ_B², σ_T²)</p>
+<p>Diagonal → independent noise sources.</p>
+</section>
+<section id="examples-2" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>...     sigma_A<span class="op">=</span><span class="fl">0.01</span>, sigma_B<span class="op">=</span><span class="fl">0.01</span>, sigma_T<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q <span class="op">=</span> reactor.get_process_noise_covariance()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Process noise covariance:</span><span class="ch">\n</span><span class="sc">{</span>Q<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up equilibrium points (for deterministic part).</p>
+<p>Note: In discrete time, equilibria are fixed points of f: x_eq = f(x_eq, u_eq)</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor }</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>Discrete-time stochastic batch reactor for digital control and estimation.</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>Implements a sampled-data model of the chemical batch reactor with process</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>noise, suitable for discrete-time control algorithms, Kalman filtering, and</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>reinforcement learning applications.</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discrete-Time Stochastic Dynamics {.doc-section .doc-section-discrete-time-stochastic-dynamics}</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>Difference equation (Euler discretization):</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="in">    C_A[k+1] = C_A[k] - r₁(X[k])·Δt + w_A[k]</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="in">    C_B[k+1] = C_B[k] + (r₁(X[k]) - r₂(X[k]))·Δt + w_B[k]</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="in">    T[k+1] = T[k] + (Q[k] - α·(T[k] - T_amb))·Δt + w_T[k]</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>where:</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">C_A[k], C_B[k], T[k]</span><span class="co">]</span>: State at time step k</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>r₁, r₂: Reaction rates (Arrhenius kinetics)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">w_A[k], w_B[k], w_T[k]</span><span class="co">]</span>: Process noise</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, diag(σ_A², σ_B², σ_T²))</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Δt: Sampling period</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="fu">## Physical Interpretation {.doc-section .doc-section-physical-interpretation}</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>**Discrete-Time Operation:**</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>Industrial batch reactors operate with digital control:</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Sensors sampled every Δt seconds (PLC scan rate)</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Control computed and applied at discrete intervals</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Zero-order hold: Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span> constant during <span class="co">[</span><span class="ot">k·Δt, (k+1)·Δt</span><span class="co">]</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measurements: y<span class="co">[</span><span class="ot">k</span><span class="co">]</span> available at t = k·Δt</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>**Process Noise Sources:**</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> represents accumulated disturbances over sampling interval:</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Concentration noise:** Feed variations, mixing imperfections</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Temperature noise:** Heat transfer fluctuations, ambient changes</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Model uncertainty:** Discretization errors, parameter drift</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>**Noise Scaling from Continuous:**</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>If continuous noise intensity is σ_c <span class="co">[</span><span class="ot">state/√time</span><span class="co">]</span>:</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>    σ_discrete = σ_c·√Δt <span class="co">[</span><span class="ot">state</span><span class="co">]</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>Example: σ_T = 1 K/√s continuous, Δt = 1 s</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    → σ_T_discrete = 1·√1 = 1 K per time step</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a><span class="fu">## State Space {.doc-section .doc-section-state-space}</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>State: X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">C_A[k], C_B[k], T[k]</span><span class="co">]</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>    Discrete-time samples of concentrations and temperature:</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>C_A<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Concentration of A at time k·Δt <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>C_B<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Concentration of B at time k·Δt <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>T<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Temperature at time k·Δt <span class="co">[</span><span class="ot">K</span><span class="co">]</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>Control: u<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Q<span class="co">[</span><span class="ot">k</span><span class="co">]</span>: Heating rate during interval <span class="co">[</span><span class="ot">k·Δt, (k+1)·Δt</span><span class="co">] [K/s]</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Zero-order hold: Constant between samples</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>Noise: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = <span class="co">[</span><span class="ot">w_A[k], w_B[k], w_T[k]</span><span class="co">]</span></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Gaussian white noise: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, Σ_w)</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Independent over time: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ⊥ w<span class="co">[</span><span class="ot">j</span><span class="co">]</span> for k ≠ j</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Diagonal covariance: Σ_w = diag(σ_A², σ_B², σ_T²)</span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Properties {.doc-section .doc-section-key-properties}</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>**Markov Property:**</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> depends only on X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>, enabling:</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Dynamic programming</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Kalman filtering</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Reinforcement learning</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>**Time-Invariant:**</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>Dynamics f same at all time steps (constant parameters).</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>**Gaussian Noise:**</span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>Enables analytical Kalman filter (optimal for Gaussian).</span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>**Additive Noise:**</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>Simplifies estimation (linearity in noise).</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>**Discrete-Time Native:**</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>Exact for digital control (no continuous-time approximation).</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="fu">## Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name                  <span class="pp">|</span> Type              <span class="pp">|</span> Description                                                                                                                                                  <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k1                    <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for A→B reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                                                                <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k2                    <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for B→C reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                                                                <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E1                    <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 1 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                                                         <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E2                    <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 2 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                                                         <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> alpha                 <span class="pp">|</span> float             <span class="pp">|</span> Heat transfer coefficient <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                                                                              <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_amb                 <span class="pp">|</span> float             <span class="pp">|</span> Ambient temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                                                                      <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0                  <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial concentration of A for equilibrium setup <span class="co">[</span><span class="ot">mol/L</span><span class="co">]</span>                                                                                                     <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T0                    <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial temperature for equilibrium setup <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                                                <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_A               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for C_A <span class="co">[</span><span class="ot">mol/L per step</span><span class="co">]</span> - Typical: 0.001-0.1 mol/L - Conversion from continuous: σ_c·√Δt                                              <span class="pp">|</span> <span class="in">`0.01`</span>     <span class="pp">|</span></span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_B               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for C_B <span class="co">[</span><span class="ot">mol/L per step</span><span class="co">]</span>                                                                                                               <span class="pp">|</span> <span class="in">`0.01`</span>     <span class="pp">|</span></span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_T               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for T <span class="co">[</span><span class="ot">K per step</span><span class="co">]</span> - Typical: 0.1-5.0 K - Conversion from continuous: σ_c·√Δt                                                          <span class="pp">|</span> <span class="in">`1.0`</span>      <span class="pp">|</span></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt                    <span class="pp">|</span> float             <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span> - Typical: 0.1-10 s for batch reactors - Smaller dt → more accurate, more computation - Must satisfy Nyquist: dt &lt; 1/(2·f_max)           <span class="pp">|</span> <span class="in">`1.0`</span>      <span class="pp">|</span></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> discretization_method <span class="pp">|</span> str               <span class="pp">|</span> Discretization method for continuous dynamics - 'euler': Forward Euler (first-order) - 'rk4': Runge-Kutta 4 (fourth-order) - 'exact': Exact for linear parts <span class="pp">|</span> <span class="in">`'euler'`</span>  <span class="pp">|</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## Applications {.doc-section .doc-section-applications}</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>**1. Discrete-Time MPC:**</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>Model Predictive Control with constraints:</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Optimization horizon: N steps</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Constraints: X_min ≤ X<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ≤ X_max</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Receding horizon: Solve at each k</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>**2. Discrete Kalman Filter:**</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>Optimal state estimation:</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Process model: This discrete stochastic system</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Measurement model: y<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = h(X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>) + v<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Extended or Unscented KF for nonlinearity</span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>**3. LQG Control:**</span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>Linear-Quadratic-Gaussian:</span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Kalman filter for state estimation</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>LQR for optimal control</span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Certainty equivalence principle</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>**4. Reinforcement Learning:**</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a>Discrete-time RL algorithms:</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Q-learning: Discrete state/action</span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Policy gradient: Episodic updates</span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Model-based RL: Use this as forward model</span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>**5. Batch-to-Batch Optimization:**</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>Iterative learning control:</span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Update policy based on previous batches</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Stochastic gradient descent</span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Safe learning with constraints</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a><span class="fu">## Numerical Simulation {.doc-section .doc-section-numerical-simulation}</span></span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>**Direct Simulation:**</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>No integration needed - direct evaluation:</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>    for k in range(N):</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>        X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = f(X<span class="co">[</span><span class="ot">k</span><span class="co">]</span>, u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>) + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>where w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, Σ_w).</span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>**Monte Carlo Ensemble:**</span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a>Run multiple simulations to characterize stochasticity:</span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Mean trajectory</span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Variance growth</span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>Confidence intervals</span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>**Deterministic Part:**</span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>Set σ_A = σ_B = σ_T = 0 to recover deterministic discrete system.</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comparison with Continuous Stochastic {.doc-section .doc-section-comparison-with-continuous-stochastic}</span></span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>**Continuous Stochastic:**</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>SDE: dX = f·dt + g·dW</span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Requires SDE integration</span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Theoretical foundation</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise intensity in <span class="co">[</span><span class="ot">state</span><span class="co">]</span>/√<span class="co">[</span><span class="ot">time</span><span class="co">]</span></span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>**Discrete Stochastic:**</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Difference equation: X<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = f + w<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Direct evaluation (no integration)</span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Implementation ready</span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Noise variance in <span class="co">[</span><span class="ot">state</span><span class="co">]</span>²</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a>**Conversion:**</span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>σ_discrete = σ_continuous·√Δt</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discrete Kalman Filter Usage {.doc-section .doc-section-discrete-kalman-filter-usage}</span></span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a>This system provides process model for EKF:</span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a><span class="co"># Process model</span></span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a>X_pred <span class="op">=</span> reactor.step(X_est, u[k])</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a>F <span class="op">=</span> reactor.linearize(X_est, u[k])[<span class="dv">0</span>]  <span class="co"># Jacobian</span></span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a>P_pred <span class="op">=</span> F <span class="op">@</span> P <span class="op">@</span> F.T <span class="op">+</span> Q</span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a><span class="co"># Measurement update (if measurement available)</span></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> h(X_pred)</span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a>H <span class="op">=</span> jacobian(h, X_pred)</span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> P_pred <span class="op">@</span> H.T <span class="op">@</span> inv(H <span class="op">@</span> P_pred <span class="op">@</span> H.T <span class="op">+</span> R)</span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a>X_est <span class="op">=</span> X_pred <span class="op">+</span> K <span class="op">@</span> (y[k] <span class="op">-</span> y_pred)</span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a>P <span class="op">=</span> (I <span class="op">-</span> K <span class="op">@</span> H) <span class="op">@</span> P_pred</span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations {.doc-section .doc-section-limitations}</span></span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Euler discretization: O(Δt) error</span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Additive noise only (not multiplicative)</span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Constant noise variance (not state-dependent)</span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Independent noise (no correlation)</span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>White noise (no temporal correlation)</span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extensions {.doc-section .doc-section-extensions}</span></span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-206"><a href="#cb12-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Higher-order discretization (RK4)</span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Multiplicative noise: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> depends on X<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Colored noise: w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> correlated over time</span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Measurement delays: y<span class="co">[</span><span class="ot">k</span><span class="co">]</span> = h(X<span class="co">[</span><span class="ot">k-d</span><span class="co">]</span>) + v<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Time-varying parameters: θ<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = θ<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + ε<span class="co">[</span><span class="ot">k</span><span class="co">]</span></span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">convert_from_continuous_noise</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise)</span> <span class="pp">|</span> Convert continuous noise intensities to discrete. <span class="pp">|</span></span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system)</span> <span class="pp">|</span> Define discrete-time stochastic batch reactor dynamics. <span class="pp">|</span></span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">estimate_discretization_error</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error)</span> <span class="pp">|</span> Estimate discretization error (Euler vs exact). <span class="pp">|</span></span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">get_process_noise_covariance</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance)</span> <span class="pp">|</span> Get process noise covariance matrix Σ_w. <span class="pp">|</span></span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria)</span> <span class="pp">|</span> Set up equilibrium points (for deterministic part). <span class="pp">|</span></span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="fu">### convert_from_continuous_noise { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise }</span></span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.convert_from_continuous_noise(</span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a>    sigma_A_continuous,</span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a>    sigma_B_continuous,</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a>    sigma_T_continuous,</span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a>Convert continuous noise intensities to discrete.</span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a>For continuous noise σ_c <span class="co">[</span><span class="ot">state/√s</span><span class="co">]</span>, discrete noise is:</span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a>    σ_d = σ_c·√dt</span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name               <span class="pp">|</span> Type   <span class="pp">|</span> Description                                     <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb12-240"><a href="#cb12-240" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------------|--------|-------------------------------------------------|------------|</span></span>
+<span id="cb12-241"><a href="#cb12-241" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_A_continuous <span class="pp">|</span> float  <span class="pp">|</span> Continuous noise intensity for C_A <span class="co">[</span><span class="ot">mol/(L·√s)</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_B_continuous <span class="pp">|</span> float  <span class="pp">|</span> Continuous noise intensity for C_B <span class="co">[</span><span class="ot">mol/(L·√s)</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_T_continuous <span class="pp">|</span> float  <span class="pp">|</span> Continuous noise intensity for T <span class="co">[</span><span class="ot">K/√s</span><span class="co">]</span>         <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description               <span class="pp">|</span></span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|---------------------------|</span></span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> dict   <span class="pp">|</span> Discrete noise parameters <span class="pp">|</span></span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-252"><a href="#cb12-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-253"><a href="#cb12-253" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-254"><a href="#cb12-254" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb12-255"><a href="#cb12-255" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> discrete_noise <span class="op">=</span> reactor.convert_from_continuous_noise(</span>
+<span id="cb12-256"><a href="#cb12-256" aria-hidden="true" tabindex="-1"></a>...     sigma_A_continuous<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb12-257"><a href="#cb12-257" aria-hidden="true" tabindex="-1"></a>...     sigma_B_continuous<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb12-258"><a href="#cb12-258" aria-hidden="true" tabindex="-1"></a>...     sigma_T_continuous<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb12-259"><a href="#cb12-259" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb12-260"><a href="#cb12-260" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Discrete σ_A: </span><span class="sc">{</span>discrete_noise[<span class="st">'sigma_A'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb12-261"><a href="#cb12-261" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Discrete σ_T: </span><span class="sc">{</span>discrete_noise[<span class="st">'sigma_T'</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb12-262"><a href="#cb12-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-263"><a href="#cb12-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-264"><a href="#cb12-264" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system }</span></span>
+<span id="cb12-265"><a href="#cb12-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-266"><a href="#cb12-266" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-267"><a href="#cb12-267" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.define_system(</span>
+<span id="cb12-268"><a href="#cb12-268" aria-hidden="true" tabindex="-1"></a>    k1_val<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb12-269"><a href="#cb12-269" aria-hidden="true" tabindex="-1"></a>    k2_val<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb12-270"><a href="#cb12-270" aria-hidden="true" tabindex="-1"></a>    E1_val<span class="op">=</span><span class="fl">1000.0</span>,</span>
+<span id="cb12-271"><a href="#cb12-271" aria-hidden="true" tabindex="-1"></a>    E2_val<span class="op">=</span><span class="fl">1500.0</span>,</span>
+<span id="cb12-272"><a href="#cb12-272" aria-hidden="true" tabindex="-1"></a>    alpha_val<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb12-273"><a href="#cb12-273" aria-hidden="true" tabindex="-1"></a>    T_amb_val<span class="op">=</span><span class="fl">300.0</span>,</span>
+<span id="cb12-274"><a href="#cb12-274" aria-hidden="true" tabindex="-1"></a>    sigma_A<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb12-275"><a href="#cb12-275" aria-hidden="true" tabindex="-1"></a>    sigma_B<span class="op">=</span><span class="fl">0.01</span>,</span>
+<span id="cb12-276"><a href="#cb12-276" aria-hidden="true" tabindex="-1"></a>    sigma_T<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb12-277"><a href="#cb12-277" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb12-278"><a href="#cb12-278" aria-hidden="true" tabindex="-1"></a>    discretization_method<span class="op">=</span><span class="st">'euler'</span>,</span>
+<span id="cb12-279"><a href="#cb12-279" aria-hidden="true" tabindex="-1"></a>    C_A0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb12-280"><a href="#cb12-280" aria-hidden="true" tabindex="-1"></a>    T0<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb12-281"><a href="#cb12-281" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-282"><a href="#cb12-282" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-284"><a href="#cb12-284" aria-hidden="true" tabindex="-1"></a>Define discrete-time stochastic batch reactor dynamics.</span>
+<span id="cb12-285"><a href="#cb12-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-286"><a href="#cb12-286" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-287"><a href="#cb12-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-288"><a href="#cb12-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name                  <span class="pp">|</span> Type              <span class="pp">|</span> Description                                                                                                               <span class="pp">|</span> Default   <span class="pp">|</span></span>
+<span id="cb12-289"><a href="#cb12-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------|-----------|</span></span>
+<span id="cb12-290"><a href="#cb12-290" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k1_val                <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for A→B reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                             <span class="pp">|</span> <span class="in">`0.5`</span>     <span class="pp">|</span></span>
+<span id="cb12-291"><a href="#cb12-291" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> k2_val                <span class="pp">|</span> float             <span class="pp">|</span> Pre-exponential factor for B→C reaction <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                             <span class="pp">|</span> <span class="in">`0.3`</span>     <span class="pp">|</span></span>
+<span id="cb12-292"><a href="#cb12-292" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E1_val                <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 1 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                      <span class="pp">|</span> <span class="in">`1000.0`</span>  <span class="pp">|</span></span>
+<span id="cb12-293"><a href="#cb12-293" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> E2_val                <span class="pp">|</span> float             <span class="pp">|</span> Activation energy for reaction 2 <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                      <span class="pp">|</span> <span class="in">`1500.0`</span>  <span class="pp">|</span></span>
+<span id="cb12-294"><a href="#cb12-294" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> alpha_val             <span class="pp">|</span> float             <span class="pp">|</span> Heat transfer coefficient <span class="co">[</span><span class="ot">1/s</span><span class="co">]</span>                                                                                           <span class="pp">|</span> <span class="in">`0.1`</span>     <span class="pp">|</span></span>
+<span id="cb12-295"><a href="#cb12-295" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T_amb_val             <span class="pp">|</span> float             <span class="pp">|</span> Ambient temperature <span class="co">[</span><span class="ot">K</span><span class="co">]</span>                                                                                                   <span class="pp">|</span> <span class="in">`300.0`</span>   <span class="pp">|</span></span>
+<span id="cb12-296"><a href="#cb12-296" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_A               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for C_A <span class="co">[</span><span class="ot">mol/L per step</span><span class="co">]</span> - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.001-0.1 mol/L <span class="pp">|</span> <span class="in">`0.01`</span>    <span class="pp">|</span></span>
+<span id="cb12-297"><a href="#cb12-297" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_B               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for C_B <span class="co">[</span><span class="ot">mol/L per step</span><span class="co">]</span>                                                                            <span class="pp">|</span> <span class="in">`0.01`</span>    <span class="pp">|</span></span>
+<span id="cb12-298"><a href="#cb12-298" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> sigma_T               <span class="pp">|</span> float             <span class="pp">|</span> Process noise std dev for T <span class="co">[</span><span class="ot">K per step</span><span class="co">]</span> - For conversion from continuous: σ_d = σ_c·√dt - Typical: 0.1-5.0 K             <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb12-299"><a href="#cb12-299" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt                    <span class="pp">|</span> float             <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span> - Typical: 0.1-10 s for batch reactors - Rule: dt &lt; τ_system/10 - Affects both dynamics and noise     <span class="pp">|</span> <span class="in">`1.0`</span>     <span class="pp">|</span></span>
+<span id="cb12-300"><a href="#cb12-300" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> discretization_method <span class="pp">|</span> str               <span class="pp">|</span> Discretization method: - 'euler': Forward Euler (simple, first-order) - 'rk4': Runge-Kutta 4 (accurate, fourth-order)     <span class="pp">|</span> <span class="in">`'euler'`</span> <span class="pp">|</span></span>
+<span id="cb12-301"><a href="#cb12-301" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> C_A0                  <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial conditions for equilibrium setup                                                                                  <span class="pp">|</span> <span class="in">`None`</span>    <span class="pp">|</span></span>
+<span id="cb12-302"><a href="#cb12-302" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> T0                    <span class="pp">|</span> Optional<span class="sc">\[</span>float<span class="sc">\]</span> <span class="pp">|</span> Initial conditions for equilibrium setup                                                                                  <span class="pp">|</span> <span class="in">`None`</span>    <span class="pp">|</span></span>
+<span id="cb12-303"><a href="#cb12-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-304"><a href="#cb12-304" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb12-305"><a href="#cb12-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-306"><a href="#cb12-306" aria-hidden="true" tabindex="-1"></a>**Discretization (Euler):**</span>
+<span id="cb12-307"><a href="#cb12-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-308"><a href="#cb12-308" aria-hidden="true" tabindex="-1"></a>Continuous: dx/dt = f(x, u)</span>
+<span id="cb12-309"><a href="#cb12-309" aria-hidden="true" tabindex="-1"></a>Discrete: x<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = x<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + f(x<span class="co">[</span><span class="ot">k</span><span class="co">]</span>, u<span class="co">[</span><span class="ot">k</span><span class="co">]</span>)·dt</span>
+<span id="cb12-310"><a href="#cb12-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-311"><a href="#cb12-311" aria-hidden="true" tabindex="-1"></a>For reactions:</span>
+<span id="cb12-312"><a href="#cb12-312" aria-hidden="true" tabindex="-1"></a>    C_A<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = C_A<span class="co">[</span><span class="ot">k</span><span class="co">]</span> - r₁·dt</span>
+<span id="cb12-313"><a href="#cb12-313" aria-hidden="true" tabindex="-1"></a>    C_B<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = C_B<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + (r₁ - r₂)·dt</span>
+<span id="cb12-314"><a href="#cb12-314" aria-hidden="true" tabindex="-1"></a>    T<span class="co">[</span><span class="ot">k+1</span><span class="co">]</span> = T<span class="co">[</span><span class="ot">k</span><span class="co">]</span> + (Q - α·(T - T_amb))·dt</span>
+<span id="cb12-315"><a href="#cb12-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-316"><a href="#cb12-316" aria-hidden="true" tabindex="-1"></a>**Process Noise:**</span>
+<span id="cb12-317"><a href="#cb12-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-318"><a href="#cb12-318" aria-hidden="true" tabindex="-1"></a>Additive Gaussian white noise:</span>
+<span id="cb12-319"><a href="#cb12-319" aria-hidden="true" tabindex="-1"></a>    w<span class="co">[</span><span class="ot">k</span><span class="co">]</span> ~ N(0, Σ_w)</span>
+<span id="cb12-320"><a href="#cb12-320" aria-hidden="true" tabindex="-1"></a>    Σ_w = diag(σ_A², σ_B², σ_T²)</span>
+<span id="cb12-321"><a href="#cb12-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-322"><a href="#cb12-322" aria-hidden="true" tabindex="-1"></a>**Noise Scaling:**</span>
+<span id="cb12-323"><a href="#cb12-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-324"><a href="#cb12-324" aria-hidden="true" tabindex="-1"></a>From continuous σ_c <span class="co">[</span><span class="ot">state/√s</span><span class="co">]</span>:</span>
+<span id="cb12-325"><a href="#cb12-325" aria-hidden="true" tabindex="-1"></a>    σ_discrete = σ_c·√dt</span>
+<span id="cb12-326"><a href="#cb12-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-327"><a href="#cb12-327" aria-hidden="true" tabindex="-1"></a>Example: σ_T_c = 1 K/√s, dt = 1 s</span>
+<span id="cb12-328"><a href="#cb12-328" aria-hidden="true" tabindex="-1"></a>    → σ_T_d = 1·√1 = 1 K per step</span>
+<span id="cb12-329"><a href="#cb12-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-330"><a href="#cb12-330" aria-hidden="true" tabindex="-1"></a>Example: σ_T_c = 1 K/√s, dt = 0.1 s</span>
+<span id="cb12-331"><a href="#cb12-331" aria-hidden="true" tabindex="-1"></a>    → σ_T_d = 1·√0.1 ≈ 0.316 K per step</span>
+<span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a>**Sampling Period Selection:**</span>
+<span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a>Guidelines:</span>
+<span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Nyquist: dt &lt; 1/(2·f_max)</span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Control: dt &lt; τ_cl/10 (closed-loop time constant)</span>
+<span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Reactor: dt &lt; τ_reaction/5</span>
+<span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a>For typical batch reactor:</span>
+<span id="cb12-341"><a href="#cb12-341" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fast control: dt = 0.1-0.5 s</span>
+<span id="cb12-342"><a href="#cb12-342" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Moderate: dt = 1.0-5.0 s</span>
+<span id="cb12-343"><a href="#cb12-343" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Slow: dt = 5.0-10.0 s</span>
+<span id="cb12-344"><a href="#cb12-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-345"><a href="#cb12-345" aria-hidden="true" tabindex="-1"></a>**Discretization Method:**</span>
+<span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a>Euler (default):</span>
+<span id="cb12-348"><a href="#cb12-348" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Simple, explicit</span>
+<span id="cb12-349"><a href="#cb12-349" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>O(dt) accuracy</span>
+<span id="cb12-350"><a href="#cb12-350" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>May need small dt for accuracy</span>
+<span id="cb12-351"><a href="#cb12-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Most common in industrial control</span>
+<span id="cb12-352"><a href="#cb12-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-353"><a href="#cb12-353" aria-hidden="true" tabindex="-1"></a>RK4 (optional):</span>
+<span id="cb12-354"><a href="#cb12-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>More accurate: O(dt⁴)</span>
+<span id="cb12-355"><a href="#cb12-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Can use larger dt</span>
+<span id="cb12-356"><a href="#cb12-356" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>More computation per step</span>
+<span id="cb12-357"><a href="#cb12-357" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Better for simulation studies</span>
+<span id="cb12-358"><a href="#cb12-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-359"><a href="#cb12-359" aria-hidden="true" tabindex="-1"></a>**Validation:**</span>
+<span id="cb12-360"><a href="#cb12-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-361"><a href="#cb12-361" aria-hidden="true" tabindex="-1"></a>Check discretization accuracy:</span>
+<span id="cb12-362"><a href="#cb12-362" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Compare with continuous simulation</span>
+<span id="cb12-363"><a href="#cb12-363" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Verify mass conservation (approximately)</span>
+<span id="cb12-364"><a href="#cb12-364" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Check final concentrations converge as dt → 0</span>
+<span id="cb12-365"><a href="#cb12-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-366"><a href="#cb12-366" aria-hidden="true" tabindex="-1"></a><span class="fu">### estimate_discretization_error { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error }</span></span>
+<span id="cb12-367"><a href="#cb12-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-368"><a href="#cb12-368" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-369"><a href="#cb12-369" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.estimate_discretization_error(</span>
+<span id="cb12-370"><a href="#cb12-370" aria-hidden="true" tabindex="-1"></a>    x,</span>
+<span id="cb12-371"><a href="#cb12-371" aria-hidden="true" tabindex="-1"></a>    u,</span>
+<span id="cb12-372"><a href="#cb12-372" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-373"><a href="#cb12-373" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-374"><a href="#cb12-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-375"><a href="#cb12-375" aria-hidden="true" tabindex="-1"></a>Estimate discretization error (Euler vs exact).</span>
+<span id="cb12-376"><a href="#cb12-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-377"><a href="#cb12-377" aria-hidden="true" tabindex="-1"></a>Returns approximate relative error in state update.</span>
+<span id="cb12-378"><a href="#cb12-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-379"><a href="#cb12-379" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb12-380"><a href="#cb12-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-381"><a href="#cb12-381" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description   <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb12-382"><a href="#cb12-382" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|---------------|------------|</span></span>
+<span id="cb12-383"><a href="#cb12-383" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> x      <span class="pp">|</span> np.ndarray <span class="pp">|</span> Current state <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-384"><a href="#cb12-384" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> u      <span class="pp">|</span> np.ndarray <span class="pp">|</span> Control input <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb12-385"><a href="#cb12-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-386"><a href="#cb12-386" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-387"><a href="#cb12-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-388"><a href="#cb12-388" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                              <span class="pp">|</span></span>
+<span id="cb12-389"><a href="#cb12-389" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------------------------------|</span></span>
+<span id="cb12-390"><a href="#cb12-390" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Estimated relative error (dimensionless) <span class="pp">|</span></span>
+<span id="cb12-391"><a href="#cb12-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-392"><a href="#cb12-392" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb12-393"><a href="#cb12-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-394"><a href="#cb12-394" aria-hidden="true" tabindex="-1"></a>Euler discretization has O(dt) error.</span>
+<span id="cb12-395"><a href="#cb12-395" aria-hidden="true" tabindex="-1"></a>Error estimate: ||f(x)||·dt²/||x||</span>
+<span id="cb12-396"><a href="#cb12-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-397"><a href="#cb12-397" aria-hidden="true" tabindex="-1"></a>Large error → Consider smaller dt or higher-order method.</span>
+<span id="cb12-398"><a href="#cb12-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-399"><a href="#cb12-399" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-400"><a href="#cb12-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-401"><a href="#cb12-401" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-402"><a href="#cb12-402" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(dt<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb12-403"><a href="#cb12-403" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> x <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">360.0</span>])</span>
+<span id="cb12-404"><a href="#cb12-404" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> u <span class="op">=</span> np.array([<span class="fl">10.0</span>])</span>
+<span id="cb12-405"><a href="#cb12-405" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> error <span class="op">=</span> reactor.estimate_discretization_error(x, u)</span>
+<span id="cb12-406"><a href="#cb12-406" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Estimated error: </span><span class="sc">{</span>error<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb12-407"><a href="#cb12-407" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-408"><a href="#cb12-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-409"><a href="#cb12-409" aria-hidden="true" tabindex="-1"></a><span class="fu">### get_process_noise_covariance { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance }</span></span>
+<span id="cb12-410"><a href="#cb12-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-411"><a href="#cb12-411" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-412"><a href="#cb12-412" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.get_process_noise_covariance(</span>
+<span id="cb12-413"><a href="#cb12-413" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-414"><a href="#cb12-414" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-415"><a href="#cb12-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-416"><a href="#cb12-416" aria-hidden="true" tabindex="-1"></a>Get process noise covariance matrix Σ_w.</span>
+<span id="cb12-417"><a href="#cb12-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-418"><a href="#cb12-418" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb12-419"><a href="#cb12-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-420"><a href="#cb12-420" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type       <span class="pp">|</span> Description                    <span class="pp">|</span></span>
+<span id="cb12-421"><a href="#cb12-421" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|------------|--------------------------------|</span></span>
+<span id="cb12-422"><a href="#cb12-422" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> np.ndarray <span class="pp">|</span> 3x3 diagonal covariance matrix <span class="pp">|</span></span>
+<span id="cb12-423"><a href="#cb12-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-424"><a href="#cb12-424" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb12-425"><a href="#cb12-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-426"><a href="#cb12-426" aria-hidden="true" tabindex="-1"></a>Σ_w = diag(σ_A², σ_B², σ_T²)</span>
+<span id="cb12-427"><a href="#cb12-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-428"><a href="#cb12-428" aria-hidden="true" tabindex="-1"></a>Diagonal → independent noise sources.</span>
+<span id="cb12-429"><a href="#cb12-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-430"><a href="#cb12-430" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Examples {.doc-section .doc-section-examples}</span></span>
+<span id="cb12-431"><a href="#cb12-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-432"><a href="#cb12-432" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-433"><a href="#cb12-433" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> reactor <span class="op">=</span> DiscreteStochasticBatchReactor(</span>
+<span id="cb12-434"><a href="#cb12-434" aria-hidden="true" tabindex="-1"></a>...     sigma_A<span class="op">=</span><span class="fl">0.01</span>, sigma_B<span class="op">=</span><span class="fl">0.01</span>, sigma_T<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb12-435"><a href="#cb12-435" aria-hidden="true" tabindex="-1"></a>... )</span>
+<span id="cb12-436"><a href="#cb12-436" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> Q <span class="op">=</span> reactor.get_process_noise_covariance()</span>
+<span id="cb12-437"><a href="#cb12-437" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="bu">print</span>(<span class="ss">f"Process noise covariance:</span><span class="ch">\n</span><span class="sc">{</span>Q<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-438"><a href="#cb12-438" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-439"><a href="#cb12-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-440"><a href="#cb12-440" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria }</span></span>
+<span id="cb12-441"><a href="#cb12-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-442"><a href="#cb12-442" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb12-443"><a href="#cb12-443" aria-hidden="true" tabindex="-1"></a>systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.setup_equilibria(</span>
+<span id="cb12-444"><a href="#cb12-444" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-445"><a href="#cb12-445" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-446"><a href="#cb12-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-447"><a href="#cb12-447" aria-hidden="true" tabindex="-1"></a>Set up equilibrium points (for deterministic part).</span>
+<span id="cb12-448"><a href="#cb12-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-449"><a href="#cb12-449" aria-hidden="true" tabindex="-1"></a>Note: In discrete time, equilibria are fixed points of f:</span>
+<span id="cb12-450"><a href="#cb12-450" aria-hidden="true" tabindex="-1"></a>    x_eq = f(x_eq, u_eq)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.stochastic.discrete.DiscreteStochasticBatchReactor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

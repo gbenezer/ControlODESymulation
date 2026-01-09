@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>systems.builtin.deterministic.discrete.discretecartpole – ControlDESymulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-64209fde6f94c7ab255c4d888f9dae80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">ControlDESymulation</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/installation.qmd"> 
+<span class="menu-text">Installation Guide</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-architecture" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Architecture</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-architecture">    
+        <li>
+    <a class="dropdown-item" href="../architecture/index.html">
+ <span class="dropdown-text">Overview</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../architecture/cdesym_Design_Philosophy.html">
+ <span class="dropdown-text">ControlDESymulation: Design Philosophy and Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/UI_Framework_Architecture.html">
+ <span class="dropdown-text">UI Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Type_System_Architecture.html">
+ <span class="dropdown-text">Type System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Integration_Framework_Architecture.html">
+ <span class="dropdown-text">Integration Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Control_Framework_Architecture.html">
+ <span class="dropdown-text">Control Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Visualization_Framework_Architecture.html">
+ <span class="dropdown-text">Visualization Framework Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../architecture/Delegation_Layer_Architecture.html">
+ <span class="dropdown-text">Delegation Layer Architecture</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li class="dropdown-header">tutorials/basic_usage.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-examples">    
+        <li class="dropdown-header">examples/pendulum_control.qmd</li>
+        <li class="dropdown-header">examples/cartpole_swingup.qmd</li>
+        <li class="dropdown-header">examples/quadrotor_lqr.qmd</li>
+        <li class="dropdown-header">examples/cstr_multiplicity.qmd</li>
+        <li class="dropdown-header">examples/lorenz_chaos.qmd</li>
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/gilbenezer/ControlDESymulation"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole" class="nav-link active" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole">systems.builtin.deterministic.discrete.DiscreteCartPole</a>
+  <ul>
+  <li><a href="#physical-system" id="toc-physical-system" class="nav-link" data-scroll-target="#physical-system">Physical System:</a></li>
+  <li><a href="#state-space" id="toc-state-space" class="nav-link" data-scroll-target="#state-space">State Space:</a></li>
+  <li><a href="#dynamics-physical-interpretation" id="toc-dynamics-physical-interpretation" class="nav-link" data-scroll-target="#dynamics-physical-interpretation">Dynamics (Physical Interpretation):</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters:</a></li>
+  <li><a href="#equilibria" id="toc-equilibria" class="nav-link" data-scroll-target="#equilibria">Equilibria:</a></li>
+  <li><a href="#controllability" id="toc-controllability" class="nav-link" data-scroll-target="#controllability">Controllability:</a></li>
+  <li><a href="#observability" id="toc-observability" class="nav-link" data-scroll-target="#observability">Observability:</a></li>
+  <li><a href="#control-objectives" id="toc-control-objectives" class="nav-link" data-scroll-target="#control-objectives">Control Objectives:</a></li>
+  <li><a href="#state-constraints" id="toc-state-constraints" class="nav-link" data-scroll-target="#state-constraints">State Constraints:</a></li>
+  <li><a href="#numerical-considerations" id="toc-numerical-considerations" class="nav-link" data-scroll-target="#numerical-considerations">Numerical Considerations:</a></li>
+  <li><a href="#example-usage" id="toc-example-usage" class="nav-link" data-scroll-target="#example-usage">Example Usage:</a></li>
+  <li><a href="#physical-insights" id="toc-physical-insights" class="nav-link" data-scroll-target="#physical-insights">Physical Insights:</a></li>
+  <li><a href="#common-pitfalls" id="toc-common-pitfalls" class="nav-link" data-scroll-target="#common-pitfalls">Common Pitfalls:</a></li>
+  <li><a href="#extensions" id="toc-extensions" class="nav-link" data-scroll-target="#extensions">Extensions:</a></li>
+  <li><a href="#reinforcement-learning-context" id="toc-reinforcement-learning-context" class="nav-link" data-scroll-target="#reinforcement-learning-context">Reinforcement Learning Context:</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also:</a></li>
+  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy">compute_total_energy</a>
+  <ul class="collapse">
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link" data-scroll-target="#notes">Notes</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system">define_system</a>
+  <ul class="collapse">
+  <li><a href="#parameters-2" id="toc-parameters-2" class="nav-link" data-scroll-target="#parameters-2">Parameters</a></li>
+  </ul></li>
+  <li><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria" id="toc-cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria" class="nav-link" data-scroll-target="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria">setup_equilibria</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteCartPole.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+
+
+
+
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole" class="level1">
+<h1>systems.builtin.deterministic.discrete.DiscreteCartPole</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<pre><code>    Discrete-time cart-pole (inverted pendulum on cart) system.</code></pre>
+<section id="physical-system" class="level2 doc-section doc-section---------physical-system">
+<h2 class="doc-section doc-section---------physical-system anchored" data-anchor-id="physical-system">Physical System:</h2>
+<pre><code>    A cart of mass M moving horizontally on a frictionless track, with a
+    pole (pendulum) of mass m and length L attached via a frictionless pivot.
+    The cart is actuated by a horizontal force F, while the pole is free to
+    rotate under gravity.
+
+    **Mechanical Configuration:**
+```
+                  ● m (pole mass)
+                 /|
+                / | L (pole length)
+               /  |
+              /   |
+         ====●====●==== Cart (mass M)
+         ←---F    |
+         _____|____|_____ Track (frictionless)
+              x (cart position)
+              θ (pole angle from vertical)
+```
+
+    **Key Features:**
+    - **Underactuated:** 4 states (x, ẋ, θ, θ̇), 1 control (F)
+    - **Nonlinear:** Coupled nonlinear dynamics
+    - **Non-minimum phase:** Zero at s = +√(g/L) (RHP for inverted)
+    - **Unstable:** Upright equilibrium is unstable without control
+
+    **This is THE classic underactuated system!**
+
+    **Equations of Motion (Lagrangian Mechanics):**
+    Using Euler-Lagrange equations with generalized coordinates q = [x, θ]:
+
+    Cart equation:
+        (M + m)·ẍ + m·L·θ̈·cos(θ) - m·L·θ̇²·sin(θ) = F
+
+    Pole equation:
+        m·L²·θ̈ + m·L·ẍ·cos(θ) - m·g·L·sin(θ) = 0
+
+    Solving for accelerations (ẍ, θ̈):
+
+        θ̈ = [g·sin(θ) - cos(θ)·(F + m·L·θ̇²·sin(θ))/(M + m)] /
+             [L·(4/3 - m·cos²(θ)/(M + m))]
+
+        ẍ = [F + m·L·(θ̇²·sin(θ) - θ̈·cos(θ))] / (M + m)
+
+    **Discrete-Time Dynamics:**
+    Zero-order hold discretization with numerical integration.</code></pre>
+</section>
+<section id="state-space" class="level2 doc-section doc-section---------state-space">
+<h2 class="doc-section doc-section---------state-space anchored" data-anchor-id="state-space">State Space:</h2>
+<pre><code>    State: x[k] = [x[k], ẋ[k], θ[k], θ̇[k]]
+        Cart position:
+        - x: Horizontal position of cart [m]
+          * Unbounded in principle: -∞ &lt; x &lt; ∞
+          * Typically constrained: |x| ≤ x_max (track length)
+          * x = 0: Reference position (often center of track)
+
+        Cart velocity:
+        - ẋ: Horizontal velocity of cart [m/s]
+          * Can be positive or negative
+          * Typical: |ẋ| &lt; 5 m/s
+
+        Pole angle:
+        - θ: Angle from upward vertical [rad]
+          * θ = 0: Pole upright (inverted, unstable)
+          * θ = π: Pole hanging down (stable)
+          * θ = ±π/2: Pole horizontal
+          * For control: typically keep |θ| &lt; π/4 (±45°)
+
+        Pole angular velocity:
+        - θ̇: Rate of change of pole angle [rad/s]
+          * Positive: Falling to the right
+          * Negative: Falling to the left
+          * Large |θ̇| indicates imminent fall
+
+    Control: u[k] = [F[k]]
+        Applied force on cart:
+        - F: Horizontal force [N]
+          * F &gt; 0: Push cart to the right
+          * F &lt; 0: Push cart to the left
+          * Bounded: |F| ≤ F_max (actuator limit)
+          * Typical: |F| ≤ 50 N
+
+    **Note on Convention:**
+    Some formulations measure θ from downward vertical (θ = 0 down, θ = π up).
+    This implementation uses θ = 0 for UPRIGHT (inverted), which is more
+    common in control literature and RL benchmarks.
+
+    Output: y[k] = [x[k], θ[k]] or full state
+        Typical measurements:
+        - x: Cart position (encoder, potentiometer)
+        - θ: Pole angle (encoder at pivot, IMU on pole)
+        - Velocities: Computed from differences or direct measurement</code></pre>
+</section>
+<section id="dynamics-physical-interpretation" class="level2 doc-section doc-section---------dynamics-physical-interpretation">
+<h2 class="doc-section doc-section---------dynamics-physical-interpretation anchored" data-anchor-id="dynamics-physical-interpretation">Dynamics (Physical Interpretation):</h2>
+<pre><code>    **Coupling Between Cart and Pole:**
+    The dynamics are strongly coupled:
+    1. Moving cart → creates inertial force on pole (affects θ̈)
+    2. Pole falling → pulls cart in that direction (affects ẍ)
+    3. Centrifugal force: θ̇² term in cart equation
+    4. Gravitational torque: sin(θ) term in pole equation
+
+    **Underactuation:**
+    - 4 state variables (x, ẋ, θ, θ̇)
+    - 1 control input (F)
+    - Cannot independently control cart and pole
+    - Must use internal dynamics (coupling) to control pole
+
+    **Non-minimum Phase:**
+    If we try to move cart to the right (F &gt; 0):
+    - Initially, pole falls to the LEFT (opposite direction!)
+    - This is non-minimum phase behavior
+    - Complicates control design
+    - Cannot simply use output feedback
+
+    **Zero Dynamics:**
+    If we constrain x = constant (cart position fixed):
+    - Remaining dynamics are pole oscillations
+    - Zero dynamics unstable (pole falls down)
+    - This is why system is non-minimum phase</code></pre>
+</section>
+<section id="parameters" class="level2 doc-section doc-section---------parameters">
+<h2 class="doc-section doc-section---------parameters anchored" data-anchor-id="parameters">Parameters:</h2>
+<pre><code>    M : float, default=1.0
+        Mass of cart [kg]
+        - Typical: 0.5-5.0 kg
+        - Heavier cart: More inertia, slower response
+        - Lighter cart: Faster response, more sensitive to pole
+
+    m : float, default=0.1
+        Mass of pole [kg]
+        - Typical: 0.05-0.5 kg (much less than cart)
+        - Ratio m/M affects coupling strength
+        - Larger m: Stronger coupling, harder to balance
+
+    L : float, default=0.5
+        Half-length of pole [m]
+        - Distance from pivot to center of mass
+        - Full length = 2L
+        - Typical: 0.3-1.0 m
+        - Longer pole: Slower dynamics, easier to balance
+        - Shorter pole: Faster dynamics, harder to balance
+
+    g : float, default=9.81
+        Gravitational acceleration [m/s²]
+        - Earth: 9.81
+        - Moon: 1.62 (much easier to balance!)
+        - Mars: 3.71
+
+    b_cart : float, default=0.1
+        Cart friction coefficient [N·s/m]
+        - Linear viscous friction on cart
+        - Typical: 0.0-1.0
+        - b = 0: Frictionless (ideal)
+
+    b_pole : float, default=0.0
+        Pole friction coefficient [N·m·s/rad]
+        - Friction at pivot joint
+        - Typically negligible: b_pole ≈ 0
+        - Can include for realism
+
+    dt : float, default=0.02
+        Sampling period [s]
+        - Typical control rates: 20-100 Hz (dt = 0.01-0.05 s)
+        - Must be fast enough to stabilize unstable pole
+        - Rule of thumb: dt &lt; 0.1/ω_pole where ω_pole ~ √(g/L)</code></pre>
+</section>
+<section id="equilibria" class="level2 doc-section doc-section---------equilibria">
+<h2 class="doc-section doc-section---------equilibria anchored" data-anchor-id="equilibria">Equilibria:</h2>
+<pre><code>    **Four Equilibrium Points:**
+
+    1. **Downward, Center (x=0, ẋ=0, θ=π, θ̇=0):**
+       - STABLE: Pole hanging down, cart centered
+       - Natural resting position
+       - Easy to maintain (no control needed)
+       - Lowest potential energy
+
+    2. **Upward, Center (x=0, ẋ=0, θ=0, θ̇=0):**
+       - UNSTABLE: Pole inverted, cart centered
+       - Target for balancing control
+       - Requires continuous active control
+       - Highest potential energy
+       - Classic inverted pendulum problem
+
+    3. **Downward, Offset (x≠0, ẋ=0, θ=π, θ̇=0):**
+       - Family of stable equilibria
+       - Cart at any position, pole down
+       - Less interesting for control
+
+    4. **Upward, Offset (x≠0, ẋ=0, θ=0, θ̇=0):**
+       - Family of unstable equilibria
+       - Requires control to maintain both position and balance
+
+    **Linearization at Upright:**
+    Around (0, 0, 0, 0), with small angles (sin(θ) ≈ θ, cos(θ) ≈ 1):
+
+        θ̈ ≈ [(M + m)·g·θ - F] / [L·(M + m) - m·L]
+        ẍ ≈ [F - m·g·θ] / (M + m)
+
+    This gives a LINEAR system for control design.</code></pre>
+</section>
+<section id="controllability" class="level2 doc-section doc-section---------controllability">
+<h2 class="doc-section doc-section---------controllability anchored" data-anchor-id="controllability">Controllability:</h2>
+<pre><code>    **The cart-pole is CONTROLLABLE:**
+    Despite being underactuated (4 states, 1 input), the system is completely
+    controllable. This is verified by checking rank of controllability matrix.
+
+    **Why controllable despite underactuation?**
+    - The coupling between cart and pole creates internal dynamics
+    - Moving cart affects pole angle (and vice versa)
+    - Can exploit this coupling to control both
+
+    **Lie Bracket Analysis:**
+    The system satisfies sufficient conditions for controllability:
+    - Control vector field and its Lie brackets span ℝ⁴
+
+    **Practical Controllability:**
+    With bounded control |F| ≤ F_max:
+    - Cannot balance pole beyond certain initial angles
+    - Cannot swing up from downward if F_max too small
+    - Reachable set depends on F_max and initial conditions</code></pre>
+</section>
+<section id="observability" class="level2 doc-section doc-section---------observability">
+<h2 class="doc-section doc-section---------observability anchored" data-anchor-id="observability">Observability:</h2>
+<pre><code>    **Full State Measurement:**
+    Trivially observable (measure all 4 states directly).
+
+    **Partial Observations:**
+    - (x, θ) only: Observable (can reconstruct velocities)
+    - θ only: NOT observable (cart position decoupled)
+    - x only: NOT observable (pole angle decoupled)</code></pre>
+</section>
+<section id="control-objectives" class="level2 doc-section doc-section---------control-objectives">
+<h2 class="doc-section doc-section---------control-objectives anchored" data-anchor-id="control-objectives">Control Objectives:</h2>
+<pre><code>    **1. Balance Control (Stabilization at Upright):**
+       Goal: Stabilize at (0, 0, 0, 0) from small perturbations
+       Methods:
+       - LQR (linearized around upright)
+       - Pole placement
+       - PID control
+       - Sliding mode control
+       Challenge: Unstable equilibrium, requires fast feedback
+
+    **2. Swing-Up Control:**
+       Goal: Move from downward (θ=π) to upright (θ=0)
+       Methods:
+       - Energy-based control
+       - Partial feedback linearization
+       - Trajectory optimization
+       - Reinforcement learning
+       Challenge: Large control effort, nonlinear dynamics
+
+    **3. Swing-Up + Balance (Full Problem):**
+       Goal: Swing up from any initial condition, then stabilize
+       Method: Switch between swing-up and balance controllers
+       - Swing-up when |θ - π| &gt; threshold
+       - Balance when |θ| &lt; threshold
+       Challenge: Smooth switching, mode transitions
+
+    **4. Trajectory Tracking:**
+       Goal: Follow reference trajectory (x_ref(t), θ_ref(t))
+       Application: Moving while balancing
+       Example: Segway following path
+
+    **5. Disturbance Rejection:**
+       Goal: Maintain balance despite pushes/bumps
+       Methods: Robust control, H∞, adaptive control</code></pre>
+</section>
+<section id="state-constraints" class="level2 doc-section doc-section---------state-constraints">
+<h2 class="doc-section doc-section---------state-constraints anchored" data-anchor-id="state-constraints">State Constraints:</h2>
+<pre><code>    **1. Cart Position Limits: |x[k]| ≤ x_max**
+       - Physical track length
+       - Typical: x_max = 2-5 m
+       - Failure if cart hits end
+       - Must be enforced by controller
+
+    **2. Pole Angle Limits: |θ[k]| ≤ θ_max**
+       - Balancing region: θ_max ≈ π/12 (15°)
+       - Beyond this, typically considered "fallen"
+       - RL episode terminates if exceeded
+
+    **3. Velocity Limits:**
+       |ẋ[k]| ≤ ẋ_max: Cart velocity limit
+       |θ̇[k]| ≤ θ̇_max: Pole angular velocity limit
+
+    **4. Force Limits: |F[k]| ≤ F_max**
+       - Actuator saturation (most critical)
+       - Typical: F_max = 10-50 N
+       - Affects controllability region
+
+    **5. Success Criteria (Reinforcement Learning):**
+       - |x| &lt; x_max (typically 2.4 m)
+       - |θ| &lt; θ_max (typically 12° ≈ 0.2 rad)
+       - Episode fails if either violated</code></pre>
+</section>
+<section id="numerical-considerations" class="level2 doc-section doc-section---------numerical-considerations">
+<h2 class="doc-section doc-section---------numerical-considerations anchored" data-anchor-id="numerical-considerations">Numerical Considerations:</h2>
+<pre><code>    **Singularity at θ = ±π/2:**
+    The equations have division by [1 - m·cos²(θ)/(M+m)]
+    - Denominator → 0 as θ → ±π/2 for certain mass ratios
+    - Typically not an issue (pole doesn't reach horizontal when balancing)
+
+    **Angle Wrapping:**
+    For swing-up control, θ may exceed ±π:
+    - Can wrap to [-π, π] or leave unwrapped
+    - Unwrapped better for tracking rotations
+    - sin(θ), cos(θ) automatically handle periodicity</code></pre>
+</section>
+<section id="example-usage" class="level2 doc-section doc-section---------example-usage">
+<h2 class="doc-section doc-section---------example-usage anchored" data-anchor-id="example-usage">Example Usage:</h2>
+<pre><code>    &gt;&gt;&gt; # Create cart-pole with OpenAI Gym-like parameters
+    &gt;&gt;&gt; system = DiscreteCartPole(
+    ...     M=1.0,        # 1 kg cart
+    ...     m=0.1,        # 100g pole
+    ...     L=0.5,        # 1m pole (half-length)
+    ...     g=9.81,
+    ...     dt=0.02,      # 50 Hz
+    ...     method='rk4'
+    ... )
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; print(f"Mass ratio m/M: {system.m/system.M:.2f}")
+    &gt;&gt;&gt; print(f"Pole natural frequency: {system.pole_frequency:.2f} rad/s")
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; # Initial condition: upright with small perturbation
+    &gt;&gt;&gt; x0_upright = np.array([0.0, 0.0, 0.1, 0.0])  # Small angle
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; # Design LQR controller for balancing
+    &gt;&gt;&gt; x_eq = np.array([0.0, 0.0, 0.0, 0.0])
+    &gt;&gt;&gt; u_eq = np.array([0.0])
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; Ad, Bd = system.linearize(x_eq, u_eq)
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; # LQR weights
+    &gt;&gt;&gt; Q = np.diag([1.0, 0.1, 100.0, 10.0])  # Care most about pole angle
+    &gt;&gt;&gt; R = np.array([[0.01]])
+    &gt;&gt;&gt;
+    &gt;&gt;&gt; lqr_result = system.control.design_lqr(
+    ...     Ad, Bd, Q, R, system_type='discrete'
+    ... )
+    &gt;&gt;&gt; K = lqr_result['gain']
+    &gt;&gt;&gt; print(f"</code></pre>
+<p>LQR gain: K = {K}“) &gt;&gt;&gt; &gt;&gt;&gt; # Check closed-loop stability &gt;&gt;&gt; eigenvalues = lqr_result[‘closed_loop_eigenvalues’] &gt;&gt;&gt; print(f”Closed-loop eigenvalues: {eigenvalues}“) &gt;&gt;&gt; print(f”All stable: {np.all(np.abs(eigenvalues) &lt; 1)}“) &gt;&gt;&gt; &gt;&gt;&gt; # Simulate balancing &gt;&gt;&gt; def lqr_balance(x, k): … return -K @ x &gt;&gt;&gt; &gt;&gt;&gt; result_balance = system.rollout( … x0=x0_upright, … policy=lqr_balance, … n_steps=500 … ) &gt;&gt;&gt; &gt;&gt;&gt; # Plot balancing performance &gt;&gt;&gt; import plotly.graph_objects as go &gt;&gt;&gt; from plotly.subplots import make_subplots &gt;&gt;&gt; &gt;&gt;&gt; fig = make_subplots( … rows=3, cols=1, … subplot_titles=[‘Cart Position’, ‘Pole Angle’, ‘Control Force’] … ) &gt;&gt;&gt; &gt;&gt;&gt; t = result_balance[‘time_steps’] * system.dt &gt;&gt;&gt; &gt;&gt;&gt; # Cart position &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t, y=result_balance[‘states’][:, 0], … name=‘x’), row=1, col=1) &gt;&gt;&gt; fig.add_hline(y=0, line_dash=‘dash’, row=1, col=1) &gt;&gt;&gt; &gt;&gt;&gt; # Pole angle (convert to degrees) &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t, y=np.rad2deg(result_balance[‘states’][:, 2]), … name=‘θ’), row=2, col=1) &gt;&gt;&gt; fig.add_hline(y=0, line_dash=‘dash’, row=2, col=1) &gt;&gt;&gt; fig.add_hline(y=12, line_dash=‘dot’, line_color=‘red’, row=2, col=1) &gt;&gt;&gt; fig.add_hline(y=-12, line_dash=‘dot’, line_color=‘red’, row=2, col=1) &gt;&gt;&gt; &gt;&gt;&gt; # Control force &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t[:-1], y=result_balance[‘controls’][:, 0], … name=‘F’), row=3, col=1) &gt;&gt;&gt; &gt;&gt;&gt; fig.update_xaxes(title_text=‘Time [s]’, row=3, col=1) &gt;&gt;&gt; fig.update_yaxes(title_text=‘x [m]’, row=1, col=1) &gt;&gt;&gt; fig.update_yaxes(title_text=‘θ [deg]’, row=2, col=1) &gt;&gt;&gt; fig.update_yaxes(title_text=‘F [N]’, row=3, col=1) &gt;&gt;&gt; fig.update_layout(height=900, showlegend=False, … title_text=‘Cart-Pole Balancing Control (LQR)’) &gt;&gt;&gt; fig.show() &gt;&gt;&gt; &gt;&gt;&gt; # Energy-based swing-up control &gt;&gt;&gt; x0_down = np.array([0.0, 0.0, np.pi, 0.0]) # Pole hanging down &gt;&gt;&gt; &gt;&gt;&gt; def swing_up_controller(x, k): … x_pos, x_vel, theta, theta_vel = x … … # Current energy … E = system.compute_total_energy(theta, theta_vel) … … # Target energy (upright position) … E_target = system.m * system.g * system.L … … # Energy error … E_error = E - E_target … … # Switch to LQR when close to upright … if abs(theta) &lt; 0.3 and abs(theta_vel) &lt; 1.0: … # Stabilize using LQR … return -K @ x … else: … # Energy pumping … k_swing = 10.0 … # Pump energy: apply force in direction that increases energy … return k_swing * E_error * np.sign(theta_vel * np.cos(theta)) &gt;&gt;&gt; &gt;&gt;&gt; result_swing = system.rollout( … x0=x0_down, … policy=swing_up_controller, … n_steps=1000 … ) &gt;&gt;&gt; &gt;&gt;&gt; # Visualize swing-up &gt;&gt;&gt; fig_swing = system.plot_animation_frames(result_swing, frames=[0, 200, 400, 600, 800]) &gt;&gt;&gt; fig_swing.show() &gt;&gt;&gt; &gt;&gt;&gt; # Reinforcement learning evaluation &gt;&gt;&gt; def check_episode_success(states, x_threshold=2.4, theta_threshold=0.2): … ’‘’Check if episode stayed within success criteria.’’’ … x_ok = np.all(np.abs(states[:, 0]) &lt;= x_threshold) … theta_ok = np.all(np.abs(states[:, 2]) &lt;= theta_threshold) … return x_ok and theta_ok &gt;&gt;&gt; &gt;&gt;&gt; success = check_episode_success(result_balance[‘states’]) &gt;&gt;&gt; print(f” Balancing success: {success}“) &gt;&gt;&gt; &gt;&gt;&gt; # Compare different mass ratios &gt;&gt;&gt; mass_ratios = [0.05, 0.1, 0.2, 0.5] &gt;&gt;&gt; &gt;&gt;&gt; fig_compare = go.Figure() &gt;&gt;&gt; &gt;&gt;&gt; for m_ratio in mass_ratios: … sys_temp = DiscreteCartPole(M=1.0, m=m_ratio, L=0.5, dt=0.02) … … # Design LQR … Ad_temp, Bd_temp = sys_temp.linearize(x_eq, u_eq) … lqr_temp = sys_temp.control.design_lqr(Ad_temp, Bd_temp, Q, R, … system_type=‘discrete’) … K_temp = lqr_temp[‘gain’] … … # Simulate … result_temp = sys_temp.rollout( … x0=x0_upright, … policy=lambda x, k, K_=K_temp: -K_ @ x, … n_steps=500 … ) … … fig_compare.add_trace(go.Scatter( … x=t, … y=np.rad2deg(result_temp[‘states’][:, 2]), … name=f’m/M = {m_ratio:.2f}’ … )) &gt;&gt;&gt; &gt;&gt;&gt; fig_compare.update_layout( … title=‘Effect of Mass Ratio on Balancing’, … xaxis_title=‘Time [s]’, … yaxis_title=‘Pole Angle [deg]’ … ) &gt;&gt;&gt; fig_compare.show()</p>
+</section>
+<section id="physical-insights" class="level2 doc-section doc-section---------physical-insights">
+<h2 class="doc-section doc-section---------physical-insights anchored" data-anchor-id="physical-insights">Physical Insights:</h2>
+<pre><code>    **Why Is It Hard to Balance?**
+    The upright position is an unstable saddle point:
+    - Any small disturbance causes pole to fall
+    - Falls faster as it tilts more (sin(θ) nonlinearity)
+    - Must apply corrective force before falling too far
+    - Human balancing uses same principles!
+
+    **The Balancing Strategy:**
+    To balance a falling pole:
+    1. Pole starts falling (θ ≠ 0)
+    2. Move cart in direction pole is falling
+    3. This creates inertial force opposing fall
+    4. Pole rights itself due to cart acceleration
+    5. Stop cart before oscillation grows
+
+    This is exactly what LQR does automatically!
+
+    **Energy Perspective for Swing-Up:**
+    Total energy: E = KE_cart + KE_pole + PE_pole
+
+    To swing up:
+    1. Pump energy by pushing cart back and forth
+    2. Exploit coupling: cart motion → pole motion
+    3. When E ≈ E_target, pole near vertical
+    4. Switch to stabilizing controller
+
+    **Non-Minimum Phase Behavior:**
+    Initial response is in "wrong" direction:
+    - Push cart right (F &gt; 0)
+    - Pole initially tilts LEFT
+    - Then cart movement brings pole back
+    - This is why simple controllers fail
+
+    **Mass Ratio Effects:**
+    The ratio m/M affects difficulty:
+    - Small m/M (light pole): Easier to balance, less coupling
+    - Large m/M (heavy pole): Harder to balance, strong coupling
+    - m/M = 1: Equal masses, maximum challenge
+    - Typical: m/M ≈ 0.1
+
+    **Pole Length Effects:**
+    Longer pole (larger L):
+    - Slower natural frequency: ω ~ √(g/L)
+    - Easier to balance (more reaction time)
+    - Larger moment of inertia
+    - But requires more space</code></pre>
+</section>
+<section id="common-pitfalls" class="level2 doc-section doc-section---------common-pitfalls">
+<h2 class="doc-section doc-section---------common-pitfalls anchored" data-anchor-id="common-pitfalls">Common Pitfalls:</h2>
+<pre><code>    1. **Wrong angle convention:**
+       Some use θ = 0 for DOWN, others for UP
+       Check carefully! This implementation: θ = 0 is UPRIGHT
+
+    2. **Forgetting non-minimum phase:**
+       Cannot use simple output feedback
+       Need state feedback (or observer)
+
+    3. **Too slow sampling:**
+       Unstable pole requires fast control
+       dt &gt; 0.1 s typically too slow
+
+    4. **Linearization over-reach:**
+       Linear controller only works near upright
+       Breaks down for |θ| &gt; π/4
+       Need nonlinear control for swing-up
+
+    5. **Ignoring constraints:**
+       Real system has |x| &lt; x_max, |F| &lt; F_max
+       Must handle saturation and limits
+
+    6. **Switching controller discontinuities:**
+       Abrupt switch between swing-up and balance
+       Can cause chattering or instability
+       Use smooth transitions (hysteresis, blending)</code></pre>
+</section>
+<section id="extensions" class="level2 doc-section doc-section---------extensions">
+<h2 class="doc-section doc-section---------extensions anchored" data-anchor-id="extensions">Extensions:</h2>
+<pre><code>    1. **Rotary inverted pendulum (Furuta):**
+       Cart moves in circle instead of line
+       Different coupling dynamics
+
+    2. **Double inverted pendulum:**
+       Two poles in series (acrobot)
+       Much harder to control
+
+    3. **3D cart-pole:**
+       Pole can fall in any direction
+       Spherical coordinates needed
+
+    4. **Flexible pole:**
+       Pole bends (elastic)
+       Infinite-dimensional system
+
+    5. **With obstacles:**
+       Must avoid obstacles while balancing
+       Combines planning and control
+
+    6. **Multi-cart cooperation:**
+       Two carts balancing shared pole
+       Coordination problem</code></pre>
+</section>
+<section id="reinforcement-learning-context" class="level2 doc-section doc-section---------reinforcement-learning-context">
+<h2 class="doc-section doc-section---------reinforcement-learning-context anchored" data-anchor-id="reinforcement-learning-context">Reinforcement Learning Context:</h2>
+<pre><code>    The cart-pole is THE standard RL benchmark:
+    - **OpenAI Gym:** 'CartPole-v1' environment
+    - **State:** [x, ẋ, θ, θ̇]
+    - **Action:** Discrete {left, right} or continuous force
+    - **Reward:** +1 per timestep balanced
+    - **Done:** |x| &gt; 2.4 or |θ| &gt; 0.2 rad
+    - **Success:** Average reward &gt; 195 over 100 episodes
+
+    **Why Popular for RL?**
+    - Simple enough to learn quickly
+    - Complex enough to be interesting
+    - Unstable → requires intelligent control
+    - Fast simulation
+    - Well-understood theoretically (can validate)</code></pre>
+</section>
+<section id="see-also" class="level2 doc-section doc-section---------see-also">
+<h2 class="doc-section doc-section---------see-also anchored" data-anchor-id="see-also">See Also:</h2>
+<pre><code>    DiscretePendulum : Simpler (just pole, no cart)
+    CartPole : Continuous-time version</code></pre>
+</section>
+<section id="attributes" class="level2">
+<h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.pole_frequency">pole_frequency</a></td>
+<td>Natural frequency of pole oscillations √(g/L) [rad/s].</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.pole_period">pole_period</a></td>
+<td>Period of small pole oscillations [s].</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy">compute_total_energy</a></td>
+<td>Compute total mechanical energy of pole.</td>
+</tr>
+<tr class="even">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system">define_system</a></td>
+<td>Define discrete-time cart-pole dynamics.</td>
+</tr>
+<tr class="odd">
+<td><a href="#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria">setup_equilibria</a></td>
+<td>Set up equilibrium points.</td>
+</tr>
+</tbody>
+</table>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy">compute_total_energy</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    theta_dot,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Compute total mechanical energy of pole.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>theta</td>
+<td>float</td>
+<td>Pole angle [rad]</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>theta_dot</td>
+<td>float</td>
+<td>Pole angular velocity [rad/s]</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>float</td>
+<td>Total energy [J]</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p>Cart kinetic energy ignored (only pole energy for swing-up).</p>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system">define_system</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.define_system(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    M<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    L<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    g<span class="op">=</span><span class="fl">9.81</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    b_cart<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    b_pole<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.02</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Define discrete-time cart-pole dynamics.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 68%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>M</td>
+<td>float</td>
+<td>Cart mass [kg]</td>
+<td><code>1.0</code></td>
+</tr>
+<tr class="even">
+<td>m</td>
+<td>float</td>
+<td>Pole mass [kg]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="odd">
+<td>L</td>
+<td>float</td>
+<td>Pole half-length [m] (distance from pivot to center of mass)</td>
+<td><code>0.5</code></td>
+</tr>
+<tr class="even">
+<td>g</td>
+<td>float</td>
+<td>Gravity [m/s²]</td>
+<td><code>9.81</code></td>
+</tr>
+<tr class="odd">
+<td>b_cart</td>
+<td>float</td>
+<td>Cart friction [N·s/m]</td>
+<td><code>0.1</code></td>
+</tr>
+<tr class="even">
+<td>b_pole</td>
+<td>float</td>
+<td>Pole friction [N·m·s/rad]</td>
+<td><code>0.0</code></td>
+</tr>
+<tr class="odd">
+<td>dt</td>
+<td>float</td>
+<td>Sampling period [s]</td>
+<td><code>0.02</code></td>
+</tr>
+<tr class="even">
+<td>method</td>
+<td>str</td>
+<td>Discretization method (‘euler’, ‘rk4’)</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria" class="level3">
+<h3 class="anchored" data-anchor-id="cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria">setup_equilibria</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Set up equilibrium points.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/gilbenezer\.github\.io\/ControlDESymulation");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># systems.builtin.deterministic.discrete.DiscreteCartPole { #cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole }</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="in">        Discrete-time cart-pole (inverted pendulum on cart) system.</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Physical System: {.doc-section .doc-section---------physical-system}</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="in">        A cart of mass M moving horizontally on a frictionless track, with a</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="in">        pole (pendulum) of mass m and length L attached via a frictionless pivot.</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="in">        The cart is actuated by a horizontal force F, while the pole is free to</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="in">        rotate under gravity.</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="in">        **Mechanical Configuration:**</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="in">    ```</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="in">                      ● m (pole mass)</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="in">                     /|</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="in">                    / | L (pole length)</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="in">                   /  |</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="in">                  /   |</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="in">             ====●====●==== Cart (mass M)</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="in">             ←---F    |</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="in">             _____|____|_____ Track (frictionless)</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="in">                  x (cart position)</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="in">                  θ (pole angle from vertical)</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="in">    ```</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="in">        **Key Features:**</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Underactuated:** 4 states (x, ẋ, θ, θ̇), 1 control (F)</span></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Nonlinear:** Coupled nonlinear dynamics</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Non-minimum phase:** Zero at s = +√(g/L) (RHP for inverted)</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Unstable:** Upright equilibrium is unstable without control</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="in">        **This is THE classic underactuated system!**</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="in">        **Equations of Motion (Lagrangian Mechanics):**</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="in">        Using Euler-Lagrange equations with generalized coordinates q = [x, θ]:</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="in">        Cart equation:</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="in">            (M + m)·ẍ + m·L·θ̈·cos(θ) - m·L·θ̇²·sin(θ) = F</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="in">        Pole equation:</span></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="in">            m·L²·θ̈ + m·L·ẍ·cos(θ) - m·g·L·sin(θ) = 0</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="in">        Solving for accelerations (ẍ, θ̈):</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="in">            θ̈ = [g·sin(θ) - cos(θ)·(F + m·L·θ̇²·sin(θ))/(M + m)] /</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="in">                 [L·(4/3 - m·cos²(θ)/(M + m))]</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a><span class="in">            ẍ = [F + m·L·(θ̇²·sin(θ) - θ̈·cos(θ))] / (M + m)</span></span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a><span class="in">        **Discrete-Time Dynamics:**</span></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a><span class="in">        Zero-order hold discretization with numerical integration.</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="fu">##         State Space: {.doc-section .doc-section---------state-space}</span></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a><span class="in">        State: x[k] = [x[k], ẋ[k], θ[k], θ̇[k]]</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="in">            Cart position:</span></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a><span class="in">            - x: Horizontal position of cart [m]</span></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a><span class="in">              * Unbounded in principle: -∞ &lt; x &lt; ∞</span></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a><span class="in">              * Typically constrained: |x| ≤ x_max (track length)</span></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="in">              * x = 0: Reference position (often center of track)</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a><span class="in">            Cart velocity:</span></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="in">            - ẋ: Horizontal velocity of cart [m/s]</span></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a><span class="in">              * Can be positive or negative</span></span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="in">              * Typical: |ẋ| &lt; 5 m/s</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="in">            Pole angle:</span></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a><span class="in">            - θ: Angle from upward vertical [rad]</span></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a><span class="in">              * θ = 0: Pole upright (inverted, unstable)</span></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="in">              * θ = π: Pole hanging down (stable)</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a><span class="in">              * θ = ±π/2: Pole horizontal</span></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a><span class="in">              * For control: typically keep |θ| &lt; π/4 (±45°)</span></span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="in">            Pole angular velocity:</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a><span class="in">            - θ̇: Rate of change of pole angle [rad/s]</span></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a><span class="in">              * Positive: Falling to the right</span></span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a><span class="in">              * Negative: Falling to the left</span></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a><span class="in">              * Large |θ̇| indicates imminent fall</span></span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="in">        Control: u[k] = [F[k]]</span></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a><span class="in">            Applied force on cart:</span></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a><span class="in">            - F: Horizontal force [N]</span></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a><span class="in">              * F &gt; 0: Push cart to the right</span></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a><span class="in">              * F &lt; 0: Push cart to the left</span></span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a><span class="in">              * Bounded: |F| ≤ F_max (actuator limit)</span></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a><span class="in">              * Typical: |F| ≤ 50 N</span></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a><span class="in">        **Note on Convention:**</span></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="in">        Some formulations measure θ from downward vertical (θ = 0 down, θ = π up).</span></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a><span class="in">        This implementation uses θ = 0 for UPRIGHT (inverted), which is more</span></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a><span class="in">        common in control literature and RL benchmarks.</span></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a><span class="in">        Output: y[k] = [x[k], θ[k]] or full state</span></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a><span class="in">            Typical measurements:</span></span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="in">            - x: Cart position (encoder, potentiometer)</span></span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a><span class="in">            - θ: Pole angle (encoder at pivot, IMU on pole)</span></span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a><span class="in">            - Velocities: Computed from differences or direct measurement</span></span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Dynamics (Physical Interpretation): {.doc-section .doc-section---------dynamics-physical-interpretation}</span></span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a><span class="in">        **Coupling Between Cart and Pole:**</span></span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a><span class="in">        The dynamics are strongly coupled:</span></span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a><span class="in">        1. Moving cart → creates inertial force on pole (affects θ̈)</span></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a><span class="in">        2. Pole falling → pulls cart in that direction (affects ẍ)</span></span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a><span class="in">        3. Centrifugal force: θ̇² term in cart equation</span></span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a><span class="in">        4. Gravitational torque: sin(θ) term in pole equation</span></span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a><span class="in">        **Underactuation:**</span></span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a><span class="in">        - 4 state variables (x, ẋ, θ, θ̇)</span></span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a><span class="in">        - 1 control input (F)</span></span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a><span class="in">        - Cannot independently control cart and pole</span></span>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a><span class="in">        - Must use internal dynamics (coupling) to control pole</span></span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a><span class="in">        **Non-minimum Phase:**</span></span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a><span class="in">        If we try to move cart to the right (F &gt; 0):</span></span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a><span class="in">        - Initially, pole falls to the LEFT (opposite direction!)</span></span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a><span class="in">        - This is non-minimum phase behavior</span></span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a><span class="in">        - Complicates control design</span></span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a><span class="in">        - Cannot simply use output feedback</span></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a><span class="in">        **Zero Dynamics:**</span></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a><span class="in">        If we constrain x = constant (cart position fixed):</span></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a><span class="in">        - Remaining dynamics are pole oscillations</span></span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a><span class="in">        - Zero dynamics unstable (pole falls down)</span></span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a><span class="in">        - This is why system is non-minimum phase</span></span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Parameters: {.doc-section .doc-section---------parameters}</span></span>
+<span id="cb22-132"><a href="#cb22-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a><span class="in">        M : float, default=1.0</span></span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a><span class="in">            Mass of cart [kg]</span></span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typical: 0.5-5.0 kg</span></span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a><span class="in">            - Heavier cart: More inertia, slower response</span></span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="in">            - Lighter cart: Faster response, more sensitive to pole</span></span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a><span class="in">        m : float, default=0.1</span></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a><span class="in">            Mass of pole [kg]</span></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typical: 0.05-0.5 kg (much less than cart)</span></span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a><span class="in">            - Ratio m/M affects coupling strength</span></span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a><span class="in">            - Larger m: Stronger coupling, harder to balance</span></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a><span class="in">        L : float, default=0.5</span></span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a><span class="in">            Half-length of pole [m]</span></span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a><span class="in">            - Distance from pivot to center of mass</span></span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a><span class="in">            - Full length = 2L</span></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typical: 0.3-1.0 m</span></span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="in">            - Longer pole: Slower dynamics, easier to balance</span></span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a><span class="in">            - Shorter pole: Faster dynamics, harder to balance</span></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a><span class="in">        g : float, default=9.81</span></span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a><span class="in">            Gravitational acceleration [m/s²]</span></span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a><span class="in">            - Earth: 9.81</span></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="in">            - Moon: 1.62 (much easier to balance!)</span></span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a><span class="in">            - Mars: 3.71</span></span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a><span class="in">        b_cart : float, default=0.1</span></span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="in">            Cart friction coefficient [N·s/m]</span></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a><span class="in">            - Linear viscous friction on cart</span></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typical: 0.0-1.0</span></span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a><span class="in">            - b = 0: Frictionless (ideal)</span></span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a><span class="in">        b_pole : float, default=0.0</span></span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a><span class="in">            Pole friction coefficient [N·m·s/rad]</span></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a><span class="in">            - Friction at pivot joint</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typically negligible: b_pole ≈ 0</span></span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a><span class="in">            - Can include for realism</span></span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a><span class="in">        dt : float, default=0.02</span></span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a><span class="in">            Sampling period [s]</span></span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a><span class="in">            - Typical control rates: 20-100 Hz (dt = 0.01-0.05 s)</span></span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a><span class="in">            - Must be fast enough to stabilize unstable pole</span></span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a><span class="in">            - Rule of thumb: dt &lt; 0.1/ω_pole where ω_pole ~ √(g/L)</span></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Equilibria: {.doc-section .doc-section---------equilibria}</span></span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a><span class="in">        **Four Equilibrium Points:**</span></span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a><span class="in">        1. **Downward, Center (x=0, ẋ=0, θ=π, θ̇=0):**</span></span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a><span class="in">           - STABLE: Pole hanging down, cart centered</span></span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a><span class="in">           - Natural resting position</span></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="in">           - Easy to maintain (no control needed)</span></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="in">           - Lowest potential energy</span></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="in">        2. **Upward, Center (x=0, ẋ=0, θ=0, θ̇=0):**</span></span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a><span class="in">           - UNSTABLE: Pole inverted, cart centered</span></span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a><span class="in">           - Target for balancing control</span></span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="in">           - Requires continuous active control</span></span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a><span class="in">           - Highest potential energy</span></span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a><span class="in">           - Classic inverted pendulum problem</span></span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a><span class="in">        3. **Downward, Offset (x≠0, ẋ=0, θ=π, θ̇=0):**</span></span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a><span class="in">           - Family of stable equilibria</span></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a><span class="in">           - Cart at any position, pole down</span></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="in">           - Less interesting for control</span></span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a><span class="in">        4. **Upward, Offset (x≠0, ẋ=0, θ=0, θ̇=0):**</span></span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a><span class="in">           - Family of unstable equilibria</span></span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="in">           - Requires control to maintain both position and balance</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a><span class="in">        **Linearization at Upright:**</span></span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a><span class="in">        Around (0, 0, 0, 0), with small angles (sin(θ) ≈ θ, cos(θ) ≈ 1):</span></span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a><span class="in">            θ̈ ≈ [(M + m)·g·θ - F] / [L·(M + m) - m·L]</span></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a><span class="in">            ẍ ≈ [F - m·g·θ] / (M + m)</span></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a><span class="in">        This gives a LINEAR system for control design.</span></span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Controllability: {.doc-section .doc-section---------controllability}</span></span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a><span class="in">        **The cart-pole is CONTROLLABLE:**</span></span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a><span class="in">        Despite being underactuated (4 states, 1 input), the system is completely</span></span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a><span class="in">        controllable. This is verified by checking rank of controllability matrix.</span></span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a><span class="in">        **Why controllable despite underactuation?**</span></span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a><span class="in">        - The coupling between cart and pole creates internal dynamics</span></span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a><span class="in">        - Moving cart affects pole angle (and vice versa)</span></span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a><span class="in">        - Can exploit this coupling to control both</span></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a><span class="in">        **Lie Bracket Analysis:**</span></span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="in">        The system satisfies sufficient conditions for controllability:</span></span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a><span class="in">        - Control vector field and its Lie brackets span ℝ⁴</span></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a><span class="in">        **Practical Controllability:**</span></span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a><span class="in">        With bounded control |F| ≤ F_max:</span></span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a><span class="in">        - Cannot balance pole beyond certain initial angles</span></span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a><span class="in">        - Cannot swing up from downward if F_max too small</span></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a><span class="in">        - Reachable set depends on F_max and initial conditions</span></span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Observability: {.doc-section .doc-section---------observability}</span></span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a><span class="in">        **Full State Measurement:**</span></span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a><span class="in">        Trivially observable (measure all 4 states directly).</span></span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a><span class="in">        **Partial Observations:**</span></span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a><span class="in">        - (x, θ) only: Observable (can reconstruct velocities)</span></span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a><span class="in">        - θ only: NOT observable (cart position decoupled)</span></span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a><span class="in">        - x only: NOT observable (pole angle decoupled)</span></span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Control Objectives: {.doc-section .doc-section---------control-objectives}</span></span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="in">        **1. Balance Control (Stabilization at Upright):**</span></span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a><span class="in">           Goal: Stabilize at (0, 0, 0, 0) from small perturbations</span></span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a><span class="in">           Methods:</span></span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a><span class="in">           - LQR (linearized around upright)</span></span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a><span class="in">           - Pole placement</span></span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a><span class="in">           - PID control</span></span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a><span class="in">           - Sliding mode control</span></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a><span class="in">           Challenge: Unstable equilibrium, requires fast feedback</span></span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a><span class="in">        **2. Swing-Up Control:**</span></span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a><span class="in">           Goal: Move from downward (θ=π) to upright (θ=0)</span></span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a><span class="in">           Methods:</span></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a><span class="in">           - Energy-based control</span></span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a><span class="in">           - Partial feedback linearization</span></span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a><span class="in">           - Trajectory optimization</span></span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a><span class="in">           - Reinforcement learning</span></span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a><span class="in">           Challenge: Large control effort, nonlinear dynamics</span></span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a><span class="in">        **3. Swing-Up + Balance (Full Problem):**</span></span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a><span class="in">           Goal: Swing up from any initial condition, then stabilize</span></span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="in">           Method: Switch between swing-up and balance controllers</span></span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a><span class="in">           - Swing-up when |θ - π| &gt; threshold</span></span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="in">           - Balance when |θ| &lt; threshold</span></span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a><span class="in">           Challenge: Smooth switching, mode transitions</span></span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a><span class="in">        **4. Trajectory Tracking:**</span></span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a><span class="in">           Goal: Follow reference trajectory (x_ref(t), θ_ref(t))</span></span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="in">           Application: Moving while balancing</span></span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a><span class="in">           Example: Segway following path</span></span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="in">        **5. Disturbance Rejection:**</span></span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a><span class="in">           Goal: Maintain balance despite pushes/bumps</span></span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="in">           Methods: Robust control, H∞, adaptive control</span></span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a><span class="fu">##         State Constraints: {.doc-section .doc-section---------state-constraints}</span></span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a><span class="in">        **1. Cart Position Limits: |x[k]| ≤ x_max**</span></span>
+<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a><span class="in">           - Physical track length</span></span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a><span class="in">           - Typical: x_max = 2-5 m</span></span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a><span class="in">           - Failure if cart hits end</span></span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a><span class="in">           - Must be enforced by controller</span></span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a><span class="in">        **2. Pole Angle Limits: |θ[k]| ≤ θ_max**</span></span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a><span class="in">           - Balancing region: θ_max ≈ π/12 (15°)</span></span>
+<span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a><span class="in">           - Beyond this, typically considered "fallen"</span></span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a><span class="in">           - RL episode terminates if exceeded</span></span>
+<span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a><span class="in">        **3. Velocity Limits:**</span></span>
+<span id="cb22-292"><a href="#cb22-292" aria-hidden="true" tabindex="-1"></a><span class="in">           |ẋ[k]| ≤ ẋ_max: Cart velocity limit</span></span>
+<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a><span class="in">           |θ̇[k]| ≤ θ̇_max: Pole angular velocity limit</span></span>
+<span id="cb22-294"><a href="#cb22-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a><span class="in">        **4. Force Limits: |F[k]| ≤ F_max**</span></span>
+<span id="cb22-296"><a href="#cb22-296" aria-hidden="true" tabindex="-1"></a><span class="in">           - Actuator saturation (most critical)</span></span>
+<span id="cb22-297"><a href="#cb22-297" aria-hidden="true" tabindex="-1"></a><span class="in">           - Typical: F_max = 10-50 N</span></span>
+<span id="cb22-298"><a href="#cb22-298" aria-hidden="true" tabindex="-1"></a><span class="in">           - Affects controllability region</span></span>
+<span id="cb22-299"><a href="#cb22-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-300"><a href="#cb22-300" aria-hidden="true" tabindex="-1"></a><span class="in">        **5. Success Criteria (Reinforcement Learning):**</span></span>
+<span id="cb22-301"><a href="#cb22-301" aria-hidden="true" tabindex="-1"></a><span class="in">           - |x| &lt; x_max (typically 2.4 m)</span></span>
+<span id="cb22-302"><a href="#cb22-302" aria-hidden="true" tabindex="-1"></a><span class="in">           - |θ| &lt; θ_max (typically 12° ≈ 0.2 rad)</span></span>
+<span id="cb22-303"><a href="#cb22-303" aria-hidden="true" tabindex="-1"></a><span class="in">           - Episode fails if either violated</span></span>
+<span id="cb22-304"><a href="#cb22-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-305"><a href="#cb22-305" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Numerical Considerations: {.doc-section .doc-section---------numerical-considerations}</span></span>
+<span id="cb22-306"><a href="#cb22-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-307"><a href="#cb22-307" aria-hidden="true" tabindex="-1"></a><span class="in">        **Singularity at θ = ±π/2:**</span></span>
+<span id="cb22-308"><a href="#cb22-308" aria-hidden="true" tabindex="-1"></a><span class="in">        The equations have division by [1 - m·cos²(θ)/(M+m)]</span></span>
+<span id="cb22-309"><a href="#cb22-309" aria-hidden="true" tabindex="-1"></a><span class="in">        - Denominator → 0 as θ → ±π/2 for certain mass ratios</span></span>
+<span id="cb22-310"><a href="#cb22-310" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typically not an issue (pole doesn't reach horizontal when balancing)</span></span>
+<span id="cb22-311"><a href="#cb22-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-312"><a href="#cb22-312" aria-hidden="true" tabindex="-1"></a><span class="in">        **Angle Wrapping:**</span></span>
+<span id="cb22-313"><a href="#cb22-313" aria-hidden="true" tabindex="-1"></a><span class="in">        For swing-up control, θ may exceed ±π:</span></span>
+<span id="cb22-314"><a href="#cb22-314" aria-hidden="true" tabindex="-1"></a><span class="in">        - Can wrap to [-π, π] or leave unwrapped</span></span>
+<span id="cb22-315"><a href="#cb22-315" aria-hidden="true" tabindex="-1"></a><span class="in">        - Unwrapped better for tracking rotations</span></span>
+<span id="cb22-316"><a href="#cb22-316" aria-hidden="true" tabindex="-1"></a><span class="in">        - sin(θ), cos(θ) automatically handle periodicity</span></span>
+<span id="cb22-317"><a href="#cb22-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-318"><a href="#cb22-318" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Example Usage: {.doc-section .doc-section---------example-usage}</span></span>
+<span id="cb22-319"><a href="#cb22-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-320"><a href="#cb22-320" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; # Create cart-pole with OpenAI Gym-like parameters</span></span>
+<span id="cb22-321"><a href="#cb22-321" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; system = DiscreteCartPole(</span></span>
+<span id="cb22-322"><a href="#cb22-322" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     M=1.0,        # 1 kg cart</span></span>
+<span id="cb22-323"><a href="#cb22-323" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     m=0.1,        # 100g pole</span></span>
+<span id="cb22-324"><a href="#cb22-324" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     L=0.5,        # 1m pole (half-length)</span></span>
+<span id="cb22-325"><a href="#cb22-325" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     g=9.81,</span></span>
+<span id="cb22-326"><a href="#cb22-326" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     dt=0.02,      # 50 Hz</span></span>
+<span id="cb22-327"><a href="#cb22-327" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     method='rk4'</span></span>
+<span id="cb22-328"><a href="#cb22-328" aria-hidden="true" tabindex="-1"></a><span class="in">        ... )</span></span>
+<span id="cb22-329"><a href="#cb22-329" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-330"><a href="#cb22-330" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"Mass ratio m/M: {system.m/system.M:.2f}")</span></span>
+<span id="cb22-331"><a href="#cb22-331" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"Pole natural frequency: {system.pole_frequency:.2f} rad/s")</span></span>
+<span id="cb22-332"><a href="#cb22-332" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-333"><a href="#cb22-333" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; # Initial condition: upright with small perturbation</span></span>
+<span id="cb22-334"><a href="#cb22-334" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; x0_upright = np.array([0.0, 0.0, 0.1, 0.0])  # Small angle</span></span>
+<span id="cb22-335"><a href="#cb22-335" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-336"><a href="#cb22-336" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; # Design LQR controller for balancing</span></span>
+<span id="cb22-337"><a href="#cb22-337" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; x_eq = np.array([0.0, 0.0, 0.0, 0.0])</span></span>
+<span id="cb22-338"><a href="#cb22-338" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; u_eq = np.array([0.0])</span></span>
+<span id="cb22-339"><a href="#cb22-339" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-340"><a href="#cb22-340" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; Ad, Bd = system.linearize(x_eq, u_eq)</span></span>
+<span id="cb22-341"><a href="#cb22-341" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-342"><a href="#cb22-342" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; # LQR weights</span></span>
+<span id="cb22-343"><a href="#cb22-343" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; Q = np.diag([1.0, 0.1, 100.0, 10.0])  # Care most about pole angle</span></span>
+<span id="cb22-344"><a href="#cb22-344" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; R = np.array([[0.01]])</span></span>
+<span id="cb22-345"><a href="#cb22-345" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt;</span></span>
+<span id="cb22-346"><a href="#cb22-346" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; lqr_result = system.control.design_lqr(</span></span>
+<span id="cb22-347"><a href="#cb22-347" aria-hidden="true" tabindex="-1"></a><span class="in">        ...     Ad, Bd, Q, R, system_type='discrete'</span></span>
+<span id="cb22-348"><a href="#cb22-348" aria-hidden="true" tabindex="-1"></a><span class="in">        ... )</span></span>
+<span id="cb22-349"><a href="#cb22-349" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; K = lqr_result['gain']</span></span>
+<span id="cb22-350"><a href="#cb22-350" aria-hidden="true" tabindex="-1"></a><span class="in">        &gt;&gt;&gt; print(f"</span></span>
+<span id="cb22-351"><a href="#cb22-351" aria-hidden="true" tabindex="-1"></a>LQR gain: K = {K}")</span>
+<span id="cb22-352"><a href="#cb22-352" aria-hidden="true" tabindex="-1"></a>        <span class="at">&gt;&gt;&gt;</span></span>
+<span id="cb22-353"><a href="#cb22-353" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Check closed-loop stability</span></span>
+<span id="cb22-354"><a href="#cb22-354" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; eigenvalues = lqr_result</span><span class="co">[</span><span class="ot">'closed_loop_eigenvalues'</span><span class="co">]</span></span>
+<span id="cb22-355"><a href="#cb22-355" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; print(f"Closed-loop eigenvalues: {eigenvalues}")</span></span>
+<span id="cb22-356"><a href="#cb22-356" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; print(f"All stable: {np.all(np.abs(eigenvalues) &lt; 1)}")</span></span>
+<span id="cb22-357"><a href="#cb22-357" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-358"><a href="#cb22-358" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Simulate balancing</span></span>
+<span id="cb22-359"><a href="#cb22-359" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; def lqr_balance(x, k):</span></span>
+<span id="cb22-360"><a href="#cb22-360" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     return -K @ x</span></span>
+<span id="cb22-361"><a href="#cb22-361" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-362"><a href="#cb22-362" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; result_balance = system.rollout(</span></span>
+<span id="cb22-363"><a href="#cb22-363" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     x0=x0_upright,</span></span>
+<span id="cb22-364"><a href="#cb22-364" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     policy=lqr_balance,</span></span>
+<span id="cb22-365"><a href="#cb22-365" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     n_steps=500</span></span>
+<span id="cb22-366"><a href="#cb22-366" aria-hidden="true" tabindex="-1"></a><span class="at">        ... )</span></span>
+<span id="cb22-367"><a href="#cb22-367" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-368"><a href="#cb22-368" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Plot balancing performance</span></span>
+<span id="cb22-369"><a href="#cb22-369" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; import plotly.graph_objects as go</span></span>
+<span id="cb22-370"><a href="#cb22-370" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; from plotly.subplots import make_subplots</span></span>
+<span id="cb22-371"><a href="#cb22-371" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-372"><a href="#cb22-372" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig = make_subplots(</span></span>
+<span id="cb22-373"><a href="#cb22-373" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     rows=3, cols=1,</span></span>
+<span id="cb22-374"><a href="#cb22-374" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     subplot_titles=</span><span class="co">[</span><span class="ot">'Cart Position', 'Pole Angle', 'Control Force'</span><span class="co">]</span></span>
+<span id="cb22-375"><a href="#cb22-375" aria-hidden="true" tabindex="-1"></a><span class="at">        ... )</span></span>
+<span id="cb22-376"><a href="#cb22-376" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-377"><a href="#cb22-377" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; t = result_balance</span><span class="co">[</span><span class="ot">'time_steps'</span><span class="co">]</span><span class="at"> * system.dt</span></span>
+<span id="cb22-378"><a href="#cb22-378" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-379"><a href="#cb22-379" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Cart position</span></span>
+<span id="cb22-380"><a href="#cb22-380" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t, y=result_balance</span><span class="co">[</span><span class="ot">'states'</span><span class="co">][:, 0]</span><span class="at">,</span></span>
+<span id="cb22-381"><a href="#cb22-381" aria-hidden="true" tabindex="-1"></a><span class="at">        ...                          name='x'), row=1, col=1)</span></span>
+<span id="cb22-382"><a href="#cb22-382" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_hline(y=0, line_dash='dash', row=1, col=1)</span></span>
+<span id="cb22-383"><a href="#cb22-383" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-384"><a href="#cb22-384" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Pole angle (convert to degrees)</span></span>
+<span id="cb22-385"><a href="#cb22-385" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t, y=np.rad2deg(result_balance</span><span class="co">[</span><span class="ot">'states'</span><span class="co">][:, 2]</span><span class="at">),</span></span>
+<span id="cb22-386"><a href="#cb22-386" aria-hidden="true" tabindex="-1"></a><span class="at">        ...                          name='θ'), row=2, col=1)</span></span>
+<span id="cb22-387"><a href="#cb22-387" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_hline(y=0, line_dash='dash', row=2, col=1)</span></span>
+<span id="cb22-388"><a href="#cb22-388" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_hline(y=12, line_dash='dot', line_color='red', row=2, col=1)</span></span>
+<span id="cb22-389"><a href="#cb22-389" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_hline(y=-12, line_dash='dot', line_color='red', row=2, col=1)</span></span>
+<span id="cb22-390"><a href="#cb22-390" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-391"><a href="#cb22-391" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Control force</span></span>
+<span id="cb22-392"><a href="#cb22-392" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.add_trace(go.Scatter(x=t</span><span class="co">[</span><span class="ot">:-1</span><span class="co">]</span><span class="at">, y=result_balance</span><span class="co">[</span><span class="ot">'controls'</span><span class="co">][:, 0]</span><span class="at">,</span></span>
+<span id="cb22-393"><a href="#cb22-393" aria-hidden="true" tabindex="-1"></a><span class="at">        ...                          name='F'), row=3, col=1)</span></span>
+<span id="cb22-394"><a href="#cb22-394" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-395"><a href="#cb22-395" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.update_xaxes(title_text='Time </span><span class="co">[</span><span class="ot">s</span><span class="co">]</span><span class="at">', row=3, col=1)</span></span>
+<span id="cb22-396"><a href="#cb22-396" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.update_yaxes(title_text='x </span><span class="co">[</span><span class="ot">m</span><span class="co">]</span><span class="at">', row=1, col=1)</span></span>
+<span id="cb22-397"><a href="#cb22-397" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.update_yaxes(title_text='θ </span><span class="co">[</span><span class="ot">deg</span><span class="co">]</span><span class="at">', row=2, col=1)</span></span>
+<span id="cb22-398"><a href="#cb22-398" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.update_yaxes(title_text='F </span><span class="co">[</span><span class="ot">N</span><span class="co">]</span><span class="at">', row=3, col=1)</span></span>
+<span id="cb22-399"><a href="#cb22-399" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.update_layout(height=900, showlegend=False,</span></span>
+<span id="cb22-400"><a href="#cb22-400" aria-hidden="true" tabindex="-1"></a><span class="at">        ...                   title_text='Cart-Pole Balancing Control (LQR)')</span></span>
+<span id="cb22-401"><a href="#cb22-401" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig.show()</span></span>
+<span id="cb22-402"><a href="#cb22-402" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-403"><a href="#cb22-403" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Energy-based swing-up control</span></span>
+<span id="cb22-404"><a href="#cb22-404" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; x0_down = np.array(</span><span class="co">[</span><span class="ot">0.0, 0.0, np.pi, 0.0</span><span class="co">]</span><span class="at">)  # Pole hanging down</span></span>
+<span id="cb22-405"><a href="#cb22-405" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-406"><a href="#cb22-406" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; def swing_up_controller(x, k):</span></span>
+<span id="cb22-407"><a href="#cb22-407" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     x_pos, x_vel, theta, theta_vel = x</span></span>
+<span id="cb22-408"><a href="#cb22-408" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-409"><a href="#cb22-409" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Current energy</span></span>
+<span id="cb22-410"><a href="#cb22-410" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     E = system.compute_total_energy(theta, theta_vel)</span></span>
+<span id="cb22-411"><a href="#cb22-411" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-412"><a href="#cb22-412" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Target energy (upright position)</span></span>
+<span id="cb22-413"><a href="#cb22-413" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     E_target = system.m * system.g * system.L</span></span>
+<span id="cb22-414"><a href="#cb22-414" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-415"><a href="#cb22-415" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Energy error</span></span>
+<span id="cb22-416"><a href="#cb22-416" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     E_error = E - E_target</span></span>
+<span id="cb22-417"><a href="#cb22-417" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-418"><a href="#cb22-418" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Switch to LQR when close to upright</span></span>
+<span id="cb22-419"><a href="#cb22-419" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     if abs(theta) &lt; 0.3 and abs(theta_vel) &lt; 1.0:</span></span>
+<span id="cb22-420"><a href="#cb22-420" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         # Stabilize using LQR</span></span>
+<span id="cb22-421"><a href="#cb22-421" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         return -K @ x</span></span>
+<span id="cb22-422"><a href="#cb22-422" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     else:</span></span>
+<span id="cb22-423"><a href="#cb22-423" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         # Energy pumping</span></span>
+<span id="cb22-424"><a href="#cb22-424" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         k_swing = 10.0</span></span>
+<span id="cb22-425"><a href="#cb22-425" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         # Pump energy: apply force in direction that increases energy</span></span>
+<span id="cb22-426"><a href="#cb22-426" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         return k_swing * E_error * np.sign(theta_vel * np.cos(theta))</span></span>
+<span id="cb22-427"><a href="#cb22-427" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-428"><a href="#cb22-428" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; result_swing = system.rollout(</span></span>
+<span id="cb22-429"><a href="#cb22-429" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     x0=x0_down,</span></span>
+<span id="cb22-430"><a href="#cb22-430" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     policy=swing_up_controller,</span></span>
+<span id="cb22-431"><a href="#cb22-431" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     n_steps=1000</span></span>
+<span id="cb22-432"><a href="#cb22-432" aria-hidden="true" tabindex="-1"></a><span class="at">        ... )</span></span>
+<span id="cb22-433"><a href="#cb22-433" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-434"><a href="#cb22-434" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Visualize swing-up</span></span>
+<span id="cb22-435"><a href="#cb22-435" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig_swing = system.plot_animation_frames(result_swing, frames=</span><span class="co">[</span><span class="ot">0, 200, 400, 600, 800</span><span class="co">]</span><span class="at">)</span></span>
+<span id="cb22-436"><a href="#cb22-436" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig_swing.show()</span></span>
+<span id="cb22-437"><a href="#cb22-437" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-438"><a href="#cb22-438" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Reinforcement learning evaluation</span></span>
+<span id="cb22-439"><a href="#cb22-439" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; def check_episode_success(states, x_threshold=2.4, theta_threshold=0.2):</span></span>
+<span id="cb22-440"><a href="#cb22-440" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     '''Check if episode stayed within success criteria.'''</span></span>
+<span id="cb22-441"><a href="#cb22-441" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     x_ok = np.all(np.abs(states</span><span class="co">[</span><span class="ot">:, 0</span><span class="co">]</span><span class="at">) &lt;= x_threshold)</span></span>
+<span id="cb22-442"><a href="#cb22-442" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     theta_ok = np.all(np.abs(states</span><span class="co">[</span><span class="ot">:, 2</span><span class="co">]</span><span class="at">) &lt;= theta_threshold)</span></span>
+<span id="cb22-443"><a href="#cb22-443" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     return x_ok and theta_ok</span></span>
+<span id="cb22-444"><a href="#cb22-444" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-445"><a href="#cb22-445" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; success = check_episode_success(result_balance</span><span class="co">[</span><span class="ot">'states'</span><span class="co">]</span><span class="at">)</span></span>
+<span id="cb22-446"><a href="#cb22-446" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; print(f"</span></span>
+<span id="cb22-447"><a href="#cb22-447" aria-hidden="true" tabindex="-1"></a><span class="at">Balancing success: {success}")</span></span>
+<span id="cb22-448"><a href="#cb22-448" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-449"><a href="#cb22-449" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; # Compare different mass ratios</span></span>
+<span id="cb22-450"><a href="#cb22-450" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; mass_ratios = </span><span class="co">[</span><span class="ot">0.05, 0.1, 0.2, 0.5</span><span class="co">]</span></span>
+<span id="cb22-451"><a href="#cb22-451" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-452"><a href="#cb22-452" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig_compare = go.Figure()</span></span>
+<span id="cb22-453"><a href="#cb22-453" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-454"><a href="#cb22-454" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; for m_ratio in mass_ratios:</span></span>
+<span id="cb22-455"><a href="#cb22-455" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     sys_temp = DiscreteCartPole(M=1.0, m=m_ratio, L=0.5, dt=0.02)</span></span>
+<span id="cb22-456"><a href="#cb22-456" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-457"><a href="#cb22-457" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Design LQR</span></span>
+<span id="cb22-458"><a href="#cb22-458" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     Ad_temp, Bd_temp = sys_temp.linearize(x_eq, u_eq)</span></span>
+<span id="cb22-459"><a href="#cb22-459" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     lqr_temp = sys_temp.control.design_lqr(Ad_temp, Bd_temp, Q, R,</span></span>
+<span id="cb22-460"><a href="#cb22-460" aria-hidden="true" tabindex="-1"></a><span class="at">        ...                                             system_type='discrete')</span></span>
+<span id="cb22-461"><a href="#cb22-461" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     K_temp = lqr_temp</span><span class="co">[</span><span class="ot">'gain'</span><span class="co">]</span></span>
+<span id="cb22-462"><a href="#cb22-462" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-463"><a href="#cb22-463" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     # Simulate</span></span>
+<span id="cb22-464"><a href="#cb22-464" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     result_temp = sys_temp.rollout(</span></span>
+<span id="cb22-465"><a href="#cb22-465" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         x0=x0_upright,</span></span>
+<span id="cb22-466"><a href="#cb22-466" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         policy=lambda x, k, K_=K_temp: -K_ @ x,</span></span>
+<span id="cb22-467"><a href="#cb22-467" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         n_steps=500</span></span>
+<span id="cb22-468"><a href="#cb22-468" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     )</span></span>
+<span id="cb22-469"><a href="#cb22-469" aria-hidden="true" tabindex="-1"></a><span class="at">        ...</span></span>
+<span id="cb22-470"><a href="#cb22-470" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     fig_compare.add_trace(go.Scatter(</span></span>
+<span id="cb22-471"><a href="#cb22-471" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         x=t,</span></span>
+<span id="cb22-472"><a href="#cb22-472" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         y=np.rad2deg(result_temp</span><span class="co">[</span><span class="ot">'states'</span><span class="co">][:, 2]</span><span class="at">),</span></span>
+<span id="cb22-473"><a href="#cb22-473" aria-hidden="true" tabindex="-1"></a><span class="at">        ...         name=f'm/M = {m_ratio:.2f}'</span></span>
+<span id="cb22-474"><a href="#cb22-474" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     ))</span></span>
+<span id="cb22-475"><a href="#cb22-475" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt;</span></span>
+<span id="cb22-476"><a href="#cb22-476" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig_compare.update_layout(</span></span>
+<span id="cb22-477"><a href="#cb22-477" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     title='Effect of Mass Ratio on Balancing',</span></span>
+<span id="cb22-478"><a href="#cb22-478" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     xaxis_title='Time </span><span class="co">[</span><span class="ot">s</span><span class="co">]</span><span class="at">',</span></span>
+<span id="cb22-479"><a href="#cb22-479" aria-hidden="true" tabindex="-1"></a><span class="at">        ...     yaxis_title='Pole Angle </span><span class="co">[</span><span class="ot">deg</span><span class="co">]</span><span class="at">'</span></span>
+<span id="cb22-480"><a href="#cb22-480" aria-hidden="true" tabindex="-1"></a><span class="at">        ... )</span></span>
+<span id="cb22-481"><a href="#cb22-481" aria-hidden="true" tabindex="-1"></a><span class="at">        &gt;&gt;&gt; fig_compare.show()</span></span>
+<span id="cb22-482"><a href="#cb22-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-483"><a href="#cb22-483" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Physical Insights: {.doc-section .doc-section---------physical-insights}</span></span>
+<span id="cb22-484"><a href="#cb22-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-485"><a href="#cb22-485" aria-hidden="true" tabindex="-1"></a><span class="in">        **Why Is It Hard to Balance?**</span></span>
+<span id="cb22-486"><a href="#cb22-486" aria-hidden="true" tabindex="-1"></a><span class="in">        The upright position is an unstable saddle point:</span></span>
+<span id="cb22-487"><a href="#cb22-487" aria-hidden="true" tabindex="-1"></a><span class="in">        - Any small disturbance causes pole to fall</span></span>
+<span id="cb22-488"><a href="#cb22-488" aria-hidden="true" tabindex="-1"></a><span class="in">        - Falls faster as it tilts more (sin(θ) nonlinearity)</span></span>
+<span id="cb22-489"><a href="#cb22-489" aria-hidden="true" tabindex="-1"></a><span class="in">        - Must apply corrective force before falling too far</span></span>
+<span id="cb22-490"><a href="#cb22-490" aria-hidden="true" tabindex="-1"></a><span class="in">        - Human balancing uses same principles!</span></span>
+<span id="cb22-491"><a href="#cb22-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-492"><a href="#cb22-492" aria-hidden="true" tabindex="-1"></a><span class="in">        **The Balancing Strategy:**</span></span>
+<span id="cb22-493"><a href="#cb22-493" aria-hidden="true" tabindex="-1"></a><span class="in">        To balance a falling pole:</span></span>
+<span id="cb22-494"><a href="#cb22-494" aria-hidden="true" tabindex="-1"></a><span class="in">        1. Pole starts falling (θ ≠ 0)</span></span>
+<span id="cb22-495"><a href="#cb22-495" aria-hidden="true" tabindex="-1"></a><span class="in">        2. Move cart in direction pole is falling</span></span>
+<span id="cb22-496"><a href="#cb22-496" aria-hidden="true" tabindex="-1"></a><span class="in">        3. This creates inertial force opposing fall</span></span>
+<span id="cb22-497"><a href="#cb22-497" aria-hidden="true" tabindex="-1"></a><span class="in">        4. Pole rights itself due to cart acceleration</span></span>
+<span id="cb22-498"><a href="#cb22-498" aria-hidden="true" tabindex="-1"></a><span class="in">        5. Stop cart before oscillation grows</span></span>
+<span id="cb22-499"><a href="#cb22-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-500"><a href="#cb22-500" aria-hidden="true" tabindex="-1"></a><span class="in">        This is exactly what LQR does automatically!</span></span>
+<span id="cb22-501"><a href="#cb22-501" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-502"><a href="#cb22-502" aria-hidden="true" tabindex="-1"></a><span class="in">        **Energy Perspective for Swing-Up:**</span></span>
+<span id="cb22-503"><a href="#cb22-503" aria-hidden="true" tabindex="-1"></a><span class="in">        Total energy: E = KE_cart + KE_pole + PE_pole</span></span>
+<span id="cb22-504"><a href="#cb22-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-505"><a href="#cb22-505" aria-hidden="true" tabindex="-1"></a><span class="in">        To swing up:</span></span>
+<span id="cb22-506"><a href="#cb22-506" aria-hidden="true" tabindex="-1"></a><span class="in">        1. Pump energy by pushing cart back and forth</span></span>
+<span id="cb22-507"><a href="#cb22-507" aria-hidden="true" tabindex="-1"></a><span class="in">        2. Exploit coupling: cart motion → pole motion</span></span>
+<span id="cb22-508"><a href="#cb22-508" aria-hidden="true" tabindex="-1"></a><span class="in">        3. When E ≈ E_target, pole near vertical</span></span>
+<span id="cb22-509"><a href="#cb22-509" aria-hidden="true" tabindex="-1"></a><span class="in">        4. Switch to stabilizing controller</span></span>
+<span id="cb22-510"><a href="#cb22-510" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-511"><a href="#cb22-511" aria-hidden="true" tabindex="-1"></a><span class="in">        **Non-Minimum Phase Behavior:**</span></span>
+<span id="cb22-512"><a href="#cb22-512" aria-hidden="true" tabindex="-1"></a><span class="in">        Initial response is in "wrong" direction:</span></span>
+<span id="cb22-513"><a href="#cb22-513" aria-hidden="true" tabindex="-1"></a><span class="in">        - Push cart right (F &gt; 0)</span></span>
+<span id="cb22-514"><a href="#cb22-514" aria-hidden="true" tabindex="-1"></a><span class="in">        - Pole initially tilts LEFT</span></span>
+<span id="cb22-515"><a href="#cb22-515" aria-hidden="true" tabindex="-1"></a><span class="in">        - Then cart movement brings pole back</span></span>
+<span id="cb22-516"><a href="#cb22-516" aria-hidden="true" tabindex="-1"></a><span class="in">        - This is why simple controllers fail</span></span>
+<span id="cb22-517"><a href="#cb22-517" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-518"><a href="#cb22-518" aria-hidden="true" tabindex="-1"></a><span class="in">        **Mass Ratio Effects:**</span></span>
+<span id="cb22-519"><a href="#cb22-519" aria-hidden="true" tabindex="-1"></a><span class="in">        The ratio m/M affects difficulty:</span></span>
+<span id="cb22-520"><a href="#cb22-520" aria-hidden="true" tabindex="-1"></a><span class="in">        - Small m/M (light pole): Easier to balance, less coupling</span></span>
+<span id="cb22-521"><a href="#cb22-521" aria-hidden="true" tabindex="-1"></a><span class="in">        - Large m/M (heavy pole): Harder to balance, strong coupling</span></span>
+<span id="cb22-522"><a href="#cb22-522" aria-hidden="true" tabindex="-1"></a><span class="in">        - m/M = 1: Equal masses, maximum challenge</span></span>
+<span id="cb22-523"><a href="#cb22-523" aria-hidden="true" tabindex="-1"></a><span class="in">        - Typical: m/M ≈ 0.1</span></span>
+<span id="cb22-524"><a href="#cb22-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-525"><a href="#cb22-525" aria-hidden="true" tabindex="-1"></a><span class="in">        **Pole Length Effects:**</span></span>
+<span id="cb22-526"><a href="#cb22-526" aria-hidden="true" tabindex="-1"></a><span class="in">        Longer pole (larger L):</span></span>
+<span id="cb22-527"><a href="#cb22-527" aria-hidden="true" tabindex="-1"></a><span class="in">        - Slower natural frequency: ω ~ √(g/L)</span></span>
+<span id="cb22-528"><a href="#cb22-528" aria-hidden="true" tabindex="-1"></a><span class="in">        - Easier to balance (more reaction time)</span></span>
+<span id="cb22-529"><a href="#cb22-529" aria-hidden="true" tabindex="-1"></a><span class="in">        - Larger moment of inertia</span></span>
+<span id="cb22-530"><a href="#cb22-530" aria-hidden="true" tabindex="-1"></a><span class="in">        - But requires more space</span></span>
+<span id="cb22-531"><a href="#cb22-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-532"><a href="#cb22-532" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Common Pitfalls: {.doc-section .doc-section---------common-pitfalls}</span></span>
+<span id="cb22-533"><a href="#cb22-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-534"><a href="#cb22-534" aria-hidden="true" tabindex="-1"></a><span class="in">        1. **Wrong angle convention:**</span></span>
+<span id="cb22-535"><a href="#cb22-535" aria-hidden="true" tabindex="-1"></a><span class="in">           Some use θ = 0 for DOWN, others for UP</span></span>
+<span id="cb22-536"><a href="#cb22-536" aria-hidden="true" tabindex="-1"></a><span class="in">           Check carefully! This implementation: θ = 0 is UPRIGHT</span></span>
+<span id="cb22-537"><a href="#cb22-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-538"><a href="#cb22-538" aria-hidden="true" tabindex="-1"></a><span class="in">        2. **Forgetting non-minimum phase:**</span></span>
+<span id="cb22-539"><a href="#cb22-539" aria-hidden="true" tabindex="-1"></a><span class="in">           Cannot use simple output feedback</span></span>
+<span id="cb22-540"><a href="#cb22-540" aria-hidden="true" tabindex="-1"></a><span class="in">           Need state feedback (or observer)</span></span>
+<span id="cb22-541"><a href="#cb22-541" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-542"><a href="#cb22-542" aria-hidden="true" tabindex="-1"></a><span class="in">        3. **Too slow sampling:**</span></span>
+<span id="cb22-543"><a href="#cb22-543" aria-hidden="true" tabindex="-1"></a><span class="in">           Unstable pole requires fast control</span></span>
+<span id="cb22-544"><a href="#cb22-544" aria-hidden="true" tabindex="-1"></a><span class="in">           dt &gt; 0.1 s typically too slow</span></span>
+<span id="cb22-545"><a href="#cb22-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-546"><a href="#cb22-546" aria-hidden="true" tabindex="-1"></a><span class="in">        4. **Linearization over-reach:**</span></span>
+<span id="cb22-547"><a href="#cb22-547" aria-hidden="true" tabindex="-1"></a><span class="in">           Linear controller only works near upright</span></span>
+<span id="cb22-548"><a href="#cb22-548" aria-hidden="true" tabindex="-1"></a><span class="in">           Breaks down for |θ| &gt; π/4</span></span>
+<span id="cb22-549"><a href="#cb22-549" aria-hidden="true" tabindex="-1"></a><span class="in">           Need nonlinear control for swing-up</span></span>
+<span id="cb22-550"><a href="#cb22-550" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-551"><a href="#cb22-551" aria-hidden="true" tabindex="-1"></a><span class="in">        5. **Ignoring constraints:**</span></span>
+<span id="cb22-552"><a href="#cb22-552" aria-hidden="true" tabindex="-1"></a><span class="in">           Real system has |x| &lt; x_max, |F| &lt; F_max</span></span>
+<span id="cb22-553"><a href="#cb22-553" aria-hidden="true" tabindex="-1"></a><span class="in">           Must handle saturation and limits</span></span>
+<span id="cb22-554"><a href="#cb22-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-555"><a href="#cb22-555" aria-hidden="true" tabindex="-1"></a><span class="in">        6. **Switching controller discontinuities:**</span></span>
+<span id="cb22-556"><a href="#cb22-556" aria-hidden="true" tabindex="-1"></a><span class="in">           Abrupt switch between swing-up and balance</span></span>
+<span id="cb22-557"><a href="#cb22-557" aria-hidden="true" tabindex="-1"></a><span class="in">           Can cause chattering or instability</span></span>
+<span id="cb22-558"><a href="#cb22-558" aria-hidden="true" tabindex="-1"></a><span class="in">           Use smooth transitions (hysteresis, blending)</span></span>
+<span id="cb22-559"><a href="#cb22-559" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-560"><a href="#cb22-560" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Extensions: {.doc-section .doc-section---------extensions}</span></span>
+<span id="cb22-561"><a href="#cb22-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-562"><a href="#cb22-562" aria-hidden="true" tabindex="-1"></a><span class="in">        1. **Rotary inverted pendulum (Furuta):**</span></span>
+<span id="cb22-563"><a href="#cb22-563" aria-hidden="true" tabindex="-1"></a><span class="in">           Cart moves in circle instead of line</span></span>
+<span id="cb22-564"><a href="#cb22-564" aria-hidden="true" tabindex="-1"></a><span class="in">           Different coupling dynamics</span></span>
+<span id="cb22-565"><a href="#cb22-565" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-566"><a href="#cb22-566" aria-hidden="true" tabindex="-1"></a><span class="in">        2. **Double inverted pendulum:**</span></span>
+<span id="cb22-567"><a href="#cb22-567" aria-hidden="true" tabindex="-1"></a><span class="in">           Two poles in series (acrobot)</span></span>
+<span id="cb22-568"><a href="#cb22-568" aria-hidden="true" tabindex="-1"></a><span class="in">           Much harder to control</span></span>
+<span id="cb22-569"><a href="#cb22-569" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-570"><a href="#cb22-570" aria-hidden="true" tabindex="-1"></a><span class="in">        3. **3D cart-pole:**</span></span>
+<span id="cb22-571"><a href="#cb22-571" aria-hidden="true" tabindex="-1"></a><span class="in">           Pole can fall in any direction</span></span>
+<span id="cb22-572"><a href="#cb22-572" aria-hidden="true" tabindex="-1"></a><span class="in">           Spherical coordinates needed</span></span>
+<span id="cb22-573"><a href="#cb22-573" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-574"><a href="#cb22-574" aria-hidden="true" tabindex="-1"></a><span class="in">        4. **Flexible pole:**</span></span>
+<span id="cb22-575"><a href="#cb22-575" aria-hidden="true" tabindex="-1"></a><span class="in">           Pole bends (elastic)</span></span>
+<span id="cb22-576"><a href="#cb22-576" aria-hidden="true" tabindex="-1"></a><span class="in">           Infinite-dimensional system</span></span>
+<span id="cb22-577"><a href="#cb22-577" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-578"><a href="#cb22-578" aria-hidden="true" tabindex="-1"></a><span class="in">        5. **With obstacles:**</span></span>
+<span id="cb22-579"><a href="#cb22-579" aria-hidden="true" tabindex="-1"></a><span class="in">           Must avoid obstacles while balancing</span></span>
+<span id="cb22-580"><a href="#cb22-580" aria-hidden="true" tabindex="-1"></a><span class="in">           Combines planning and control</span></span>
+<span id="cb22-581"><a href="#cb22-581" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-582"><a href="#cb22-582" aria-hidden="true" tabindex="-1"></a><span class="in">        6. **Multi-cart cooperation:**</span></span>
+<span id="cb22-583"><a href="#cb22-583" aria-hidden="true" tabindex="-1"></a><span class="in">           Two carts balancing shared pole</span></span>
+<span id="cb22-584"><a href="#cb22-584" aria-hidden="true" tabindex="-1"></a><span class="in">           Coordination problem</span></span>
+<span id="cb22-585"><a href="#cb22-585" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-586"><a href="#cb22-586" aria-hidden="true" tabindex="-1"></a><span class="fu">##         Reinforcement Learning Context: {.doc-section .doc-section---------reinforcement-learning-context}</span></span>
+<span id="cb22-587"><a href="#cb22-587" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-588"><a href="#cb22-588" aria-hidden="true" tabindex="-1"></a><span class="in">        The cart-pole is THE standard RL benchmark:</span></span>
+<span id="cb22-589"><a href="#cb22-589" aria-hidden="true" tabindex="-1"></a><span class="in">        - **OpenAI Gym:** 'CartPole-v1' environment</span></span>
+<span id="cb22-590"><a href="#cb22-590" aria-hidden="true" tabindex="-1"></a><span class="in">        - **State:** [x, ẋ, θ, θ̇]</span></span>
+<span id="cb22-591"><a href="#cb22-591" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Action:** Discrete {left, right} or continuous force</span></span>
+<span id="cb22-592"><a href="#cb22-592" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Reward:** +1 per timestep balanced</span></span>
+<span id="cb22-593"><a href="#cb22-593" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Done:** |x| &gt; 2.4 or |θ| &gt; 0.2 rad</span></span>
+<span id="cb22-594"><a href="#cb22-594" aria-hidden="true" tabindex="-1"></a><span class="in">        - **Success:** Average reward &gt; 195 over 100 episodes</span></span>
+<span id="cb22-595"><a href="#cb22-595" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-596"><a href="#cb22-596" aria-hidden="true" tabindex="-1"></a><span class="in">        **Why Popular for RL?**</span></span>
+<span id="cb22-597"><a href="#cb22-597" aria-hidden="true" tabindex="-1"></a><span class="in">        - Simple enough to learn quickly</span></span>
+<span id="cb22-598"><a href="#cb22-598" aria-hidden="true" tabindex="-1"></a><span class="in">        - Complex enough to be interesting</span></span>
+<span id="cb22-599"><a href="#cb22-599" aria-hidden="true" tabindex="-1"></a><span class="in">        - Unstable → requires intelligent control</span></span>
+<span id="cb22-600"><a href="#cb22-600" aria-hidden="true" tabindex="-1"></a><span class="in">        - Fast simulation</span></span>
+<span id="cb22-601"><a href="#cb22-601" aria-hidden="true" tabindex="-1"></a><span class="in">        - Well-understood theoretically (can validate)</span></span>
+<span id="cb22-602"><a href="#cb22-602" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-603"><a href="#cb22-603" aria-hidden="true" tabindex="-1"></a><span class="fu">##         See Also: {.doc-section .doc-section---------see-also}</span></span>
+<span id="cb22-604"><a href="#cb22-604" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-605"><a href="#cb22-605" aria-hidden="true" tabindex="-1"></a><span class="in">        DiscretePendulum : Simpler (just pole, no cart)</span></span>
+<span id="cb22-606"><a href="#cb22-606" aria-hidden="true" tabindex="-1"></a><span class="in">        CartPole : Continuous-time version</span></span>
+<span id="cb22-607"><a href="#cb22-607" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-608"><a href="#cb22-608" aria-hidden="true" tabindex="-1"></a><span class="fu">## Attributes</span></span>
+<span id="cb22-609"><a href="#cb22-609" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-610"><a href="#cb22-610" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb22-611"><a href="#cb22-611" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb22-612"><a href="#cb22-612" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">pole_frequency</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.pole_frequency)</span> <span class="pp">|</span> Natural frequency of pole oscillations √(g/L) <span class="co">[</span><span class="ot">rad/s</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb22-613"><a href="#cb22-613" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">pole_period</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.pole_period)</span> <span class="pp">|</span> Period of small pole oscillations <span class="co">[</span><span class="ot">s</span><span class="co">]</span>. <span class="pp">|</span></span>
+<span id="cb22-614"><a href="#cb22-614" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-615"><a href="#cb22-615" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methods</span></span>
+<span id="cb22-616"><a href="#cb22-616" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-617"><a href="#cb22-617" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb22-618"><a href="#cb22-618" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb22-619"><a href="#cb22-619" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">compute_total_energy</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy)</span> <span class="pp">|</span> Compute total mechanical energy of pole. <span class="pp">|</span></span>
+<span id="cb22-620"><a href="#cb22-620" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">define_system</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system)</span> <span class="pp">|</span> Define discrete-time cart-pole dynamics. <span class="pp">|</span></span>
+<span id="cb22-621"><a href="#cb22-621" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">setup_equilibria</span><span class="co">](#cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria)</span> <span class="pp">|</span> Set up equilibrium points. <span class="pp">|</span></span>
+<span id="cb22-622"><a href="#cb22-622" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-623"><a href="#cb22-623" aria-hidden="true" tabindex="-1"></a><span class="fu">### compute_total_energy { #cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy }</span></span>
+<span id="cb22-624"><a href="#cb22-624" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-625"><a href="#cb22-625" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-626"><a href="#cb22-626" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.compute_total_energy(</span>
+<span id="cb22-627"><a href="#cb22-627" aria-hidden="true" tabindex="-1"></a>    theta,</span>
+<span id="cb22-628"><a href="#cb22-628" aria-hidden="true" tabindex="-1"></a>    theta_dot,</span>
+<span id="cb22-629"><a href="#cb22-629" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-630"><a href="#cb22-630" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-631"><a href="#cb22-631" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-632"><a href="#cb22-632" aria-hidden="true" tabindex="-1"></a>Compute total mechanical energy of pole.</span>
+<span id="cb22-633"><a href="#cb22-633" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-634"><a href="#cb22-634" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb22-635"><a href="#cb22-635" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-636"><a href="#cb22-636" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name      <span class="pp">|</span> Type   <span class="pp">|</span> Description                   <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb22-637"><a href="#cb22-637" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|--------|-------------------------------|------------|</span></span>
+<span id="cb22-638"><a href="#cb22-638" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> theta     <span class="pp">|</span> float  <span class="pp">|</span> Pole angle <span class="co">[</span><span class="ot">rad</span><span class="co">]</span>              <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb22-639"><a href="#cb22-639" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> theta_dot <span class="pp">|</span> float  <span class="pp">|</span> Pole angular velocity <span class="co">[</span><span class="ot">rad/s</span><span class="co">]</span> <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb22-640"><a href="#cb22-640" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-641"><a href="#cb22-641" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb22-642"><a href="#cb22-642" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-643"><a href="#cb22-643" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description      <span class="pp">|</span></span>
+<span id="cb22-644"><a href="#cb22-644" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|------------------|</span></span>
+<span id="cb22-645"><a href="#cb22-645" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> float  <span class="pp">|</span> Total energy <span class="co">[</span><span class="ot">J</span><span class="co">]</span> <span class="pp">|</span></span>
+<span id="cb22-646"><a href="#cb22-646" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-647"><a href="#cb22-647" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb22-648"><a href="#cb22-648" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-649"><a href="#cb22-649" aria-hidden="true" tabindex="-1"></a>Cart kinetic energy ignored (only pole energy for swing-up).</span>
+<span id="cb22-650"><a href="#cb22-650" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-651"><a href="#cb22-651" aria-hidden="true" tabindex="-1"></a><span class="fu">### define_system { #cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.define_system }</span></span>
+<span id="cb22-652"><a href="#cb22-652" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-653"><a href="#cb22-653" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-654"><a href="#cb22-654" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.define_system(</span>
+<span id="cb22-655"><a href="#cb22-655" aria-hidden="true" tabindex="-1"></a>    M<span class="op">=</span><span class="fl">1.0</span>,</span>
+<span id="cb22-656"><a href="#cb22-656" aria-hidden="true" tabindex="-1"></a>    m<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-657"><a href="#cb22-657" aria-hidden="true" tabindex="-1"></a>    L<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb22-658"><a href="#cb22-658" aria-hidden="true" tabindex="-1"></a>    g<span class="op">=</span><span class="fl">9.81</span>,</span>
+<span id="cb22-659"><a href="#cb22-659" aria-hidden="true" tabindex="-1"></a>    b_cart<span class="op">=</span><span class="fl">0.1</span>,</span>
+<span id="cb22-660"><a href="#cb22-660" aria-hidden="true" tabindex="-1"></a>    b_pole<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb22-661"><a href="#cb22-661" aria-hidden="true" tabindex="-1"></a>    dt<span class="op">=</span><span class="fl">0.02</span>,</span>
+<span id="cb22-662"><a href="#cb22-662" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-663"><a href="#cb22-663" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-664"><a href="#cb22-664" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-665"><a href="#cb22-665" aria-hidden="true" tabindex="-1"></a>Define discrete-time cart-pole dynamics.</span>
+<span id="cb22-666"><a href="#cb22-666" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-667"><a href="#cb22-667" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb22-668"><a href="#cb22-668" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-669"><a href="#cb22-669" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type   <span class="pp">|</span> Description                                                  <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb22-670"><a href="#cb22-670" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------|--------------------------------------------------------------|------------|</span></span>
+<span id="cb22-671"><a href="#cb22-671" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> M      <span class="pp">|</span> float  <span class="pp">|</span> Cart mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span>                                               <span class="pp">|</span> <span class="in">`1.0`</span>      <span class="pp">|</span></span>
+<span id="cb22-672"><a href="#cb22-672" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> m      <span class="pp">|</span> float  <span class="pp">|</span> Pole mass <span class="co">[</span><span class="ot">kg</span><span class="co">]</span>                                               <span class="pp">|</span> <span class="in">`0.1`</span>      <span class="pp">|</span></span>
+<span id="cb22-673"><a href="#cb22-673" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> L      <span class="pp">|</span> float  <span class="pp">|</span> Pole half-length <span class="co">[</span><span class="ot">m</span><span class="co">]</span> (distance from pivot to center of mass) <span class="pp">|</span> <span class="in">`0.5`</span>      <span class="pp">|</span></span>
+<span id="cb22-674"><a href="#cb22-674" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> g      <span class="pp">|</span> float  <span class="pp">|</span> Gravity <span class="co">[</span><span class="ot">m/s²</span><span class="co">]</span>                                               <span class="pp">|</span> <span class="in">`9.81`</span>     <span class="pp">|</span></span>
+<span id="cb22-675"><a href="#cb22-675" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> b_cart <span class="pp">|</span> float  <span class="pp">|</span> Cart friction <span class="co">[</span><span class="ot">N·s/m</span><span class="co">]</span>                                        <span class="pp">|</span> <span class="in">`0.1`</span>      <span class="pp">|</span></span>
+<span id="cb22-676"><a href="#cb22-676" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> b_pole <span class="pp">|</span> float  <span class="pp">|</span> Pole friction <span class="co">[</span><span class="ot">N·m·s/rad</span><span class="co">]</span>                                    <span class="pp">|</span> <span class="in">`0.0`</span>      <span class="pp">|</span></span>
+<span id="cb22-677"><a href="#cb22-677" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> dt     <span class="pp">|</span> float  <span class="pp">|</span> Sampling period <span class="co">[</span><span class="ot">s</span><span class="co">]</span>                                          <span class="pp">|</span> <span class="in">`0.02`</span>     <span class="pp">|</span></span>
+<span id="cb22-678"><a href="#cb22-678" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> method <span class="pp">|</span> str    <span class="pp">|</span> Discretization method ('euler', 'rk4')                       <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb22-679"><a href="#cb22-679" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-680"><a href="#cb22-680" aria-hidden="true" tabindex="-1"></a><span class="fu">### setup_equilibria { #cdesym.systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria }</span></span>
+<span id="cb22-681"><a href="#cb22-681" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-682"><a href="#cb22-682" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb22-683"><a href="#cb22-683" aria-hidden="true" tabindex="-1"></a>systems.builtin.deterministic.discrete.DiscreteCartPole.setup_equilibria()</span>
+<span id="cb22-684"><a href="#cb22-684" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-685"><a href="#cb22-685" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-686"><a href="#cb22-686" aria-hidden="true" tabindex="-1"></a>Set up equilibrium points.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/gilbenezer/ControlDESymulation/edit/main/api/systems.builtin.deterministic.discrete.DiscreteCartPole.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/gilbenezer/ControlDESymulation/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
