@@ -336,7 +336,32 @@ self.diffusion_expr = sp.Matrix(
         [0, 0, sigma_T_sym],
     ],
 )
+```
 
+::: {.callout-note}
+## Diffusion Matrix Structure
+
+The diffusion matrix $G$ has dimensions $(n_{\text{states}} \times n_{\text{Wiener}})$, where each column corresponds to an independent Wiener process and each row to a state variable. The stochastic term in the SDE is $G\,dW_t$ where $dW_t$ is a vector of independent Wiener increments.
+
+**Why a matrix, not a vector?** A vector would only allow one noise source affecting all states with fixed relative magnitudes. The matrix form enables:
+
+- **Diagonal matrices** (as above): Each state has its own independent noise source. The $i$-th Wiener process affects only the $i$-th state.
+
+- **Off-diagonal elements**: Represent *correlated noise*—when a single physical noise source affects multiple states. For example, if temperature fluctuations also induced concentration measurement errors:
+  ```python
+  self.diffusion_expr = sp.Matrix([
+      [sigma_A_sym, 0, sigma_AT],  # C_A affected by W_A and W_T
+      [0, sigma_B_sym, 0],
+      [0, 0, sigma_T_sym],
+  ])
+  ```
+
+- **Non-square matrices**: You can have fewer Wiener processes than states (correlated noise) or more (redundant noise sources for modeling flexibility).
+
+**Dimensions expected**: For $n$ state variables and $m$ independent Wiener processes, `diffusion_expr` should be an $n \times m$ SymPy Matrix.
+:::
+
+```python
 # Output: Full state measurement (with potential noise in practice)
 # technically optional
 self._h_sym = sp.Matrix([C_A, C_B, T])
