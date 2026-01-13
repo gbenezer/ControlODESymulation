@@ -1388,7 +1388,7 @@ This tutorial covered the **anatomy of a symbolic system** through a stochastic 
 
 ## Next Steps
 
-**Tutorial 2: Simulation and Visualization**
+**[Tutorial 2: Simulation and Visualization](batch_reactor_simulation.qmd)**
 
 - Single trajectory simulation with `integrate()`
 - Monte Carlo ensembles with `n_paths`

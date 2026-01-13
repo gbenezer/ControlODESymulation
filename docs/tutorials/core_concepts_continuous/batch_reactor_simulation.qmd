@@ -1,0 +1,941 @@
+---
+title: "Simulating Stochastic Systems"
+subtitle: "Monte Carlo Methods and Visualization"
+author: "Gil Benezer"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    code-fold: show
+    code-tools: true
+    theme: cosmo
+execute:
+  eval: true
+  cache: true
+  warning: false
+---
+
+This tutorial demonstrates how to simulate and visualize stochastic differential equations using the batch reactor system from Tutorial 1. You'll learn how to run single trajectories, generate Monte Carlo ensembles, visualize results, and extract statistical insights from stochastic simulations.
+
+## Prerequisites
+
+This tutorial assumes you've completed **Tutorial 1: Anatomy of a Symbolic System** and are familiar with:
+
+- Defining stochastic systems with drift and diffusion
+- The distinction between `integrate()` and `simulate()`
+- Itô SDEs and equilibrium concepts
+
+We'll use the same `ContinuousStochasticBatchReactor` class from Tutorial 1.
+
+## System Recap
+
+Quick reminder of our batch reactor:
+
+```{python}
+from typing import Optional
+
+import numpy as np
+import sympy as sp
+
+from cdesym import ContinuousStochasticSystem
+
+class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
+    def define_system(
+        self,
+        k1_val: float = 0.5,
+        k2_val: float = 0.3,
+        E1_val: float = 1000.0,
+        E2_val: float = 1500.0,
+        alpha_val: float = 0.1,
+        T_amb_val: float = 300.0,
+        sigma_A: float = 0.01,
+        sigma_B: float = 0.01,
+        sigma_T: float = 1.0,
+        C_A0: Optional[float] = None,
+        T0: Optional[float] = None,
+    ):
+        # Store parameter values for setup_equilibria
+        self.C_A0 = C_A0
+        self.T0 = T0
+        self.alpha_val = alpha_val
+        self.T_amb_val = T_amb_val
+
+        # State and control variables
+        C_A, C_B, T = sp.symbols("C_A C_B T", real=True, positive=True)
+        Q = sp.symbols("Q", real=True)
+
+        # Deterministic Parameters
+        k1, k2, E1, E2, alpha, T_amb = sp.symbols(
+            "k1 k2 E1 E2 alpha T_amb", real=True, positive=True
+        )
+
+        # Stochastic Parameters
+        sigma_A_sym = sp.symbols("sigma_A", real=True, positive=True)
+        sigma_B_sym = sp.symbols("sigma_B", real=True, positive=True)
+        sigma_T_sym = sp.symbols("sigma_T", real=True, positive=True)
+
+        self.parameters = {
+            k1: k1_val, k2: k2_val, E1: E1_val, E2: E2_val,
+            alpha: alpha_val, T_amb: T_amb_val,
+            sigma_A_sym: sigma_A, sigma_B_sym: sigma_B, sigma_T_sym: sigma_T,
+        }
+
+        self.state_vars = [C_A, C_B, T]
+        self.control_vars = [Q]
+        self.output_vars = []
+        self.order = 1
+
+        # Reaction rates
+        r1 = k1 * C_A * sp.exp(-E1 / T)
+        r2 = k2 * C_B * sp.exp(-E2 / T)
+
+        # Drift (deterministic dynamics)
+        self._f_sym = sp.Matrix([
+            -r1,
+            r1 - r2,
+            Q - alpha * (T - T_amb)
+        ])
+
+        # Diffusion (stochastic dynamics)
+        self.diffusion_expr = sp.Matrix([
+            [sigma_A_sym, 0, 0],
+            [0, sigma_B_sym, 0],
+            [0, 0, sigma_T_sym],
+        ])
+
+        self.sde_type = "ito"
+        self._h_sym = sp.Matrix([C_A, C_B, T])
+
+    def setup_equilibria(self):
+        T_amb = self.T_amb_val
+
+        self.add_equilibrium(
+            "complete",
+            x_eq=np.array([0.0, 0.0, T_amb]),
+            u_eq=np.array([0.0]),
+            verify=True,
+            stability="stable",
+        )
+
+        if self.C_A0 is not None and self.T0 is not None:
+            alpha = self.alpha_val
+            Q_init = alpha * (self.T0 - T_amb)
+
+            self.add_equilibrium(
+                "initial",
+                x_eq=np.array([self.C_A0, 0.0, self.T0]),
+                u_eq=np.array([Q_init]),
+                verify=False,
+                stability="unstable",
+            )
+            self.set_default_equilibrium("initial")
+        else:
+            self.set_default_equilibrium("complete")
+```
+
+The reactor models the reaction sequence $A \to B \to C$ with temperature control via heating input $Q$, plus additive Gaussian noise on all three states.
+
+## Single Trajectory Simulation
+
+Let's start with the simplest case: simulating one realization of the stochastic process.
+
+### Basic Integration
+
+```{python}
+# Create system instance
+reactor = ContinuousStochasticBatchReactor(
+    C_A0=1.0,      # Start with 1 mol/L of reactant A
+    T0=350.0,      # Initial temperature above ambient
+    sigma_A=0.02,  # Concentration noise
+    sigma_B=0.02,
+    sigma_T=2.0    # Temperature noise
+)
+
+# Define initial condition
+x0 = np.array([1.0, 0.0, 350.0])  # [C_A, C_B, T]
+
+# Simulate with no external heating (Q = 0)
+result = reactor.integrate(
+    x0=x0,
+    u=lambda t: np.array([0.0]),  # No heating
+    t_span=(0, 50),
+    method='euler_maruyama',
+    dt=0.05,
+    seed=42  # Reproducible random noise
+)
+
+print(f"Integration successful: {result['success']}")
+print(f"Time points: {len(result['t'])}")
+print(f"State shape: {result['x'].shape}")  # (T, nx) = (1001, 3)
+print(f"Number of paths: {result.get('n_paths', 1)}")
+```
+
+**Key points:**
+
+- `dt=0.05`: Time step for Euler-Maruyama (50 steps/second)
+- `seed=42`: Makes noise reproducible across runs
+- Returns `x` in shape `(T, nx)` for single trajectory
+- Control `u` can be constant array, callable, or None
+
+### Understanding the Results
+
+```{python}
+# Extract components
+t = result['t']      # Time array
+x = result['x']      # State trajectory (T, 3)
+
+# Final state
+print(f"\nFinal state at t = {t[-1]:.1f}:")
+print(f"  C_A = {x[-1, 0]:.4f} mol/L")
+print(f"  C_B = {x[-1, 1]:.4f} mol/L")
+print(f"  T   = {x[-1, 2]:.2f} K")
+
+# Check equilibrium approach
+x_eq, u_eq = reactor.get_equilibrium('complete')
+print(f"\nTarget equilibrium (complete conversion):")
+print(f"  C_A = {x_eq[0]:.4f} mol/L")
+print(f"  C_B = {x_eq[1]:.4f} mol/L")
+print(f"  T   = {x_eq[2]:.2f} K")
+```
+
+The system approaches the complete conversion equilibrium, but fluctuations persist due to noise.
+
+## Time Series Visualization
+
+Now let's visualize the trajectory evolution.
+
+### Basic Trajectory Plot
+
+```{python}
+# Plot all three states
+fig = reactor.plotter.plot_trajectory(
+    t=t,
+    x=x,
+    state_names=['C_A (mol/L)', 'C_B (mol/L)', 'T (K)'],
+    title='Stochastic Batch Reactor: Single Trajectory',
+    theme='default'
+)
+fig.show()
+```
+
+**Observations:**
+
+- $C_A$ decays exponentially (reactant consumed)
+- $C_B$ rises then falls (intermediate product)
+- $T$ relaxes to ambient temperature
+- Noise causes persistent fluctuations around deterministic trend
+
+### Customizing the Visualization
+
+```{python}
+# Publication-quality plot
+fig = reactor.plotter.plot_trajectory(
+    t=t,
+    x=x,
+    state_names=['Reactant A', 'Intermediate B', 'Temperature'],
+    title='Batch Reactor Dynamics (Single Realization)',
+    theme='publication',
+    color_scheme='colorblind_safe'
+)
+fig.show()
+```
+
+The plotter automatically:
+
+- Creates subplots for each state
+- Handles axis labels and legends
+- Applies consistent theming
+- Makes plots interactive (zoom, pan, hover)
+
+## Monte Carlo Ensembles
+
+**Critical concept for stochastic systems:** A single trajectory only shows one possible realization. To understand the system's statistical behavior, we need many trajectories.
+
+### Running Multiple Realizations
+
+The `n_paths` parameter enables efficient Monte Carlo simulation:
+
+```{python}
+# Simulate 500 trajectories for statistics
+mc_result = reactor.integrate(
+    x0=x0,
+    u=lambda t: np.array([0.0]),
+    t_span=(0, 50),
+    method='euler_maruyama',
+    dt=0.05,
+    n_paths=500,  # Large ensemble for accurate statistics
+    seed=42
+)
+
+print(f"Monte Carlo simulation:")
+print(f"  Number of paths: {mc_result['n_paths']}")
+print(f"  State shape: {mc_result['x'].shape}")  # (n_paths, T, nx)
+print(f"  Integration time: {mc_result.get('integration_time', 0):.3f} s")
+```
+
+**Shape convention:** `(n_paths, T, nx)` = `(500, 1001, 3)`
+
+- First dimension: Different noise realizations
+- Second dimension: Time points
+- Third dimension: State variables
+
+::: {.callout-important}
+## Visualization vs Statistics: Different Ensemble Sizes
+
+**For visualization (plotting individual trajectories):**
+
+- Use **20-50 paths** maximum
+- More creates unreadable "spaghetti plots"
+- Plotly performance degrades beyond ~100 traces
+- Large HTML files (10-50 MB)
+
+**For statistics (mean, variance, confidence bands):**
+
+- Use **500-1000+ paths**
+- Only plot summary statistics (mean ± σ), not individual trajectories
+- Accurate confidence intervals require large ensembles
+- Computation is fast, plotting is slow
+
+**Best practice:**
+
+1. Run large ensemble (500-1000 paths) once
+2. Extract subset for trajectory visualization
+3. Compute statistics on full ensemble
+:::
+
+### Visualizing a Subset
+
+```{python}
+# Extract smaller subset for visualization clarity
+t_mc = mc_result['t']
+x_mc_full = mc_result['x']  # (500, 1001, 3) - keep for statistics
+
+# Select 20 random trajectories for plotting
+np.random.seed(42)
+subset_indices = np.random.choice(500, size=20, replace=False)
+x_mc_subset = x_mc_full[subset_indices]  # (20, 1001, 3)
+
+# Plot subset only
+fig = reactor.plotter.plot_trajectory(
+    t=t_mc,
+    x=x_mc_subset,
+    state_names=['C_A (mol/L)', 'C_B (mol/L)', 'T (K)'],
+    title='Monte Carlo Ensemble (20 of 500 Trajectories Shown)',
+    show_legend=False
+)
+fig.show()
+```
+
+**Key observation:** Even with 20 trajectories, the ensemble reveals:
+
+- **Spread around mean**: Variance grows over time
+- **Consistency**: All trajectories follow similar average behavior
+- **Noise structure**: Temperature has larger fluctuations ($\sigma_T = 2.0$) than concentrations ($\sigma_{A,B} = 0.02$)
+
+## Statistical Analysis
+
+With a large ensemble, we can compute accurate statistical properties.
+
+### Mean and Variance
+
+```{python}
+# Compute ensemble statistics on FULL ensemble (500 paths)
+x_mean = x_mc_full.mean(axis=0)  # Average over realizations (T, nx)
+x_std = x_mc_full.std(axis=0)    # Standard deviation (T, nx)
+
+print(f"Statistics at t = {t_mc[-1]:.1f} (from 500 trajectories):")
+print(f"  C_A: {x_mean[-1, 0]:.4f} ± {x_std[-1, 0]:.4f} mol/L")
+print(f"  C_B: {x_mean[-1, 1]:.4f} ± {x_std[-1, 1]:.4f} mol/L")
+print(f"  T:   {x_mean[-1, 2]:.2f} ± {x_std[-1, 2]:.2f} K")
+```
+
+**Why 500 trajectories?**
+
+- Standard error of mean: $\sigma_{\bar{x}} = \sigma / \sqrt{n}$
+- With $n = 500$: error reduced by factor of $\sim$22 compared to single trajectory
+- Confidence intervals converge to true values
+
+### Plotting Mean with Confidence Bands
+
+```{python}
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+# Create figure with 3 subplots
+fig = make_subplots(
+    rows=3, cols=1,
+    subplot_titles=('Concentration A', 'Concentration B', 'Temperature'),
+    vertical_spacing=0.08
+)
+
+state_names = ['C_A', 'C_B', 'T']
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+
+for i, (name, color) in enumerate(zip(state_names, colors), 1):
+    # Mean trajectory
+    fig.add_trace(
+        go.Scatter(
+            x=t_mc, y=x_mean[:, i-1],
+            name=f'{name} (mean)',
+            line=dict(color=color, width=2),
+            mode='lines'
+        ),
+        row=i, col=1
+    )
+    
+    # 95% confidence band (mean ± 2σ)
+    upper = x_mean[:, i-1] + 2*x_std[:, i-1]
+    lower = x_mean[:, i-1] - 2*x_std[:, i-1]
+    
+    fig.add_trace(
+        go.Scatter(
+            x=np.concatenate([t_mc, t_mc[::-1]]),
+            y=np.concatenate([upper, lower[::-1]]),
+            fill='toself',
+            fillcolor=color,
+            opacity=0.2,
+            line=dict(width=0),
+            name=f'{name} (95% CI)',
+            showlegend=True
+        ),
+        row=i, col=1
+    )
+
+fig.update_layout(
+    height=800,
+    title_text="Ensemble Statistics: Mean ± 2σ Confidence Bands",
+    showlegend=True
+)
+fig.update_xaxes(title_text="Time (s)", row=3, col=1)
+fig.show()
+```
+
+**Statistical insights:**
+
+- **Variance growth**: Initially zero, grows as $\sqrt{t}$ for additive noise
+- **Equilibrium fluctuations**: Near equilibrium, variance stabilizes (drift pulls back, noise spreads out)
+- **State-dependent spread**: Temperature has larger absolute variance due to $\sigma_T = 2.0$
+
+## Phase Space Visualization
+
+Phase portraits show trajectories in state space rather than time. For clarity, we'll visualize a subset while keeping the full ensemble for later analysis.
+
+### 2D Phase Portrait: C_A vs C_B
+
+```{python}
+# Use subset for visualization (20 trajectories)
+fig = reactor.phase_plotter.plot_2d(
+    x=x_mc_subset[:, :, :2],  # First two states only (C_A, C_B), subset
+    state_names=('C_A (mol/L)', 'C_B (mol/L)'),
+    show_direction=True,
+    show_start_end=True,
+    equilibria=[x_eq[:2]],  # Mark equilibrium in C_A-C_B plane
+    title='Concentration Phase Portrait (20 of 500 Trajectories)',
+    theme='publication'
+)
+fig.show()
+```
+
+**Phase space interpretation:**
+
+- **Start point** (green): All trajectories begin at $(C_A, C_B) = (1.0, 0.0)$
+- **End points** (red): Clustered near $(0, 0)$ but with scatter
+- **Equilibrium** (black marker): Target of drift dynamics
+- **Direction arrows**: Show flow along trajectories
+
+::: {.callout-tip}
+## When to Use Phase Portraits
+
+Phase portraits are most useful for:
+
+- **Low-dimensional systems** (2-3 states)
+- **Understanding qualitative behavior** (attractors, limit cycles, separatrices)
+- **Comparing trajectories** from different initial conditions
+- **Visualizing equilibria and stability**
+
+For high-dimensional systems (>3 states), use:
+
+- Time series plots of specific states
+- Pairwise 2D projections
+- Principal component analysis (PCA) for dimensionality reduction
+:::
+
+### 3D Phase Portrait
+
+For systems with 3 states, 3D visualization shows the full state space:
+
+```{python}
+# Plot full 3D state space (subset for performance)
+fig = reactor.phase_plotter.plot_3d(
+    x=x_mc_subset,  # 20 trajectories × 3 states
+    state_names=('C_A', 'C_B', 'T'),
+    show_direction=False,  # Cleaner for multiple trajectories
+    equilibria=[x_eq],  # Mark equilibrium in 3D
+    title='3D Phase Portrait: Full State Space (20 Trajectories)',
+    theme='dark'
+)
+fig.show()
+```
+
+**Interactive features:**
+
+- Rotate the 3D view by clicking and dragging
+- Zoom with scroll wheel
+- Hover to see coordinates
+- Toggle trajectories on/off in legend
+
+**Note:** Even 20 trajectories in 3D can be visually dense. For presentations, consider showing 5-10 representative trajectories.
+
+## Analyzing Convergence
+
+Let's quantify how the ensemble approaches equilibrium using the full 500-trajectory dataset.
+
+### Distance from Equilibrium
+
+```{python}
+# Compute Euclidean distance to equilibrium for each trajectory
+distances = np.linalg.norm(x_mc_full - x_eq, axis=2)  # (n_paths, T)
+
+# Mean distance over ensemble
+mean_distance = distances.mean(axis=0)
+std_distance = distances.std(axis=0)
+
+# Plot convergence
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(
+    x=t_mc, y=mean_distance,
+    name='Mean distance (500 paths)',
+    line=dict(color='blue', width=2)
+))
+
+fig.add_trace(go.Scatter(
+    x=np.concatenate([t_mc, t_mc[::-1]]),
+    y=np.concatenate([
+        mean_distance + std_distance,
+        (mean_distance - std_distance)[::-1]
+    ]),
+    fill='toself',
+    fillcolor='blue',
+    opacity=0.2,
+    line=dict(width=0),
+    name='±1σ'
+))
+
+fig.update_layout(
+    title='Convergence to Equilibrium (500 Trajectories)',
+    xaxis_title='Time (s)',
+    yaxis_title='Distance from Equilibrium',
+    yaxis_type='log'  # Log scale shows exponential decay
+)
+fig.show()
+```
+
+**Convergence characteristics:**
+
+- **Exponential decay**: Log plot shows roughly linear trend (deterministic exponential convergence)
+- **Noise floor**: Distance plateaus near equilibrium due to persistent fluctuations
+- **Spread increases**: Standard deviation grows as trajectories diffuse
+
+**Equilibrium noise floor:**
+```{python}
+# Estimate noise floor from last 20% of trajectory
+noise_floor = mean_distance[int(0.8*len(t_mc)):].mean()
+print(f"Steady-state fluctuation distance: {noise_floor:.4f}")
+print(f"This represents persistent noise effects near equilibrium")
+```
+
+## Comparing Different Noise Levels
+
+How does noise intensity affect behavior?
+
+### Low, Medium, and High Noise
+
+```{python}
+# Three different noise levels
+noise_levels = [0.5, 2.0, 5.0]  # Temperature noise σ_T
+results_by_noise = {}
+
+for sigma_T in noise_levels:
+    reactor_noise = ContinuousStochasticBatchReactor(
+        C_A0=1.0, T0=350.0,
+        sigma_A=0.02, sigma_B=0.02,
+        sigma_T=sigma_T  # Vary temperature noise
+    )
+    
+    # Use 30 paths for visualization clarity
+    result = reactor_noise.integrate(
+        x0=x0,
+        u=lambda t: np.array([0.0]),
+        t_span=(0, 50),
+        method='euler_maruyama',
+        dt=0.05,
+        n_paths=30,  # Enough to show spread, not too cluttered
+        seed=42
+    )
+    
+    results_by_noise[sigma_T] = result
+
+print("Simulated 3 noise levels × 30 trajectories each = 90 total")
+```
+
+::: {.callout-tip}
+## Ensemble Size Strategy
+
+**For comparative studies:**
+
+- **Same random seed** across conditions ensures fair comparison
+- **Moderate ensemble** (20-50 paths) balances visual clarity with statistical insight
+- **Multiple replications** with different seeds provide robustness checks
+
+**For quantitative analysis:**
+
+- Run large ensembles (500-1000) once per condition
+- Compute statistics (mean, variance, quantiles)
+- Plot summary statistics, not individual trajectories
+:::
+
+### Visualization Comparison
+
+```{python}
+# Plot temperature evolution for different noise levels
+fig = make_subplots(
+    rows=1, cols=3,
+    subplot_titles=[f'σ_T = {σ} K' for σ in noise_levels],
+    horizontal_spacing=0.08
+)
+
+for i, sigma_T in enumerate(noise_levels, 1):
+    result = results_by_noise[sigma_T]
+    x_temp = result['x'][:, :, 2]  # Temperature only (30, T)
+    
+    # Plot all 30 trajectories
+    for traj in x_temp:
+        fig.add_trace(
+            go.Scatter(
+                x=result['t'], y=traj,
+                mode='lines',
+                line=dict(color='steelblue', width=0.8),
+                showlegend=False,
+                opacity=0.4
+            ),
+            row=1, col=i
+        )
+    
+    # Overlay mean
+    fig.add_trace(
+        go.Scatter(
+            x=result['t'], y=x_temp.mean(axis=0),
+            mode='lines',
+            line=dict(color='red', width=2.5),
+            name='Mean',
+            showlegend=(i == 1)
+        ),
+        row=1, col=i
+    )
+    
+    # Add equilibrium line
+    fig.add_hline(
+        y=x_eq[2], 
+        line=dict(color='black', dash='dash', width=1),
+        row=1, col=i
+    )
+
+fig.update_layout(
+    height=400,
+    title_text="Temperature Evolution: Effect of Noise Intensity (30 Trajectories Each)",
+    showlegend=True
+)
+fig.update_xaxes(title_text="Time (s)")
+fig.update_yaxes(title_text="Temperature (K)")
+fig.show()
+```
+
+**Effect of noise intensity:**
+
+- **Low noise** ($\sigma_T = 0.5$ K): Tight bundle around mean, clear convergence pattern
+- **Medium noise** ($\sigma_T = 2.0$ K): Moderate spread, drift still visible
+- **High noise** ($\sigma_T = 5.0$ K): Large fluctuations obscure deterministic trend
+
+**Quantitative comparison:**
+```{python}
+for sigma_T in noise_levels:
+    result = results_by_noise[sigma_T]
+    x_temp = result['x'][:, -1, 2]  # Final temperatures
+    
+    print(f"σ_T = {sigma_T} K:")
+    print(f"  Final T: {x_temp.mean():.2f} ± {x_temp.std():.2f} K")
+    print(f"  Range: [{x_temp.min():.2f}, {x_temp.max():.2f}] K")
+```
+
+## Practical Tips
+
+### Choosing Time Step `dt`
+
+```{python}
+# Test different time steps
+dt_values = [0.1, 0.05, 0.01]
+
+for dt in dt_values:
+    result_dt = reactor.integrate(
+        x0=x0,
+        u=lambda t: np.array([0.0]),
+        t_span=(0, 10),  # Shorter for speed
+        method='euler_maruyama',
+        dt=dt,
+        seed=42
+    )
+    
+    print(f"dt = {dt}:")
+    print(f"  Time points: {len(result_dt['t'])}")
+    print(f"  Final C_A: {result_dt['x'][-1, 0]:.4f}")
+    print(f"  nfev: {result_dt.get('nfev', 'N/A')}")
+```
+
+**Guidelines:**
+
+- **Too large** (`dt > 0.1`): May miss dynamics, numerical instability
+- **Too small** (`dt < 0.01`): Slow, unnecessary resolution
+- **Rule of thumb**: `dt ≈ 1/(10 × fastest time constant)`
+- Our reactor: Temperature relaxation $\tau = 1/\alpha = 10$ s, so `dt = 0.05` is good
+
+### Handling Control Inputs
+
+```{python}
+# Time-varying heating control
+def heating_schedule(t):
+    """Ramp heating for first 10 seconds, then off."""
+    if t < 10:
+        return np.array([20.0 * (1 - t/10)])  # Linear ramp down
+    else:
+        return np.array([0.0])
+
+result_controlled = reactor.integrate(
+    x0=x0,
+    u=heating_schedule,
+    t_span=(0, 50),
+    method='euler_maruyama',
+    dt=0.05,
+    seed=42
+)
+
+# Plot temperature with control
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(
+    x=result_controlled['t'],
+    y=result_controlled['x'][:, 2],
+    name='Temperature',
+    line=dict(color='red')
+))
+
+# Add control input (evaluated at each time point)
+u_vals = np.array([heating_schedule(t)[0] for t in result_controlled['t']])
+fig.add_trace(go.Scatter(
+    x=result_controlled['t'],
+    y=u_vals,
+    name='Heating Input Q',
+    line=dict(color='orange', dash='dash'),
+    yaxis='y2'
+))
+
+fig.update_layout(
+    title='Batch Reactor with Time-Varying Control',
+    xaxis_title='Time (s)',
+    yaxis_title='Temperature (K)',
+    yaxis2=dict(
+        title='Heat Input Q (W)',
+        overlaying='y',
+        side='right'
+    )
+)
+fig.show()
+```
+
+Early heating maintains elevated temperature, then system relaxes to ambient.
+
+## Performance Considerations
+
+### Computation vs Visualization Trade-off
+
+The real bottleneck isn't computation—it's visualization.
+
+```{python}
+import time
+
+# Large ensemble, coarse grid - for statistics
+start = time.time()
+result_stats = reactor.integrate(
+    x0=x0, u=lambda t: np.array([0.0]),
+    t_span=(0, 50),
+    dt=0.1,  # Coarse resolution fine for statistics
+    n_paths=1000,  # Large ensemble
+    seed=42
+)
+time_stats = time.time() - start
+
+# Small ensemble, fine grid - for visualization
+start = time.time()
+result_viz = reactor.integrate(
+    x0=x0, u=lambda t: np.array([0.0]),
+    t_span=(0, 50),
+    dt=0.01,  # Fine resolution for smooth curves
+    n_paths=20,  # Just enough to show variation
+    seed=42
+)
+time_viz = time.time() - start
+
+print(f"Statistics (dt=0.1, n=1000):  {time_stats:.2f} s")
+print(f"  → Use for: computing mean, variance, quantiles")
+print(f"  → Result size: {result_stats['x'].nbytes / 1e6:.1f} MB")
+print()
+print(f"Visualization (dt=0.01, n=20): {time_viz:.2f} s")
+print(f"  → Use for: plotting individual trajectories")
+print(f"  → Result size: {result_viz['x'].nbytes / 1e6:.1f} MB")
+```
+
+**Key insight:** Computation is cheap, plotting is expensive. It's faster to simulate 1000 trajectories than to plot 100.
+
+### Memory and Storage
+
+```{python}
+# Estimate memory usage
+T = int((50 - 0) / 0.05) + 1  # Time points
+nx = 3  # States
+bytes_per_float = 8  # Float64
+
+def estimate_memory(n_paths, T, nx):
+    """Estimate memory in MB for trajectory storage."""
+    return (n_paths * T * nx * bytes_per_float) / 1e6
+
+print("Memory requirements:")
+print(f"  100 paths:  {estimate_memory(100, T, nx):.1f} MB")
+print(f"  1000 paths: {estimate_memory(1000, T, nx):.1f} MB")
+print(f"  10000 paths: {estimate_memory(10000, T, nx):.1f} MB")
+print()
+print("Typical laptop RAM: 8-16 GB → can easily handle 10,000+ paths")
+```
+
+**Best practices:**
+
+- **For iterative development**: Small ensembles (20-50), test quickly
+- **For final analysis**: Large ensembles (1000+), run overnight if needed
+- **For statistics**: Coarse `dt` is fine (e.g., 0.05-0.1)
+- **For plotting**: Fine `dt` looks better (e.g., 0.01-0.05)
+- **Save results**: Use `np.save()` for large ensembles, reload for different analyses
+
+### Saving and Loading Ensembles
+
+For large Monte Carlo runs, save results to avoid recomputation:
+
+```{python}
+# Example: Save large ensemble to disk
+# result_large = reactor.integrate(..., n_paths=5000)
+# np.savez('batch_reactor_mc.npz', 
+#          t=result_large['t'], 
+#          x=result_large['x'],
+#          n_paths=result_large['n_paths'])
+
+# Later: Load and analyze
+# data = np.load('batch_reactor_mc.npz')
+# t_saved = data['t']
+# x_saved = data['x']  # (5000, T, 3)
+
+# Extract subset for visualization
+# subset = x_saved[:20]  # First 20 trajectories
+# fig = reactor.plotter.plot_trajectory(t_saved, subset, ...)
+
+# Compute statistics on full ensemble
+# x_mean = x_saved.mean(axis=0)
+# x_std = x_saved.std(axis=0)
+```
+
+## Summary
+
+This tutorial covered:
+
+### Single Trajectory
+
+- Using `integrate()` with `seed` for reproducibility
+- Basic visualization with `reactor.plotter.plot_trajectory()`
+- Understanding result structure `(T, nx)`
+
+### Monte Carlo Ensembles
+
+- Using `n_paths` parameter for efficient ensemble simulation
+- Result shape `(n_paths, T, nx)`
+- **Critical distinction**: Large ensembles for statistics, small subsets for visualization
+
+### Statistical Analysis
+
+- Computing ensemble mean and variance
+- Plotting confidence bands (mean ± 2σ)
+- Quantifying convergence to equilibrium
+- Effect of noise intensity on dynamics
+
+### Phase Space Visualization
+
+- 2D phase portraits with `phase_plotter.plot_2d()`
+- 3D interactive plots with `phase_plotter.plot_3d()`
+- Marking equilibria and showing flow
+- Subsetting trajectories for clarity
+
+### Practical Techniques
+
+- Choosing appropriate `dt`
+- Time-varying control inputs
+- Performance trade-offs (paths vs resolution)
+- Custom statistical visualizations
+
+::: {.callout-important}
+## Ensemble Sizing Best Practices
+
+**Rule of thumb for `n_paths`:**
+
+| Purpose | Recommended Size | Rationale |
+|---------|-----------------|-----------|
+| **Trajectory visualization** | 20-50 | Visual clarity, avoid clutter |
+| **Statistical analysis** | 500-1000 | Accurate confidence intervals |
+| **Quick prototyping** | 10-20 | Fast iteration |
+| **Publication plots** | 5-10 trajectories + statistics from 500+ | Clean visuals + rigorous statistics |
+| **Rare event analysis** | 10,000+ | Capture tail behavior |
+
+**Workflow:**
+
+1. Run large ensemble once (500-1000 paths)
+2. Save results to disk if needed
+3. Extract small subset for trajectory plots
+4. Compute statistics on full ensemble
+5. Plot summary statistics (mean ± σ), not individual trajectories
+
+**Performance notes:**
+
+- Computation scales linearly with `n_paths`
+- Plotting is the bottleneck (>100 traces → slow)
+- HTML file size: ~10 KB per trajectory
+- Use `show_legend=False` for ensembles
+:::
+
+## Next Steps
+
+**Tutorial 3: Linearization and Local Analysis**
+
+- Computing Jacobians at equilibria
+- Stability analysis via eigenvalues
+- Linearized predictions vs nonlinear behavior
+- Controllability and observability
+
+**Tutorial 4: Control Design**
+
+- LQR controller synthesis
+- State feedback for trajectory tracking
+- Handling constraints and saturation
+- Separation principle for stochastic systems
+
+**Advanced Topics:**
+
+- Higher-order SDE integrators (Milstein, Runge-Kutta)
+- Strong vs weak convergence
+- Parameter estimation from noisy data
+- Rare event simulation

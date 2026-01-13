@@ -10,6 +10,7 @@ title: "Tutorials"
 ## Core Concepts of Continuous Systems: A Tutorial Series Using Chemical Reactors {#sec-core-concepts-chemical}
 
 - [Anatomy of a Symbolic System: Stochastic Batch Reactors](core_concepts_continuous/batch_reactor_system_definition.qmd)
+- [Simulating and Visalizing a Symbolic System](core_concepts_continuous/batch_reactor_simulation.qmd)
 - [Comparing Systems: Deterministic and Stochastic Reactors](core_concepts_continuous/deterministic_stochastic_reactor_tutorial.qmd)
 - [System Discretization](core_concepts_continuous/discretized_reactor_tutorial.qmd)
 - [Controlling a Batch Reactor](core_concepts_continuous/batch_reactor_control.qmd)
