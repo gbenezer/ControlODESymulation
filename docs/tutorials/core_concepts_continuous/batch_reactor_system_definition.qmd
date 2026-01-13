@@ -120,15 +120,19 @@ class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
         C_A0: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        # Store initial conditions
+        # Store initial conditions and parameter values for later use
+        # (See "What to Store as Attributes" callout below for detailed guidelines)
         self.C_A0 = C_A0
         self.T0 = T0
+        self.alpha_val = alpha_val
+        self.T_amb_val = T_amb_val
 
-        # State and control variables
+        # State and control variables (local - not stored as attributes)
         C_A, C_B, T = sp.symbols("C_A C_B T", real=True, positive=True)
         Q = sp.symbols("Q", real=True)
 
         # Deterministic Parameters (kinetics and heat transfer)
+        # These are local variables - used as keys in self.parameters dict
         k1, k2, E1, E2, alpha, T_amb = sp.symbols(
             "k1 k2 E1 E2 alpha T_amb",
             real=True,
@@ -140,6 +144,8 @@ class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
         sigma_B_sym = sp.symbols("sigma_B", real=True, positive=True)
         sigma_T_sym = sp.symbols("sigma_T", real=True, positive=True)
 
+        # Parameters dictionary: Symbol → Value mapping
+        # Keys are the symbol objects created above
         self.parameters = {
             k1: k1_val,
             k2: k2_val,
@@ -186,8 +192,9 @@ class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
         self._h_sym = sp.Matrix([C_A, C_B, T])
 
     def setup_equilibria(self):
-        # Get parameters
-        T_amb = self.parameters[sp.symbols("T_amb")]
+        # Use stored parameter values directly
+        # (Don't try to look up via sp.symbols() - that creates NEW symbol objects!)
+        T_amb = self.T_amb_val
 
         # Complete conversion equilibrium (deterministic part)
         self.add_equilibrium(
@@ -202,7 +209,7 @@ class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
 
         # Initial condition (if provided)
         if self.C_A0 is not None and self.T0 is not None:
-            alpha = self.parameters[sp.symbols("alpha")]
+            alpha = self.alpha_val
             Q_init = alpha * (self.T0 - T_amb)
 
             self.add_equilibrium(
@@ -282,6 +289,108 @@ The necessary symbolic variables include:
     - State variables
     - Control variables
     - Parameter variables
+
+::: {.callout-important}
+## What to Store as Attributes vs Local Variables
+
+A common source of confusion: **when should you store something as `self.something` vs keep it as a local variable?**
+
+### SymPy Symbols: Usually Local, Sometimes Stored
+
+**State and control symbols → Keep LOCAL (don't store as attributes):**
+```python
+# ✓ CORRECT: Local variables only
+C_A, C_B, T = sp.symbols("C_A C_B T", real=True)
+Q = sp.symbols("Q", real=True)
+
+# ❌ WRONG: Don't store these as attributes
+# self.C_A_sym = sp.symbols("C_A")  # Unnecessary!
+```
+
+**Why keep local?** These symbols are only used to build `self._f_sym` and `self._h_sym`. Once those are built, the framework tracks symbols via `self.state_vars` and `self.control_vars` lists. Storing individual symbols is redundant.
+
+**Parameter symbols → Keep LOCAL (unless using Solution 2 for equilibria):**
+```python
+# Solution 1 (tutorial approach): Local symbols
+T_amb = sp.symbols('T_amb', positive=True)
+self.parameters = {T_amb: T_amb_val}  # Symbol used as key only
+
+# Solution 2 (production code): Store symbol references
+self.T_amb_sym = sp.symbols('T_amb', positive=True)
+self.parameters = {self.T_amb_sym: T_amb_val}  # Can look up later
+```
+
+### Parameter Values: Store When Needed Later
+
+**Store parameter values if used in `setup_equilibria()` or custom methods:**
+```python
+def define_system(self, T_amb_val=300.0, alpha_val=0.1, ...):
+    # ✓ Store values needed in setup_equilibria
+    self.T_amb_val = T_amb_val
+    self.alpha_val = alpha_val
+    
+    # Create symbols and populate parameters dict
+    T_amb = sp.symbols('T_amb', positive=True)
+    self.parameters = {T_amb: T_amb_val, ...}
+```
+
+**Don't store if only used in symbolic expressions:**
+```python
+def define_system(self, k1_val=0.5, k2_val=0.3, ...):
+    # These are only used in _f_sym, not in setup_equilibria
+    # No need to store as attributes
+    k1 = sp.symbols('k1', positive=True)
+    k2 = sp.symbols('k2', positive=True)
+    
+    self.parameters = {k1: k1_val, k2: k2_val}
+    self._f_sym = sp.Matrix([k1 * C_A * sp.exp(-E1/T)])  # Used here only
+```
+
+### Initial Conditions and Custom Fields: Always Store
+
+**Store data needed for conditional logic or custom methods:**
+```python
+def define_system(self, C_A0=None, T0=None, ...):
+    # ✓ Store for use in setup_equilibria
+    self.C_A0 = C_A0
+    self.T0 = T0
+    
+    # ✓ Store custom application data
+    self.reaction_pathway = "A->B->C"
+    self.reactor_volume = 10.0  # liters
+```
+
+### Decision Tree
+
+**Should I store `foo` as `self.foo`?**
+
+1. **Is it a SymPy symbol?**
+   - State/control symbol? → **No** (use `self.state_vars` / `self.control_vars` lists)
+   - Parameter symbol? → **No** (unless using Solution 2 for parameter lookup)
+
+2. **Is it a parameter value?**
+   - Used in `setup_equilibria()`? → **Yes** (`self.param_val`)
+   - Only used in `_f_sym`? → **No** (just put in `self.parameters` dict)
+
+3. **Is it an initial condition or custom field?**
+   - Used in logic or custom methods? → **Yes** (`self.C_A0`, `self.reactor_volume`)
+   - Temporary calculation? → **No** (keep as local variable)
+
+### Summary Table
+
+| Item | Store as Attribute? | Example |
+|------|---------------------|---------|
+| State symbols (`C_A`, `T`) | ❌ No | Keep local, use `self.state_vars` |
+| Control symbols (`Q`) | ❌ No | Keep local, use `self.control_vars` |
+| Parameter symbols (`T_amb`) | ❌ No (usually) | Keep local, use as dict keys |
+| Parameter values (for equilibria) | ✅ Yes | `self.T_amb_val = T_amb_val` |
+| Parameter values (not used later) | ❌ No | Just put in `self.parameters` |
+| Initial conditions (`C_A0`, `T0`) | ✅ Yes | `self.C_A0 = C_A0` |
+| Custom application data | ✅ Yes | `self.reactor_volume = 10.0` |
+| Temporary calculations | ❌ No | `r1 = k1 * C_A * exp(...)` |
+
+**Rule of thumb:** If you'll need it in `setup_equilibria()` or a custom method, store it as `self.something`. Otherwise, keep it local.
+:::
 
 ::: {.callout-warning}
 ## Output Variables and the Output Map
@@ -719,9 +828,17 @@ self.sde_type = "ito"  # Default
 If defined, automatically called after system initialization to add equilibria. Useful when equilibria depend on system parameters.
 
 ```python
+def define_system(self, T_amb_val=300.0, ...):
+    # Store parameter value for use in setup_equilibria
+    self.T_amb_val = T_amb_val
+    
+    T_amb = sp.symbols('T_amb', positive=True)
+    self.parameters = {T_amb: T_amb_val, ...}
+    # ... rest of define_system ...
+
 def setup_equilibria(self):
-    # Add parameter-dependent equilibria
-    T_amb = self.parameters[sp.symbols("T_amb")]
+    # Add parameter-dependent equilibria using stored values
+    T_amb = self.T_amb_val
     self.add_equilibrium("complete", x_eq=np.array([0.0, 0.0, T_amb]), ...)
 ```
 
@@ -730,16 +847,34 @@ If not defined, only the origin equilibrium is added by default.
 ### Custom Methods and Fields
 You can add any additional methods or fields that don't conflict with base class names:
 ```python
-def define_system(self, ...):
+def define_system(self, C_A0=1.0, T0=350.0, volume=10.0, ...):
     # ... standard setup ...
     
-    # Custom fields for your application
-    self.C_A0 = C_A0  # Store initial condition
-    self.reaction_pathway = "A->B->C"
+    # ✓ Store values needed in custom methods
+    self.C_A0 = C_A0  # Initial condition
+    self.T0 = T0      # Initial temperature
+    self.reactor_volume = volume  # Custom application data
+    self.reaction_pathway = "A->B->C"  # Documentation
     
 def compute_conversion_rate(self, C_A_current):
-    """Custom method for domain-specific calculations."""
+    """Calculate conversion from initial concentration."""
     return (self.C_A0 - C_A_current) / self.C_A0
+
+def compute_reactor_capacity(self):
+    """Calculate moles of A that can be processed."""
+    return self.C_A0 * self.reactor_volume
+```
+
+**What NOT to store:**
+```python
+# ❌ Don't store state/control symbols as attributes
+# self.C_A_sym = sp.symbols('C_A')  # Redundant!
+
+# ❌ Don't store temporary calculations
+# self.r1 = k1 * C_A * sp.exp(-E1/T)  # Use local variable
+
+# ❌ Don't store parameter values not used elsewhere
+# If k1 is only in _f_sym, just put it in self.parameters
 ```
 :::
 
@@ -823,8 +958,9 @@ Our reactor's `setup_equilibria()` method demonstrates how to define parameter-d
 
 ```python
 def setup_equilibria(self):
-    # Get parameters
-    T_amb = self.parameters[sp.symbols("T_amb")]
+    # Use stored parameter values directly
+    # (Don't try to look up via sp.symbols() - that creates NEW symbol objects!)
+    T_amb = self.T_amb_val
 
     # Complete conversion equilibrium (deterministic part)
     self.add_equilibrium(
@@ -839,7 +975,7 @@ def setup_equilibria(self):
 
     # Initial condition (if provided)
     if self.C_A0 is not None and self.T0 is not None:
-        alpha = self.parameters[sp.symbols("alpha")]
+        alpha = self.alpha_val
         Q_init = alpha * (self.T0 - T_amb)
 
         self.add_equilibrium(
@@ -855,6 +991,48 @@ def setup_equilibria(self):
     else:
         self.set_default_equilibrium("complete")
 ```
+
+::: {.callout-warning}
+## Accessing Parameters in `setup_equilibria()`
+
+**Common mistake:** Trying to access parameters via `self.parameters[sp.symbols("param_name")]`
+
+```python
+# ❌ WRONG: Creates a NEW symbol, won't match dictionary key
+T_amb = self.parameters[sp.symbols("T_amb")]  # KeyError!
+```
+
+**Why this fails:** Each call to `sp.symbols()` creates a new Python object with unique identity. The dictionary keys in `self.parameters` are the *original* symbol objects from `define_system()`, not new ones.
+
+**Solution 1: Store parameter values as attributes** (Recommended for beginners):
+```python
+def define_system(self, T_amb_val=300.0, ...):
+    # Store the numerical value
+    self.T_amb_val = T_amb_val
+    
+    # Create symbol and use in parameters dict
+    T_amb = sp.symbols('T_amb', positive=True)
+    self.parameters = {T_amb: T_amb_val, ...}
+
+def setup_equilibria(self):
+    # Use the stored value directly
+    T_amb = self.T_amb_val  # ✓ Works!
+```
+
+**Solution 2: Store symbol references** (Recommended for production):
+```python
+def define_system(self, T_amb_val=300.0, ...):
+    # Create symbol and store reference
+    self.T_amb_sym = sp.symbols('T_amb', positive=True)
+    self.parameters = {self.T_amb_sym: T_amb_val, ...}
+
+def setup_equilibria(self):
+    # Use the stored symbol to look up value
+    T_amb = self.parameters[self.T_amb_sym]  # ✓ Works!
+```
+
+Our tutorial uses Solution 1 for simplicity and clarity.
+:::
 
 ## Simulation and Visualization
 
@@ -1117,15 +1295,15 @@ def define_system(self, sigma_x=1.0, sigma_y=1.0, sigma_z=1.0):
 **Well-documented system (recommended):**
 ```python
 def define_system(self, param1=1.0, param2=2.0):
-    # 1. Define all symbolic variables
-    x, y = sp.symbols('x y')
-    u = sp.symbols('u')
-    p1, p2 = sp.symbols('p1 p2', positive=True)
+    # 1. Define all symbolic variables (kept as LOCAL variables)
+    x, y = sp.symbols('x y')        # State symbols - local only
+    u = sp.symbols('u')             # Control symbol - local only
+    p1, p2 = sp.symbols('p1 p2', positive=True)  # Parameter symbols - local only
     
     # 2. Set required fields
-    self.state_vars = [x, y]
-    self.control_vars = [u]
-    self.parameters = {p1: param1, p2: param2}
+    self.state_vars = [x, y]        # Reference to local symbols
+    self.control_vars = [u]         # Reference to local symbols
+    self.parameters = {p1: param1, p2: param2}  # Symbol→value mapping
     self._f_sym = sp.Matrix([...])
     
     # 3. Explicitly set optional fields for clarity
@@ -1136,9 +1314,15 @@ def define_system(self, param1=1.0, param2=2.0):
     # 4. For stochastic systems:
     # self.diffusion_expr = sp.Matrix([...])
     # self.sde_type = "ito"  # or "stratonovich"
+    
+    # 5. Store parameter VALUES as attributes (if needed in setup_equilibria)
+    # DON'T store symbols - they're already in self.state_vars, self.parameters
+    # self.param1_val = param1  # ✓ Store VALUE for later use
+    # self.param2_val = param2  # ✓ Store VALUE for later use
 
 def setup_equilibria(self):
     # Optional: Add parameter-dependent equilibria
+    # Access stored values: x_eq_value = self.param1_val
     self.add_equilibrium("my_equilibrium", x_eq=..., u_eq=...)
 ```
 
@@ -1161,6 +1345,10 @@ This tutorial covered the **anatomy of a symbolic system** through a stochastic 
 - Optional fields: `output_vars`, `_h_sym`, `order`, `sde_type`
 - Special cases: Autonomous systems and pure diffusion systems
 - Parameter-dependent equilibria via `setup_equilibria()`
+- **What to store as attributes vs local variables**:
+  - Symbols (state, control, parameters) → Keep local
+  - Parameter values (used in `setup_equilibria`) → Store as `self.param_val`
+  - Initial conditions and custom data → Store as attributes
 
 ### System Introspection
 - `print_equations()`: Display symbolic dynamics
@@ -1174,6 +1362,7 @@ This tutorial covered the **anatomy of a symbolic system** through a stochastic 
 - **Equilibria in SDEs**: Fixed points of drift only (stochastic fluctuations persist)
 - **integrate() vs simulate()**: Use `integrate()` for stochastic systems
 - **Fixed-step vs adaptive**: Most SDE methods use fixed `dt` (uniform time grid), some advanced methods adapt step size (use `t_eval` for uniform output)
+- **Parameter access**: Store parameter values as attributes (`self.param_val`) for use in `setup_equilibria()`, don't try to look up via `self.parameters[sp.symbols("param")]` (creates new symbol, causes KeyError)
 
 ## Next Steps
 
