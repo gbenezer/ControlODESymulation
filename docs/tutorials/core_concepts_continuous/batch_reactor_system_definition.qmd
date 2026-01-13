@@ -303,7 +303,7 @@ A common source of confusion: **when should you store something as `self.somethi
 C_A, C_B, T = sp.symbols("C_A C_B T", real=True)
 Q = sp.symbols("Q", real=True)
 
-# ❌ WRONG: Don't store these as attributes
+# WRONG: Don't store these as attributes
 # self.C_A_sym = sp.symbols("C_A")  # Unnecessary!
 ```
 
@@ -867,19 +867,18 @@ def compute_reactor_capacity(self):
 
 **What NOT to store:**
 ```python
-# ❌ Don't store state/control symbols as attributes
+# Don't store state/control symbols as attributes
 # self.C_A_sym = sp.symbols('C_A')  # Redundant!
 
-# ❌ Don't store temporary calculations
+# Don't store temporary calculations
 # self.r1 = k1 * C_A * sp.exp(-E1/T)  # Use local variable
 
-# ❌ Don't store parameter values not used elsewhere
+# Don't store parameter values not used elsewhere
 # If k1 is only in _f_sym, just put it in self.parameters
 ```
 :::
 
 For our batch reactor, we **explicitly set** most optional fields for documentation purposes, but only `self.order` and `self.sde_type` are redundant (they match defaults).
-:::
 
 ### Understanding System Order in Detail
 
@@ -998,7 +997,7 @@ def setup_equilibria(self):
 **Common mistake:** Trying to access parameters via `self.parameters[sp.symbols("param_name")]`
 
 ```python
-# ❌ WRONG: Creates a NEW symbol, won't match dictionary key
+# WRONG: Creates a NEW symbol, won't match dictionary key
 T_amb = self.parameters[sp.symbols("T_amb")]  # KeyError!
 ```
 
