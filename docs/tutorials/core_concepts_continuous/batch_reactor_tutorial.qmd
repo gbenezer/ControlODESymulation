@@ -372,13 +372,183 @@ self._h_sym = sp.Matrix([C_A, C_B, T])
 To define purely stochastic systems with only diffusion terms and no drift terms, self._f_sym must be defined as a symbolic column vector of zero elements with the same dimensionality as the number of state variables.
 :::
 
-The following steps are optional, but recommended for explicit documentation of system behavior
+## Required vs Optional System Definition Elements
 
-The order (number of time derivatives) is set to 1 by default, but can be set higher. If the order is higher than 1, the expression in self._f_sym must return only the highest derivative.
+Understanding what's required versus optional helps you define systems efficiently while maintaining clarity. Here's the complete breakdown:
 
-The SDE type is set to Itô by default, but can be set to Stratonovich with self.sde_type = "stratonovich" if needed.
+::: {.callout-important}
+## Required Elements
 
-Upon initialization, the origin and zero control are set as an equilibrium of the system, but if the user specifies a setup_equilibria method, it will be run after system setup to add necessary system equilibria automatically as well. This is especially useful if the system equilibria are parameter dependent. 
+Every `define_system()` method **must** define:
+
+1. **`self.state_vars`**: List of state variable symbols
+   ```python
+   self.state_vars = [C_A, C_B, T]
+   ```
+
+2. **`self.control_vars`**: List of control variable symbols (empty list `[]` for autonomous systems)
+   ```python
+   self.control_vars = [Q]  # or [] for autonomous
+   ```
+
+3. **`self.parameters`**: Dictionary mapping symbolic parameters to numerical values
+   ```python
+   self.parameters = {k1: 0.5, k2: 0.3, ...}
+   ```
+
+4. **`self._f_sym`**: Symbolic expression for system dynamics (drift for SDEs)
+   ```python
+   self._f_sym = sp.Matrix([dC_A_dt, dC_B_dt, dT_dt])
+   ```
+
+5. **`self.diffusion_expr`** (stochastic systems only): Diffusion matrix for SDE noise structure
+   ```python
+   self.diffusion_expr = sp.Matrix([[sigma_A, 0, 0], ...])
+   ```
+:::
+
+::: {.callout-tip}
+## Optional Elements with Sensible Defaults
+
+These fields have **automatic defaults** if not specified:
+
+### `self.output_vars` (default: `[]`)
+List of computed output symbols (not states). Leave empty if you only observe states.
+```python
+self.output_vars = []  # Default - no computed outputs
+```
+
+### `self._h_sym` (default: full state vector)
+Output map $y = h(x)$. If not specified, defaults to observing all states.
+```python
+# Explicitly set (same as default for our reactor):
+self._h_sym = sp.Matrix([C_A, C_B, T])
+
+# If omitted, framework uses: self._h_sym = sp.Matrix(self.state_vars)
+```
+
+### `self.order` (default: `1`)
+System order defines how you represent system dynamics. Nearly all systems use `order=1` (first-order state-space form). See the detailed explanation below for when higher-order forms are useful.
+```python
+self.order = 1  # Default - first-order state-space form
+```
+
+### `self.sde_type` (default: `"ito"`)
+For stochastic systems, specifies SDE interpretation.
+```python
+self.sde_type = "ito"  # Default
+# Alternative: self.sde_type = "stratonovich"
+```
+:::
+
+::: {.callout-tip}
+## Optional Methods
+
+### `setup_equilibria()`
+If defined, automatically called after system initialization to add equilibria. Useful when equilibria depend on system parameters.
+
+```python
+def setup_equilibria(self):
+    # Add parameter-dependent equilibria
+    T_amb = self.parameters[sp.symbols("T_amb")]
+    self.add_equilibrium("complete", x_eq=np.array([0.0, 0.0, T_amb]), ...)
+```
+
+If not defined, only the origin equilibrium is added by default.
+
+### Custom Methods and Fields
+You can add any additional methods or fields that don't conflict with base class names:
+```python
+def define_system(self, ...):
+    # ... standard setup ...
+    
+    # Custom fields for your application
+    self.C_A0 = C_A0  # Store initial condition
+    self.reaction_pathway = "A->B->C"
+    
+def compute_conversion_rate(self, C_A_current):
+    """Custom method for domain-specific calculations."""
+    return (self.C_A0 - C_A_current) / self.C_A0
+```
+:::
+
+For our batch reactor, we **explicitly set** most optional fields for documentation purposes, but only `self.order` and `self.sde_type` are redundant (they match defaults).
+:::
+
+### Understanding System Order in Detail
+
+::: {.callout-note collapse="true"}
+## System Order: First-Order vs Higher-Order Forms
+
+The `self.order` field specifies how you represent the system dynamics. There are two mathematically equivalent ways to define systems:
+
+### First-Order State-Space Form (order=1, **default**)
+
+The system is written in first-order form where `self._f_sym` returns **all** time derivatives.
+
+**Example: Second-order pendulum** with states $x = [\theta, \dot{\theta}]$
+
+```python
+self.state_vars = [theta, theta_dot]  # Both position and velocity
+self._f_sym = sp.Matrix([
+    theta_dot,                          # d(theta)/dt
+    -(g/L)*sp.sin(theta) - (b/m)*theta_dot + u/m  # d(theta_dot)/dt
+])
+self.order = 1  # Returns ALL derivatives [d(theta)/dt, d(theta_dot)/dt]
+```
+
+This is the **standard state-space form** used in control theory. For an $n$-th order physical system with generalized coordinate $q$, the state is:
+
+$$x = [q, \dot{q}, \ddot{q}, \ldots, q^{(n-1)}]$$
+
+and `self._f_sym` returns the full derivative vector:
+
+$$\frac{dx}{dt} = [\dot{q}, \ddot{q}, \ldots, q^{(n)}]$$
+
+### Higher-Order Form (order=n)
+
+The system is written in higher-order form where `self._f_sym` returns **only the highest** derivative.
+
+**Example: Same pendulum** with `order=2`
+
+```python
+self.state_vars = [theta, theta_dot]  # Still both variables
+self._f_sym = sp.Matrix([
+    -(g/L)*sp.sin(theta) - (b/m)*theta_dot + u/m  # ONLY d²(theta)/dt²
+])
+self.order = 2  # Returns ONLY highest derivative d²(theta)/dt²
+```
+
+The state vector is the same $x = [\theta, \dot{\theta}]$, but `self._f_sym` only returns $\ddot{\theta}$. The framework **automatically constructs** the full first-order representation during linearization by adding the kinematic relationships:
+
+$$\frac{d\theta}{dt} = \dot{\theta}, \quad \frac{d\dot{\theta}}{dt} = \ddot{\theta}$$
+
+### When to Use Each Form
+
+- **First-order (order=1)**: 
+  - **Use this for most systems** - it's explicit and standard
+  - Required when dynamics aren't naturally hierarchical
+  - Example: Our batch reactor has independent first derivatives for $C_A$, $C_B$, and $T$
+
+- **Higher-order (order=n)**:
+  - Natural for mechanical systems (position → velocity → acceleration)
+  - More compact when you have $\ddot{q} = f(q, \dot{q}, u)$ form
+  - Example: Robotics, where you directly compute joint accelerations
+
+### Requirements
+
+- For `order=n > 1`: The number of states must be divisible by `n` (i.e., `nx % n == 0`)
+- State variables should be ordered as $[q_1, \ldots, q_m, \dot{q}_1, \ldots, \dot{q}_m, \ldots]$ for proper automatic construction
+- The framework handles all conversions transparently during linearization
+
+### This Tutorial
+
+Our batch reactor uses **order=1** (default) because the three state variables $(C_A, C_B, T)$ have independent first-order dynamics—there's no natural hierarchy to exploit.
+:::
+
+## Equilibrium Setup Example
+
+Our reactor's `setup_equilibria()` method demonstrates how to define parameter-dependent equilibria: 
 
 ```python
 def setup_equilibria(self):
@@ -415,7 +585,55 @@ def setup_equilibria(self):
         self.set_default_equilibrium("complete")
 ```
 
-Finally, a user can define other fields and methods for downstream usage as long as they don't interfere with the system's base methods and fields.
+## Summary: Building Your System
 
+To define a symbolic system in ControlDESymulation:
+
+**Minimum viable system:**
+```python
+def define_system(self):
+    # 1. Define symbolic variables
+    x = sp.symbols('x')
+    u = sp.symbols('u')
+    
+    # 2. Set required fields
+    self.state_vars = [x]
+    self.control_vars = [u]  # or [] for autonomous
+    self.parameters = {}     # or {param: value}
+    self._f_sym = sp.Matrix([...])  # Your dynamics
+    
+    # 3. For stochastic systems, add:
+    # self.diffusion_expr = sp.Matrix([...])
+```
+
+**Well-documented system (recommended):**
+```python
+def define_system(self, param1=1.0, param2=2.0):
+    # 1. Define all symbolic variables
+    x, y = sp.symbols('x y')
+    u = sp.symbols('u')
+    p1, p2 = sp.symbols('p1 p2', positive=True)
+    
+    # 2. Set required fields
+    self.state_vars = [x, y]
+    self.control_vars = [u]
+    self.parameters = {p1: param1, p2: param2}
+    self._f_sym = sp.Matrix([...])
+    
+    # 3. Explicitly set optional fields for clarity
+    self.output_vars = []           # No computed outputs
+    self._h_sym = sp.Matrix([x, y]) # Observe full state
+    self.order = 1                  # First-order form
+    
+    # 4. For stochastic systems:
+    # self.diffusion_expr = sp.Matrix([...])
+    # self.sde_type = "ito"  # or "stratonovich"
+
+def setup_equilibria(self):
+    # Optional: Add parameter-dependent equilibria
+    self.add_equilibrium("my_equilibrium", x_eq=..., u_eq=...)
+```
+
+The reactor example in this tutorial follows the well-documented approach.
 
 TODO: go over basic trajectory and phase plotting
