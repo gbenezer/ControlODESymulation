@@ -422,7 +422,7 @@ dT &amp;= (Q - \alpha(T - T_{\text{amb}}))\,dt + \sigma_T\,dW_T
 <section id="system-definition" class="level2">
 <h2 class="anchored" data-anchor-id="system-definition">System Definition</h2>
 <p>The full system definition is as follows:</p>
-<div id="7286cc61" class="cell" data-execution_count="1">
+<div id="a046e205" class="cell" data-execution_count="1">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Optional</span>
@@ -1493,7 +1493,7 @@ dT &amp;= (Q - \alpha(T - T_{\text{amb}}))\,dt + \sigma_T\,dW_T
 <section id="inspecting-the-system" class="level3">
 <h3 class="anchored" data-anchor-id="inspecting-the-system">Inspecting the System</h3>
 <p>Before running simulations, let’s examine what we’ve created:</p>
-<div id="6ca12e6d" class="cell" data-execution_count="2">
+<div id="069b5273" class="cell" data-execution_count="2">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Display symbolic equations</span></span>
@@ -1535,7 +1535,7 @@ Output: y = h(x)
 <li>Output map (if defined)</li>
 </ul>
 <p>We can also inspect system properties programmatically:</p>
-<div id="15180894" class="cell" data-execution_count="3">
+<div id="43fd6805" class="cell" data-execution_count="3">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of states: </span><span class="sc">{</span>reactor<span class="sc">.</span>nx<span class="sc">}</span><span class="ss">"</span>)</span>
@@ -1611,7 +1611,7 @@ Parameters: [k1, k2, E1, E2, alpha, T_amb, sigma_A, sigma_B, sigma_T]</code></pr
 <section id="equilibrium-points" class="level3">
 <h3 class="anchored" data-anchor-id="equilibrium-points">Equilibrium Points</h3>
 <p>Our <code>setup_equilibria()</code> method created two equilibrium points. Let’s see them:</p>
-<div id="5ee82ad1" class="cell" data-execution_count="4">
+<div id="c889cbf4" class="cell" data-execution_count="4">
 <details open="" class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List all equilibria</span></span>
@@ -1784,7 +1784,7 @@ Max drift magnitude: 0.00e+00</code></pre>
 </section>
 <section id="next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="next-steps">Next Steps</h2>
-<p><strong>Tutorial 2: Simulation and Visualization</strong></p>
+<p><strong><a href="../../tutorials/core_concepts_continuous/batch_reactor_simulation.html">Tutorial 2: Simulation and Visualization</a></strong></p>
 <ul>
 <li>Single trajectory simulation with <code>integrate()</code></li>
 <li>Monte Carlo ensembles with <code>n_paths</code></li>
@@ -3640,7 +3640,7 @@ Max drift magnitude: 0.00e+00</code></pre>
 <span id="cb57-1396"><a href="#cb57-1396" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb57-1397"><a href="#cb57-1397" aria-hidden="true" tabindex="-1"></a><span class="fu">## Next Steps</span></span>
 <span id="cb57-1398"><a href="#cb57-1398" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-1399"><a href="#cb57-1399" aria-hidden="true" tabindex="-1"></a>**Tutorial 2: Simulation and Visualization**</span>
+<span id="cb57-1399"><a href="#cb57-1399" aria-hidden="true" tabindex="-1"></a>**[Tutorial 2: Simulation and Visualization](batch_reactor_simulation.qmd)**</span>
 <span id="cb57-1400"><a href="#cb57-1400" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb57-1401"><a href="#cb57-1401" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Single trajectory simulation with <span class="in">`integrate()`</span></span>
 <span id="cb57-1402"><a href="#cb57-1402" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Monte Carlo ensembles with <span class="in">`n_paths`</span></span>
