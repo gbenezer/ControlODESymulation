@@ -31,8 +31,8 @@ The reaction sequence $A \to B \to C$ follows first-order Arrhenius kinetics:
 
 $$
 \begin{aligned}
-r_1 &= k_1 \cdot C_A \cdot \exp(-E_1/T) \\
-r_2 &= k_2 \cdot C_B \cdot \exp(-E_2/T)
+r_1 &= k_1 \cdot C_A \cdot \exp(\frac{-E_1}{T}) \\
+r_2 &= k_2 \cdot C_B \cdot \exp(\frac{-E_2}{T})
 \end{aligned}
 $$
 
@@ -286,11 +286,12 @@ self.output_vars = []
 ```
 
 The necessary symbolic variables include:
-    - State variables
-    - Control variables
-    - Parameter variables
 
-::: {.callout-important}
+- State variables
+- Control variables
+- Parameter variables
+
+::: {.callout-warning}
 ## What to Store as Attributes vs Local Variables
 
 A common source of confusion: **when should you store something as `self.something` vs keep it as a local variable?**
@@ -299,7 +300,7 @@ A common source of confusion: **when should you store something as `self.somethi
 
 **State and control symbols → Keep LOCAL (don't store as attributes):**
 ```python
-# ✓ CORRECT: Local variables only
+# CORRECT: Local variables only
 C_A, C_B, T = sp.symbols("C_A C_B T", real=True)
 Q = sp.symbols("Q", real=True)
 
@@ -325,7 +326,7 @@ self.parameters = {self.T_amb_sym: T_amb_val}  # Can look up later
 **Store parameter values if used in `setup_equilibria()` or custom methods:**
 ```python
 def define_system(self, T_amb_val=300.0, alpha_val=0.1, ...):
-    # ✓ Store values needed in setup_equilibria
+    # Store values needed in setup_equilibria
     self.T_amb_val = T_amb_val
     self.alpha_val = alpha_val
     
@@ -351,11 +352,11 @@ def define_system(self, k1_val=0.5, k2_val=0.3, ...):
 **Store data needed for conditional logic or custom methods:**
 ```python
 def define_system(self, C_A0=None, T0=None, ...):
-    # ✓ Store for use in setup_equilibria
+    # Store for use in setup_equilibria
     self.C_A0 = C_A0
     self.T0 = T0
     
-    # ✓ Store custom application data
+    # Store custom application data
     self.reaction_pathway = "A->B->C"
     self.reactor_volume = 10.0  # liters
 ```
@@ -376,18 +377,18 @@ def define_system(self, C_A0=None, T0=None, ...):
    - Used in logic or custom methods? → **Yes** (`self.C_A0`, `self.reactor_volume`)
    - Temporary calculation? → **No** (keep as local variable)
 
-### Summary Table
+#### Summary Table
 
 | Item | Store as Attribute? | Example |
 |------|---------------------|---------|
-| State symbols (`C_A`, `T`) | ❌ No | Keep local, use `self.state_vars` |
-| Control symbols (`Q`) | ❌ No | Keep local, use `self.control_vars` |
-| Parameter symbols (`T_amb`) | ❌ No (usually) | Keep local, use as dict keys |
-| Parameter values (for equilibria) | ✅ Yes | `self.T_amb_val = T_amb_val` |
-| Parameter values (not used later) | ❌ No | Just put in `self.parameters` |
-| Initial conditions (`C_A0`, `T0`) | ✅ Yes | `self.C_A0 = C_A0` |
-| Custom application data | ✅ Yes | `self.reactor_volume = 10.0` |
-| Temporary calculations | ❌ No | `r1 = k1 * C_A * exp(...)` |
+| State symbols (`C_A`, `T`) | No | Keep local, use `self.state_vars` |
+| Control symbols (`Q`) | No | Keep local, use `self.control_vars` |
+| Parameter symbols (`T_amb`) | No (usually) | Keep local, use as dict keys |
+| Parameter values (for equilibria) | Yes | `self.T_amb_val = T_amb_val` |
+| Parameter values (not used later) | No | Just put in `self.parameters` |
+| Initial conditions (`C_A0`, `T0`) | Yes | `self.C_A0 = C_A0` |
+| Custom application data | Yes | `self.reactor_volume = 10.0` |
+| Temporary calculations | No | `r1 = k1 * C_A * exp(...)` |
 
 **Rule of thumb:** If you'll need it in `setup_equilibria()` or a custom method, store it as `self.something`. Otherwise, keep it local.
 :::
@@ -412,7 +413,7 @@ There are two related but distinct concepts for system outputs:
 - `self._h_sym = sp.Matrix([x, E])` outputs position and energy (but not velocity)
 :::
 
-::: {.callout-warning}
+::: {.callout-note collapse="true"}
 ## Autonomous Systems
 
 An **autonomous system** has no external control inputs—its dynamics depend only on the current state (and possibly time). Examples include free oscillators, population dynamics, and unforced chemical reactions.
@@ -422,10 +423,10 @@ An **autonomous system** has no external control inputs—its dynamics depend on
 To define an autonomous system, you **must** set `self.control_vars = []` (an empty list). Do not use `None` or omit the field—this will cause errors during system initialization.
 
 ```python
-# ✓ CORRECT: Autonomous system
+# CORRECT: Autonomous system
 self.control_vars = []
 
-# ✗ WRONG: Will cause errors
+# WRONG: Will cause errors
 self.control_vars = None
 # self.control_vars = ...  (omitting the field)
 ```
@@ -453,15 +454,16 @@ self._f_sym = sp.Matrix([
 ### Calling Conventions
 
 When evaluating or integrating autonomous systems:
+
 - The `u` parameter in `system(x, u)` should be `None` or omitted
 - Integration accepts `u=None` or no control specification
 - The framework automatically handles zero control internally
 
 ```python
 # Evaluating dynamics
-dxdt = system(x)              # ✓ Recommended
-dxdt = system(x, u=None)      # ✓ Also valid
-dxdt = system(x, np.array([])) # ✓ Works but unnecessary
+dxdt = system(x)              # Recommended
+dxdt = system(x, u=None)      # Also valid
+dxdt = system(x, np.array([])) # Works but unnecessary
 
 # Integration
 result = system.integrate(x0=x_init, t_span=(0, 10))
@@ -490,7 +492,8 @@ Both are valid modeling choices. Use controlled form when you plan to apply inpu
 
 ### Time-Varying vs Autonomous
 
-**Important distinction**: 
+**Important distinction**:
+
 - **Autonomous** = no control inputs (`self.control_vars = []`)
 - **Time-invariant** = dynamics don't explicitly depend on time
 - **Time-varying** = dynamics explicitly depend on time
@@ -500,11 +503,13 @@ A system can be autonomous but time-varying (e.g., $\dot{x} = -\sin(t) \cdot x$)
 ### Practical Examples
 
 **Autonomous systems:**
+
 - Lotka-Volterra predator-prey: $\dot{x} = \alpha x - \beta xy$, $\dot{y} = \delta xy - \gamma y$
 - Van der Pol oscillator: $\ddot{x} + \mu(x^2-1)\dot{x} + x = 0$
 - Free batch reactor (no heating): $\dot{C}_A = -k_1 C_A e^{-E_1/T}$, $\dot{T} = -\alpha(T - T_{amb})$
 
 **Controlled systems:**
+
 - Inverted pendulum with torque: $\ddot{\theta} = (g/L)\sin\theta + u/(mL^2)$
 - Batch reactor with heating (this tutorial): $\dot{T} = Q - \alpha(T - T_{amb})$
 - Linear regulator: $\dot{x} = Ax + Bu$
@@ -540,7 +545,7 @@ self.diffusion_expr = sp.Matrix(
 )
 ```
 
-::: {.callout-note}
+::: {.callout-note collapse="true"}
 ## Diffusion Matrix Structure
 
 The diffusion matrix $G$ has dimensions $(n_{\text{states}} \times n_{\text{Wiener}})$, where each column corresponds to an independent Wiener process and each row to a state variable. The stochastic term in the SDE is $G\,dW_t$ where $dW_t$ is a vector of independent Wiener increments.
@@ -569,7 +574,7 @@ The diffusion matrix $G$ has dimensions $(n_{\text{states}} \times n_{\text{Wien
 self._h_sym = sp.Matrix([C_A, C_B, T])
 ```
 
-::: {.callout-note}
+::: {.callout-note collapse="true"}
 ## Pure Diffusion Systems
 
 A **pure diffusion system** (also called a pure noise process) has no deterministic drift—dynamics are driven entirely by stochastic forcing. Examples include Brownian motion, geometric random walks, and models of measurement noise.
@@ -587,16 +592,16 @@ This means the state evolution is governed entirely by the diffusion term. The d
 To define a pure diffusion system, you **must** set `self._f_sym` to a zero vector with the same dimension as the number of state variables. Use SymPy's `zeros()` function or explicitly construct the zero matrix:
 
 ```python
-# ✓ CORRECT: Pure diffusion system (3 states)
+# CORRECT: Pure diffusion system (3 states)
 self._f_sym = sp.zeros(3, 1)  # Recommended approach
 
-# ✓ ALSO CORRECT: Explicit zero matrix
+# ALSO CORRECT: Explicit zero matrix
 self._f_sym = sp.Matrix([0, 0, 0])
 
-# ✓ ALSO CORRECT: Using symbols and expressions that equal zero
+# ALSO CORRECT: Using symbols and expressions that equal zero
 self._f_sym = sp.Matrix([x - x, y - y, z - z])  # Works but unnecessary
 
-# ✗ WRONG: Omitting _f_sym entirely (required field)
+# WRONG: Omitting _f_sym entirely (required field)
 # self._f_sym = None  # Will cause errors
 ```
 
@@ -659,6 +664,7 @@ Note: Classic geometric Brownian motion includes drift ($dS = \mu S\,dt + \sigma
 ### When to Use Pure Diffusion
 
 **Use pure diffusion when modeling:**
+
 - **Brownian motion**: Pure random walks in continuous time
 - **Measurement noise**: Sensors with zero mean noise and no drift
 - **Diffusion-only processes**: Heat diffusion at steady-state, particle diffusion
@@ -666,6 +672,7 @@ Note: Classic geometric Brownian motion includes drift ($dS = \mu S\,dt + \sigma
 - **Noise characterization**: Estimating noise covariance without modeling dynamics
 
 **Don't use pure diffusion when:**
+
 - System has deterministic dynamics (even if noisy)
 - Modeling physical systems with forces/flows (use drift + diffusion)
 - Equilibrium points matter (pure diffusion has no equilibria except possibly at boundaries)
@@ -685,6 +692,7 @@ The dynamics are more complex, and the SDE interpretation (Itô vs Stratonovich)
 ### Integration Considerations
 
 Pure diffusion systems require:
+
 - **Stochastic integrators**: Methods like Euler-Maruyama, Milstein, or higher-order SDE schemes
 - **Fine time steps**: To resolve the noise structure accurately
 - **Multiple realizations**: Statistical properties emerge from ensemble averaging
@@ -739,11 +747,13 @@ The batch reactor in this tutorial has **drift + diffusion** because chemical re
 ### Practical Applications
 
 **Pure Brownian Motion:**
+
 - Modeling colloidal particle motion in fluids
 - Financial models with zero expected return
 - Null hypothesis testing in time series
 
 **State-Dependent Diffusion:**
+
 - Volatility modeling in finance (stochastic volatility models)
 - Birth-death processes at steady-state
 - Fluctuation-dissipation in statistical mechanics
@@ -787,7 +797,7 @@ Every `define_system()` method **must** define:
    ```
 :::
 
-::: {.callout-tip}
+::: {.callout-tip collapse="true"}
 ## Optional Elements with Sensible Defaults
 
 These fields have **automatic defaults** if not specified:
@@ -821,7 +831,7 @@ self.sde_type = "ito"  # Default
 ```
 :::
 
-::: {.callout-tip}
+::: {.callout-tip collapse="true"}
 ## Optional Methods
 
 ### `setup_equilibria()`
@@ -850,7 +860,7 @@ You can add any additional methods or fields that don't conflict with base class
 def define_system(self, C_A0=1.0, T0=350.0, volume=10.0, ...):
     # ... standard setup ...
     
-    # ✓ Store values needed in custom methods
+    # Store values needed in custom methods
     self.C_A0 = C_A0  # Initial condition
     self.T0 = T0      # Initial temperature
     self.reactor_volume = volume  # Custom application data
@@ -931,11 +941,13 @@ $$\frac{d\theta}{dt} = \dot{\theta}, \quad \frac{d\dot{\theta}}{dt} = \ddot{\the
 ### When to Use Each Form
 
 - **First-order (order=1)**: 
+
   - **Use this for most systems** - it's explicit and standard
   - Required when dynamics aren't naturally hierarchical
   - Example: Our batch reactor has independent first derivatives for $C_A$, $C_B$, and $T$
 
 - **Higher-order (order=n)**:
+
   - Natural for mechanical systems (position → velocity → acceleration)
   - More compact when you have $\ddot{q} = f(q, \dot{q}, u)$ form
   - Example: Robotics, where you directly compute joint accelerations
@@ -1015,7 +1027,7 @@ def define_system(self, T_amb_val=300.0, ...):
 
 def setup_equilibria(self):
     # Use the stored value directly
-    T_amb = self.T_amb_val  # ✓ Works!
+    T_amb = self.T_amb_val  # Works!
 ```
 
 **Solution 2: Store symbol references** (Recommended for production):
@@ -1027,7 +1039,7 @@ def define_system(self, T_amb_val=300.0, ...):
 
 def setup_equilibria(self):
     # Use the stored symbol to look up value
-    T_amb = self.parameters[self.T_amb_sym]  # ✓ Works!
+    T_amb = self.parameters[self.T_amb_sym]  # Works!
 ```
 
 Our tutorial uses Solution 1 for simplicity and clarity.
@@ -1058,6 +1070,7 @@ result = system.integrate(
 ```
 
 **Stochastic-specific features:**
+
 - `seed`: Random number generator seed for reproducible noise
 - `n_paths`: Built-in Monte Carlo simulation (returns shape `(n_paths, T, nx)`)
 - Stochastic methods: `'euler_maruyama'`, `'milstein'`, `'heun'`, etc.
@@ -1097,6 +1110,7 @@ result = system.integrate(
 ```
 
 **Returns:** `SDEIntegrationResult` with fields:
+
 - `t`: Time points `(T,)` - uniform for fixed-step, may vary for adaptive
 - `x`: States `(T, nx)` or `(n_paths, T, nx)` for Monte Carlo
 - `success`, `nfev`, `diffusion_evals`: Solver diagnostics
@@ -1114,6 +1128,7 @@ result = system.simulate(
 ```
 
 **Key differences:**
+
 - Always returns regular time grid (uniform spacing `dt`)
 - Cleaner API for feedback controllers
 - No `seed` or `n_paths` support
@@ -1121,6 +1136,7 @@ result = system.simulate(
 - Returns `SimulationResult` in time-major format `(T, nx)`
 
 **When to use each:**
+
 - **Stochastic systems (SDEs)** → `integrate()` with stochastic methods
 - **Deterministic systems (ODEs)** → Either method; `simulate()` is simpler
 - **Monte Carlo simulations** → `integrate()` with `n_paths > 1`
@@ -1145,6 +1161,7 @@ reactor.print_equations(simplify=True)
 ```
 
 This shows:
+
 - State and control variables
 - System dimensions (nx=3 states, nu=1 control)
 - Symbolic drift dynamics with parameters substituted
@@ -1170,6 +1187,7 @@ For this tutorial, we use **Euler-Maruyama** (`method='euler_maruyama'`), the si
 - **Fast**: Minimal computation per step
 
 Other common methods:
+
 - **`milstein`**: Higher accuracy for multiplicative noise, still fixed-step
 - **`heun`**: Good balance of accuracy and stability, fixed-step
 - **Advanced methods**: May use adaptive stepping (see note below)
@@ -1191,6 +1209,7 @@ result = system.integrate(
 ```
 
 The solver will use adaptive steps internally for efficiency but interpolate to provide output at the exact times specified in `t_eval`. This gives you:
+
 - Efficiency of adaptive stepping during integration
 - Uniform time grid for downstream analysis and visualization
 - Control over output density
@@ -1316,8 +1335,8 @@ def define_system(self, param1=1.0, param2=2.0):
     
     # 5. Store parameter VALUES as attributes (if needed in setup_equilibria)
     # DON'T store symbols - they're already in self.state_vars, self.parameters
-    # self.param1_val = param1  # ✓ Store VALUE for later use
-    # self.param2_val = param2  # ✓ Store VALUE for later use
+    # self.param1_val = param1  # Store VALUE for later use
+    # self.param2_val = param2  # Store VALUE for later use
 
 def setup_equilibria(self):
     # Optional: Add parameter-dependent equilibria
@@ -1339,23 +1358,27 @@ The reactor example in this tutorial follows the well-documented approach with b
 This tutorial covered the **anatomy of a symbolic system** through a stochastic batch reactor example:
 
 ### System Definition
+
 - How to subclass `ContinuousStochasticSystem`
 - Required fields: `state_vars`, `control_vars`, `parameters`, `_f_sym`, `diffusion_expr`
 - Optional fields: `output_vars`, `_h_sym`, `order`, `sde_type`
 - Special cases: Autonomous systems and pure diffusion systems
 - Parameter-dependent equilibria via `setup_equilibria()`
 - **What to store as attributes vs local variables**:
+
   - Symbols (state, control, parameters) → Keep local
   - Parameter values (used in `setup_equilibria`) → Store as `self.param_val`
   - Initial conditions and custom data → Store as attributes
 
 ### System Introspection
+
 - `print_equations()`: Display symbolic dynamics
 - `list_equilibria()`: See all equilibrium points
 - `get_equilibrium()`: Access equilibrium states and controls
 - Programmatic access: `nx`, `nu`, `state_vars`, `parameters`
 
 ### Critical Distinctions
+
 - **Drift vs Diffusion**: Deterministic dynamics vs stochastic forcing
 - **Itô vs Stratonovich**: Different stochastic calculus interpretations
 - **Equilibria in SDEs**: Fixed points of drift only (stochastic fluctuations persist)
@@ -1365,21 +1388,10 @@ This tutorial covered the **anatomy of a symbolic system** through a stochastic 
 
 ## Next Steps
 
-**Tutorial 2: Simulation and Visualization** (Coming next)
+**Tutorial 2: Simulation and Visualization**
+
 - Single trajectory simulation with `integrate()`
 - Monte Carlo ensembles with `n_paths`
 - Time series visualization with `reactor.plotter`
 - Phase portraits and state-space analysis
 - Ensemble statistics and confidence bands
-
-**Tutorial 3: Linearization and Stability**
-- Computing linearizations around equilibria
-- Stability analysis via eigenvalues
-- Controllability and observability
-
-**Tutorial 4: Control Design**
-- LQR controller synthesis
-- Kalman filter estimation
-- Combined LQG control
-
-TODO: go over basic trajectory and phase plotting
