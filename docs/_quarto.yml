@@ -30,14 +30,11 @@ website:
           - architecture/Delegation_Layer_Architecture.qmd
       - text: "Tutorials"
         menu:
-          - tutorials/getting_started/basic_usage.qmd
-      - text: "Examples"
-        menu:
-          - examples/pendulum_control.qmd
-          - examples/cartpole_swingup.qmd
-          - examples/quadrotor_lqr.qmd
-          - examples/cstr_multiplicity.qmd
-          - examples/lorenz_chaos.qmd
+          - text: "Index"
+            file: tutorials/index.qmd
+          - text: "---"
+          - tutorials/core_concepts_continuous/batch_reactor_system_definition.qmd
+          - tutorials/core_concepts_continuous/batch_reactor_simulation.qmd
       - text: "API Reference"
         file: api/index.qmd
     
@@ -67,25 +64,13 @@ website:
     
     - title: "Tutorials"
       contents:
-        - section: "Small Demonstrations of Basic Functionality"
+        - section: "Small Demonstration of Basic Functionality"
           contents:
           - tutorials/getting_started/basic_usage.qmd
-    
-    - title: "Examples"
-      contents:
-        - section: "Mechanical Systems"
+        - section: "Workflow Tutorial Series with Chemical Reactors"
           contents:
-            - examples/pendulum_control.qmd
-            - examples/cartpole_swingup.qmd
-        - section: "Aerospace"
-          contents:
-            - examples/quadrotor_lqr.qmd
-        - section: "Chemical"
-          contents:
-            - examples/cstr_multiplicity.qmd
-        - section: "Chaos & Dynamics"
-          contents:
-            - examples/lorenz_chaos.qmd
+          - tutorials/core_concepts_continuous/batch_reactor_system_definition.qmd
+          - tutorials/core_concepts_continuous/batch_reactor_simulation.qmd
 
 format:
   html:
