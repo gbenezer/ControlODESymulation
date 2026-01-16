@@ -40,6 +40,9 @@ import sympy as sp
 
 from cdesym import ContinuousStochasticSystem
 
+# Set a default time span that can be overwritten
+DEFAULT_SPAN = (0, 500)
+
 class ContinuousStochasticBatchReactor(ContinuousStochasticSystem):
     def define_system(
         self,
@@ -159,7 +162,7 @@ x0 = np.array([1.0, 0.0, 350.0])  # [C_A, C_B, T]
 result = reactor.integrate(
     x0=x0,
     u=lambda t: np.array([0.0]),  # No heating
-    t_span=(0, 50),
+    t_span=DEFAULT_SPAN,
     method='euler_maruyama',
     dt=0.05,
     seed=42  # Reproducible random noise
@@ -261,7 +264,7 @@ The `n_paths` parameter enables efficient Monte Carlo simulation:
 mc_result = reactor.integrate(
     x0=x0,
     u=lambda t: np.array([0.0]),
-    t_span=(0, 50),
+    t_span=DEFAULT_SPAN,
     method='euler_maruyama',
     dt=0.05,
     n_paths=500,  # Large ensemble for accurate statistics
@@ -364,7 +367,7 @@ from plotly.subplots import make_subplots
 
 # Create figure with 3 subplots
 fig = make_subplots(
-    rows=3, cols=1,
+    rows=1, cols=3,
     subplot_titles=('Concentration A', 'Concentration B', 'Temperature'),
     vertical_spacing=0.08
 )
@@ -381,7 +384,7 @@ for i, (name, color) in enumerate(zip(state_names, colors), 1):
             line=dict(color=color, width=2),
             mode='lines'
         ),
-        row=i, col=1
+        row=1, col=i
     )
     
     # 95% confidence band (mean ± 2σ)
@@ -399,15 +402,15 @@ for i, (name, color) in enumerate(zip(state_names, colors), 1):
             name=f'{name} (95% CI)',
             showlegend=True
         ),
-        row=i, col=1
+        row=1, col=i
     )
 
 fig.update_layout(
-    height=800,
-    title_text="Ensemble Statistics: Mean ± 2σ Confidence Bands",
-    showlegend=True
+    title=dict(text="Ensemble Statistics: Mean ± 2σ Confidence Bands", 
+    automargin=True, 
+    yref='container')
 )
-fig.update_xaxes(title_text="Time (s)", row=3, col=1)
+fig.update_xaxes(title_text="Time (s)", row=1, col=2)
 fig.show()
 ```
 
@@ -473,7 +476,7 @@ fig = reactor.phase_plotter.plot_3d(
     show_direction=False,  # Cleaner for multiple trajectories
     equilibria=[x_eq],  # Mark equilibrium in 3D
     title='3D Phase Portrait: Full State Space (20 Trajectories)',
-    theme='dark'
+    theme='publication'
 )
 fig.show()
 ```
@@ -643,8 +646,9 @@ for i, sigma_T in enumerate(noise_levels, 1):
     )
 
 fig.update_layout(
-    height=400,
-    title_text="Temperature Evolution: Effect of Noise Intensity (30 Trajectories Each)",
+    title=dict(text="Temperature Evolution: Effect of Noise Intensity (30 Trajectories Each)", 
+    automargin=True, 
+    yref='container'),
     showlegend=True
 )
 fig.update_xaxes(title_text="Time (s)")
@@ -932,10 +936,3 @@ This tutorial covered:
 - State feedback for trajectory tracking
 - Handling constraints and saturation
 - Separation principle for stochastic systems
-
-**Advanced Topics:**
-
-- Higher-order SDE integrators (Milstein, Runge-Kutta)
-- Strong vs weak convergence
-- Parameter estimation from noisy data
-- Rare event simulation
