@@ -150,8 +150,8 @@ Let's start with the simplest case: simulating one realization of the stochastic
 reactor = ContinuousStochasticBatchReactor(
     C_A0=1.0,      # Start with 1 mol/L of reactant A
     T0=350.0,      # Initial temperature above ambient
-    sigma_A=0.02,  # Concentration noise
-    sigma_B=0.02,
+    sigma_A=0.002,  # Concentration noise
+    sigma_B=0.002,
     sigma_T=2.0    # Temperature noise
 )
 
@@ -406,9 +406,10 @@ for i, (name, color) in enumerate(zip(state_names, colors), 1):
     )
 
 fig.update_layout(
-    title=dict(text="Ensemble Statistics: Mean ± 2σ Confidence Bands", 
-    automargin=True, 
-    yref='container')
+    height=800,
+    title_text="Ensemble Statistics: Mean ± 2σ Confidence Bands",
+    title_y=0.95,
+    showlegend=True
 )
 fig.update_xaxes(title_text="Time (s)", row=1, col=2)
 fig.show()
@@ -646,9 +647,9 @@ for i, sigma_T in enumerate(noise_levels, 1):
     )
 
 fig.update_layout(
-    title=dict(text="Temperature Evolution: Effect of Noise Intensity (30 Trajectories Each)", 
-    automargin=True, 
-    yref='container'),
+    height=800,
+    title_text="Temperature Evolution: Effect of Noise Intensity (30 Trajectories Each)",
+    title_y=0.95,
     showlegend=True
 )
 fig.update_xaxes(title_text="Time (s)")
