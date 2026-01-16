@@ -347,7 +347,7 @@ def define_system(self, k1_val=0.5, k2_val=0.3, ...):
     self._f_sym = sp.Matrix([k1 * C_A * sp.exp(-E1/T)])  # Used here only
 ```
 
-### Initial Conditions and Custom Fields: Always Store
+### Custom Fields: Always Store
 
 **Store data needed for conditional logic or custom methods:**
 ```python
@@ -373,22 +373,9 @@ def define_system(self, C_A0=None, T0=None, ...):
    - Used in `setup_equilibria()`? → **Yes** (`self.param_val`)
    - Only used in `_f_sym`? → **No** (just put in `self.parameters` dict)
 
-3. **Is it an initial condition or custom field?**
+3. **Is it a custom field?**
    - Used in logic or custom methods? → **Yes** (`self.C_A0`, `self.reactor_volume`)
    - Temporary calculation? → **No** (keep as local variable)
-
-#### Summary Table
-
-| Item | Store as Attribute? | Example |
-|------|---------------------|---------|
-| State symbols (`C_A`, `T`) | No | Keep local, use `self.state_vars` |
-| Control symbols (`Q`) | No | Keep local, use `self.control_vars` |
-| Parameter symbols (`T_amb`) | No (usually) | Keep local, use as dict keys |
-| Parameter values (for equilibria) | Yes | `self.T_amb_val = T_amb_val` |
-| Parameter values (not used later) | No | Just put in `self.parameters` |
-| Initial conditions (`C_A0`, `T0`) | Yes | `self.C_A0 = C_A0` |
-| Custom application data | Yes | `self.reactor_volume = 10.0` |
-| Temporary calculations | No | `r1 = k1 * C_A * exp(...)` |
 
 **Rule of thumb:** If you'll need it in `setup_equilibria()` or a custom method, store it as `self.something`. Otherwise, keep it local.
 :::
@@ -488,7 +475,7 @@ self.control_vars = []  # No control
 self._f_sym = sp.Matrix([v, -(k/m)*x - (b/m)*v])
 ```
 
-Both are valid modeling choices. Use controlled form when you plan to apply inputs; use autonomous form for analyzing free dynamics or when control is not part of the problem.
+Both are valid modeling choices. Use controlled form when you plan to apply inputs at some point; use autonomous form for analyzing free dynamics or when control is not part of the problem. Systems with control inputs expect at least a function that output constant zero input.
 
 ### Time-Varying vs Autonomous
 
@@ -635,32 +622,6 @@ class BrownianMotion3D(ContinuousStochasticSystem):
         self.sde_type = "ito"
 ```
 
-### Example: Geometric Brownian Motion
-
-A multiplicative noise process (state-dependent diffusion):
-
-```python
-class GeometricBrownianMotion(ContinuousStochasticSystem):
-    def define_system(self, sigma=0.2):
-        # Asset price
-        S = sp.symbols('S', positive=True)
-        sigma_sym = sp.symbols('sigma', positive=True)
-        
-        self.state_vars = [S]
-        self.control_vars = []
-        self.parameters = {sigma_sym: sigma}
-        
-        # ZERO DRIFT (pure diffusion version)
-        self._f_sym = sp.zeros(1, 1)
-        
-        # STATE-DEPENDENT DIFFUSION: dS = σ·S·dW
-        self.diffusion_expr = sp.Matrix([[sigma_sym * S]])
-        
-        self.sde_type = "ito"
-```
-
-Note: Classic geometric Brownian motion includes drift ($dS = \mu S\,dt + \sigma S\,dW$), but this shows the pure diffusion case for illustration.
-
 ### When to Use Pure Diffusion
 
 **Use pure diffusion when modeling:**
@@ -775,7 +736,7 @@ Every `define_system()` method **must** define:
    self.state_vars = [C_A, C_B, T]
    ```
 
-2. **`self.control_vars`**: List of control variable symbols (empty list `[]` for autonomous systems—see the detailed Autonomous Systems callout below)
+2. **`self.control_vars`**: List of control variable symbols (empty list `[]` for autonomous systems—see the detailed Autonomous Systems callout)
    ```python
    self.control_vars = [Q]  # or [] for autonomous
    ```
@@ -785,7 +746,7 @@ Every `define_system()` method **must** define:
    self.parameters = {k1: 0.5, k2: 0.3, ...}
    ```
 
-4. **`self._f_sym`**: Symbolic expression for system dynamics (drift for SDEs). For pure diffusion systems with zero drift, see the detailed Pure Diffusion Systems callout above.
+4. **`self._f_sym`**: Symbolic expression for system dynamics (drift for SDEs). For pure diffusion systems with zero drift, see the detailed Pure Diffusion Systems callout.
    ```python
    self._f_sym = sp.Matrix([dC_A_dt, dC_B_dt, dT_dt])
    # For pure diffusion: self._f_sym = sp.zeros(n_states, 1)
@@ -877,7 +838,8 @@ def compute_reactor_capacity(self):
 
 **What NOT to store:**
 ```python
-# Don't store state/control symbols as attributes
+# Don't store state/control symbols as attributes if there are no plans to change parameters post-initialization
+# otherwise, can be used to retrieve and re-define paramters in parameter dictionary
 # self.C_A_sym = sp.symbols('C_A')  # Redundant!
 
 # Don't store temporary calculations
@@ -1334,7 +1296,8 @@ def define_system(self, param1=1.0, param2=2.0):
     # self.sde_type = "ito"  # or "stratonovich"
     
     # 5. Store parameter VALUES as attributes (if needed in setup_equilibria)
-    # DON'T store symbols - they're already in self.state_vars, self.parameters
+    # DON'T store symbols unless parameters need to change post-initialization
+    # symbols are already in self.state_vars, self.parameters
     # self.param1_val = param1  # Store VALUE for later use
     # self.param2_val = param2  # Store VALUE for later use
 
@@ -1384,7 +1347,7 @@ This tutorial covered the **anatomy of a symbolic system** through a stochastic 
 - **Equilibria in SDEs**: Fixed points of drift only (stochastic fluctuations persist)
 - **integrate() vs simulate()**: Use `integrate()` for stochastic systems
 - **Fixed-step vs adaptive**: Most SDE methods use fixed `dt` (uniform time grid), some advanced methods adapt step size (use `t_eval` for uniform output)
-- **Parameter access**: Store parameter values as attributes (`self.param_val`) for use in `setup_equilibria()`, don't try to look up via `self.parameters[sp.symbols("param")]` (creates new symbol, causes KeyError)
+- **Parameter access**: Store parameter values as attributes (`self.param_val`) for use in `setup_equilibria()`, don't try to look up via `self.parameters[sp.symbols("param")]` (creates new symbol, causes KeyError). Store symbol references as attributes only if parameter values need to change post-initialization.
 
 ## Next Steps
 
