@@ -13,7 +13,64 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# System Result Types
+"""
+System Execution Result Types
+
+TypedDict definitions for all dynamical system execution results:
+- Integration results (adaptive time stepping)
+- Simulation results (regular time grid)
+- Rollout results (closed-loop with state feedback)
+
+Each category has deterministic and stochastic variants, across both
+continuous and discrete time systems, yielding 10 concrete result types
+organized via inheritance from 4 base types.
+
+Type Hierarchy
+--------------
+IntegrationResultBase
+    ├── IntegrationResult (ODE, adaptive grid)
+    └── SDEIntegrationResult (SDE, adaptive grid)
+
+SimulationResultBase
+    ├── SimulationResult (ODE, regular grid)
+    └── SDESimulationResult (SDE, regular grid)
+
+RolloutResultBase
+    ├── RolloutResult (ODE, closed-loop)
+    └── SDERolloutResult (SDE, closed-loop)
+
+DiscreteSimulationResultBase
+    ├── DiscreteSimulationResult (deterministic)
+    ├── DiscreteStochasticSimulationResult (stochastic)
+    ├── DiscreteRolloutResult (deterministic, closed-loop)
+    └── DiscreteStochasticRolloutResult (stochastic, closed-loop)
+
+All types share: 't', 'x', 'success', 'message', 'metadata'
+All use time-major shape convention: (T, nx) not (nx, T)
+
+Usage
+-----
+>>> from cdesym.types.system_results import (
+...     IntegrationResult,
+...     SimulationResult,
+...     SystemResult,  # Union of all types
+... )
+>>>
+>>> # Type hints for method returns
+>>> def integrate(self, x0, u, t_span) -> IntegrationResult:
+...     pass
+>>>
+>>> def simulate(self, x0, u, t_span, dt) -> SimulationResult:
+...     pass
+>>>
+>>> # Polymorphic functions
+>>> def plot_trajectory(result: SystemResult) -> None:
+...     plt.plot(result['t'], result['x'])
+
+See Also
+--------
+trajectories : Trajectory data types (StateTrajectory, ControlSequence, etc.)
+"""
 
 from typing import Any, Dict, Optional, Union
 from typing_extensions import TypedDict
