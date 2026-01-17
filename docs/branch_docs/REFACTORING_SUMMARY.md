@@ -4,6 +4,14 @@
 
 This document summarizes the breaking changes required to standardize the API before v1.0 release on PyPI. Since there are no public users yet, this is the optimal time for breaking changes.
 
+**Key Changes**:
+1. Time-major array ordering everywhere: `(T, nx)` not `(nx, T)`
+2. Consistent key names: `'t'`, `'x'`, `'u'` (not `'time'`, `'states'`, `'controls'`)
+3. Method separation: `simulate()` (open-loop) vs `rollout()` (closed-loop)
+4. **Complete type system**: 10 result types covering deterministic + stochastic variants
+
+**Estimated effort**: ~78 hours (~2 weeks)
+
 ---
 
 ## 1. Standardize Array Shape Convention (CRITICAL)
@@ -11,38 +19,114 @@ This document summarizes the breaking changes required to standardize the API be
 ### Problem
 - **Continuous systems**: Time-major `(T, nx)` - rows are time points
 - **Discrete systems**: State-major `(nx, T)` - columns are time points
-- Inconsistent indexing confuses users and breaks generic code
+- **Inconsistent** indexing confuses users and breaks generic code
 
 ### Solution
 **Standardize ALL systems on time-major convention: `(T, nx)`**
 
 ### Changes Required
 
-#### DiscreteSystemBase.simulate()
+#### Continuous: SimulationResult
 ```python
 # OLD return format
 {
-    'states': np.ndarray,      # (nx, n_steps+1) ❌
-    'controls': np.ndarray,    # (nu, n_steps) ❌
+    'time': np.ndarray,      # (T,) ❌
+    'states': np.ndarray,    # (nx, T) ❌ STATE-MAJOR
+    'controls': np.ndarray,  # (nu, T) ❌
 }
 
 # NEW return format
 {
-    'states': np.ndarray,      # (n_steps+1, nx) ✅
-    'controls': np.ndarray,    # (n_steps, nu) ✅
+    't': np.ndarray,         # (T,) ✅
+    'x': np.ndarray,         # (T, nx) ✅ TIME-MAJOR
+    'u': np.ndarray,         # (T, nu) ✅
 }
 ```
 
-#### Impact
-- DiscreteSymbolicSystem.simulate() implementation
-- DiscreteStochasticSystem.simulate_stochastic() implementation
-- DiscretizedSystem.simulate() and simulate_stochastic()
+#### Discrete: DiscreteSimulationResult
+```python
+# OLD return format
+{
+    'time_steps': np.ndarray,  # (T,) ❌
+    'states': np.ndarray,      # (nx, T) ❌ STATE-MAJOR
+    'controls': np.ndarray,    # (nu, T) ❌
+}
+
+# NEW return format
+{
+    't': np.ndarray,           # (T,) ✅
+    'x': np.ndarray,           # (T, nx) ✅ TIME-MAJOR
+    'u': np.ndarray,           # (T, nu) ✅
+}
+```
+
+### Impact
+- All system implementations
 - All discrete plotting code
 - All discrete examples and tests
+- User code that accesses result arrays
 
 ---
 
-## 2. Add rollout() Method to Continuous Systems
+## 2. Create Comprehensive Type System (NEW)
+
+### Problem
+- Old: Only basic TypedDict definitions in `trajectories.py`
+- Missing: Stochastic result types, rollout types, union types
+- No clear organization of result types
+
+### Solution
+**Create dedicated `system_results.py` module with complete type hierarchy**
+
+### Type Hierarchy
+
+```
+system_results.py (NEW MODULE)
+├── Base Types (4)
+│   ├── IntegrationResultBase
+│   ├── SimulationResultBase
+│   ├── RolloutResultBase
+│   └── DiscreteSimulationResultBase
+│
+├── Continuous Deterministic (3)
+│   ├── IntegrationResult (ODE, adaptive grid) ✅ already correct
+│   ├── SimulationResult (ODE, regular grid) ❌ needs update
+│   └── RolloutResult (ODE, closed-loop) ❌ NEW
+│
+├── Continuous Stochastic (3)
+│   ├── SDEIntegrationResult (SDE, adaptive grid) ✅ already correct
+│   ├── SDESimulationResult (SDE, regular grid) ❌ NEW
+│   └── SDERolloutResult (SDE, closed-loop) ❌ NEW
+│
+├── Discrete Deterministic (2)
+│   ├── DiscreteSimulationResult (open-loop) ❌ needs update
+│   └── DiscreteRolloutResult (closed-loop) ❌ needs update
+│
+├── Discrete Stochastic (2)
+│   ├── DiscreteStochasticSimulationResult ❌ NEW
+│   └── DiscreteStochasticRolloutResult ❌ NEW
+│
+└── Union Types (6)
+    ├── ContinuousIntegrationResultUnion
+    ├── ContinuousSimulationResultUnion
+    ├── ContinuousRolloutResultUnion
+    ├── DiscreteSimulationResultUnion
+    ├── DiscreteRolloutResultUnion
+    └── SystemResult (union of ALL types) ❌ NEW
+```
+
+### Total: 10 Concrete Types + 4 Base Types + 6 Union Types = 20 exports
+
+### Changes Required
+
+1. **Create** `src/cdesym/types/system_results.py` with all types
+2. **Update** `src/cdesym/types/trajectories.py` to import from system_results
+3. **Update** `src/cdesym/types/__init__.py` to export all types
+4. **Use** appropriate types in all system implementations
+
+---
+
+## 3. Add rollout() Method to Continuous Systems
 
 ### Problem
 - Discrete systems have `simulate()` (open-loop) and `rollout()` (closed-loop)
@@ -103,7 +187,7 @@ def rollout(
     dt: ScalarLike = 0.01,
     method: IntegrationMethod = "RK45",
     **kwargs
-) -> SimulationResult:
+) -> RolloutResult:
     """
     Closed-loop simulation with state-feedback controller(x, t).
     
@@ -112,29 +196,25 @@ def rollout(
     controller : Optional[Callable[[StateVector, float], ControlVector]]
         Feedback controller u = controller(x, t)
         State is primary argument (matches discrete convention)
+    
+    Returns
+    -------
+    RolloutResult
+        Includes 'controller_type' and 'closed_loop' fields
     """
-```
-
-#### Implementation Pattern
-```python
-def rollout(self, x0, controller, t_span, dt, method, **kwargs):
-    # Convert controller(x, t) to u(t) for simulate()
-    # (This requires integration, so actually call integrate() directly)
-    u_func = lambda t, x: controller(x, t) if controller else None
-    return self.integrate(x0, u_func, t_span, method=method, dt=dt, **kwargs)
 ```
 
 ---
 
-## 3. Override simulate() in ContinuousStochasticSystem
+## 4. Override simulate() and rollout() in ContinuousStochasticSystem
 
 ### Problem
-- ContinuousStochasticSystem.integrate() supports `n_paths` and `seed`
-- ContinuousStochasticSystem.simulate() does NOT (inherits from parent)
+- `ContinuousStochasticSystem.integrate()` supports `n_paths` and `seed`
+- `ContinuousStochasticSystem.simulate()` does NOT (inherits from parent)
 - No way to do regular-grid SDE simulation with Monte Carlo
 
 ### Solution
-**Override `simulate()` to add `n_paths` and `seed` parameters**
+**Override `simulate()` AND `rollout()` to add `n_paths` and `seed` parameters**
 
 ### Changes Required
 
@@ -151,23 +231,16 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         n_paths: int = 1,           # ✅ ADD
         seed: Optional[int] = None, # ✅ ADD
         **kwargs
-    ) -> SimulationResult:
+    ) -> Union[SimulationResult, SDESimulationResult]:
         """
         Simulate stochastic system with regular time grid.
         
         Supports Monte Carlo simulation via n_paths parameter.
+        
+        Returns
+        -------
+        SimulationResult (if n_paths=1) or SDESimulationResult (if n_paths>1)
         """
-        # Delegate to integrate() with dt parameter
-        return self.integrate(
-            x0=x0,
-            u=u,
-            t_span=t_span,
-            method=method,
-            dt=dt,           # Ensures regular grid
-            n_paths=n_paths,
-            seed=seed,
-            **kwargs
-        )
     
     def rollout(
         self,
@@ -179,35 +252,27 @@ class ContinuousStochasticSystem(ContinuousSymbolicSystem):
         n_paths: int = 1,           # ✅ ADD
         seed: Optional[int] = None, # ✅ ADD
         **kwargs
-    ) -> SimulationResult:
+    ) -> Union[RolloutResult, SDERolloutResult]:
         """
         Rollout stochastic system with state feedback.
         
         Supports Monte Carlo simulation via n_paths parameter.
+        
+        Returns
+        -------
+        RolloutResult (if n_paths=1) or SDERolloutResult (if n_paths>1)
         """
-        # Convert controller to u function
-        u_func = lambda t, x: controller(x, t) if controller else None
-        return self.integrate(
-            x0=x0,
-            u=u_func,
-            t_span=t_span,
-            method=method,
-            dt=dt,
-            n_paths=n_paths,
-            seed=seed,
-            **kwargs
-        )
 ```
 
 **DO NOT add `simulate_stochastic()`** - redundant with parameter-extended `simulate()`
 
 ---
 
-## 4. Standardize Return Dictionary Keys
+## 5. Standardize Return Dictionary Keys
 
 ### Problem
-- `integrate()` returns: `{'t': ..., 'x': ..., ...}`
-- `simulate()` returns: `{'time': ..., 'states': ..., ...}`
+- `integrate()` returns: `{'t': ..., 'x': ..., ...}` ✅
+- `simulate()` returns: `{'time': ..., 'states': ..., ...}` ❌
 - Plotting only works with `integrate()` format
 
 ### Solution
@@ -231,17 +296,17 @@ All `simulate()` and `rollout()` methods should return:
 
 **Rationale**: Plotting infrastructure expects `result['t']` and `result['x']`
 
-**Alternative**: Update plotting to accept both formats (more work, less clean)
+**Benefit**: After refactoring, `integrate()`, `simulate()`, and `rollout()` all return compatible formats!
 
 ---
 
-## 5. Discrete Systems: Update Return Format
+## 6. Discrete Systems: Update Return Format
 
 ### Current Issues
 - Key name: `'time_steps'` → change to `'t'`
 - Shape: `(nx, T)` → change to `(T, nx)`
 - Key name: `'states'` → change to `'x'`
-- Key name: `'controls'` → change to `'u'` (optional)
+- Key name: `'controls'` → change to `'u'`
 
 ### Updated DiscreteSimulationResult
 
@@ -257,9 +322,9 @@ DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
 
 # NEW  
 DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
+    't': NDArray,             # (n_steps+1,) ✅
     'x': NDArray,             # (n_steps+1, nx) ✅ time-major
     'u': NDArray,             # (n_steps, nu) ✅ time-major
-    't': NDArray,             # ✅ matches continuous
     'dt': float,
     'success': bool,          # ✅ add for consistency
     'message': str,           # ✅ add for consistency
@@ -270,7 +335,33 @@ DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
 
 ---
 
-## 6. Update All Implementations
+## 7. Add Stochastic Discrete Result Types
+
+### Problem
+- Discrete stochastic systems have `simulate_stochastic()` method
+- No proper return type defined for Monte Carlo results
+
+### Solution
+**Create `DiscreteStochasticSimulationResult` and `DiscreteStochasticRolloutResult`**
+
+```python
+class DiscreteStochasticSimulationResult(DiscreteSimulationResultBase):
+    """Monte Carlo discrete simulation result."""
+    # Required stochastic fields
+    n_paths: int              # Number of paths
+    noise_type: str          # Noise structure
+    # Optional stochastic fields
+    seed: Optional[int]
+    noise_samples: ArrayLike
+```
+
+**Shape convention**:
+- Single path (n_paths=1): `x` is `(T, nx)`
+- Multiple paths: `x` is `(n_paths, T, nx)`
+
+---
+
+## 8. Update All Implementations
 
 ### Files to Modify
 
@@ -283,12 +374,12 @@ DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
 - `discretized_system.py` - update both `simulate()` methods
 
 #### Type Definitions
-- Update `SimulationResult` TypedDict
-- Update `DiscreteSimulationResult` TypedDict
-- Update `SDEIntegrationResult` TypedDict (if needed)
+- **Create** `src/cdesym/types/system_results.py` with all 10 types
+- **Update** `src/cdesym/types/trajectories.py` to import from system_results
+- **Update** `src/cdesym/types/__init__.py` to export all types
 
 #### Plotting Infrastructure
-- Verify `plotter.plot_trajectory()` works with new format
+- Verify `plotter.plot_trajectory()` works with new format (should already work!)
 - Verify `phase_plotter.plot_2d()` works with new format
 - Update any plotting that assumes state-major
 
@@ -304,152 +395,215 @@ DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
 
 ---
 
-## 7. Tutorial Updates
-
-### Basic Usage Tutorial
-```python
-# Use integrate() for now (already works)
-result = pendulum.integrate(x0, t_span=(0, 20), dt=0.05)
-pendulum.plot(result)
-```
-
-**After refactoring**:
-```python
-# Open-loop with simulate()
-result = pendulum.simulate(x0, u=None, t_span=(0, 20), dt=0.05)
-
-# Closed-loop with rollout()
-result = pendulum.rollout(x0, controller=my_controller, t_span=(0, 20), dt=0.05)
-
-# Both work with plotting!
-pendulum.plot(result)
-```
-
-### Stochastic Tutorial
-```python
-# Already uses integrate() - no change needed
-result = reactor.integrate(
-    x0, t_span=(0, 50), dt=0.05,
-    method='euler_maruyama',
-    n_paths=500,
-    seed=42
-)
-```
-
-**After refactoring** - can also use simulate():
-```python
-# Open-loop stochastic
-result = reactor.simulate(
-    x0, u=None, t_span=(0, 50), dt=0.05,
-    n_paths=500,
-    seed=42
-)
-
-# Closed-loop stochastic
-result = reactor.rollout(
-    x0, controller=feedback_controller, t_span=(0, 50), dt=0.05,
-    n_paths=500,
-    seed=42
-)
-```
-
----
-
-## Summary of Breaking Changes
+## 9. Summary of Breaking Changes
 
 ### API Changes (User-Facing)
 
-1. **Discrete result indexing** (BREAKING):
-   ```python
-   # OLD
-   result['states'][i, :]  # i-th state over time
-   result['states'][:, k]  # All states at time k
-   
-   # NEW
-   result['x'][k, :]       # All states at time k
-   result['x'][:, i]       # i-th state over time
-   ```
+**1. Discrete result indexing** (BREAKING):
+```python
+# OLD
+result['states'][i, :]  # i-th state over time
+result['states'][:, k]  # All states at time k
 
-2. **Continuous simulate() signature** (BREAKING):
-   ```python
-   # OLD
-   result = system.simulate(x0, controller=my_controller, ...)
-   
-   # NEW - open-loop
-   result = system.simulate(x0, u=my_u_func, ...)
-   
-   # NEW - closed-loop
-   result = system.rollout(x0, controller=my_controller, ...)
-   ```
+# NEW
+result['x'][:, i]       # i-th state over time
+result['x'][k, :]       # All states at time k
+```
 
-3. **Result dictionary keys** (BREAKING):
-   ```python
-   # OLD
-   result['time'], result['states'], result['controls']
-   
-   # NEW
-   result['t'], result['x'], result['u']
-   ```
+**2. Continuous simulate() signature** (BREAKING):
+```python
+# OLD
+result = system.simulate(x0, controller=my_controller, ...)
 
-### Internal Changes
+# NEW - open-loop
+result = system.simulate(x0, u=my_u_func, ...)
 
-1. All discrete `simulate()` implementations return time-major
-2. All `simulate()` methods support open-loop only
-3. All `rollout()` methods support closed-loop only
-4. Stochastic systems override both `simulate()` and `rollout()`
-5. Plotting works uniformly across all result types
+# NEW - closed-loop
+result = system.rollout(x0, controller=my_controller, ...)
+```
+
+**3. Result dictionary keys** (BREAKING):
+```python
+# OLD
+result['time'], result['states'], result['controls']
+
+# NEW
+result['t'], result['x'], result['u']
+```
+
+**4. Stochastic simulation** (NEW CAPABILITY):
+```python
+# Single path (returns SimulationResult)
+result = sde_system.simulate(x0, u=None, t_span=(0, 10), dt=0.01, n_paths=1)
+
+# Monte Carlo (returns SDESimulationResult)
+result = sde_system.simulate(x0, u=None, t_span=(0, 10), dt=0.01, 
+                             n_paths=500, seed=42)
+assert result['x'].shape == (500, 1001, 2)  # (n_paths, T, nx)
+```
 
 ---
 
-## Benefits
+## 10. Benefits
 
 ### Consistency
 - ✅ Same shape convention everywhere: `(T, nx)`
 - ✅ Same method names: `simulate()` and `rollout()`
 - ✅ Same semantics: open-loop vs closed-loop
 - ✅ Same return format: `{'t', 'x', 'u', ...}`
+- ✅ Complete type system with proper hierarchy
 
 ### Usability
 - ✅ No mental overhead remembering which convention applies
 - ✅ Generic plotting code works for all systems
 - ✅ Pandas integration: `pd.DataFrame(result['x'], index=result['t'])`
 - ✅ Clear separation of concerns: simulate vs rollout
+- ✅ Polymorphic code via `SystemResult` union type
 
 ### Compatibility
 - ✅ Aligns with modern Python ecosystem (pandas, sklearn, PyTorch)
 - ✅ Makes library easier to learn and teach
 - ✅ Reduces documentation burden
+- ✅ Type safety with comprehensive TypedDict hierarchy
 
 ---
 
-## Migration Checklist
+## 11. Migration Checklist
 
-- [ ] Update type definitions (SimulationResult, DiscreteSimulationResult)
-- [ ] Add ContinuousSystemBase.rollout()
-- [ ] Refactor ContinuousSystemBase.simulate() (remove controller param)
-- [ ] Override ContinuousStochasticSystem.simulate() and rollout()
-- [ ] Update DiscreteSymbolicSystem.simulate() to time-major
-- [ ] Update DiscreteStochasticSystem.simulate_stochastic() to time-major
-- [ ] Update DiscretizedSystem.simulate() to time-major
-- [ ] Update DiscretizedSystem.simulate_stochastic() to time-major
-- [ ] Update all plotting code
-- [ ] Update all tests
-- [ ] Update all examples
-- [ ] Update all tutorials
+### Type System
+- [ ] Create `src/cdesym/types/system_results.py` with all 20 types
+- [ ] Update `src/cdesym/types/trajectories.py` to import from system_results
+- [ ] Update `src/cdesym/types/__init__.py` to export all types
+- [ ] Add module docstring to system_results.py
+
+### Continuous Systems
+- [ ] Add `ContinuousSystemBase.rollout()` method
+- [ ] Refactor `ContinuousSystemBase.simulate()` (remove controller param)
+- [ ] Override `ContinuousStochasticSystem.simulate()` (add n_paths, seed)
+- [ ] Override `ContinuousStochasticSystem.rollout()` (add n_paths, seed)
+
+### Discrete Systems
+- [ ] Update `DiscreteSymbolicSystem.simulate()` to time-major
+- [ ] Update `DiscreteStochasticSystem.simulate_stochastic()` to time-major
+- [ ] Update `DiscretizedSystem.simulate()` to time-major
+- [ ] Update `DiscretizedSystem.simulate_stochastic()` to time-major
+- [ ] Verify `DiscreteSystemBase.rollout()` uses correct keys
+
+### Infrastructure
+- [ ] Update all plotting code (should be minimal!)
+- [ ] Update all tests (~50 test files)
+- [ ] Update all examples (~20 examples)
+- [ ] Update all tutorials (~5 tutorials)
 - [ ] Update documentation
+
+### Verification
 - [ ] Run full test suite
 - [ ] Review all docstrings
+- [ ] Test all examples
+- [ ] Build documentation
+- [ ] Create migration guide
 
 ---
 
-## Risk Assessment
+## 12. Effort Estimate
+
+### Breakdown
+
+| Task | Hours | Notes |
+|------|-------|-------|
+| **Type System** | 3 | Create system_results.py, update trajectories.py, __init__.py |
+| **Continuous Base** | 4 | Add rollout(), refactor simulate() |
+| **Continuous Stochastic** | 6 | Override simulate() and rollout() with n_paths/seed |
+| **Discrete Base** | 5 | Convert to time-major ordering |
+| **Discrete Stochastic** | 4 | Update stochastic methods, add new types |
+| **Tests** | 25 | ~50 test files × 30 min average |
+| **Examples** | 5 | ~20 examples × 15 min |
+| **Tutorials** | 5 | ~5 tutorials × 1 hour |
+| **Plotting** | 2 | Verify compatibility (should be minimal) |
+| **Documentation** | 5 | Docstrings, migration guide, CHANGELOG |
+| **Verification** | 3 | Final testing and review |
+| **Migration Guide** | 2 | Write comprehensive guide |
+
+**Total**: ~78 hours (~2 weeks at 40 hours/week)
+
+### Risk Assessment
 
 **Risk**: LOW - No public users yet
 
-**Complexity**: MODERATE - Touches many files but changes are mechanical
+**Complexity**: MODERATE-HIGH - Touches many files but changes are mechanical
 
 **Testing Burden**: HIGH - Must verify all tests pass with new conventions
 
 **Documentation Burden**: MODERATE - Update examples and tutorials
 
-**Recommendation**: Execute before v1.0 release to PyPI
+**Recommendation**: ✅ Execute before v1.0 release to PyPI
+
+---
+
+## 13. Type System Summary
+
+### The 10 Concrete Result Types
+
+**Continuous** (6 types):
+1. `IntegrationResult` - ODE, adaptive grid ✅ already correct
+2. `SimulationResult` - ODE, regular grid
+3. `RolloutResult` - ODE, closed-loop
+4. `SDEIntegrationResult` - SDE, adaptive grid ✅ already correct
+5. `SDESimulationResult` - SDE, regular grid
+6. `SDERolloutResult` - SDE, closed-loop
+
+**Discrete** (4 types):
+7. `DiscreteSimulationResult` - Deterministic, open-loop
+8. `DiscreteRolloutResult` - Deterministic, closed-loop
+9. `DiscreteStochasticSimulationResult` - Stochastic, open-loop
+10. `DiscreteStochasticRolloutResult` - Stochastic, closed-loop
+
+### The 6 Union Types
+
+1. `ContinuousIntegrationResultUnion` = `IntegrationResult | SDEIntegrationResult`
+2. `ContinuousSimulationResultUnion` = `SimulationResult | SDESimulationResult`
+3. `ContinuousRolloutResultUnion` = `RolloutResult | SDERolloutResult`
+4. `DiscreteSimulationResultUnion` = `DiscreteSimulationResult | DiscreteStochasticSimulationResult`
+5. `DiscreteRolloutResultUnion` = `DiscreteRolloutResult | DiscreteStochasticRolloutResult`
+6. `SystemResult` = Union of ALL 10 types
+
+### Usage Example
+
+```python
+from cdesym.types import SystemResult
+
+def analyze_any_result(result: SystemResult) -> dict:
+    """Works with ANY system execution result."""
+    t = result['t']
+    x = result['x']
+    
+    # Handle different dimensions
+    if x.ndim == 2:
+        # Single trajectory: (T, nx)
+        final_state = x[-1]
+    else:
+        # Multiple paths: (n_paths, T, nx)
+        final_state = x[:, -1]  # Final state of each path
+    
+    return {
+        'duration': t[-1] - t[0],
+        'final_state': final_state,
+        'is_stochastic': 'n_paths' in result,
+    }
+```
+
+---
+
+## Conclusion
+
+This refactoring establishes a **clean, consistent, and comprehensive** API for v1.0:
+
+- ✅ **Time-major everywhere** - aligns with modern Python ecosystem
+- ✅ **Clear method separation** - simulate (open-loop) vs rollout (closed-loop)
+- ✅ **Complete type system** - 10 result types + 6 union types
+- ✅ **Stochastic support** - proper types for Monte Carlo simulation
+- ✅ **Plotting compatibility** - all results work with same plotting code
+- ✅ **Type safety** - comprehensive TypedDict hierarchy with inheritance
+- ✅ **No public users** - perfect timing for breaking changes
+
+**Total effort**: ~78 hours, well worth it for a stable v1.0 foundation.

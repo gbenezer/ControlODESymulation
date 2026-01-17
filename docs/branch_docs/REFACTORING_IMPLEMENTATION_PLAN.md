@@ -1,50 +1,45 @@
 # ControlDESymulation Refactoring Implementation Plan
 
-## Phase 1: Type Definitions
+## Overview
 
-### 1.1 Update SimulationResult TypedDict
+This refactoring standardizes the API before v1.0 release by:
 
-**File**: `src/cdesym/types/results.py` (or wherever TypedDicts are defined)
+1. **Time-major ordering** for all arrays: `(T, nx)` not `(nx, T)`
+2. **Consistent key names**: `'t'`, `'x'`, `'u'` (not `'time'`, `'states'`, `'controls'`)
+3. **Method separation**: `simulate()` for open-loop, `rollout()` for closed-loop
+4. **Complete type system**: 10 result types (deterministic + stochastic) organized in `system_results.py`
 
-```python
-# Update to use consistent keys
-SimulationResult = TypedDict('SimulationResult', {
-    't': NDArray,          # Changed from 'time'
-    'x': NDArray,          # Changed from 'states', shape (T, nx)
-    'u': Optional[NDArray],# Changed from 'controls', shape (T, nu)
-    'success': bool,
-    'message': str,
-    'method': str,
-    'dt': float,
-    'metadata': dict
-})
-```
+**Estimated effort**: ~78 hours (~2 weeks)
 
-### 1.2 Update DiscreteSimulationResult TypedDict
+**Breaking changes**: YES - but no public users yet, so this is the optimal time
 
-```python
-DiscreteSimulationResult = TypedDict('DiscreteSimulationResult', {
-    't': NDArray,          # Changed from 'time_steps'
-    'x': NDArray,          # Changed from 'states', NOW (T, nx) not (nx, T)
-    'u': Optional[NDArray],# Changed from 'controls', NOW (T, nu) not (nu, T)
-    'success': bool,
-    'message': str,
-    'method': str,
-    'dt': float,
-    'metadata': dict
-})
-```
+---
 
-### 1.3 Commit Type Changes
+## Phase 1: Type System Update (NEW)
+
+### 1.3.1 Update trajectories.py unit test suite and debug
+
+### 1.3.2 Add system_result.py unit test suite and debug
+
+### 1.4 Commit Type Changes
 
 ```bash
-git add src/cdesym/types/
-git commit -m "refactor: Standardize result TypedDicts to time-major with consistent keys"
+git add src/cdesym/types/system_results.py
+git add src/cdesym/types/trajectories.py
+git add src/cdesym/types/__init__.py
+git commit -m "refactor: Create comprehensive type system for execution results
+
+- Add system_results.py with 10 result types (deterministic + stochastic)
+- Update trajectories.py to import from system_results
+- Export all types from types/__init__.py
+- Maintain backward compatibility via re-exports"
 ```
 
 ---
 
-## Phase 2: Continuous System Base
+## Phase 2: Continuous System Base (Deterministic)
+
+**Estimated time**: 4 hours
 
 ### 2.1 Add rollout() Method
 
@@ -61,7 +56,7 @@ def rollout(
     dt: ScalarLike = 0.01,
     method: IntegrationMethod = "RK45",
     **kwargs
-) -> SimulationResult:
+) -> RolloutResult:
     """
     Closed-loop simulation with state-feedback controller.
     
@@ -69,21 +64,42 @@ def rollout(
     ----------
     controller : Optional[Callable[[StateVector, float], ControlVector]]
         Feedback controller u = controller(x, t)
+        State is primary argument (matches discrete convention)
         If None, uses zero control
-    ...
+    t_span : TimeSpan
+        Time interval (t_start, t_end)
+    dt : ScalarLike
+        Time step for regular grid
+    method : IntegrationMethod
+        Integration method to use
     
     Returns
     -------
-    SimulationResult
-        Dictionary with keys: 't', 'x', 'u', 'success', 'message', 'method', 'dt', 'metadata'
+    RolloutResult
+        Dictionary with keys: 't', 'x', 'u', 'success', 'message', 
+        'method', 'dt', 'metadata', 'controller_type', 'closed_loop'
+    
+    Examples
+    --------
+    >>> def controller(x, t):
+    ...     K = np.array([[-1.0, -2.0]])
+    ...     return -K @ x
+    >>> 
+    >>> result = system.rollout(
+    ...     x0=np.array([1.0, 0.0]),
+    ...     controller=controller,
+    ...     t_span=(0.0, 10.0),
+    ...     dt=0.01
+    ... )
     """
-    # Convert controller(x, t) to u(t, x) for integrate()
+    # Convert controller(x, t) to u_func(t, x) for integrate()
     if controller is not None:
-        u_func = lambda t, x: controller(x, t)
+        def u_func(t, x):
+            return controller(x, t)
     else:
         u_func = None
     
-    # Call integrate() with regular grid
+    # Call integrate with converted control
     result = self.integrate(
         x0=x0,
         u=u_func,
@@ -93,19 +109,34 @@ def rollout(
         **kwargs
     )
     
-    # Return with standardized keys (already has 't', 'x')
-    return result
+    # Convert to RolloutResult format
+    return {
+        't': result['t'],
+        'x': result['x'],
+        'u': result.get('u'),  # May not be present
+        'success': result['success'],
+        'message': result['message'],
+        'method': result.get('method', method),
+        'dt': dt,
+        'metadata': result.get('metadata', {}),
+        'controller_type': 'feedback' if controller else 'zero',
+        'closed_loop': True,
+    }
 ```
 
 ### 2.2 Refactor simulate() Method
 
-**Same file**: Modify existing `simulate()` to remove `controller` parameter
+**Remove** `controller` parameter:
 
 ```python
+# OLD signature
+def simulate(self, x0, controller=None, t_span=(0, 10), dt=0.01, **kwargs):
+    
+# NEW signature
 def simulate(
     self,
     x0: StateVector,
-    u: Optional[Union[ControlVector, TimeVaryingControl]] = None,  # CHANGED
+    u: Optional[Union[ControlVector, TimeVaryingControl]] = None,
     t_span: TimeSpan = (0.0, 10.0),
     dt: ScalarLike = 0.01,
     method: IntegrationMethod = "RK45",
@@ -121,18 +152,23 @@ def simulate(
         - None: Zero control
         - Array (nu,): Constant control
         - Callable u(t): Time-varying control (NO state feedback)
-    ...
     
     Returns
     -------
     SimulationResult
-        Dictionary with keys: 't', 'x', 'u', 'success', 'message', 'method', 'dt', 'metadata'
-        
-    Notes
-    -----
-    For state-feedback control, use rollout() instead.
+        Dictionary with keys: 't', 'x', 'u', 'success', 'message',
+        'method', 'dt', 'metadata'
+    
+    Examples
+    --------
+    >>> # Open-loop with no control
+    >>> result = system.simulate(x0, u=None, t_span=(0, 10), dt=0.01)
+    >>> 
+    >>> # Open-loop with time-varying control
+    >>> u_func = lambda t: np.array([np.sin(t)])
+    >>> result = system.simulate(x0, u=u_func, t_span=(0, 10), dt=0.01)
     """
-    # Call integrate() with regular grid
+    # Call integrate with dt to ensure regular grid
     result = self.integrate(
         x0=x0,
         u=u,
@@ -142,26 +178,40 @@ def simulate(
         **kwargs
     )
     
-    # Return with standardized keys (already has 't', 'x')
-    return result
+    # Convert to SimulationResult format (should already match)
+    return {
+        't': result['t'],
+        'x': result['x'],
+        'u': result.get('u'),
+        'success': result['success'],
+        'message': result['message'],
+        'method': result.get('method', method),
+        'dt': dt,
+        'metadata': result.get('metadata', {}),
+    }
 ```
 
 ### 2.3 Commit Continuous Base Changes
 
 ```bash
 git add src/cdesym/systems/base/core/continuous_system_base.py
-git commit -m "refactor: Add rollout() and refactor simulate() in ContinuousSystemBase"
+git commit -m "refactor: Add rollout() and refactor simulate() in ContinuousSystemBase
+
+- Add rollout() method for closed-loop simulation
+- Remove controller parameter from simulate() (now open-loop only)
+- Add u parameter to simulate() for time-varying control
+- Update return types to SimulationResult and RolloutResult"
 ```
 
 ---
 
 ## Phase 3: Continuous Stochastic System
 
-### 3.1 Override simulate() and rollout()
+**Estimated time**: 6 hours
 
-**File**: `src/cdesym/systems/continuous_stochastic_system.py`
+### 3.1 Override simulate() for Stochastic
 
-Add overrides:
+**File**: `src/cdesym/systems/base/core/continuous_stochastic_system.py`
 
 ```python
 def simulate(
@@ -171,16 +221,76 @@ def simulate(
     t_span: TimeSpan = (0.0, 10.0),
     dt: ScalarLike = 0.01,
     method: SDEIntegrationMethod = "euler_maruyama",
-    n_paths: int = 1,           # ADDED
-    seed: Optional[int] = None, # ADDED
+    n_paths: int = 1,           # NEW
+    seed: Optional[int] = None, # NEW
     **kwargs
-) -> SimulationResult:
-    """Open-loop SDE simulation with optional Monte Carlo."""
-    return self.integrate(
-        x0=x0, u=u, t_span=t_span, method=method, dt=dt,
-        n_paths=n_paths, seed=seed, **kwargs
+) -> Union[SimulationResult, SDESimulationResult]:
+    """
+    Simulate stochastic system with regular time grid.
+    
+    Supports Monte Carlo simulation via n_paths parameter.
+    
+    Parameters
+    ----------
+    n_paths : int
+        Number of Monte Carlo paths (default: 1)
+        - n_paths=1: Returns SimulationResult
+        - n_paths>1: Returns SDESimulationResult
+    seed : Optional[int]
+        Random seed for reproducibility
+    
+    Returns
+    -------
+    SimulationResult or SDESimulationResult
+        For n_paths=1: SimulationResult with shape (T, nx)
+        For n_paths>1: SDESimulationResult with shape (n_paths, T, nx)
+    """
+    # Call integrate with n_paths and seed
+    result = self.integrate(
+        x0=x0,
+        u=u,
+        t_span=t_span,
+        method=method,
+        dt=dt,
+        n_paths=n_paths,
+        seed=seed,
+        **kwargs
     )
+    
+    # Return appropriate type based on n_paths
+    if n_paths == 1:
+        return {
+            't': result['t'],
+            'x': result['x'],
+            'u': result.get('u'),
+            'success': result['success'],
+            'message': result['message'],
+            'method': method,
+            'dt': dt,
+            'metadata': result.get('metadata', {}),
+        }
+    else:
+        return {
+            't': result['t'],
+            'x': result['x'],
+            'u': result.get('u'),
+            'success': result['success'],
+            'message': result['message'],
+            'method': method,
+            'dt': dt,
+            'metadata': result.get('metadata', {}),
+            'n_paths': n_paths,
+            'noise_type': result.get('noise_type'),
+            'sde_type': result.get('sde_type'),
+            'seed': seed,
+            'noise_samples': result.get('noise_samples'),
+            'diffusion_evals': result.get('diffusion_evals'),
+        }
+```
 
+### 3.2 Override rollout() for Stochastic
+
+```python
 def rollout(
     self,
     x0: StateVector,
@@ -188,738 +298,618 @@ def rollout(
     t_span: TimeSpan = (0.0, 10.0),
     dt: ScalarLike = 0.01,
     method: SDEIntegrationMethod = "euler_maruyama",
-    n_paths: int = 1,           # ADDED
-    seed: Optional[int] = None, # ADDED
+    n_paths: int = 1,           # NEW
+    seed: Optional[int] = None, # NEW
     **kwargs
-) -> SimulationResult:
-    """Closed-loop SDE simulation with optional Monte Carlo."""
-    u_func = lambda t, x: controller(x, t) if controller else None
-    return self.integrate(
-        x0=x0, u=u_func, t_span=t_span, method=method, dt=dt,
-        n_paths=n_paths, seed=seed, **kwargs
+) -> Union[RolloutResult, SDERolloutResult]:
+    """
+    Rollout stochastic system with state feedback.
+    
+    Supports Monte Carlo simulation via n_paths parameter.
+    
+    Returns
+    -------
+    RolloutResult or SDERolloutResult
+        For n_paths=1: RolloutResult
+        For n_paths>1: SDERolloutResult
+    """
+    # Convert controller to u function
+    if controller is not None:
+        u_func = lambda t, x: controller(x, t)
+    else:
+        u_func = None
+    
+    # Call integrate
+    result = self.integrate(
+        x0=x0,
+        u=u_func,
+        t_span=t_span,
+        method=method,
+        dt=dt,
+        n_paths=n_paths,
+        seed=seed,
+        **kwargs
     )
+    
+    # Return appropriate type
+    if n_paths == 1:
+        return {
+            't': result['t'],
+            'x': result['x'],
+            'u': result.get('u'),
+            'success': result['success'],
+            'message': result['message'],
+            'method': method,
+            'dt': dt,
+            'metadata': result.get('metadata', {}),
+            'controller_type': 'feedback' if controller else 'zero',
+            'closed_loop': True,
+        }
+    else:
+        return {
+            't': result['t'],
+            'x': result['x'],
+            'u': result.get('u'),
+            'success': result['success'],
+            'message': result['message'],
+            'method': method,
+            'dt': dt,
+            'metadata': result.get('metadata', {}),
+            'controller_type': 'feedback' if controller else 'zero',
+            'closed_loop': True,
+            'n_paths': n_paths,
+            'noise_type': result.get('noise_type'),
+            'sde_type': result.get('sde_type'),
+            'seed': seed,
+            'noise_samples': result.get('noise_samples'),
+            'diffusion_evals': result.get('diffusion_evals'),
+        }
 ```
 
-### 3.2 Commit Stochastic Changes
+### 3.3 Commit Stochastic Changes
 
 ```bash
-git add src/cdesym/systems/continuous_stochastic_system.py
-git commit -m "refactor: Override simulate() and rollout() in ContinuousStochasticSystem with Monte Carlo support"
+git add src/cdesym/systems/base/core/continuous_stochastic_system.py
+git commit -m "refactor: Override simulate() and rollout() for stochastic systems
+
+- Add n_paths and seed parameters to simulate()
+- Add n_paths and seed parameters to rollout()
+- Return SDESimulationResult/SDERolloutResult when n_paths > 1
+- Maintain backward compatibility with n_paths=1"
 ```
 
 ---
 
 ## Phase 4: Discrete System Base
 
-### 4.1 Update simulate() Return Format
+**Estimated time**: 5 hours
+
+### 4.1 Update simulate() to Time-Major
 
 **File**: `src/cdesym/systems/base/core/discrete_system_base.py`
 
-Update abstract method signature and docstring:
-
 ```python
-@abstractmethod
 def simulate(
     self,
     x0: StateVector,
-    u_sequence: DiscreteControlInput = None,
+    u_sequence: Optional[DiscreteControlInput] = None,
     n_steps: int = 100,
     **kwargs
 ) -> DiscreteSimulationResult:
     """
-    Simulate system for multiple discrete time steps.
+    Simulate discrete system forward in time.
+    
+    **BREAKING CHANGE**: Now returns time-major arrays (T, nx) not (nx, T)
     
     Returns
     -------
     DiscreteSimulationResult
-        TypedDict containing:
-        - t: Time step array (n_steps+1,)
-        - x: State trajectory (n_steps+1, nx) - TIME-MAJOR
-        - u: Control sequence (n_steps, nu) - TIME-MAJOR
-        - dt: Sampling period
-        - success: bool
-        - message: str
-        - method: str
-        - metadata: dict
+        Dictionary with:
+        - 't': Time steps [0, 1, ..., n_steps]
+        - 'x': States (n_steps+1, nx) - TIME-MAJOR
+        - 'u': Controls (n_steps, nu) - TIME-MAJOR
+        - 'dt': Sampling period
+        - 'success': bool
+        - 'message': str
+        - 'method': str
+        - 'metadata': dict
     """
-```
-
-### 4.2 Commit Discrete Base Changes
-
-```bash
-git add src/cdesym/systems/base/core/discrete_system_base.py
-git commit -m "refactor: Update DiscreteSystemBase.simulate() to time-major convention"
-```
-
----
-
-## Phase 5: Discrete Symbolic System
-
-### 5.1 Update simulate() Implementation
-
-**File**: `src/cdesym/systems/discrete_symbolic_system.py`
-
-Change implementation to return time-major:
-
-```python
-def simulate(
-    self,
-    x0: StateVector,
-    u_sequence: DiscreteControlInput = None,
-    n_steps: int = 100,
-    **kwargs
-) -> DiscreteSimulationResult:
-    """Simulate discrete system for multiple steps."""
+    # Allocate arrays - TIME-MAJOR
+    states = np.zeros((n_steps + 1, self.nx))  # (T, nx)
+    controls = np.zeros((n_steps, self.nu)) if self.nu > 0 else None
     
-    # Initialize storage - TIME-MAJOR
-    states = np.zeros((n_steps + 1, self.nx))  # CHANGED from (self.nx, n_steps + 1)
-    states[0, :] = x0
+    # Set initial state
+    states[0] = x0
     
-    # Prepare control function
-    u_func = self._prepare_control_sequence(u_sequence, n_steps)
-    
-    # Simulate forward
+    # Forward simulation
     x = x0
-    controls = []
     for k in range(n_steps):
-        u = u_func(x, k)
-        controls.append(u)
+        # Get control
+        u = self._get_control_at_step(u_sequence, k)
+        
+        # Store control
+        if controls is not None:
+            controls[k] = u
+        
+        # Step forward
         x = self.step(x, u, k)
-        states[k + 1, :] = x
-    
-    # Format controls - TIME-MAJOR
-    if controls and controls[0] is not None:
-        controls_array = np.array(controls)  # CHANGED from np.array(controls).T
-    else:
-        controls_array = None
+        states[k + 1] = x
     
     return {
-        "t": np.arange(n_steps + 1),  # CHANGED from 'time_steps'
-        "x": states,                   # CHANGED from 'states', already time-major
-        "u": controls_array,           # CHANGED from 'controls'
-        "dt": self._dt,
-        "success": True,
-        "message": "Discrete simulation completed",
-        "method": "discrete_step",
-        "metadata": {"method": "discrete_step"}
+        't': np.arange(n_steps + 1),
+        'x': states,  # (n_steps+1, nx)
+        'u': controls,  # (n_steps, nu) or None
+        'dt': self._dt,
+        'success': True,
+        'message': 'Simulation completed',
+        'method': 'discrete_step',
+        'metadata': {},
     }
 ```
 
-### 5.2 Commit Discrete Symbolic Changes
+### 4.2 Verify rollout() is Already Time-Major
+
+**Check**: `rollout()` should already return time-major. Just update key names if needed:
+
+- `'time_steps'` → `'t'`
+- Confirm shape is already `(T, nx)`
+
+### 4.3 Commit Discrete Base Changes
 
 ```bash
-git add src/cdesym/systems/discrete_symbolic_system.py
-git commit -m "refactor: Update DiscreteSymbolicSystem.simulate() to time-major with standardized keys"
+git add src/cdesym/systems/base/core/discrete_system_base.py
+git commit -m "refactor: Convert discrete simulate() to time-major ordering
+
+- Change states from (nx, T) to (T, nx)
+- Change controls from (nu, T) to (T, nu)
+- Update key names: 'time_steps' -> 't'
+- Maintain same logic, just transposed output"
 ```
 
 ---
 
-## Phase 6: Discrete Stochastic System
+## Phase 5: Discrete Stochastic System
 
-### 6.1 Update simulate_stochastic() Implementation
+**Estimated time**: 4 hours
 
-**File**: `src/cdesym/systems/discrete_stochastic_system.py`
+### 5.1 Update simulate_stochastic()
 
-Update to return time-major:
+**File**: `src/cdesym/systems/base/core/discrete_stochastic_system.py`
 
 ```python
 def simulate_stochastic(
     self,
     x0: StateVector,
-    u_sequence: Optional[Union[ControlVector, DiscreteControlInput]] = None,
+    u_sequence: Optional[DiscreteControlInput] = None,
     n_steps: int = 100,
     n_paths: int = 1,
     seed: Optional[int] = None,
     **kwargs
-) -> DiscreteSimulationResult:
-    """Simulate stochastic discrete system with optional Monte Carlo."""
+) -> Union[DiscreteSimulationResult, DiscreteStochasticSimulationResult]:
+    """
+    Monte Carlo simulation of stochastic discrete system.
     
+    Returns
+    -------
+    DiscreteSimulationResult or DiscreteStochasticSimulationResult
+        For n_paths=1: DiscreteSimulationResult
+        For n_paths>1: DiscreteStochasticSimulationResult with (n_paths, T, nx)
+    """
     if seed is not None:
         np.random.seed(seed)
     
-    u_func = self._prepare_control_sequence(u_sequence, n_steps)
-    
     if n_paths == 1:
-        # Single trajectory - TIME-MAJOR
-        states = np.zeros((n_steps + 1, self.nx))  # CHANGED
-        states[0, :] = x0
-        controls = []
-        
-        x = x0
-        for k in range(n_steps):
-            u = u_func(x, k)
-            controls.append(u)
-            x_next = self.step(x, u, k)
-            states[k + 1, :] = x_next
-            x = x_next
-        
-        controls_array = np.array(controls) if controls else None  # CHANGED
-        
-        return {
-            "t": np.arange(n_steps + 1),  # CHANGED
-            "x": states,                   # CHANGED, time-major
-            "u": controls_array,           # CHANGED
-            "dt": self._dt,
-            "success": True,
-            "message": "Stochastic simulation completed",
-            "method": "stochastic_step",
-            "metadata": {
-                "n_paths": 1,
-                "noise_type": self.get_noise_type(),
-                "seed": seed
-            }
-        }
-    
+        # Single path - use regular simulate with noise
+        return self._simulate_single_path(x0, u_sequence, n_steps, **kwargs)
     else:
-        # Monte Carlo - TIME-MAJOR
-        all_states = np.zeros((n_paths, n_steps + 1, self.nx))  # CHANGED
+        # Multiple paths - Monte Carlo
+        states = np.zeros((n_paths, n_steps + 1, self.nx))
         
-        for path_idx in range(n_paths):
-            x = x0
-            all_states[path_idx, 0, :] = x0
-            
-            for k in range(n_steps):
-                u = u_func(x, k)
-                x_next = self.step(x, u, k)
-                all_states[path_idx, k + 1, :] = x_next
-                x = x_next
+        for i in range(n_paths):
+            result = self._simulate_single_path(x0, u_sequence, n_steps, **kwargs)
+            states[i] = result['x']
         
         return {
-            "t": np.arange(n_steps + 1),  # CHANGED
-            "x": all_states,               # CHANGED, (n_paths, T, nx)
-            "u": None,                     # Could store but skipping for now
-            "dt": self._dt,
-            "success": True,
-            "message": f"Monte Carlo simulation with {n_paths} paths",
-            "method": "stochastic_step",
-            "metadata": {
-                "n_paths": n_paths,
-                "noise_type": self.get_noise_type(),
-                "seed": seed
-            }
+            't': np.arange(n_steps + 1),
+            'x': states,  # (n_paths, T, nx)
+            'u': result.get('u'),  # Assumes same control for all paths
+            'dt': self._dt,
+            'success': True,
+            'message': 'Stochastic simulation completed',
+            'method': 'discrete_stochastic',
+            'metadata': {},
+            'n_paths': n_paths,
+            'noise_type': self.noise_type,
+            'seed': seed,
         }
 ```
 
-### 6.2 Commit Discrete Stochastic Changes
+### 5.2 Commit Discrete Stochastic Changes
 
 ```bash
-git add src/cdesym/systems/discrete_stochastic_system.py
-git commit -m "refactor: Update DiscreteStochasticSystem.simulate_stochastic() to time-major"
+git add src/cdesym/systems/base/core/discrete_stochastic_system.py
+git commit -m "refactor: Update discrete stochastic to return proper result types
+
+- Return DiscreteStochasticSimulationResult for n_paths > 1
+- Use time-major ordering (n_paths, T, nx)
+- Add proper type annotations"
 ```
 
 ---
 
-## Phase 7: Discretized System
+## Phase 6: Update All Tests
 
-### 7.1 Update Both simulate() Methods
+**Estimated time**: 25 hours
 
-**File**: `src/cdesym/systems/discretized_system.py`
+### 6.1 Update Continuous System Tests
 
-Update `_simulate_step_by_step()`:
+**Files**: `tests/test_continuous_system.py`, `tests/test_continuous_symbolic_system.py`
 
-```python
-def _simulate_step_by_step(self, x0, u_sequence, n_steps):
-    # TIME-MAJOR
-    states = np.zeros((n_steps + 1, self.nx))  # CHANGED
-    states[0, :] = x0
-    controls = []
-    u_func = self._prepare_control_sequence(u_sequence, n_steps)
-    
-    x = x0
-    for k in range(n_steps):
-        u = u_func(x, k)
-        controls.append(u)
-        x = self.step(x, u, k)
-        states[k + 1, :] = x
-    
-    return {
-        "t": np.arange(n_steps + 1),  # CHANGED
-        "x": states,                   # CHANGED
-        "u": np.array(controls) if controls and controls[0] is not None else None,
-        "dt": self.dt,
-        "success": True,
-        "message": "Step-by-step simulation completed",
-        "method": self._method,
-        "metadata": {"method": self._method, "mode": self._mode.value}
-    }
-```
-
-Update `_simulate_batch()`:
+**Changes needed**:
 
 ```python
-def _simulate_batch(self, x0, u_sequence, n_steps):
-    # ... existing code ...
-    
-    # Convert continuous result to discrete grid
-    trajectory = result["x"] if "x" in result else result["y"].T
-    t_regular = np.arange(0, n_steps + 1) * self.dt
-    states_regular = self._interpolate_trajectory(result["t"], trajectory, t_regular)
-    
-    # Ensure time-major
-    if states_regular.shape[0] != n_steps + 1:
-        states_regular = states_regular.T
-    
-    return {
-        "t": t_regular,      # CHANGED
-        "x": states_regular, # CHANGED, (T, nx)
-        "u": None,           # Could reconstruct but skipping
-        "dt": self.dt,
-        "success": True,
-        "message": "Batch simulation completed",
-        "method": self._method,
-        "metadata": {"method": self._method, "mode": self._mode.value}
-    }
+# OLD
+result = system.simulate(x0, controller=my_controller, ...)
+states = result['states']  # (nx, T)
+x1 = states[0, :]
+
+# NEW - open-loop
+result = system.simulate(x0, u=None, ...)
+x = result['x']  # (T, nx)
+x1 = x[:, 0]
+
+# NEW - closed-loop
+result = system.rollout(x0, controller=my_controller, ...)
+x = result['x']  # (T, nx)
+x1 = x[:, 0]
 ```
 
-Update `simulate_stochastic()`:
+### 6.2 Update Discrete System Tests
+
+**Files**: `tests/test_discrete_system.py`
 
 ```python
-def simulate_stochastic(
-    self,
-    x0: StateVector,
-    u_sequence: DiscreteControlInput = None,
-    n_steps: int = 100,
-    n_trajectories: int = 100,
-    **kwargs
-) -> dict:
-    """Simulate stochastic system with multiple Monte Carlo trajectories."""
-    
-    # ... validation code ...
-    
-    all_trajectories = []
-    for traj_idx in range(n_trajectories):
-        result = self.simulate(x0, u_sequence, n_steps, **kwargs)
-        all_trajectories.append(result["x"])  # CHANGED from result["states"]
-    
-    # Stack: (n_trajectories, T, nx) - already time-major
-    all_trajectories = np.array(all_trajectories)
-    
-    # Compute statistics
-    mean_traj = np.mean(all_trajectories, axis=0)  # (T, nx)
-    std_traj = np.std(all_trajectories, axis=0)    # (T, nx)
-    
-    return {
-        "t": result["t"],           # CHANGED
-        "x": all_trajectories,      # CHANGED
-        "u": result.get("u"),       # CHANGED
-        "mean": mean_traj,          # Added for convenience
-        "std": std_traj,            # Added for convenience
-        "dt": self.dt,
-        "success": True,
-        "message": f"Monte Carlo with {n_trajectories} paths",
-        "method": self._method,
-        "metadata": {
-            "n_trajectories": n_trajectories,
-            "method": self._method,
-            "mode": self._mode.value,
-            "is_stochastic": True,
-        }
-    }
+# OLD
+result = discrete_sys.simulate(x0, u_seq, n_steps=100)
+states = result['states']  # (nx, 101)
+x1 = states[0, :]
+
+# NEW
+result = discrete_sys.simulate(x0, u_seq, n_steps=100)
+x = result['x']  # (101, nx)
+x1 = x[:, 0]
 ```
 
-### 7.2 Commit Discretized System Changes
+### 6.3 Update Stochastic Tests
+
+**Files**: `tests/test_stochastic_system.py`
+
+```python
+# NEW - single path
+result = sde_system.simulate(x0, u=None, t_span=(0, 10), dt=0.01, n_paths=1)
+assert result['x'].shape == (1001, 2)
+
+# NEW - Monte Carlo
+result = sde_system.simulate(x0, u=None, t_span=(0, 10), dt=0.01, n_paths=500, seed=42)
+assert result['x'].shape == (500, 1001, 2)
+assert 'n_paths' in result
+```
+
+### 6.4 Test Strategy
+
+For each test file:
+
+1. Search for `result['time']` → replace with `result['t']`
+2. Search for `result['states']` → replace with `result['x']`
+3. Search for `result['controls']` → replace with `result['u']`
+4. Search for `.shape[0]` patterns → verify indexing is correct
+5. Search for `[:, k]` or `[i, :]` → transpose as needed
+
+### 6.5 Run Tests Incrementally
 
 ```bash
-git add src/cdesym/systems/discretized_system.py
-git commit -m "refactor: Update DiscretizedSystem to time-major convention"
+# After updating each test file
+pytest tests/test_continuous_system.py -v
+
+# Fix any failures before moving on
+# Repeat for all test files
+```
+
+### 6.6 Commit Test Updates
+
+```bash
+git add tests/
+git commit -m "refactor: Update all tests for time-major convention and new API
+
+- Update key names: 'time' -> 't', 'states' -> 'x', 'controls' -> 'u'
+- Update indexing for time-major: (T, nx) not (nx, T)
+- Update method calls: simulate() vs rollout()
+- Verify all tests pass"
+```
+
+---
+
+## Phase 7: Update Examples and Tutorials
+
+**Estimated time**: 10 hours
+
+### 7.1 Update Examples
+
+**Files**: `examples/*.py`
+
+For each example:
+
+1. Update `simulate()` calls to use new API
+2. Update result key access
+3. Update array indexing
+4. Test that example runs without errors
+
+### 7.2 Update Tutorials
+
+**Files**: `docs/tutorials/*.qmd`
+
+Since tutorials will be redone after refactoring, just:
+
+1. Add note at top: "Tutorial being updated for v1.0 API"
+2. Or create new versions with v1.0 API
+3. Keep old versions as `*_legacy.qmd` temporarily
+
+### 7.3 Update README Examples
+
+**File**: `README.md`
+
+Update code snippets to use new API:
+
+```python
+# Basic usage example
+result = system.simulate(x0, u=None, t_span=(0, 10), dt=0.01)
+plt.plot(result['t'], result['x'][:, 0])
+
+# Closed-loop example
+result = system.rollout(x0, controller=controller, t_span=(0, 10), dt=0.01)
+plt.plot(result['t'], result['x'][:, 0])
+```
+
+### 7.4 Commit Documentation Updates
+
+```bash
+git add examples/ docs/ README.md
+git commit -m "docs: Update examples and tutorials for v1.0 API
+
+- Update all example scripts
+- Add notes to tutorials about API changes
+- Update README code snippets"
 ```
 
 ---
 
 ## Phase 8: Update Plotting Infrastructure
 
+**Estimated time**: 2 hours
+
 ### 8.1 Verify Plotting Compatibility
 
-**Files**:
+**Files**: `src/cdesym/plotting/plotter.py`
 
-- `src/cdesym/ui/plotting/trajectory_plotter.py`
-- `src/cdesym/ui/plotting/phase_plotter.py`
-
-Check if plotting assumes specific shapes. Update if needed:
+**Good news**: Plotting should already work! It expects:
 
 ```python
-# Should handle both (T, nx) and (nx, T) gracefully
-def plot_trajectory(self, t, x, ...):
-    # Ensure time-major
-    if x.ndim == 2 and x.shape[0] != len(t):
-        x = x.T  # Convert state-major to time-major
-    
-    # Now x is (T, nx)
-    # ... plotting code ...
+def plot_trajectory(result):
+    t = result['t']
+    x = result['x']  # (T, nx)
+    plt.plot(t, x[:, i])
 ```
 
-### 8.2 Update plot() Convenience Method
+This matches our new format.
 
-**File**: `src/cdesym/systems/base/core/continuous_system_base.py`
+**If there are any issues**:
 
-Ensure it works with new result format:
+- Remove any checks for `'time'` or `'states'` keys
+- Update to use `'t'` and `'x'` universally
+
+### 8.2 Test Plotting
 
 ```python
-def plot(self, result: Union[IntegrationResult, SimulationResult], ...):
-    """Plot integration or simulation result."""
-    # Both now use 't' and 'x' keys
-    return self.plotter.plot_trajectory(
-        result["t"],
-        result["x"],
-        ...
-    )
+# Create simple test
+result = pendulum.simulate(x0, u=None, t_span=(0, 10), dt=0.01)
+pendulum.plot(result)  # Should work!
+
+result = pendulum.rollout(x0, controller=controller, t_span=(0, 10), dt=0.01)
+pendulum.plot(result)  # Should also work!
 ```
 
-### 8.3 Commit Plotting Changes
+### 8.3 Commit Plotting Updates (if any)
 
 ```bash
-git add src/cdesym/ui/plotting/
-git commit -m "refactor: Update plotting to handle time-major convention uniformly"
+git add src/cdesym/plotting/
+git commit -m "refactor: Update plotting to use standardized result format"
 ```
 
 ---
 
-## Phase 9: Update Tests
+## Phase 9: Final Verification
 
-### 9.1 Update Continuous System Tests
+**Estimated time**: 3 hours
 
-**Files**: `tests/systems/test_continuous_*.py`
+### 9.1 Run Full Test Suite
 
-Update tests that use `simulate()` with controller:
+```bash
+pytest -v > tests_after_refactoring.log 2>&1
 
+# Compare with baseline
+diff tests_before_refactoring.log tests_after_refactoring.log
+```
+
+**Expected**: Same number of passing tests (or more if you added tests)
+
+### 9.2 Manual Testing Checklist
+
+- [ ] Continuous simulate() works (open-loop)
+- [ ] Continuous rollout() works (closed-loop)
+- [ ] Stochastic simulate() works with n_paths=1
+- [ ] Stochastic simulate() works with n_paths>1
+- [ ] Stochastic rollout() works
+- [ ] Discrete simulate() works
+- [ ] Discrete rollout() works
+- [ ] Discrete stochastic works
+- [ ] Plotting works with all result types
+- [ ] Examples run without errors
+
+### 9.3 Run Examples
+
+```bash
+for example in examples/*.py; do
+    echo "Running $example"
+    python "$example" || echo "FAILED: $example"
+done
+```
+
+### 9.4 Documentation Build
+
+```bash
+cd docs
+make html
+# Check for broken links or missing references
+```
+
+---
+
+## Phase 10: Migration Guide and Release
+
+**Estimated time**: 2 hours
+
+### 10.1 Create Migration Guide
+
+**File**: `MIGRATION_v1.0.md`
+
+Document all breaking changes with examples:
+
+```markdown
+# Migration Guide to v1.0
+
+## Breaking Changes
+
+### 1. Result Key Names
+- `'time'` → `'t'`
+- `'states'` → `'x'`
+- `'controls'` → `'u'`
+- `'time_steps'` → `'t'`
+
+### 2. Array Shapes
+All results now use time-major ordering:
+- Continuous: `(T, nx)` instead of `(nx, T)`
+- Discrete: `(T, nx)` instead of `(nx, T)`
+
+### 3. Method Signatures
+`simulate()` is now open-loop only:
 ```python
 # OLD
 result = system.simulate(x0, controller=my_controller, ...)
 
-# NEW
+# NEW - open-loop
+result = system.simulate(x0, u=u_func, ...)
+
+# NEW - closed-loop
 result = system.rollout(x0, controller=my_controller, ...)
 ```
 
-### 9.2 Update Discrete System Tests
+### 4. Migration Examples
 
-**Files**: `tests/systems/test_discrete_*.py`
+[Include comprehensive before/after examples]
 
-Update shape assertions:
-
-```python
-# OLD
-assert result['states'].shape == (nx, n_steps + 1)
-assert result['states'][0, :].shape == (n_steps + 1,)
-
-# NEW
-assert result['x'].shape == (n_steps + 1, nx)
-assert result['x'][:, 0].shape == (n_steps + 1,)
 ```
 
-### 9.3 Update Plotting Tests
+### 10.2 Update CHANGELOG
+**File**: `CHANGELOG.md`
 
-**Files**: `tests/ui/test_plotting.py`
+```markdown
+## [1.0.0] - 2025-XX-XX
 
-Verify tests pass with new format.
+### Breaking Changes
+- **Result format standardization**: All result dictionaries now use consistent keys ('t', 'x', 'u') and time-major shape convention (T, nx)
+- **Method separation**: `simulate()` is now open-loop only; use `rollout()` for closed-loop simulation with state feedback
+- **Type system**: Comprehensive result type hierarchy with 10 types for deterministic/stochastic variants
 
-### 9.4 Run All Tests
+### Added
+- `rollout()` method for closed-loop simulation on all system types
+- Stochastic variants: `SDESimulationResult`, `SDERolloutResult`, `DiscreteStochasticSimulationResult`, etc.
+- Union type `SystemResult` for polymorphic code
+- Complete type system in `cdesym.types.system_results`
+
+### Changed
+- All result arrays use time-major ordering: (T, nx) not (nx, T)
+- Result dictionary keys standardized: 't', 'x', 'u' (not 'time', 'states', 'controls')
+- `simulate()` signature: removed `controller` parameter, added `u` parameter
+
+### Migration
+See MIGRATION_v1.0.md for detailed migration guide.
+```
+
+### 10.3 Final Commit and Tag
 
 ```bash
-# Run full test suite
-pytest tests/ -v
+git add MIGRATION_v1.0.md CHANGELOG.md
+git commit -m "docs: Add migration guide and changelog for v1.0"
 
-# Fix any failures iteratively
-# Commit fixes as you go
-git add tests/
-git commit -m "test: Update all tests for time-major convention and API changes"
-```
+# Tag the release
+git tag -a v1.0.0 -m "Release v1.0.0: API standardization"
 
----
+# Merge to main
+git checkout main
+git merge refactor/v1.0-api-standardization
 
-## Phase 10: Update Examples and Tutorials
-
-### 10.1 Update Example Scripts
-
-**Files**: `examples/**/*.py`
-
-Update all example code:
-
-- Change `controller=` to `rollout()`
-- Update indexing for discrete systems
-- Update key access (`states` → `x`, `time` → `t`)
-
-```bash
-git add examples/
-git commit -m "docs: Update examples for refactored API"
-```
-
-### 10.2 Update Tutorial Notebooks
-
-**Files**: `tutorials/**/*.qmd` or `*.ipynb`
-
-Same changes as examples.
-
-```bash
-git add tutorials/
-git commit -m "docs: Update tutorials for refactored API"
-```
-
-### 10.3 Update basic_usage.qmd
-
-```python
-# Now can use either
-result = pendulum.simulate(x0, u=None, t_span=(0, 20), dt=0.05)
-# or
-result = pendulum.rollout(x0, controller=my_controller, t_span=(0, 20), dt=0.05)
-
-# Both work with plotting
-pendulum.plot(result)
-```
-
----
-
-## Phase 11: Update Documentation
-
-### 11.1 Update API Reference
-
-Update docstrings if needed (should be done in phases above).
-
-### 11.2 Update README
-
-**File**: `README.md`
-
-Update quick start examples:
-
-```python
-# Open-loop simulation
-result = system.simulate(x0, u=my_control_func, t_span=(0, 10), dt=0.01)
-
-# Closed-loop control
-result = system.rollout(x0, controller=feedback_controller, t_span=(0, 10), dt=0.01)
-
-# Access results (time-major)
-plt.plot(result['t'], result['x'][:, 0])  # First state
-```
-
-### 11.3 Add Migration Guide
-
-**File**: `docs/MIGRATION.md` or similar
-
-Document breaking changes and how to migrate.
-
-```bash
-git add README.md docs/
-git commit -m "docs: Update documentation for API refactoring"
-```
-
----
-
-## Phase 12: Final Verification
-
-### 12.1 Run Complete Test Suite
-
-```bash
-# Run all tests
-pytest tests/ -v --cov=cdesym
-
-# Check coverage
-coverage report
-```
-
-### 12.2 Build Documentation
-
-```bash
-# Build docs locally
-cd docs
-make html
-
-# Verify no warnings
-```
-
-### 12.3 Test Example Scripts
-
-```bash
-# Run all example scripts
-for script in examples/**/*.py; do
-    echo "Testing $script"
-    python $script || exit 1
-done
-```
-
-### 12.4 Render Tutorials
-
-```bash
-# Render Quarto tutorials
-cd tutorials
-quarto render
-
-# Check for errors
-```
-
----
-
-## Phase 13: Merge to Main
-
-### 13.1 Final Review
-
-```bash
-# Review all changes
-git log --oneline origin/main..HEAD
-
-# Review diff
-git diff origin/main
-```
-
-### 13.2 Push Branch
-
-```bash
-# Push all commits
-git push origin refactor/time-major-rollout
-```
-
-### 13.3 Create Pull Request (Optional)
-
-If using GitHub/GitLab:
-
-- Create PR from refactor branch to main
-- Review changes
-- Request review if working with team
-
-### 13.4 Merge to Main
-
-```bash
-# Switch to main
-git switch main
-
-# Pull latest (if collaborative)
-git pull origin main
-
-# Merge refactor branch
-git merge refactor/time-major-rollout
-
-# Or use squash merge for cleaner history
-git merge --squash refactor/time-major-rollout
-git commit -m "refactor: Standardize API to time-major convention with rollout() method
-
-Major breaking changes:
-- All systems now use time-major (T, nx) shape convention
-- Added rollout() method for closed-loop simulation
-- Refactored simulate() for open-loop only
-- Standardized result dict keys: 't', 'x', 'u'
-- ContinuousStochasticSystem now supports Monte Carlo in simulate()
-
-See REFACTORING_SUMMARY.md for complete details."
-
-# Push to remote
+# Push everything
 git push origin main
-```
-
-### 13.5 Tag Release
-
-```bash
-# Tag as pre-release (before v1.0)
-git tag -a v0.9.0 -m "Pre-release with API standardization"
-git push origin v0.9.0
-
-# Or tag as v1.0.0 if ready
-git tag -a v1.0.0 -m "First stable release with standardized API"
 git push origin v1.0.0
 ```
 
-### 13.6 Delete Refactor Branch (Optional)
+---
 
-```bash
-# Delete local branch
-git branch -d refactor/time-major-rollout
+## Troubleshooting Common Issues
 
-# Delete remote branch
-git push origin --delete refactor/time-major-rollout
+### Issue: Tests fail with "KeyError: 'states'"
+
+**Solution**: Search for `result['states']` and replace with `result['x']`
+
+### Issue: Shape assertions fail
+
+**Solution**: Update shape checks from `(nx, T)` to `(T, nx)`:
+
+```python
+# OLD
+assert result['states'].shape == (2, 1001)
+
+# NEW
+assert result['x'].shape == (1001, 2)
 ```
 
----
+### Issue: Plotting shows transposed data
 
-## Rollback Plan (If Needed)
+**Solution**: Check that you're accessing `result['x'][:, i]` not `result['x'][i, :]`
 
-If something goes wrong:
+### Issue: Controller signature errors
 
-### Option 1: Reset Branch
-
-```bash
-# On refactor branch, undo all commits
-git reset --hard origin/main
-
-# Start over
-```
-
-### Option 2: Revert Merge (If Already Merged)
-
-```bash
-# On main, revert the merge commit
-git revert -m 1 <merge-commit-hash>
-
-# Or reset to before merge (dangerous if pushed)
-git reset --hard HEAD~1
-```
-
-### Option 3: Cherry-Pick Good Commits
-
-```bash
-# Create new branch from main
-git switch -c refactor/time-major-rollout-v2 main
-
-# Cherry-pick commits that worked
-git cherry-pick <commit-hash>
-```
+**Solution**: Make sure controller signature is `controller(x, t)` not `controller(t, x)`
 
 ---
 
-## Estimated Timeline
+## Summary Checklist
 
-| Phase | Description | Estimated Time |
-|-------|-------------|----------------|
-| 0 | Preparation | 15 min |
-| 1 | Type definitions | 30 min |
-| 2 | Continuous base | 1 hour |
-| 3 | Continuous stochastic | 30 min |
-| 4 | Discrete base | 30 min |
-| 5 | Discrete symbolic | 1 hour |
-| 6 | Discrete stochastic | 1 hour |
-| 7 | Discretized system | 1.5 hours |
-| 8 | Plotting | 1 hour |
-| 9 | Tests | 2-3 hours |
-| 10 | Examples/tutorials | 2 hours |
-| 11 | Documentation | 1 hour |
-| 12 | Verification | 1 hour |
-| 13 | Merge | 30 min |
-| **Total** | | **~14-15 hours** |
+Before merging to main, verify:
 
----
+- [ ] All 10 result types defined in `system_results.py`
+- [ ] `trajectories.py` updated to import from `system_results`
+- [ ] `types/__init__.py` exports all new types
+- [ ] `rollout()` added to continuous systems
+- [ ] `simulate()` refactored to remove controller parameter
+- [ ] Stochastic systems override `simulate()` and `rollout()`
+- [ ] Discrete systems use time-major ordering
+- [ ] All tests updated and passing
+- [ ] All examples updated and working
+- [ ] Plotting infrastructure verified
+- [ ] Documentation updated
+- [ ] Migration guide created
+- [ ] CHANGELOG updated
+- [ ] Release tagged
 
-## Success Criteria
-
-- [ ] All tests pass
-- [ ] All examples run without errors
-- [ ] All tutorials render correctly
-- [ ] Documentation builds without warnings
-- [ ] No regressions in functionality
-- [ ] Code coverage maintained or improved
-- [ ] Git history is clean and logical
-
----
-
-## Post-Merge Tasks
-
-### Immediate
-
-- [ ] Update CHANGELOG.md
-- [ ] Announce breaking changes (if any users)
-- [ ] Update PyPI description (when releasing)
-
-### Before v1.0 PyPI Release
-
-- [ ] Final documentation review
-- [ ] Create comprehensive migration guide
-- [ ] Prepare release notes
-- [ ] Version bump to 1.0.0
-- [ ] Build and test package distribution
-- [ ] Upload to PyPI
-
----
-
-## Notes
-
-- **Commit often**: Small, logical commits are easier to review and debug
-- **Test frequently**: Run tests after each major phase
-- **Document as you go**: Update docstrings alongside code changes
-- **Keep backups**: Push to remote regularly
-- **Be patient**: This is a significant refactoring - take breaks!
+**Estimated total time**: ~78 hours (~2 weeks at 40 hours/week)
